@@ -32,7 +32,7 @@ There is a mant to many relationship between <a href="src/org/jboss/tutorial/rel
                      inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})
 </pre>
 </p><p>
-The <tt>isInverse</tt> switch specifies which side of the relationship is responsible for managing the relationship.  If it is set to false, then that side is responsible.  The spec allows for multiple join and inverse join columns, but JBoss only supports one column at this time.
+The <tt>isInverse</tt> switch specifies which side of the relationship is responsible for managing the relationship.  If it is set to false, then that side is responsible.  The spec allows for multiple join and inverse join columns.  See the <i>Composite Primary Key</i> tutorial for more information.
 </p><p>
 Let's look at the other side of the relationship in Flight.
 </p><p>
