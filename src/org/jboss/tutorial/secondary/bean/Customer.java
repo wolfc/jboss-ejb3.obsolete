@@ -16,7 +16,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "CUSTOMER")
-@SecondaryTable(name = "ADDRESS")
+@SecondaryTable(name = "EMBEDDED_ADDRESS")
 @JoinColumn(name = "ADDRESS_ID")
 public class Customer implements java.io.Serializable
 {
@@ -75,7 +75,7 @@ public class Customer implements java.io.Serializable
       this.last = last;
    }
 
-   @Column(name = "STREET", secondaryTable = "ADDRESS")
+   @Column(name = "STREET", secondaryTable = "EMBEDDED_ADDRESS")
    public String getStreet()
    {
       return street;
@@ -86,7 +86,7 @@ public class Customer implements java.io.Serializable
       this.street = street;
    }
 
-   @Column(name = "CITY", secondaryTable = "ADDRESS")
+   @Column(name = "CITY", secondaryTable = "EMBEDDED_ADDRESS")
    public String getCity()
    {
       return city;
@@ -97,7 +97,7 @@ public class Customer implements java.io.Serializable
       this.city = city;
    }
 
-   @Column(name = "STATE", secondaryTable = "ADDRESS")
+   @Column(name = "STATE", secondaryTable = "EMBEDDED_ADDRESS")
    public String getState()
    {
       return state;
@@ -108,7 +108,7 @@ public class Customer implements java.io.Serializable
       this.state = state;
    }
 
-   @Column(name = "ZIP", secondaryTable = "ADDRESS")
+   @Column(name = "ZIP", secondaryTable = "EMBEDDED_ADDRESS")
    public String getZip()
    {
       return zip;
