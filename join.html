@@ -8,23 +8,22 @@ queries as well.  So, if you queried based on the base class, the query is polym
 </p><p>
 The tutorial example uses the join table strategy to map an inheritance relationship of <a href="src/org/jboss/tutorial/joininheritance/bean/Pet.java">Pet</a>, which is the base class for <a href="src/org/jboss/tutorial/joininheritance/bean/Cat.java">Cat</a> and <a href="src/org/jboss/tutorial/joininheritance/bean/Dog.java">Dog</a>.
 </p><p>
-With the join table strategy there is a table per class in the hierarchy, but the subclass tables only have the extra attribute they define in their subclass.  A discriminator column is required to differentiate between which class type is persisted in a particular row.
+With the join table strategy there is a table per class in the hierarchy, but the subclass tables only have the extra attribute they define in their subclass.
+A discriminator column is <i>NOT</i> required to differentiate between which class type is persisted in a particular row unlike the
+single table mapping.  The persistence manager does not need a discrimiator column to figure out the type.
 </p><p>
 This is what the annotations look like for Pet.
 </p><p>
 <pre>
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorColumn(name = "ANIMAL_TYPE", nullable = true)
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Pet implements java.io.Serializable
 {
 </pre>
 </p><p>
-The <tt>@DiscriminatorColumn</tt> specifies the column that will hold the type of the persisted entity.  For subclasses, they must define the value of the discriminator column that will identify the class.
-</p><p>
 <pre>
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "DOG")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Dog extends Pet
 {
 </pre>
