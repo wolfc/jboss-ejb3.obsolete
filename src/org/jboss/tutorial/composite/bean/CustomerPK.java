@@ -6,7 +6,8 @@
  */
 package org.jboss.tutorial.composite.bean;
 
-import javax.ejb.Embeddable;
+import javax.persistence.Embeddable;
+import javax.persistence.Embeddable;
 
 /**
  * Comment

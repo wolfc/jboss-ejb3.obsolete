@@ -6,9 +6,10 @@
  */
 package org.jboss.tutorial.composite.bean;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
 
 import java.util.HashSet;
 import java.util.Set;

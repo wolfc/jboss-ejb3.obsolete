@@ -1,13 +1,17 @@
 //$Id$
 package org.jboss.tutorial.composite.bean;
 
-import javax.ejb.AttributeOverride;
-import javax.ejb.CascadeType;
-import javax.ejb.EmbeddedId;
+import javax.persistence.AttributeOverride;
+import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Transient;
 import javax.ejb.Entity;
-import javax.ejb.FetchType;
-import javax.ejb.ManyToMany;
-import javax.ejb.Transient;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
+import javax.persistence.ManyToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import java.util.Set;
 
 /**
@@ -43,7 +47,7 @@ public class Customer implements java.io.Serializable
       return pk.getName();
    }
 
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
    public Set<Flight> getFlights()
    {
       return flights;
