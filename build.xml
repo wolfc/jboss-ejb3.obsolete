@@ -23,7 +23,7 @@
       <fileset dir="${jboss.home}/server/all/deploy/ejb3.deployer">
          <include name="*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/all/deploy/jboss-aop-jdk50.deployer">
+      <fileset dir="${jboss.home}/server/all/deploy/jboss-aop.deployer">
          <include name="*.jar"/>
       </fileset>
       <pathelement location="${build.classes.dir}"/>
