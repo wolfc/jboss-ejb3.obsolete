@@ -25,7 +25,7 @@ import java.util.HashMap;
  * @version $Revision$
  */
 @Stateless
-public class LobTesterBean implements org.jboss.ejb3.test.lob.LobTester
+public class LobTesterBean implements LobTester
 {
 
    @Inject EntityManager manager;

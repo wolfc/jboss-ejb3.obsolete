@@ -3,7 +3,18 @@
 <p>
 <h2>java.sql.Blob and Clob support</h2>
 
-The EJB 3.0 specification has support for Blob and Clob types.  You just need to use the <tt>@javax.ejb.Lob</tt>.  The <tt>Lob</tt> annotation is an
+The EJB 3.0 specification has support for Blob and Clob types.  The specification allows you to map the following types to
+an entity property:
+<ul>
+<li><tt>java.sql.Blob</tt></li>
+<li> <tt>java.sql.Clob</tt></li>
+<li> any Serializable Object</li>
+<li> <pre>byte[], Byte[]</pre></li>
+<li> <pre>char[], String, Character[] </pre></li>
+</ul>
+</p><p>
+JBoss EJB3 Preview 3 only supports Blob and Clob property types.  To use this feature just need to use the <tt>@javax.ejb.Lob</tt> annotation.
+The <tt>Lob</tt> annotation is an
 encapsulation of what type of lob you want.  Below is an example of defining fields in an entity that are blobs or clobs.
 </p><p>
 <pre>
