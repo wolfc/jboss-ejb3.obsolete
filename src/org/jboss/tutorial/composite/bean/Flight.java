@@ -85,8 +85,8 @@ public class Flight implements java.io.Serializable
 
    @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER)
    @AssociationTable(table = @Table(name = "flight_customer_table"),
-   joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
-   inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
+                     joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
+                     inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
    public Set<Customer> getCustomers()
    {
       return customers;
