@@ -6,9 +6,9 @@
  */
 package org.jboss.tutorial.dependent.bean;
 
+import javax.ejb.AttributeOverride;
 import javax.ejb.Column;
-import javax.ejb.Dependent;
-import javax.ejb.DependentAttribute;
+import javax.ejb.Embedded;
 import javax.ejb.Entity;
 import javax.ejb.GeneratorType;
 import javax.ejb.Id;
@@ -50,9 +50,9 @@ public class Customer implements java.io.Serializable
    }
 
 
-   @Dependent({
-   @DependentAttribute(name = "first", column = {@Column(name = "FIRST_NAME")}),
-   @DependentAttribute(name = "last", column = {@Column(name = "LAST_NAME")})
+   @Embedded({
+   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
+   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
    })
    public Name getName()
    {

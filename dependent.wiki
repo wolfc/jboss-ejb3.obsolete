@@ -3,10 +3,10 @@ The EJB specification allows you to embed plain Java objects within your entity 
 
 The [Customer|src/org/jboss/tutorial/dependent/bean/Customer.java] bean encapsulates the name of the customer in the [Name|src/org/jboss/tutorial/dependent/bean/Name.java] value object.
 
-The [Name|src/org/jboss/tutorial/dependent/bean/Name.java] value object must be tagged with the {{@DependentObject}} annotation.
+The [Name|src/org/jboss/tutorial/dependent/bean/Name.java] value object must be tagged with the {{@Embeddable}} annotation.
 
 {{{
-@DependentObject(access = AccessType.PROPERTY)
+@Embeddable(access = AccessType.PROPERTY)
 public class Name implements java.io.Serializable
 {
 }}
@@ -15,9 +15,9 @@ public class Name implements java.io.Serializable
 The properties of Name must then be mapped to columns within Customer's table.
 
 {{{
-   @Dependent({
-   @DependentAttribute(name = "first", column = {@Column(name = "FIRST_NAME")}),
-   @DependentAttribute(name = "last", column = {@Column(name = "LAST_NAME")})
+   @Embedded({
+   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
+   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
    })
    public Name getName()
    {
