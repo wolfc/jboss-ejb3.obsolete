@@ -11,10 +11,8 @@ import javax.ejb.Entity;
 import javax.ejb.FetchType;
 import javax.ejb.GeneratorType;
 import javax.ejb.Id;
-import javax.ejb.JoinColumn;
 import javax.ejb.OneToMany;
 import javax.ejb.Table;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -59,8 +57,7 @@ public class Order implements java.io.Serializable
       total += quantity * price;
    }
 
-   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @JoinColumn(name = "order_id")
+   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy="order")
    public Collection<LineItem> getLineItems()
    {
       return lineItems;
