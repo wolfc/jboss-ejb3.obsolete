@@ -6,13 +6,14 @@
  */
 package org.jboss.tutorial.singleinheritance.bean;
 
-import javax.ejb.DiscriminatorColumn;
-import javax.ejb.DiscriminatorType;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.Inheritance;
-import javax.ejb.InheritanceType;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING)

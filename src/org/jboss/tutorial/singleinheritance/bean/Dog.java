@@ -6,10 +6,13 @@
  */
 package org.jboss.tutorial.singleinheritance.bean;
 
-import javax.ejb.DiscriminatorType;
+import javax.persistence.DiscriminatorType;
 import javax.ejb.Entity;
-import javax.ejb.Inheritance;
-import javax.ejb.InheritanceType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Inheritance;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "DOG")
