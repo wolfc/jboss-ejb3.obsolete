@@ -6,13 +6,15 @@
  */
 package org.jboss.tutorial.secondary.bean;
 
-import javax.ejb.Column;
+import javax.persistence.Column;
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.JoinColumn;
-import javax.ejb.SecondaryTable;
-import javax.ejb.Table;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.SecondaryTable;
+import javax.persistence.Table;
+import javax.persistence.SecondaryTable;
+import javax.persistence.Column;
 
 @Entity
 @Table(name = "CUSTOMER")
