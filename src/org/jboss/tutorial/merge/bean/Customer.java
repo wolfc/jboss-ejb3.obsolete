@@ -8,12 +8,13 @@ package org.jboss.tutorial.merge.bean;
 
 import javax.ejb.Column;
 import javax.ejb.Entity;
+import javax.ejb.GeneratorType;
 import javax.ejb.Id;
 import javax.ejb.Table;
 
 @Entity
-        @Table(name = "CUSTOMER")
-        public class Customer implements java.io.Serializable
+@Table(name = "CUSTOMER")
+public class Customer implements java.io.Serializable
 {
    private int id;
    private String first;
@@ -37,8 +38,8 @@ import javax.ejb.Table;
       this.zip = zip;
    }
 
-   @Id
-           public int getId()
+   @Id(generate = GeneratorType.AUTO)
+   public int getId()
    {
       return id;
    }
@@ -49,7 +50,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "FIRST")
-           public String getFirst()
+   public String getFirst()
    {
       return first;
    }
@@ -60,7 +61,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "LAST")
-           public String getLast()
+   public String getLast()
    {
       return last;
    }
@@ -71,7 +72,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STREET")
-           public String getStreet()
+   public String getStreet()
    {
       return street;
    }
@@ -82,7 +83,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "CITY")
-           public String getCity()
+   public String getCity()
    {
       return city;
    }
@@ -93,7 +94,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STATE")
-           public String getState()
+   public String getState()
    {
       return state;
    }
@@ -104,7 +105,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "ZIP")
-           public String getZip()
+   public String getZip()
    {
       return zip;
    }

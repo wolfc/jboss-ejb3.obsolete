@@ -11,7 +11,7 @@ import javax.ejb.Remote;
 import java.util.List;
 
 @Remote
-        public interface CustomerDAO
+public interface CustomerDAO
 {
    int create(String first, String last, String street, String city, String state, String zip);
 

@@ -8,13 +8,15 @@ package org.jboss.tutorial.merge.bean;
 
 import javax.ejb.EntityManager;
 import javax.ejb.Inject;
+import javax.ejb.Stateless;
 
 import java.util.List;
 
+@Stateless
 public class CustomerDAOBean implements CustomerDAO
 {
    @Inject
-           private EntityManager manager;
+   private EntityManager manager;
 
 
    public int create(String first, String last, String street, String city, String state, String zip)
