@@ -11,7 +11,7 @@ use the transaction and security annotations of EJB 3.0.
 Using transactions is easy, just use the <tt>javax.ejb.TransactionAttribute</tt> annotation.  The <tt>javax.ejb.TransactionAttributeType</tt> enum has every transactional type.
 </p><p>
 <pre>
-    @TransactionAttribute(TransactionAttributeType.REQUIRESNEW)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public int add(int x, int y)
    {
       return x + y;

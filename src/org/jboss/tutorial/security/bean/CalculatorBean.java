@@ -19,7 +19,7 @@ import javax.ejb.Unchecked;
 public class CalculatorBean implements Calculator
 {
    @Unchecked
-   @TransactionAttribute(TransactionAttributeType.REQUIRESNEW)
+   @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
    public int add(int x, int y)
    {
       return x + y;
