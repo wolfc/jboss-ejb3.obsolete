@@ -37,7 +37,7 @@ The <tt>EntityManager</tt> service has a built in find by primary key method: <t
 <pre>
    public List findByLastName(String name)
    {
-      return manager.createQuery("from Customer c where c.last = :name").setParameter("name", name).listResults();
+      return manager.createQuery("from Customer c where c.last = :name").setParameter("name", name).getResultList();
    }
 </pre>
 </p><p>
