@@ -7,7 +7,7 @@
 package org.jboss.tutorial.merge.bean;
 
 import javax.persistence.Column;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.Table;
