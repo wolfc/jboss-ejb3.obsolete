@@ -1,0 +1,146 @@
+!!!EJB Interceptors
+The EJB 3.0 spec defines the ability to apply custom made interceptors to the business methods of your session beans, and
+to your message driven beans. EJB 3.0 interceptors take the form of methods annotated with the {{@javax.ejb.AroundInvoke}}
+annotation. These methods must have the following signature:
+
+{{{
+   @javax.ejb.AroundInvoke
+   public Object <Arbitrary method name>(javax.ejb.InvocationContext ctx) throws java.lang.Exception
+}}}
+
+You can either define an interceptor method in the bean class itself, or in separate classes.
+
+!Interceptor method in bean class
+
+Take a look at [EmailMDB.java|src/org/jboss/tutorial/interceptor/bean/EmailMDB.java]. It contains this method:
+{{{
+   @AroundInvoke
+   public Object mdbInterceptor(InvocationContext ctx) throws Exception
+   {
+      System.out.println("*** Intercepting call to EmailMDB.mdbInterceptor()");
+      return ctx.proceed();
+   }
+}}}
+
+This method will wrap the call to EmailMDB.onMessage(). The call to ctx.proceed() causes the next object in the chain of
+interceptors to get invoked. At the end of the chain of interceptors, the actual bean method gets called.
+
+!Interceptors defined in additional classes
+Take a look at [EmailSystemBean.java|src/org/jboss/tutorial/interceptor/bean/EmailSystemBean.java]. The class has been
+annotated:
+
+{{{
+   @Stateless
+   @Interceptors ({@Interceptor(TracingInterceptor.class), @Interceptor(OtherInterceptor.class)})
+   public class EmailSystemBean
+   {
+      ...
+   }
+}}}
+
+This means that TracingInterceptor and OtherInterceptor wrap all calls to this bean's business methods.
+If you look at [TracingInterceptor.java|src/org/jboss/tutorial/interceptor/bean/TracingInterceptor.java] and
+[OtherInterceptor.java|src/org/jboss/tutorial/interceptor/bean/OtherInterceptor.java], you will see that they
+both contain an @AroundInvoke method each. They wrap the calls to the business methods of EmailSystemBean. In addition,
+EmailSystemBean contains an interceptor method defined on the bean class itself;
+
+{{{
+   @AroundInvoke
+   public Object myBeanInterceptor(InvocationContext ctx) throws Exception
+   {
+      if (ctx.getMethod().getName().equals("emailLostPassword"))
+      {
+         System.out.println("*** EmailSystemBean.myBeanInterceptor - username: " + ctx.getParameters()[0]);
+      }
+
+      return ctx.proceed();
+   }
+}}}
+
+
+If a bean contains only one external interceptor class, you can use the {{@javax.ejb.Interceptor}} annotation instead of
+{{@javax.ejb.Interceptors}}:
+{{{
+   @Stateless
+   @Interceptor(MyInterceptor.class)
+   public class MyBean
+   {
+      ...
+   }
+}}}
+
+!Ordering of interceptors
+In the case of several interceptors for a bean, they are invoked in the following order:
+#If present, the interceptors from the @Interceptors annotation on the bean class are invoked in the order they were specified. (If the @Interceptor annotation was used instead, that one interceptor is used.)
+#The @AroundInvoke method of the bean class is invoked.
+
+So for the example provided, when invoking business methods on the EmailSystem bean, this is the ordering of interceptors:
+{{{
+   TracingInterceptor.log()
+      wraps calls to
+   OtherInterceptor.intercept()
+      wraps calls to
+   EmailSystemBean.myBeanInterceptor()
+      wraps calls to
+   EmailSystemBean business methods
+}}}
+and when EmailMDB receives a message
+{{{
+   EmailMDB.mdbInterceptor()
+      wraps calls to
+   EmailMDB.onMessage()
+}}}
+
+!InvocationContext
+As you have seen the @AroundInvoke annotated interceptor methods all take a parameter of type {{javax.ejb.InvocationContext}}.
+The definition of InvocationContext is:
+{{{
+   package javax.ejb;
+
+   public interface InvocationContext {
+      public Object getBean();
+      public java.lang.reflect.Method getMethod();
+      public Object[] getParameters();
+      public void setParameters(Object[] params);
+      public EJBContext getEJBContext();
+      public java.util.Map getContextData();
+      public Object proceed() throws Exception;
+   }
+}}}
+
+*{{getBean()}} - returns the bean instance on which we are calling a method
+*{{getMethod()}} - returns the method we are calling on the bean instance
+*{{getParameters()}} - returns the parameters for the method call
+*{{setParameters()}} - allows you to modify the parameters for the method call
+*{{getEJBContext()}} - gives the interceptor methods access to the bean's EJBContext. (The AroundInvoke methods share the JNDI name space of the bean for whose methods they are invoked and execute within the same transaction and security context as the business methods for which they are invoked.)
+*{{getContextData}} - The EJB interceptions are stateless, but the same InvocationContext instance is used for each interceptor method in a chain. If you want to pass values between interceptor methods in the business method invocation you can store them in the Map retured by getContextData().
+*{{proceed}} - As discussed, invokes the next interceptor, or if we are in the last interceptor invokes the target bean method.
+
+!Building and Running
+To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.
+{{{
+Unix:    $ export JBOSS_HOME=<where your jboss 4.0 distribution is>
+Windows: $ set JBOSS_HOME=<where your jboss 4.0 distribution is>
+$ ant
+$ ant run
+
+}}}
+
+Look at the JBoss console window to see the output of the interceptions taking place
+
+{{{
+15:51:27,847 INFO  [STDOUT] *** TracingInterceptor intercepting
+15:51:27,847 INFO  [STDOUT] *** OtherInterceptor intercepting
+15:51:27,847 INFO  [STDOUT] *** EmailSystemBean.myBeanInterceptor - username: whatever
+15:51:27,847 INFO  [STDOUT] ----------------
+15:51:27,847 INFO  [STDOUT] In EmailSystemBean business method
+15:51:27,847 INFO  [STDOUT] ----------------
+15:51:27,857 INFO  [STDOUT] Message sent successfully to remote queue.
+15:51:27,857 INFO  [STDOUT] *** TracingInterceptor invocation of org.jboss.tutorial.interceptor.bean.EmailSystemBean.emailLostPassword() took 10ms
+15:51:27,867 INFO  [STDOUT] *** EmailMDB.mdbInterceptor intercepting
+15:51:27,867 INFO  [STDOUT] ----------------
+15:51:27,867 INFO  [STDOUT] Got message, sending email
+15:51:27,867 INFO  [STDOUT] ----------------
+}}}
+
+
