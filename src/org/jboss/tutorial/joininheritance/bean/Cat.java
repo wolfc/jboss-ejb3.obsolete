@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.joininheritance.bean;
 
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 
