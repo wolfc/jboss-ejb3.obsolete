@@ -6,9 +6,10 @@
  */
 package org.jboss.tutorial.dependent.bean;
 
+import javax.ejb.AccessType;
 import javax.ejb.DependentObject;
 
-@DependentObject
+@DependentObject(access = AccessType.PROPERTY)
 public class Name implements java.io.Serializable
 {
    private String first;
