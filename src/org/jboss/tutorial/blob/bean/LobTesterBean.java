@@ -8,9 +8,10 @@ package org.jboss.tutorial.blob.bean;
 
 import org.hibernate.Hibernate;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

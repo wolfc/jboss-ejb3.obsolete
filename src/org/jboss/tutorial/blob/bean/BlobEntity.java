@@ -7,11 +7,14 @@
 package org.jboss.tutorial.blob.bean;
 
 import javax.ejb.Entity;
-import javax.ejb.FetchType;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.Lob;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.ejb.LobType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.FetchType;
 
 import java.io.Serializable;
 import java.sql.Blob;
