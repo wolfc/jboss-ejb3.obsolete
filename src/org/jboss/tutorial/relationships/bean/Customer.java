@@ -1,7 +1,6 @@
 //$Id$
 package org.jboss.tutorial.relationships.bean;
 
-import javax.ejb.AssociationTable;
 import javax.ejb.CascadeType;
 import javax.ejb.Entity;
 import javax.ejb.FetchType;
@@ -10,8 +9,6 @@ import javax.ejb.Id;
 import javax.ejb.JoinColumn;
 import javax.ejb.ManyToMany;
 import javax.ejb.OneToOne;
-import javax.ejb.Table;
-
 import java.util.Set;
 
 /**
@@ -64,10 +61,7 @@ public class Customer implements java.io.Serializable
       this.address = address;
    }
 
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, isInverse = true)
-   @AssociationTable(table = @Table(name = "flight_customer_table"),
-   joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
-   inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})
+   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="custoemrs")
    public Set<Flight> getFlights()
    {
       return flights;
