@@ -9,7 +9,7 @@ package org.jboss.tutorial.dependent.bean;
 import javax.persistence.AttributeOverride;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,6 +17,7 @@ import javax.persistence.Column;
 import javax.persistence.AttributeOverride;
 import javax.persistence.Embedded;
 import javax.persistence.GeneratorType;
+import javax.persistence.Entity;
 
 @Entity
 @Table(name = "CUSTOMER")
