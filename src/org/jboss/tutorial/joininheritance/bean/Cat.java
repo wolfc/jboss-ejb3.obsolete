@@ -7,8 +7,8 @@
 package org.jboss.tutorial.joininheritance.bean;
 
 import javax.ejb.Entity;
-import javax.ejb.Inheritance;
-import javax.ejb.InheritanceType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
