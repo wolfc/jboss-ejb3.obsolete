@@ -85,7 +85,7 @@ There is a mant to many relationship between [Customer|src/org/jboss/tutorial/co
   The {{@AssociationTable}} must be defined on both sides of the bi-directional relationship.  Let's look at the Customer side of the relationship
 
 {{{
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, isInverse = true)
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, isInverse = true)
    @AssociationTable(table = @Table(name = "flight_customer_table"),
    joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
    inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
@@ -102,7 +102,7 @@ In this example, we are specifying multiple {{inverseJoinColumns}} because Custo
 Let's look at the other side of the relationship in Flight.
 
 {{{
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
    @AssociationTable(table = @Table(name = "flight_customer_table"),
    joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
    inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
