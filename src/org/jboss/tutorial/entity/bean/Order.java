@@ -7,7 +7,7 @@
 package org.jboss.tutorial.entity.bean;
 
 import javax.persistence.CascadeType;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;

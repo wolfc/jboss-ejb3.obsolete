@@ -6,11 +6,12 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Entity;
 
 @Entity
 public class LineItem implements java.io.Serializable
