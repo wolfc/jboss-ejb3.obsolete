@@ -6,13 +6,13 @@
  */
 package org.jboss.tutorial.callback.bean;
 
-import javax.ejb.PreCreate;
-import javax.ejb.PostCreate;
-import javax.ejb.PreRemove;
-import javax.ejb.PostRemove;
-import javax.ejb.PreUpdate;
-import javax.ejb.PostUpdate;
-import javax.ejb.PostLoad;
+import javax.persistence.PreRemove;
+import javax.persistence.PostRemove;
+import javax.persistence.PreUpdate;
+import javax.persistence.PostUpdate;
+import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import javax.persistence.PostPersist;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -20,16 +20,16 @@ import javax.ejb.PostLoad;
  */
 public class CustomerCallbackListener
 {
-   @PreCreate
-   public void doPreCreate(Customer customer)
+   @PrePersist
+   public void doPrePersist(Customer customer)
    {
-      System.out.println("doPreCreate: About to create Customer: " + customer.getFirst() + " " + customer.getLast());
+      System.out.println("doPrePersist: About to create Customer: " + customer.getFirst() + " " + customer.getLast());
    }
 
-   @PostCreate
-   public void doPostCreate(Object customer)
+   @PostPersist
+   public void doPostPersist(Object customer)
    {
-      System.out.println("doPostCreate: Created Customer: " + ((Customer)customer).getFirst() + " " + ((Customer)customer).getLast());
+      System.out.println("doPostPersist: Created Customer: " + ((Customer)customer).getFirst() + " " + ((Customer)customer).getLast());
    }
 
    @PreRemove

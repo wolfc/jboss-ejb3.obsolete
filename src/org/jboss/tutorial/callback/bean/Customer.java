@@ -6,19 +6,16 @@
  */
 package org.jboss.tutorial.callback.bean;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
 import javax.ejb.Entity;
+import javax.persistence.Column;
+import javax.persistence.EntityListener;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.ejb.CallbackListener;
 
 @Entity
 @Table(name = "CUSTOMER")
-@CallbackListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")      
+@EntityListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")      
 public class Customer implements java.io.Serializable
 {
    private int id;
