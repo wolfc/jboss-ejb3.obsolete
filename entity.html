@@ -36,8 +36,7 @@ If the table name isn't specified it defaults to the bean name of the class.  Fo
 The Order bean also defines a one to many relationship.
 </p><p>
 <pre>
-   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-   @JoinColumn(name = "order_id")
+   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy="order")
    public Collection&lt;LineItem&gt; getLineItems()
    {
       return lineItems;
@@ -50,7 +49,8 @@ Generics must be used so that the container can determine the bean order is rela
 </p><p>
 <tt>FetchType.EAGER</tt> specifies that when the Order is loaded whether or not to prefetch the relationship as well.  If you want the LineItems to be loaded on demand, then specify <tt>FetchType.LAZY</tt>.
 </p><p>
-The <tt>@JoinColumn</tt> annotation must be specified and references the database column on LineItem that holds the foreign key pointing to the order.  This also is required to be set.
+The <tt>mappedBy</tt> attribute specifies that this is a bi-directional relationship that is managed by the order property
+on the LineItem entity bean.
 </p><p>
 <h4>Many to One Relationship</h4>
 
