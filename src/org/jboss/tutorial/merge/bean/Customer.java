@@ -6,11 +6,14 @@
  */
 package org.jboss.tutorial.merge.bean;
 
-import javax.ejb.Column;
+import javax.persistence.Column;
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.Table;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Id;
 
 @Entity
 @Table(name = "CUSTOMER")
