@@ -6,11 +6,12 @@
  */
 package org.jboss.tutorial.callback.bean;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
 import javax.ejb.PostConstruct;
 import javax.ejb.PreDestroy;
+import javax.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Iterator;
