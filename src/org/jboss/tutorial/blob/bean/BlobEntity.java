@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.blob.bean;
 
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
