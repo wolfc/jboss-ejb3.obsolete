@@ -35,7 +35,7 @@ public class Dog extends Pet
 <pre>
    public List findByWeight(double weight)
    {
-      return manager.createQuery("from Pet p where p.weight &lt; :weight").setParameter("weight", weight).listResults();
+      return manager.createQuery("from Pet p where p.weight &lt; :weight").setParameter("weight", weight).getResultList();
    }
 </pre>
 </p><p>

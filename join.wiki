@@ -30,7 +30,7 @@ public class Dog extends Pet
 {{{
    public List findByWeight(double weight)
    {
-      return manager.createQuery("from Pet p where p.weight < :weight").setParameter("weight", weight).listResults();
+      return manager.createQuery("from Pet p where p.weight < :weight").setParameter("weight", weight).getResultList();
    }
 }}}
 

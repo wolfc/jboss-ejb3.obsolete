@@ -24,7 +24,7 @@ public class PetDAOBean implements PetDAO
       dog.setName(name);
       dog.setWeight(weight);
       dog.setNumBones(bones);
-      manager.create(dog);
+      manager.persist(dog);
    }
 
    public void createCat(String name, double weight, int lives)
@@ -33,11 +33,11 @@ public class PetDAOBean implements PetDAO
       dog.setName(name);
       dog.setWeight(weight);
       dog.setNumBones(lives);
-      manager.create(dog);
+      manager.persist(dog);
    }
 
    public List findByWeight(double weight)
    {
-      return manager.createQuery("from Pet p where p.weight < :weight").setParameter("weight", weight).listResults();
+      return manager.createQuery("from Pet p where p.weight < :weight").setParameter("weight", weight).getResultList();
    }
 }
