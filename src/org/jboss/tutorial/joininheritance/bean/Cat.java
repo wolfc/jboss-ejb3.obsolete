@@ -6,13 +6,12 @@
  */
 package org.jboss.tutorial.joininheritance.bean;
 
-import javax.ejb.DiscriminatorType;
 import javax.ejb.Entity;
 import javax.ejb.Inheritance;
 import javax.ejb.InheritanceType;
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "CAT")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Cat extends Pet
 {
    int lives;
