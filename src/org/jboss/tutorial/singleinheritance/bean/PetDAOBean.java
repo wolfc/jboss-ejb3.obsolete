@@ -13,10 +13,10 @@ import javax.ejb.Stateless;
 import java.util.List;
 
 @Stateless
-        public class PetDAOBean implements PetDAO
+public class PetDAOBean implements PetDAO
 {
    @Inject
-           private EntityManager manager;
+   private EntityManager manager;
 
    public void createDog(String name, double weight, int bones)
    {

@@ -12,8 +12,8 @@ import javax.ejb.Inheritance;
 import javax.ejb.InheritanceType;
 
 @Entity
-        @Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "CAT")
-        public class Cat extends Pet
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "CAT")
+public class Cat extends Pet
 {
    int lives;
 

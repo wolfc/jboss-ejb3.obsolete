@@ -7,8 +7,8 @@
 package org.jboss.tutorial.singleinheritance.Client;
 
 
-import org.jboss.tutorial.tableperinheritance.bean.Pet;
-import org.jboss.tutorial.tableperinheritance.bean.PetDAO;
+import org.jboss.tutorial.singleinheritance.bean.Pet;
+import org.jboss.tutorial.singleinheritance.bean.PetDAO;
 
 import javax.naming.InitialContext;
 
