@@ -11,7 +11,7 @@ import javax.ejb.Remote;
 import java.util.List;
 
 @Remote
-        public interface PetDAO
+public interface PetDAO
 {
    void createDog(String name, double weight, int bones);
 

@@ -12,8 +12,8 @@ import javax.ejb.Inheritance;
 import javax.ejb.InheritanceType;
 
 @Entity
-        @Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "CAT")
-        public class Cat extends Pet
+@Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "CAT")
+public class Cat extends Pet
 {
    int lives;
 

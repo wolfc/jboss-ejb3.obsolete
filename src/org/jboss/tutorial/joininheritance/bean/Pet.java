@@ -9,21 +9,22 @@ package org.jboss.tutorial.joininheritance.bean;
 import javax.ejb.DiscriminatorColumn;
 import javax.ejb.DiscriminatorType;
 import javax.ejb.Entity;
+import javax.ejb.GeneratorType;
 import javax.ejb.Id;
 import javax.ejb.Inheritance;
 import javax.ejb.InheritanceType;
 
 @Entity
-        @Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING)
-        @DiscriminatorColumn(name = "ANIMAL_TYPE", nullable = true)
-        public class Pet implements java.io.Serializable
+@Inheritance(strategy = InheritanceType.JOINED, discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "ANIMAL_TYPE", nullable = true)
+public class Pet implements java.io.Serializable
 {
    private int id;
    private String name;
    private double weight;
 
-   @Id
-           public int getId()
+   @Id(generate = GeneratorType.AUTO)
+   public int getId()
    {
       return id;
    }
