@@ -33,8 +33,8 @@ The callbacks defined for each bean are shown below:
 <h3>Entity bean callbacks</h3>
 
 <ul>
-<li> <tt>PreCreate</tt> - Is invoked right before the entity is created in the database. Will cascade to all entities to which this operation is cascaded.</li>
-<li> <tt>PostCreate</tt> - Is invoked right after the entity is created in the database. Will cascade to all entities to which this operation is cascaded.</li>
+<li> <tt>PrePersist</tt> - Is invoked right before the entity is created in the database. Will cascade to all entities to which this operation is cascaded.</li>
+<li> <tt>PostPersist</tt> - Is invoked right after the entity is created in the database. Will cascade to all entities to which this operation is cascaded.</li>
 <li> <tt>PreRemove</tt> - Is invoked right before the entity is deleted in the database. Will cascade to all entities to which this operation is cascaded.</li>
 <li> <tt>PostRemove</tt> - Is invoked right after the entity is deleted in the database. Will cascade to all entities to which this operation is cascaded.</li>
 <li> <tt>PreUpdate</tt> - Takes place right before the database is updated.</li>
@@ -52,8 +52,9 @@ You use the callbacks listed above by either annotating methods in the bean clas
 <h3>Using callbacks and a callback listener</h3>
 
 You can also separate out the callbacks into a separate CallbackListener class. Take a look at the <a href="src/org/jboss/tutorial/callback/bean/Customer.java">Customer</a> entity bean, and you will see that the class has been annotated with
-<pre>@javax.ejb.CallbackListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")</pre> This specifies that the <tt>org.jboss.tutorial.callback.bean.CustomerCallbackListener</tt> class should be used as the callback listener class for the bean. Now open <a href="src/org/jboss/tutorial/callback/bean/CustomerCallbackListener.java">CustomerCallbackListener</a> and you will see that the class annotates the callback methods in the same way as when defining callbacks on the bean class itself. However, one <b>important difference</b> is that callback methods defined in a listener class must take a single argument, which will be the bean we are working with. The parameter must be of type <tt>java.lang.Object</tt>, or the actual bean type.
+<pre>@javax.persistence.EntityListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")</pre> This specifies that the <tt>org.jboss.tutorial.callback.bean.CustomerCallbackListener</tt> class should be used as the callback listener class for the bean. Now open <a href="src/org/jboss/tutorial/callback/bean/CustomerCallbackListener.java">CustomerCallbackListener</a> and you will see that the class annotates the callback methods in the same way as when defining callbacks on the bean class itself. However, one <b>important difference</b> is that callback methods defined in a listener class must take a single argument, which will be the bean we are working with. The parameter must be of type <tt>java.lang.Object</tt>, or the actual bean type.
 </p><p>
+You can define callback listeners on session and message-driven beans in exactly the same way, the only difference is you use the <tt>javax.ejb.CallbackListener</tt> annotation instead.
 </p><p>
 <h4>Building and Running</h4>
 
@@ -78,11 +79,11 @@ In the jboss console window you should see:
 <pre>
 20:06:05,596 INFO  [STDOUT] PostConstruct - Have EntityManager: true
 20:06:05,596 INFO  [STDOUT] -- CustomerDAOBean.create()
-20:06:05,596 INFO  [STDOUT] doPreCreate: About to create Customer: Bill Burke
-20:06:05,596 INFO  [STDOUT] doPostCreate: Created Customer: Bill Burke
+20:06:05,596 INFO  [STDOUT] doPrePersist: About to create Customer: Bill Burke
+20:06:05,596 INFO  [STDOUT] doPostPersist: Created Customer: Bill Burke
 20:06:05,617 INFO  [STDOUT] -- CustomerDAOBean.create()
-20:06:05,617 INFO  [STDOUT] doPreCreate: About to create Customer: Monica Smith
-20:06:05,617 INFO  [STDOUT] doPostCreate: Created Customer: Monica Smith
+20:06:05,617 INFO  [STDOUT] doPrePersist: About to create Customer: Monica Smith
+20:06:05,617 INFO  [STDOUT] doPostPersist: Created Customer: Monica Smith
 20:06:05,617 INFO  [STDOUT] -- CustomerDAOBean.find()
 20:06:05,627 INFO  [STDOUT] doPostLoad: Loaded Customer: Monica Smith
 20:06:05,627 INFO  [STDOUT] -- CustomerDAOBean.merge()
@@ -109,15 +110,15 @@ and restart JBoss before running the example again, the output should be:
 <pre>
 20:22:10,013 INFO  [STDOUT] PostConstruct - Have EntityManager: true
 20:22:10,033 INFO  [STDOUT] -- CustomerDAOBean.create()
-20:22:10,103 INFO  [STDOUT] doPreCreate: About to create Customer: Bill Burke
+20:22:10,103 INFO  [STDOUT] doPrePersist: About to create Customer: Bill Burke
 20:22:10,123 INFO  [STDOUT] Hibernate: insert into CUSTOMER (STATE, FIRST, LAST, STREET, CITY, ZIP, id) values (?, ?, ?, ?, ?, ?, null)
 20:22:10,133 INFO  [STDOUT] Hibernate: call identity()
-20:22:10,143 INFO  [STDOUT] doPostCreate: Created Customer: Bill Burke
+20:22:10,143 INFO  [STDOUT] doPostPersist: Created Customer: Bill Burke
 20:22:10,194 INFO  [STDOUT] -- CustomerDAOBean.create()
-20:22:10,194 INFO  [STDOUT] doPreCreate: About to create Customer: Monica Smith
+20:22:10,194 INFO  [STDOUT] doPrePersist: About to create Customer: Monica Smith
 20:22:10,194 INFO  [STDOUT] Hibernate: insert into CUSTOMER (STATE, FIRST, LAST, STREET, CITY, ZIP, id) values (?, ?, ?, ?, ?, ?, null)
 20:22:10,194 INFO  [STDOUT] Hibernate: call identity()
-20:22:10,194 INFO  [STDOUT] doPostCreate: Created Customer: Monica Smith
+20:22:10,194 INFO  [STDOUT] doPostPersist: Created Customer: Monica Smith
 20:22:10,264 INFO  [STDOUT] -- CustomerDAOBean.find()
 20:22:10,274 INFO  [STDOUT] Hibernate: select customer0_.id as id0_, customer0_.STATE as STATE0_0_, customer0_.FIRST as FIRST0_0_, customer0_.LAST as LAST0_0_, customer0_.STREET as STREET0_0_, customer0_.CITY as CITY0_0_, customer0_.ZIP as ZIP0_0_ from CUSTOMER customer0_ where customer0_.id=?
 20:22:10,284 INFO  [STDOUT] doPostLoad: Loaded Customer: Monica Smith
