@@ -30,7 +30,7 @@ public class EntityTestBean implements EntityTest
       Flight firstOne = new Flight();
       firstOne.setId(new Long(1));
       firstOne.setName("AF0101");
-      manager.create(firstOne);
+      manager.persist(firstOne);
       Flight second = new Flight();
       second.setId(new Long(2));
       second.setName("US1");
@@ -71,7 +71,7 @@ public class EntityTestBean implements EntityTest
       firstOne.setCustomers(customers1);
       second.setCustomers(customers2);
 
-      manager.create(second);
+      manager.persist(second);
    }
 
 
