@@ -6,9 +6,10 @@
  */
 package org.jboss.tutorial.dependent.bean;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
 
 import java.util.List;
 

@@ -6,13 +6,17 @@
  */
 package org.jboss.tutorial.dependent.bean;
 
-import javax.ejb.AttributeOverride;
-import javax.ejb.Column;
-import javax.ejb.Embedded;
+import javax.persistence.AttributeOverride;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.Table;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.AttributeOverride;
+import javax.persistence.Embedded;
+import javax.persistence.GeneratorType;
 
 @Entity
 @Table(name = "CUSTOMER")

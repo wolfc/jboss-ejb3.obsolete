@@ -6,8 +6,9 @@
  */
 package org.jboss.tutorial.dependent.bean;
 
-import javax.ejb.AccessType;
-import javax.ejb.Embeddable;
+import javax.persistence.AccessType;
+import javax.persistence.Embeddable;
+import javax.persistence.AccessType;
 
 @Embeddable(access = AccessType.PROPERTY)
 public class Name implements java.io.Serializable
