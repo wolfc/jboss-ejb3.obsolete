@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.callback.bean;
 
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.Column;
 import javax.persistence.EntityListener;
 import javax.persistence.GeneratorType;
