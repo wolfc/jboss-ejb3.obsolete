@@ -16,7 +16,7 @@ import javax.ejb.Remove;
  * @version $Revision$
  */
 @Remote
-        public interface ShoppingCart
+public interface ShoppingCart
 {
    void buy(String product, int quantity, double price);
 

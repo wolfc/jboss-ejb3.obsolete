@@ -13,10 +13,10 @@ import javax.ejb.Stateful;
 
 
 @Stateful
-        public class ShoppingCartBean implements ShoppingCart
+public class ShoppingCartBean implements ShoppingCart
 {
    @Inject
-           private EntityManager manager;
+   private EntityManager manager;
    private Order order;
 
    public void buy(String product, int quantity, double price)
@@ -31,7 +31,7 @@ import javax.ejb.Stateful;
    }
 
    @Remove
-           public void checkout()
+   public void checkout()
    {
       manager.create(order);
    }

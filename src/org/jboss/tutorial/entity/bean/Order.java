@@ -19,15 +19,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Entity
-        @Table(name = "PURCHASE_ORDER")
-        public class Order implements java.io.Serializable
+@Table(name = "PURCHASE_ORDER")
+public class Order implements java.io.Serializable
 {
    private int id;
    private double total;
    private Collection<LineItem> lineItems;
 
    @Id(generate = GeneratorType.AUTO)
-           public int getId()
+   public int getId()
    {
       return id;
    }
@@ -60,8 +60,8 @@ import java.util.Collection;
    }
 
    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-           @JoinColumn(name = "order_id")
-           public Collection<LineItem> getLineItems()
+   @JoinColumn(name = "order_id")
+   public Collection<LineItem> getLineItems()
    {
       return lineItems;
    }

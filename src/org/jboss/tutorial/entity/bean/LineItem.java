@@ -13,7 +13,7 @@ import javax.ejb.JoinColumn;
 import javax.ejb.ManyToOne;
 
 @Entity
-        public class LineItem implements java.io.Serializable
+public class LineItem implements java.io.Serializable
 {
    private int id;
    private double subtotal;
@@ -23,7 +23,7 @@ import javax.ejb.ManyToOne;
 
 
    @Id(generate = GeneratorType.AUTO)
-           public int getId()
+   public int getId()
    {
       return id;
    }
@@ -64,8 +64,8 @@ import javax.ejb.ManyToOne;
    }
 
    @ManyToOne
-           @JoinColumn(name = "order_id")
-           public Order getOrder()
+   @JoinColumn(name = "order_id")
+   public Order getOrder()
    {
       return order;
    }
