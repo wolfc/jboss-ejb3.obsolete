@@ -109,11 +109,9 @@ The definition of InvocationContext is:
 <pre>
    package javax.ejb;
 
-   import java.lang.reflect.Method;
-
    public interface InvocationContext {
       public Object getBean();
-      public Method getMethod();
+      public java.lang.reflect.Method getMethod();
       public Object[] getParameters();
       public void setParameters(Object[] params);
       public EJBContext getEJBContext();
@@ -128,7 +126,7 @@ The definition of InvocationContext is:
 <li><tt>getParameters()</tt> - returns the parameters for the method call</li>
 <li><tt>setParameters()</tt> - allows you to modify the parameters for the method call</li>
 <li><tt>getEJBContext()</tt> - gives the interceptor methods access to the bean's EJBContext. (The AroundInvoke methods share the JNDI name space of the bean for whose methods they are invoked and execute within the same transaction and security context as the business methods for which they are invoked.)</li>
-<li><tt>getContextData</tt> - The EJB interceptions are stateless, but the same InvocationContext is used for each interceptor method in a chain. If you want to pass values between interceptor methods in the business method invocation you can store them here.</li>
+<li><tt>getContextData</tt> - The EJB interceptions are stateless, but the same InvocationContext instance is used for each interceptor method in a chain. If you want to pass values between interceptor methods in the business method invocation you can store them in the Map retured by getContextData().</li>
 <li><tt>proceed</tt> - As discussed, invokes the next interceptor, or if we are in the last interceptor invokes the target bean method.</li>
 </ul>
 </p><p>
