@@ -6,14 +6,21 @@
  */
 package org.jboss.tutorial.interceptor.bean;
 
-import org.jboss.tutorial.interceptor.bean.EmailSystem;
-
-import javax.ejb.*;
-import javax.jms.*;
+import javax.ejb.AroundInvoke;
+import javax.ejb.Interceptor;
+import javax.ejb.Interceptors;
+import javax.ejb.InvocationContext;
+import javax.ejb.Stateless;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
+import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 @Stateless
-@Interceptors ({@Interceptor(TracingInterceptor.class), @Interceptor(OtherInterceptor.class)})
+@Interceptors ({@Interceptor("org.jboss.tutorial.interceptor.bean.TracingInterceptor"), @Interceptor("org.jboss.tutorial.interceptor.bean.OtherInterceptor")})
 public class EmailSystemBean implements EmailSystem
 {
    public void emailLostPassword(String username)

@@ -31,7 +31,7 @@ annotated:
 
 {{{
    @Stateless
-   @Interceptors ({@Interceptor(TracingInterceptor.class), @Interceptor(OtherInterceptor.class)})
+   @Interceptors ({@Interceptor("org.jboss.tutorial.interceptor.bean.TracingInterceptor"), @Interceptor("org.jboss.tutorial.interceptor.bean.OtherInterceptor")})
    public class EmailSystemBean
    {
       ...
@@ -62,7 +62,7 @@ If a bean contains only one external interceptor class, you can use the {{@javax
 {{@javax.ejb.Interceptors}}:
 {{{
    @Stateless
-   @Interceptor(MyInterceptor.class)
+   @Interceptor("MyInterceptor")
    public class MyBean
    {
       ...
