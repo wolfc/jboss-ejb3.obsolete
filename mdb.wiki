@@ -1,0 +1,28 @@
+!!!Message Drive Beans
+This example shows you how to implement an MDB with EJB 3.0.  This version of JBoss EJB 3.0 only supports proprietary hooks for tieing a topic or queue to the MDB using the {{org.jboss.ejb3.mdb.ConnectionConfig}} annotation.
+
+Take a look at [ExampleMDB.java|src/org/jboss/tutorial/mdb/bean/ExampleMDB.java].
+
+The [queue-example-service.xml|queue-example-service.xml] file defines the queue.  This is the same in regular JBoss.
+
+!Building and Running
+To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+{{{
+Unix:    $ export JBOSS_HOME=<where your jboss 4.0 distribution is>
+Windows: $ set JBOSS_HOME=<where your jboss 4.0 distribution is>
+$ ant
+$ ant run
+
+}}}
+
+Look in the console window to determine that the message was sent.
+
+{{{
+01:01:20,828 INFO  [STDOUT] ----------------
+01:01:20,828 INFO  [STDOUT] Received message
+01:01:20,828 INFO  [STDOUT] ----------------
+}}}
+
+
+
+
