@@ -26,7 +26,7 @@ public class CustomerDAOBean implements CustomerDAO
    {
       System.out.println("-- CustomerDAOBean.create()");
       Customer customer = new Customer(first, last, street, city, state, zip);
-      manager.create(customer);
+      manager.persist(customer);
       return customer.getId();
    }
 
@@ -39,7 +39,7 @@ public class CustomerDAOBean implements CustomerDAO
    public List findByLastName(String last)
    {
       System.out.println("-- CustomerDAOBean.findByLastName(id)");
-      return manager.createQuery("from Customer c where c.last = :last").setParameter("last", last).listResults();
+      return manager.createQuery("from Customer c where c.last = :last").setParameter("last", last).getResultList();
    }
 
    public void merge(Customer c)
