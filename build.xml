@@ -17,13 +17,13 @@
       <fileset dir="${jboss.home}/lib">
          <include name="**/*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/default/lib">
+      <fileset dir="${jboss.home}/server/all/lib">
          <include name="**/*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/default/deploy/ejb3.deployer">
+      <fileset dir="${jboss.home}/server/all/deploy/ejb3.deployer">
          <include name="*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/default/deploy/jboss-aop.deployer">
+      <fileset dir="${jboss.home}/server/all/deploy/jboss-aop-jdk50.deployer">
          <include name="*.jar"/>
       </fileset>
       <pathelement location="${build.classes.dir}"/>
@@ -61,7 +61,7 @@
             <include name="**/*.class"/>
          </fileset>
       </jar>
-      <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/default/deploy"/>
+      <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/all/deploy"/>
    </target>
 
    <target name="run" depends="ejbjar">
@@ -74,12 +74,12 @@
    <!-- Cleans up generated stuff                                           -->
    <!-- =================================================================== -->
    <target name="clean.db">
-      <delete dir="${jboss.home}/server/default/data/hypersonic"/>
+      <delete dir="${jboss.home}/server/all/data/hypersonic"/>
    </target>
 
    <target name="clean">
       <delete dir="${build.dir}"/>
-      <delete file="${jboss.home}/server/default/deploy/tutorial.ejb3"/>
+      <delete file="${jboss.home}/server/all/deploy/tutorial.ejb3"/>
    </target>
 
 
