@@ -2,13 +2,11 @@
 package org.jboss.tutorial.composite.bean;
 
 import javax.ejb.AssociationTable;
+import javax.ejb.AttributeOverride;
 import javax.ejb.CascadeType;
-import javax.ejb.Dependent;
-import javax.ejb.DependentAttribute;
+import javax.ejb.EmbeddedId;
 import javax.ejb.Entity;
 import javax.ejb.FetchType;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
 import javax.ejb.JoinColumn;
 import javax.ejb.ManyToMany;
 import javax.ejb.Table;
@@ -29,10 +27,9 @@ public class Customer implements java.io.Serializable
    {
    }
 
-   @Id(generate = GeneratorType.NONE)
-   @Dependent({
-   @DependentAttribute(name = "id"),
-   @DependentAttribute(name = "name")
+   @EmbeddedId({
+   @AttributeOverride(name = "id"),
+   @AttributeOverride(name = "name")
    })
    public CustomerPK getPk()
    {

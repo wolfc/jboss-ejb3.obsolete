@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.composite.bean;
 
-import javax.ejb.DependentObject;
+import javax.ejb.Embeddable;
 
 /**
  * Comment
@@ -14,7 +14,7 @@ import javax.ejb.DependentObject;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-@DependentObject
+@Embeddable
 public class CustomerPK implements java.io.Serializable
 {
    private long id;

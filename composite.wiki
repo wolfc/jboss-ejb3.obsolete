@@ -1,10 +1,10 @@
 !!!Composite Primary Keys and Primary Key Classes
-The EJB 3.0 specification allows you to define a primary key class as a @DependentObject and use it as the primary key of your Entity bean.  One or
+The EJB 3.0 specification allows you to define a primary key class as a @Embeddable and use it as the primary key of your Entity bean.  One or
 more properties can be used as members of the primary key for that particular table.  This tutorial is an adaptation of the
 ''relationships'' tutorial.  It adds a primary key class to Customer that holds both the ''name'' and ''id'' of the Customer.
 
 {{{
-@DependentObject
+@Embeddable
 public class CustomerPK implements java.io.Serializable
 {
    private long id;
@@ -62,10 +62,9 @@ Open up [Customer|src/org/jboss/tutorial/composite/bean/Customer.java] and look 
 defines the primary key class.
 
 {{{
-   @Id(generate = GeneratorType.NONE)
-   @Dependent({
-   @DependentAttribute(name = "id"),
-   @DependentAttribute(name = "name")
+   @EmbeddedId({
+   @AttributeOverride(name = "id"),
+   @AttributeOverride(name = "name")
    })
    public CustomerPK getPk()
    {
@@ -74,7 +73,7 @@ defines the primary key class.
 }}}
 
 The [CustomerPK|src/org/jboss/tutorial/composite/bean/Customer.java] class is mapped to [Customer|src/org/jboss/tutorial/composite/bean/Customer.java]
-just like any other dependent value object.  The additional {{@Id}} annotation specifies that it will be the primary key.
+just like any other embeddable object.  The additional {{@Id}} annotation specifies that it will be the primary key.
 Also notice that the {{GeneratorType}} is {{NONE}}.  If you provide a primary key class, JBoss cannot autogenerate the key
 for you.  You must allocate a CustomerPK class and instantiate it with your id and name when you create the Customer.
 
