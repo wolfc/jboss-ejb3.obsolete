@@ -1,18 +1,23 @@
 //$Id$
 package org.jboss.tutorial.relationships.bean;
 
-import javax.ejb.AssociationTable;
-import javax.ejb.Basic;
-import javax.ejb.CascadeType;
-import javax.ejb.Column;
+import javax.persistence.AssociationTable;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.ejb.Entity;
-import javax.ejb.FetchType;
-import javax.ejb.Id;
-import javax.ejb.JoinColumn;
-import javax.ejb.ManyToMany;
-import javax.ejb.Table;
-import javax.ejb.Transient;
-import javax.ejb.Version;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Transient;
+import javax.persistence.Version;
+import javax.persistence.Version;
+import javax.persistence.ManyToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 
 import java.util.Set;
 
@@ -88,7 +93,7 @@ public class Flight implements java.io.Serializable
       version = i;
    }
 
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER)
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
    @AssociationTable(table = @Table(name = "flight_customer_table"),
                      joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
                      inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})

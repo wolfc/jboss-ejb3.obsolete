@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.relationships.bean;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
 

@@ -1,14 +1,19 @@
 //$Id$
 package org.jboss.tutorial.relationships.bean;
 
-import javax.ejb.CascadeType;
+import javax.persistence.CascadeType;
 import javax.ejb.Entity;
-import javax.ejb.FetchType;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.JoinColumn;
-import javax.ejb.ManyToMany;
-import javax.ejb.OneToOne;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.CascadeType;
+import javax.persistence.GeneratorType;
 import java.util.Set;
 
 /**
@@ -61,7 +66,7 @@ public class Customer implements java.io.Serializable
       this.address = address;
    }
 
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
    public Set<Flight> getFlights()
    {
       return flights;

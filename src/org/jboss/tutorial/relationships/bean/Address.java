@@ -7,8 +7,9 @@
 package org.jboss.tutorial.relationships.bean;
 
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.GeneratorType;
 
 /**
  * Comment
