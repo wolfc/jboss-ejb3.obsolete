@@ -27,32 +27,27 @@ public class Customer implements java.io.Serializable
    Set<Flight> flights;
    Address address;
 
-   public
-   Customer()
+   public Customer()
    {
    }
 
    @Id(generate = GeneratorType.IDENTITY)
-   public
-   Long getId()
+   public Long getId()
    {
       return id;
    }
 
-   public
-   String getName()
+   public String getName()
    {
       return name;
    }
 
-   public
-   void setId(Long long1)
+   public void setId(Long long1)
    {
       id = long1;
    }
 
-   public
-   void setName(String string)
+   public void setName(String string)
    {
       name = string;
    }
@@ -84,19 +79,5 @@ public class Customer implements java.io.Serializable
    }
 
 
-   /*
-   @OneToMany(cascade = CascadeType.ALL,
-              targetEntity = "org.hibernate.test.metadata.Discount")
-   @JoinColumn(name = "CUSTOMER_ID")
-   public Collection getDiscountTickets()
-   {
-      return discountTickets;
-   }
-
-   public void setDiscountTickets(Collection collection)
-   {
-      discountTickets = collection;
-   }
-   */
 }
 
