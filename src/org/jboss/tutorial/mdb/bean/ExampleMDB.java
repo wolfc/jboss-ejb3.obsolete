@@ -6,14 +6,16 @@
  */
 package org.jboss.tutorial.mdb.bean;
 
-import org.jboss.ejb3.mdb.ConnectionConfig;
-
 import javax.ejb.MessageDriven;
+import javax.ejb.ActivationConfigProperty;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-@MessageDriven
-@ConnectionConfig(destinationType = javax.jms.Queue.class, destinationJndiName = "queue/tutorial/example", durable = true, subscriptionId = "queueExample")
+@MessageDriven(activateConfig =
+        {
+        @ActivationConfigProperty(name="destinationType", value="javax.jms.Queue"),
+        @ActivationConfigProperty(name="destination", value="queue/tutorial/example")
+        })
 public class ExampleMDB implements MessageListener
 {
    public void onMessage(Message recvMsg)
