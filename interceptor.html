@@ -37,7 +37,7 @@ annotated:
 </p><p>
 <pre>
    @Stateless
-   @Interceptors ({@Interceptor("org.jboss.tutorial.interceptor.bean.TracingInterceptor"), @Interceptor("org.jboss.tutorial.interceptor.bean.OtherInterceptor")})
+   @Interceptors ({"org.jboss.tutorial.interceptor.bean.TracingInterceptor", "org.jboss.tutorial.interceptor.bean.OtherInterceptor"})
    public class EmailSystemBean
    {
       ...
@@ -65,7 +65,7 @@ EmailSystemBean contains an interceptor method defined on the bean class itself;
 </p><p>
 </p><p>
 If a bean contains only one external interceptor class, you can use the <tt>@javax.ejb.Interceptor</tt> annotation instead of
-<tt>@javax.ejb.Interceptors</tt>:
+<tt>@javax.ejb.Interceptor</tt>:
 <pre>
    @Stateless
    @Interceptor("MyInterceptor")

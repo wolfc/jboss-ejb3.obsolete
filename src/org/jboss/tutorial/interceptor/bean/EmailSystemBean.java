@@ -20,7 +20,7 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 @Stateless
-@Interceptors ({@Interceptor("org.jboss.tutorial.interceptor.bean.TracingInterceptor"), @Interceptor("org.jboss.tutorial.interceptor.bean.OtherInterceptor")})
+@Interceptors ({"org.jboss.tutorial.interceptor.bean.TracingInterceptor", "org.jboss.tutorial.interceptor.bean.OtherInterceptor"})
 public class EmailSystemBean implements EmailSystem
 {
    public void emailLostPassword(String username)
