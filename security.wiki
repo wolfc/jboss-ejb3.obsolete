@@ -3,10 +3,10 @@ The EJB 3.0 specification has an optional total replacement of XML deployment de
 use the transaction and security annotations of EJB 3.0.
 
 !Transactions
-Using transactions is easy, just use the {{javax.ejb.Tx}} annotation.  The {{javax.ejb.TxType}} enum has every transactional type.
+Using transactions is easy, just use the {{javax.ejb.TransactionAttribute}} annotation.  The {{javax.ejb.TransactionAttributeType}} enum has every transactional type.
 
 {{{
-    @Tx(TxType.REQUIRESNEW)
+    @TransactionAttribute(TransactionAttributeType.REQUIRESNEW)
     public int add(int x, int y)
    {
       return x + y;

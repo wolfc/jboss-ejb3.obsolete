@@ -8,10 +8,10 @@ use the transaction and security annotations of EJB 3.0.
 </p><p>
 <h4>Transactions</h4>
 
-Using transactions is easy, just use the <tt>javax.ejb.Tx</tt> annotation.  The <tt>javax.ejb.TxType</tt> enum has every transactional type.
+Using transactions is easy, just use the <tt>javax.ejb.TransactionAttribute</tt> annotation.  The <tt>javax.ejb.TransactionAttributeType</tt> enum has every transactional type.
 </p><p>
 <pre>
-    @Tx(TxType.REQUIRESNEW)
+    @@TransactionAttribute(TransactionAttributeType.REQUIRESNEW)
     public int add(int x, int y)
    {
       return x + y;

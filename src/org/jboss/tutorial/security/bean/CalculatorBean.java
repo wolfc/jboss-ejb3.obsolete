@@ -10,8 +10,8 @@ import org.jboss.ejb3.security.SecurityDomain;
 
 import javax.ejb.MethodPermissions;
 import javax.ejb.Stateless;
-import javax.ejb.Tx;
-import javax.ejb.TxType;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.ejb.Unchecked;
 
 @Stateless
@@ -19,7 +19,7 @@ import javax.ejb.Unchecked;
 public class CalculatorBean implements Calculator
 {
    @Unchecked
-   @Tx(TxType.REQUIRESNEW)
+   @TransactionAttribute(TransactionAttributeType.REQUIRESNEW)
    public int add(int x, int y)
    {
       return x + y;
