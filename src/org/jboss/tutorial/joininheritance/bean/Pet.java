@@ -6,7 +6,6 @@
  */
 package org.jboss.tutorial.joininheritance.bean;
 
-import javax.ejb.DiscriminatorColumn;
 import javax.ejb.Entity;
 import javax.ejb.GeneratorType;
 import javax.ejb.Id;
@@ -15,7 +14,6 @@ import javax.ejb.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "ANIMAL_TYPE", nullable = true)
 public class Pet implements java.io.Serializable
 {
    private int id;
