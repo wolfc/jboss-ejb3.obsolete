@@ -13,13 +13,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
-import javax.persistence.SecondaryTable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
 
 @Entity
 @Table(name = "CUSTOMER")
-@SecondaryTable(name = "ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
+@SecondaryTable(name = "ADDRESS")
+@JoinColumn(name = "ADDRESS_ID")
 public class Customer implements java.io.Serializable
 {
    private int id;
