@@ -35,7 +35,9 @@ The {{EntityManager}} service has a built in find by primary key method: {{<T> f
 }}}
 
 !Merging
-The Value Object pattern is built into EJB 3.0.  You can detach an object from persistence storage and send it across the network to the client.  The client can make updates locally to the object, send it back to the server and the changes can be merged/synchronized back to the database using the {{EntityManager.merge()}} method.  This is exactly what the [Client|src/org/jboss/tutorial/merge/client/Client.java] does.
+The Value Object pattern is built into EJB 3.0.  You can detach an object from persistence storage and send it across the network to the client.
+The client can make updates locally to the object, send it back to the server and the changes can be merged/synchronized back
+to the database using the {{EntityManager.merge()}} method.  This is exactly what the [Client|src/org/jboss/tutorial/merge/client/Client.java] does.
 
 !Building and Running
 To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
