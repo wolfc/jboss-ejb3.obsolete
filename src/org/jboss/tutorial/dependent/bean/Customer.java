@@ -15,8 +15,8 @@ import javax.ejb.Id;
 import javax.ejb.Table;
 
 @Entity
-        @Table(name = "CUSTOMER")
-        public class Customer implements java.io.Serializable
+@Table(name = "CUSTOMER")
+public class Customer implements java.io.Serializable
 {
    private int id;
    private Name name;
@@ -39,7 +39,7 @@ import javax.ejb.Table;
    }
 
    @Id(generate = GeneratorType.AUTO)
-           public int getId()
+   public int getId()
    {
       return id;
    }
@@ -51,10 +51,10 @@ import javax.ejb.Table;
 
 
    @Dependent({
-           @DependentAttribute(name = "first", column = {@Column(name = "FIRST_NAME")}),
-           @DependentAttribute(name = "last", column = {@Column(name = "LAST_NAME")})
-           })
-           public Name getName()
+   @DependentAttribute(name = "first", column = {@Column(name = "FIRST_NAME")}),
+   @DependentAttribute(name = "last", column = {@Column(name = "LAST_NAME")})
+   })
+   public Name getName()
    {
       return name;
    }
@@ -65,7 +65,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STREET")
-           public String getStreet()
+   public String getStreet()
    {
       return street;
    }
@@ -76,7 +76,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "CITY")
-           public String getCity()
+   public String getCity()
    {
       return city;
    }
@@ -87,7 +87,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STATE")
-           public String getState()
+   public String getState()
    {
       return state;
    }
@@ -98,7 +98,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "ZIP")
-           public String getZip()
+   public String getZip()
    {
       return zip;
    }

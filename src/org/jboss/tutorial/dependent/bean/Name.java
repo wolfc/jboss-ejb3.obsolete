@@ -9,7 +9,7 @@ package org.jboss.tutorial.dependent.bean;
 import javax.ejb.DependentObject;
 
 @DependentObject
-        public class Name implements java.io.Serializable
+public class Name implements java.io.Serializable
 {
    private String first;
    private String last;
