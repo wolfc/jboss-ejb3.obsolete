@@ -10,6 +10,7 @@ import javax.ejb.Inject;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.Timer;
+import javax.ejb.Timeout;
 
 import java.util.Date;
 
@@ -23,7 +24,8 @@ public class ExampleTimerBean implements ExampleTimer
       ctx.getTimerService().createTimer(new Date(new Date().getTime() + milliseconds), "Hello World");
    }
 
-   public void ejbTimeout(Timer timer)
+   @Timeout
+   public void timeoutHandler(Timer timer)
    {
       System.out.println("---------------------");
       System.out.println("* Received Timer event: " + timer.getInfo());
