@@ -5,7 +5,7 @@ import javax.persistence.AssociationTable;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -19,6 +19,7 @@ import javax.persistence.Version;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.FetchType;
+import javax.persistence.Entity;
 
 import java.util.Set;
 
