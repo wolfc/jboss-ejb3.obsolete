@@ -100,7 +100,7 @@ public class LobTesterBean implements LobTester
       "This is a very long string that will be stored in a java.sql.Clob hopefully.  We'll see how this works and if it will work" +
       "This is a very long string that will be stored in a java.sql.Clob hopefully.  We'll see how this works and if it will work";
       blob.setClobby(Hibernate.createClob(clobby));
-      manager.create(blob);
+      manager.persist(blob);
       return blob.getId();
    }
 

@@ -11,7 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.ejb.LobType;
+import javax.persistence.LobType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.FetchType;
