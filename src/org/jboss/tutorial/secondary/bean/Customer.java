@@ -15,9 +15,9 @@ import javax.ejb.SecondaryTable;
 import javax.ejb.Table;
 
 @Entity
-        @Table(name = "CUSTOMER")
-        @SecondaryTable(name = "ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
-        public class Customer implements java.io.Serializable
+@Table(name = "CUSTOMER")
+@SecondaryTable(name = "ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
+public class Customer implements java.io.Serializable
 {
    private int id;
    private String first;
@@ -42,7 +42,7 @@ import javax.ejb.Table;
    }
 
    @Id(generate = GeneratorType.AUTO)
-           public int getId()
+   public int getId()
    {
       return id;
    }
@@ -53,7 +53,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "FIRST")
-           public String getFirst()
+   public String getFirst()
    {
       return first;
    }
@@ -64,7 +64,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "LAST")
-           public String getLast()
+   public String getLast()
    {
       return last;
    }
@@ -75,7 +75,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STREET", secondaryTable = "ADDRESS")
-           public String getStreet()
+   public String getStreet()
    {
       return street;
    }
@@ -86,7 +86,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "CITY", secondaryTable = "ADDRESS")
-           public String getCity()
+   public String getCity()
    {
       return city;
    }
@@ -97,7 +97,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "STATE", secondaryTable = "ADDRESS")
-           public String getState()
+   public String getState()
    {
       return state;
    }
@@ -108,7 +108,7 @@ import javax.ejb.Table;
    }
 
    @Column(name = "ZIP", secondaryTable = "ADDRESS")
-           public String getZip()
+   public String getZip()
    {
       return zip;
    }

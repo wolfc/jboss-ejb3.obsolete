@@ -64,12 +64,6 @@
       <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/default/deploy"/>
    </target>
 
-   <target name="entity2xml" depends="prepare">
-      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
-         <classpath refid="classpath"/>
-         <arg value="org.jboss.tutorial.secondary.bean.Customer"/>
-      </java>
-   </target>
    <target name="run" depends="ejbjar">
       <java classname="org.jboss.tutorial.secondary.client.Client" fork="yes" dir=".">
          <sysproperty key="jboss.remoting.invoker.debug" value="true"/>

@@ -6,7 +6,6 @@
  */
 package org.jboss.tutorial.secondary.client;
 
-import org.apache.log4j.Level;
 import org.jboss.tutorial.secondary.bean.Customer;
 import org.jboss.tutorial.secondary.bean.CustomerDAO;
 
@@ -19,8 +18,6 @@ public class Client
 {
    public static void main(String[] args) throws Exception
    {
-      org.apache.log4j.BasicConfigurator.configure();
-      org.apache.log4j.Category.getRoot().setLevel(Level.DEBUG);
 
       InitialContext ctx = new InitialContext();
       CustomerDAO dao = (CustomerDAO) ctx.lookup(CustomerDAO.class.getName());
