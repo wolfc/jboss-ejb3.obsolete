@@ -13,8 +13,8 @@ import javax.jms.MessageListener;
 
 @MessageDriven(activateConfig =
         {
-        @ActivationConfigProperty(name="destinationType", value="javax.jms.Queue"),
-        @ActivationConfigProperty(name="destination", value="queue/tutorial/example")
+        @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
+        @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/example")
         })
 public class ExampleMDB implements MessageListener
 {
