@@ -45,7 +45,7 @@ The Order bean also defines a one to many relationship.
 </p><p>
 Generics must be used so that the container can determine the bean order is related to.  
 </p><p>
-<tt>CascadeType.ALL</tt> specifies that when an Order is created, any LineItems held in the <tt>lineItems</tt> collection will be created as well (<tt>CascadeType.CREATE</tt>).  If the Order is delete from persistence storage, all related LineItems will be deleted (<tt>CascadeType.REMOVE</tt>).  If an Order instance is reattached to persistence storage, any changes to the LineItems collection will be merged with persistence storage (<tt>CascadeType.MERGE</tt>).
+<tt>CascadeType.ALL</tt> specifies that when an Order is created, any LineItems held in the <tt>lineItems</tt> collection will be created as well (<tt>CascadeType.PERSIST</tt>).  If the Order is delete from persistence storage, all related LineItems will be deleted (<tt>CascadeType.REMOVE</tt>).  If an Order instance is reattached to persistence storage, any changes to the LineItems collection will be merged with persistence storage (<tt>CascadeType.MERGE</tt>).
 </p><p>
 <tt>FetchType.EAGER</tt> specifies that when the Order is loaded whether or not to prefetch the relationship as well.  If you want the LineItems to be loaded on demand, then specify <tt>FetchType.LAZY</tt>.
 </p><p>

@@ -34,6 +34,6 @@ public class ShoppingCartBean implements ShoppingCart
    @Remove
    public void checkout()
    {
-      manager.create(order);
+      manager.persist(order);
    }
 }
