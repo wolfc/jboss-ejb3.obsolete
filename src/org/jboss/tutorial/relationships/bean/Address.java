@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.relationships.bean;
 
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.GeneratorType;

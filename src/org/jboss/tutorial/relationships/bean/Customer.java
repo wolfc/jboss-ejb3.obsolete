@@ -2,7 +2,7 @@
 package org.jboss.tutorial.relationships.bean;
 
 import javax.persistence.CascadeType;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
@@ -14,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.CascadeType;
 import javax.persistence.GeneratorType;
+import javax.persistence.Entity;
 import java.util.Set;
 
 /**
