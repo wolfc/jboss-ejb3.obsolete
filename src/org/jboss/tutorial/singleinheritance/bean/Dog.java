@@ -7,7 +7,7 @@
 package org.jboss.tutorial.singleinheritance.bean;
 
 import javax.persistence.DiscriminatorType;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Inheritance;
