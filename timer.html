@@ -17,7 +17,13 @@ the field will be initialized with the correct SessionContext.  Take a look at <
 </p><p>
 <h4>Callbacks</h4>
 
-The rest of the bean example registers a timer with the EJB Timer service.  In the EJB 2.1 specification it was required to implement an interface to get ejbTimeout callbacks.  This is not needed in EJB 3.0 as all you have to define is a method annotated with <tt>javax.ejb.Timeout</tt>.  This is the same with other callbacks like ejbPassivate, ejbRemove, etc...  No interface is needed to be implemented, just declare the methods as you need them.
+The rest of the bean example registers a timer with the EJB Timer service.  In the EJB 2.1 specification it was required to implement an interface to get ejbTimeout callbacks.
+It is still being debated in the EJB 3.0 EG on whether an interface or annotation should be used to specify this callback.
+In JBoss EJB 3 Preview, it is implemented as an annotation.
+All you have to define is a method annotated with <tt>javax.ejb.Timeout</tt>.
+This is the same with other callbacks like @PrePassviate, @PostRemove, etc...  No interface is needed to be implemented, just declare the methods as you need them.
+</p><p>
+If you have feedback on this and would like to throw your 2-cents on this topic, please email <a href="mailto:ejb3-feedback@sun.com">ejb3-feedback</a>
 </p><p>
 <h4>Building and Running</h4>
 
