@@ -20,13 +20,11 @@ There is a unidirectional one to one relationship defined between the [Customer|
 There is a mant to many relationship between [Customer|src/org/jboss/tutorial/relationships/bean/Customer.java] and [Flight|src/org/jboss/tutorial/relationships/bean/Flight.java].  In order to have a many to many relationship there needs to be a distinct join table that maps the many to many relationship.  This is called an association table.  You can have JBoss automatically generate the association table for you, or you can use the {{@AssociationTable}} annotation to define it yourself.  If you use {{@AssociationTable}} it must be defined on both sides of the bi-directional relationship.  Let's look at the Customer side of the relationship
 
 {{{
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, isInverse = true)
-   @AssociationTable(table = @Table(name = "flight_customer_table"),
-                     joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
-                     inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})
+   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
 }}}
 
-The {{isInverse}} switch specifies which side of the relationship is responsible for managing the relationship.  If it is set to false, then that side is responsible.  The spec allows for multiple join and inverse join columns.  See the ''Composite Primary Key'' tutorial for more information.
+The {{mappedBy}} attribute states that the Flight.customers property is responsible for mapping and managing the relationship.
+ The spec allows for multiple join and inverse join columns.  See the ''Composite Primary Key'' tutorial for more information.
 
 Let's look at the other side of the relationship in Flight.
 

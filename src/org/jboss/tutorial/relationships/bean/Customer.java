@@ -61,7 +61,7 @@ public class Customer implements java.io.Serializable
       this.address = address;
    }
 
-   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="custoemrs")
+   @ManyToMany(cascade = {CascadeType.CREATE, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
    public Set<Flight> getFlights()
    {
       return flights;
