@@ -7,7 +7,7 @@ an entity property:
 * {{{byte[], Byte[]}}}
 * {{{char[], String, Character[] }}}
 
-JBoss EJB3 Preview 3 only supports Blob and Clob property types.  To use this feature just need to use the {{@javax.persistence.Lob}} annotation.
+JBoss EJB3 Preview only supports Blob and Clob property types at this time.  To use this feature just need to use the {{@javax.persistence.Lob}} annotation.
 The {{Lob}} annotation is an
 encapsulation of what type of lob you want.  Below is an example of defining fields in an entity that are blobs or clobs.
 
