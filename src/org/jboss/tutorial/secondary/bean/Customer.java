@@ -7,7 +7,7 @@
 package org.jboss.tutorial.secondary.bean;
 
 import javax.persistence.Column;
-import javax.ejb.Entity;
+import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -15,6 +15,7 @@ import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 import javax.persistence.SecondaryTable;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 
 @Entity
 @Table(name = "CUSTOMER")
