@@ -6,13 +6,16 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.ejb.CascadeType;
+import javax.persistence.CascadeType;
 import javax.ejb.Entity;
-import javax.ejb.FetchType;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.OneToMany;
-import javax.ejb.Table;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.CascadeType;
+import javax.persistence.FetchType;
 import java.util.ArrayList;
 import java.util.Collection;
 

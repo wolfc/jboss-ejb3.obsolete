@@ -7,10 +7,10 @@
 package org.jboss.tutorial.entity.bean;
 
 import javax.ejb.Entity;
-import javax.ejb.GeneratorType;
-import javax.ejb.Id;
-import javax.ejb.JoinColumn;
-import javax.ejb.ManyToOne;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 public class LineItem implements java.io.Serializable

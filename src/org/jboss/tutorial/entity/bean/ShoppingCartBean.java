@@ -6,10 +6,11 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.ejb.EntityManager;
+import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
+import javax.persistence.EntityManager;
 
 
 @Stateful
