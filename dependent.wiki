@@ -1,4 +1,4 @@
-!!!Dependent Value Objects
+!!!Embeddable Objects
 The EJB specification allows you to embed plain Java objects within your entity beans and map the properties of this embedded value object to columns within the entity's table.
 
 The [Customer|src/org/jboss/tutorial/dependent/bean/Customer.java] bean encapsulates the name of the customer in the [Name|src/org/jboss/tutorial/dependent/bean/Name.java] value object.
