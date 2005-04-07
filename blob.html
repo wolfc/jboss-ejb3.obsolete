@@ -13,7 +13,7 @@ an entity property:
 <li> <pre>char[], String, Character[] </pre></li>
 </ul>
 </p><p>
-JBoss EJB3 Preview only supports Blob and Clob property types at this time.  To use this feature just need to use the <tt>@javax.persistence.Lob</tt> annotation.
+To use this feature just need to use the <tt>@javax.persistence.Lob</tt> annotation.
 The <tt>Lob</tt> annotation is an
 encapsulation of what type of lob you want.  Below is an example of defining fields in an entity that are blobs or clobs.
 </p><p>
@@ -83,6 +83,55 @@ uses.
 </table>
 </p><p>
 Blobs and clobs must only be accessed within a transaction.  Blobs and clobs are also not serializable or detachable.
+</p><p>
+<h4>Mapping Strings/<pre>byte[]</pre> to Clob/Blob</h4>
+
+This is pretty easy, just look at BlobEntity2.java
+</p><p>
+<pre>
+@Entity
+public class BlobEntity2 implements Serializable
+{
+   private long id;
+   private byte[] blobby;
+   private String clobby;
+
+   @Id(generate = GeneratorType.AUTO)
+   public long getId()
+   {
+      return id;
+   }
+
+   public void setId(long id)
+   {
+      this.id = id;
+   }
+
+   @Lob(fetch = FetchType.EAGER)
+   public byte[] getBlobby()
+   {
+      return blobby;
+   }
+
+   public void setBlobby(byte[] blobby)
+   {
+      this.blobby = blobby;
+   }
+
+   @Lob(type = LobType.CLOB, fetch = FetchType.EAGER)
+   public String getClobby()
+   {
+      return clobby;
+   }
+
+   public void setClobby(String clobby)
+   {
+      this.clobby = clobby;
+   }
+
+
+}
+</pre>
 </p><p>
 <h4>Building and Running</h4>
 
