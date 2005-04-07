@@ -6,9 +6,8 @@
  */
 package org.jboss.tutorial.blob.bean;
 
-import javax.ejb.Remote;
-
 import java.util.HashMap;
+import javax.ejb.Remote;
 
 /**
  * Comment
@@ -24,4 +23,8 @@ public interface LobTester
    HashMap findBlob(long id) throws Exception;
 
    String findClob(long id) throws Exception;
+
+   long create2();
+
+   BlobEntity2 findBlob2(long id) throws Exception;
 }

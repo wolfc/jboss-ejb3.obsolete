@@ -6,11 +6,10 @@
  */
 package org.jboss.tutorial.blob.client;
 
-import org.jboss.tutorial.blob.bean.LobTester;
-
-import javax.naming.InitialContext;
-
 import java.util.HashMap;
+import javax.naming.InitialContext;
+import org.jboss.tutorial.blob.bean.LobTester;
+import org.jboss.tutorial.blob.bean.BlobEntity2;
 
 /**
  * Comment
@@ -28,5 +27,9 @@ public class Client
       HashMap map = test.findBlob(blobId);
       System.out.println("is hello in map: " + map.get("hello"));
       System.out.println(test.findClob(blobId));
+      System.out.println("creating and getting a BlobEntity2 that uses byte[] and String instead of Clob/Blob");
+      blobId = test.create2();
+      BlobEntity2 entity = test.findBlob2(blobId);
+
    }
 }
