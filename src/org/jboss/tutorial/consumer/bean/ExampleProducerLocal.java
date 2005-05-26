@@ -7,8 +7,7 @@
 package org.jboss.tutorial.consumer.bean;
 
 import org.jboss.ejb3.mdb.Producer;
-
-import javax.ejb.Local;
+import org.jboss.ejb3.mdb.Local;
 
 
 /**
@@ -16,8 +15,7 @@ import javax.ejb.Local;
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-@Producer
-@Local
+@Local @Producer
 public interface ExampleProducerLocal extends ExampleProducer
 {
 

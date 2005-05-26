@@ -6,15 +6,15 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.ejb3.mdb.ProducerManager;
-import org.jboss.ejb3.mdb.ProducerObject;
-
+import java.util.HashMap;
+import java.util.Map;
 import javax.ejb.Inject;
+import javax.ejb.RemoteInterface;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import java.util.HashMap;
-import java.util.Map;
+import org.jboss.ejb3.mdb.ProducerManager;
+import org.jboss.ejb3.mdb.ProducerObject;
 
 /**
  * Show injecting in producers
@@ -24,6 +24,7 @@ import java.util.Map;
  * @version $Revision$
  */
 @Stateless
+@RemoteInterface(Tester.class)
 public class TesterBean implements Tester
 {
    private ExampleProducerXA xa;

@@ -104,10 +104,10 @@ The proxy registered in JNDI will know how to contact the JMS Queue/Topic to pub
 
 The default value is "ConnectionFactory" for the ConnectionFactory JNDI name.
 
-If you additionally tag the producer interface with @javax.ejb.Local, then "java:/ConnectionFactory" will be used.
+If you additionally tag the producer as @ProducerLocal instead of @Producer, then "java:/ConnectionFactory" will be used.
 
-!!@Local on @Producer
-If you tag a producer as @Local, the proxy will lookup the connection factory via the default InitialContext when connect() is called.   Otherwise, the ConnectFactory reference will be embedded directly within the proxy.
+!!@ProducerLocal
+If you tag a producer as @ProducerLocal, the proxy will lookup the connection factory via the default InitialContext when connect() is called.   Otherwise, the ConnectFactory reference will be embedded directly within the proxy.
 
 !!@MessageProperties
 

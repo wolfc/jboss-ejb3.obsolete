@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import javax.ejb.Remote;
+
 
 
 /**
@@ -15,7 +15,6 @@ import javax.ejb.Remote;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-@Remote
 public interface Tester
 {
    void testXA() throws Exception;

@@ -6,12 +6,11 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
+import java.util.Map;
 import org.jboss.ejb3.mdb.DeliveryMode;
 import org.jboss.ejb3.mdb.MessageProperties;
 import org.jboss.ejb3.mdb.Producer;
-
-import javax.ejb.Local;
-import java.util.Map;
+import org.jboss.ejb3.mdb.Local;
 
 
 /**
@@ -19,8 +18,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-@Local
-@Producer(connectionFactory="java:/JmsXA")
+@Local @Producer(connectionFactory="java:/JmsXA")
 public interface ExampleProducerXA extends ExampleProducer
 {
    @MessageProperties(delivery=DeliveryMode.PERSISTENT, priority=4)
