@@ -6,11 +6,8 @@
  */
 package org.jboss.tutorial.joininheritance.bean;
 
-import javax.ejb.Remote;
-
 import java.util.List;
 
-@Remote
 public interface PetDAO
 {
    void createDog(String name, double weight, int bones);
