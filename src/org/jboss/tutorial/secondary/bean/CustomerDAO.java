@@ -6,11 +6,8 @@
  */
 package org.jboss.tutorial.secondary.bean;
 
-import javax.ejb.Remote;
-
 import java.util.List;
 
-@Remote
 public interface CustomerDAO
 {
    int create(String first, String last, String street, String city, String state, String zip);
