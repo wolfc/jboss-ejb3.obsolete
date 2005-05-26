@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.composite.bean;
 
-import javax.ejb.Remote;
+
 
 /**
  * Comment
@@ -14,7 +14,6 @@ import javax.ejb.Remote;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-@Remote
 public interface EntityTest
 {
    Flight findFlightById(Long id) throws Exception;

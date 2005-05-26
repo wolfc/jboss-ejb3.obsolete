@@ -6,13 +6,12 @@
  */
 package org.jboss.tutorial.composite.bean;
 
-import javax.persistence.EntityManager;
-import javax.ejb.Inject;
-import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-
 import java.util.HashSet;
 import java.util.Set;
+import javax.ejb.Inject;
+import javax.ejb.Stateless;
+import javax.ejb.RemoteInterface;
+import javax.persistence.EntityManager;
 
 /**
  * Comment
@@ -21,6 +20,7 @@ import java.util.Set;
  * @version $Revision$
  */
 @Stateless
+@RemoteInterface(EntityTest.class)
 public class EntityTestBean implements EntityTest
 {
    private @Inject EntityManager manager;
