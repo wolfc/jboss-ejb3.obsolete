@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
+import javax.ejb.RemoteInterface;
 import javax.persistence.EntityManager;
 import org.hibernate.Hibernate;
 
@@ -23,6 +24,7 @@ import org.hibernate.Hibernate;
  * @version $Revision$
  */
 @Stateless
+@RemoteInterface(LobTester.class)        
 public class LobTesterBean implements LobTester
 {
 
