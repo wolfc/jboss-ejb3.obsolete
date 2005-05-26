@@ -6,16 +6,17 @@
  */
 package org.jboss.tutorial.security.bean;
 
-import org.jboss.ejb3.security.SecurityDomain;
-
 import javax.ejb.MethodPermissions;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.ejb.Unchecked;
+import javax.ejb.RemoteInterface;
+import org.jboss.ejb3.security.SecurityDomain;
 
 @Stateless
 @SecurityDomain("other")
+@RemoteInterface(Calculator.class)
 public class CalculatorBean implements Calculator
 {
    @Unchecked

@@ -6,9 +6,8 @@
  */
 package org.jboss.tutorial.security.bean;
 
-import javax.ejb.Remote;
 
-@Remote
+
 public interface Calculator
 {
    int add(int x, int y);
