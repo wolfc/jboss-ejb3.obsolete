@@ -6,14 +6,15 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.persistence.EntityManager;
 import javax.ejb.Inject;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
+import javax.ejb.RemoteInterface;
 import javax.persistence.EntityManager;
 
 
 @Stateful
+@RemoteInterface(ShoppingCart.class)        
 public class ShoppingCartBean implements ShoppingCart
 {
    @Inject

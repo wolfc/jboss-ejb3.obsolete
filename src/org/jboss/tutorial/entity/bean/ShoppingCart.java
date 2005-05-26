@@ -6,7 +6,6 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.ejb.Remote;
 import javax.ejb.Remove;
 
 /**
@@ -15,7 +14,6 @@ import javax.ejb.Remove;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-@Remote
 public interface ShoppingCart
 {
    void buy(String product, int quantity, double price);
