@@ -6,13 +6,14 @@
  */
 package org.jboss.tutorial.singleinheritance.bean;
 
-import javax.persistence.EntityManager;
-import javax.ejb.Inject;
-import javax.ejb.Stateless;
-
 import java.util.List;
+import javax.ejb.Inject;
+import javax.ejb.RemoteInterface;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
 
 @Stateless
+@RemoteInterface(PetDAO.class)
 public class PetDAOBean implements PetDAO
 {
    @Inject
