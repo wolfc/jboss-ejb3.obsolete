@@ -6,13 +6,14 @@
  */
 package org.jboss.tutorial.merge.bean;
 
-import javax.persistence.EntityManager;
+import java.util.List;
 import javax.ejb.Inject;
 import javax.ejb.Stateless;
-
-import java.util.List;
+import javax.ejb.RemoteInterface;
+import javax.persistence.EntityManager;
 
 @Stateless
+@RemoteInterface(CustomerDAO.class)
 public class CustomerDAOBean implements CustomerDAO
 {
    @Inject
