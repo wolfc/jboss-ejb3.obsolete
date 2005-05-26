@@ -6,9 +6,8 @@
  */
 package org.jboss.tutorial.timer.bean;
 
-import javax.ejb.Remote;
 
-@Remote
+
 public interface ExampleTimer
 {
    void scheduleTimer(long milliseconds);
