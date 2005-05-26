@@ -6,14 +6,17 @@
  */
 package org.jboss.tutorial.jndibinding.bean;
 
-import org.jboss.ejb3.remoting.RemoteBinding;
-import org.jboss.ejb3.LocalBinding;
-
 import javax.ejb.Stateless;
+import javax.ejb.RemoteInterface;
+import javax.ejb.LocalInterface;
+import org.jboss.ejb3.LocalBinding;
+import org.jboss.ejb3.remoting.RemoteBinding;
 
 @Stateless
 @RemoteBinding(jndiBinding="Calculator")
 @LocalBinding(jndiBinding="CalculatorLocal")
+@RemoteInterface(CalculatorRemote.class)
+@LocalInterface(CalculatorLocal.class)        
 public class CalculatorBean implements CalculatorRemote, CalculatorLocal
 {
    public int add(int x, int y)
