@@ -6,17 +6,17 @@
  */
 package org.jboss.tutorial.callback.bean;
 
-import javax.persistence.EntityManager;
+import java.util.Iterator;
+import java.util.List;
 import javax.ejb.Inject;
-import javax.ejb.Stateless;
 import javax.ejb.PostConstruct;
 import javax.ejb.PreDestroy;
+import javax.ejb.RemoteInterface;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
-import java.util.List;
-import java.util.Iterator;
-
 @Stateless
+@RemoteInterface(CustomerDAO.class)        
 public class CustomerDAOBean implements CustomerDAO
 {
    @Inject
