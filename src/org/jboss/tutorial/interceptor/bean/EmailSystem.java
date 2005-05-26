@@ -6,9 +6,8 @@
  */
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.Remote;
 
-@Remote
+
 public interface EmailSystem
 {
    void emailLostPassword(String username);
