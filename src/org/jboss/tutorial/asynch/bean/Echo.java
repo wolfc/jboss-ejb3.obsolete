@@ -6,13 +6,12 @@
  */
 package org.jboss.tutorial.asynch.bean;
 
-import javax.ejb.Remote;
+
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @version $Revision$
  */
-@Remote
 public interface Echo
 {
    String echo(String s);

@@ -7,12 +7,14 @@
 package org.jboss.tutorial.asynch.bean;
 
 import javax.ejb.Stateless;
+import javax.ejb.RemoteInterface;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @version $Revision$
  */
 @Stateless
+@RemoteInterface(Echo.class)        
 public class EchoBean implements Echo
 {
    public String echo(String s)

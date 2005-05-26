@@ -1,6 +1,6 @@
 !!! Asynchronous calls
 
-A JBoss extension to EJB 3.0 is that from the @Remote or @Local interface of a stateful session bean, stateless session bean or service bean you can obtain an asynchronous proxy. Methods called on the asynchronous proxy will be executed asynchronously, and the results can be obtained later on.
+A JBoss extension to EJB 3.0 is that from the remote or local interface of a stateful session bean, stateless session bean or service bean you can obtain an asynchronous proxy. Methods called on the asynchronous proxy will be executed asynchronously, and the results can be obtained later on.
 
 !!Example simple ServicePOJO
 Take a look at [Echo.java|src/org/jboss/tutorial/asynch/bean/Echo.java] and [EchoRemote.java|src/org/jboss/tutorial/asynch/bean/EchoRemote.java]. They define a normal stateless session bean with a remote interface, nothing special. Now take a look at [Client.java|src/org/jboss/tutorial/asynch/client/Client.java]. It shows an example of asynchronous calls on a remote interface. We will walk through what it does here. The following lines just obtain the remote interface of the bean and call a method following the standard synchronous usage pattern
