@@ -7,10 +7,10 @@
 package org.jboss.tutorial.consumer.bean;
 
 import java.util.Map;
-import org.jboss.ejb3.mdb.DeliveryMode;
-import org.jboss.ejb3.mdb.MessageProperties;
-import org.jboss.ejb3.mdb.Producer;
-import org.jboss.ejb3.mdb.Local;
+import org.jboss.annotation.ejb.DeliveryMode;
+import org.jboss.annotation.ejb.MessageProperties;
+import org.jboss.annotation.ejb.Producer;
+import org.jboss.annotation.ejb.Local;
 
 
 /**

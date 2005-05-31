@@ -6,8 +6,9 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.ejb3.mdb.Producer;
-import org.jboss.ejb3.mdb.Local;
+import org.jboss.annotation.ejb.Producer;
+import org.jboss.annotation.ejb.Local;
+import org.jboss.annotation.ejb.Producer;
 
 
 /**

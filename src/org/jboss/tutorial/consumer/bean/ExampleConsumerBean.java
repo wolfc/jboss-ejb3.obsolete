@@ -6,7 +6,7 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.ejb3.mdb.Consumer;
+import org.jboss.annotation.ejb.Consumer;
 
 import javax.ejb.ActivationConfigProperty;
 import java.util.Map;

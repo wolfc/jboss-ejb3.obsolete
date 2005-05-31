@@ -8,7 +8,7 @@ package org.jboss.tutorial.consumer.bean;
 
 import java.util.HashMap;
 import java.util.Map;
-import javax.ejb.Inject;
+import org.jboss.annotation.JndiInject;
 import javax.ejb.RemoteInterface;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -30,7 +30,7 @@ public class TesterBean implements Tester
    private ExampleProducerXA xa;
    private ProducerManager xaManager;
 
-   @Inject(jndiName="org.jboss.tutorial.consumer.bean.ExampleProducerXA")
+   @JndiInject(jndiName="org.jboss.tutorial.consumer.bean.ExampleProducerXA")
    public void setXa(ExampleProducerXA xa)
    {
       this.xa = xa;
@@ -40,7 +40,7 @@ public class TesterBean implements Tester
    private ExampleProducer local;
    private ProducerManager localManager;
 
-   @Inject(jndiName="org.jboss.tutorial.consumer.bean.ExampleProducerLocal")
+   @JndiInject(jndiName="org.jboss.tutorial.consumer.bean.ExampleProducerLocal")
    public void setLocal(ExampleProducer local)
    {
       this.local = local;
