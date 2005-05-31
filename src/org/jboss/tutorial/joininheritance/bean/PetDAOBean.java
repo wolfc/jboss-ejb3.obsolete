@@ -7,16 +7,16 @@
 package org.jboss.tutorial.joininheritance.bean;
 
 import java.util.List;
-import javax.ejb.Inject;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
 import javax.ejb.RemoteInterface;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 @Stateless
 @RemoteInterface(PetDAO.class)
 public class PetDAOBean implements PetDAO
 {
-   @Inject
+   @Resource
    private EntityManager manager;
 
    public void createDog(String name, double weight, int bones)
