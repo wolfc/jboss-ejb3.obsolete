@@ -15,7 +15,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "CUSTOMER")
-@EntityListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")      
+@EntityListener(CustomerCallbackListener.class)
 public class Customer implements java.io.Serializable
 {
    private int id;
