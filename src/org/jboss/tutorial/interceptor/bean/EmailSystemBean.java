@@ -20,7 +20,7 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 @Stateless
-@Interceptors ({"org.jboss.tutorial.interceptor.bean.TracingInterceptor", "org.jboss.tutorial.interceptor.bean.OtherInterceptor"})
+@Interceptors ({TracingInterceptor.class, OtherInterceptor.class})
 @RemoteInterface(EmailSystem.class)        
 public class EmailSystemBean implements EmailSystem
 {
