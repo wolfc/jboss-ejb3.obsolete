@@ -6,11 +6,12 @@
  */
 package org.jboss.tutorial.security.bean;
 
-import javax.ejb.MethodPermissions;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.ejb.Unchecked;
+import javax.annotation.security.Unchecked;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.RemoteInterface;
 import org.jboss.ejb3.security.SecurityDomain;
 
@@ -26,13 +27,13 @@ public class CalculatorBean implements Calculator
       return x + y;
    }
 
-   @MethodPermissions({"student"})
+   @RolesAllowed({"student"})
    public int subtract(int x, int y)
    {
       return x - y;
    }
 
-   @MethodPermissions({"teacher"})
+   @RolesAllowed({"teacher"})
    public int divide(int x, int y)
    {
       return x / y;
