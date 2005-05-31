@@ -7,7 +7,7 @@
 package org.jboss.tutorial.timer.bean;
 
 import java.util.Date;
-import javax.ejb.Inject;
+import javax.annotation.Resource;
 import javax.ejb.RemoteInterface;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
@@ -18,7 +18,7 @@ import javax.ejb.Timer;
 @RemoteInterface(ExampleTimer.class)        
 public class ExampleTimerBean implements ExampleTimer
 {
-   private @Inject SessionContext ctx;
+   private @Resource SessionContext ctx;
 
    public void scheduleTimer(long milliseconds)
    {
