@@ -7,16 +7,16 @@
 package org.jboss.tutorial.dependent.bean;
 
 import java.util.List;
-import javax.ejb.Inject;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
 import javax.ejb.RemoteInterface;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 @Stateless
 @RemoteInterface(CustomerDAO.class)
 public class CustomerDAOBean implements CustomerDAO
 {
-   @Inject
+   @Resource
    private EntityManager manager;
 
 
