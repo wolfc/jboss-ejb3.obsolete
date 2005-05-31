@@ -8,7 +8,7 @@ package org.jboss.tutorial.relationships.bean;
 
 import java.util.HashSet;
 import java.util.Set;
-import javax.ejb.Inject;
+import javax.annotation.Resource;
 import javax.ejb.RemoteInterface;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -23,7 +23,7 @@ import javax.persistence.EntityManager;
 @RemoteInterface(EntityTest.class)
 public class EntityTestBean implements EntityTest
 {
-   private @Inject EntityManager manager;
+   private @Resource EntityManager manager;
 
    public void manyToManyCreate() throws Exception
    {
