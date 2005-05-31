@@ -9,8 +9,10 @@ package org.jboss.tutorial.jndibinding.bean;
 import javax.ejb.Stateless;
 import javax.ejb.RemoteInterface;
 import javax.ejb.LocalInterface;
-import org.jboss.ejb3.LocalBinding;
-import org.jboss.ejb3.remoting.RemoteBinding;
+import org.jboss.annotation.ejb.LocalBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.annotation.ejb.LocalBinding;
 
 @Stateless
 @RemoteBinding(jndiBinding="Calculator")
