@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import javax.ejb.Inject;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
 import javax.ejb.RemoteInterface;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import org.hibernate.Hibernate;
 
@@ -28,7 +28,7 @@ import org.hibernate.Hibernate;
 public class LobTesterBean implements LobTester
 {
 
-   @Inject EntityManager manager;
+   @Resource EntityManager manager;
 
    public long create()
    {
