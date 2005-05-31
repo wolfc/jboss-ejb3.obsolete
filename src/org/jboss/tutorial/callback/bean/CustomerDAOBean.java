@@ -8,7 +8,7 @@ package org.jboss.tutorial.callback.bean;
 
 import java.util.Iterator;
 import java.util.List;
-import javax.ejb.Inject;
+import javax.annotation.Resource;
 import javax.ejb.PostConstruct;
 import javax.ejb.PreDestroy;
 import javax.ejb.RemoteInterface;
@@ -19,7 +19,7 @@ import javax.persistence.EntityManager;
 @RemoteInterface(CustomerDAO.class)        
 public class CustomerDAOBean implements CustomerDAO
 {
-   @Inject
+   @Resource
    private EntityManager manager;
 
    public int create(String first, String last, String street, String city, String state, String zip)
