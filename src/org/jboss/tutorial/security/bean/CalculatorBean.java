@@ -13,7 +13,8 @@ import javax.ejb.TransactionAttributeType;
 import javax.annotation.security.Unchecked;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.RemoteInterface;
-import org.jboss.ejb3.security.SecurityDomain;
+import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.annotation.security.SecurityDomain;
 
 @Stateless
 @SecurityDomain("other")
