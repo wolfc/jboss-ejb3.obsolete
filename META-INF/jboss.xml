@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<jboss>
+
+   <enterprise-beans>
+      <session>
+         <ejb-name>Calculator</ejb-name>
+         <jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</jndi-name>
+         <local-jndi-name>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</local-jndi-name>
+      </session>
+   </enterprise-beans>
+</jboss>
