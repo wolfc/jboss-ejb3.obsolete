@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<jboss>
+
+   <enterprise-beans>
+      <session>
+         <ejb-name>ShoppingCart</ejb-name>
+         <jndi-name>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</jndi-name>
+      </session>
+   </enterprise-beans>
+</jboss>
