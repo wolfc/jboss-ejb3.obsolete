@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar> 
+   <description>JBoss Stateful Session Bean Tutorial</description>
+   <display-name>JBoss Stateful Session Bean Tutorial</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>ShoppingCart</ejb-name>
+         <remote>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</remote>
+         <ejb-class>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCartBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>
