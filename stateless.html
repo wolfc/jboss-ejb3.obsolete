@@ -3,22 +3,22 @@
 <p>
 <h2>Stateless Beans</h2>
 
-It is very easy to create a Stateless Bean with EJB 3.0.  All bean types are homeless in EJB 3.0 so all you have to do to create a Stateless bean is to create a bean class and have it implement at least one interface.  Take a look at <a href="src/org/jboss/tutorial/stateless/bean/CalculatorBean.java">CalculatorBean.java</a>
+It is also very easy to create a Stateless Bean with EJB 3.0 using deployment descriptors, as opposed to annotations.  Take a look at <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorBean.java">CalculatorBean.java</a> and the corresponding deployment descriptors <a href="META-INF/ejb-jar.xml">ejb-jar.xml</a> and <a href="META-INF/jboss.xml">jboss.xml</a>
 </p><p>
-The first thing to notice is that the class is tagged as <tt>@Stateless</tt>.  This marks the class as a stateless bean and the deployer will deploy that class as a stateless bean EJB container.
+All bean types are homeless in EJB 3.0, so the <tt>home</tt> and <tt>local-home</tt> elements are not required. Only <tt>ejb-name</tt>, <tt>ejb-class</tt>, and <tt>session-type</tt> are required. The <tt>session-type</tt> element has the value <tt>Stateless</tt>.
 </p><p>
 CalculatorBean also implements two interfaces.  One is the remote interface of the EJB the other is the local interface.  Currently, you can only have one remote and/or local interface.
 </p><p>
-Take a look at <a href="src/org/jboss/tutorial/stateless/bean/CalculatorRemote.java">CalculatorRemote.java</a>.  To define this as the remote interface of Calculator bean
-you only need to tag it as <tt>@Remote</tt>.  Same goes for <a href="src/org/jboss/tutorial/stateless/bean/CalculatorLocal.java">CalculatorLocal.java</a> as it only needs to be marked as <tt>@Local</tt> for it to be the local interface of the CalculatorBean.
+Take a look at <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorRemote.java">CalculatorRemote.java</a>.  To define this as the remote interface of Calculator bean
+you only need the <tt>remote</tt> element.  Same goes for <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorLocal.java">CalculatorLocal.java</a> as it only needs the <tt>local</tt> element for it to be the local interface of the CalculatorBean.
 </p><p>
 <h4>JNDI Bindings</h4>
 
-The Calculator bean will have two JNDI bindings for the <tt>@Remote</tt> and <tt>@Local</tt> interface.  By default, JBoss will use the fully qualified class name of the interface as the JNDI name.  This makes it very easy to reference the JNDI name in lookups as you can just do <tt>CalculatorRemote.class.getName()</tt>.  
+The Calculator bean will have two JNDI bindings for the <tt>remote</tt> and <tt>local</tt> interface as specified in <a href="META-INF/ejb-jar.xml">jboss.xml</a> with the <tt>jndi-name</tt> and <tt>local-jndi-name</tt> elements.
 </p><p>
 <h4>Client</h4>
 
-Open up <a href="src/org/jboss/tutorial/stateless/client/Client.java">Client.java</a>.  You'll see that it looks up the stateless bean under its remote interface's fully qualified classname.  Also notice that there is no Home interface and you can begin executing on the stateless bean right away.
+Open up <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/client/Client.java">Client.java</a>.  You'll see that it looks up the stateless bean under its remote interface's fully qualified classname.  Also notice that there is no Home interface and you can begin executing on the stateless bean right away.
 </p><p>
 <h4>Building and Running</h4>
 
