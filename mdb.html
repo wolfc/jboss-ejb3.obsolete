@@ -3,16 +3,11 @@
 <p>
 <h2>Message Drive Beans</h2>
 
-This example shows you how to implement an MDB with EJB 3.0.
+This example shows you how to implement an MDB with EJB 3.0, using a deployment descriptor as opposed to annotations.
 </p><p>
+Take a look at <a href="src/org/jboss/tutorial/mdb_deployment_descriptor/bean/ExampleMDB.java">ExampleMDB.java</a> and the corresponding deployment descriptor <a href="META-INF/ejb-jar.xml">ejb-jar.xml</a> 
 </p><p>
-You configure properties by using the @MessageDriven(activateConfig) attribute with a bunch
-of @ActivationConfigProperty.  All properties that you can set are defined in this file.  Internally
-this is the class that is created to hold config information.
-</p><p>
-<a href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-ejb3/src/main/org/jboss/ejb3/mdb/MDBConfig.java?rev=1.1&view=markup">MDBConfig.java</a>
-</p><p>
-Take a look at <a href="src/org/jboss/tutorial/mdb/bean/ExampleMDB.java">ExampleMDB.java</a>.
+You configure properties by using the <tt>message-driven</tt> element with <tt>ejb-name</tt>, <tt>ejb-class</tt>, and the <tt>message-driven-destination</tt> elements.
 </p><p>
 The <a href="queue-example-service.xml">queue-example-service.xml</a> file defines the queue.  This is the same in regular JBoss.
 </p><p>
