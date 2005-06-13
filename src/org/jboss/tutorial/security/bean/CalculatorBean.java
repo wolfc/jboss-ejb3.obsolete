@@ -10,7 +10,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.annotation.security.Unchecked;
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.RemoteInterface;
 import org.jboss.annotation.security.SecurityDomain;
@@ -21,7 +21,7 @@ import org.jboss.annotation.security.SecurityDomain;
 @RemoteInterface(Calculator.class)
 public class CalculatorBean implements Calculator
 {
-   @Unchecked
+   @PermitAll
    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
    public int add(int x, int y)
    {
