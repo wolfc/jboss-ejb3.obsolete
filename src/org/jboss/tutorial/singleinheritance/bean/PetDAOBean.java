@@ -30,11 +30,11 @@ public class PetDAOBean implements PetDAO
 
    public void createCat(String name, double weight, int lives)
    {
-      Dog dog = new Dog();
-      dog.setName(name);
-      dog.setWeight(weight);
-      dog.setNumBones(lives);
-      manager.persist(dog);
+      Cat cat = new Cat();
+      cat.setName(name);
+      cat.setWeight(weight);
+      cat.setLives(lives);
+      manager.persist(cat);
    }
 
    public List findByWeight(double weight)
