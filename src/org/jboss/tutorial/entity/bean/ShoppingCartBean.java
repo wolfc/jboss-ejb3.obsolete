@@ -7,15 +7,15 @@
 package org.jboss.tutorial.entity.bean;
 
 import javax.annotation.Resource;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 
 
 @Stateful
-@RemoteInterface(ShoppingCart.class)        
-public class ShoppingCartBean implements ShoppingCart
+@Remote(ShoppingCart.class)
+public class ShoppingCartBean implements ShoppingCart, java.io.Serializable
 {
    @Resource
    private EntityManager manager;
