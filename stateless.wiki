@@ -6,7 +6,7 @@ The first thing to notice is that the class is tagged as {{@Stateless}}.  This m
 CalculatorBean also implements two interfaces.  One is the remote interface of the EJB the other is the local interface.  Currently, you can only have one remote and/or local interface.
 
 Take a look at [CalculatorRemote.java|src/org/jboss/tutorial/stateless/bean/CalculatorRemote.java].  To define this as the remote interface of Calculator bean
-you only need to annotate the bean class with @javax.ejb.RemoteInterface.  Similar for [CalculatorLocal.java|src/org/jboss/tutorial/stateless/bean/CalculatorLocal.java] as you need to annotate the bean class with @javax.ejb.LocalInterface for it to be the local interface of the CalculatorBean.
+you only need to annotate the bean class with @javax.ejb.Remote.  Similar for [CalculatorLocal.java|src/org/jboss/tutorial/stateless/bean/CalculatorLocal.java] as you need to annotate the bean class with @javax.ejb.Local for it to be the local interface of the CalculatorBean.
 
 !JNDI Bindings
 The Calculator bean will have two JNDI bindings for the remote and Local interface.  By default, JBoss will use the fully qualified class name of the interface as the JNDI name.  This makes it very easy to reference the JNDI name in lookups as you can just do {{CalculatorRemote.class.getName()}}.  
