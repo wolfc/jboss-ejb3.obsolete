@@ -10,7 +10,7 @@ import javax.ejb.AroundInvoke;
 import javax.ejb.Interceptors;
 import javax.ejb.InvocationContext;
 import javax.ejb.Stateless;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -21,7 +21,7 @@ import javax.naming.InitialContext;
 
 @Stateless
 @Interceptors ({TracingInterceptor.class, OtherInterceptor.class})
-@RemoteInterface(EmailSystem.class)        
+@Remote(EmailSystem.class)
 public class EmailSystemBean implements EmailSystem
 {
    public void emailLostPassword(String username)
