@@ -12,13 +12,13 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import org.jboss.annotation.security.SecurityDomain;
 import org.jboss.annotation.security.SecurityDomain;
 
 @Stateless
 @SecurityDomain("other")
-@RemoteInterface(Calculator.class)
+@Remote(Calculator.class)
 public class CalculatorBean implements Calculator
 {
    @PermitAll
