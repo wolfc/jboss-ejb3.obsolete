@@ -9,7 +9,7 @@ package org.jboss.tutorial.relationships.bean;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
@@ -20,7 +20,7 @@ import javax.persistence.EntityManager;
  * @version $Revision$
  */
 @Stateless
-@RemoteInterface(EntityTest.class)
+@Remote(EntityTest.class)
 public class EntityTestBean implements EntityTest
 {
    private @Resource EntityManager manager;
