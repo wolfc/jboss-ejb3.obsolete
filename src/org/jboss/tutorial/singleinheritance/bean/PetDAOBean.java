@@ -8,12 +8,12 @@ package org.jboss.tutorial.singleinheritance.bean;
 
 import java.util.List;
 import javax.annotation.Resource;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 @Stateless
-@RemoteInterface(PetDAO.class)
+@Remote(PetDAO.class)
 public class PetDAOBean implements PetDAO
 {
    @Resource
