@@ -9,7 +9,7 @@ package org.jboss.tutorial.consumer.bean;
 import java.util.HashMap;
 import java.util.Map;
 import org.jboss.annotation.JndiInject;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -24,7 +24,7 @@ import org.jboss.ejb3.mdb.ProducerObject;
  * @version $Revision$
  */
 @Stateless
-@RemoteInterface(Tester.class)
+@Remote(Tester.class)
 public class TesterBean implements Tester
 {
    private ExampleProducerXA xa;
