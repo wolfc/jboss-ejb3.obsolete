@@ -8,12 +8,12 @@ package org.jboss.tutorial.dependent.bean;
 
 import java.util.List;
 import javax.annotation.Resource;
-import javax.ejb.RemoteInterface;
+import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 @Stateless
-@RemoteInterface(CustomerDAO.class)
+@Remote(CustomerDAO.class)
 public class CustomerDAOBean implements CustomerDAO
 {
    @Resource
