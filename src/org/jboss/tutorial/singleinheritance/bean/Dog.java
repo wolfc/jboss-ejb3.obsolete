@@ -10,23 +10,21 @@ import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.Inheritance;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.InheritanceType;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "DOG")
 public class Dog extends Pet
 {
-   private int numBones;
+   private String trick;
 
-   public int getNumBones()
+   public String getTrick()
    {
-      return numBones;
+      return trick;
    }
 
-   public void setNumBones(int numBones)
+   public void setTrick(String trick)
    {
-      this.numBones = numBones;
+      this.trick = trick;
    }
+
 }

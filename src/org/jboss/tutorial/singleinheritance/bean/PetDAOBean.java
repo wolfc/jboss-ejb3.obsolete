@@ -24,7 +24,7 @@ public class PetDAOBean implements PetDAO
       Dog dog = new Dog();
       dog.setName(name);
       dog.setWeight(weight);
-      dog.setNumBones(bones);
+      dog.setTrick("Sit");
       manager.persist(dog);
    }
 
@@ -33,7 +33,7 @@ public class PetDAOBean implements PetDAO
       Cat cat = new Cat();
       cat.setName(name);
       cat.setWeight(weight);
-      cat.setLives(lives);
+      cat.setHairball("#$@#%@");
       manager.persist(cat);
    }
 
