@@ -8,9 +8,6 @@ package org.jboss.tutorial.stateful_deployment_descriptor.bean;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import javax.ejb.Remove;
-import javax.ejb.Stateful;
-import javax.ejb.RemoteInterface;
 
 public class ShoppingCartBean implements ShoppingCart, Serializable
 {

@@ -4,7 +4,7 @@ It is very easy to create a Stateful Bean with EJB 3.0.  All bean types are home
 The first thing to notice is that the class is tagged as {{@Stateful}}.  This marks the class as a stateful bean and the deployer will deploy that class as a stateful bean EJB container.
 
 ShoppingCartBean also implements a remote interface.  Take a look at [ShoppingCart.java|src/org/jboss/tutorial/stateful/bean/ShoppingCart.java].  To define this as the remote interface of ShoppingCartBean
-you need to use the {{@javax.ejb.RemoteInterface}} annotation on the ShoppingCartBean class.
+you need to use the {{@javax.ejb.Remote}} annotation on the ShoppingCartBean class.
 
 !@Remove
 Take another look at [ShoppingCartBean.java|src/org/jboss/tutorial/stateful/bean/ShoppingCartBean.java].  Look for the method annotated as {{@Remove}}.  Instead of explicitly calling EJBObject.remove() in your applications and thus polluting it further with J2EE specific code, any method tagged with {{@Remove}} will cause the stateful bean instance to be removed from the container at the end of the method call.  
