@@ -6,18 +6,19 @@
  */
 package org.jboss.tutorial.entity.bean;
 
-import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContext;
 
 
 @Stateful
 @Remote(ShoppingCart.class)
 public class ShoppingCartBean implements ShoppingCart, java.io.Serializable
 {
-   @Resource
+   @PersistenceContext
    private EntityManager manager;
    private Order order;
 
