@@ -7,16 +7,16 @@
 package org.jboss.tutorial.singleinheritance.bean;
 
 import java.util.List;
-import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Stateless
 @Remote(PetDAO.class)
 public class PetDAOBean implements PetDAO
 {
-   @Resource
+   @PersistenceContext
    private EntityManager manager;
 
    public void createDog(String name, double weight, int bones)
