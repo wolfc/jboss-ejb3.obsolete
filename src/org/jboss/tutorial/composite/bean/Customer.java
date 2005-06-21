@@ -1,18 +1,13 @@
 //$Id$
 package org.jboss.tutorial.composite.bean;
 
-import javax.persistence.AttributeOverride;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.EmbeddedId;
-import javax.persistence.Transient;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
-import javax.persistence.ManyToMany;
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-import java.util.Set;
 
 /**
  *
@@ -27,10 +22,7 @@ public class Customer implements java.io.Serializable
    {
    }
 
-   @EmbeddedId({
-   @AttributeOverride(name = "id"),
-   @AttributeOverride(name = "name")
-   })
+   @EmbeddedId
    public CustomerPK getPk()
    {
       return pk;
