@@ -7,17 +7,13 @@
 package org.jboss.tutorial.dependent.bean;
 
 import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratorType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.persistence.AttributeOverride;
-import javax.persistence.Embedded;
-import javax.persistence.GeneratorType;
-import javax.persistence.Entity;
 
 @Entity
 @Table(name = "CUSTOMER")
@@ -55,9 +51,10 @@ public class Customer implements java.io.Serializable
    }
 
 
-   @Embedded({
-   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
-   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
+   @Embedded
+   @AttributeOverrides({
+   @AttributeOverride(name = "first", column = @Column(name = "FIRST_NAME")),
+   @AttributeOverride(name = "last", column = @Column(name = "LAST_NAME"))
    })
    public Name getName()
    {
