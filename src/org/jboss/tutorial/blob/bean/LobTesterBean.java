@@ -11,10 +11,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
-import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContext;
 import org.hibernate.Hibernate;
 
 /**
@@ -28,7 +29,7 @@ import org.hibernate.Hibernate;
 public class LobTesterBean implements LobTester
 {
 
-   @Resource EntityManager manager;
+   @PersistenceContext EntityManager manager;
 
    public long create()
    {
