@@ -7,16 +7,17 @@
 package org.jboss.tutorial.secondary.bean;
 
 import java.util.List;
-import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContext;
 
 @Stateless
 @Remote(CustomerDAO.class)
 public class CustomerDAOBean implements CustomerDAO
 {
-   @Resource
+   @PersistenceContext
    private EntityManager manager;
 
 
