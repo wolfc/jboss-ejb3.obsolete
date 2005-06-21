@@ -8,18 +8,18 @@ package org.jboss.tutorial.callback.bean;
 
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Resource;
 import javax.ejb.PostConstruct;
 import javax.ejb.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Stateless
 @Remote(CustomerDAO.class)
 public class CustomerDAOBean implements CustomerDAO
 {
-   @Resource
+   @PersistenceContext
    private EntityManager manager;
 
    public int create(String first, String last, String street, String city, String state, String zip)
