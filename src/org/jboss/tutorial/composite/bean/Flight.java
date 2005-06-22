@@ -1,7 +1,7 @@
 //$Id$
 package org.jboss.tutorial.composite.bean;
 
-import javax.persistence.AssociationTable;
+import javax.persistence.JoinTable;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -91,7 +91,7 @@ public class Flight implements java.io.Serializable
    }
 
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-   @AssociationTable(table = @Table(name = "flight_customer_table"),
+   @JoinTable(table = @Table(name = "flight_customer_table"),
                      joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
                      inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
    public Set<Customer> getCustomers()
