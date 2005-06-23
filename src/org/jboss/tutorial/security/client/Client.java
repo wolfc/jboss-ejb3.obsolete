@@ -6,11 +6,10 @@
  */
 package org.jboss.tutorial.security.client;
 
+import javax.naming.InitialContext;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.tutorial.security.bean.Calculator;
-
-import javax.naming.InitialContext;
 
 public class Client
 {
@@ -28,7 +27,7 @@ public class Client
       {
          System.out.println("1 + 1 = " + calculator.add(1, 1));
       }
-      catch (SecurityException ex)
+      catch (javax.ejb.EJBAccessException ex)
       {
          System.out.println(ex.getMessage());
       }
