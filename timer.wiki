@@ -3,11 +3,11 @@ This example shows you how to access {{javax.ejb.SessionContext}} as well as usi
 callbacks work in EJB 3.0.
 
 !SessionContext injection
-The {{javax.ejb.SessionContext}} is injected using the {{@Inject}} annotation.  When the stateless bean instance is created
+The {{javax.ejb.SessionContext}} is injected using the {{@javax.annotation.Resource}} annotation.  When the stateless bean instance is created
 the field will be initialized with the correct SessionContext.  Take a look at [ExampleTimerBean.java|src/org/jboss/tutorial/timer/bean/ExampleTimerBean.java]
 
 {{{
-   private @Inject SessionContext ctx;
+   private @Resource SessionContext ctx;
 }}}
 
 !Callbacks
