@@ -71,10 +71,10 @@ The <tt>@JoinColumn</tt> specifies the foreign key column within the LineItem ta
 
 The <a href="src/org/jboss/tutorial/entity/bean/ShoppingCartBean.java">ShoppingCartBean</a> allocates and stores all instances of Orders and LineItems.  If you look at the example you can see that ShoppingCart interacts with Order as a plain Java object.  It allocates it with <tt>new</tt>.  It can pass the Order back to the client.  The <tt>checkout()</tt> method actually stores it with persistence storage by using the required EntityManager service.
 </p><p>
-The EntityManager service is injected using field injection and the <tt>@Inject</tt> annotation.
+The EntityManager service is injected using field injection and the <tt>@PersistenceContext</tt> annotation.
 </p><p>
 <pre>
-   @Inject
+   @PersistenceContext
    private EntityManager manager;
 </pre>
 </p><p>
@@ -111,7 +111,8 @@ You can view the tables created by JBoss by going to the <a href="http://localho
 </p><p>
 <h4>Jar structure</h4>
 
-EJB 3.0 beans must be packaged in a JAR file with the suffix <tt>.ejb3</tt>.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.f
+The EJB 3.0 spec mandates that entities must be packaged separately in persistence archives <tt>.par</tt>, but JBoss EJB 3.0 allows them to be deployed along with plain EJBs within <tt>.ejb3</tt> files.
+See the packaging tutorial for more detail.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.f
 </p><p>
 </p><p>
 </p><p>
