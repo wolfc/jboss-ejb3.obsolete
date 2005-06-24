@@ -17,7 +17,7 @@ There is a unidirectional one to one relationship defined between the [Customer|
 {{CascadeType.ALL}} specifies that when a Customer is created, if there is any Address association, then that Address will be created as well({{CascadeType.PERSIST}}).  If the Customer is deleted from persistence storage, the Address table will be deleted({{CascadeType.REMOVE}}).  If a Customer instance is reattached to persistence storage, any changes to the Address collection will be merged with persistence storage ({{CascadeType.MERGE}}).
 
 !Many To Many
-There is a mant to many relationship between [Customer|src/org/jboss/tutorial/relationships/bean/Customer.java] and [Flight|src/org/jboss/tutorial/relationships/bean/Flight.java].  In order to have a many to many relationship there needs to be a distinct join table that maps the many to many relationship.  This is called an association table.  You can have JBoss automatically generate the association table for you, or you can use the {{@AssociationTable}} annotation to define it yourself.  If you use {{@AssociationTable}} it must be defined on both sides of the bi-directional relationship.  Let's look at the Customer side of the relationship
+There is a mant to many relationship between [Customer|src/org/jboss/tutorial/relationships/bean/Customer.java] and [Flight|src/org/jboss/tutorial/relationships/bean/Flight.java].  In order to have a many to many relationship there needs to be a distinct join table that maps the many to many relationship.  This is called an association table.  You can have JBoss automatically generate the association table for you, or you can use the {{@JoinTable}} annotation to define it yourself.  If you use {{@JoinTable}} it must be defined on both sides of the bi-directional relationship.  Let's look at the Customer side of the relationship
 
 {{{
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
@@ -30,7 +30,7 @@ Let's look at the other side of the relationship in Flight.
 
 {{{
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-   @AssociationTable(table = @Table(name = "flight_customer_table"),
+   @JoinTable(table = @Table(name = "flight_customer_table"),
                      joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
                      inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})
    public Set<Customer> getCustomers()
