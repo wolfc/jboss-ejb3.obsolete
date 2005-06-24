@@ -1,50 +1,9 @@
 <html>
 <body>
 <p>
-<h2>Stateless Beans</h2>
+<h2>Stateless Beans and XML</h2>
 
-It is also very easy to create a Stateless Bean with EJB 3.0 using deployment descriptors, as opposed to annotations.  Take a look at <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorBean.java">CalculatorBean.java</a> and the corresponding deployment descriptors <a href="META-INF/ejb-jar.xml">ejb-jar.xml</a> and <a href="META-INF/jboss.xml">jboss.xml</a>
-</p><p>
-All bean types are homeless in EJB 3.0, so the <tt>home</tt> and <tt>local-home</tt> elements are not required. Only <tt>ejb-name</tt>, <tt>ejb-class</tt>, and <tt>session-type</tt> are required. The <tt>session-type</tt> element has the value <tt>Stateless</tt>.
-</p><p>
-CalculatorBean also implements two interfaces.  One is the remote interface of the EJB the other is the local interface.  Currently, you can only have one remote and/or local interface.
-</p><p>
-Take a look at <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorRemote.java">CalculatorRemote.java</a>.  To define this as the remote interface of Calculator bean
-you only need the <tt>remote</tt> element.  Same goes for <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/bean/CalculatorLocal.java">CalculatorLocal.java</a> as it only needs the <tt>local</tt> element for it to be the local interface of the CalculatorBean.
-</p><p>
-<h4>JNDI Bindings</h4>
-
-The Calculator bean will have two JNDI bindings for the <tt>remote</tt> and <tt>local</tt> interface as specified in <a href="META-INF/ejb-jar.xml">jboss.xml</a> with the <tt>jndi-name</tt> and <tt>local-jndi-name</tt> elements.
-</p><p>
-<h4>Client</h4>
-
-Open up <a href="src/org/jboss/tutorial/stateless_deployment_descriptor/client/Client.java">Client.java</a>.  You'll see that it looks up the stateless bean under its remote interface's fully qualified classname.  Also notice that there is no Home interface and you can begin executing on the stateless bean right away.
-</p><p>
-<h4>Building and Running</h4>
-
-To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
-<pre>
-Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
-Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
-$ ant
-$ ant run
-
-run:
-     [java] 2004-10-06 19:10:35,857 INFO org.jboss.remoting.InvokerRegistry[main] - Failed to load soap remoting transpo
-rt: org/apache/axis/AxisFault
-     [java] 1 + 1 = 2
-     [java] 1 - 1 = 0
-</pre>
-</p><p>
-The INFO message you can ignore.  It will be fixed in later releases of JBoss 4.0.
-</p><p>
-<h4>Jar structure</h4>
-
-EJB 3.0 beans must be packaged in a JAR file with the suffix <tt>.ejb3</tt>.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files.  So basically just the CalculatorBean and the interfaces it implements.  JBoss will automatically browse the JAR file to determine if any EJBs are annotated by any classes within it.  THere is no precompilation step.
-</p><p>
-</p><p>
-</p><p>
-</p><p>
+This tutorial teaches XML and stateless beans.
 </p>
 </body>
 </html>
