@@ -14,6 +14,8 @@
 
    <!-- Build classpath -->
    <path id="classpath">
+      <!-- So that we can get jndi.properties for InitialContext -->
+      <pathelement location="${basedir}"/>
       <fileset dir="${jboss.home}/lib">
          <include name="**/*.jar"/>
       </fileset>
@@ -27,8 +29,6 @@
          <include name="*.jar"/>
       </fileset>
       <pathelement location="${build.classes.dir}"/>
-      <!-- So that we can get jndi.properties for InitialContext -->
-      <pathelement location="${basedir}"/>
    </path>
 
    <property name="build.classpath" refid="classpath"/>
