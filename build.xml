@@ -8,7 +8,7 @@
 
    <property environment="env"/>
    <property name="src.dir" value="${basedir}/src"/>
-   <property name="jboss.home" value="${env.JBOSS_HOME}"/>
+   <property name="jboss.home" value="${env.JBOSS_HOME}"/>   <property name="jboss.server.config" value="all"/>
    <property name="build.dir" value="${basedir}/build"/>
    <property name="build.classes.dir" value="${build.dir}/classes"/>
 
@@ -19,13 +19,13 @@
       <fileset dir="${jboss.home}/lib">
          <include name="**/*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/all/lib">
+      <fileset dir="${jboss.home}/server/${jboss.server.config}/lib">
          <include name="**/*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/all/deploy/ejb3.deployer">
+      <fileset dir="${jboss.home}/server/${jboss.server.config}/deploy/ejb3.deployer">
          <include name="*.jar"/>
       </fileset>
-      <fileset dir="${jboss.home}/server/all/deploy/jboss-aop-jdk50.deployer">
+      <fileset dir="${jboss.home}/server/${jboss.server.config}/deploy/jboss-aop-jdk50.deployer">
          <include name="*.jar"/>
       </fileset>
       <pathelement location="${build.classes.dir}"/>
@@ -61,9 +61,9 @@
             <include name="**/*.class"/>
          </fileset>
       </jar>
-      <copy file="queue-example-service.xml" todir="${jboss.home}/server/all/deploy"/>
+      <copy file="queue-example-service.xml" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
       <sleep seconds="5"/>
-      <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/all/deploy"/>
+      <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
    </target>
 
    <target name="run" depends="ejbjar">
@@ -76,13 +76,13 @@
    <!-- Cleans up generated stuff                                           -->
    <!-- =================================================================== -->
    <target name="clean.db">
-      <delete dir="${jboss.home}/server/all/data/hypersonic"/>
+      <delete dir="${jboss.home}/server/${jboss.server.config}/data/hypersonic"/>
    </target>
 
    <target name="clean">
       <delete dir="${build.dir}"/>
-      <delete file="${jboss.home}/server/all/deploy/tutorial.ejb3"/>
-      <delete file="${jboss.home}/server/all/deploy/queue-example-service.xml"/>
+      <delete file="${jboss.home}/server/${jboss.server.config}/deploy/tutorial.ejb3"/>
+      <delete file="${jboss.home}/server/${jboss.server.config}/deploy/queue-example-service.xml"/>
    </target>
 
 
