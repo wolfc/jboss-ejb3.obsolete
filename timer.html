@@ -8,11 +8,11 @@ callbacks work in EJB 3.0.
 </p><p>
 <h4>SessionContext injection</h4>
 
-The <tt>javax.ejb.SessionContext</tt> is injected using the <tt>@Inject</tt> annotation.  When the stateless bean instance is created
+The <tt>javax.ejb.SessionContext</tt> is injected using the <tt>@javax.annotation.Resource</tt> annotation.  When the stateless bean instance is created
 the field will be initialized with the correct SessionContext.  Take a look at <a href="src/org/jboss/tutorial/timer/bean/ExampleTimerBean.java">ExampleTimerBean.java</a>
 </p><p>
 <pre>
-   private @Inject SessionContext ctx;
+   private @Resource SessionContext ctx;
 </pre>
 </p><p>
 <h4>Callbacks</h4>
