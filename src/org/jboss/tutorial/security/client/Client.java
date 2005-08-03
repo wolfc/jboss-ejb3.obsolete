@@ -53,7 +53,7 @@ public class Client
       {
          calculator.divide(16, 4);
       }
-      catch (EJBAccessException ex)
+      catch (javax.ejb.EJBAccessException  ex)
       {
          System.out.println(ex.getMessage());
       }
