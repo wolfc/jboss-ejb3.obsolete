@@ -17,6 +17,11 @@ import javax.ejb.Remote;
 @Remote(Echo.class)
 public class EchoBean implements Echo
 {
+   public int echo(int i)
+   {
+      return i;
+   }
+
    public String echo(String s)
    {
       return s;
