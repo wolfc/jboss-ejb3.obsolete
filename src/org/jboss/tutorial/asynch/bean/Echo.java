@@ -15,4 +15,5 @@ package org.jboss.tutorial.asynch.bean;
 public interface Echo
 {
    String echo(String s);
+   public int echo(int i);
 }

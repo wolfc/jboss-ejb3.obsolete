@@ -21,4 +21,5 @@ public class EchoBean implements Echo
    {
       return s;
    }
+
 }

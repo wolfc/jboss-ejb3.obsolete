@@ -6,12 +6,10 @@
  */
 package org.jboss.tutorial.asynch.client;
 
-import org.jboss.tutorial.asynch.bean.Echo;
-import org.jboss.ejb3.JBossProxy;
-import org.jboss.aspects.asynch.AsynchProvider;
-import org.jboss.aspects.asynch.Future;
-
 import javax.naming.InitialContext;
+import org.jboss.aspects.asynch.Future;
+import org.jboss.ejb3.asynchronous.Asynch;
+import org.jboss.tutorial.asynch.bean.Echo;
 
 
 public class Client
@@ -24,8 +22,7 @@ public class Client
       String ret = echo.echo("normal call");
       System.out.println(ret);
 
-      JBossProxy proxy = (JBossProxy)echo;
-      Echo asynchEcho = (Echo)proxy.getAsynchronousProxy();
+      Echo asynchEcho = Asynch.getAsynchronousProxy(echo);
       System.out.println("-------- Asynchronous call");
       ret = asynchEcho.echo("asynchronous call");
       System.out.println("Direct return of async invocation is: " + ret);
@@ -35,8 +32,7 @@ public class Client
       System.out.println(ret);
 
       System.out.println("-------- Result of Asynchronous call");
-      AsynchProvider provider = (AsynchProvider)asynchEcho;
-      Future future = provider.getFuture();
+      Future future = Asynch.getFutureResult(asynchEcho);
 
       System.out.println("Waiting for asynbch invocation to complete");
       while (!future.isDone())
