@@ -6,14 +6,14 @@
  */
 package org.jboss.tutorial.consumer.client;
 
-import org.jboss.tutorial.consumer.bean.ExampleProducerRemote;
-import org.jboss.tutorial.consumer.bean.Tester;
-import org.jboss.ejb3.mdb.ProducerManager;
-import org.jboss.ejb3.mdb.ProducerObject;
-
-import javax.naming.InitialContext;
 import java.util.HashMap;
 import java.util.Map;
+import javax.naming.InitialContext;
+import org.jboss.ejb3.mdb.ProducerManager;
+import org.jboss.ejb3.mdb.ProducerObject;
+import org.jboss.ejb3.mdb.ProducerConfig;
+import org.jboss.tutorial.consumer.bean.ExampleProducerRemote;
+import org.jboss.tutorial.consumer.bean.Tester;
 
 public class Client
 {
@@ -21,6 +21,9 @@ public class Client
    {
       InitialContext ctx = new InitialContext();
       ExampleProducerRemote remote = (ExampleProducerRemote) ctx.lookup(ExampleProducerRemote.class.getName());
+
+      // you can typecast the returned proxy to obtain a ProducerManager interface that allows you to manage
+      // interaction with JMS.
       ProducerManager manager = ((ProducerObject) remote).getProducerManager();
 
 
@@ -41,7 +44,8 @@ public class Client
       }
       finally
       {
-         manager.close();
+         // instead of typecasting, you can use a helper class that does everything for you.
+         ProducerConfig.close(remote);
       }
 
 
