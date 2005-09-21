@@ -6,10 +6,11 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.annotation.ejb.Consumer;
-
-import javax.ejb.ActivationConfigProperty;
 import java.util.Map;
+import javax.ejb.ActivationConfigProperty;
+import javax.jms.Message;
+import org.jboss.annotation.ejb.Consumer;
+import org.jboss.annotation.ejb.CurrentMessage;
 
 @Consumer(activateConfig = {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
@@ -17,6 +18,11 @@ import java.util.Map;
 })
 public class ExampleConsumerBean implements ExampleProducerRemote, ExampleProducerLocal, ExampleProducerXA
 {
+   // you can have container inject the current JMS message so that you can manipulate it, like for instance
+   // to get a reply-to destination.
+   @CurrentMessage private Message currentMessage;
+
+
    public void method1(String msg, int val)
    {
       System.out.println("method1(" + msg + ", " + val + ")");
