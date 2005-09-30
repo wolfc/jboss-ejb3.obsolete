@@ -1,0 +1,2 @@
+!!!Stateless Beans and XML
+This tutorial teaches XML and stateless beans.

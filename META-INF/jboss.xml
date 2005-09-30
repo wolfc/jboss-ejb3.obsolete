@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<jboss>
+   <enterprise-beans>
+      <session>
+         <ejb-name>DeploymentDescriptorSession1</ejb-name>
+         <jndi-name>DeploymentDescriptorSession1Remote</jndi-name>
+      </session>
+      <session>
+         <ejb-name>DeploymentDescriptorSession2</ejb-name>
+         <local-jndi-name>DeploymentDescriptorSession2Local</local-jndi-name>
+      </session>
+   </enterprise-beans>
+</jboss>
