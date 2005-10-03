@@ -1,22 +1,20 @@
 !!!Stateful Beans Using Deployment Descriptors
-It is very easy to create a Stateful Bean with EJB 3.0.  All bean types are homeless in EJB 3.0 so all you have to do to create a Stateful bean is to create a bean class and have it implement at least one interface.  Take a look at [ShoppingCartBean.java|src/org/jboss/tutorial/stateful/bean/ShoppingCartBean.java]
-
-Take a look at [ejb-jar.xml|META-INF/ejb-jar.xml] and [ShoppingCart.java|src/org/jboss/tutorial/stateful_deployment_descriptor/bean/ShoppingCart.java].
+Take a look at [ejb-jar.xml|META-INF/ejb-jar.xml] and [ShoppingCartBean.java|src/org/jboss/tutorial/stateful_deployment_descriptor/bean/ShoppingCartBean.java].
 You specify a stateful bean with the "session" and "session-type" tags. Note that all
 bean types in EJB 3.0 are homeless, so there is no requirement for a "home" or "local-home" tag. The bean class is specified with the "ejb-class" tag.
 ShoppingCartBean also implements a remote interface. Take a look at [ShoppingCart.java|src/org/jboss/tutorial/stateful_deployment_descriptor/bean/ShoppingCart.java].
 To define this as the remote interface of ShoppingCartBean you need to use the "remote" tag.
 
 !@Remove
-Take another look at [META-INF/ejb-jar.xml">ejb-jar.xml</a>.  Look for the "remove-list" tag.  Instead of explicitly calling EJBObject.remove()
+Take another look at [ejb-jar.xml/META-INF/ejb-jar.xml].  Look for the "remove-list" tag.  Instead of explicitly calling EJBObject.remove()
 in your applications and thus polluting it further with J2EE specific code, any method specified in the "remove-list" tag will cause the stateful bean
 instance to be removed from the container at the end of the method call. This deployment descriptor behavior mimics the @Remove annotation. 
 
 !JNDI Bindings
-The ShoppingCartBean will have its remote interface bound in JNDI. Take a look at [ejb-jar.xml|META-INF/jboss.xml]. Note the "jndi-name" tag. This specifies the jndi binding for the remote interface.
+The CalculatorBean will have its remote interface bound in JNDI. Take a look at [jboss.xml|META-INF/jboss.xml]. Note the "jndi-name" tag. This specifies the jndi binding for the remote interface.
 
 !Client
-Open up [Client.java|src/org/jboss/tutorial/stateful/client/Client.java].  You'll see that it looks up the stateful bean under its remote interface's fully qualified classname.  Also notice that there is no Home interface and you can begin executing on the stateful bean right away.  When you access the bean in JNDI, an instance of the stateful bean will be created on the server.  So, when you need a different instance of the stateful bean, you do an additional {{jndi.lookup()}} to get this new reference.
+Open up [Client.java|src/org/jboss/tutorial/stateful_deployment_descriptor/client/Client.java].  You'll see that it looks up the stateful bean under its jndi name.  Also notice that there is no Home interface and you can begin executing on the stateful bean right away.  When you access the bean in JNDI, an instance of the stateful bean will be created on the server.  So, when you need a different instance of the stateful bean, you do an additional {{jndi.lookup()}} to get this new reference.
 
 !Building and Running
 To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
