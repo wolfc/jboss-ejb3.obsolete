@@ -18,32 +18,40 @@
 * License along with this software; if not, write to the Free
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+*/ 
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.MessageDriven;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.TextMessage;
 
-public class TracingInterceptor {
-
-   @AroundInvoke
-   public Object log(InvocationContext ctx) throws Exception
+/**
+ * 
+ * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
+ * @version $Revision$
+ */
+@MessageDriven(activateConfig =
+{
+@ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
+@ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/accounts")
+})
+public class AccountsMDB
+{
+   public void onMessage(Message recvMsg)
    {
-      System.out.println("*** TracingInterceptor intercepting " + ctx.getMethod().getName());
-      long start = System.currentTimeMillis();
       try
       {
-         return ctx.proceed();
+         System.out.println(
+               "\n----------------\n" + 
+               "AccountsMDB - Got message " + ((TextMessage)recvMsg).getText() + "\n" +
+               "----------------");
+         //Do necessary bookkeeping
       }
-      catch(Exception e)
+      catch (JMSException e)
       {
-         throw e;
-      }
-      finally
-      {
-         long time = System.currentTimeMillis() - start;
-         String method = ctx.getBean().getClass().getName() + "." + ctx.getMethod().getName() + "()";
-         System.out.println("*** TracingInterceptor invocation of " + method + " took " + time + "ms");
+         throw new RuntimeException(e);
       }
    }
 }

@@ -18,32 +18,55 @@
 * License along with this software; if not, write to the Free
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+*/ 
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
+import java.util.Date;
 
-public class TracingInterceptor {
+import javax.persistence.Entity;
+import javax.persistence.GeneratorType;
+import javax.persistence.Id;
 
-   @AroundInvoke
-   public Object log(InvocationContext ctx) throws Exception
+/**
+ * 
+ * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
+ * @version $Revision$
+ */
+@Entity
+public class Confirmation
+{
+   long orderId;
+   Date date;
+   
+   public Confirmation()
    {
-      System.out.println("*** TracingInterceptor intercepting " + ctx.getMethod().getName());
-      long start = System.currentTimeMillis();
-      try
-      {
-         return ctx.proceed();
-      }
-      catch(Exception e)
-      {
-         throw e;
-      }
-      finally
-      {
-         long time = System.currentTimeMillis() - start;
-         String method = ctx.getBean().getClass().getName() + "." + ctx.getMethod().getName() + "()";
-         System.out.println("*** TracingInterceptor invocation of " + method + " took " + time + "ms");
-      }
+      
+   }
+   
+   public Confirmation(long orderId, Date date)
+   {
+      this.orderId = orderId;
+      this.date = date;
+   }
+   
+   @Id
+   public long getOrderId()
+   {
+      return orderId;
+   }
+
+   public void setOrderId(long orderId)
+   {
+      this.orderId = orderId;
+   }
+   
+   public Date getDate()
+   {
+      return date;
+   }
+
+   public void setDate(Date date)
+   {
+      this.date = date;
    }
 }

@@ -22,14 +22,6 @@
 package org.jboss.tutorial.interceptor.client;
 
 import org.jboss.tutorial.interceptor.bean.EmailSystem;
-import org.jboss.tutorial.interceptor.bean.EmailSystem;
-
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
-import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 public class Client
@@ -39,7 +31,38 @@ public class Client
       System.out.println("Starting");
       InitialContext ctx = new InitialContext();
       EmailSystem emailSystem = (EmailSystem)ctx.lookup(EmailSystem.class.getName());
+      
+      System.out.println("\nCalling emailLostPassword");
       emailSystem.emailLostPassword("whatever");
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+      System.out.println("\nCalling sendBookingConfirmationMessage");
+      emailSystem.sendBookingConfirmationMessage(100);
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+      System.out.println("\nCalling sendBookingConfirmationMessage");
+      emailSystem.sendBookingConfirmationMessage(100);
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+      System.out.println("\nCalling sendBookingCancellationMessage");
+      emailSystem.sendBookingCancellationMessage(100);
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+      System.out.println("\nCalling noop");
+      emailSystem.noop();
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+      System.out.println("\nCalling noop2");
+      emailSystem.noop2();
+      System.out.println("Waiting 2 seconds");
+      Thread.sleep(2000);
+
+
       System.out.println("Done");
    }
 }

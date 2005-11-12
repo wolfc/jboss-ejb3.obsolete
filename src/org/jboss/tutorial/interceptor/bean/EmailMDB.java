@@ -21,25 +21,30 @@
 */
 package org.jboss.tutorial.interceptor.bean;
 
+import javax.ejb.ExcludeDefaultInterceptors;
 import javax.ejb.MessageDriven;
 import javax.ejb.AroundInvoke;
 import javax.ejb.InvocationContext;
 import javax.ejb.ActivationConfigProperty;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.TextMessage;
 
 @MessageDriven(activateConfig =
         {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
-        @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/example")
+        @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/email")
         })
+@ExcludeDefaultInterceptors        
 public class EmailMDB implements MessageListener
 {
    public void onMessage(Message recvMsg)
    {
-      System.out.println("----------------");
-      System.out.println("Got message, sending email");
-      System.out.println("----------------");
+      System.out.println(
+            "\n----------------\n" + 
+            "EMailMDB - Got message, sending email\n" +
+            "----------------");
+      
       //Generate and save email
    }
 

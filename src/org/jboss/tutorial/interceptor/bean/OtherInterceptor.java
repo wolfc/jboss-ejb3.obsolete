@@ -29,8 +29,15 @@ public class OtherInterceptor
    @AroundInvoke
    public Object intercept(InvocationContext ctx) throws Exception
    {
-      System.out.println("*** OtherInterceptor intercepting");
-      return ctx.proceed();
+      System.out.println("*** OtherInterceptor intercepting " + ctx.getMethod().getName());
+      try
+      {
+         return ctx.proceed();
+      }
+      finally
+      {
+         System.out.println("*** OtherInterceptor exiting");
+      }
    }
 
 }

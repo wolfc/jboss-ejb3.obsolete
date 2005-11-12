@@ -18,32 +18,30 @@
 * License along with this software; if not, write to the Free
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/
+*/ 
 package org.jboss.tutorial.interceptor.bean;
 
 import javax.ejb.AroundInvoke;
 import javax.ejb.InvocationContext;
 
-public class TracingInterceptor {
-
+/**
+ * 
+ * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
+ * @version $Revision$
+ */
+public class AccountsInterceptor
+{
    @AroundInvoke
-   public Object log(InvocationContext ctx) throws Exception
+   public Object intercept(InvocationContext ctx) throws Exception
    {
-      System.out.println("*** TracingInterceptor intercepting " + ctx.getMethod().getName());
-      long start = System.currentTimeMillis();
+      System.out.println("*** AccountsInterceptor intercepting " + ctx.getMethod().getName());
       try
       {
          return ctx.proceed();
       }
-      catch(Exception e)
-      {
-         throw e;
-      }
       finally
       {
-         long time = System.currentTimeMillis() - start;
-         String method = ctx.getBean().getClass().getName() + "." + ctx.getMethod().getName() + "()";
-         System.out.println("*** TracingInterceptor invocation of " + method + " took " + time + "ms");
+         System.out.println("*** AccountsInterceptor exiting");
       }
    }
 }

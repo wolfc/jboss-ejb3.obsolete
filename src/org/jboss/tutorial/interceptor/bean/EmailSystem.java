@@ -26,4 +26,8 @@ package org.jboss.tutorial.interceptor.bean;
 public interface EmailSystem
 {
    void emailLostPassword(String username);
+   void sendBookingConfirmationMessage(long orderId);
+   void sendBookingCancellationMessage(long orderId);
+   void noop();
+   void noop2();
 }

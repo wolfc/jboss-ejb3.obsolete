@@ -22,10 +22,13 @@
 package org.jboss.tutorial.interceptor.bean;
 
 import javax.ejb.AroundInvoke;
+import javax.ejb.ExcludeClassInterceptors;
+import javax.ejb.ExcludeDefaultInterceptors;
 import javax.ejb.Interceptors;
 import javax.ejb.InvocationContext;
 import javax.ejb.Stateless;
 import javax.ejb.Remote;
+import javax.jms.JMSException;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -35,21 +38,54 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 @Stateless
-@Interceptors ({TracingInterceptor.class, OtherInterceptor.class})
+@Interceptors ({TracingInterceptor.class})
 @Remote(EmailSystem.class)
 public class EmailSystemBean implements EmailSystem
 {
    public void emailLostPassword(String username)
    {
-      System.out.println("----------------");
-      System.out.println("In EmailSystemBean business method");
-      System.out.println("----------------");
+      System.out.println("<In EmailSystemBean.emailLostPassword business method");
       //Pretend we are looking up password and email, and place a message on the queue
       String password = "xyz";
       String email = "xyz@lalala.com";
-      sendMessage(username, password, email);
+      sendMessage(email, "Password Reminder", "Your password is " + password);
+      System.out.println("Exiting EmailSystemBean.emailLostPassword business method>");
    }
 
+   @Interceptors({AccountsConfirmInterceptor.class})
+   public void sendBookingConfirmationMessage(long orderId)
+   {
+      System.out.println("<In EmailSystemBean.sendBookingConfirmationMessage business method");
+      //Pretend we are looking email, and place a message on the queue
+      String email = "xyz@lalala.com";
+      sendMessage(email, "Booking Confirmed!", "Your order " + orderId + "is confirmed!");
+      System.out.println("Exiting EmailSystemBean.sendBookingConfirmationMessage business method>");
+   }
+   
+   public void sendBookingCancellationMessage(long orderId)
+   {
+      System.out.println("<In EmailSystemBean.sendBookingCancellationMessage business method");
+      //Pretend we are looking email, and place a message on the queue
+      String email = "xyz@lalala.com";
+      sendMessage(email, "Booking Confirmed!", "Your order " + orderId + "is confirmed!");
+      System.out.println("Exiting EmailSystemBean.sendBookingCancellationMessage business method>");
+   }
+
+   @ExcludeClassInterceptors
+   @ExcludeDefaultInterceptors
+   public void noop()
+   {
+      System.out.println("<In EmailSystemBean.noop business method");
+      System.out.println("Exiting EmailSystemBean.noop business method>");
+   }
+
+   public void noop2()
+   {
+      System.out.println("<In EmailSystemBean.noop2 business method");
+      System.out.println("Exiting EmailSystemBean.noop2 business method>");
+   }
+
+   
    @AroundInvoke
    public Object myBeanInterceptor(InvocationContext ctx) throws Exception
    {
@@ -61,20 +97,25 @@ public class EmailSystemBean implements EmailSystem
       return ctx.proceed();
    }
 
-   private void sendMessage(String username, String pwd, String email)
+   private void sendMessage(String email, String subject, String body)
    {
+      QueueConnection cnn = null;
+      QueueSession session = null;
       try
       {
-         QueueConnection cnn = null;
          QueueSender sender = null;
-         QueueSession session = null;
          InitialContext ctx = new InitialContext();
-         Queue queue = (Queue) ctx.lookup("queue/tutorial/example");
+         Queue queue = (Queue) ctx.lookup("queue/tutorial/email");
          QueueConnectionFactory factory = (QueueConnectionFactory) ctx.lookup("ConnectionFactory");
          cnn = factory.createQueueConnection();
          session = cnn.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
 
-         TextMessage msg = session.createTextMessage(username + ":" + pwd + ":" + email);
+         TextMessage msg = session.createTextMessage(
+               "<mail>" +
+               "<to>" + email + "</to>" +
+               "<to>" + subject + "</to>" +
+               "<msg>" + body +"</msg>" +
+               "</mail>");
 
          sender = session.createSender(queue);
          sender.send(msg);
@@ -83,6 +124,18 @@ public class EmailSystemBean implements EmailSystem
       catch(Exception e)
       {
          throw new RuntimeException(e);
+      }
+      finally
+      {
+         try
+         {
+            session.close();
+            cnn.close();
+         }
+         catch (JMSException e)
+         {
+            throw new RuntimeException(e);
+         }
       }
    }
 }
