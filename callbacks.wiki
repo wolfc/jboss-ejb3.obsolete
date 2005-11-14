@@ -29,14 +29,55 @@ The callbacks defined for each bean are shown below:
 The callbacks are not compulsory, and you can define the ones you want to handle.
 
 !!Using callbacks on the bean class
-You use the callbacks listed above by either annotating methods in the bean class. The annotations live in the {{javax.ejb}} package so for example {{PostConstruct}} would be {{javax.ejb.PostConstruct}}. You can call the methods what you like, but their method signature must return a void and take no arguments. Look at the [CustomerDAOBean|src/org/jboss/tutorial/callback/bean/CustomerDAOBean.java] stateless session bean and you will see that the {{preDestroyCallback()}} method has been annotated with {{@javax.ejb.PreDestroy}}.
+You use the callbacks listed above by either annotating methods in the bean class. The annotations live in the {{javax.ejb}} package so for example {{PostConstruct}} would be {{javax.ejb.PostConstruct}}. You can call the methods what you like, but their method signature must return a void and take no arguments. Look at the [CustomerDAOBean|src/org/jboss/tutorial/callback/bean/CustomerDAOBean.java] stateless session bean and you will see that the {{preDestroyCallback()}} method has been annotated with {{@javax.ejb.PreDestroy}}. For session/message-driven beans, just like for [Interceptors|../interceptor/interceptor.html], if the bean class extends another class any callback annotated methods  on the super class will be invoked first.
 
 
-!!Using callbacks and a callback listener
-You can also separate out the callbacks into a separate CallbackListener class. Take a look at the [Customer|src/org/jboss/tutorial/callback/bean/Customer.java] entity bean, and you will see that the class has been annotated with
+!!Entity listeners for entity beans
+You can also separate out the callbacks for entity beans into a separate EntityListener class. Take a look at the [Customer|src/org/jboss/tutorial/callback/bean/Customer.java] entity bean, and you will see that the class has been annotated with
 {{{@javax.persistence.EntityListener("org.jboss.tutorial.callback.bean.CustomerCallbackListener")}}} This specifies that the {{org.jboss.tutorial.callback.bean.CustomerCallbackListener}} class should be used as the callback listener class for the bean. Now open [CustomerCallbackListener|src/org/jboss/tutorial/callback/bean/CustomerCallbackListener.java] and you will see that the class annotates the callback methods in the same way as when defining callbacks on the bean class itself. However, one __important difference__ is that callback methods defined in a listener class must take a single argument, which will be the bean we are working with. The parameter must be of type {{java.lang.Object}}, or the actual bean type.
 
-You can define callback listeners on session and message-driven beans in exactly the same way, the only difference is you use the {{javax.ejb.CallbackListener}} annotation instead.
+!!Interceptors for session/message-driven beans
+Callbacks for session beans can also be put into a separate class, configured as an interceptor [Interceptors|../interceptor/interceptor.html]. This means that your interceptors can initialise themselves when constructed. The lifecycle methods in an interceptor must have the following signature:
+
+{{{
+   Object <any method name>(InvocationContext)
+}}}
+
+[CustomerDAOBean|src/org/jboss/tutorial/callback/bean/CustomerDAOBean.java] specifies that it wants to use an external interceptor.
+{{{
+@Stateless
+@Remote(CustomerDAO.class)
+@Interceptors({LifecycleInterceptor.class})
+public class CustomerDAOBean implements CustomerDAO
+{
+   ...
+}
+}}}
+
+and [LifecycleInterceptor|src/org/jboss/tutorial/callback/bean/LifecycleInterceptor.java] has a {{@PostConstruct}} annotated method. As shown, each interceptor lifecycle method must call {{proceed}} on the InvocationContext to invoke the next interceptor. 
+
+Interceptors may contain both the {{@AroundInvoke}} methods for intercepting business methods, and lifecycle methods. If you want to configure lifecycle methods for your interceptors with xml, you will need to do this in the {{interceptor}} section of ejb-jar.xml, and the keywords are {{post-construct-method}}, {{post-activate-method}}, {{pre-passivate-method}} and {{pre-destry-method}}. For example
+
+{{{
+<ejb-jar>
+   <interceptors>
+      <interceptor>
+         <interceptor-class>org.acme.SomeInterceptor</interceptor-class>
+         <around-invoke-method>
+            <method-name>interceptorMethod</method-name>
+         </around-invoke-method>
+         <post-construct-method>
+            <method-name>sendCancelMessage</method-name>
+         </post-construct-method>
+         <pre-destroy-method>
+            <method-name>sendCancelMessage</method-name>
+         </pre-destroy-method>
+      </interceptor>   
+   </interceptors>
+</ejb-jar>
+}}}
+
+Interceptor methods for handling lifecycle events follow exactly the same ordering and inheritance rules as business method interceptor methods, and an interceptor instance follows the lifecycle of the bean instance it is bound to.
 
 !Building and Running
 To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.
@@ -58,6 +99,7 @@ run:
 
 In the jboss console window you should see:
 {{{
+20:06:05,596 INFO  [STDOUT] LifecycleInterceptor postConstruct
 20:06:05,596 INFO  [STDOUT] PostConstruct - Have EntityManager: true
 20:06:05,596 INFO  [STDOUT] -- CustomerDAOBean.create()
 20:06:05,596 INFO  [STDOUT] doPrePersist: About to create Customer: Bill Burke
