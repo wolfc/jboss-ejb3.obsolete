@@ -27,7 +27,7 @@ import javax.jms.Message;
 import org.jboss.annotation.ejb.Consumer;
 import org.jboss.annotation.ejb.CurrentMessage;
 
-@Consumer(activateConfig = {
+@Consumer(activationConfig = {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/example")
 })

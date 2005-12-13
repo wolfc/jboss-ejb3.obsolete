@@ -17,7 +17,7 @@ public @interface Consumer
 
    TransactionManagementType transactionManagement() default TransactionManagementType.CONTAINER;
 
-   ActivationConfigProperty[] activateConfig() default {};
+   ActivationConfigProperty[] activationConfig() default {};
 }
 }}}
 
@@ -44,7 +44,7 @@ Let's do a simple example.  First define the consumer:
 {{{
 import org.jboss.ejb3.mdb.Consumer;
 
-@Consumer(activateConfig =
+@Consumer(activationConfig =
         {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="queue/mdbtest")
