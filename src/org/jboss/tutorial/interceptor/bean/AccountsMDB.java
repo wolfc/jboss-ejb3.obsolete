@@ -32,7 +32,7 @@ import javax.jms.TextMessage;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision$
  */
-@MessageDriven(activateConfig =
+@MessageDriven(activationConfig =
 {
 @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
 @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/accounts")

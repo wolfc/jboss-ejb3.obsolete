@@ -30,7 +30,7 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
-@MessageDriven(activateConfig =
+@MessageDriven(activationConfig =
         {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/email")
