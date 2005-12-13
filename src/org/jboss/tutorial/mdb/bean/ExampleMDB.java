@@ -26,7 +26,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-@MessageDriven(activateConfig =
+@MessageDriven(activationConfig =
         {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/example")
