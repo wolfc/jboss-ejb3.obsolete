@@ -56,7 +56,7 @@
    </target>
 
    <target name="ejbjar" depends="compile">
-      <jar jarfile="build/tutorial.ejb3">
+      <jar jarfile="build/tutorial.jar">
          <fileset dir="${build.classes.dir}">
             <include name="**/*.class"/>
          </fileset>
@@ -64,7 +64,7 @@
             <include name="*.properties"/>
          </fileset>
       </jar>
-      <copy file="build/tutorial.ejb3" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
+      <copy file="build/tutorial.jar" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
    </target>
 
    <target name="run" depends="ejbjar">
@@ -82,7 +82,7 @@
 
    <target name="clean">
       <delete dir="${build.dir}"/>
-      <delete file="${jboss.home}/server/${jboss.server.config}/deploy/tutorial.ejb3"/>
+      <delete file="${jboss.home}/server/${jboss.server.config}/deploy/tutorial.jar"/>
    </target>
 
 
