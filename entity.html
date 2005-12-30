@@ -110,9 +110,8 @@ The INFO message you can ignore.  It will be fixed in later releases of JBoss 4.
 You can view the tables created by JBoss by going to the <a href="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">Hypersonic SQL service</a>, scrolling down to the <tt>startDatabaseManager</tt> button and clicking it.  A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
 </p><p>
 <h4>Jar structure</h4>
-
-The EJB 3.0 spec mandates that entities must be packaged separately in persistence archives <tt>.par</tt>, but JBoss EJB 3.0 allows them to be deployed along with plain EJBs within <tt>.ejb3</tt> files.
-See the packaging tutorial for more detail.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.f
+Persistence archives must have a META-INF/persistence.xml file.  They can be packaged along with EJB-JARs or by themselves in an EAR.  They can also be packaged in a WAR as well, but JBoss doesn't support his yet.
+See the packaging tutorial for more detail.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.
 </p><p>
 </p><p>
 </p><p>
