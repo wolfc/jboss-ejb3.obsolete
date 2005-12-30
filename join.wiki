@@ -81,7 +81,7 @@ The INFO message you can ignore.  It will be fixed in later releases of JBoss 4.
 You can view the tables created by JBoss by going to the [Hypersonic SQL service|http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB], scrolling down to the {{startDatabaseManager}} button and clicking it.  A Hypersonic SQL window will be minimized, but you can open it up to look at the tables and do queries.
 
 !Jar structure
-EJB 3.0 beans must be packaged in a JAR file with the suffix {{.ejb3}}.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.f
+EJB 3.0 beans must be packaged in a JAR file with the suffix {{.jar}}.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files and additionally, you will probably need to define a hibernate.properties file in the META-INF directory of the JAR.  hibernate.properties is needed if you need to hook in a datasource other than JBoss's DefaultDS, or change the caching of Hibernate.  See the EJB 3.0 reference manual and Hibernate reference manual for more details.f
 
 
 
