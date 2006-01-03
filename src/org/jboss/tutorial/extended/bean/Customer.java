@@ -23,7 +23,7 @@
 package org.jboss.tutorial.extended.bean;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
@@ -42,7 +42,7 @@ public class Customer implements java.io.Serializable
    {
    }
 
-   @Id(generate = GeneratorType.IDENTITY)
+   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
    public
    long getId()
    {
