@@ -22,9 +22,9 @@
 package org.jboss.tutorial.relationships.bean;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 
 /**
  * Comment
@@ -41,7 +41,7 @@ public class Address implements java.io.Serializable
    private String state;
    private String zip;
 
-   @Id(generate = GeneratorType.IDENTITY)
+   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
    public Long getId()
    {
       return id;
