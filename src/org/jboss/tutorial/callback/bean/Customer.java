@@ -24,7 +24,7 @@ package org.jboss.tutorial.callback.bean;
 import javax.persistence.Entity;
 import javax.persistence.Column;
 import javax.persistence.EntityListener;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -55,7 +55,7 @@ public class Customer implements java.io.Serializable
       this.zip = zip;
    }
 
-   @Id(generate = GeneratorType.AUTO)
+   @Id @GeneratedValue(strategy=GenerationType.AUTO)
    public int getId()
    {
       return id;
