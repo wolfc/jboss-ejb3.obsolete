@@ -24,7 +24,7 @@ package org.jboss.tutorial.blob.bean;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 import javax.persistence.Lob;
 import javax.persistence.FetchType;
 import javax.persistence.LobType;
@@ -41,7 +41,7 @@ public class BlobEntity2 implements Serializable
    private byte[] blobby;
    private String clobby;
 
-   @Id(generate = GeneratorType.AUTO)
+   @Id @GeneratedValue(strategy=GenerationType.AUTO)
    public long getId()
    {
       return id;
