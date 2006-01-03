@@ -24,7 +24,7 @@ package org.jboss.tutorial.singleinheritance.bean;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratorType;
+import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.Inheritance;
@@ -40,7 +40,7 @@ public class Pet implements java.io.Serializable
    private String name;
    private double weight;
 
-   @Id(generate = GeneratorType.AUTO)
+   @Id @GeneratedValue(strategy=GenerationType.AUTO)
    public int getId()
    {
       return id;
