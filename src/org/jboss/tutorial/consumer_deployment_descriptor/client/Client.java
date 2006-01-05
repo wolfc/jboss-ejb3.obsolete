@@ -65,7 +65,7 @@ public class Client
 
 
       // Try out local producers by interfacing with Session bean
-      Tester tester = (Tester) ctx.lookup(Tester.class.getName());
+      Tester tester = (Tester) ctx.lookup("TesterBean/remote");
       tester.testLocal();
       tester.testXA();
    }
