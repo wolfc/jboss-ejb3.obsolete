@@ -32,7 +32,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      Echo echo = (Echo)ctx.lookup(org.jboss.tutorial.asynch.bean.Echo.class.getName());
+      Echo echo = (Echo)ctx.lookup("EchoBean/remote");
       System.out.println("-------- Synchronous call");
       String ret = echo.echo("normal call");
       System.out.println(ret);
