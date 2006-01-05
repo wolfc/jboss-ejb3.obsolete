@@ -37,7 +37,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      LobTester test = (LobTester) ctx.lookup(LobTester.class.getName());
+      LobTester test = (LobTester) ctx.lookup("LobTesterBean/remote");
       long blobId = test.create();
       HashMap map = test.findBlob(blobId);
       System.out.println("is hello in map: " + map.get("hello"));
