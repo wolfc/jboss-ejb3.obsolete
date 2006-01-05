@@ -40,7 +40,7 @@ public class Client
       env.setProperty(Context.SECURITY_CREDENTIALS, "invalidpassword");
       env.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
       InitialContext ctx = new InitialContext(env);
-      Calculator calculator = (Calculator) ctx.lookup(Calculator.class.getName());
+      Calculator calculator = (Calculator) ctx.lookup("CalculatorBean/remote");
 
       System.out.println("Kabir is a student.");
       System.out.println("Kabir types in the wrong password");
@@ -59,7 +59,7 @@ public class Client
       // Re-establish the proxy with the correct security identity
       env.setProperty(Context.SECURITY_CREDENTIALS, "validpassword");
       ctx = new InitialContext(env);
-      calculator = (Calculator) ctx.lookup(Calculator.class.getName());
+      calculator = (Calculator) ctx.lookup("CalculatorBean/remote");
 
       System.out.println("1 + 1 = " + calculator.add(1, 1));
 
