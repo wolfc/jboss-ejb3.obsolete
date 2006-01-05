@@ -38,7 +38,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      EntityTest test = (EntityTest) ctx.lookup(EntityTest.class.getName());
+      EntityTest test = (EntityTest) ctx.lookup("EntityTestBean/remote");
       test.manyToManyCreate();
 
       Flight one = test.findFlightById(new Long(1));
