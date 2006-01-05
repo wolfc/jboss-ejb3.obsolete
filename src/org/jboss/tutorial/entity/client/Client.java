@@ -39,7 +39,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      ShoppingCart cart = (ShoppingCart) ctx.lookup(ShoppingCart.class.getName());
+      ShoppingCart cart = (ShoppingCart) ctx.lookup("ShoppingCartBean/remote");
 
       System.out.println("Buying 2 memory sticks");
       cart.buy("Memory stick", 2, 500.00);
