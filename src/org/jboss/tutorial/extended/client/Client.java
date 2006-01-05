@@ -45,8 +45,8 @@ public class Client
 
    public static void testLongLivedSession() throws Exception
    {
-      ShoppingCart test = (ShoppingCart) getInitialContext().lookup(ShoppingCart.class.getName());
-      StatelessRemote remote = (StatelessRemote) getInitialContext().lookup(StatelessRemote.class.getName());
+      ShoppingCart test = (ShoppingCart) getInitialContext().lookup("ShoppingCartBean/remote");
+      StatelessRemote remote = (StatelessRemote) getInitialContext().lookup("StatelessSessionBean/remote");
       Customer c;
 
       long id = test.createCustomer();
@@ -65,8 +65,8 @@ public class Client
 
    public static void testWithFlushMode() throws Exception
    {
-      ShoppingCart cart = (ShoppingCart) getInitialContext().lookup(ShoppingCart.class.getName());
-      StatelessRemote dao = (StatelessRemote) getInitialContext().lookup(StatelessRemote.class.getName());
+      ShoppingCart cart = (ShoppingCart) getInitialContext().lookup("ShoppingCartBean/remote");
+      StatelessRemote dao = (StatelessRemote) getInitialContext().lookup("StatelessSessionBean/remote");
       Customer c;
       long id;
 
