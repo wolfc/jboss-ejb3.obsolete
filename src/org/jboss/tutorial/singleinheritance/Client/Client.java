@@ -40,7 +40,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      PetDAO dao = (PetDAO) ctx.lookup(PetDAO.class.getName());
+      PetDAO dao = (PetDAO) ctx.lookup("PetDAOBean/remote");
 
       dao.createCat("Toonses", 15.0, 9);
       dao.createCat("Sox", 10.0, 5);
