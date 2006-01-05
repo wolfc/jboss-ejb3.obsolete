@@ -31,7 +31,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      ExampleTimer timer = (ExampleTimer) ctx.lookup(ExampleTimer.class.getName());
+      ExampleTimer timer = (ExampleTimer) ctx.lookup("ExampleTimerBean/remote");
       timer.scheduleTimer(5000);
    }
 }
