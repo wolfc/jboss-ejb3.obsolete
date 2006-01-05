@@ -30,7 +30,7 @@ public class Client
    {
       System.out.println("Starting");
       InitialContext ctx = new InitialContext();
-      EmailSystem emailSystem = (EmailSystem)ctx.lookup(EmailSystem.class.getName());
+      EmailSystem emailSystem = (EmailSystem)ctx.lookup("EmailSystemBean/remote");
       
       System.out.println("\nCalling emailLostPassword");
       emailSystem.emailLostPassword("whatever");
