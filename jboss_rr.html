@@ -1,25 +1,25 @@
 <html>
 <body>
 <p>
-<h2>Jboss.xml Deployment Descriptor</h2>
+<h2>jboss.xml Resource References</h2>
 
-The EJB 3.0 specification supports the usage of deployment descriptors to describe ejb metadata or override most metadata described via annotations. The Jboss.xml deployment descriptor describes JBoss specific metadata, including
-remote and local JNDI names, cluster configuration, a security domain, additional references, security principal, and container configuration. Annotations which define the ejb (e.g. <tt>@Stateful</tt>, <tt>@RemoteInterface</tt>) cannot be
-ovveridden.
+Resources (e.g. data sources, JavaMail sessions, JMS queues) may be added to the local jndi namespace of individual EJBs. This is to separate the jndi names used in the
+bean code from the global jndi bindings set by the Deployer. The mapping of the bean local jndi binding and the global binding may be handled via the ejb-jar.xml and 
+jboss.xml deployment descriptors. 
 </p><p>
-<h4>JBoss.xml</h4>
+<h4>ejb-jar.xml</h4>
 
-Take a look at <a href="META-INF/jboss.xml">JBoss.xml</a>.
+Take a look at <a href="META-INF/ejb-jar.xml">ejb-jar.xml</a>. For <tt>ENCBean</tt>, there are 3 &lt;resource-ref&gt; elements indicating resource reference names and types.
 </p><p>
-The <tt>jndi-name</tt> element defines the remote JNDI binding for the <tt>ShoppingCart</tt> stateful session bean. This JNDI binding overrides the default binding or a binding specified through the <tt>@RemoteBinding</tt> annotation.
-Similiarly, the <tt>local-jndi-name</tt> element specifies the local JNDI binding.
-&lt;/p&gt;&lt;p&gt;
-The <tt>clustered</tt> element indicates that the ejb is clustered, with <tt>partition-name</tt> and <tt>load-balance-policy</tt> specifying the cluster name and load balance policy, respectively. The latter elements will 
-override the parameters specified in the <tt>@Clustered</tt> annotation. In this example, you will see that the <tt>ShoppingCart</tt> ejb is clustered. If you build and run this example (see below) with the default server
-configuration, the deployment will fail, as the default server configuration does not support clustering.
-&lt;/p&gt;&lt;p&gt;
-The <tt>security-domain</tt> element specifies a security domain for the ejb, overriding any security domain set through the <tt>@SecurityDomain</tt> annotation. In this example, you will see that a security domain is set through the 
-jboss.xml deployment descriptor and unless a Principal and Credential (i.e. user/password) is set in the client, requests to the ejb will fail with a javax.ejb.EJBAccessException.
+<h4>jboss.xml</h4>
+
+Take a look at <a href="META-INF/jboss.xml">jboss.xml</a>. For <tt>ENCBean</tt>, there are again 3 &lt;resource-ref&gt; elements indicating resource reference names and either the global jndi
+binding via the &lt;jndi-name&gt; element or the resource name. Resource managers are used to map resource names to global jndi bindings via the &lt;resource-managers&gt; element.
+</p><p>
+<h4>TestENCBean.java</h4>
+
+Take a look at <a href="src/org/jboss/tutorial/jboss_resource_ref/bean/TestENCBean.java">TestENCBean.java</a>. Each one of the resources are accessed from the bean local jndi 
+namespace (i.e. java:comp.ejb3/env) by the value set in the &lt;res-ref-name&gt; values in the deployment descriptors.
 </p><p>
 <h4>Building and Running</h4>
 
@@ -31,25 +31,15 @@ $ ant
 $ ant run
 
 run:
-     [java] Attempting to buy 1 memory stick with no user/password
-     [java] Attempting to buy 1 memory stick with incorrect password
-     [java] Caught javax.ejb.EJBAccessException as expected
-     [java] Setting user/password
-     [java] bill is a shopper, so is allowed to buy
-     [java] Buying 1 memory stick
-     [java] Buying another memory stick
-     [java] Buying a laptop
-     [java] Print cart:
-     [java] 3     Memory stick
-     [java] 1     Laptop
-     [java] bill is not a clerk, so is not allowed to price check
-     [java] Caught SecurityException as expected
-     [java] Checkout
-     [java] Should throw an object not found exception by invoking on cart after @Remove method
-     [java] Exception in thread "main" javax.ejb.EJBNoSuchObjectException: Could not find Stateful bean: a1616c-oseo5o-eabsujnb-1-eabtkmic-7</pre>
-}}}
+     [java] Successfully accessed bean resource references
+</pre>
 </p><p>
-</p><p>
+<pre>
+13:44:09,500 INFO  [TestENCBean] Found data source resource ref
+13:44:09,500 INFO  [TestENCBean] Found mail resource ref
+13:44:09,500 INFO  [TestENCBean] Found jms queue resource ref
+13:44:09,500 INFO  [TestENCBean] Found jms queue resource env ref
+</pre>
 </p><p>
 </p>
 </body>
