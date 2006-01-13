@@ -22,7 +22,7 @@
 //$Id$
 package org.jboss.tutorial.relationships.bean;
 
-import javax.persistence.JoinTable;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,17 +30,10 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.persistence.Version;
-import javax.persistence.Version;
-import javax.persistence.ManyToMany;
-import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
-
-import java.util.Set;
 
 /**
  * Flight
@@ -115,7 +108,7 @@ public class Flight implements java.io.Serializable
    }
 
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-   @JoinTable(table = @Table(name = "flight_customer_table"),
+   @JoinTable(name = "flight_customer_table",
                      joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
                      inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID")})
    public Set<Customer> getCustomers()
