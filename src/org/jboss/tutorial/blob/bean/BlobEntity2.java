@@ -22,12 +22,13 @@
 package org.jboss.tutorial.blob.bean;
 
 import java.io.Serializable;
+import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.GeneratedValue; import javax.persistence.GenerationType;
-import javax.persistence.Lob;
 import javax.persistence.FetchType;
-import javax.persistence.LobType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
 
 /**
  * comment
@@ -52,7 +53,7 @@ public class BlobEntity2 implements Serializable
       this.id = id;
    }
 
-   @Lob(fetch = FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public byte[] getBlobby()
    {
       return blobby;
@@ -63,7 +64,7 @@ public class BlobEntity2 implements Serializable
       this.blobby = blobby;
    }
 
-   @Lob(type = LobType.CLOB, fetch = FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public String getClobby()
    {
       return clobby;
