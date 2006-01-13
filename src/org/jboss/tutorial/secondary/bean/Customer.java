@@ -90,7 +90,7 @@ public class Customer implements java.io.Serializable
       this.last = last;
    }
 
-   @Column(name = "STREET", secondaryTable = "EMBEDDED_ADDRESS")
+   @Column(name = "STREET", table = "EMBEDDED_ADDRESS")
    public String getStreet()
    {
       return street;
@@ -101,7 +101,7 @@ public class Customer implements java.io.Serializable
       this.street = street;
    }
 
-   @Column(name = "CITY", secondaryTable = "EMBEDDED_ADDRESS")
+   @Column(name = "CITY", table = "EMBEDDED_ADDRESS")
    public String getCity()
    {
       return city;
@@ -112,7 +112,7 @@ public class Customer implements java.io.Serializable
       this.city = city;
    }
 
-   @Column(name = "STATE", secondaryTable = "EMBEDDED_ADDRESS")
+   @Column(name = "STATE", table = "EMBEDDED_ADDRESS")
    public String getState()
    {
       return state;
@@ -123,7 +123,7 @@ public class Customer implements java.io.Serializable
       this.state = state;
    }
 
-   @Column(name = "ZIP", secondaryTable = "EMBEDDED_ADDRESS")
+   @Column(name = "ZIP", table = "EMBEDDED_ADDRESS")
    public String getZip()
    {
       return zip;
