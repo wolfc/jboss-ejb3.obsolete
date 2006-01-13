@@ -73,7 +73,7 @@ public class ShoppingCartBean implements ShoppingCart
       return em.find(Customer.class, id);
    }
 
-   @FlushMode(FlushModeType.NEVER)
+   @FlushMode(FlushModeType.AUTO)
    public void never()
    {
       customer.setName("Bob");

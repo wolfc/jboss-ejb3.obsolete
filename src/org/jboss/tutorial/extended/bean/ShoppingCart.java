@@ -44,5 +44,5 @@ public interface ShoppingCart
 
    void update3();
 
-   @FlushMode(FlushModeType.NEVER) void never();
+   @FlushMode(FlushModeType.AUTO) void never();
 }
