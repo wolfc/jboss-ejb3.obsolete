@@ -60,6 +60,9 @@
          <fileset dir="${build.classes.dir}">
             <include name="**/*.class"/>
          </fileset>
+	   <fileset dir=".">
+            <include name="META-INF/*.xml"/>
+         </fileset>
       </jar>
       <copy file="build/tutorial.jar" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
    </target>
