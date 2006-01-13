@@ -21,11 +21,9 @@
   */
 package org.jboss.tutorial.dependent.bean;
 
-import javax.persistence.AccessType;
 import javax.persistence.Embeddable;
-import javax.persistence.AccessType;
 
-@Embeddable(access = AccessType.PROPERTY)
+@Embeddable
 public class Name implements java.io.Serializable
 {
    private String first;
