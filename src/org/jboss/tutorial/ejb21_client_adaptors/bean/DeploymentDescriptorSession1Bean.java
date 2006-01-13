@@ -31,7 +31,6 @@ import javax.ejb.Init;
 
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteHome;
 import org.jboss.ejb3.Container;
 import org.jboss.logging.Logger;
 
@@ -53,8 +52,7 @@ public class DeploymentDescriptorSession1Bean
    public String getLocalSession2InitValue() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session2LocalHome home = (Session2LocalHome)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
-      Session2Local session2 = home.create("initialized");
+      Session2Local session2 = (Session2Local)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
       return session2.getInitValue();
    }
    

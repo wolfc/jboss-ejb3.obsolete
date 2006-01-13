@@ -38,7 +38,7 @@ public class Client
    public static void accessHomes() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session1RemoteHome home = (Session1RemoteHome)jndiContext.lookup("Session1Remote");
+      Session1RemoteHome home = (Session1RemoteHome)jndiContext.lookup("Session1RemoteHome");
       Session1Remote session1 = home.create();
       String initValue1 = session1.getInitValue();
       System.out.println("Session1 init value is " + initValue1);
@@ -50,7 +50,7 @@ public class Client
    public static void accessDeploymentDescriptorHomes() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session1RemoteHome home = (Session1RemoteHome)jndiContext.lookup("DeploymentDescriptorSession1Remote");
+      Session1RemoteHome home = (Session1RemoteHome)jndiContext.lookup("DeploymentDescriptorSession1RemoteHome");
       Session1Remote session1 = home.create();
       String initValue1 = session1.getInitValue();
       System.out.println("DeploymentDescriptor Session1 init value is " + initValue1);
