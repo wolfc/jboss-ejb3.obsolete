@@ -14,17 +14,20 @@ This is what the annotations look like for Pet.
 </p><p>
 <pre>
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorColumn(name = "ANIMAL_TYPE", nullable = true)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "ANIMAL_TYPE", discriminatorType = DiscriminatorType.STRING)
 public class Pet implements java.io.Serializable
 {
 </pre>
 </p><p>
-The <tt>@DiscriminatorColumn</tt> specifies the column that will hold the type of the persisted entity.  For subclasses, they must define the value of the discriminator column that will identify the class.
+The <tt>@DiscriminatorColumn</tt> specifies the column that will hold the type of the persisted entity.  For subclasses, they must define the value of the
+discriminator column that will identify the class.
 </p><p>
 <pre>
 @Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE, discriminatorType = DiscriminatorType.STRING, discriminatorValue = "DOG")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("DOG")
 public class Dog extends Pet
 {
 </pre>
