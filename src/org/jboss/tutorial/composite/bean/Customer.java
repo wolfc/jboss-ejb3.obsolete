@@ -28,6 +28,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
 
 /**
  *
@@ -60,6 +62,9 @@ public class Customer implements java.io.Serializable
    }
 
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
+   @JoinTable(name="flight_customer_table",
+              joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
+              inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
    public Set<Flight> getFlights()
    {
       return flights;

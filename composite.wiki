@@ -62,19 +62,16 @@ Open up [Customer|src/org/jboss/tutorial/composite/bean/Customer.java] and look 
 defines the primary key class.
 
 {{{
-   @EmbeddedId({
-   @AttributeOverride(name = "id"),
-   @AttributeOverride(name = "name")
-   })
+   @EmbeddedId
    public CustomerPK getPk()
    {
       return pk;
    }
 }}}
 
-The [CustomerPK|src/org/jboss/tutorial/composite/bean/Customer.java] class is mapped to [Customer|src/org/jboss/tutorial/composite/bean/Customer.java]
-just like any other embeddable object.  The additional {{@Id}} annotation specifies that it will be the primary key.
-Also notice that the {{GeneratorType}} is {{NONE}}.  If you provide a primary key class, JBoss cannot autogenerate the key
+The [CustomerPK|src/org/jboss/tutorial/composite/bean/CustomerPK.java] class is mapped to [Customer|src/org/jboss/tutorial/composite/bean/Customer.java]
+just like any other embeddable object.  The additional {{@EmbeddedId}} annotation specifies that it will be the primary key.
+NOTE: If you provide a primary key class, JBoss cannot autogenerate the key
 for you.  You must allocate a CustomerPK class and instantiate it with your id and name when you create the Customer.
 
 
@@ -85,17 +82,17 @@ There is a mant to many relationship between [Customer|src/org/jboss/tutorial/co
   The {{@JoinTable}} must be defined on both sides of the bi-directional relationship.  Let's look at the Customer side of the relationship
 
 {{{
-   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, isInverse = true)
-   @JoinTable(table = @Table(name = "flight_customer_table"),
-   joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
-   inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
+   @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER, mappedBy="customers")
+   @JoinTable(name="flight_customer_table",
+              joinColumns={@JoinColumn(name = "FLIGHT_ID")},
+              inverseJoinColumns={@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
    public Set<Flight> getFlights()
    {
       return flights;
    }
 }}}
 
-The {{isInverse}} switch specifies which side of the relationship is responsible for managing the relationship.  If it is set to false, then that side is responsible.
+The {{mappedBy}} attribute specifies which side of the relationship is responsible for managing the relationship.  If it is not set, then that side is responsible.
 So, for this example, the {{Flight}} Entity is responsible for managing the relation.
 In this example, we are specifying multiple {{inverseJoinColumns}} because Customer has a composite primary key.
 
@@ -103,9 +100,9 @@ Let's look at the other side of the relationship in Flight.
 
 {{{
    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-   @JoinTable(table = @Table(name = "flight_customer_table"),
-   joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
-   inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
+   @JoinTable(name = "flight_customer_table",
+              joinColumns = {@JoinColumn(name = "FLIGHT_ID")},
+              inverseJoinColumns = {@JoinColumn(name = "CUSTOMER_ID"), @JoinColumn(name = "CUSTOMER_NAME")})
    public Set<Customer> getCustomers()
    {
       return customers;
