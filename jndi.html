@@ -3,7 +3,9 @@
 <p>
 <h4>JNDI Bindings and Multiple Transports</h4>
 
-By default, session beans will bind to JNDI under the fully qualified name of their local and/or remote interface.  You can override this behavior by defining your own <tt>@org.jboss.ejb3.LocalBinding</tt> or <tt>@org.jboss.ejb3.remoting.RemoteBinding</tt>.
+By default, session beans will bind to JNDI in the form ejbName/remote for remote interfaces and ejbName/local in the case of local interfaces. When 
+the EJBs are deployed in an .ear file, the default jndi binding will be prepended by the name of the .ear file. You can override this behavior
+by defining your own <tt>@org.jboss.ejb3.LocalBinding</tt> or <tt>@org.jboss.ejb3.remoting.RemoteBinding</tt>.
 </p><p>
 </p><p>
 <h4>Local Interface JNDI Binding.</h4>
