@@ -6,7 +6,7 @@ The [Customer|src/org/jboss/tutorial/dependent/bean/Customer.java] bean encapsul
 The [Name|src/org/jboss/tutorial/dependent/bean/Name.java] value object must be tagged with the {{@Embeddable}} annotation.
 
 {{{
-@Embeddable(access = AccessType.PROPERTY)
+@Embeddable
 public class Name implements java.io.Serializable
 {
 }}
@@ -15,9 +15,10 @@ public class Name implements java.io.Serializable
 The properties of Name must then be mapped to columns within Customer's table.
 
 {{{
-   @Embedded({
-   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
-   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
+   @Embedded
+   @AttributeOverrides({
+      @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
+      @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
    })
    public Name getName()
    {

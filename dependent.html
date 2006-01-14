@@ -10,7 +10,7 @@ The <a href="src/org/jboss/tutorial/dependent/bean/Customer.java">Customer</a> b
 The <a href="src/org/jboss/tutorial/dependent/bean/Name.java">Name</a> value object must be tagged with the <tt>@Embeddable</tt> annotation.
 </p><p>
 <pre>
-@Embeddable(access = AccessType.PROPERTY)
+@Embeddable
 public class Name implements java.io.Serializable
 {
 }}
@@ -19,9 +19,10 @@ public class Name implements java.io.Serializable
 The properties of Name must then be mapped to columns within Customer's table.
 </p><p>
 <pre>
-   @Embedded({
-   @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
-   @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
+   @Embedded
+   @AttributeOverrides({
+      @AttributeOverride(name = "first", column = {@Column(name = "FIRST_NAME")}),
+      @AttributeOverride(name = "last", column = {@Column(name = "LAST_NAME")})
    })
    public Name getName()
    {
