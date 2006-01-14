@@ -24,7 +24,7 @@ package org.jboss.tutorial.extended.bean;
 import javax.annotation.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
-import javax.ejb.Stateful;
+import javax.ejb.*;
 import javax.persistence.EntityManager;
 import javax.persistence.FlushMode;
 import javax.persistence.FlushModeType;
@@ -73,7 +73,7 @@ public class ShoppingCartBean implements ShoppingCart
       return em.find(Customer.class, id);
    }
 
-   @FlushMode(FlushModeType.AUTO)
+   @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
    public void never()
    {
       customer.setName("Bob");
@@ -84,6 +84,5 @@ public class ShoppingCartBean implements ShoppingCart
    @Remove
    public void checkout()
    {
-      em.flush();  
    }
 }

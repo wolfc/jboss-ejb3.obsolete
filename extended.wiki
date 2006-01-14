@@ -41,10 +41,11 @@ create object within a member variable of the stateful bean.  When the update() 
 state is modified.  Since the entity manager used is EXTENDED, the customer member variable remains managed by the entity
 manager and the modified state will be synchronized with the database.
 
-!Application Transactions
+!Converations
 
-An even more interesting use case is when you combine extended persistence contexts with FlushMode. If you set a FlushMode of NEVER,
-there will not be any database synchronization.   This means that any persist(), merge(), or remove() method you call will not
+An even more interesting use case is when you combine extended persistence contexts with non-transactional methods. 
+If you interact with an extended persistence context outside of a transaction, the inserts, updates, and deletes
+will be queued until you access the persistence context within a transaction.   This means that any persist(), merge(), or remove() method you call will not
 actually result in a JDBC execution and thus an update of the database until you manually call EntityManager.flush().
 
 Why is this useful? Consider the usecase of a Setup Wizard on a website.  The Wizard has seven steps, seven web pages to enter
@@ -73,7 +74,7 @@ public class ShoppingCartBean implements ShoppingCart
       return customer.getId();
    }
 
-   @FlushMode(FlushModeType.NEVER)
+   @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
    public void never()
    {
       customer.setName("Bob");
@@ -84,13 +85,13 @@ public class ShoppingCartBean implements ShoppingCart
    @Remove
    public void checkout()
    {
-      em.flush();
    }
 }
 }}}
 
 Calling the never() method will update the managed customer object reference, but will not result in a database update until
-checkout() is called and EntityManager.flush() invoked.
+checkout() is called.  The spec requires that any time you invoke a transactional method of a stateful bean, 
+that the EntityManager join the transaction.  Therefore, our never() update will be committed at the end of the checkout() method.
 
 
 !Building and Running
