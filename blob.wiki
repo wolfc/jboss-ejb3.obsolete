@@ -19,7 +19,7 @@ public class BlobEntity implements Serializable
    private Blob blobby;
    private Clob clobby;
 
-   @Id(generate = GeneratorType.IDENTITY)
+   @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
    public long getId()
    {
       return id;
@@ -30,7 +30,7 @@ public class BlobEntity implements Serializable
       this.id = id;
    }
 
-   @Lob(fetch=FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public Blob getBlobby()
    {
       return blobby;
@@ -41,7 +41,7 @@ public class BlobEntity implements Serializable
       this.blobby = blobby;
    }
 
-   @Lob(type = LobType.CLOB, fetch=FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public Clob getClobby()
    {
       return clobby;
@@ -84,7 +84,7 @@ public class BlobEntity2 implements Serializable
    private byte[] blobby;
    private String clobby;
 
-   @Id(generate = GeneratorType.AUTO)
+   @Id @GeneratedValue(strategy=GenerationType.AUTO)
    public long getId()
    {
       return id;
@@ -95,7 +95,7 @@ public class BlobEntity2 implements Serializable
       this.id = id;
    }
 
-   @Lob(fetch = FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public byte[] getBlobby()
    {
       return blobby;
@@ -106,7 +106,7 @@ public class BlobEntity2 implements Serializable
       this.blobby = blobby;
    }
 
-   @Lob(type = LobType.CLOB, fetch = FetchType.EAGER)
+   @Lob @Basic(fetch = FetchType.EAGER)
    public String getClobby()
    {
       return clobby;
