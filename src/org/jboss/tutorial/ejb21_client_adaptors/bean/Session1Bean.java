@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
 @Remote(Session1Remote.class)
 @RemoteHome(Session1RemoteHome.class)
 @RemoteBinding(jndiBinding = "Session1Remote")
-@EJBs({@EJB(name="session2", businessInterface=org.jboss.tutorial.ejb21_client_adaptors.bean.Session2Local.class, beanName="Session2")})
+@EJBs({@EJB(name="session2", businessInterface=org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome.class, beanName="Session2")})
 public class Session1Bean 
 {
    private static final Logger log = Logger.getLogger(Session1Bean.class);
@@ -57,7 +57,8 @@ public class Session1Bean
    {
       InitialContext jndiContext = new InitialContext();
       Object s = jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
-      Session2Local session2 = (Session2Local)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
+      Session2LocalHome home = (Session2LocalHome)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
+      Session2Local session2 = home.create("initialized");
       return session2.getInitValue();
    }
    

@@ -18,7 +18,7 @@
          <ejb-local-ref>
             <ejb-ref-name>session2</ejb-ref-name>
             <ejb-ref-type>Session</ejb-ref-type>
-            <local>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2Local</local>
+            <local>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome</local>
             <ejb-link>DeploymentDescriptorSession2</ejb-link>
          </ejb-local-ref>
       </session>
