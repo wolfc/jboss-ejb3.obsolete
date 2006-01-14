@@ -28,14 +28,14 @@ is tagged with <tt>connection-factory</tt> to indicate the jndi name of the XA t
 </p><p>
 <h3>The client</h3>
 
+</p><p>
 Let's now take a look at the client (really the producer of the actual messages) <a href="src/org/jboss/tutorial/consumer_deployment_descriptor/client/Client.java">Client.java</a>
 </p><p>
-
 When the Consumer is deployed by the EJB3 container, it looks for all of its Producer interfaces and registers each one of them in JNDI under their FQN class name.  The client code above looks
 up the <a href="src/org/jboss/tutorial/consumer_deployment_descriptor/bean/ExampleProducerRemote.java">ExampleProducerRemote.java</a> interface in JNDI and accesses the local interfaces (
 <a href="src/org/jboss/tutorial/consumer_deployment_descriptor/bean/ExampleProducerLocal.java">ExampleProducerLocal.java</a>,
 <a href="src/org/jboss/tutorial/consumer_deployment_descriptor/bean/ExampleProducerXA.java">ExampleProducerXA.java</a>) through the Stateless Session bean 
-<a href="src/org/jboss/tutorial/consumer_deployment_descriptor/bean/TesterBean.java">TesterBean.java</a>.
+<a href="src/org/jboss/tutorial/consumer_deployment_descriptor/bean/TesterBean.java"">TesterBean.java</a>.
 Each producer implements the <a href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-ejb3/src/main/org/jboss/ejb3/mdb/ProducerObject.java?rev=1.1&view=markup">ProducerObject</a>.
 The client typecasts the <tt>ExampleProducerRemote</tt> to the ProducerObject.
 It then gets a <a href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-ejb3/src/main/org/jboss/ejb3/mdb/ProducerManager.java?rev=1.1&view=markup">ProducerManager</a> that manages the
@@ -45,9 +45,9 @@ The consumer will receive the message and invoke its <tt>method1</tt> method.
 </p><p>
 <h3>Producer default values</h3>
 
+</p><p>
 The proxy registered in JNDI will know how to contact the JMS Queue/Topic to publish messages.  You can specify explicitly through the <tt>connnection-factory</tt> tag what the JMS
 ConnectionFactory JNDI name is, or you can rely on defaults.
-</p><p>
 </p><p>
 The default value is "ConnectionFactory" for the ConnectionFactory JNDI name.
 </p><p>
@@ -55,6 +55,7 @@ If you additionally tag the producer as <tt>local-producer</tt> instead of <tt>p
 </p><p>
 <h3>local-producer</h3>
 
+</p><p>
 If you tag a producer as <tt>local-producer</tt>, the proxy will lookup the connection factory via the default InitialContext when connect() is called.   Otherwise, the ConnectFactory
 reference will be embedded directly within the proxy.
 </p><p>
@@ -66,19 +67,20 @@ these default values using the <tt>message-properties</tt> tag. This tag can be 
 </p><p>
 So, in the above example, <tt>method1()</tt> uses the default message properties, and <tt>method2()</tt> overrides the defaults via the <tt>message-properties</tt> tag.
 </p><p>
-<h3> Obtaining the current message</h3>
+<h3>Obtaining the current message</h3>
 
+</p><p>
 Sometimes you may need to access the real JMS message.  Maybe you need to obtain the replyTo destination or set an acknowledgement or something.  You can
 obtain it by using the <tt>current-message</tt> tag.
 </p><p>
 This tag will inject the current JMS message into your Consumer bean before your target method is invoked.
 </p><p>
-</p><p>
 <h3>FEEDBACK NEEDED</h3>
 
+</p><p>
 Please provide feedback to this proposed feature on our <a href="http://www.jboss.org/index.html?module=bb&op=viewtopic&t=60294">forum</a>.  We would really like feedback on this feature.
 </p><p>
-<h4>Building and Running</h4>
+<h3>Building and Running</h3>
 
 To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
 <pre>
@@ -92,11 +94,11 @@ $ ant run
 Look in the console window to determine that the message was sent.
 </p><p>
 <pre>
-12:25:59,734 INFO  [Ejb3Module] found EJB3 consumer bean: org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleConsumerBean
-12:25:59,734 INFO  [Ejb3Module] found EJB3 stateless session bean: org.jboss.tutorial.consumer_deployment_descriptor.bean.TesterBean
-12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerRemote
-12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerLocal
-12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerXA
+12:25:59,734 INFO  [Ejb3Module] found EJB3 consumer bean: org.jboss.tutorial.consumer.bean.ExampleConsumerBean
+12:25:59,734 INFO  [Ejb3Module] found EJB3 stateless session bean: org.jboss.tutorial.consumer.bean.TesterBean
+12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer.bean.ExampleProducerRemote
+12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer.bean.ExampleProducerLocal
+12:25:59,796 INFO  [ConsumerContainer] Producer: org.jboss.tutorial.consumer.bean.ExampleProducerXA
 12:25:59,812 INFO  [ProxyDeployer] no declared remote bindings
 12:25:59,812 INFO  [ProxyDeployer] there is remote interfaces
 12:25:59,812 INFO  [ProxyDeployer] default remote binding has jndiName of org.jboss.tutorial.consumer.bean.Tester
