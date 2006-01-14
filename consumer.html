@@ -13,7 +13,7 @@ Message Driven POJOs will have the same model as Stateless/Stateful beans.  Ther
 It might be best to look at a full example.  One is available in our <a href="http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-ejb3/src/test/org/jboss/ejb3/test/consumer/">testsuite</a>
 </p><p>
 <pre>
-package org.jboss.ejb3.mdb;
+package org.jboss.annotation.ejb;
 
 @Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME)
 public @interface Consumer
@@ -29,7 +29,7 @@ public @interface Consumer
 @Consumer looks exactly like @MessageDriven of the EJB3 specification and is configured as such.  Place @Consumer on a bean class.  That bean class implements interfaces tagged as @Producer.
 </p><p>
 <pre>
-package org.jboss.ejb3.mdb;
+package org.jboss.annotation.Producer;
 
 @Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME)
 public @interface Producer
@@ -67,7 +67,7 @@ public class QueueTestConsumer implements QueueTestRemote
 QueueTestConsumer is our bean class and defines the methods that can receive JMS messages.  You see that it implements one interface, QueueTestRemote.  
 </p><p>
 <pre>
-import org.jboss.ejb3.mdb.Producer;
+import org.jboss.annotation.ejb.Producer;
 
 @Producer
 public interface QueueTestRemote 
