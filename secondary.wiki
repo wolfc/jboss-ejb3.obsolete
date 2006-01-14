@@ -6,7 +6,7 @@ The [Customer|src/org/jboss/tutorial/secondary/bean/Customer.java] bean maps its
 {{{
 @Entity
 @Table(name = "CUSTOMER")
-@SecondaryTable(name = "ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
+@SecondaryTable(name = "EMBEDDED_ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
 public class Customer implements java.io.Serializable
 {
 }}}
@@ -16,7 +16,7 @@ The {{@JoinColumn}} of the secondary table must match the value of the Customer'
 To map individual properties to a secondary table you use the {{secondaryTable}} member value of {{@Column}}.
 
 {{{
-   @Column(name = "STREET", secondaryTable = "ADDRESS")
+   @Column(name = "STREET", secondaryTable = "EMBEDDED_ADDRESS")
    public String getStreet()
    {
       return street;

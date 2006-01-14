@@ -10,7 +10,7 @@ The <a href="src/org/jboss/tutorial/secondary/bean/Customer.java">Customer</a> b
 <pre>
 @Entity
 @Table(name = "CUSTOMER")
-@SecondaryTable(name = "ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
+@SecondaryTable(name = "EMBEDDED_ADDRESS", join = {@JoinColumn(name = "ADDRESS_ID")})
 public class Customer implements java.io.Serializable
 {
 </pre>
@@ -20,7 +20,7 @@ The <tt>@JoinColumn</tt> of the secondary table must match the value of the Cust
 To map individual properties to a secondary table you use the <tt>secondaryTable</tt> member value of <tt>@Column</tt>.
 </p><p>
 <pre>
-   @Column(name = "STREET", secondaryTable = "ADDRESS")
+   @Column(name = "STREET", secondaryTable = "EMBEDDED_ADDRESS")
    public String getStreet()
    {
       return street;
