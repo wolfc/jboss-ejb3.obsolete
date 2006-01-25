@@ -14,6 +14,14 @@
          <remote>org.jboss.tutorial.ejb21_client_adaptors.bean.Session1Remote</remote>
          <ejb-class>org.jboss.tutorial.ejb21_client_adaptors.bean.DeploymentDescriptorSession1Bean</ejb-class>
          <session-type>Stateful</session-type>
+	   <init-method>
+            <create-method>
+               <method-name>ejbCreate</method-name>
+            </create-method>
+            <bean-method>
+               <method-name>ejbCreate</method-name>
+            </bean-method>
+         </init-method>
          <transaction-type>Container</transaction-type>
          <ejb-local-ref>
             <ejb-ref-name>session2</ejb-ref-name>
@@ -28,19 +36,15 @@
          <local>org.jboss.tutorial.ejb21_client_adaptors.bean.Session2Local</local>
          <ejb-class>org.jboss.tutorial.ejb21_client_adaptors.bean.DeploymentDescriptorSession2Bean</ejb-class>
          <session-type>Stateful</session-type>
+         <init-method>
+            <create-method>
+               <method-name>ejbCreate</method-name>
+            </create-method>
+            <bean-method>
+               <method-name>ejbCreate</method-name>
+            </bean-method>
+         </init-method>
          <transaction-type>Container</transaction-type>
       </session>
    </enterprise-beans>
-   <assembly-descriptor>
-      <init-list>
-         <method>
-            <ejb-name>DeploymentDescriptorSession1</ejb-name>
-            <method-name>ejbCreate</method-name>
-         </method>
-         <method>
-            <ejb-name>DeploymentDescriptorSession2</ejb-name>
-            <method-name>ejbCreate</method-name>
-         </method>
-      </init-list>
-   </assembly-descriptor>
 </ejb-jar>
