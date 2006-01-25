@@ -13,15 +13,13 @@
          <remote>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</remote>
          <ejb-class>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCartBean</ejb-class>
          <session-type>Stateful</session-type>
+         <remove-method>
+            <bean-method>
+               <method-name>checkout</method-name>
+            </bean-method>
+            <retain-if-exception>false</retain-if-exception>
+         </remove-method>
          <transaction-type>Container</transaction-type>
       </session>
    </enterprise-beans>
-   <assembly-descriptor>
-        <remove-list>
-    		<method>
-                <ejb-name>ShoppingCart</ejb-name>
-                <method-name>checkout</method-name>
-            </method>
-	  </remove-list>
-   </assembly-descriptor>
 </ejb-jar>
