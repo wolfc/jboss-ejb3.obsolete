@@ -1,10 +1,10 @@
 <html>
 <body>
 <p>
-<h4>JNDI Bindings and Multiple Transports</h4>
+<h4>JNDI Bindings</h4>
 
-By default, session beans will bind to JNDI in the form ejbName/remote for remote interfaces and ejbName/local in the case of local interfaces. When 
-the EJBs are deployed in an .ear file, the default jndi binding will be prepended by the name of the .ear file. You can override this behavior
+By default, session beans will bind to JNDI in the form <tt>ejbName/remote</tt> for remote interfaces and <tt>ejbName/local</tt> in the case of local interfaces. When 
+the EJBs are deployed in an .ear file, the default jndi binding will be prepended by the name of the .ear file.  So if the ear file name is <tt>foo.ear</tt> the default jndi names would be <tt>foo/EJB-NAME/remote</tt> and <tt>foo/EJB-NAME/local</tt>. You can override this behavior
 by defining your own <tt>@org.jboss.ejb3.LocalBinding</tt> or <tt>@org.jboss.ejb3.remoting.RemoteBinding</tt>.
 </p><p>
 </p><p>
@@ -31,6 +31,26 @@ To change the JNDI name for your remote interface use the <tt>org.jboss.ejb3.Rem
 public class MySessionBean implements MySession
 {
 }
+</pre>
+</p><p>
+<h4>Persistence unit JNDI Bindings</h4>
+
+Persistence units are not bound into JNDI by default.  You can bind them by defining some jboss specific
+properties in persistence.xml.
+<pre>
+          &lt;persistence&gt;
+             &lt;persistence-unit name="manager1"&gt;
+                &lt;jta-data-source&gt;java:/DefaultDS&lt;/jta-data-source&gt;
+                &lt;jar-file&gt;MyApp.jar&lt;/jar-file&gt;
+                &lt;class&gt;org.acme.Employee&lt;/class&gt;
+                &lt;class&gt;org.acme.Person&lt;/class&gt;
+                &lt;class&gt;org.acme.Address&lt;/class&gt;
+                &lt;properties&gt;
+                   &lt;property name="jboss.entity.manager.jndi.name" value="java:/Manager1"/&gt;
+                   &lt;property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/&gt;
+                &lt;/properties&gt;
+             &lt;/persistence-unit&gt;
+          &lt;/persistence&gt;
 </pre>
 </p><p>
 <h4>Client</h4>

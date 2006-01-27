@@ -1,6 +1,6 @@
-!JNDI Bindings and Multiple Transports
-By default, session beans will bind to JNDI in the form ejbName/remote for remote interfaces and ejbName/local in the case of local interfaces. When 
-the EJBs are deployed in an .ear file, the default jndi binding will be prepended by the name of the .ear file. You can override this behavior
+!JNDI Bindings
+By default, session beans will bind to JNDI in the form {{ejbName/remote}} for remote interfaces and {{ejbName/local}} in the case of local interfaces. When 
+the EJBs are deployed in an .ear file, the default jndi binding will be prepended by the name of the .ear file.  So if the ear file name is {{foo.ear}} the default jndi names would be {{foo/EJB-NAME/remote}} and {{foo/EJB-NAME/local}}. You can override this behavior
 by defining your own {{@org.jboss.ejb3.LocalBinding}} or {{@org.jboss.ejb3.remoting.RemoteBinding}}.
 
 
@@ -25,6 +25,25 @@ To change the JNDI name for your remote interface use the {{org.jboss.ejb3.Remot
 public class MySessionBean implements MySession
 {
 }
+}}}
+
+!Persistence unit JNDI Bindings
+Persistence units are not bound into JNDI by default.  You can bind them by defining some jboss specific
+properties in persistence.xml.
+{{{
+          <persistence>
+             <persistence-unit name="manager1">
+                <jta-data-source>java:/DefaultDS</jta-data-source>
+                <jar-file>MyApp.jar</jar-file>
+                <class>org.acme.Employee</class>
+                <class>org.acme.Person</class>
+                <class>org.acme.Address</class>
+                <properties>
+                   <property name="jboss.entity.manager.jndi.name" value="java:/Manager1"/>
+                   <property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/>
+                </properties>
+             </persistence-unit>
+          </persistence>
 }}}
 
 !Client
