@@ -7,9 +7,9 @@
 	<interceptors>
       <interceptor>
          <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
-         <around-invoke-method>
-            <lifecycle-callback-method>sendCancelMessage</lifecycle-callback-method>
-         </around-invoke-method>
+         <around-invoke>
+            <method-name>sendCancelMessage</method-name>
+         </around-invoke>
          <resource-ref>
          	<res-ref-name>jms/ConnFactory</res-ref-name>
             <res-type>javax.jms.QueueConnectionFactory</res-type>
