@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.ejb.Interceptors;
-import javax.ejb.PostConstruct;
-import javax.ejb.PreDestroy;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -74,7 +74,7 @@ public class CustomerDAOBean implements CustomerDAO
          Customer c = (Customer)it.next();
          manager.remove(c);
       }
-   } 
+   }
 
    // Callbacks ----------------------------------------------------------------
    @PostConstruct
