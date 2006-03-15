@@ -32,7 +32,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "CUSTOMER")
 @SecondaryTable(name = "EMBEDDED_ADDRESS")
-@JoinColumn(name = "ADDRESS_ID")
+// FIXME @JoinColumn(name = "ADDRESS_ID")
 public class Customer implements java.io.Serializable
 {
    private int id;
