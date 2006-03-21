@@ -3,7 +3,8 @@ This example shows you how to implement an MDB with EJB 3.0.
 
 
 You configure properties by using the <message-driven> element and sub elements which correspond to the @ActivationConfigProperty annotation.  All 
-properties that you can set are defined in the ejb-jar.xml deployment descriptor. 
+properties that you can set are defined in the [ejb-jar.xml|META-INF/ejb-jar.xml] and
+[jboss.xml|META-INF/jboss.xml] deployment descriptors. 
 
 [MDBConfig.java|http://cvs.sourceforge.net/viewcvs.py/jboss/jboss-ejb3/src/main/org/jboss/ejb3/mdb/MDBConfig.java?rev=1.1&view=markup]
 
