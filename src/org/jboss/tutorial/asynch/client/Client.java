@@ -37,7 +37,7 @@ public class Client
       String ret = echo.echo("normal call");
       System.out.println(ret);
 
-      Echo asynchEcho = Asynch.getAsynchronousProxy(echo);
+      Echo asynchEcho = (Echo) Asynch.getAsynchronousProxy(echo);
       System.out.println("-------- Asynchronous call");
       ret = asynchEcho.echo("asynchronous call");
       System.out.println("Direct return of async invocation is: " + ret);
