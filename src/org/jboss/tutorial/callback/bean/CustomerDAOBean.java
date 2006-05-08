@@ -24,7 +24,7 @@ package org.jboss.tutorial.callback.bean;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.ejb.Interceptors;
+import javax.interceptor.Interceptors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.Remote;

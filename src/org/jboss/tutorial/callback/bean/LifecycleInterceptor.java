@@ -21,7 +21,7 @@
 */ 
 package org.jboss.tutorial.callback.bean;
 
-import javax.ejb.InvocationContext;
+import javax.interceptor.InvocationContext;
 import javax.annotation.PostConstruct;
 
 /**
