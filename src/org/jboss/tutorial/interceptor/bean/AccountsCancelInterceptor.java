@@ -21,7 +21,7 @@
 */ 
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.InvocationContext;
+import javax.interceptor.InvocationContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;

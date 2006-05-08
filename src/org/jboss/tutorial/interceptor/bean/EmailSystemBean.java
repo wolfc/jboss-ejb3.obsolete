@@ -21,11 +21,11 @@
 */
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.AroundInvoke;
-import javax.ejb.ExcludeClassInterceptors;
-import javax.ejb.ExcludeDefaultInterceptors;
-import javax.ejb.Interceptors;
-import javax.ejb.InvocationContext;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.ExcludeClassInterceptors;
+import javax.interceptor.ExcludeDefaultInterceptors;
+import javax.interceptor.Interceptors;
+import javax.interceptor.InvocationContext;
 import javax.ejb.Stateless;
 import javax.ejb.Remote;
 import javax.jms.JMSException;

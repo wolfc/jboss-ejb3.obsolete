@@ -21,8 +21,8 @@
 */
 package org.jboss.tutorial.interceptor.bean;
 
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 public class OtherInterceptor
 {

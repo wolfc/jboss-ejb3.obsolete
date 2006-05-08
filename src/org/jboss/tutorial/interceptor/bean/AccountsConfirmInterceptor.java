@@ -24,9 +24,8 @@ package org.jboss.tutorial.interceptor.bean;
 import java.util.Date;
 
 import javax.annotation.Resource;
-import javax.ejb.AroundInvoke;
-import javax.ejb.InvocationContext;
-import javax.jms.Connection;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Queue;
@@ -47,13 +46,13 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
 {
    @Resource(mappedName="java:ConnectionFactory")
    QueueConnectionFactory cf;
-   
+
    @Resource(mappedName="queue/tutorial/accounts")
    Queue queue;
-   
+
    @PersistenceContext
    EntityManager em;
-   
+
    QueueConnection conn;
 
    public Object intercept(InvocationContext ctx) throws Exception
@@ -62,7 +61,7 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
       return null;
    }
 
-   
+
    @AroundInvoke
    public Object sendConfirmMessage(InvocationContext ctx) throws Exception
    {
@@ -70,9 +69,9 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
       try
       {
          System.out.println("*** AccountsConfirmInterceptor intercepting");
-         
+
          long orderId = (Long)ctx.getParameters()[0];
-         
+
          if (em.find(Confirmation.class, orderId) == null)
          {
             System.out.println("*** AccountsConfirmInterceptor - recording confirmation");
@@ -84,13 +83,13 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
             System.out.println("*** AccountsConfirmInterceptor - order has already been confirmed aborting");
             return null;
          }
-         
+
          System.out.println("*** AccountsConfirmInterceptor - notifying accounts dept " + ctx.getMethod().getName());
          session = getConnection().createQueueSession(false, Session.AUTO_ACKNOWLEDGE);
          Message msg = session.createTextMessage("Confirming order " + orderId);
          QueueSender sender = session.createSender(queue);
          sender.send(msg);
-         
+
          return ctx.proceed();
       }
       catch(Exception e)
@@ -103,7 +102,7 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
          System.out.println("*** AccountsConfirmInterceptor exiting");
       }
    }
-   
+
    QueueConnection getConnection() throws JMSException
    {
       if (conn == null)
@@ -116,7 +115,7 @@ public class AccountsConfirmInterceptor extends AccountsInterceptor
             }
          }
       }
-      
+
       return conn;
-   }   
+   }
 }
