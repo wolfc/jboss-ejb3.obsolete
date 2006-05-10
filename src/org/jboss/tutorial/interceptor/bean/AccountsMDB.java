@@ -25,6 +25,7 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.TextMessage;
 
 /**
@@ -37,7 +38,7 @@ import javax.jms.TextMessage;
 @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
 @ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/accounts")
 })
-public class AccountsMDB
+public class AccountsMDB implements MessageListener
 {
    public void onMessage(Message recvMsg)
    {
