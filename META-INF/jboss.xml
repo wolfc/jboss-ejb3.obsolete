@@ -9,7 +9,6 @@
    <enterprise-beans>
       <message-driven>
          <ejb-name>ExampleMDB</ejb-name>
-         <configuration-name>Standard Message Driven Bean</configuration-name>
          <destination-jndi-name>queue/tutorial/example</destination-jndi-name>
       </message-driven>
    </enterprise-beans>
