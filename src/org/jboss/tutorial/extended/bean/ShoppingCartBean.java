@@ -21,13 +21,11 @@
 */
 package org.jboss.tutorial.extended.bean;
 
-import javax.annotation.EJB;
+import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.*;
 import javax.persistence.EntityManager;
-import javax.persistence.FlushMode;
-import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 
