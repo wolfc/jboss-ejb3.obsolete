@@ -22,8 +22,8 @@
 package org.jboss.tutorial.ejb21_client_adaptors.bean;
 
 import javax.naming.*;
-import javax.annotation.EJB;
-import javax.annotation.EJBs;
+import javax.ejb.EJB;
+import javax.ejb.EJBs;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 import javax.ejb.Init;
