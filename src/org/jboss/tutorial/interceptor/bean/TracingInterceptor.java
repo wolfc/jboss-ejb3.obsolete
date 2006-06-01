@@ -42,7 +42,7 @@ public class TracingInterceptor {
       finally
       {
          long time = System.currentTimeMillis() - start;
-         String method = ctx.getBean().getClass().getName() + "." + ctx.getMethod().getName() + "()";
+         String method = ctx.getTarget().getClass().getName() + "." + ctx.getMethod().getName() + "()";
          System.out.println("*** TracingInterceptor invocation of " + method + " took " + time + "ms");
       }
    }
