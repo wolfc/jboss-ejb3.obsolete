@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
 @Remote(Session1Remote.class)
 @RemoteHome(Session1RemoteHome.class)
 @RemoteBinding(jndiBinding = "Session1Remote")
-@EJBs({@EJB(name="session2", businessInterface=org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome.class, beanName="Session2")})
+@EJBs({@EJB(name="session2", beanInterface=org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome.class, beanName="Session2")})
 public class Session1Bean 
 {
    private static final Logger log = Logger.getLogger(Session1Bean.class);
