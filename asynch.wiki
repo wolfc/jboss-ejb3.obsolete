@@ -1,6 +1,6 @@
 !!! Asynchronous calls
 
-A JBoss extension to EJB 3.0 is that from the @Remote or @Local interface of a stateful session bean, stateless session bean or service bean you can obtain an asynchronous proxy. Methods called on the asynchronous proxy will be executed asynchronously, and the results can be obtained later on.
+A JBoss extension to EJB 3.0 is that from the remote or local interface of a stateful session bean, stateless session bean or service bean you can obtain an asynchronous proxy. Methods called on the asynchronous proxy will be executed asynchronously, and the results can be obtained later on.
 
 !!Example simple ServicePOJO
 Take a look at [Echo.java|src/org/jboss/tutorial/asynch/bean/Echo.java] and [EchoRemote.java|src/org/jboss/tutorial/asynch/bean/EchoRemote.java]. They define a normal stateless session bean with a remote interface, nothing special. Now take a look at [Client.java|src/org/jboss/tutorial/asynch/client/Client.java]. It shows an example of asynchronous calls on a remote interface. We will walk through what it does here. The following lines just obtain the remote interface of the bean and call a method following the standard synchronous usage pattern
@@ -15,14 +15,13 @@ Take a look at [Echo.java|src/org/jboss/tutorial/asynch/bean/Echo.java] and [Ech
 Next we obtain the asynchronous proxy and make a call via that. The method will be invoked asynchronously
 
 {{{
-   JBossProxy proxy = (JBossProxy)echo;
-   Echo asynchEcho = (Echo)proxy.getAsynchronousProxy();
+   Echo asynchEcho = Asynch.getAsynchronousProxy(echo);
    System.out.println("-------- Asynchronous call");
    ret = asynchEcho.echo("asynchronous call");
    System.out.println("Direct return of async invocation is: " + ret);
 }}}
 
-As shown, you obtain the asynchronous proxy by casting the standard remote interface to {{JBossProxy}}, and then calling {{getAsynchronousProxy()}}. All methods invoked on this proxy are invoked asynchronously, and the returned value will always be null (or 0 in the case of numeric primitive types). In this example, the echo() method called has low overhead, but imagine if this was a method that took a long time. In this case it would be good to be able to go ahead with some other tasks. In Client.java, we make another call on the normal remote interface while "waiting" for the asynchronous call.
+As shown, you obtain the asynchronous proxy by calling {{org.jboss.ejb3.asynchronous.Asynch.getAsynchronousProxy()}} . All methods invoked on this proxy are invoked asynchronously, and the returned value will always be null (or 0 in the case of numeric primitive types). In this example, the echo() method called has low overhead, but imagine if this was a method that took a long time. In this case it would be good to be able to go ahead with some other tasks. In Client.java, we make another call on the normal remote interface while "waiting" for the asynchronous call.
 
 {{{
    System.out.println("-------- Synchronous call");

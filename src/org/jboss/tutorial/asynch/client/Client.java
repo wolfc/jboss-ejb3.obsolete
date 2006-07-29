@@ -1,17 +1,30 @@
 /*
- * JBoss, the OpenSource J2EE webOS
- *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
- */
+  * JBoss, Home of Professional Open Source
+  * Copyright 2005, JBoss Inc., and individual contributors as indicated
+  * by the @authors tag. See the copyright.txt in the distribution for a
+  * full listing of individual contributors.
+  *
+  * This is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU Lesser General Public License as
+  * published by the Free Software Foundation; either version 2.1 of
+  * the License, or (at your option) any later version.
+  *
+  * This software is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  * Lesser General Public License for more details.
+  *
+  * You should have received a copy of the GNU Lesser General Public
+  * License along with this software; if not, write to the Free
+  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+  */
 package org.jboss.tutorial.asynch.client;
 
-import org.jboss.tutorial.asynch.bean.Echo;
-import org.jboss.ejb3.JBossProxy;
-import org.jboss.aspects.asynch.AsynchProvider;
-import org.jboss.aspects.asynch.Future;
-
 import javax.naming.InitialContext;
+import org.jboss.aspects.asynch.Future;
+import org.jboss.ejb3.asynchronous.Asynch;
+import org.jboss.tutorial.asynch.bean.Echo;
 
 
 public class Client
@@ -19,13 +32,12 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      Echo echo = (Echo)ctx.lookup(org.jboss.tutorial.asynch.bean.Echo.class.getName());
+      Echo echo = (Echo)ctx.lookup("EchoBean/remote");
       System.out.println("-------- Synchronous call");
       String ret = echo.echo("normal call");
       System.out.println(ret);
 
-      JBossProxy proxy = (JBossProxy)echo;
-      Echo asynchEcho = (Echo)proxy.getAsynchronousProxy();
+      Echo asynchEcho = (Echo) Asynch.getAsynchronousProxy(echo);
       System.out.println("-------- Asynchronous call");
       ret = asynchEcho.echo("asynchronous call");
       System.out.println("Direct return of async invocation is: " + ret);
@@ -35,8 +47,7 @@ public class Client
       System.out.println(ret);
 
       System.out.println("-------- Result of Asynchronous call");
-      AsynchProvider provider = (AsynchProvider)asynchEcho;
-      Future future = provider.getFuture();
+      Future future = Asynch.getFutureResult(asynchEcho);
 
       System.out.println("Waiting for asynbch invocation to complete");
       while (!future.isDone())
