@@ -34,7 +34,7 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      CustomerDAO dao = (CustomerDAO) ctx.lookup(CustomerDAO.class.getName());
+      CustomerDAO dao = (CustomerDAO) ctx.lookup("CustomerDAOBean/remote");
 
       System.out.println("Create Bill Burke and Monica Smith");
       dao.create("Bill", "Burke", "1 Boston Road", "Boston", "MA", "02115");

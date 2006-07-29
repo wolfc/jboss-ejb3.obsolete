@@ -23,8 +23,10 @@ package org.jboss.tutorial.callback.bean;
 
 import java.util.Iterator;
 import java.util.List;
-import javax.ejb.PostConstruct;
-import javax.ejb.PreDestroy;
+
+import javax.interceptor.Interceptors;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -32,6 +34,7 @@ import javax.persistence.PersistenceContext;
 
 @Stateless
 @Remote(CustomerDAO.class)
+@Interceptors({LifecycleInterceptor.class})
 public class CustomerDAOBean implements CustomerDAO
 {
    @PersistenceContext
