@@ -25,7 +25,7 @@ package org.jboss.tutorial.stateful_deployment_descriptor.client;
 import org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart;
 
 import javax.ejb.EJBException;
-import javax.ejb.EJBNoSuchObjectException;
+import javax.ejb.NoSuchEJBException;
 import javax.naming.InitialContext;
 
 import java.rmi.NoSuchObjectException;
@@ -67,7 +67,7 @@ public class Client
       {
          cart.getCartContents();
       }
-      catch (EJBNoSuchObjectException e)
+      catch (NoSuchEJBException e)
       {
             System.out.println("Successfully caught no such object exception.");
       }
