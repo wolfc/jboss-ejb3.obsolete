@@ -22,8 +22,6 @@
 package org.jboss.tutorial.extended.bean;
 
 import javax.ejb.Remove;
-import javax.persistence.FlushMode;
-import javax.persistence.FlushModeType;
 
 /**
  * comment
@@ -44,5 +42,5 @@ public interface ShoppingCart
 
    void update3();
 
-   @FlushMode(FlushModeType.AUTO) void never();
+   void never();
 }
