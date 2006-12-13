@@ -1,0 +1,7 @@
+<aop>
+	<interceptor name="ConstructorInterceptor" class="org.jboss.injection.aop.ConstructorInterceptor" scope="PER_VM"/>
+	
+	<bind pointcut="construction(org.jboss.injection.test.*->new(..))">
+		<interceptor-ref name="ConstructorInterceptor"/>
+	</bind>
+</aop>
