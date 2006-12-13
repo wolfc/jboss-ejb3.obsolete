@@ -21,7 +21,7 @@
  */
 package org.jboss.injection.lang.reflect;
 
-import java.lang.reflect.AccessibleObject;
+import java.lang.annotation.Annotation;
 
 /**
  * A bean property defines a propery of a pojo from the EJB3 point of view.
@@ -32,8 +32,7 @@ import java.lang.reflect.AccessibleObject;
  */
 public interface BeanProperty
 {
-   // TODO: should not be exposed
-   AccessibleObject getAccessibleObject();
+   <T extends Annotation> T getAnnotation(Class<T> annotationClass);
    
    Class<?> getDeclaringClass();
    

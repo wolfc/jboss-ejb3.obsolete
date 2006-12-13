@@ -19,29 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import java.util.Map;
+
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Injects a value from a map.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class MapPropertyInjector extends AbstractInjector
 {
-   public String getName()
+   private Map<String, Object> map;
+   private String name;
+   
+   public MapPropertyInjector(BeanProperty property, Map<String, Object> map, String name)
    {
-      return "ConstructorInterceptor";
+      super(property);
+      
+      assert map != null;
+      assert name != null;
+      
+      this.map = map;
+      this.name = name;
    }
 
-   public Object invoke(Invocation invocation) throws Throwable
+   @Override
+   protected Object getValue()
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      return map.get(name);
    }
 }

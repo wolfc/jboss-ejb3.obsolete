@@ -85,4 +85,9 @@ public class FieldBeanProperty extends AbstractAccessibleObjectBeanProperty<Fiel
          throw new IllegalArgumentException(msg);
       }
    }
+   
+   public String toString()
+   {
+      return super.toString() + "{" + getDeclaringClass() + "/" + getName() + "}";
+   }
 }

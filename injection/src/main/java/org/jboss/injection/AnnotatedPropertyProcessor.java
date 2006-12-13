@@ -19,29 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import java.lang.annotation.Annotation;
+
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
+ * @deprecated NYI
  */
-public class ConstructorInterceptor implements Interceptor
+public class AnnotatedPropertyProcessor<FactoryType extends InjectorFactory, AnnotationType extends Annotation> extends AbstractProcessor<BeanProperty>
 {
-   public String getName()
+   private FactoryType factory;
+   
+   protected AnnotatedPropertyProcessor(FactoryType factory)
    {
-      return "ConstructorInterceptor";
+      assert factory != null;
+      
+      this.factory = factory;
    }
-
-   public Object invoke(Invocation invocation) throws Throwable
+   
+   public Injector processOne(BeanProperty property)
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      throw new RuntimeException("NYI");
+//      AnnotationType resource = property.getAnnotation(AnnotationType);
+//      if(resource == null) return null;
+//      
+//      return factory.create(property, resource);
    }
 }

@@ -19,29 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Injects the set value into a property.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class SimpleValueInjector implements Injector
 {
-   public String getName()
+   private BeanProperty property;
+   private Object value;
+   
+   public SimpleValueInjector(BeanProperty property, Object value)
    {
-      return "ConstructorInterceptor";
+      assert property != null;
+      
+      this.property = property;
+      this.value = value;
    }
-
-   public Object invoke(Invocation invocation) throws Throwable
+   
+   public void inject(Object instance)
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      property.set(instance, value);
    }
 }

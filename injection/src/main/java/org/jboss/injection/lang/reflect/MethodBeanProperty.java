@@ -46,7 +46,7 @@ public class MethodBeanProperty extends AbstractAccessibleObjectBeanProperty<Met
       super(method);
       
       assert method.getReturnType() == Void.TYPE;
-      assert method.getParameterTypes().length == 1;
+      assert method.getParameterTypes().length == 1 : "invalid number of parameters on " + method;
       assert method.getName().startsWith("set");
    }
 
@@ -83,6 +83,14 @@ public class MethodBeanProperty extends AbstractAccessibleObjectBeanProperty<Met
       return getMethod().getParameterTypes()[0];
    }
    
+   public static boolean isValid(Method method)
+   {
+      if(method.getReturnType() != Void.TYPE) return false;
+      if(method.getParameterTypes().length != 1) return false;
+      if(!method.getName().startsWith("set")) return false;
+      return true;
+   }
+   
    /* (non-Javadoc)
     * @see org.jboss.injection.lang.reflect.BeanProperty#set(java.lang.Object, java.lang.Object)
     */
@@ -115,5 +123,9 @@ public class MethodBeanProperty extends AbstractAccessibleObjectBeanProperty<Met
          throw new RuntimeException(cause);
       }
    }
-
+   
+   public String toString()
+   {
+      return super.toString() + "{" + getDeclaringClass() + "/" + getName() + "}";
+   }
 }

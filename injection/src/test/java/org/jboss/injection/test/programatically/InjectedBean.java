@@ -19,29 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
-
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+package org.jboss.injection.test.programatically;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class InjectedBean
 {
-   public String getName()
+   private String value;
+   
+   public InjectedBean()
    {
-      return "ConstructorInterceptor";
+      if(value != null)
+         throw new IllegalStateException("value must be null");
    }
-
-   public Object invoke(Invocation invocation) throws Throwable
+   
+   public void check()
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      if(value == null)
+         throw new IllegalStateException("value must not be null");
+   }
+   
+   public void postConstruct()
+   {
+      if(value == null)
+         throw new IllegalStateException("value must not be null");
+      Counter.postConstructs++;
+   }
+   
+   public void preDestroy()
+   {
+      Counter.preDestroys++;
    }
 }

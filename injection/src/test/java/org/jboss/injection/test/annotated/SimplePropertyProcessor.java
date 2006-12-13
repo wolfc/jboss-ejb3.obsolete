@@ -19,29 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection.test.annotated;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import org.jboss.injection.AbstractProcessor;
+import org.jboss.injection.Injector;
+import org.jboss.injection.SimpleValueInjector;
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class SimplePropertyProcessor extends AbstractProcessor<BeanProperty>
 {
-   public String getName()
+   @Override
+   public Injector processOne(BeanProperty property)
    {
-      return "ConstructorInterceptor";
-   }
-
-   public Object invoke(Invocation invocation) throws Throwable
-   {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      Simple simple = property.getAnnotation(Simple.class);
+      if(simple == null) return null;
+      
+      // TODO: transform the value
+      return new SimpleValueInjector(property, simple.value());
    }
 }

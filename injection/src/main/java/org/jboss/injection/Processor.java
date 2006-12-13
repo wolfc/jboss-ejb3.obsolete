@@ -19,29 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
-
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+package org.jboss.injection;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Processes an object to produce something.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public interface Processor<T1, T2>
 {
-   public String getName()
-   {
-      return "ConstructorInterceptor";
-   }
-
-   public Object invoke(Invocation invocation) throws Throwable
-   {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
-   }
+   T2 process(T1 t);
 }

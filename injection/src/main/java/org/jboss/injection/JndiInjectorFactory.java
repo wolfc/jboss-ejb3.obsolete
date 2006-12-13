@@ -19,29 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Creates a JNDI property injector based on a Resource annotation.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class JndiInjectorFactory implements InjectorFactory<String>
 {
-   public String getName()
+   /* (non-Javadoc)
+    * @see org.jboss.injection.InjectorFactory#create(org.jboss.injection.lang.reflect.BeanProperty, java.lang.Object)
+    */
+   public Injector create(BeanProperty property, String name)
    {
-      return "ConstructorInterceptor";
+      assert property != null;
+      assert name != null;
+      
+      return new JndiPropertyInjector(property, name);
    }
 
-   public Object invoke(Invocation invocation) throws Throwable
-   {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
-   }
 }

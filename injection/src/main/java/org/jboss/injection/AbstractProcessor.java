@@ -19,29 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Makes it easier to return an empty injector collection.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public abstract class AbstractProcessor<T> implements InjectionProcessor<T>
 {
-   public String getName()
+   public abstract Injector processOne(T t);
+   
+   public Collection<Injector> process(T t)
    {
-      return "ConstructorInterceptor";
-   }
-
-   public Object invoke(Invocation invocation) throws Throwable
-   {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      Collection<Injector> list = new ArrayList<Injector>();
+      Injector injector = processOne(t);
+      if(injector != null)
+         list.add(injector);
+      return list;
    }
 }

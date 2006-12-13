@@ -19,29 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import javax.annotation.Resource;
+
+import org.jboss.injection.lang.reflect.BeanProperty;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class ResourcePropertyProcessor extends AbstractProcessor<BeanProperty>
 {
-   public String getName()
+   private InjectorFactory<String> factory;
+   
+   protected ResourcePropertyProcessor(InjectorFactory<String> factory)
    {
-      return "ConstructorInterceptor";
+      assert factory != null;
+      
+      this.factory = factory;
    }
-
-   public Object invoke(Invocation invocation) throws Throwable
+   
+   public Injector processOne(BeanProperty property)
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      Resource resource = property.getAnnotation(Resource.class);
+      if(resource == null) return null;
+      
+      String name = resource.name();
+      if(name.equals(""))
+         name = property.getDeclaringClass().getName() + "/" + property.getName();
+      
+      return factory.create(property, name);
    }
 }

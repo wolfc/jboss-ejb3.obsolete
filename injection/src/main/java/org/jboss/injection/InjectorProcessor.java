@@ -21,6 +21,10 @@
  */
 package org.jboss.injection;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+
 /**
  * Processes instances by injecting their properties and calling their postconstructs.
  *
@@ -29,8 +33,61 @@ package org.jboss.injection;
  */
 public class InjectorProcessor
 {
-   public static void process(Object instance)
+   public static void process(Object instance, Collection<Injector> injectors, Collection<Method> postConstructs)
    {
+      assert instance != null;
+      assert injectors != null;
+      assert postConstructs != null : "postConstructs is null";
       
+      for(Injector injector : injectors)
+      {
+         injector.inject(instance);
+      }
+      
+      Class<?> cls = instance.getClass();
+      for(Method method : postConstructs)
+      {
+         Object obj;
+         if(cls.isAssignableFrom(method.getDeclaringClass()))
+         {
+            obj = instance;
+         }
+         else
+         {
+            try
+            {
+               // TODO: this is probably a bad idea
+               obj = method.getDeclaringClass().newInstance();
+            }
+            catch (InstantiationException e)
+            {
+               throw new RuntimeException(e);
+            }
+            catch (IllegalAccessException e)
+            {
+               throw new RuntimeException(e);
+            }
+         }
+         Object args[] = null;
+         method.setAccessible(true);
+         try
+         {
+            method.invoke(obj, args);
+         }
+         catch (IllegalAccessException e)
+         {
+            // should not happen
+            throw new RuntimeException(e);
+         }
+         catch (InvocationTargetException e)
+         {
+            Throwable t = e.getCause();
+            if(t instanceof Error)
+               throw (Error) t;
+            if(t instanceof RuntimeException)
+               throw (RuntimeException) t;
+            throw new RuntimeException(t);
+         }
+      }
    }
 }

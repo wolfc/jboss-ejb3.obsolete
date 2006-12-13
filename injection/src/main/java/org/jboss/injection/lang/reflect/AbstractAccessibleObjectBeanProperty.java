@@ -21,6 +21,7 @@
  */
 package org.jboss.injection.lang.reflect;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 
 /**
@@ -40,8 +41,13 @@ public abstract class AbstractAccessibleObjectBeanProperty<T extends AccessibleO
       obj.setAccessible(true);
    }
    
-   public T getAccessibleObject()
+   protected T getAccessibleObject()
    {
       return obj;
+   }
+   
+   public <T1 extends Annotation> T1 getAnnotation(Class<T1> annotationClass)
+   {
+      return obj.getAnnotation(annotationClass);
    }
 }

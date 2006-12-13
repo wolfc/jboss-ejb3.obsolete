@@ -19,29 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.annotation.PostConstruct;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * Scans a class for PostConstruct annotations.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class PostConstructProcessor implements Processor<Class<?>, Collection<Method>>
 {
-   public String getName()
+   public Collection<Method> process(Class<?> cls)
    {
-      return "ConstructorInterceptor";
-   }
-
-   public Object invoke(Invocation invocation) throws Throwable
-   {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      Collection<Method> list = new ArrayList<Method>();
+      if(cls == null) return list;
+      
+      Method methods[] = cls.getDeclaredMethods();
+      for(Method method : methods)
+      {
+         PostConstruct pc = method.getAnnotation(PostConstruct.class);
+         if(pc != null)
+         {
+            list.add(method);
+         }
+      }
+      
+      list.addAll(process(cls.getSuperclass()));
+      
+      return list;
    }
 }

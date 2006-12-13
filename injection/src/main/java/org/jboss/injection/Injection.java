@@ -19,29 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.aop;
+package org.jboss.injection;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * Intercepts construction of new objects and fires up injection.
+ * The facade for the injection framework.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ConstructorInterceptor implements Interceptor
+public class Injection
 {
-   public String getName()
+   /**
+    * Fires of a collection of processors on a given object.
+    * 
+    * @param <T1>   the object type
+    * @param <T2>   the generic type of the resultant collection
+    * @param t      the object on which processing takes place
+    * @param c      the collection of processors
+    * @return       the resultant collection
+    */
+   public static <T1, T2> Collection<T2> doIt(T1 t, Collection<Processor<T1, Collection<T2>>> c)
    {
-      return "ConstructorInterceptor";
+      Collection<T2> list = new ArrayList<T2>();
+      for(Processor<T1, Collection<T2>> processor : c)
+      {
+         list.addAll(processor.process(t));
+      }
+      return list;
    }
-
-   public Object invoke(Invocation invocation) throws Throwable
+   
+   /**
+    * Process an object for injection.
+    * Find out which injectors are registered for this object's class and
+    * run them.
+    * 
+    * @param instance
+    */
+   public static void process(Object instance)
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
-      return invocation.invokeNext();
+      
    }
 }
