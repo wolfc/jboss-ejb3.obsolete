@@ -21,6 +21,8 @@
  */
 package org.jboss.injection.test.simple;
 
+import org.jboss.injection.test.common.Counter;
+
 /**
  * Comment
  *

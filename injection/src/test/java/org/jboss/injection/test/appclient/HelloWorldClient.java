@@ -19,22 +19,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.test.annotated;
+package org.jboss.injection.test.appclient;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+
+import org.jboss.injection.test.common.Counter;
 
 /**
- * Comment
+ * The app client differs from other injections, that all
+ * is static. And thus usable from the main method.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class Counter
+public class HelloWorldClient
 {
-   public static int postConstructs;
-   public static int preDestroys;
+   @Resource
+   private static String value;
    
-   public static void reset()
+   public static void check()
    {
-      postConstructs = 0;
-      preDestroys = 0;
+      if(value == null)
+         throw new IllegalStateException("value must not be null");
+   }
+   
+   @PostConstruct
+   public static void postConstruct()
+   {
+      if(value == null)
+         throw new IllegalStateException("value must not be null");
+      Counter.postConstructs++;
+   }
+   
+   @PreDestroy
+   public static void preDestroy()
+   {
+      Counter.preDestroys++;
    }
 }

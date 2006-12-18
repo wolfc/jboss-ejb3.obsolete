@@ -25,6 +25,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 
+import org.jboss.injection.test.common.Counter;
+
 /**
  * Do injection based on annotation.
  *

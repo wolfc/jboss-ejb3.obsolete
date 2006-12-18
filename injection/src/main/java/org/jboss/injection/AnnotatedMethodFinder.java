@@ -19,22 +19,47 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.test.simple;
+package org.jboss.injection;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * Comment
+ * Finds all methods annotation with a certain annotation.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class Counter
+public class AnnotatedMethodFinder<T extends Annotation> implements Processor<Class<?>, Collection<Method>>
 {
-   public static int postConstructs;
-   public static int preDestroys;
+   private Class<T> annotationClass;
    
-   public static void reset()
+   public AnnotatedMethodFinder(Class<T> annotationClass)
    {
-      postConstructs = 0;
-      preDestroys = 0;
+      assert annotationClass != null : "annotationClass is null";
+      
+      this.annotationClass = annotationClass;
+   }
+   
+   public Collection<Method> process(Class<?> cls)
+   {
+      Collection<Method> list = new ArrayList<Method>();
+      if(cls == null) return list;
+      
+      Method methods[] = cls.getDeclaredMethods();
+      for(Method method : methods)
+      {
+         T annotation = method.getAnnotation(annotationClass);
+         if(annotation != null)
+         {
+            list.add(method);
+         }
+      }
+      
+      list.addAll(process(cls.getSuperclass()));
+      
+      return list;
    }
 }

@@ -30,25 +30,26 @@ import org.jboss.injection.lang.reflect.BeanProperty;
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
- * @deprecated NYI
  */
-public class AnnotatedPropertyProcessor<FactoryType extends InjectorFactory, AnnotationType extends Annotation> extends AbstractProcessor<BeanProperty>
+public class AnnotatedPropertyProcessor<FactoryType extends InjectorFactory<AnnotationType>, AnnotationType extends Annotation> extends AbstractProcessor<BeanProperty>
 {
    private FactoryType factory;
+   private Class<AnnotationType> annotationClass;
    
-   protected AnnotatedPropertyProcessor(FactoryType factory)
+   protected AnnotatedPropertyProcessor(FactoryType factory, Class<AnnotationType> annotationClass)
    {
       assert factory != null;
+      assert annotationClass != null;
       
       this.factory = factory;
+      this.annotationClass = annotationClass;
    }
    
    public Injector processOne(BeanProperty property)
    {
-      throw new RuntimeException("NYI");
-//      AnnotationType resource = property.getAnnotation(AnnotationType);
-//      if(resource == null) return null;
-//      
-//      return factory.create(property, resource);
+      AnnotationType resource = property.getAnnotation(annotationClass);
+      if(resource == null) return null;
+      
+      return factory.create(property, resource);
    }
 }

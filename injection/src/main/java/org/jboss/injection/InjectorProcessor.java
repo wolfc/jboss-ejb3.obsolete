@@ -23,6 +23,7 @@ package org.jboss.injection;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 
 /**
@@ -33,21 +34,33 @@ import java.util.Collection;
  */
 public class InjectorProcessor
 {
-   public static void process(Object instance, Collection<Injector> injectors, Collection<Method> postConstructs)
+   public static void destroy(Collection<Method> preDestroys)
    {
-      assert instance != null;
-      assert injectors != null;
-      assert postConstructs != null : "postConstructs is null";
+      destroy(null, preDestroys);
+   }
+   
+   /**
+    * Run the pre-destroys on an instance.
+    * 
+    * @param instance       either an instance or null for static pre-destroys
+    * @param preDestroys
+    */
+   public static void destroy(Object instance, Collection<Method> preDestroys)
+   {
+      assert preDestroys != null : "preDestroys is null";
       
-      for(Injector injector : injectors)
+      for(Method method : preDestroys)
       {
-         injector.inject(instance);
+         invoke(instance, method);
       }
-      
-      Class<?> cls = instance.getClass();
-      for(Method method : postConstructs)
+   }
+   
+   private static void invoke(Object instance, Method method)
+   {
+      Object obj = null;
+      if(instance != null)
       {
-         Object obj;
+         Class<?> cls = instance.getClass();
          if(cls.isAssignableFrom(method.getDeclaringClass()))
          {
             obj = instance;
@@ -68,26 +81,63 @@ public class InjectorProcessor
                throw new RuntimeException(e);
             }
          }
-         Object args[] = null;
-         method.setAccessible(true);
-         try
-         {
-            method.invoke(obj, args);
-         }
-         catch (IllegalAccessException e)
-         {
-            // should not happen
-            throw new RuntimeException(e);
-         }
-         catch (InvocationTargetException e)
-         {
-            Throwable t = e.getCause();
-            if(t instanceof Error)
-               throw (Error) t;
-            if(t instanceof RuntimeException)
-               throw (RuntimeException) t;
-            throw new RuntimeException(t);
-         }
+      }
+      if(obj == null && !Modifier.isStatic(method.getModifiers()))
+      {
+         throw new IllegalArgumentException("Can't run non-static " + method + ", there is no instance");
+      }
+      Object args[] = null;
+      method.setAccessible(true);
+      try
+      {
+         method.invoke(obj, args);
+      }
+      catch (IllegalAccessException e)
+      {
+         // should not happen
+         throw new RuntimeException(e);
+      }
+      catch (InvocationTargetException e)
+      {
+         Throwable t = e.getCause();
+         if(t instanceof Error)
+            throw (Error) t;
+         if(t instanceof RuntimeException)
+            throw (RuntimeException) t;
+         throw new RuntimeException(t);
+      }
+   }
+   
+   /**
+    * Convinience method for static injection.
+    * 
+    * @param injectors
+    * @param postConstructs
+    */
+   public static void process(Collection<Injector> injectors, Collection<Method> postConstructs)
+   {
+      process(null, injectors, postConstructs);
+   }
+   
+   /**
+    * 
+    * @param instance       either an object or null for static injection
+    * @param injectors
+    * @param postConstructs
+    */
+   public static void process(Object instance, Collection<Injector> injectors, Collection<Method> postConstructs)
+   {
+      assert injectors != null : "injectors is null";
+      assert postConstructs != null : "postConstructs is null";
+      
+      for(Injector injector : injectors)
+      {
+         injector.inject(instance);
+      }
+      
+      for(Method method : postConstructs)
+      {
+         invoke(instance, method);
       }
    }
 }

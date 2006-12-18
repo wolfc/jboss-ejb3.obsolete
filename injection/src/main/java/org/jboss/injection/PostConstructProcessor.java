@@ -21,10 +21,6 @@
  */
 package org.jboss.injection;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-
 import javax.annotation.PostConstruct;
 
 /**
@@ -33,25 +29,10 @@ import javax.annotation.PostConstruct;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class PostConstructProcessor implements Processor<Class<?>, Collection<Method>>
+public class PostConstructProcessor extends AnnotatedMethodFinder<PostConstruct>
 {
-   public Collection<Method> process(Class<?> cls)
+   public PostConstructProcessor()
    {
-      Collection<Method> list = new ArrayList<Method>();
-      if(cls == null) return list;
-      
-      Method methods[] = cls.getDeclaredMethods();
-      for(Method method : methods)
-      {
-         PostConstruct pc = method.getAnnotation(PostConstruct.class);
-         if(pc != null)
-         {
-            list.add(method);
-         }
-      }
-      
-      list.addAll(process(cls.getSuperclass()));
-      
-      return list;
+      super(PostConstruct.class);
    }
 }

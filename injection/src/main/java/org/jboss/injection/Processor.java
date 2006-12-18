@@ -23,11 +23,20 @@ package org.jboss.injection;
 
 /**
  * Processes an object to produce something.
+ * 
+ * This is an extreme abstraction of a processor which produces something.
+ * T1 is the subject type, T2 is the resultant type.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
 public interface Processor<T1, T2>
 {
-   T2 process(T1 t);
+   /**
+    * Process an object to produce something.
+    * 
+    * @param subject    the object on which the processing takes place
+    * @return           the result
+    */
+   T2 process(T1 subject);
 }

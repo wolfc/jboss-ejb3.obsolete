@@ -32,7 +32,7 @@ import org.jboss.injection.InjectorProcessor;
 import org.jboss.injection.SimpleValueInjector;
 import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.injection.lang.reflect.FieldBeanProperty;
-import org.jboss.injection.test.programatically.Counter;
+import org.jboss.injection.test.common.Counter;
 import org.jboss.injection.test.programatically.InjectedBean;
 
 /**

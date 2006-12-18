@@ -28,7 +28,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jboss.aop.AspectXmlLoader;
-import org.jboss.injection.test.simple.Counter;
+import org.jboss.injection.test.common.Counter;
 import org.jboss.injection.test.simple.InjectedBean;
 
 /**

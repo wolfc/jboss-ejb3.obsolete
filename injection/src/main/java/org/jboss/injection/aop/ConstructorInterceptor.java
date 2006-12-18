@@ -23,7 +23,6 @@ package org.jboss.injection.aop;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.injection.InjectorProcessor;
 
 /**
  * Intercepts construction of new objects and fires up injection.

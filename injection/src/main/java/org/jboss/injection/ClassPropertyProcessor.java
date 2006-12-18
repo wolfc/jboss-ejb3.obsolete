@@ -57,6 +57,10 @@ public class ClassPropertyProcessor implements InjectionProcessor<Class<?>>
     */
    public Collection<Injector> process(Class<?> cls)
    {
+      // TODO: I don't like that BeanProperty is first instantiated and then checked
+      // for annotations, it's slower.
+      // Maybe we should first check the AccessibleObject and then create a BeanProperty.
+      
       Collection<Injector> list = new ArrayList<Injector>();
       
       Field fields[] = cls.getDeclaredFields();
@@ -69,6 +73,8 @@ public class ClassPropertyProcessor implements InjectionProcessor<Class<?>>
       Method methods[] = cls.getDeclaredMethods();
       for(Method method : methods)
       {
+         // TODO: this I don't like. I want to scan for annotation first and then verify the method,
+         // so I can properly inform users of errors.
          if(MethodBeanProperty.isValid(method))
          {
             BeanProperty property = new MethodBeanProperty(method);

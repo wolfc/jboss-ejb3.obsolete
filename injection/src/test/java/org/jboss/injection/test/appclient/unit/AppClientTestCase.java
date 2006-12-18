@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.injection.test.annotated.unit;
+package org.jboss.injection.test.appclient.unit;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -27,9 +27,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PreDestroy;
+
 import junit.framework.TestCase;
 
-import org.jboss.injection.ClassPropertyProcessor;
+import org.jboss.injection.AnnotatedMethodFinder;
 import org.jboss.injection.Injection;
 import org.jboss.injection.Injector;
 import org.jboss.injection.InjectorProcessor;
@@ -37,8 +39,7 @@ import org.jboss.injection.MapInjectorFactory;
 import org.jboss.injection.PostConstructProcessor;
 import org.jboss.injection.Processor;
 import org.jboss.injection.ResourceClassProcessor;
-import org.jboss.injection.test.annotated.InjectedBean;
-import org.jboss.injection.test.annotated.SimplePropertyProcessor;
+import org.jboss.injection.test.appclient.HelloWorldClient;
 import org.jboss.injection.test.common.Counter;
 
 /**
@@ -47,7 +48,7 @@ import org.jboss.injection.test.common.Counter;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class AnnotatedTestCase extends TestCase
+public class AppClientTestCase extends TestCase
 {
    public void test1() throws Exception
    {
@@ -61,7 +62,7 @@ public class AnnotatedTestCase extends TestCase
       //
       
       Map<String, Object> env = new HashMap<String, Object>();
-      env.put(InjectedBean.class.getName() + "/value", "Hello world");
+      env.put(HelloWorldClient.class.getName() + "/value", "Hello world");
       
       //
       // the setup of injectors
@@ -71,29 +72,48 @@ public class AnnotatedTestCase extends TestCase
       //Collection<InjectionProcessor<Class<?>>> handlers = new ArrayList<InjectionProcessor<Class<?>>>();
       Collection<Processor<Class<?>, Collection<Injector>>> handlers = new ArrayList<Processor<Class<?>, Collection<Injector>>>();
       handlers.add(new ResourceClassProcessor(new MapInjectorFactory(env)));
-      handlers.add(new ClassPropertyProcessor(new SimplePropertyProcessor()));
-      Collection<Injector> injectors = Injection.doIt(InjectedBean.class, handlers);
+      Collection<Injector> injectors = Injection.doIt(HelloWorldClient.class, handlers);
       
-      assertEquals("Wrong number of injectors", 2, injectors.size());
+      assertEquals("Wrong number of injectors", 1, injectors.size());
       
       Collection<Processor<Class<?>, Collection<Method>>> postConstructProcessors = new ArrayList<Processor<Class<?>, Collection<Method>>>();
       postConstructProcessors.add(new PostConstructProcessor());
-      Collection<Method> postConstructs = Injection.doIt(InjectedBean.class, postConstructProcessors);
+      Collection<Method> postConstructs = Injection.doIt(HelloWorldClient.class, postConstructProcessors);
+      
+      assertEquals("Wrong number of post-constructs", 1, postConstructs.size());
+      
+      Collection<Processor<Class<?>, Collection<Method>>> preDestroyProcessors = new ArrayList<Processor<Class<?>, Collection<Method>>>();
+      preDestroyProcessors.add(new AnnotatedMethodFinder<PreDestroy>(PreDestroy.class));
+      Collection<Method> preDestroys = Injection.doIt(HelloWorldClient.class, preDestroyProcessors);
+      
+      assertEquals("Wrong number of pre-destroys", 1, preDestroys.size());
       
       //
       // the target
       //
       
-      InjectedBean bean = new InjectedBean();
+      // With app client there is no target instance.
       
       //
       // the injection
       //
       
-      InjectorProcessor.process(bean, injectors, postConstructs);
+      InjectorProcessor.process(injectors, postConstructs);
       
-      bean.check();
+      //
+      // do some business
+      //
+      
+      HelloWorldClient.check();
       
       assertEquals("postConstruct should have been called once", 1, Counter.postConstructs);
+      
+      //
+      // destroy phase
+      //
+      
+      InjectorProcessor.destroy(preDestroys);
+      
+      assertEquals("preDestroy should have been called once", 1, Counter.preDestroys);
    }
 }
