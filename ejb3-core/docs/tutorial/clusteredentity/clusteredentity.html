@@ -1,0 +1,196 @@
+<html>
+<body>
+<p>
+<h2>Caching entities</h2>
+
+The section shows you how to do cluster your entities using EJB 3.0 for JBoss
+</p><p>
+</p><p>
+<h4>Caching primer</h4>
+
+To avoid roundtrips to the database, you can use a cache for your entities. EJB 3.0 uses Hibernate which has support for a second-level cache. The Hibernate setup used for our EJB 3.0 implementation uses JBoss Cache as its underlying cache implementation. The cache itself is configured in <tt>$JBOSS_HOME/server/all/deploy/ejb3-entity-cache-service.xml</tt>. It contains a lot of settings, which can be found in the JBoss Cache documentation. The important thing to note at this stage is that the name of the cache is <tt>jboss.cache:service=EJB3EntityTreeCache</tt>.
+</p><p>
+With caching enabled:
+<ul>
+<li>If you persist an entity (that has caching enabled) to the database via the entity manager the entity will inserted into the cache.</li>
+<li>If you update an entity (that has caching enabled) and save the changes to the database via the entity manager the entity will updated in the cache.</li>
+<li>If you remove an entity (that has caching enabled) from the database via the entity manager the entity will removed from the cache.</li>
+</ul>
+JBoss Cache allows you to specify timeouts to cached entities. Entities not accessed within a certain amount of time are dropped from the cache in order to save memory.
+<ul>
+<li>If loading a cached entity from the database via the entity manager, and that entity does not exist in the database, it will be inserted into the cache.</li>
+</ul>
+</p><p>
+Furthermore JBoss Cache supports clustering. If running within a cluster, and the cache is updated, changes to the entries in one node will be replicated to the corresponding entries in the other nodes in the cluster.
+</p><p>
+<h4>Enabling caching and choosing cache</h4>
+
+Take a look at <a href="META-INF/persistence.xml">persistence.xml</a> which sets up the caching for this deployment.
+</p><p>
+This defines that caching should use the JBoss Cache (which is distributed and transactional), instead of the default HashtableCacheProvider:
+<pre>
+      &lt;property name="hibernate.cache.provider_class" value="org.jboss.ejb3.entity.TreeCacheProviderHook"/&gt;
+</pre>
+</p><p>
+This defines the object name of the JBoss Cache to be used, and references <tt>jboss.cache:service=EJB3EntityTreeCache</tt>:
+<pre>
+      &lt;property name="hibernate.treecache.mbean.object_name" value="jboss.cache:service=EJB3EntityTreeCache"/&gt;
+</pre>
+</p><p>
+<h4>Entities</h4>
+
+</p><p>
+You define your entities (<a href="src/org/jboss/tutorial/clusteredentity/bean/Customer.java">Customer.java</a> and <a href="src/org/jboss/tutorial/clusteredentity/bean/Contact.java">Contact.java</a>  the normal way. 
+</p><p>
+The default behaviour is to not cache anything, even with the settings shown above. A very simplified rule of thumb is that you will typically want to do caching for objects that rarely change, and which are frequently read. 
+</p><p>
+We also annotate the classes with the <tt>@Cache</tt> annotation to indicate that the values should be cached
+<pre>
+   @Entity
+   @Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+   public class Customer implements java.io.Serializable
+   {
+      ...
+   }
+
+</pre>
+</p><p>
+<pre>
+   @Entity
+   @Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+   public class Customer implements java.io.Serializable
+   {
+      ...
+   }
+</pre>
+</p><p>
+This defines that <tt>Customer</tt> and <tt>Contact</tt> should be cached. Any attempt to look up <tt>Customer</tt> or <tt>Contact</tt> by their primary key, will first attempt to read the entry from the cache. If it cannot be found it will load it up from the database. 
+</p><p>
+</p><p>
+You can also cache relationship collections. Any attempt to access the <tt>contacts</tt> collection of <tt>Customer</tt> will attempt to load the data from the cache before hitting the database:
+</p><p>
+<pre>
+   @Entity
+   @Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+   public class Customer implements java.io.Serializable
+   {
+      ...
+      @Cache (usage=CacheConcurrencyStrategy.TRANSACTIONAL)
+      @OneToMany(mappedBy="customer", fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+      public Set&lt;Contact&gt; getContacts()
+      {
+         return contacts;
+      }
+      ...
+   }
+
+</pre>
+</p><p>
+</p><p>
+Please consult the Hibernate documentation for further information aboout settings for caching.
+</p><p>
+</p><p>
+</p><p>
+<h4>Client</h4>
+
+Open <a href="src/org/jboss/tutorial/clusteredentity/client/CachedEntityRun.java">CachedEntityRun.java</a>. It takes two arguments, they are the server:port of the two nodes to use. If you look at the 'run' target of <a href="build.xml">build.xml</a> you will see that they both default to localhost:1099, so in this case node1 and node2 will be the same, i.e. no clustering takes place.
+</p><p>
+<h4>Building and Running non-clustered</h4>
+
+To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+$ ant run
+...
+run:
+     [java] Saving customer to node 1
+     [java] Looking for customer in node 2's cache
+     [java] Found customer 1 in node2 cache
+     [java] Found contacts collection for 1 in node2 cache
+     [java] Found contact 2 collection in node2 cache
+     [java] Found contact 1 collection in node2 cache
+     [java] Lookup of customer from node2 worked (via cache)
+     [java] Customer: id=1; name=JBoss
+     [java]     Contact: id=2; name=Bill
+     [java]     Contact: id=1; name=Kabir
+
+</pre>
+</p><p>
+Now open up the JMX console and enter the <a href="http://localhost:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss.cache%3Aservice%3DEJB3EntityTreeCache">jboss.cache:service=EJB3EntityTreeCache</a>  MBean. Scroll down the page untill you find the operation <tt>printDetails</tt> and press its <tt>Invoke</tt> button. This dumps out all the entries in the cache:
+</p><p>
+<pre>
+//org/jboss/ejb3/tutorial/clusteredentity/bean/Customer/contacts
+/org.jboss.ejb3.tutorial.clusteredentity.bean.Customer.contacts#1
+item: CollectionCacheEntry[1,2]
+</pre>
+This represents the cache for the collection/relationship <tt>Customer.contacts</tt>. The collection cache only contains the ids of the entities represented. In this case it says that The <tt>Customer</tt> with id=1 points to the <tt>Contact</tt>s with id=1 and id=2.
+</p><p>
+<pre>
+//org/jboss/ejb3/tutorial/clusteredentity/bean/Customer
+/org.jboss.ejb3.tutorial.clusteredentity.bean.Customer#1
+item: CacheEntry(org.jboss.ejb3.tutorial.clusteredentity.bean.Customer)[JBoss,1]
+</pre>
+This shows the entry for the <tt>Customer</tt> with id=1.
+</p><p>
+<pre>
+//org/jboss/ejb3/tutorial/clusteredentity/bean/Contact
+/org.jboss.ejb3.tutorial.clusteredentity.bean.Contact#1
+item: CacheEntry(org.jboss.ejb3.tutorial.clusteredentity.bean.Contact)[Kabir,1111,1]
+
+/org.jboss.ejb3.tutorial.clusteredentity.bean.Contact#2
+item: CacheEntry(org.jboss.ejb3.tutorial.clusteredentity.bean.Contact)[Bill,2222,1]
+</pre>
+And finally we have the entries for <tt>Contact</tt> with id=1 and id=2. 
+</p><p>
+</p><p>
+Since the cache is clustered any changes to the cache in one node will be replicated to the cache of the other nodes. Let's take a look at doing this in practice.
+</p><p>
+<h4>Running clustered</h4>
+
+</p><p>
+This example assumes that you have two NICs on your computer, with the IP addresses 192.168.1.1 and 192.168.1.2. If you have only one network card (sorry, I only know how to do this on windows!), you can fudge this up by entering 192.168.1.1 as the IP address in the General tab of 'Internet Protocols (TCP/IP) Properties' dialog for your network settings. Next you can click 'Advanced...' and add 192.168.1.2.
+</p><p>
+If JBoss is still running take it down. Create a new server configuration by copying $JBOSS_HOME/server/all to $JBOSS_HOME/server/test. Make sure that tutorial.jar exists under both $JBOSS_HOME/server/all/deploy to $JBOSS_HOME/server/test/deploy.
+</p><p>
+Now, open up two new console windows. Go to $JBOSS_HOME/bin in both. In the first console enter
+<pre>
+$ run.sh -c all -b 192.168.1.1
+</pre>
+</p><p>
+In the first console enter
+<pre>
+$ run.sh -c test -b 192.168.1.2
+</pre>
+</p><p>
+(If you are using Windows, and not using cygwin, you should substitute run.sh with run.bat)
+</p><p>
+Now you should have two jboss instances running. The first is using the 'all' configuration and is bound to the IP address 192.168.1.1, the other is running the 'test' configuration and is bound to the address 192.168.1.2. If it all worked for you, congratulations, you now have a small cluster running on your machine.
+</p><p>
+</p><p>
+Now edit the run target of the build.xml to be as follows:
+<pre>
+   &lt;target name="run" depends="ejbjar"&gt;
+      &lt;java classname="org.jboss.ejb3.tutorial.clusteredentity.client.CachedEntityRun" fork="yes" dir="."&gt;
+         &lt;!-- node 1 --&gt;
+         &lt;arg value="192.168.1.1:1099"/&gt;
+         &lt;!-- node 2 --&gt;
+         &lt;arg value="192.168.1.2:1099"/&gt;
+         &lt;classpath refid="classpath"/&gt;
+      &lt;/java&gt;
+   &lt;/target&gt;
+
+</pre>
+</p><p>
+Now run the client again. It will save data to node1's database via node 1. This data does not go into node2's database. Since we are using the embedded hypersonic database here, the two instances of jboss are using separate databases. The last thing the client does is to load the data from node2; since the data exists in the cache it does not load from the database (which is empty for node2). NOTE: This is just for the purposes of demonstrating that the cache is being used. Normally, you would have the nodes in the cluster use the same database, but the purpose of this tutorial is to show the use of a cache in a cluster. 
+</p><p>
+You can examine the date in the cache for <a href="http://192.168.1.1:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss.cache%3Aservice%3DEJB3EntityTreeCache">node1</a> and <a href="http://192.168.1.2:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss.cache%3Aservice%3DEJB3EntityTreeCache">node2</a>. Scroll down to the 'printDetails' operation and press 'Invoke'. Note that the data is the same.
+</p><p>
+Also, you can look at the databases for <a href="http://192.168.1.1:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">node1</a> and <a href="http://192.168.1.2:8080/jmx-console/HtmlAdaptor?action=inspectMBean&name=jboss%3Aservice%3DHypersonic%2Cdatabase%3DlocalDB">node2</a>. Scroll down to the 'startDatabaseManager' operation and press 'Invoke'. Note that the Customer and Contact tables for node 1 contains data while for node2 they are empty.
+</p><p>
+</p><p>
+</p><p>
+</p>
+</body>
+</html>

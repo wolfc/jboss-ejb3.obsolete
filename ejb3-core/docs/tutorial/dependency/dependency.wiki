@@ -1,0 +1,61 @@
+!!!Dependency
+Dependencies of an EJB on a service or services, including other EJBs, may be specified through the <depends> tag of the jboss.xml deployment descriptor. The <depends>
+tag is analagous to the Depends annotation. The dependencies control the deployment of EJBs such that an EJB will not deploy until all of it's dependencies have successfully
+deployed. 
+
+!jboss-service.xml
+Take a look at [jboss-service.xml|META-INF/jboss-service.xml]. This service deployment descriptor starts a service based on
+[DependedOn.java|src/org/jboss/tutorial/dependency/bean/DependedOn.java].
+
+!jboss.xml
+Take a look at [jboss.xml|META-INF/jboss.xml]. This deployment descriptor indicates that the {{HasXmlMBeanDependencyBean}} is dependent on the
+{{jboss.test:service=DependedOn}} started by {{jboss-service.xml}}. The {{HasXmlMBeanDependencyBean}} will not deploy until the {{jboss.test:service=DependedOn}} 
+service has successfully started.
+
+!Building and Running
+To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.
+The run ant task will deploy just the {{HasXmlMBeanDependencyBean}} EJB. You will see deployment dependency log entries in the JBoss console and the following client
+exception as the bean has not been deployed due to the unfullfilled dependency.
+
+{{{
+Unix:    $ export JBOSS_HOME=<where your jboss 4.0 distribution is>
+Windows: $ set JBOSS_HOME=<where your jboss 4.0 distribution is>
+$ ant
+$ ant run
+
+run:
+     [java] Caught unsatisfied dependency exception javax.naming.NameNotFoundException: HasXmlMBeanDependencyBean not bound
+}}}
+
+{{{
+13:17:53,921 ERROR [URLDeploymentScanner] Incomplete Deployment listing:
+
+--- MBeans waiting for other MBeans ---
+ObjectName: jboss.j2ee:service=EJB3,jar=tutorial.jar,name=HasXmlMBeanDependencyBean
+  State: NOTYETINSTALLED
+  I Depend On:
+    jboss.test:service=DependedOn
+
+--- MBEANS THAT ARE THE ROOT CAUSE OF THE PROBLEM ---
+ObjectName: jboss.test:service=DependedOn
+  State: NOTYETINSTALLED
+  Depends On Me:
+    jboss.j2ee:service=EJB3,jar=tutorial.jar,name=HasXmlMBeanDependencyBean
+}}}
+
+Next, deploy the {{jboss.test:service=DependedOn}} and run again
+{{{
+$ ant deploy-dependency
+
+deploy-dependency:
+     [copy] Copying 1 file to C:\eclipse\workspace\jboss-head\build\output\jboss
+-5.0.0alpha\server\all\deploy
+
+$ant run
+
+run:
+     [java] Lookup and bean access succeeded
+}}}
+
+
+

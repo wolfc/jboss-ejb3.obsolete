@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application>
+    <display-name>EJB3 Web Container Testsuite</display-name>
+
+    <module>
+    <web>
+        <description>The testsuite war</description>
+        <web-uri>jsp-test.war</web-uri>
+        <context-root>/jsp-test</context-root>
+    </web>
+    </module>
+ 
+    <module>
+        <ejb>jsp-test.jar</ejb>
+    </module>
+</application>
+

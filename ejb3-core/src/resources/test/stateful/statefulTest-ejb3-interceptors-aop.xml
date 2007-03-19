@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aop PUBLIC
+   "-//JBoss//DTD JBOSS AOP 1.0//EN"
+   "http://labs.jboss.com/portal/jbossaop/dtd/jboss-aop_1_0.dtd">
+
+<aop>
+   <interceptor class="org.jboss.ejb3.test.stateful.RemoteBindingInterceptor" scope="PER_VM"/>
+
+   <stack name="RemoteBindingStatefulSessionClientInterceptors">
+      <interceptor-ref name="org.jboss.ejb3.remoting.IsLocalInterceptor"/>
+      <interceptor-ref name="org.jboss.ejb3.test.stateful.RemoteBindingInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.security.SecurityClientInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
+   </stack>
+</aop>

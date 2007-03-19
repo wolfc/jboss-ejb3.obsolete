@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <jmx-name>test.ejb3:name=Bill,service=EJB3</jmx-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>OverrideConcurrentStateful</ejb-name>
+         <jndi-name>OverrideConcurrentStateful</jndi-name>
+         <concurrent>false</concurrent>
+      </session>
+      <session>
+         <ejb-name>StatefulTimeoutBean2</ejb-name>
+         <cache-config>
+            <idle-timeout-seconds>1</idle-timeout-seconds>
+            <remove-timeout-seconds>3</remove-timeout-seconds>
+         </cache-config>
+      </session>
+      <session>
+         <ejb-name>StatefulClusteredTimeoutBean2</ejb-name>
+         <cache-config>
+            <idle-timeout-seconds>1</idle-timeout-seconds>
+            <remove-timeout-seconds>3</remove-timeout-seconds>
+            <cache-name>jboss.cache:service=EJB3SFSBClusteredCache</cache-name>
+         </cache-config>
+      </session>
+   </enterprise-beans>
+</jboss>

@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>$texts.getString( "register.title" )</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<form action="createCustomer.action" method="post">
+
+<h2>$texts.getString( "register.subtitle" )</h2>
+
+#parse ( "errors.vm" )
+
+<table border="0" cellspacing="4">
+	<tr>
+		<td colspan="2" class="sectionheader">
+			$texts.getString( "account_information" )
+		</td>
+	</tr>
+	<tr>
+		<td class="label">
+			<span class="required">*</span>
+			$texts.getString( "userId" )
+		</td>
+		<td>
+			<input type="text" maxlength="10" name="customer/account/userId" />
+		</td>
+	</tr>
+
+	<tr>
+		<td class="label">
+			<span class="required">*</span>
+			$texts.getString( "password" )
+		</td>
+		<td>
+			<input type="password" maxlength="10" name="customer/account/password" />
+		</td>
+	</tr>
+
+	<tr>
+		<td colspan="2">&nbsp;</td>
+	</tr>
+	
+    <!-- Personal information -->
+    #parse( "customerEditor.vm" )
+     	
+	<input type="hidden" name="redirectUri" value="$redirectUri" >
+    
+</table>
+
+<p>
+<input type="image" src="images/button_submit.gif" border="0" />
+
+</form>
+
+</body>
+</html>

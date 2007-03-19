@@ -1,0 +1,61 @@
+<html>
+<head>
+	<title>$texts.getString( "product.title")</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<h2>$product.name</h2>
+<i>($product.description)</i>
+<p>
+<table class="grid">
+	<tr>
+		<th class="gridheader">$texts.getString( "itemId" )</th>
+		<th class="gridheader">$texts.getString( "productId" )</th>
+	  	<th class="gridheader">$texts.getString( "description" )</th>
+	  	<th class="gridheader">$texts.getString( "listPrice" )</th>
+		<th class="gridheader">&nbsp;</th>
+	</tr>
+
+#if ( $product.items.size() == 0 )
+
+	<tr>
+		<td class="griddata" colspan="5">
+			$texts.getString( "no_items" )
+		</td>
+	</tr>
+		
+#else
+
+	#foreach ( $item in $product.items )
+	
+		<tr>
+			<td class="griddata">
+				<a href="item.action?itemId=$item.itemId">
+					$item.itemId
+				<a>
+			</td>
+			<td class="griddata">
+				$product.productId
+			</td>
+			<td class="griddata">
+				$item.description
+			</td>
+			<td class="griddata" align="right">
+				$item.listPrice
+			</td>
+			<td class="griddata" align="center">
+				<a href="addItem.action?itemId=$item.itemId">
+					<img border="0" src="images/button_add_to_cart.gif" />
+				</a>
+			</td>
+		</tr>
+		
+	#end
+	
+#end
+
+</table>
+
+</body>
+</html>

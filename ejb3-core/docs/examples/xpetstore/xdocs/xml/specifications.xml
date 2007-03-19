@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Specifications</title>
+  </properties>
+
+<body>
+
+<section name="Use Cases">
+	<p>
+		<img border="1" src="images/usecases.png" />
+	</p>
+	<p>
+ 		When the customer enters into the xPetStore web site, he can:
+ 		<ul>
+ 			<li>Sign into the site</li>
+ 			
+ 			<li>Sign off from the site</li>
+ 			
+ 			<li>Browses the catalog</li>
+ 			
+ 			<li>Updates its shopping cart</li>
+ 			
+ 			<li>Places its order. Then he will receive an email notification</li>
+ 			
+ 			<li>Manages its account</li>
+ 		</ul>
+ 	</p>
+</section>
+
+<section name="Page Flow Navigation">
+	<p>
+		<img border="1" src="images/pageflow.png" />
+	</p>
+</section>
+
+<section name="Implementations">
+	<p>
+		xPetstore will provide 2 implementations:
+		
+		<p/>
+		<b><u>The EJB implementation</u></b>:
+		<br/>
+		The business layer is implemented with:
+		<ul>
+			<li> EntityBean and CMP 2.0 for business objects</li>
+			<li> a SessionBean to manages the application logic </li>
+			<li> MessageDriverBean for asynchronous processing (sending email, processing customer orders) </li>
+		</ul>
+		
+		The web layer is implemented using the Model-View-Controller design pattern:
+		<ul>
+			<li> 
+				The View implemeented with JSP and <a href="http://www.opensymphony.com/sitemesh">Sitemesh</a> 
+			</li>
+			<li>
+				The Model and Controller implemented with <a href="http://jakarta.apache.org/struts">Struts</a>.
+			</li>
+		</ul>
+		
+		<p/>
+		<b><u>The Servlet implementation</u></b>:
+		<br/>
+		The business layer is implemented with Plain JavaBean Object 
+		using <a href="http://hibernate.sourceforge.net">Hibernate</a> as persistence framework.
+		
+		<p/>
+		The web layers is implemented using the Model-View-Controller design pattern:
+		<ul>
+			<li>
+				The View implemeented with <a href="http://jakarta.apache.org/velocity">Velocity</a> and
+				<a href="http://www.opensymphony.com/sitemesh">Sitemesh</a>
+			</li>
+			<li>
+				The Model and Controller implemented with <a href="http://www.opensymphony.com/webwork">Webwork</a>.
+				All the business logic is implemented at this level.
+			</li>
+		</ul>		
+	</p>
+</section>
+
+
+</body>
+</document>

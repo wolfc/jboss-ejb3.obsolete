@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <session>
+         <ejb-name>StatelessBean2</ejb-name>
+         <annotation>
+            <annotation-class>org.jboss.annotation.IgnoreDependency</annotation-class>
+            <annotation-implementation-class>org.jboss.annotation.IgnoreDependencyImpl</annotation-implementation-class>
+            <injection-target>
+               <injection-target-class>org.jboss.ejb3.test.circulardependecy.StatelessBean2</injection-target-class>
+               <injection-target-name>stateless</injection-target-name>
+            </injection-target>
+         </annotation>
+      </session>
+   </enterprise-beans>
+</jboss>

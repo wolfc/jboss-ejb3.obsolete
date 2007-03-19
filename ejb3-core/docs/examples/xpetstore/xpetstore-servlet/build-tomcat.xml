@@ -1,0 +1,64 @@
+<project name="xpetstore-servlet-jboss" default="xdoclet" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<property file="${conf.dir}/as/tomcat.properties" />		
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet" depends="init">
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy" depends="init">
+        <delete>
+            <fileset dir="${tomcat.deploy.dir}" includes="xpetstore-servlet/**" />
+        </delete>
+		<unwar src="${dist.dir}/${war.name}" dest="${tomcat.deploy.dir}/xpetstore-servlet" />
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy" depends="init">
+        <delete>
+            <fileset dir="${tomcat.deploy.dir}" includes="xpetstore-servlet/**" />
+        </delete>
+	</target>
+	
+</project>

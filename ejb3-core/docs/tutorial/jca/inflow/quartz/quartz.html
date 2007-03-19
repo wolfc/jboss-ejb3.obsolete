@@ -1,0 +1,47 @@
+<html>
+<body>
+<p>
+<h2> Quartz Scheduler Integration</h2>
+
+</p><p>
+If you have installed JBoss using the 4.0.4.GA installer it comes bundled with Quartz integration packaged as a JCA Message-Inflow resource adapter: quartz-ra.rar.  This package can also be downloaded directly from <a href="http://www.sf.net/projects/jboss">SourceForge</a>.
+</p><p>
+This integration allows you to schedule stateless or stateful quartz jobs and have the job be posted to a Message Driven bean.  The Quartz Resource Adapter creates a non-persistent scheduler.  Jobs are created from deployed MDBs from information in the MDB's activation config spec.  Currently only cron jobs are allowed to be configured.  In future versions we will support other activation config spec setting for Quartz.
+</p><p>
+Here's an example:
+<pre>
+import org.jboss.annotation.ejb.ResourceAdapter;
+import org.jboss.logging.Logger;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
+import javax.ejb.MessageDriven;
+import javax.ejb.ActivationConfigProperty;
+
+@MessageDriven(activationConfig =
+{
+   @ActivationConfigProperty(propertyName="cronTrigger", propertyValue="0/2 * * * * ?")
+})
+@ResourceAdapter("quartz-ra.rar")
+public class AnnotatedQuartzMDBBean implements Job
+{
+   private static final Logger log = Logger.getLogger(AnnotatedQuartzMDBBean.class);
+
+
+   public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException
+   {
+      AnnotatedQuartzMDBBean.log.info("************** here in annotated!!!!");
+   }
+}
+</pre>
+   
+This is a simple MDB that implements the org.quartz.Job interface.  The "cronTrigger" activation spec attribute is required.  In this you specify a cron syntax as documented in the Quartz distribution.  The @org.jboss.annotation.ejb.ResourceAdapter annotation is used to tell the EJB container which resource adapter to use for the inflow implementation.
+</p><p>
+If you remove the annotations, this can also be specified in ejb-jar.xml and in jboss.xml.  ejb-jar.xml is responsible for setting up the activation config spec, while jboss.xml defines the resource adapter binding.  
+</p><p>
+The tutorial example deploys both an annotated and XML based MDB that is driven by Quartz.
+</p><p>
+</p>
+</body>
+</html>

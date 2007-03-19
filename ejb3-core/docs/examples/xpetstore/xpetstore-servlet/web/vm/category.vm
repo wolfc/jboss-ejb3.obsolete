@@ -1,0 +1,51 @@
+<html>
+<head>
+	<title>$texts.getString( "category.title" )</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<h2>$category.name</h2>
+<i>($category.description)</i>
+<p>
+<table class="grid">
+	<tr>
+		<th class="gridheader">$texts.getString( "productId" )</th>
+	  	<th class="gridheader">$texts.getString( "name" )</th>
+	  	<th class="gridheader">$texts.getString( "description" )</th>
+	</tr>
+
+#if ( $category.products.size() == 0 )
+
+	<tr>
+		<td class="griddata" colspan="3"> 
+			$texts.getString( "no_products" )
+		</td>
+	</tr>
+
+#else 
+
+	#foreach ( $product in $category.products )
+	
+		<tr>
+			<td class="griddata">
+				<a href="product.action?productId=$product.productId">
+					$product.productId
+				</a>
+			</td>
+			<td class="griddata">
+				$product.name
+			</td>
+			<td class="griddata">
+				$product.description
+			</td>
+		</tr>
+		
+	#end
+	
+#end
+	
+</table>
+
+</body>
+</html>

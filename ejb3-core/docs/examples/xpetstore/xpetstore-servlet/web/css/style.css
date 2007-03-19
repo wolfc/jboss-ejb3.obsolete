@@ -1,0 +1,97 @@
+<style>
+
+body
+{
+    color:          #040404;
+    font-family:    Tahoma;
+    font-size:      12px;
+};
+
+h2
+{
+    font-size:		14px;
+    font-weight:    bold;
+}
+
+td
+{
+    color:          #040404;
+    font-family:    Tahoma;
+    font-size:      12px;
+    font-weight:  	normal;
+    padding:		2px 2px 2px 2px;
+}
+
+th
+{
+    color:          #040404;
+    font-family:    Tahoma;
+    font-size:      12px;
+    font-weight:  	bold;
+    padding:		2px 2px 2px 2px;
+}
+
+.content
+{
+    background: 	white;
+    padding:		4px 4px 4px 4px;
+}
+
+.error
+{
+    color:        darkred;
+    font-weight:  bold;
+}
+
+.footer
+{
+    border-top:		2px solid black;
+    padding-top:	4px;
+}
+
+.grid
+{
+	background:	white;
+	border:		1px solid black;
+}
+
+.griddata
+{
+    background:     #FFFF88;
+	border:			1px solid black;
+}
+
+.gridheader
+{
+    background:    #CCCCCC;
+    border:        1px solid black;
+    font-weight:   bold;
+}
+
+.label
+{
+    color:         black;
+    font-weight:   bold;
+    text-align:    right;
+}
+
+.navigation
+{
+    background: #FFFF88;
+}
+
+.required
+{
+    color:          darkred;
+    font-weight:    bold;
+}
+
+.sectionheader
+{
+	background:    	#CCCCCC;
+    border-bottom: 	1px solid black;
+    font-size:     	13px;
+    font-weight:    bold;
+}
+
+</style>

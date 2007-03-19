@@ -1,0 +1,679 @@
+<project name="xpetstore-ejb" default="all" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+                
+        <!-- Directories -->
+       	<mkdir dir="${build.dir}" />
+       	<mkdir dir="${build.class.dir}" />
+       	<mkdir dir="${build.java.dir}" />
+       	<mkdir dir="${build.junit.dir}" />
+       	<mkdir dir="${build.metrics.dir}" />
+       	<mkdir dir="${dist.dir}" />
+        
+		<!-- database config -->
+		<property file="${conf.dir}/db/database.properties" />
+		<echo>Database=${database}</echo>
+		
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<echo>Application server=${app.server}</echo>	
+		
+        <condition property="jboss">
+   	    	<equals arg1="${app.server}" arg2="jboss" />
+       	</condition>
+		
+        <condition property="orion">
+   	    	<equals arg1="${app.server}" arg2="orion" />
+       	</condition>
+		
+        <condition property="weblogic">
+   	    	<equals arg1="${app.server}" arg2="weblogic" />
+       	</condition>
+		
+   		<!-- Paths -->
+        <path id="project.class.path">
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+    		<fileset dir="${lib.junit.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.junitee.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.struts.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+        </path>
+        <path id="xdoclet.class.path">
+    		<fileset dir="${lib.xdoclet.dir}"	includes="**/*.jar" />
+    		<fileset dir="${lib.log4j.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+    		<fileset dir="${lib.junitee.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.struts.dir}" 	includes="**/*.jar" />
+        </path>                       	
+                     
+	</target>
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Main                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="all">
+		<antcall target="clean" />
+		<antcall target="xdoclet" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+		<antcall target="war" />
+		<antcall target="ear" />
+	</target>    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Clean                                          -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="clean" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Cleaning                                             +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<delete>
+			<fileset dir="${build.dir}" />
+		</delete>
+	</target>
+	
+	
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Running xDoclet                                      +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<antcall target="xdoclet.ejb" />
+		<antcall target="xdoclet.web" />
+		<antcall target="xdoclet.test" />
+		<antcall target="xdoclet.jboss" />
+		<antcall target="xdoclet.orion" />
+		<antcall target="xdoclet.weblogic" />
+	</target>
+
+
+	<target name="xdoclet.ejb" depends="init">
+       	<taskdef 
+       		name="ejbdoclet" 
+       		classname="xdoclet.modules.ejb.EjbDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>
+	
+        <ejbdoclet destdir="${build.java.dir}">
+            <fileset dir="${java.dir}" includes="**/*EJB.java" />
+            <fileset dir="${java.dir}" includes="**/*MDB.java" />
+
+            <packageSubstitution packages="ejb" substituteWith="interfaces"/>
+                        
+            <remoteinterface pattern="{0}Remote"/>
+            <homeinterface  pattern="{0}RemoteHome"/>
+            <localinterface />
+            <localhomeinterface />
+            <entitypk/>
+            <entitycmp/>
+            <session /> 
+            <utilobject cacheHomes="yes">
+                <packageSubstitution packages="ejb" substituteWith="util"/>
+            </utilobject>
+            <valueobject pattern="{0}Value">
+                <packageSubstitution packages="ejb" substituteWith="model"/>
+            </valueobject>
+            
+            <deploymentdescriptor destdir="${build.dir}/META-INF"/>            
+        </ejbdoclet>
+	</target>
+
+
+	<target name="xdoclet.web" depends="init">
+      	<taskdef 
+       		name="webdoclet" 
+       		classname="xdoclet.modules.web.WebDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>	
+       	
+      	<webdoclet 
+       		destdir="${build.dir}/WEB-INF" 
+       		mergedir="${xdoclet.merge.dir}/web"
+       	>
+       		<fileset dir="${web.dir}"  includes="**/*Action.java" />
+       		<fileset dir="${web.dir}"  includes="**/*Form.java" />
+       		<fileset dir="${web.dir}"  includes="**/*Tag.java" />
+       		<fileset dir="${web.dir}"  includes="**/*Servlet.java" />
+       		<fileset dir="${web.dir}"  includes="**/*Filter.java" />
+       		
+       		<jsptaglib
+       			shortname="xpetstore"
+       			description="xPetStore TagLib"
+       			jspversion="${jsp.spec.version}"
+       			filename="xpetstore.tld"
+       		/>
+       		
+       		<deploymentdescriptor 
+       			servletspec="${servlet.spec.version}"
+       			distributable="false" 
+       		>
+       			<taglib
+                    uri="xpetstore"
+                    location="/WEB-INF/xpetstore.tld"
+                />
+       			<taglib
+                    uri="struts-bean"
+                    location="/WEB-INF/struts-bean.tld"
+                />
+       			<taglib
+                    uri="struts-html"
+                    location="/WEB-INF/struts-html.tld"
+                />
+       			<taglib
+                    uri="struts-logic"
+                    location="/WEB-INF/struts-logic.tld"
+                />
+       			<taglib
+                    uri="struts-nested"
+                    location="/WEB-INF/struts-nested.tld"
+                />
+       			<taglib
+                    uri="struts-tiles"
+                    location="/WEB-INF/struts-tiles.tld"
+                />
+       			<taglib
+                    uri="sitemesh-decorator"
+                    location="/WEB-INF/sitemesh-decorator.tld"
+                />
+       			<taglib
+                    uri="sitemesh-page"
+                    location="/WEB-INF/sitemesh-page.tld"
+                />
+            </deploymentdescriptor>
+            
+            <strutsconfigxml/>
+       	</webdoclet>
+	</target>
+
+	<target name="xdoclet.test" depends="init">
+      	<taskdef 
+       		name="webdoclet" 
+       		classname="xdoclet.modules.web.WebDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>	
+       	
+      	<webdoclet destdir="${build.dir}/WEB-INF/test" >
+       		<fileset dir="${test.dir}"  includes="**/*Servlet.java" />
+       		
+       		<deploymentdescriptor 
+       			servletspec="${servlet.spec.version}"
+       			distributable="false" 
+       		/>
+       	</webdoclet>
+	</target>
+
+	<target name="xdoclet.jboss" depends="init" if="jboss">
+		<ant antfile="build-jboss.xml" target="xdoclet" />
+	</target>
+
+	<target name="xdoclet.orion" depends="init" if="orion">
+		<ant antfile="build-orion.xml" target="xdoclet" />
+	</target>
+
+	<target name="xdoclet.weblogic" depends="init" if="weblogic">
+		<ant antfile="build-weblogic.xml" target="xdoclet" />
+	</target>
+		
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Compile                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="compile" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Compiling                                            +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+      	<javac
+            destdir="${build.class.dir}"
+            debug="${compiler.debug}" 
+            deprecation="${compiler.deprecation}"
+            compiler="${compiler.type}"
+            classpathref="project.class.path"
+        >
+            <src path="${build.java.dir}" />
+            <src path="${java.dir}" />
+            <src path="${test.dir}" />
+            <src path="${web.dir}" />
+        </javac>
+        
+        <copy todir="${build.class.dir}">
+        	<fileset dir="${resources.dir}" includes="**/*.properties" />
+        </copy>
+	</target>
+
+
+	
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Jar                                            -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="jar" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building jar files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<delete>
+			<fileset dir="${dist.dir}" includes="${jar.name}" />
+		</delete>
+		
+      	<jar
+            basedir="${build.class.dir}" 
+            excludes="**" 
+            jarfile="${dist.dir}/${jar.name}"
+         >
+            <fileset dir="${build.class.dir}">
+            	<include name="**/*.class" />
+            	
+            	<exclude name="**/web/**/*" />
+            	<exclude name="**/test/**/*" />
+            </fileset>
+            
+            <metainf dir="${build.dir}/META-INF" includes="*.xml" />
+            <metainf dir="${java.dir}/META-INF"  includes="*.xml" excludes="application.xml" />
+        </jar>        		
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- War                                            -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="war" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building war files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<antcall target="war.junitee" />
+		<antcall target="war.struts" />
+	</target>
+	
+	<target name="war.junitee" depends="init">
+		<delete>
+			<fileset dir="${dist.dir}" includes="${war.test.name}" />
+		</delete>
+		
+    	<taskdef
+    		name="juniteewar" 
+    		classname="org.junitee.anttask.JUnitEEWarTask"
+    	>
+			<classpath>
+				<fileset dir="${lib.junitee.dir}"   includes="**/*.jar" />
+			</classpath>    	
+    	</taskdef>
+    		         
+		<juniteewar 
+			destFile="${dist.dir}/${war.test.name}"
+			webxml="${build.dir}/WEB-INF/test/web.xml"
+		>
+    		<lib dir="${lib.junit.dir}" 	includes="junit.jar" />
+    		<lib dir="${lib.junitee.dir}" 	includes="junitee.jar" />
+    		
+    		<classes dir="${build.class.dir}" 		includes="**/test/**/*.class" />
+    		
+  			<testcases dir="${build.class.dir}" 	includes="**/*Test.class" />
+		</juniteewar>	
+	</target>
+
+	<target name="war.struts" depends="init">
+		<delete>
+			<fileset dir="${dist.dir}" includes="${war.name}" />
+		</delete>
+		
+		<war 
+			destFile="${dist.dir}/${war.name}"
+			webxml="${build.dir}/WEB-INF/web.xml"
+		>
+    		<fileset dir="${web.dir}/jsp"  		 includes="**/*" />
+    		<fileset dir="${web.dir}/css"  		 includes="**/*" />
+    		<fileset dir="${web.dir}">
+    			<include name="WEB-INF/*" />
+    			<include name="images/*" />
+    			<include name="dataimages/*" />
+    		</fileset>
+    		<fileset dir="${build.dir}">	
+    			<include name="WEB-INF/*" />
+    			
+    			<exclude name="WEB-INF/web.xml" />
+    		</fileset>
+    		
+    		<lib dir="${lib.commons.dir}" 	 includes="*.jar" />
+    		<lib dir="${lib.log4j.dir}" 	 includes="log4j.jar" />
+    		<lib dir="${lib.oro.dir}" 	 	 includes="*.jar" />
+    		<lib dir="${lib.sitemesh.dir}" 	 includes="sitemesh.jar" />
+    		<lib dir="${lib.struts.dir}" 	 includes="*.jar" />
+    		
+    		<classes dir="${build.class.dir}">
+    			<include name="**/web/**/*.class" />
+    			<include name="**/*.properties" />
+    			
+    			<exclude name="**/test/**/*" />
+    		</classes>
+    		<classes 
+    			dir="${resources.dir}" 	
+    			includes="Resources.properties" 
+    		/>
+		</war>
+	</target>
+	
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Ear                                            -->
+<!--                                                -->
+<!-- ============================================== -->
+	<target name="ear" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Building ear files                                   +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<delete>
+			<fileset dir="${dist.dir}" includes="${ear.name}" />
+		</delete>
+		
+		<ear 
+			destfile="${dist.dir}/${ear.name}" 
+			appxml="${java.dir}/META-INF/application.xml"
+		>
+      		<fileset dir="${dist.dir}"	includes="${jar.name}" />
+      		<fileset dir="${dist.dir}"	includes="${war.name}" />
+      		<fileset dir="${dist.dir}"	includes="${war.test.name}" />
+      	</ear>
+	</target>	
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Test                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="test">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Testing                                              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<antcall target="test.jboss" />
+		<antcall target="test.orion" />
+		<antcall target="test.weblogic" />
+		<antcall target="test.report" />
+	</target>
+	
+	<target name="test.jboss" depends="init" if="jboss">
+		<ant antfile="build-jboss.xml" target="test" />
+	</target>
+	
+	<target name="test.orion" depends="init" if="orion">
+		<ant antfile="build-orion.xml" target="test" />
+	</target>	
+	
+	<target name="test.weblogic" depends="init" if="weblogic">
+		<ant antfile="build-weblogic.xml" target="test" />
+	</target>	
+	
+	<target name="test.report" depends="init">
+		<junitreport todir="${build.junit.dir}">
+  			<fileset dir="${build.junit.dir}" 	includes="TEST-*.xml" />  			
+  			<report	 format="frames" 			todir="${build.junit.dir}" />
+		</junitreport>
+	</target>
+	
+	
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Deploying into the application server                +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<antcall target="deploy.jboss" />
+		<antcall target="deploy.orion" />
+		<antcall target="deploy.weblogic" />
+	</target>	
+	
+	<target name="deploy.jboss" depends="init" if="jboss">
+		<ant antfile="build-jboss.xml" target="deploy" />
+	</target>
+	
+	<target name="deploy.orion" depends="init" if="orion">
+		<ant antfile="build-orion.xml" target="deploy" />
+	</target>
+	
+	<target name="deploy.weblogic" depends="init" if="weblogic">
+		<ant antfile="build-weblogic.xml" target="deploy" />
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Undeploying from the application server              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<antcall target="undeploy.jboss" />
+		<antcall target="undeploy.orion" />
+		<antcall target="undeploy.weblogic" />
+	</target>	
+
+	<target name="undeploy.jboss" depends="init" if="jboss">
+		<ant antfile="build-jboss.xml" target="undeploy" />
+	</target>
+
+	<target name="undeploy.orion" depends="init" if="orion">
+		<ant antfile="build-orion.xml" target="undeploy" />
+	</target>
+
+	<target name="undeploy.weblogic" depends="init" if="weblogic">
+		<ant antfile="build-weblogic.xml" target="undeploy" />
+	</target>
+
+	
+	
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- DB                                             -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="db" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Initialize the database                              +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<ant antfile="build-database.xml" target="data" />
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Formatting                                     -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="jalopy" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Formatting the source code                           +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<taskdef
+            name="jalopy"
+            classname="de.hunsicker.jalopy.plugin.ant.AntPlugin"
+        >
+			<classpath>
+				<fileset dir="${lib.jalopy.dir}" includes="**/*.jar" />
+				<fileset dir="${lib.log4j.dir}"  includes="**/*.jar" />
+				<fileset dir="${lib.jdom.dir}"   includes="**/*.jar" />
+				<fileset dir="${lib.oro.dir}" 	 includes="**/*.jar" />
+			</classpath>
+		</taskdef>
+        		
+  		<jalopy 
+            convention="${conf.dir}/jalopy.xml"
+            loglevel="warn"
+            threads="2"
+        >
+      		<fileset dir="${build.java.dir}" includes="**/*.java" />
+      		<fileset dir="${java.dir}" 	  	 includes="**/*.java" />
+      		<fileset dir="${web.dir}" 		 includes="**/*.java" />
+      		<fileset dir="${test.dir}" 		 includes="**/*.java" />
+    	</jalopy>		
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Metrics                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="metrics" depends="init">
+		<taskdef 
+	   		name="javancss"
+	        classname="javancss.JavancssAntTask"
+	    >
+			<classpath>
+				<fileset dir="${lib.javancss.dir}" includes="**/*.jar" />
+			</classpath>
+	   	</taskdef>
+
+
+		<!-- Business classes -->
+		<javancss
+			srcdir="${java.dir}"
+			includes="**/*.java"
+    		generateReport="true"
+            outputfile="${build.metrics.dir}/business.xml"
+            format="xml"
+            functionMetrics="false"
+    	/>
+    	
+    	<xslt
+    		destdir="${build.metrics.dir}"
+    		style="${lib.javancss.dir}/xslt/javancss2html.xsl"
+    		in="${build.metrics.dir}/business.xml"
+    		out="${build.metrics.dir}/business.html"
+    	/>
+
+
+		<!-- xdoclet classes -->
+		<javancss
+			srcdir="${build.java.dir}"
+			includes="**/*.java"
+    		generateReport="true"
+            outputfile="${build.metrics.dir}/xdoclet.xml"
+            format="xml"
+            functionMetrics="false"
+    	/>
+    	
+    	<xslt
+    		destdir="${build.metrics.dir}"
+    		style="${lib.javancss.dir}/xslt/javancss2html.xsl"
+    		in="${build.metrics.dir}/xdoclet.xml"
+    		out="${build.metrics.dir}/xdoclet.html"
+    	/>
+
+    	
+		<!-- Web classes -->
+		<javancss
+			srcdir="${web.dir}"
+			includes="**/*.java"
+    		generateReport="true"
+            outputfile="${build.metrics.dir}/web.xml"
+            format="xml"
+            functionMetrics="false"
+    	/>
+    	
+    	<xslt
+    		destdir="${build.metrics.dir}"
+    		style="${lib.javancss.dir}/xslt/javancss2html.xsl"
+    		in="${build.metrics.dir}/web.xml"
+    		out="${build.metrics.dir}/web.html"
+    	/>
+	</target>
+
+	
+</project>

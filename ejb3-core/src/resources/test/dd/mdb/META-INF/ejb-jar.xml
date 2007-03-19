@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+
+    <enterprise-beans>
+      <message-driven>
+	    <ejb-name>ObjectMessageBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.ObjectMessageBean</ejb-class>
+        <transaction-type>Bean</transaction-type>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </message-driven>
+
+    <message-driven>
+	<ejb-name>BMTTXTimeOutBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.TXTimeOutBean</ejb-class>
+        <transaction-type>Bean</transaction-type>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+     </message-driven>
+
+    <message-driven>
+	<ejb-name>CMTTXTimeOutBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.TXTimeOutBean</ejb-class>
+        <transaction-type>Container</transaction-type>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+     </message-driven>
+
+     <message-driven>
+	    <ejb-name>QueueBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.QueueBean</ejb-class>
+        <!--message-selector>JMSType='activityCompletion'</message-selector-->
+        <transaction-type>Bean</transaction-type>
+		<message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+        <ejb-ref>
+            	<ejb-ref-name>ejb/StatelessRemote</ejb-ref-name>
+            	<ejb-ref-type>Session</ejb-ref-type>
+            	<remote>org.jboss.ejb3.test.dd.mdb.StatelessRemote</remote>
+            	<ejb-link>StatelessBean</ejb-link>
+            	<injection-target>
+               		<injection-target-class>org.jboss.ejb3.test.dd.mdb.QueueBean</injection-target-class>
+               		<injection-target-name>stateless</injection-target-name>
+            	</injection-target>
+         	</ejb-ref>
+			<ejb-local-ref>
+            	<ejb-ref-name>ejb/StatelessLocal</ejb-ref-name>
+            	<ejb-ref-type>Session</ejb-ref-type>
+            	<local>org.jboss.ejb3.test.dd.mdb.StatelessLocal</local>
+            	<ejb-link>StatelessBean</ejb-link>
+            	<injection-target>
+               		<injection-target-class>org.jboss.ejb3.test.dd.mdb.QueueBean</injection-target-class>
+               		<injection-target-name>setStatelessLocal</injection-target-name>
+            	</injection-target>
+         	</ejb-local-ref>
+            <resource-ref>
+            	<res-ref-name>testDatasource</res-ref-name>
+            	<res-type>javax.sql.DataSource</res-type>
+            	<res-auth>Container</res-auth>
+            	<res-sharing-scope>Shareable</res-sharing-scope>
+            	<mapped-name>java:/DefaultDS</mapped-name>
+            	<injection-target>
+               		<injection-target-class>org.jboss.ejb3.test.dd.mdb.QueueBean</injection-target-class>
+               		<injection-target-name>testDatasource</injection-target-name>
+            	</injection-target>
+         	</resource-ref>
+            <resource-env-ref>
+            	<description>A test of the resource-env-ref tag</description>
+            	<resource-env-ref-name>res/aQueue</resource-env-ref-name>
+            	<resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
+         	</resource-env-ref>
+      </message-driven>
+
+      <message-driven>
+	    <ejb-name>TopicBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.TopicBean</ejb-class>
+        <!--message-selector>JMSType='activityCompletion'</message-selector-->
+        <transaction-type>Container</transaction-type>
+        <message-destination-type>javax.jms.Topic</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>subscriptionDurability</activation-config-property-name>
+          	<activation-config-property-value>NonDurable</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </message-driven>
+
+      <message-driven>
+	    <ejb-name>DurableTopicBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.TopicBean</ejb-class>
+        <!--message-selector>JMSType='activityCompletion'</message-selector-->
+        <transaction-type>Container</transaction-type>
+        <message-destination-type>javax.jms.Topic</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>subscriptionDurability</activation-config-property-name>
+          	<activation-config-property-value>Durable</activation-config-property-value>
+          </activation-config-property>
+          <activation-config-property>
+          	<activation-config-property-name>subscriptionName</activation-config-property-name>
+          	<activation-config-property-value>DurableTopicTest</activation-config-property-value>
+          </activation-config-property>
+          <!--activation-config-property>
+          	<activation-config-property-name>clientId</activation-config-property-name>
+          	<activation-config-property-value>DurableTopicTest</activation-config-property-value>
+          </activation-config-property-->
+        </activation-config>
+      </message-driven>
+
+      <message-driven>
+	    <ejb-name>ExQueueBean</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.ExQueueBean</ejb-class>
+        <transaction-type>Container</transaction-type>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>dLQMaxResent</activation-config-property-name>
+          	<activation-config-property-value>10</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </message-driven>
+
+      <message-driven>
+	    <ejb-name>QueueInADifferentContext</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.ObjectMessageBean</ejb-class>
+        <transaction-type>Bean</transaction-type>
+        <message-destination-type>javax.jms.Queue</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </message-driven>
+
+      <message-driven>
+	    <ejb-name>TopicInADifferentContext</ejb-name>
+	    <ejb-class>org.jboss.ejb3.test.dd.mdb.TopicBean</ejb-class>
+        <transaction-type>Container</transaction-type>
+        <message-destination-type>javax.jms.Topic</message-destination-type>
+        <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>subscriptionDurability</activation-config-property-name>
+          	<activation-config-property-value>NonDurable</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+      </message-driven>
+    </enterprise-beans>
+
+    <assembly-descriptor>
+     <container-transaction>
+
+       <method>
+
+         <ejb-name>TopicBean</ejb-name>
+
+         <method-name>onMessage</method-name>
+         <method-params>
+           <method-param>javax.jms.Message</method-param>
+         </method-params>
+
+       </method>
+     <!-- May also be NotSupported -->
+     <trans-attribute>Required</trans-attribute>
+
+     </container-transaction>
+          <container-transaction>
+
+       <method>
+
+         <ejb-name>DurableTopicBean</ejb-name>
+
+         <method-name>onMessage</method-name>
+
+       </method>
+     <!-- May also be NotSupported -->
+     <trans-attribute>Required</trans-attribute>
+
+     </container-transaction>
+
+     <container-transaction>
+       <method>
+         <ejb-name>BMTTXTimeOutBean</ejb-name>
+         <method-name>*</method-name>
+       </method>
+       <trans-attribute>Required</trans-attribute>
+     </container-transaction>
+
+     <container-transaction>
+       <method>
+         <ejb-name>CMTTXTimeOutBean</ejb-name>
+         <method-name>*</method-name>
+       </method>
+       <trans-attribute>NotSupported</trans-attribute>
+     </container-transaction>
+
+     <container-transaction>
+       <method>
+
+         <ejb-name>ExQueueBean</ejb-name>
+
+         <method-name>*</method-name>
+
+       </method>
+     <!-- May also be NotSupported -->
+     <trans-attribute>Required</trans-attribute>
+
+     </container-transaction>
+    </assembly-descriptor>
+  </ejb-jar>

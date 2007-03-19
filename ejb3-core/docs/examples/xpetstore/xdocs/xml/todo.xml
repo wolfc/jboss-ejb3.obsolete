@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore ToDo List</title>
+  </properties>
+
+<body>
+
+<section name="ToDo List">
+
+	<p>
+		<ol>
+			<li>
+				Support more J2EE 1.3 application servers like (Need help):
+				<ul>
+					<li> Sun Application Server </li>
+					<li> IBM WebSphere </li>
+					<li> JRun </li>
+					<li> JOnAs</li>
+				</ul>
+			</li>
+			
+			<li>
+				Run a performance test between all the xPetstore implementations on the different 
+				application servers
+			</li>
+			
+			<li> 
+				Integrate J2EE security at the Web and EJB layers.
+			</li>
+			
+			<li> 
+				Java Web Start UI for the administration module
+			</li>
+			
+			<li> 
+				Add web-services.<br/>
+				Everybody talks about it, it would be nice to have it.
+			</li>
+		</ol>
+	</p>
+	
+</section>
+
+</body>
+
+</document>

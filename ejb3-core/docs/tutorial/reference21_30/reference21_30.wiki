@@ -1,0 +1,38 @@
+!!!EJB 2.1/3.0 References
+3.0 EJBs may reference 2.x EJBs and vice versa. This tutorial demonstrates mechanisms for such references. To start, take a look at the 3.0 SLSB 
+[Stateless3Bean.java|src/org/jboss/tutorial/reference21_30/bean/Stateless3Bean.java], the 2.x SLSB 
+[Stateless2Bean.java|src/org/jboss/tutorial/reference21_30/bean/Stateless2Bean.java] and the deployment descriptors for the 2.x SLSB 
+[ejb-jar2.xml|META-INF/ejb-jar2.xml] and [jboss2.xml|META-INF/jboss2.xml].
+
+!!EJB3.0 Reference to EJB2.x
+Two mechanisms for referencing 2.x EJBs from a 3.0 EJB are demonstrated. The first mechanism uses annotations exclusively. Note the {{@EJBs}} annotation. The 
+{{name}} parameter specifies the binding for the 2.x EJB in the local JNDI environment. The {{mapped-name}} parameter specifies the global JNDI binding of 
+the 2.1 EJB. Note the JNDI lookup in the {{testAccess()}} method which uses the local binding of the 2.x EJB.
+
+The second mechanism demonstrates injection and the use of EJB3.0 deployment descriptors to augment the annotations. Take a look at 
+[ejb-jar3.xml|META-INF/ejb-jar3.xml]. The {{ejb-ref}} establishes the {{ejb/Stateless2}} reference. Now take a look at [jboss3.xml|META-INF/jboss3.xml]. The
+{{ejb-ref}} sets the {{jndi-name}} for the reference. This reference is used to inject the 2.x EJB using the {{@EJB(name="ejb/Stateless2")}} annotation.
+
+!!EJB2.x Reference to EJB3.0
+Take another look at [ejb-jar2.xml|META-INF/ejb-jar2.xml]. The {{ejb-ref}} element references the 3.0 EJB with the {{ejb/Stateless3}} name. Take another
+look at [jboss2.xml|META-INF/jboss2.xml]. The {{Stateless3}} global JNDI binding is set in the reference. This reference is used in the 2.x EJB to lookup
+the 3.0 EJB in the local JNDI environment.
+
+Note the differences in the root path of the local JNDI environment between EJB3.0 and EJB2.x.
+
+!Building and Running
+To build and run the example, make sure you have {{ejb3.deployer}} installed in JBoss 4.0.x and have JBoss running.  See the reference manual
+on how to install EJB 3.0. Start JBoss prior to running the tutorial. Building the tutorial will deploy two JAR files, one for the 3.0 EJB and one for the
+2.x EJB.
+{{{
+Unix:    $ export JBOSS_HOME=<where your jboss 4.0 distribution is>
+Windows: $ set JBOSS_HOME=<where your jboss 4.0 distribution is>
+$ ant
+$ ant run
+
+run:
+     [java] Testing EJB3.0 references to EJB2.x
+     [java] Testing EJB2.x references to EJB3.0
+     [java] Succeeded
+}}}
+

@@ -1,0 +1,79 @@
+<html>
+<body>
+<p>
+<h2>Entity Packaging and EntityManagerFactory</h2>
+
+This tutorial exposes you to a variety of things:
+<ul>
+<li> persistence.xml files</li>
+<li> EntityManagerFactory</li>
+</ul>
+</p><p>
+The EJB3 specification requires that persistence unit definitions and entity
+classes and mappings are contained within a .jar archive.
+</p><p>
+<h4>persistence.xml</h4>
+
+Each .jar file contains a persistence.xml file.  The persistence.xml file
+defines datasources, the entity manager's name, and additonal vendor specific
+properties.  See the docbook that comes with this distribution for more
+information, but you can see examples of it within
+resources/em1/META-INF/persistence.xml
+</p><p>
+<h4>EntityManagerFactory</h4>
+
+EntityManagerFactory is a service that allows you to manually create and
+managed EntityManager instances.  It is not recommended for you to use this
+feature as you should be letting the application server manage EntityManager
+instances.  EntityManagerFactory's are really for out-of-container
+applications that use EJB persistence.
+</p><p>
+<h4>EntityManager</h4>
+
+For information on looking up EntityManagers from EAR/WAR files, please see the <tt>ear</tt> tutorial.
+</p><p>
+<h4>Ear packaging</h4>
+
+The EJB 3 specification defines a new module type for application.xml
+<pre>
+&lt;application&gt;
+  &lt;module&gt;
+    &lt;persistence&gt;em1.jar&lt;/persistence&gt;
+  &lt;/module&gt;
+</pre>
+</p><p>
+JBoss does not yet support this xml, so in the meantime, put .par files within
+an ejb module. i.e...
+</p><p>
+<pre>
+&lt;module&gt;
+   &lt;ejb&gt;em1.par&lt;/ejb&gt;
+&lt;/module&gt;
+</pre>
+</p><p>
+<h4>Building and Running</h4>
+
+To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+$ ant run
+
+Buildfile: build.xml
+
+prepare:
+
+compile:
+
+ejbjar:
+
+run:
+     [java] factory: oneFactory
+     [java] manager: oneManager
+     [java] factory: twoFactory
+     [java] manager: twoManager
+</pre>
+</p>
+</body>
+</html>

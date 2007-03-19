@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss>
+   <enterprise-beans>
+      <session>
+         <ejb-name>ejb/Test2</ejb-name>
+         <jndi-name>Test2</jndi-name>
+         <ejb-ref>
+		    <ejb-ref-name>ejb/Test3Home</ejb-ref-name>
+		    <jndi-name>Test3Home</jndi-name>
+		 </ejb-ref>
+         <ejb-ref>
+            <ejb-ref-name>ejb/Test3</ejb-ref-name>
+            <jndi-name>Test3</jndi-name>
+         </ejb-ref>
+      </session>
+   </enterprise-beans>
+</jboss>

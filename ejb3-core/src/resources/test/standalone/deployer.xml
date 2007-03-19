@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:jboss:bean-deployer bean-deployer_1_0.xsd"
+            xmlns="urn:jboss:bean-deployer">
+
+   <bean name="EJBDeployment" class="org.jboss.ejb3.embedded.EJB3StandaloneDeployer">
+      <property name="jndiProperties"><inject bean="InitialContextProperties"/></property>
+      <property name="archivesByResource" >
+         <set class="java.util.HashSet" elementClass="java.lang.String">
+             <value>marker.txt</value>
+         </set>
+      </property>
+      <property name="kernel"><inject bean="jboss.kernel:service=Kernel"/></property>
+   </bean>
+
+</deployment>

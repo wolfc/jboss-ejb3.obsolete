@@ -1,0 +1,77 @@
+!!!Service POJOS via the deployment descriptor
+
+Service POJOs allow you to define POJOs as JBoss services. The way you define them is very similar to how you define
+[stateless|../stateless_deployment_descriptor/stateless.html] or [stateful|../stateful_deployment_descriptor/stateful.html] session beans.
+One very important difference is that there will only ever be ONE instance of the service bean. i.e. it is not pooled - the bean instance is a singleton. The
+singleton bean contains shared state, so data set by one client is accessible by other clients.
+
+!!Example simple ServicePOJO
+
+Take a look at [ServiceOne.java|src/org/jboss/tutorial/service_deployment_descriptor/bean/ServiceOne.java] and the corresponding deployment
+descriptor [jboss.xml|META-INF/jboss.xml]. The {{service}} tag defines it as a singleton service in JBoss. It implements
+[ServiceOneRemote|src/org/jboss/tutorial/service_deployment_descriptor/bean/ServiceOneRemote.java] and
+[ServiceOneLocal|src/org/jboss/tutorial/service_deployment_descriptor/bean/ServiceOneLocal.java]
+just as you would do for a normal stateful/stateless bean using the {{remote}} and {{local}} tags. 
+
+ServiceOne also implements [ServiceOneManagement.java|src/org/jboss/tutorial/service_deployment_descriptor/bean/ServiceOneManagement.java] identified
+through the {{management}} tag. JBoss will inspect this interface, and create and install an MBean implementing the attributes and operations defined in
+the interface. The MBean will work on the same singleton bean instance as the remote and local interfaces.
+
+The default ObjectName used for a service bean is 
+
+   {{jboss.j2ee:jar=<jar file name>service=EJB3,name=<Name of @Service bean>,type=<Interface>}}
+
+So in our case it will be
+   {{jboss.j2ee:jar-tutorial.jar,service=EJB3,name=ServiceOne,type=ManagementInterface}}
+
+Note that the default ObjectName can be overriden as is the case with [ServiceTwo.java|src/org/jboss/tutorial/service_deployment_descriptor/bean/ServiceTwo.java]
+through the {{object-name}} tag.
+
+!!Building
+To build and run the example, make sure you have ejb3.deployer installed in JBoss 4.0.x and have JBoss running. See the reference manual on how to install EJB 3.0.
+
+{{{
+Unix:    $ export JBOSS_HOME=<where your jboss 4.0 distribution is>
+Windows: $ set JBOSS_HOME=<where your jboss 4.0 distribution is>
+$ ant
+}}}
+
+In the JBoss console you should see output similar to this when the .jar archive is deployed
+{{{
+16:52:30,326 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceOne
+16:52:30,387 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceThree
+16:52:30,397 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceTwo
+16:52:30,427 INFO  [ProxyDeployer] no declared remote bindings
+16:52:30,437 INFO  [ProxyDeployer] there is remote interfaces
+16:52:30,437 INFO  [ProxyDeployer] default remote binding has jndiName of org.jboss.tutorial.service.bean.ServiceOneRemote
+16:52:35,113 INFO  [STDOUT] ServiceOne - Creating
+16:52:35,113 INFO  [STDOUT] ServiceOne - Starting
+16:52:35,244 INFO  [ProxyDeployer] no declared remote bindings
+16:52:35,945 INFO  [STDOUT] ServiceTwo - Starting
+16:52:35,965 INFO  [ProxyDeployer] no declared remote bindings
+16:52:36,585 INFO  [STDOUT] ServiceThree - Starting
+16:52:36,585 INFO  [EJB3Deployer] Deployed: file:/C:/cygwin/home/Kab/cvs/jboss-head/build/output/jboss-5.0.0alpha/server/all/deploy/tutorial.jar
+}}}
+
+ServiceOne starts before ServiceTwo which starts before ServiceThree, due to the dependencies we set up earlier.
+
+Then to run the example
+{{{
+$ ant run
+Buildfile: build.xml
+
+run:
+     [java] attribute value for singleton obtained via JMX is what we set via remote i/f: 100
+     [java] Hello from service One
+     [java] Hello from service Two
+
+}}}
+
+The JBoss console should show the following output
+{{{
+17:05:07,796 INFO  [STDOUT] ServiceThree - Interceptor
+17:05:07,796 INFO  [STDOUT] ServiceThree - Calling ServiceOne.sayHello() via JMX server
+17:05:07,806 INFO  [STDOUT] ServiceThree - Interceptor
+17:05:07,806 INFO  [STDOUT] ServiceThree - Calling ServiceTwo.sayHello() via MBean proxy
+}}}
+Notice that the calls to the ServiceThree methods get intercepted.

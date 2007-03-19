@@ -1,0 +1,162 @@
+<html>
+<body>
+<p>
+<h2> Service POJOS</h2>
+
+</p><p>
+Service POJOs allow you to define POJOs as JBoss services. The way you define them is very similar to how you define <a href="../stateless/stateless.html">stateless</a> or <a href="../stateful/stateful.html">stateful</a> session beans. One very important difference is that there will only ever be ONE instance of the service bean. i.e. it is not pooled - the bean instance is a singleton. The singleton bean contains shared state, so data set by one client is accessible by other clients.
+</p><p>
+<h3>Example simple ServicePOJO</h3>
+
+Take a look at <a href="src/org/jboss/tutorial/service/bean/ServiceOne.java">ServiceOne.java</a>. It has been annotated with <tt>@Service</tt>, this defines it as a singleton service in JBoss. It implements <a href="src/org/jboss/tutorial/service/bean/ServiceOneRemote.java">ServiceOneRemote</a> and <a href="src/org/jboss/tutorial/service/bean/ServiceOneLocal.java">ServiceOneLocal</a> just as you would do for a normal stateful/stateless bean. 
+</p><p>
+ServiceOne also implements <a href="src/org/jboss/tutorial/service/bean/ServiceOneManagement.java">ServiceOneManagement.java</a>. <a href="src/org/jboss/tutorial/service/bean/ServiceOne.java">ServiceOne.java</a> has been annotated with <tt>@Management</tt>. JBoss will inspect this interface, and create and install an MBean implementing the attributes and operations defined in the <tt>@Management</tt> interface. The MBean will work on the same singleton bean instance as the remote and local interfaces.
+</p><p>
+The default ObjectName used for a service bean is 
+<pre>
+   jboss.j2ee:jar=&lt;jar file&gt;,service=EJB3,name=&lt;Name of @Service bean&gt;,type=&lt;interface&gt;
+</pre>
+So in our case it will be
+<pre>
+   jboss.j2ee:jar=tutorial.jar,service=EJB3,name=ServiceOne,type=ManagementInterface
+</pre>
+</p><p>
+</p><p>
+<h3> Lifecycle</h3>
+
+Just as for "normal" MBeans in JBoss, we support lifecycle management. Lifecycle management consists of two things:
+<ul>
+<li>Lifecycle methods</li>
+<li>Dependencies</li>
+</ul>
+</p><p>
+<h3>Lifecycle methods</h3>
+
+ServiceOneManagement.java contains the four methods
+<pre>
+   void create() throws Exception;
+   void start() throws Exception;
+   void stop();
+   void destroy();
+</pre>
+</p><p>
+You do not need to create all these methods, you can pick and choose. If present the service container will call these methods as follows:
+<ul>
+<li><tt>create()</tt> - called by the server when the service is created and all the services it depends upon have been created too. At this point the service (and all the services it depends on) is installed in the JMX server, but is not yet fully functional.</li>
+<li><tt>start()</tt> - called by the server when the service is started and all the services it depends upon have been started too. At this point the service (and all the services it depends on) is fully functional.</li>
+<li><tt>stop()</tt> - called by the server when the service is stopped. At this point the service (and all the services that depend on it) is no longer fully operational.</li>
+<li><tt>destroy()</tt> - called by the server when the service is destroyed and removed from the MBean server. At this point all the MBeans that depend on the  </li>
+</ul>
+</p><p>
+<h3> Depends and custom JMX object name</h3>
+
+The previous paragraph mentioned the notion of dependencies of services, so let's take a look at how to define the dependencies between services. Open <a href="src/org/jboss/tutorial/service/bean/ServiceTwo.java">ServiceTwo.java</a>. Again it has been annotated with @Service, and it implements the @Management annotated interface <a href="src/org/jboss/tutorial/service/bean/ServiceTwoManagement.java">ServiceTwoManagement.java</a>. 
+</p><p>
+<pre>
+   @Service (objectName="tutorial:service=serviceTwo")
+   @Depends ("jboss.j2ee:jar=tutorial.jar,service=EJB3,name=ServiceOne,type=service,type=ManagementInterface")
+   public class ServiceTwo implements ServiceTwoManagement
+   {
+      ...
+   }
+</pre>
+</p><p>
+The @Depends annotation specifies that this service depends on the service created for ServiceOne. i.e. it cannot be started until the service created for ServiceOne has been started. The definition of the @Depends annotation type is:
+</p><p>
+<pre>
+   public @interface Depends
+   {
+      String[] value();
+   }
+</pre>
+</p><p>
+In other words, you could specify an array of object names if you depended on more than one service.
+</p><p>
+</p><p>
+Rather than installing a service under its default object name, you can specify a custom name in the <tt>@Service</tt> annotation. ServiceTwo will get bound under
+<tt>tutorial:service=serviceTwo</tt> instead of the default which would have been <tt>jboss.j2ee:jar=tutorial.jar,service=EJB3,name=ServiceTwo,type=ManagementInterface</tt>.
+</p><p>
+</p><p>
+<h3> Depends injection</h3>
+
+Take a look at <a href="src/org/jboss/tutorial/service/bean/ServiceThree.java">ServiceThree.java</a>. It has dependencies on other MBeans, but rather than annotating the class with @Depends, the dependencies are specified on fields and setter methods. 
+<pre>
+   @Depends ("jboss.j2ee:jar=tutorial.jar,name=ServiceOne,service=EJB3,type=ManagementInterface")
+   public ObjectName serviceOneName;
+   
+   @Depends ("tutorial:service=serviceTwo")
+   public void setServiceTwo(ServiceTwoManagement service2)
+   {
+      this.service2 = service2;
+   }
+</pre>
+With regard to the lifecycle dependencies, the effect of annotating fields and setters with @Depends is the same as if we annotated the class. So, ServiceThree cannot be started untill ServiceOne (<tt>jboss.j2ee:jar=tutorial.jar,name=ServiceOne,service=EJB3,type=ManagementInterface</tt>) and ServiceTwo(<tt>tutorial:service=serviceTwo</tt>) are started. Annotating the fields and setters with depends though, allows you to inject the dependencies.
+</p><p>
+The object name of <tt>ServiceOne</tt> gets injected into the <tt>serviceOneName</tt> field. More interesting is the injection of ServiceTwo. <tt>setServiceTwo()</tt> takes a parameter, which is the <tt>ServiceTwoManagement</tt> management interface of ServiceTwo. The server creates a dynamic proxy for the ServiceTwoManagement interface, and injects that. This means that you can call the methods on the <tt>service2</tt> field without caring that you are actually invoking methods on another service.
+</p><p>
+</p><p>
+<h3> Interceptors</h3>
+
+You can define interceptors for your service beans in the same way as shown in <a href="../interceptor/interceptor.html">EJB3 Interceptors</a>. This example defines one in the ServiceThree bean class itself.
+<pre>
+   @AroundInvoke
+   public Object intercept(InvocationContext ctx) throws Exception
+   {
+      System.out.println("ServiceThree - Interceptor");
+      return ctx.proceed();
+   }
+</pre>
+</p><p>
+</p><p>
+<h3>Building</h3>
+
+To build and run the example, make sure you have ejb3.deployer installed in JBoss 4.0.x and have JBoss running. See the reference manual on how to install EJB 3.0.
+</p><p>
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+</pre>
+</p><p>
+In the JBoss console you should see output similar to this when the .jar archive is deployed
+<pre>
+16:52:30,326 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceOne
+16:52:30,387 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceThree
+16:52:30,397 INFO  [Ejb3Module] found EJB3 service bean: org.jboss.tutorial.service.bean.ServiceTwo
+16:52:30,427 INFO  [ProxyDeployer] no declared remote bindings
+16:52:30,437 INFO  [ProxyDeployer] there is remote interfaces
+16:52:30,437 INFO  [ProxyDeployer] default remote binding has jndiName of org.jboss.tutorial.service.bean.ServiceOneRemote
+16:52:35,113 INFO  [STDOUT] ServiceOne - Creating
+16:52:35,113 INFO  [STDOUT] ServiceOne - Starting
+16:52:35,244 INFO  [ProxyDeployer] no declared remote bindings
+16:52:35,945 INFO  [STDOUT] ServiceTwo - Starting
+16:52:35,965 INFO  [ProxyDeployer] no declared remote bindings
+16:52:36,585 INFO  [STDOUT] ServiceThree - Starting
+16:52:36,585 INFO  [EJB3Deployer] Deployed: file:/C:/cygwin/home/Kab/cvs/jboss-head/build/output/jboss-5.0.0alpha/server/all/deploy/tutorial.jar
+</pre>
+</p><p>
+ServiceOne starts before ServiceTwo which starts before ServiceThree, due to the dependencies we set up earlier.
+</p><p>
+Then to run the example
+<pre>
+$ ant run
+Buildfile: build.xml
+
+run:
+     [java] attribute value for singleton obtained via JMX is what we set via remote i/f: 100
+     [java] Hello from service One
+     [java] Hello from service Two
+
+</pre>
+</p><p>
+The JBoss console should show the following output
+<pre>
+17:05:07,796 INFO  [STDOUT] ServiceThree - Interceptor
+17:05:07,796 INFO  [STDOUT] ServiceThree - Calling ServiceOne.sayHello() via JMX server
+17:05:07,806 INFO  [STDOUT] ServiceThree - Interceptor
+17:05:07,806 INFO  [STDOUT] ServiceThree - Calling ServiceTwo.sayHello() via MBean proxy
+</pre>
+Notice that the calls to the ServiceThree methods get intercepted.
+</p>
+</body>
+</html>

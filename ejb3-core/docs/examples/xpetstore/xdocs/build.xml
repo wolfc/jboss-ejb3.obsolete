@@ -1,0 +1,224 @@
+<project name="xdocs" default="all" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />            	
+        
+        
+        <!-- Directories -->
+       	<mkdir dir="${build.dir}" />
+       	<mkdir dir="${build.doc.dir}" />
+       	<mkdir dir="${build.doc.dir}/images" />
+       	<mkdir dir="${build.java2html.dir}/xpetstore-ejb" />
+       	<mkdir dir="${build.java2html.dir}/xpetstore-servlet" />
+		<mkdir dir="${dist.dir}" />
+		       	   	                          
+	</target>
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Main                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="all" depends="init">
+		<antcall target="clean" />
+		<antcall target="doc" />
+		<antcall target="java2html" />
+		<antcall target="zip" />
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Clean                                          -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="clean" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Cleaning                                             +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+		<delete>
+			<fileset dir="${build.dir}" />
+		</delete>
+	</target>
+	
+	
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Document                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="doc" depends="init">
+		<echo>+ ===================================================== +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+  Generating the documentation                         +</echo>
+		<echo>+                                                       +</echo>
+		<echo>+ ===================================================== +</echo>
+		
+
+        <taskdef 
+        	name="anakia" 
+        	classname="org.apache.velocity.anakia.AnakiaTask"
+        >
+	        <classpath>
+	    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+	    		<fileset dir="${lib.junit.dir}" 	includes="**/*.jar" />
+	    		<fileset dir="${lib.log4j.dir}"		includes="**/*.jar" />	    		
+	    		<fileset dir="${lib.velocity.dir}"	includes="**/*.jar" />
+	    		<fileset dir="${lib.jdom.dir}"		includes="**/*.jar" />
+	        </classpath>
+        </taskdef>
+        
+        <!-- Generate HTML -->
+        <anakia 
+        	basedir="${xml.dir}"
+        	destdir="${build.doc.dir}"
+            extension=".html" 
+            style="./website.vsl"
+            projectFile="../website.xml"
+            includes="**/*.xml"
+        />
+
+		<!-- Images -->
+        <copy todir="${build.doc.dir}/images" filtering="no">
+            <fileset dir="${images.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+        
+        <!-- CSS -->
+        <copy todir="${build.doc.dir}" filtering="no">
+            <fileset dir="${css.dir}">
+                <include name="**/*"/>
+            </fileset>
+        </copy>
+	</target>
+	
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Java2Html                                      -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="java2html" depends="init">
+	
+		<!-- EJB -->
+		<java classname="j2h" fork="yes">
+			<classpath>
+				<fileset dir="${lib.java2html.dir}" includes="*.jar" />
+			</classpath>
+			
+        	<arg line="-d  ${build.java2html.dir}/xpetstore-ejb" />
+        	<arg line="-js ${xpetstore_ejb.dir}/java" />
+        	<arg line="-js ${xpetstore_ejb.dir}/build/java" />
+        	<arg line="-js ${xpetstore_ejb.dir}/web" /> 
+        </java>
+        
+		<!-- Servlet -->
+		<java classname="j2h" fork="yes">
+			<classpath>
+				<fileset dir="${lib.java2html.dir}" includes="*.jar" />
+			</classpath>
+			
+			
+        	<arg line="-d  ${build.java2html.dir}/xpetstore-servlet" />
+        	<arg line="-js ${xpetstore_servlet.dir}/java" />
+        	<arg line="-js ${xpetstore_servlet.dir}/build/java" />
+        	<arg line="-js ${xpetstore_servlet.dir}/web" /> 
+        </java>
+        
+	</target>	
+	
+	
+	
+	
+	
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Build the packages                             -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="zip" depends="init">
+	
+		<delete>
+			<fileset dir="${dist.dir}" includes="**/*.zip" />
+		</delete>
+		
+		<!-- Website -->
+		<zip
+			basedir="${build.doc.dir}"
+			destfile="${dist.dir}/website-${app.version}.zip"
+			includes="**/*"
+		/>
+        
+		<!-- Source code -->
+		<zip
+			basedir="${xpetstore.dir}/.."
+			destfile="${dist.dir}/xpetstore-src-${app.version}.zip"
+			excludes="**/*"
+		>		
+			<fileset dir="${xpetstore.dir}/..">
+				<include name="xpetstore/**/*" />
+				<include name="xpetstore/**/.classpath" />
+				<include name="xpetstore/**/.project" />
+				
+				<exclude name="**/build/**" />
+				<exclude name="**/dist/**" />
+				<exclude name="**/lib/**" />
+				<exclude name="**/.metadata/**" />
+			</fileset>
+		</zip>
+        
+		<!-- All -->
+		<zip
+			basedir="${xpetstore.dir}/.."
+			destfile="${dist.dir}/xpetstore-${app.version}.zip"
+			excludes="**/*"
+		>		
+			<!-- Documentation -->
+			<fileset dir="${build.dir}">
+				<include name="doc/**/*" />
+				
+				<exclude name="**/*" />
+			</fileset>
+			
+			<!-- All -->
+			<fileset dir="${xpetstore.dir}/..">
+				<include name="xpetstore/**/*" />
+				<include name="xpetstore/**/.classpath" />
+				<include name="xpetstore/**/.project" />
+								
+				<exclude name="**/build/**" />
+				<exclude name="**/dist/**" />
+				<exclude name="**/.metadata/**" />
+			</fileset>
+		</zip>
+        
+        
+	</target>	
+	
+</project>

@@ -1,0 +1,159 @@
+<project name="xpetstore-servlet-orion" default="xdoclet" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<property file="${conf.dir}/as/weblogic.properties" />		
+       	
+   		<!-- Paths -->
+        <path id="xdoclet.class.path">
+    		<fileset dir="${lib.xdoclet.dir}"	includes="**/*.jar" />
+    		<fileset dir="${lib.log4j.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+        </path>
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet" depends="init">
+		<antcall target="xdoclet.ejb" />
+		<antcall target="xdoclet.web" />
+	</target>
+	
+	<target name="xdoclet.ejb" depends="init">
+       	<taskdef 
+       		name="ejbdoclet" 
+       		classname="xdoclet.modules.ejb.EjbDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>
+	
+        <ejbdoclet destdir="${build.java.dir}">
+            <fileset dir="${java.dir}" includes="**/*EJB.java" />
+            <fileset dir="${java.dir}" includes="**/*MDB.java" />
+
+            <weblogic destdir="${build.dir}/META-INF"
+            	datasource="${weblogic.datasource}"
+            	createtables="${weblogic.create.table}"
+            />
+        </ejbdoclet>
+	</target>
+	
+	<target name="xdoclet.web" depends="init" if="orion">
+      	<taskdef 
+       		name="webdoclet" 
+       		classname="xdoclet.modules.web.WebDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>	
+       	
+      	<webdoclet 
+       		destdir="${build.dir}/WEB-INF" 
+       		mergedir="${xdoclet.merge.dir}/web"
+       	>
+       		<fileset dir="${web.dir}" includes="**/*Filter.java" />
+       		<fileset dir="${web.dir}" includes="**/*Servlet.java" />
+       		
+       		<weblogicwebxml />
+       	</webdoclet>  		
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Test                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="test" depends="init">
+		<taskdef 
+			name="runservertests"
+			classname="org.apache.cactus.ant.RunServerTestsTask"
+		>
+			<classpath>
+				<fileset dir="${lib.cactus.dir}"	includes="**/*.jar" />
+			</classpath>   
+		</taskdef>
+		
+		<runservertests
+    		testURL="http://localhost:${weblogic.http.port}/xpetstore-test/TestServlet"
+    		stopTarget="undeploy"
+    		startTarget="deploy"
+    		testTarget="test.run"
+    	/>
+	</target>
+	
+	
+	<target name="test.run" depends="init">
+		<taskdef
+    		name="junitee" 
+    		classname="org.junitee.anttask.JUnitEETask"
+    	>
+			<classpath>
+				<fileset dir="${lib.junitee.dir}"   includes="**/*.jar" />
+			</classpath>
+    	</taskdef>
+    	
+    	<ant antfile="build-database.xml" target="data" />
+    	
+  		<junitee 
+  			url="http://localhost:${weblogic.http.port}/xpetstore-test/TestServlet" 
+  			haltonfailure="false"
+  			printsummary="true"
+  		>
+    		<test runall="true" todir="${build.junit.dir}">
+    			<formatter type="xml" />
+    		</test>
+  		</junitee>  		
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy" depends="init">
+        <copy todir="${weblogic.deploy.dir}">
+            <fileset dir="${dist.dir}" includes="${ear.name}" />
+        </copy>
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy" depends="init">
+        <delete>
+            <fileset dir="${weblogic.deploy.dir}" includes="${ear.name}" />
+        </delete>
+	</target>
+	
+</project>

@@ -1,0 +1,18 @@
+<chapter id="resource-references">
+
+   <title>@Resource Annotation</title>
+
+   <para>
+      The @Resource annotation can be used to inject env-entries, EJBContext, JMS destinations and connection factories, and datasources.  For datasources and JMS destinations and connection factories, JBoss uses the <literal>@Resource.mappedName()</literal> attribute.  This attribute corresponds to the global JNDI name of the referenced resource.  For example, here's how you would use the @Resource annotation to inject a reference to the default datasource:
+<programlisting>
+@Resource(mappedName="java:/DefaultDS") DataSource ds;
+</programlisting>
+   </para>
+   <para>
+      Here's one for a JMS connection factory:
+<programlisting>
+@Resource(mappedName="java:/ConnectionFactory") ConnectionFactory factory;
+</programlisting>
+   </para>
+</chapter>
+

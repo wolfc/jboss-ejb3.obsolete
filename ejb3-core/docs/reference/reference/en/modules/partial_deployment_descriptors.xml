@@ -1,0 +1,262 @@
+<chapter id="partial_deployment_descriptors">
+
+   <title>JBoss EJB 3.0 partial deployment descriptors</title>
+   <para>
+      EJB 3.0 allows for partial deployment descriptors to augment or override the behavior of source code annotations. This chapter describes
+      the use of partial deployment descriptors.
+   </para>
+   <sect1>
+      <title>Overview</title>
+      <para>
+	 Beans in EJB 3.0 can be specified via source code annotations and/or a deployment descriptor. The deployment descriptor is used to
+	 augment or override the source code annotations. There are some limitations on which annotations may be overridden, however. The annotations that specify
+         the bean itself (e.g. <literal>@Stateless</literal>, <literal>@Stateful</literal>, <literal>@MessageDriven</literal>, <literal>@Service</literal>,
+         <literal>@Consumer</literal>) cannot be overridden. The EJB 3.0 <literal>ejb.jar.xml</literal> deployment descriptor DTD specifies the majority of tags as optional
+         in order to support annotation augmentation and overrides. The deployment descriptor does not need to specify all of the required information, just that additional
+         information to override or augment the source code annotations.
+      </para>
+   </sect1>
+   <sect1>
+      <title>Examples</title>
+      <para>
+         This section contains examples of complete and partial deployment descriptors for completely specifying or overriding specfic behaviors of EJBs.
+      </para>
+      <sect2>  
+         <title>Complete deployment descriptor</title>
+         <para>
+            The following ejb-jar.xml file contains a complete specification for a series of EJBs, including tags for security, transactions, resource injection, references,
+            callbacks, callback listeners, interceptors, etc.
+<programlisting><![CDATA[
+<ejb-jar> 
+   <description>jBoss test application </description>
+   <display-name>Test</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>Teller</ejb-name>
+         <remote>org.jboss.ejb3.test.bank.Teller</remote>
+         <ejb-class>org.jboss.ejb3.test.bank.TellerBean</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+         <ejb-ref>
+            <ejb-ref-name>ejb/Bank</ejb-ref-name>
+            <ejb-ref-type>Session</ejb-ref-type>
+            <remote>org.jboss.ejb3.test.bank.Bank</remote>
+            <ejb-link>Bank</ejb-link>
+            <injection-target>bank</injection-target>
+         </ejb-ref>
+         <resource-ref>
+             <res-ref-name>java:/TransactionManager</res-ref-name>
+             <res-type>javax.transaction.TransactionManager</res-type>
+             <res-auth>Container</res-auth>
+             <res-sharing-scope>Shareable</res-sharing-scope>
+             <injection-target>setTransactionManager</injection-target>
+         </resource-ref>
+         <resource-ref>
+             <res-ref-name></res-ref-name>
+             <res-type>javax.ejb.TimerService</res-type>
+             <res-auth>Container</res-auth>
+             <res-sharing-scope>Shareable</res-sharing-scope>
+             <injection-target>ts</injection-target>
+         </resource-ref>
+         <security-identity>
+            <run-as>
+               <role-name>bankTeller</role-name>
+            </run-as>
+         </security-identity>
+      </session>
+      <session>
+         <ejb-name>Bank</ejb-name>
+         <remote>org.jboss.ejb3.test.bank.Bank</remote>
+         <ejb-class>org.jboss.ejb3.test.bank.BankBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+         <env-entry>
+            <env-entry-name>id</env-entry-name>
+            <env-entry-type>java.lang.String</env-entry-type>
+            <env-entry-value>5678</env-entry-value>
+         </env-entry>
+         <resource-ref>
+            <res-ref-name>java:DefaultDS</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+            <res-sharing-scope>Shareable</res-sharing-scope>
+            <injection-target>customerDb</injection-target>
+         </resource-ref>
+         <interceptor>org.jboss.ejb3.test.bank.FirstInterceptor</interceptor>
+         <interceptor>org.jboss.ejb3.test.bank.SecondInterceptor</interceptor> 
+         <callback-listener>org.jboss.ejb3.test.bank.ExternalCallbackListener</callback-listener>
+      </session>
+   </enterprise-beans>
+   <assembly-descriptor>
+      <callback>
+         <annotation>PostConstruct</annotation>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>postConstruct</method-name>
+         </method>
+      </callback> 
+      <remove-list>
+         <method>
+            <ejb-name>Bank</ejb-name>
+            <method-name>remove</method-name>
+         </method>
+      </remove-list> 
+      <init-list>
+         <method>
+            <ejb-name>Bank</ejb-name>
+            <method-name>init</method-name>
+         </method>
+      </init-list> 
+      <security-role>
+         <role-name>bankCustomer</role-name>
+      </security-role>
+      <security-role>
+         <role-name>bankTeller</role-name>
+      </security-role>
+      <method-permission>
+         <role-name>bankCustomer</role-name>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>greetChecked</method-name>
+         </method>
+      </method-permission>
+      <method-permission>
+         <unchecked/>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>greetUnchecked</method-name>
+         </method>
+      </method-permission>
+      <method-permission>
+         <role-name>bankTeller</role-name>
+         <method>
+            <ejb-name>Bank</ejb-name>
+            <method-name>getCustomerId</method-name>
+         </method>
+         <method>
+            <ejb-name>Bank</ejb-name>
+            <method-name>storeCustomerId</method-name>
+         </method>
+      </method-permission>
+      <container-transaction>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>greetWithNotSupportedTransaction</method-name>
+         </method>
+         <trans-attribute>NotSupported</trans-attribute>
+      </container-transaction>
+      <container-transaction>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>greetWithRequiredTransaction</method-name>
+            <method-params>
+               <method-param>java.lang.String</method-param>
+            </method-params>
+         </method>
+         <trans-attribute>Required</trans-attribute>
+      </container-transaction>
+      <container-transaction>
+         <method>
+            <ejb-name>Bank</ejb-name>
+            <method-name>*</method-name>
+         </method>
+         <trans-attribute>Required</trans-attribute>
+      </container-transaction>
+      <exclude-list>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>excludedMethod</method-name>
+         </method>
+      </exclude-list>
+   </assembly-descriptor>
+</ejb-jar>]]></programlisting>
+         </para>
+      </sect2>
+      <sect2>  
+         <title>Security</title>
+         <para>
+            The following <literal>ejb-jar.xml</literal> file overrides any <literal>@RolesAllowed</literal>, <literal>@PermitAll</literal>, or <literal>@DenyAll</literal>
+            source code annotations for the <literal>bar</literal> method of the <literal>FooB</literal> EJB and adds a <literal>@RolesAllowed</literal> annotation for the 
+            <literal>allowed</literal> role.
+            <programlisting><![CDATA[
+<ejb-jar>
+   <assembly-descriptor>
+      <method-permission>
+         <role-name>allowed</role-name>
+         <method>
+            <ejb-name>FooB</ejb-name>
+            <method-name>bar</method-name>
+         </method>
+     </method-permission>
+   </assembly-descriptor>
+</ejb-jar>
+            ]]></programlisting>
+         </para>
+      </sect2> 
+      <sect2>  
+         <title>Transactions</title>
+         <para>
+            The following <literal>ejb-jar.xml</literal> file overrides any <literal>@TransactionAttribute</literal> annotations for the <literal>bar</literal> method of the
+            <literal>FooA</literal> EJB and adds a <literal>@TransactionAttribute</literal> annotation for <literal>NOT SUPPORTED</literal>.
+            <programlisting><![CDATA[
+<ejb-jar>
+   <assembly-descriptor>
+      <container-transaction>
+         <method>
+            <ejb-name>FooA</ejb-name>
+            <method-name>bar</method-name>
+         </method>
+         <trans-attribute>NotSupported</trans-attribute>
+      </container-transaction>
+   </assembly-descriptor>
+</ejb-jar>                          
+            ]]></programlisting>
+         </para>
+      </sect2>
+      <sect2>  
+         <title>References</title>
+         <para>
+            The following <literal>ejb-jar.xml</literal> file creates a local jndi EJB reference and injects the EJB to the injection target of the <literal>bank</literal>
+            member variable.
+            <programlisting><![CDATA[
+<ejb-jar> 
+   <enterprise-beans>
+      <session>
+         <ejb-name>Teller</ejb-name>
+         <ejb-ref>
+            <ejb-ref-name>ejb/Bank</ejb-ref-name>
+            <ejb-ref-type>Session</ejb-ref-type>
+            <remote>org.jboss.ejb3.test.bank.Bank</remote>
+            <ejb-link>Bank</ejb-link>
+	    <injection-target>bank</injection-target>
+         </ejb-ref>
+      </session>
+   </enterprise-beans>
+</ejb-jar>
+
+            ]]></programlisting>
+         </para>
+      </sect2>
+      <sect2>  
+         <title>Callbacks</title>
+         <para>
+            The following <literal>ejb-jar.xml</literal> file adds a <literal>@PostConstruct</literal> annotation to the <literal>postConstruct</literal> method of the
+            <literal>Teller</literal> EJB.
+            <programlisting><![CDATA[
+<ejb-jar> 
+   <assembly-descriptor>
+      <callback>
+         <annotation>PostConstruct</annotation>
+         <method>
+            <ejb-name>Teller</ejb-name>
+            <method-name>postConstruct</method-name>
+         </method>
+      </callback>
+   </assembly-descriptor>
+</ejb-jar>
+            ]]></programlisting>
+         </para>
+      </sect2>
+   </sect1>
+</chapter>
+

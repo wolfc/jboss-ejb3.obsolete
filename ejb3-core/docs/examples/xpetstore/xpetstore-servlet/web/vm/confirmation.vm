@@ -1,0 +1,14 @@
+<html>
+<head>
+    <title>$texts.getString( "confirmation.title" )</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<h2>$texts.getString( "confirmation.subtitle" )</h2>
+
+<p>
+$texts.getString( "confirmation.message" )
+
+</body>
+</html>

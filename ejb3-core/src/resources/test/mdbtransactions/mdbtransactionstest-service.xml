@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=queuetest">
+      <attribute name="JNDIName">queue/mdbtest</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=rollbackqueuetest">
+      <attribute name="JNDIName">queue/rollbackmdbtest</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=queue21test">
+      <attribute name="JNDIName">queue/mdb21test</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+</server>

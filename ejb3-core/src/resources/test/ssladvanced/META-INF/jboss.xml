@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<jboss
+   xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+   http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+   version="3.0">
+   <enterprise-beans>
+      <session>
+         <ejb-name>OverrideStatefulClusteredBean</ejb-name>
+         <remote-binding>
+            <jndi-name>OverrideStatefulClusteredSSL</jndi-name>
+            <client-bind-url>sslsocket://0.0.0.0:3843</client-bind-url>
+         </remote-binding>
+         <remote-binding>
+            <jndi-name>OverrideStatefulClusteredNormal</jndi-name>
+            <client-bind-url>socket://0.0.0.0:3873</client-bind-url>
+         </remote-binding>
+      </session>
+   </enterprise-beans>
+</jboss>

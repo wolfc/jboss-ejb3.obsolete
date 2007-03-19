@@ -1,0 +1,164 @@
+<project name="xpetstore-servlet-orion" default="xdoclet" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<property file="${conf.dir}/as/orion.properties" />		
+       	
+   		<!-- Paths -->
+        <path id="xdoclet.class.path">
+    		<fileset dir="${lib.xdoclet.dir}"	includes="**/*.jar" />
+    		<fileset dir="${lib.log4j.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+        </path>
+        
+        <path id="orion.class.path">
+			<pathelement location="${orion.home.dir}/orion.jar" />
+            <pathelement location="${orion.home.dir}/ejb.jar" />
+            <pathelement location="${orion.home.dir}/jndi.jar" />
+        </path>
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet" depends="init">
+		<antcall target="xdoclet.ejb" />
+	</target>
+	
+	<target name="xdoclet.ejb" depends="init">
+       	<taskdef 
+       		name="ejbdoclet" 
+       		classname="xdoclet.modules.ejb.EjbDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>
+	
+        <ejbdoclet destdir="${build.java.dir}">
+            <fileset dir="${java.dir}" includes="**/*EJB.java" />
+            <fileset dir="${java.dir}" includes="**/*MDB.java" />
+
+            <orion 
+            	destdir="${build.dir}/META-INF"
+            	 deploymentVersion="${orion.version}"
+            />
+        </ejbdoclet>
+	</target>	
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Test                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="test" depends="init">
+		<taskdef 
+			name="runservertests"
+			classname="org.apache.cactus.ant.RunServerTestsTask"
+		>
+			<classpath>
+				<fileset dir="${lib.cactus.dir}"	includes="**/*.jar" />
+			</classpath>   
+		</taskdef>
+		
+		<runservertests
+    		testURL="http://localhost:${orion.http.port}/xpetstore-test/TestServlet"
+    		stopTarget="undeploy"
+    		startTarget="deploy"
+    		testTarget="test.run"
+    	/>
+	</target>
+	
+	
+	<target name="test.run" depends="init">
+		<taskdef
+    		name="junitee" 
+    		classname="org.junitee.anttask.JUnitEETask"
+    	>
+			<classpath>
+				<fileset dir="${lib.junitee.dir}"   includes="**/*.jar" />
+			</classpath>
+    	</taskdef>
+    	
+    	<ant antfile="build-database.xml" target="data" />
+    	
+  		<junitee 
+  			url="http://localhost:${orion.http.port}/xpetstore-test/TestServlet" 
+  			haltonfailure="false"
+  			printsummary="true"
+  		>
+    		<test runall="true" todir="${build.junit.dir}">
+    			<formatter type="xml" />
+    		</test>
+  		</junitee>  		
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy" depends="init">
+		<java 
+			classname="com.evermind.client.orion.OrionConsoleAdmin" 
+			fork="yes"
+			classpathref="orion.class.path"
+		>
+			<arg value="${orion.deploy.ormi}" />
+            <arg value="${orion.user.name}" />
+            <arg value="${orion.user.password}" />
+            <arg value="-deploy" />
+            <arg value="-file" />
+            <arg value="${dist.dir}/${ear.name}" />
+            <arg value="-deploymentName" />
+            <arg value="${app.name}" />
+		</java>	
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy" depends="init">
+		<java 
+			classname="com.evermind.client.orion.OrionConsoleAdmin" 
+			fork="yes"
+			classpathref="orion.class.path"
+		>
+			<arg value="${orion.deploy.ormi}" />
+            <arg value="${orion.user.name}" />
+            <arg value="${orion.user.password}" />
+            <arg value="-undeploy" />
+            <arg value="${app.name}" />
+		</java>	
+	</target>
+	
+</project>

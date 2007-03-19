@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore References</title>
+  </properties>
+
+<body>
+
+<section>
+	<p>
+		<table width="100%">
+			<tr>
+				<th>Name</th>
+				<th>Version</th>
+				<th>URL</th>
+			</tr>
+			
+			<tr>
+				<td>Hibernate</td>
+				<td>1.2.x</td>
+				<td><a href="http://hibernate.sourceforge.net">http://hibernate.sourceforge.net</a></td>
+			</tr>
+			
+			<tr>
+				<td>HypersonicSQL</td>
+				<td>1.6</td>
+				<td><a href="http://hsqldb.sourceforge.net/">http://hsqldb.sourceforge.net/</a></td>
+			</tr>
+			
+			<tr>
+				<td>JBoss</td>
+				<td>3.0.x</td>
+				<td><a href="http://www.jboss.org">http://www.jboss.org</a></td>
+			</tr>
+			
+			<tr>
+				<td>JUnit</td>
+				<td>3.8.1</td>
+				<td><a href="http://junit.org">http://www.junit.org</a></td>
+			</tr>
+			
+			<tr>
+				<td>JUnitEE</td>
+				<td>1.6.x</td>
+				<td><a href="http://junitee.sourceforge.net">http://www.junitee.sourceforge.net</a></td>
+			</tr>
+			
+			<tr>
+				<td>MS SQL Server</td>
+				<td>2000</td>
+				<td>
+					<a href="http://msdn.microsoft.com/downloads/default.asp?URL=/downloads/sample.asp?url=/msdn-files/027/001/779/msdncompositedoc.xml">
+						http://msdn.microsoft.com/downloads/default.asp?URL=/downloads/sample.asp?url=/msdn-files/027/001/779/msdncompositedoc.xml
+					</a>
+				</td>
+			</tr>			
+			
+			<tr>
+				<td>mySQL</td>
+				<td></td>
+				<td><a href="http://www.mysql.org">http://www.mysql.org</a></td>
+			</tr>						
+			
+			<tr>
+				<td>Oracle</td>
+				<td>7, 8, 9i</td>
+				<td><a href="http://www.oracle.org">http://www.oracle.com</a></td>
+			</tr>						
+			
+			<tr>
+				<td>PostgreSQL</td>
+				<td>7.2</td>
+				<td><a href="http://www.postgresql.org">http://www.postgresql.org</a></td>
+			</tr>						
+			
+			<tr>
+				<td>SapDB</td>
+				<td>7.3</td>
+				<td><a href="http://www.sapdb.org">http://www.sapdb.org</a></td>
+			</tr>			
+			
+			<tr>
+				<td>Sitemesh</td>
+				<td>1.5</td>
+				<td><a href="http://www.opensymphony.com/sitemesh">http://www.opensymphony.com/sitemesh</a></td>
+			</tr>			
+			
+			<tr>
+				<td>Struts</td>
+				<td>1.1b2</td>
+				<td><a href="http://jakarta.apache.org/struts">http://jakarta.apache.org/struts</a></td>
+			</tr>			
+			
+			<tr>
+				<td>Velocity</td>
+				<td>1.3</td>
+				<td><a href="http://jakarta.apache.org/velocity">http://jakarta.apache.org/velocity</a></td>
+			</tr>			
+			
+			<tr>
+				<td>WebLogic</td>
+				<td>4.x</td>
+				<td><a href="http://www.bea.com/products/weblogic">http://www.bea.com/products/weblogic</a></td>
+			</tr>
+			
+			<tr>
+				<td>WebWork</td>
+				<td>1.2.1</td>
+				<td><a href="http://www.opensymphony.com/webwork">http://www.opensymphony.com/webwork</a></td>
+			</tr>			
+			
+			<tr>
+				<td>xDoclet</td>
+				<td>1.2b2</td>
+				<td><a href="http://xdoclet.sourceforge.net.net">http://www.sourceforge.net/projects/xdoclet</a></td>
+			</tr>
+			
+		</table>
+    </p>
+</section>
+
+</body>
+</document>

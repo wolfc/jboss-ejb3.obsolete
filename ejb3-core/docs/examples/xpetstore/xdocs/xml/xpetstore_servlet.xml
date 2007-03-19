@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Servlet implementation</title>
+  </properties>
+
+<body>
+
+<section name="The Database">
+	<p>
+   	  	The database is composed of the following tables:
+   	  	<p/>
+		<table width="100%">
+			<tr>
+				<th>Name</th>
+				<th>Description</th>
+			</tr>
+			<tr>
+				<td>T_ACCOUNT</td>
+				<td>Login table for the customers</td>
+			</tr>
+			<tr>
+				<td>T_CUSTOMER</td>
+				<td>Customer' information</td>
+			</tr>
+			<tr>
+				<td>T_CATEGORY</td>
+				<td>The catalog categories (i.e. Fish, Dogs, Cats, etc.)</td>
+			</tr>
+			<tr>
+				<td>T_PRODUCT</td>
+				<td>
+					Catalog products. 
+					Each product may have one or more variants (Items). 
+					A typical variant is usually male or female
+				</td>
+			</tr>
+			<tr>
+				<td>T_ITEM</td>
+				<td>Individual product details</td>
+			</tr>
+			<tr>
+				<td>T_ORDER</td>
+				<td>Customers' orders</td>
+			</tr>
+			<tr>
+				<td>T_ORDER_ITEM</td>
+				<td>Items ordered by the Customers</td>
+			</tr>
+		</table>
+	</p>
+</section>
+
+
+<section name="The Domain">
+	<p>
+		The domain contains all the business objects of the application.
+		The business objects maintains and persists the state of the application into the database.
+		<p/>
+		<img border="1" src="images/servlet-domain.png" />
+	</p>
+</section> 
+
+
+<section name="The Web">
+	<p>
+		<img border="1" src="images/servlet-web.png" />
+	</p>
+</section> 
+
+<section name="The Code Generation Patterns">
+	<p>
+		<b><u>Business Object</u></b><br/>
+		Each business object named <code>xpetstore.domain.*<i>name</i></code> 
+		will have an Hibernate mapping file generate with the name
+		<code>xpetstore.domain.*<i>name</i>.hbm.xml</code>
+	</p>
+	
+	<p>
+		<b><u>WebWork</u></b><br/>
+		All Webwork classes named <code>xpetstore.web.webwork.action.*</code>
+		will be described in <code>WEB-INF/struts-config.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>Web Servlet</u></b><br/>
+		All classes named <code>xpetstore.web.servlet.*</code> 
+		will be described in <code>WEB-INF/web.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>Web Filters</u></b><br/>
+		All classes named <code>xpetstore.web.filter.*</code> 
+		will be described in <code>WEB-INF/web.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>Application Server Deployment Desciptors</u></b><br/>
+		Application server specific deployment descriptors will also be generated:
+		<ul>
+			<li> JBoss: jboss-web.xml </li>
+			<li> WebLogic: weblogic.xml </li>
+		</ul>
+	</p>	
+	
+</section> 
+
+</body>
+</document>

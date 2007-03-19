@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Source Code</title>
+  </properties>
+
+<body>
+
+<section name="xPetstore-EJB Source Code">
+	<p>
+    	You can browse the source code
+    	<a href="java2html/xpetstore-ejb/index.html">here</a>
+    </p>
+</section>
+
+<section name="xPetstore-Servlet Source Code">
+	<p>
+    	You can browse the source code
+    	<a href="java2html/xpetstore-servlet/index.html">here</a>
+    </p>
+</section>
+
+</body>
+</document>

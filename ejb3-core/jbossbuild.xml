@@ -1,0 +1,246 @@
+<?xml version="1.0"?>
+
+<!--
+ JBoss, the OpenSource J2EE webOS
+ 
+ Distributable under LGPL license.
+ See terms of license at gnu.org.
+-->
+
+<!-- ================================================================== -->
+<!-- ejb3  component definition                                        -->
+<!-- ================================================================== -->
+
+<project name="project" 
+         default="build" 
+         basedir="."
+>
+   <!-- The main build -->
+   <import file="../tools/etc/jbossbuild/tasks.xml"/>
+   <import file="component-info.xml"/>
+
+   <!-- =============================================================== -->
+   <!-- The component definition                                        -->
+   <!-- =============================================================== -->
+
+   <componentdef component="ejb3" 
+                 description="ejb3 Integration Module">
+
+      <!-- ============================================================ -->
+      <!-- The main source                                              -->
+      <!-- ============================================================ -->
+
+      <source id="main" requiredJDK="1.5" jvmSource="1.5" jvmTarget="1.5">
+         <include component="sun-jaf"/>
+         <include component="sun-servlet"/>
+         <include component="javassist"/>
+         <include component="qdox"/>         
+         <include component="jgroups"/>
+         <include component="hibernate"/>
+         <include component="hibernate-entitymanager"/>
+         <include component="hibernate-annotations"/>
+         <include component="trove"/>
+         <include component="xdoclet"/>         
+         <include component="oswego-concurrent"/>
+         <include component="j2ee"/>
+         <include component="j2se"/>
+         <include component="aop"/>
+         <include component="jboss/cache"/>
+         <include component="aspects"/>
+         <include component="ejb3x"/>
+         <include component="common"/>         
+         <include component="cluster"/>
+         <include component="dependency"/>
+         <include component="system"/>         
+         <include component="naming"/>         
+         <include component="transaction"/>         
+         <include component="security"/>
+         <include component="server"/>         
+         <include component="messaging"/>         
+         <include component="kernel"/> 
+         <include component="connector"/>
+         <include component="container"/>     
+         <include component="jboss/remoting"/>
+         <include component="apache-logging"/>
+         <include component="antlr"/>         
+         <include component="asm"/>                  
+         <include component="cglib"/>   
+         <include component="apache-beanutils"/>    
+         <include component="apache-codec"/>   
+         <include component="apache-collections"/> 
+         <include component="apache-digester"/>    
+         <include component="apache-discovery"/> 
+         <include component="apache-fileupload"/>  
+         <include component="apache-httpclient"/>     
+         <include component="apache-lang"/>     
+         <include component="apache-logging"/> 
+         <include component="apache-logging-api"/> 
+         <include component="apache-pool"/>  
+         <include component="apache-validator"/>  
+         <include component="apache-vfs"/> 
+         <include component="apache-log4j"/>          
+         <include component="apache-xerces"/>          
+         <include component="dom4j"/> 
+         <include component="hsqldb"/>
+         <include component="jaxen"/>
+      </source>
+      
+      <resource id="ejb3-clustered-sfsbcache-service" path="ejb3-clustered-sfsbcache-service.xml"/>
+      <resource id="ejb3-entity-cache-service" path="ejb3-entity-cache-service.xml"/>
+      <resource id="ejb3-interceptors-aop" path="ejb3-interceptors-aop.xml"/>
+      <resource id="ejb3-all-resources" path="."/>
+      <resource id="ejb3-standalone-resources" path="./standalone"/>
+      <resource id="ejb3-META-INF-resources" path="./META-INF"/>
+
+      <artifactdef artifact="default.persistence.properties" toname="default.persistence.properties">
+        <include input="persistence.properties"/>
+      </artifactdef>
+      
+
+      <!-- ============================================================ -->
+      <!-- jboss-ejb3.jar                                                -->
+      <!-- ============================================================ -->
+      <artifactdef artifact="jboss-ejb3.jar" requiredJDK="1.5">
+         <include input="main">
+            <include pattern="org/jboss/**"/>
+            <exclude pattern="org/jboss/ejb3/test/**"/>
+            <exclude pattern="org/jboss/annotation/**"/>
+         </include>
+      </artifactdef>
+
+
+      <!-- ============================================================ -->
+      <!-- jboss-annotations-ejb3.jar                                   -->
+      <!-- ============================================================ -->
+      <artifactdef artifact="jboss-annotations-ejb3.jar" requiredJDK="1.5">
+         <include input="main">
+           <include pattern="org/jboss/annotation/**"/>
+         </include>
+      </artifactdef>
+
+      <!-- ============================================================ -->
+      <!-- ejb3.deployer                                                -->
+      <!-- ============================================================ -->
+      <artifactdef artifact="ejb3.deployer" requiredJDK="1.5">
+         <include input="jboss-ejb3.jar"/>
+         <include input="antlr-2.7.5H3.jar" />
+         <include input="asm-attrs.jar" />
+         <include input="asm.jar" />
+         <include input="cglib-2.1.1.jar" />
+         <include input="commons-beanutils.jar" />
+         <include input="commons-codec-1.2.jar" />
+         <include input="commons-collections.jar" />
+         <include input="commons-digester-1.6.jar" />
+         <include input="commons-discovery.jar" />
+         <include input="commons-fileupload.jar" />
+         <include input="commons-httpclient.jar" />
+         <include input="commons-lang-2.0.jar" />
+         <include input="commons-logging.jar" />
+         <include input="commons-logging-api.jar" />
+         <include input="commons-pool.jar" />
+         <include input="commons-validator-1.1.3.jar" />
+         <include input="commons-vfs.jar" />
+         <include input="dom4j.jar" />
+         <include input="ejb3-persistence.jar" />
+         <include input="hibernate-annotations.jar" />
+         <include input="hibernate-entitymanager.jar" />
+         <include input="hibernate3.jar" />         
+	 <include input="jaxen-1.1-beta-4.jar" />                                    
+	 <include input="jboss-annotations-ejb3.jar" /> 
+	 <include input="jboss-ejb3x.jar" />
+         <include input ="ejb3-META-INF-resources" prefix="META-INF">
+            <include pattern="persistence.properties"/>            
+            <include pattern="jboss-service.xml"/>            
+         </include>	 
+      </artifactdef>
+      
+      <!-- ============================================================ -->
+      <!-- embeddable                                                   -->
+      <!-- ============================================================ -->
+      <artifactdef artifact="embeddable" requiredJDK="1.5" >
+         <include input="ejb3-all-resources" prefix="conf">
+            <include pattern="ejb3-interceptors-aop.xml"/>
+         </include>
+         <include input="ejb3-standalone-resources" prefix="conf">
+            <include pattern="embedded-jboss-beans.xml"/>
+            <include pattern="jboss-jms-beans.xml"/>
+            <include pattern="log4j.xml"/>
+         </include>
+         <include input ="default.persistence.properties" prefix="conf">
+            
+          </include>
+         <include input="jboss-ejb3.jar" prefix="lib"/>
+         <include input="antlr-2.7.5H3.jar" prefix="lib"/>
+         <include input="asm-attrs.jar" prefix="lib"/>
+         <include input="asm.jar" prefix="lib"/>
+         <include input="cglib-2.1.1.jar" prefix="lib"/>
+         <include input="commons-beanutils.jar" prefix="lib"/>
+         <include input="commons-codec-1.2.jar" prefix="lib"/>
+         <include input="commons-collections.jar" prefix="lib"/>
+         <include input="commons-digester-1.6.jar" prefix="lib"/>
+         <include input="commons-discovery.jar" prefix="lib"/>
+         <include input="commons-fileupload.jar" prefix="lib"/>
+         <include input="commons-httpclient.jar" prefix="lib"/>
+         <include input="commons-lang-2.0.jar" prefix="lib"/>
+         <include input="commons-logging.jar" prefix="lib"/>
+         <include input="commons-logging-api.jar" prefix="lib"/>
+         <include input="commons-pool.jar" prefix="lib"/>
+         <include input="commons-validator-1.1.3.jar" prefix="lib"/>
+         <include input="commons-vfs.jar" prefix="lib"/>
+         <include input="concurrent.jar" prefix="lib"/>
+         <include input="dom4j.jar" prefix="lib"/>
+         <include input="ejb3-persistence.jar" prefix="lib"/>
+         <include input="hibernate-annotations.jar" prefix="lib"/>
+         <include input="hibernate-entitymanager.jar" prefix="lib"/>
+         <include input="hibernate3.jar" prefix="lib"/>         
+         <include input="hsqldb.jar" prefix="lib"/>                  
+	 <include input="jaxen-1.1-beta-4.jar" prefix="lib"/>                           
+	 <include input="jboss-annotations-ejb3.jar" prefix="lib"/>                           
+	 <include input="jboss-aop-jdk50.jar" prefix="lib"/>                           
+	 <include input="jboss-aspect-library-jdk50.jar" prefix="lib"/>                           
+	 <include input="jboss-boot.jar" prefix="lib"/>                           
+	 <include input="jboss-common-jdbc-wrapper.jar" prefix="lib"/>                           
+	 <include input="jboss-common.jar" prefix="lib"/>                           
+	 <include input="jboss-ejb3x.jar" prefix="lib"/>                           
+	 <include input="jboss-ha-local-jdbc.jar" prefix="lib"/>                           	 
+	 <include input="jboss-ha-xa-jdbc.jar" prefix="lib"/>                           	 
+	 <include input="jboss-j2ee.jar" prefix="lib"/>                           	 
+	 <include input="jboss-j2se.jar" prefix="lib"/>                           	 
+	 <include input="jboss-jaxrpc.jar" prefix="lib"/>                           	 
+	 <include input="jboss-jca.jar" prefix="lib"/>                           	 
+	 <include input="jboss-local-jdbc.jar" prefix="lib"/>                           	 
+	 <include input="jboss-microcontainer.jar" prefix="lib"/>                           	 
+	 <include input="jboss-remoting.jar" prefix="lib"/>                           	 
+	 <include input="jboss-saaj.jar" prefix="lib"/>                           	 
+	 <include input="jboss-system-client.jar" prefix="lib"/>                           	 
+	 <include input="jboss-system.jar" prefix="lib"/>                           	 
+	 <include input="jboss-transaction.jar" prefix="lib"/>                           	 
+	 <include input="jboss-xa-jdbc.jar" prefix="lib"/>                           	 
+	 <include input="jboss.jar" prefix="lib"/>                           	 
+	 <include input="jbosscx-client.jar" prefix="lib"/>                           	 
+	 <include input="jbossmq.jar" prefix="lib"/>                           	 
+	 <include input="jbosssx.jar" prefix="lib"/>                           	 
+	 <include input="jms-ra.jar" prefix="lib"/>                           	 
+	 <include input="jnpserver.jar" prefix="lib"/>                           	 
+	 <include input="log4j-boot.jar" prefix="lib"/>                           	 
+	 <include input="log4j.jar" prefix="lib"/>                           	 
+	 <include input="mail-ra.jar" prefix="lib"/>                           	 
+	 <include input="resolver.jar" prefix="lib"/>                           	 	 
+	 <include input="run.jar" prefix="lib"/>                           	 	 
+	 <include input="testsuite-support.jar" prefix="lib"/>                           	 
+	 <include input="trove.jar" prefix="lib"/>                           	 
+	 <include input="xercesImpl.jar" prefix="lib"/>                           	 
+	 <include input="xml-apis.jar" prefix="lib"/> 
+	 <include input="javassist.jar" prefix="lib"/> 	 
+ 	 <include input="jboss-dependency.jar" prefix="lib"/>      
+ 	 <include input="jboss-container.jar" prefix="lib"/>                           	 	 
+      </artifactdef>      
+
+
+
+   </componentdef>
+
+   <!-- Generate the targets -->   
+   <generate generate="ejb3"/>
+
+</project>

@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+
+<!-- ======================================================================= -->
+<!-- JBoss build file                                                       -->
+<!-- ======================================================================= -->
+
+<project name="JBoss" default="deploy-war" basedir=".">
+
+   <property environment="env"/>
+   <property name="src.dir" value="${basedir}/src/test"/>
+   <property name="build.dir" value="${basedir}/output"/>
+   <property name="reports.dir" value="${build.dir}/reports"/>
+   <property name="build.classes.dir" value="${build.dir}/classes"/>
+   <property name="lib.dir" value="output/lib/embeddable/lib"/>
+   <property name="conf.dir" value="output/lib/embeddable/conf"/>
+   <property name="deploy.dir" value="/bea/weblogic90/server/jbossConfig"/>
+   <property name="resources.dir" value="${basedir}/src/resources/test/wls/embeddedwar"/>
+
+   <!-- Build classpath -->
+   <path id="build.classpath">
+      <fileset dir="${lib.dir}">
+         <include name="*.jar"/>
+      </fileset>
+      <pathelement location="${conf.dir}"/>
+   </path>
+
+   <!-- Client classpath -->
+   <path id="client.classpath">
+      <fileset dir="${lib.dir}">
+         <include name="*.jar"/>
+      </fileset>
+      <pathelement location="${conf.dir}"/>
+      <pathelement location="${build.classes.dir}"/>
+   </path>
+
+
+   <!-- =================================================================== -->
+   <!-- Prepares the build directory                                        -->
+   <!-- =================================================================== -->
+   <target name="prepare">
+      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${reports.dir}"/>
+      <mkdir dir="${build.classes.dir}"/>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Compiles the source code                                            -->
+   <!-- =================================================================== -->
+   <target name="compile" depends="prepare">
+      <javac srcdir="${src.dir}"
+         destdir="${build.classes.dir}"
+         debug="on"
+         deprecation="on"
+         optimize="off"
+         includes="**/wls/**">
+         <classpath refid="build.classpath"/>
+      </javac>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Create the jndi test war                                                      -->
+   <!-- =================================================================== -->
+   <target name="jndi-war" depends="prepare">
+      <war warfile="${build.dir}/jndi-test.war"
+         webxml="${resources.dir}/WEB-INF/jndi-web.xml">
+         <fileset dir="${src.dir}/org/jboss/ejb3/test/wls/embeddedwar">
+            <include name="JndiTest.jsp"/>
+         </fileset>
+      </war>
+      <copy todir="${deploy.dir}" filtering="yes">
+         <fileset dir="${build.dir}">
+            <include name="jndi-test.war"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Create the war                                                      -->
+   <!-- =================================================================== -->
+   <target name="war" depends="compile">
+      <jar jarfile="${build.dir}/tutorial.jar">
+         <fileset dir="${build.classes.dir}">
+            <include name="**/*.class"/>
+         </fileset>
+         <fileset dir="${resources.dir}">
+            <include name="META-INF/persistence.xml"/>
+         </fileset>
+      </jar>
+      <war warfile="${build.dir}/standalone.war"
+         webxml="${resources.dir}/WEB-INF/web.xml">
+	   <!--webinf dir="${resources.dir}/WEB-INF">
+            <include name="weblogic.xml"/>
+         </webinf-->
+         <lib dir="${lib.dir}">
+            <include name="*.jar"/>
+         </lib>
+         <lib dir="${build.dir}">
+            <include name="tutorial.jar"/>
+         </lib>
+         <classes dir="${resources.dir}/conf">
+            <include name="*.xml"/>
+         </classes>
+         <classes dir="${conf.dir}">
+            <include name="*.xml"/>
+            <include name="*.properties"/>
+         </classes>
+         <fileset dir="${src.dir}/org/jboss/ejb3/test/wls/embeddedwar">
+            <include name="EmbeddedEJB3.jsp"/>
+         </fileset>
+      </war>
+   </target>
+
+
+  <!-- =================================================================== -->
+  <!--  deploy the WAR file                                                 -->
+  <!-- =================================================================== -->
+  <target name="deploy-war" depends="war">
+     <copy todir="${deploy.dir}" filtering="yes">
+         <fileset dir="${build.dir}">
+            <include name="standalone.war"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Run the client                                                      -->
+   <!-- =================================================================== -->
+   <target name="run" depends="war">
+      <junit printsummary="yes" fork="yes" showoutput="false">
+         <classpath refid="client.classpath" />
+         <formatter type="xml" />
+         <batchtest todir="${build.dir}/reports">
+           <fileset dir="${build.classes.dir}">
+             <include name="**/wls/**/*TestCase.class" />
+           </fileset>
+         </batchtest>
+      </junit>
+    <junitreport todir="${build.dir}/reports">
+        <report todir="${build.dir}/reports"/>
+    </junitreport>
+   </target>
+
+
+   <!-- =================================================================== -->
+   <!-- Cleans up generated stuff                                           -->
+   <!-- =================================================================== -->
+   <target name="clean">
+      <delete dir="${build.dir}"/>
+   </target>
+
+
+</project>
+

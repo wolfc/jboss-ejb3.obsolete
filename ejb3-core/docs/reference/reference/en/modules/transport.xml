@@ -1,0 +1,176 @@
+<chapter id="transport">
+   <title>Transports</title>
+   <para>
+      This chapter explains how remote clients communicate with the EJB 3 container and describes how to set up alternate transports.
+      types. The transport used by JBoss EJB 3 is based on JBoss Remoting, see the JBoss Remoting documentation for more in-depth examples.
+   </para>
+   <sect1>
+      <title>Default transport</title>
+      <para>
+         By default JBoss EJB 3 uses a socket based invoker layer on port 3878. This is set up in
+         <literal><![CDATA[$JBOSS_HOME/server/<your-conf>/deploy/ejb3.deployer/META-INF/jboss-service.xml]]></literal>
+      </para>
+      <para>This is the out-of-the-box setup:</para>
+         <programlisting><![CDATA[
+   <mbean code="org.jboss.remoting.transport.Connector"
+          xmbean-dd="org/jboss/remoting/transport/Connector.xml"
+          name="jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3">
+      <depends>jboss.aop:service=AspectDeployer</depends>
+      <attribute name="InvokerLocator">socket://0.0.0.0:3873</attribute>
+      <attribute name="Configuration">
+         <handlers>
+            <handler subsystem="AOP">org.jboss.aspects.remoting.AOPRemotingInvocationHandler</handler>
+         </handlers>
+      </attribute>
+   </mbean>]]>
+         </programlisting>
+      <para>
+         The URL given by the <literal>InvokerLocator</literal> atribute tells JBoss Remoting which protocol to use, and which IP address and
+         port to listen on. In this case we are using <literal>0.0.0.0</literal> as the IP address, meaning we listen on all NIC's. The
+         <literal>socket://</literal> protocol means we listen on a plain socket, and the port we use is <literal>3873</literal>
+      </para>
+      <para>
+         The <literal>Configuration</literal> attribute specifies that requests coming in via this socket should be handed over to the
+         <literal>AOP</literal> subsystem, implemented by <literal>org.jboss.aspects.remoting.AOPRemotingInvocationHandler</literal>
+         which is the entry point to the EJB 3 container.
+      </para>
+   </sect1>
+   <sect1>
+      <title>Securing the transport</title>
+      <para>
+         In some cases you may wish to use SSL as the protocol. In order to do this you first need to generate a keystore.
+      </para>
+      <sect2>
+         <title>Generating the keystore and truststore</title>
+         <para>
+            For SSL to work we need to create a public/private key pair, which will be stored in a keystore. Generate this using the <literal>genkey</literal> command that comes with the JDK.
+         </para>
+         <programlisting>
+   $cd $JBOSS_HOME/server/default/conf/
+   $ keytool -genkey -alias ejb3-ssl -keypass opensource -keystore localhost.keystore
+   Enter keystore password:  opensource
+   What is your first and last name?
+     [Unknown]:
+   What is the name of your organizational unit?
+     [Unknown]:
+   What is the name of your organization?
+     [Unknown]:
+   What is the name of your City or Locality?
+     [Unknown]:
+   What is the name of your State or Province?
+     [Unknown]:
+   What is the two-letter country code for this unit?
+     [Unknown]:
+   Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+     [no]:  yes
+         </programlisting>
+         <para>
+            <literal>alias</literal> is the name ("ejb2-ssl") of the key pair within the keystore. <literal>keypass</literal> is the password ("opensource") for the keystore, and
+            <literal>keystore</literal> specifies the location ("localhost.keystore") of the keystore to create/add to.
+         </para>
+         <para>
+            Since we have not signed our certificate through any certification authoritiy, we also need to create a truststore for the client, explicitly saying that we trust the certificate
+            we just created. The first step is to export the certificate using the JDK keytool:
+         </para>
+         <programlisting><![CDATA[
+   $ keytool -export -alias ejb3-ssl -file mycert.cer -keystore localhost.keystore
+   Enter keystore password:  opensource
+   Certificate stored in file <mycert.cer>
+
+         ]]></programlisting>
+         <para>
+            Then we need to create the truststore if it does not exist and import the certificate into the trueststore:
+         </para>
+         <programlisting><![CDATA[
+   $ keytool -import -alias ejb3-ssl -file mycert.cer -keystore localhost.truststore
+   Enter keystore password:  opensource
+   Owner: CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+   Issuer: CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+   Serial number: 43bff927
+   Valid from: Sat Jan 07 18:23:51 CET 2006 until: Fri Apr 07 19:23:51 CEST 2006
+   Certificate fingerprints:
+            MD5:  CF:DC:71:A8:F4:EA:8F:5A:E9:94:E3:E6:5B:A9:C8:F3
+            SHA1: 0E:AD:F3:D6:41:5E:F6:84:9A:D1:54:3D:DE:A9:B2:01:28:F6:7C:26
+   Trust this certificate? [no]:  yes
+   Certificate was added to keystore ]]>
+</programlisting>
+      </sect2>
+      <sect2>
+         <title>Setting up the SSL transport</title>
+         <para>
+         The simplest way to define an SSL transport is to define a new Remoting connector using the <literal>sslsocket</literal> protocol
+         as follows. This transport will listen on port 3843:
+         </para>
+         <programlisting><![CDATA[
+   <mbean code="org.jboss.remoting.transport.Connector"
+      xmbean-dd="org/jboss/remoting/transport/Connector.xml"
+      name="jboss.remoting:type=Connector,transport=socket3843,handler=ejb3">
+      <depends>jboss.aop:service=AspectDeployer</depends>
+      <attribute name="InvokerLocator">sslsocket://0.0.0.0:3843</attribute>
+      <attribute name="Configuration">
+         <handlers>
+            <handler subsystem="AOP">org.jboss.aspects.remoting.AOPRemotingInvocationHandler</handler>
+         </handlers>
+      </attribute>
+   </mbean>]]>
+         </programlisting>
+         <para>
+         We need to tell JBoss Remoting where to find the keystore to be used for SSl and its password. This is done using the
+         <literal>javax.net.ssl.keyStore</literal> and <literal>javax.net.ssl.keyStorePassword=opensource</literal> system properties when starting JBoss, as the
+         following example shows:
+         </para>
+         <programlisting>
+    $cd $JBOSS_HOME/bin
+    $ run -Djavax.net.ssl.keyStore=../server/default/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource
+         </programlisting>
+      </sect2>
+      <sect2>
+         <title>Configuring your beans to use the SSL transport</title>
+         <para>
+            By default all the beans will use the default connector on <literal>socket://0.0.0.0:3873</literal>. By using the <literal>@org.jboss.annotation.ejb.RemoteBinding</literal>
+            annotation we can have the bean invokable via SSL.
+         </para>
+         <programlisting>
+   @RemoteBinding(clientBindUrl="sslsocket://0.0.0.0:3843", jndiBinding="StatefulSSL"),
+   @Remote(BusinessInterface.class)
+   public class StatefulBean implements BusinessInterface
+   {
+      ...
+   }
+
+         </programlisting>
+         <para>
+            This bean will be bound under the JNDI name <literal>StatefulSSL</literal> and the proxy implementing the remote interface returned to the client will communicate with the server via SSL.
+         </para>
+         <para>
+            You can also enable different types of communication for your beans
+         </para>
+         <programlisting>
+   @RemoteBindings({
+      @RemoteBinding(clientBindUrl="sslsocket://0.0.0.0:3843", jndiBinding="StatefulSSL"),
+      @RemoteBinding(jndiBinding="StatefulNormal")
+   })
+   @Remote(BusinessInterface.class)
+   public class StatefulBean implements BusinessInterface
+   {
+      ...
+   }
+         </programlisting>
+         <para>
+            Now if you look up <literal>StatefulNormal</literal> the returned proxy implementing the remote interface will communicate with the server via the normal unencrypted socket protocol, and if we
+           look up <literal>StatefulSSL</literal> the returned proxy  implementing the remote interface will communicate with the server via SSL.
+         </para>
+      </sect2>
+      <sect2>
+         <title>Setting up the client to use the truststore</title>
+         <para>
+            If not using a certificate signed by a certificate authorization authority, you need to point the client to the truststore using the <literal>javax.net.ssl.trustStore</literal>
+            system property and specify the password using the <literal>javax.net.ssl.trustStorePassword</literal> system property:
+         </para>
+         <programlisting>
+            java -Djavax.net.ssl.trustStore=${resources}/test/ssl/localhost.truststore -Djavax.net.ssl.trustStorePassword=opensource com.acme.RunClient
+         </programlisting>
+      </sect2>
+   </sect1>
+</chapter>
+

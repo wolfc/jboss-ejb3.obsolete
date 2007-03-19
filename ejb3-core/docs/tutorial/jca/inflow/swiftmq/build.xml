@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+
+<!-- ==========================================================================
+A template build file for building jboss3 applications
+Requires ant1.4+
+
+Distributable under the LGL
+See the terms of license at gnu.org
+=========================================================================== -->
+<project name="testmdb" default="deploy" basedir=".">
+
+<property file="build.properties"/>
+<property file="$(user.home}/build.properties"/>
+
+<!-- ==========================================================================
+Classpath for compilation
+=========================================================================== -->
+<path id="classpath">
+
+   <pathelement location="build"/>
+
+   <pathelement location="lib" />
+
+   <fileset dir="${jboss.home}/lib">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/lib">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/deploy">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/deploy/ejb3.deployer">
+      <include name="*.jar"/>
+   </fileset>
+</path>
+
+<path id="client.classpath">
+
+   <pathelement location="build"/>
+
+   <pathelement location="lib"/>
+
+   <fileset dir="${jboss.home}/lib">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/lib">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/deploy">
+      <include name="*.jar"/>
+   </fileset>
+
+   <fileset dir="${jboss.home}/server/${jboss.config}/deploy/ejb3.deployer">
+      <include name="*.jar"/>
+   </fileset>
+</path>
+
+<!-- ==========================================================================
+Compile the source
+=========================================================================== -->
+<target name="compile">
+
+   <mkdir dir="build"/>
+
+   <javac destdir="build"
+          debug="on"
+          deprecation="on"
+          optimize="on"
+          classpathref="classpath">
+      <src path="src"/>
+   </javac>
+
+</target>
+
+<!-- ==========================================================================
+Do the packaging
+=========================================================================== -->
+<target name="dist" depends="compile">
+
+   <!--copy todir="build">
+      <fileset dir="resources"/>
+   </copy-->
+
+   <mkdir dir="dist"/>
+
+   <jar jarfile="dist/${ant.project.name}.jar" basedir="build"/>
+
+</target>
+
+<!-- ==========================================================================
+Deploy the package(s)
+=========================================================================== -->
+<target name="deploy" depends="dist">
+
+   <copy todir="${jboss.home}/server/${jboss.config}/deploy">
+      <fileset dir="dist"/>
+   </copy>
+
+</target>
+
+
+<!-- ==========================================================================
+Undeploy the package(s)
+=========================================================================== -->
+<target name="undeploy">
+
+   <delete file="${jboss.home}/server/${jboss.config}/deploy/${ant.project.name}.jar"/>
+
+</target>
+
+<!-- ==========================================================================
+Run the client  
+=========================================================================== -->
+<target name="run" >
+
+   <java classname="test.client.Client" fork="true">
+     <sysproperty key="javax.net.ssl.trustStore" path="${jboss.home}/server/${jboss.config}/conf/test.keystore"/>
+     <classpath refid="client.classpath"/>
+  </java>
+
+</target>
+
+<!-- ==========================================================================
+Cleans the build environment
+=========================================================================== -->
+<target name="clean" depends="undeploy">
+
+   <delete dir="dist"/>
+   <delete dir="build"/>
+   <delete dir="gensrc"/>
+
+</target>
+
+</project>

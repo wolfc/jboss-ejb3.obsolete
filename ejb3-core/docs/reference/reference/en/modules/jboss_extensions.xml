@@ -1,0 +1,349 @@
+<chapter id="jboss_extensions">
+
+   <title>JBoss EJB 3.0 extensions</title>
+   <para>
+      JBoss provides a few extensions to the EJB 3.0 spec. This chapter describes
+      those features here.
+   </para>
+   <sect1>
+      <title>@Service EJBs</title>
+      <para>
+         An extension offered by JBoss EJB 3.0 is the notion of a <literal>@org.jboss.annotation.ejb.Service</literal> annotated bean. They are 
+         singleton beans and are not pooled, so only one instance of the bean exists in the server. They can have both
+         <literal>@Remote</literal> and <literal>@Local</literal> interfaces so they can be accessed by java clients. When different clients look 
+         up the interfaces for <literal>@Service</literal> beans, all clients will work on the same instance of the bean on the server. When installing 
+         the bean it gets given a  JMX ObjectName in the MBean server it runs on. The default is 
+         <programlisting><![CDATA[jboss.j2ee:service=EJB3,name=<Fully qualified name of @Service bean>,type=service]]></programlisting>
+         You can override this default ObjectName by specifying the <literal>objectName</literal> attribute of the <literal>@Service</literal> annotation.
+      </para>
+      <sect2>
+         <title>@org.jboss.annotation.ejb.Management interface</title>
+         <para>
+            In addition to supporting <literal>@Local</literal> and <literal>@Remote</literal> interfaces, a <literal>@Service</literal> 
+            bean can also implement an interface annotated with <literal>@Management</literal> .
+            This interface will wrap the bean as an MBean and install it in the JBoss MBean Server. The operations and attributes defined in the 
+            <literal>@Management</literal>
+            interfaces become MBean operations and attributes for the installed MBean.. The underlying bean instance is the same as the one accessed via
+            the <literal>@Local</literal> or <literal>@Remote</literal> interfaces.
+         </para>
+      </sect2>
+      <sect2>
+         <title>Lifecycle Management and dependencies</title>
+         <para>
+            Just as for normal MBeans running in JBoss, <literal>@Service</literal> lifecycle management beans support lifecycle management. This 
+            involves
+         <itemizedlist>
+            <listitem>
+               Lifecycle Methods.
+            </listitem>
+            <listitem>
+               Dependencies.
+            </listitem>
+         </itemizedlist>
+         </para>
+            <sect3>
+               <title>Lifecycle Methods</title>
+               <para>
+                  Your <literal>@Management</literal> interface may contain methods with the following signatures
+                  <programlisting>
+   void create() throws Exception;
+   void start() throws Exception;
+   void stop();
+   void destroy();
+                     </programlisting>
+                     Each of these methods corresponds to when the MBean enters a particular state, so you can handle that. You do not need to include any of 
+                     these methods, and you can pick and choose which ones you want to use. A description of the MBean states these methods correspond to:
+                     <itemizedlist>
+                        <listitem>
+                           <literal>create()</literal> - called by the server when the service is created and all the services it depends upon have been created too. 
+                           At this point the service (and all the services it depends on) is installed in the JMX server, but is not yet fully functional.
+                        </listitem>
+                        <listitem>
+                           <literal>start()</literal> - called by the server when the service is started and all the services it depends upon have been started too. 
+                           At this point the service (and all the services it depends on) is fully functional..
+                        </listitem>
+                        <listitem>
+                           <literal>stop()</literal> - called by the server when the service is stopped. At this point the service (and all the services that depend on it) 
+                           is no longer fully operational.
+                        </listitem>
+                        <listitem>
+                           <literal>destroy()</literal> - called by the server when the service is destroyed and removed from the MBean server. 
+                           At this point the service (and all the services that depend on it) are destroyed.
+                        </listitem>
+                     </itemizedlist>
+               </para>
+            </sect3>
+            <sect3>
+               <title>Dependencies</title>
+               <para>
+               We mentioned dependencies between MBeans in the previous section. You can specify what MBeans you depend on by using the 
+               <literal>org.jboss.annotation.ejb.Depends</literal> annotation. This will also work for "proper" EJBs, i.e. ones annotated with 
+               <literal>@Stateful</literal>, <literal>@Stateless</literal> and <literal>@MessageDriven</literal>.
+               The Depends annotation-type takes an array of the String representation of the JMX ObjectNames of the service we depend on.
+               <programlisting><![CDATA[
+               @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD}) 
+               @Retention(RetentionPolicy.RUNTIME)
+               public @interface Depends
+               {
+                  String[] value();
+               }]]>
+               </programlisting>               
+               It can either be used on class level, in which case it simply means "I depend on these services". It can also be used on fields or
+               setters in the bean class that take a type of a <literal>@Management</literal> annotated interface. In addition to the meaning of 
+               annotating at class level it will inject the <literal>@Management</literal> interface of the service we depend on.
+               </para>
+            </sect3>
+      </sect2>
+      <sect2>
+         <title>Example</title>
+      </sect2>
+         <para>
+            First we define a <literal>@Management</literal> interface
+              <programlisting>
+package org.jboss.tutorial.service.bean;
+
+import org.jboss.annotation.ejb.Management;
+
+@Management
+public interface ServiceOneManagement
+{
+   void setAttribute(int attribute);
+   int getAttribute();
+   String sayHello();
+
+   void create() throws Exception;
+   void start() throws Exception;
+   void stop();
+   void destroy();
+}          
+           </programlisting>
+            We also have a Remote interface
+           <programlisting>
+package org.jboss.tutorial.service.bean;
+
+public interface ServiceOneRemote
+{
+   public void setAttribute(int attribute);
+   public int getAttribute();
+}           
+           </programlisting>
+           And fnally we have a @Service annotated bean implementing our interfaces
+           <programlisting>
+package org.jboss.tutorial.service.bean;
+
+import org.test.OtherServiceManagement;
+
+import javax.ejb.Remote;
+import org.jboss.annotation.ejb.Service;
+import org.jboss.annotation.ejb.Depends;
+
+
+@Service (objectName = "jboss:custom=Name")
+@Remote(ServiceOneRemote.class)
+@Depends ({"jboss:service=someService"})
+public class ServiceOne implements ServiceOneRemote, ServiceOneManagement
+{
+   int attribute;
+   
+   @Depends({"jboss.j2ee:service=EJB3,name=org.test.OtherService,type=service"})
+   OtherServiceManagement other;
+
+   public void setAttribute(int attribute)
+   {
+      this.attribute = attribute;
+   }
+
+   public int getAttribute()
+   {
+      return this.attribute;
+   }
+
+   public String sayHello()
+   {
+      return "Hello from service One";
+   }
+
+   // Lifecycle methods
+   public void create() throws Exception
+   {
+      System.out.println("ServiceOne - Creating");
+   }
+
+   public void start() throws Exception
+   {
+      System.out.println("ServiceOne - Starting");
+   }
+
+   public void stop()
+   {
+      System.out.println("ServiceOne - Stopping");
+   }
+
+   public void destroy()
+   {
+      System.out.println("ServiceOne - Destroying");
+   }
+}
+           </programlisting>
+           This bean is accessible from remote clients via the <literal>ServiceOneRemote</literal> interface. The 
+           <literal>ServiceOneManagement</literal> interface defines the operations to be made available via JMX. It specfies 
+           all the lifecycle methods so we will get notified when this bean is created, started, stopped and destroyed. Our bean uses a 
+           custom object name, so it will be installed in the MBean server under the name <literal>jboss:custom=Name</literal>. At bean level
+           we have specified that it depends on a service with the name <literal>jboss:service=someService</literal>, so that service must be 
+           started before our bean can start. Also, we have specified that we depend on another JMX service called 
+           <literal>jboss.j2ee:service=EJB3,name=org.test.OtherService,type=service</literal> and that we want to inject an MBean Proxy 
+           implementing the <literal>org.test.OtherServiceManagement</literal> interface into the <literal>other</literal> field.
+           For a more complete example, take a look at the tutorial.
+         </para> 
+   </sect1>
+   <sect1>
+      <title>Message Driven POJOs</title>
+      <para>
+         Doco not complete yet.  See tutorial for more information.
+      </para>
+   </sect1>
+   <sect1>
+      <title>Asynchronous invocations</title>
+      <para>
+         In JBoss EJB 3.0, you can convert a reference to a local or remote session bean into a reference
+         that will invoke asynchronously on the EJB.  This is called obtaining an asychronous proxy or interface.
+         asynchronous interface. Methods called on the asynchronous proxy will be 
+         executed asynchronously, and the results can be obtained later on.  You obtain an asynchronous proxy
+         by invoking on the
+         <literal>org.jboss.ejb3.asynchronous.Asynch.getAsynchronousProxy</literal> static method.  You pass
+      </para>
+      <programlisting><![CDATA[
+         package org.jboss.ejb3.asycnhronous;
+         
+         public class Asynch
+         {
+             public static <T> T getAsynchronousProxy(T ejbRef) {...}
+
+             public static Future getFutureResult(Object asynchProxy)
+         }
+         ]]>
+      </programlisting>
+      <para>
+         The asynchronous proxy created will implement the same
+         local/remote interfaces as the original proxy. When you invoke on a method
+         of the asynch proxy, the method will be invoked in the background.  If the method
+         has a return value, the value returned by the method will be null or zero depending on the return type.
+         This will not be the true return value of the asynch method so you can just throw this away.
+         To obtain the real result you must obtain  <literal>org.jboss.aspects.asynch.Future</literal> object.
+         This Future object works much the same way a <literal>java.util.concurrent.Future</literal> object does.
+      </para>
+      <para>
+         Let us look at an example. We have the following session bean.
+      </para>
+      <programlisting>
+         package org.acme.test;
+
+         @javax.ejb.Remote
+         public interface Test
+         {
+            int perfomHeavyOperation(int i);
+            String echo(String s);
+         }
+      </programlisting>
+      <programlisting>
+         package org.acme.test;
+         
+         @javax.ejb.Stateless
+         public class TestBean implements Test
+         {
+            public int perfomHeavyOperation(int i)
+            {
+               try
+               {
+                  //Simulate time-consuming operation
+                  Thread.sleep(10000);
+                  return i;
+               }
+               catch(Exception e)
+               {
+                  throw new RuntimeException(e);
+               }
+            }
+            
+            public String echo(String s)
+            {
+               return s;
+            }
+         }
+      </programlisting>
+      <para>
+         As you can see there is nothing special about the session bean, now let's
+         look at the client code. First we look up the remote interface:
+         
+         <programlisting>
+         InitialContext ctx = new InitialContext();
+         Test test = (Echo)ctx.lookup(org.acme.test.Test.getName());
+         </programlisting>
+         
+         We now have a reference to the bean's normal interface. Calls done on this
+         interface will execute synchronously. The following call to 
+         <literal>perfomHeavyOperation()</literal> will block the client thread for
+         10 seconds.
+         
+         <programlisting>
+         int i = test.performHeavyOperation(1);
+         //i will be 1
+         </programlisting>
+         
+         Now to demonstrate the asynchronous functionality, we the asynchronous proxy.
+         
+         <programlisting>
+         Test asynchTest = org.jboss.ejb3.asynchronous.Asynch.getAsynchronousProxy(test);
+         </programlisting>
+         
+         Calls made on the asynchronous interface will return 0 in the case of a simple
+         return type or null in the case of an Object return type. We will see how to
+         obtain the return value further down.
+         
+         <programlisting>
+            int j = asynchTest.performHeavyOperation(123);
+         //j will be 0
+         </programlisting>
+         
+         The call to <literal>perfomHeavyOperation()</literal> returns immediately, and 
+         our client thread is now free to do other stuff while the business method 
+         executes.
+          
+         <programlisting>
+         //You can do other stuff in client's thread
+         </programlisting>
+         
+         Now that we have finished doing things in our thread while the business method
+         has been executing on the server, we obtain the
+         <literal>Future</literal> which will hold the result of our asynchronous 
+         invocation.
+         
+         <programlisting>
+         Future future = org.jboss.ejb3.asynchronous.Asynch.getFutureResult(asynchTest);
+         </programlisting>
+
+         It is important to note that you must call getFutureResult() to obtain the future for the last method call.
+         If you call another method on the asynch proxy, then you will lose the previous Future.
+
+         The asynchronous invocation might not have finished yet (in case the extra 
+         things we did in the client code took &lt; 10 seconds), so we check for this
+         here:
+
+         <programlisting>
+         while (!future.isDone())
+         {
+            Thread.sleep(100);
+         }
+         </programlisting>
+         
+         Now that the asynchronous invocation is done, we can obtain its return value
+         from the <literal>Future</literal> object.
+         <programlisting>
+         int ret = (String)future.get();
+         //ret will be 123
+         </programlisting>
+               
+      </para>      
+   </sect1>
+</chapter>
+

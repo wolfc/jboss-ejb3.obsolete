@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Team</title>
+  </properties>
+
+<body>
+
+<section name="The Team">
+
+	<table border="0" cellspacing="1" width="100%">
+		<tr>
+			<th>Name</th>
+			<th>Role</th>
+		</tr>
+		<tr>
+			<td><a href="mailto:tchbansi@users.sourceforge.net">Herve Tchepannou</a></td>
+			<td>Project Leader</td>
+		</tr>
+		<tr>
+			<td><a href="mailto:mcsweenb@users.sourceforge.net">Brian McSweeney</a></td>
+			<td>Developer</td>
+		</tr>
+		<tr>
+			<td><a href="mailto:jcooley@users.sourceforge.net">James Cooley</a></td>
+			<td>Developer</td>
+		</tr>
+	</table>
+
+</section>
+
+</body>
+</document>

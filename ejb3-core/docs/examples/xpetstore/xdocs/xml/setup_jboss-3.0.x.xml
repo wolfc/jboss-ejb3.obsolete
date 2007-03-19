@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>Configuring JBoss-3.x</title>
+  </properties>
+
+<body>
+
+<section name="Configuring JBoss-3.x">
+
+	<p>
+		<ol>
+			<li>
+				<b><u> Set <code>JBOSS_HOME</code> </u></b>
+				<br/>
+				Make sure that the variable <code>JBOSS_HOME</code> is set to the JBoss home directory
+			</li>
+			
+			<li>  
+				<b><u>Create the JBoss xpetstore server</u></b>
+				<br/>
+	 			Copy recursively <code>JBOSS_HOME/server/default</code> to <code>JBOSS_HOME/server/xpetstore</code>
+			</li>
+			
+			<li>  
+				<b><u> Configure JMS </u></b>
+				<br/>
+  				Edit <code>JBOSS_HOME/server/xpetstore/deploy/destinations-service.xml</code>
+  				to create JMS queues <code>queue/order</code> and <code>queue/mail</code>.
+  				<br/>
+				<code>JBOSS_HOME/server/xpetstore/deploy/destinations-service.xml</code> should look like this:
+<pre class="example">
+&lt;server>
+...
+  &lt;mbean code="org.jboss.mq.server.jmx.Queue"
+	 name="jboss.mq.destination:service=Queue,name=order">
+    &lt;attribute name="JNDIName"><b>queue/order</b>&lt;/attribute>
+    &lt;depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager&lt;/depends>
+  &lt;/mbean>
+  
+  &lt;mbean code="org.jboss.mq.server.jmx.Queue"
+	 name="jboss.mq.destination:service=Queue,name=mail">
+    &lt;attribute name="JNDIName"><b>queue/mail</b>&lt;/attribute>
+    &lt;depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager&lt;/depends>
+  &lt;/mbean>
+...
+&lt;/server>
+</pre>				
+			</li>
+			
+			<li>
+				<b><u> Configure JDBC </u></b>
+				<br/>
+				- Copy the JDBC driver to <code>JBOSS_HOME/server/xpetstore/lib</code>
+				<br/>
+				- Edit <code>JBOSS_HOME/server/xpetstore/deploy/<i>db.name</i>-service.xml</code> to
+				create the datasource <code>java:/xpetstoreDS</code>
+				<br/>
+				<code>JBOSS_HOME/server/xpetstore/deploy/<i>db.name</i>-service.xml</code> should look like this:
+<pre class="example">
+&lt;server>
+  &lt;mbean 
+    code="org.jboss.resource.connectionmanager.LocalTxConnectionManager" 
+    name="jboss.jca:service=LocalTxCM,name=SapdbDS">
+
+    &lt;depends optional-attribute-name="ManagedConnectionFactoryName">
+      &lt;!--embedded mbean-->
+      &lt;mbean 
+        code="org.jboss.resource.connectionmanager.RARDeployment" 
+        name="jboss.jca:service=LocalTxDS,name=SapdbDS"
+      >
+        &lt;attribute name="JndiName"><b>xpetstoreDS</b>&lt;/attribute>
+
+        &lt;attribute name="ManagedConnectionFactoryProperties">
+          &lt;properties>
+            &lt;config-property name="ConnectionURL" type="java.lang.String"><i>your-database-url</i>&lt;/config-property>
+            &lt;config-property name="DriverClass" type="java.lang.String"><i>your-jdbc-driver</i>&lt;/config-property>
+            &lt;!--set these only if you want only default logins, not through JAAS -->
+            &lt;config-property name="UserName" type="java.lang.String"><i>your-username</i>&lt;/config-property>
+            &lt;config-property name="Password" type="java.lang.String"><i>your-password</i>&lt;/config-property>
+          &lt;/properties>
+        &lt;/attribute>
+    ....
+  &lt;/mbean>
+&lt;/server>
+</pre>				
+			</li>
+
+			<li>
+				<b><u> Configure JavaMail</u></b>
+				<br/>
+				Create the MailSesion <code>java/:Mail</code>.
+				<br/>
+				Make sure that <code>JBOSS_HOME/server/xpetstore/deploy/mail-service.xml</code> look like this:
+<pre class="example">
+&lt;server>
+  &lt;classpath codebase="lib" 
+             archives="mail.jar, activation.jar, mail-plugin.jar"/>
+
+  &lt;mbean code="org.jboss.mail.MailService"
+         name="jboss:service=Mail">
+    &lt;attribute name="JNDIName"><b>Mail</b>&lt;/attribute>
+    &lt;attribute name="User"><i>your-user-name</i>&lt;/attribute>
+    &lt;attribute name="Password"><i>your-password</i>&lt;/attribute>
+    &lt;attribute name="Configuration">
+       &lt;configuration>
+          &lt;property name="mail.store.protocol" value="pop3"/>
+          &lt;property name="mail.transport.protocol" value="smtp"/>
+          &lt;property name="mail.user" value="<i>your-username</i>"/>
+          &lt;property name="mail.pop3.host" value="<i>your-pop3-host</i>"/>
+          &lt;property name="mail.smtp.host" value="<i>your-smtp-host</i>"/>
+          &lt;property name="mail.from" value="noreply@xpetstore.sourceforge.net"/>
+          &lt;property name="mail.debug" value="false"/>
+       &lt;/configuration>
+    &lt;/attribute>
+  &lt;/mbean>
+&lt;/server>
+</pre>
+			</li>
+		</ol>
+				
+	</p>
+	
+</section>
+
+</body>
+
+</document>

@@ -1,0 +1,46 @@
+<html>
+<head>
+	<title>$texts.getString( "item.title" )</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<table class="grid">
+	<tr>
+		<td rowspan="6" width="100" align="center" valign="middle">
+			<img border="0" src="dataimages/$item.imagePath">
+		</td>
+	</tr>
+	
+	<tr>
+		<td class="griddata">
+			<b>$item.itemId</b>
+		</td>
+	</tr>
+	<tr>
+		<td class="griddata">
+			<b>$item.description</b>
+		</td>
+	</tr>
+	<tr>
+		<td class="griddata">
+			<i>$item.product.description</i>
+		</td>
+	</tr>
+	<tr>
+		<td class="griddata">
+			$item.listPrice
+		</td>
+	</tr>
+	<tr>
+		<td class="griddata" align="center" valign="center">
+			<a href="addItem.action?itemId=$item.itemId">
+				<img border="0" src="images/button_add_to_cart.gif"/>
+			</a>
+		</td>
+	</tr>
+
+</table>
+
+</body>
+</html>

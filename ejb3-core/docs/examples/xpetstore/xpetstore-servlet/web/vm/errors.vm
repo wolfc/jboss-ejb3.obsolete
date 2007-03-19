@@ -1,0 +1,11 @@
+#if ( $errors.size() > 0 )
+
+	#foreach ( $error in $errors.values() )
+	
+		<span class="error">$error</span><br>
+	
+	#end
+	
+	<p>
+	
+#end

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3CR3//EN"
+                      "../../../../../docbook-support/support/docbook-dtd/docbookx.dtd"
+[
+<!ENTITY entity_configuration   		SYSTEM "modules/entity_configuration.xml">
+<!ENTITY hibernate              		SYSTEM "modules/hibernate.xml">
+<!ENTITY jboss_extensions       		SYSTEM "modules/jboss_extensions.xml">
+<!ENTITY jboss_deployment_descriptor      SYSTEM "modules/jboss_deployment_descriptor.xml">
+<!ENTITY partial_deployment_descriptors   SYSTEM "modules/partial_deployment_descriptors.xml">
+<!ENTITY jca_inflow                       SYSTEM "modules/jca_inflow.xml">
+<!ENTITY ejbref                       SYSTEM "modules/ejbref.xml">
+<!ENTITY resource                       SYSTEM "modules/resource.xml">
+        <!ENTITY transport                        SYSTEM "modules/transport.xml">
+        <!ENTITY session                        SYSTEM "modules/session.xml">
+]>
+
+<book lang="en">
+
+   <bookinfo>
+      <title>JBoss EJB 3.0</title>
+      <subtitle>JBoss EJB 3.0 Reference Documentation</subtitle>
+      <releaseinfo>RC6 - PFD</releaseinfo>
+   </bookinfo>
+
+   <toc/>
+
+   <preface id="preface" revision="1">
+      <title>Preface</title>
+
+      <para>
+        This isn't the only reference to learn EJB 3.0  Look in the JBoss EJB 3.0 tutorial
+         for loads of example programs and detailed text describing each example.
+      </para>
+
+      <para>
+         In some of the example listings, what is meant to be displayed on one line does not fit
+         inside the available page width. These lines have been broken up. A '\' at the end of a
+         line means that a break has been introduced to fit in the page, with the following lines
+         indented. So:
+         <programlisting>
+   Let's pretend to have an extremely \
+      long line that \
+      does not fit
+   This one is short
+         </programlisting>
+         Is really:
+         <programlisting>
+   Let's pretend to have an extremely long line that does not fit
+   This one is short
+         </programlisting>
+      </para>
+   </preface>
+
+   &session;
+
+   &ejbref;
+
+   &resource;
+
+   &entity_configuration;
+
+   &hibernate;
+
+   &jboss_extensions;
+
+   &jboss_deployment_descriptor;
+
+   &partial_deployment_descriptors;
+
+   &jca_inflow;
+
+   &transport;
+</book>
+

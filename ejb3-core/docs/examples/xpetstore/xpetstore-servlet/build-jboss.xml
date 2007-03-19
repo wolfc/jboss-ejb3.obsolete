@@ -1,0 +1,90 @@
+<project name="xpetstore-servlet-jboss" default="xdoclet" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<property file="${conf.dir}/as/jboss.properties" />		
+       	
+   		<!-- Paths -->
+        <path id="xdoclet.class.path">
+    		<fileset dir="${lib.xdoclet.dir}"	includes="**/*.jar" />
+    		<fileset dir="${lib.log4j.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+        </path>
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet" depends="init">
+		<antcall target="xdoclet.web" />
+	</target>
+	
+	<target name="xdoclet.web" depends="init">
+      	<taskdef 
+       		name="webdoclet" 
+       		classname="xdoclet.modules.web.WebDocletTask"
+       		classpathref="xdoclet.class.path"
+       	/>	
+       	
+      	<webdoclet 
+       		destdir="${build.dir}/WEB-INF" 
+       		mergedir="${xdoclet.merge.dir}/web"
+       	>
+       		<fileset dir="${web.dir}" includes="**/*Servlet.java" />
+       		<fileset dir="${web.dir}" includes="**/*Filter.java" />
+       		
+       		<jbosswebxml />
+       	</webdoclet>
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy" depends="init">
+        <copy todir="${jboss.deploy.dir}">
+            <fileset dir="${dist.dir}" includes="${ear.name}" />
+        </copy>
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy" depends="init">
+        <delete>
+            <fileset dir="${jboss.deploy.dir}" includes="${ear.name}" />
+        </delete>
+	</target>
+	
+</project>

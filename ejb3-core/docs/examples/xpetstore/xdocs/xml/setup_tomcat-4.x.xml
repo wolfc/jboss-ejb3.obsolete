@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>Configuring Tomcat-4.x</title>
+  </properties>
+
+<body>
+
+<section name="Configuring Tomcat-4.x">
+
+	<p>
+		<b>IMPORTANT: This is for xpetstore-servlet ONLY</b>
+		<ol>
+			<li>
+				<b><u> Set <code>TOMCAT_HOME</code> </u></b>
+				<br/>
+				Make sure that the variable <code>TOMCAT_HOME</code> is set to the Tomcat home directory
+			</li>
+			
+			<li>  
+				<b><u> Configure Tomcat</u></b>
+				- Copy the JDBC driver to <code>TOMCAT_HOME/common/lib</code>
+				<br/>
+				- Edit <code>TOMCAT_HOME/conf/server.xml</code> and make sure that it looks like this:
+<pre class="example">
+
+&lt;Server port="8005" shutdown="SHUTDOWN" debug="0">
+  ...
+  &lt;Service name="Tomcat-Standalone">
+    ...
+    &lt;Engine name="Standalone" defaultHost="localhost" debug="0">
+
+      &lt;Logger className="org.apache.catalina.logger.FileLogger"
+              prefix="catalina_log." suffix=".txt"
+              timestamp="true"/>
+
+      &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm" debug="0" resourceName="UserDatabase"/>
+
+      &lt;Host name="localhost" debug="0" appBase="webapps" unpackWARs="true" autoDeploy="true" liveDeploy="true">
+        ...
+        &lt;!-- xPetstore -->
+        &lt;Context path="/xpetstore-servlet" docBase="xpetstore-servlet" 
+              debug="0"   reloadable="true" crossContext="true">
+          &lt;!-- xPetsore Logger -->
+          &lt;Logger className="org.apache.catalina.logger.FileLogger" 
+             directory="logs"  
+             prefix="xpetstore-servlet_log." 
+             suffix=".txt" 
+             timestamp="true"
+          />
+
+          &lt;!-- xPetstore datasource -->
+          &lt;Resource name="jdbc/xpetstoreDS" auth="Container" type="javax.sql.DataSource"/>		 
+          &lt;ResourceParams name="jdbc/xpetstoreDS">
+            &lt;parameter> 
+              &lt;name>factory&lt;/name>
+              &lt;value>org.apache.commons.dbcp.BasicDataSourceFactory&lt;/value>
+            &lt;/parameter>            
+            &lt;parameter>
+              &lt;name>username&lt;/name>
+              &lt;value><i>your-db-user</i>&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>password&lt;/name>
+              &lt;value><i>your-db-password</i>&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>driverClassName&lt;/name>
+              &lt;value><i>your-db-driver</i>&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>url&lt;/name>
+              &lt;value><i>your-db-url</i>&lt;/value>
+            &lt;/parameter>
+          &lt;/ResourceParams>
+
+          &lt;!-- xPetstore mail session -->
+          &lt;Resource name="mail/xpetstore/MailSession" 
+              auth="Container" type="javax.mail.Session"/>
+          &lt;ResourceParams name="mail/xpetstore/MailSession">
+            &lt;parameter>
+              &lt;name>mail.smtp.host&lt;/name>
+              &lt;value><i>your-mail-host</i>&lt;/value>
+            &lt;/parameter>
+          &lt;/ResourceParams>
+        &lt;/Context>
+        ...
+      &lt;/Host>
+  &lt;/Engine>
+  &lt;/Service>
+&lt;/Server>
+</pre>
+			</li>
+		</ol>	
+	</p>
+	
+</section>
+
+</body>
+
+</document>

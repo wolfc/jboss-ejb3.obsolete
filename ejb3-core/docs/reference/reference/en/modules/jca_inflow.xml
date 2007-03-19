@@ -1,0 +1,77 @@
+<chapter id="jca_inflow">
+   <title>JBoss EJB 3.0 MDB JCA Inflow</title>
+   <para>
+      This chapter provides two examples on JCA 1.5 resources that allow JMS delivery of messages to EJB 3.0 Message Driven Beans. The first example
+      uses SwiftMQ as the JCA XA resource. The second example illustrates the usage of non-standard (i.e. not javax.jms.MessageListener) messaging 
+      types.
+   </para>
+   <sect1>
+      <title>SwiftMQ JCA XA Resource</title>
+      <para>
+         SwiftMQ provide a JCA 1.5 resource that allows JMS message delivery to an MDB. The EJB 3.0 distribution provides a tutorial on building and
+         deploying this example.  The @org.jboss.annotation.ejb.ResourceAdapter annotation is used to designate the resource adapter you will be using.
+         It takes an attribute that is the base name of the RAR deployment file name.
+      </para>
+      <para>Here is the source listing for the MDB:
+         <programlisting>
+@MessageDriven(name="test/mdb", activationConfig =
+{
+@ActivationConfigProperty(propertyName="messagingType", propertyValue="javax.jms.MessageListener"),
+@ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
+@ActivationConfigProperty(propertyName="Destination", propertyValue="testqueue"),
+@ActivationConfigProperty(propertyName="ConnectionFactoryName", propertyValue="ConnectionFactory"),
+@ActivationConfigProperty(propertyName="Transacted", propertyValue="true"),
+@ActivationConfigProperty(propertyName="Xa", propertyValue="true"),
+@ActivationConfigProperty(propertyName="DeliveryOption", propertyValue="B"),
+@ActivationConfigProperty(propertyName="SubscriptionDurability", propertyValue="Durable"),
+@ActivationConfigProperty(propertyName="MaxPoolSize", propertyValue="20"),
+@ActivationConfigProperty(propertyName="MaxMessages", propertyValue="1"),
+})
+@ResourceAdapter("switfmq.rar")
+public class AnnotatedTestMDBBean
+   implements MessageListener
+{
+   public void onMessage(Message message)
+   {
+      System.out.println(message);
+   }
+}
+         </programlisting>
+      </para>
+   </sect1>
+   <sect1> 
+      <title>Non-Standard Messaging Types</title>
+      <para>
+         JBoss offers the capability use non-standard messaging types for Message Driven Beans. Standard MDBs implement the javax.jms.MessageListener
+         interface. MDBs can alternatively implement a custom messaging interface. The EJB 3.0 distribution test suite provides a complete example
+         for the usage of this bean.
+      </para>
+      <para>
+         Here is the source listing for a non-standard messaging type:
+         <programlisting>
+@MessageDriven(name = "TestMDB", activationConfig =
+{
+@ActivationConfigProperty(propertyName="messagingType", propertyValue="org.jboss.ejb3.test.jca.inflow.TestMessageListener"),      
+@ActivationConfigProperty(propertyName="name", propertyValue="testInflow"),
+@ActivationConfigProperty(propertyName="anInt", propertyValue="5"),
+@ActivationConfigProperty(propertyName="anInteger", propertyValue="55"),
+@ActivationConfigProperty(propertyName="localhost", propertyValue="127.0.0.1"),
+@ActivationConfigProperty(propertyName="props", propertyValue="key1=value1,key2=value2,key3=value3")
+})
+@ResourceAdapter("jcainflow.rar")
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
+public class TestMDBMessageListener implements TestMessageListener
+{
+   private static final Logger log = Logger.getLogger(TestMDBMessageListener.class);
+    
+   public void deliverMessage(TestMessage message)
+   {
+      message.acknowledge();
+      log.info(message.toString());
+   }
+}     
+         </programlisting>
+      </para>
+   </sect1>
+</chapter>
+

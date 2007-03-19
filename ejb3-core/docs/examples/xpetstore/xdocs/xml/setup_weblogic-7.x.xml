@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>Configuring WebLogic-7.x</title>
+  </properties>
+
+<body>
+
+<section name="Configuring WebLogic-7.x">
+
+	<p>
+		<ol>
+			<li>
+				<b><u> Set <code>WL_HOME</code> </u></b>
+				<ul>
+					<li> Make sure that the variable <code>WL_HOME</code> is set to the WenLogic home directory </li>
+				</ul>
+			</li>
+			
+			<li>  
+				<b><u>Create the WebLogic xpetstore domain</u></b>
+				<ul>
+					<li>
+			 			Create the xpetstore domain at <code>WL_HOME/../user_projects/xpetstore</code>
+			 		</li>
+			 	</ul>
+			</li>
+			
+			<li>  
+				<b><u> Configure JMS </u></b>
+				<ul>
+					<li> Create the following JMS ConnectionFactory: JNDI name = <code>jms/ConnectionFactory</code> </li>
+      				<li>
+      					Create the following JMS queues: 
+      					<ul>
+      						<li> JNDI name = <code>jms/queue/order</code> </li> 
+      						<li> JNDI name = <code>jms/queue/mail</code> </li>
+      					</ul>
+      				</li>
+				</ul>
+				The <code>config.xml</code> should contain the following lines:
+<pre class="example">
+&lt;JMSConnectionFactory 
+	JNDIName="<b>jms/ConnectionFactory</b>" 
+	Name="xpetstoreConnectionFactory" 
+	Targets="myserver"
+/>
+&lt;JMSFileStore 
+	Directory="/opt/bea/user_projects/xpetstore/persistence/jms/" 
+	Name="JMSFileStore"
+/>
+&lt;JMSServer Name="JMSServer" Store="JMSFileStore" Targets="myserver">
+    &lt;JMSQueue 
+        JNDIName="<b>jms/queue/mail</b>" 
+        Name="xpetstoreMail" 
+        RedeliveryLimit="10" 
+        StoreEnabled="true"
+    />
+    &lt;JMSQueue 
+        JNDIName="<b>jms/queue/order</b>" 
+        Name="xpetstoreOrder" 
+        RedeliveryLimit="10" 
+        StoreEnabled="false"
+    />
+&lt;/JMSServer>
+</pre>
+			</li>
+			
+			<li>
+				<b><u> Configure JDBC </u></b>
+				<ul>
+					<li>
+						 Create the datasource: JNDI name = <code>jdbc/xpetstore</code>
+					</li>
+				</ul>
+				The <code>config.xml</code> should contain the following lines:
+<pre class="example">
+&lt;JDBCConnectionPool 
+    DriverName="<i>com.sap.dbtech.jdbc.DriverSapDB</i>" 
+    Name="xpetstoreConnectionPool" 
+    Password="<i>{3DES}ZuRhxjydkEw=</i>" 
+    Properties="<i>user=test</i>" 
+    Targets="myserver" 
+    URL="<i>jdbc:sapdb://localhost/XPSTORE</i>"
+/>
+&lt;JDBCTxDataSource 
+    JNDIName="<b>jdbc/xpetstore</b>" 
+    Name="xpetstoreTXDataSource" 
+    PoolName="xpetstoreConnectionPool" 
+    Targets="myserver"
+/>
+</pre>
+			</li>
+			
+			<li>
+				<b><u> Configure JavaMail</u></b>
+				<ul>
+					<li>
+						 Create the MailSesion: JNDI name = <code>mail/MailSession</code>
+					</li>
+				</ul>
+				The <code>config.xml</code> should contain the following lines:
+<pre class="example">
+&lt;MailSession 
+    JNDIName="<b>mail/MailSession</b>" 
+    Name="xpetstoreMailSession" 
+    Properties="mail.from=noreply@xpetstore.sourceforge.net;\
+        mail.transport.protocol=smtp;mail.smtp.host=<i>your.smtp.host</i>;\
+        mail.store.protocol=pop3;mail.pop3.host=<i>your.pop.host</i>;mail.user=<i>your_user_name</i>" 
+    Targets="myserver"
+/>
+</pre>
+			</li>
+		</ol>
+				
+	</p>
+	
+</section>
+
+</body>
+
+</document>

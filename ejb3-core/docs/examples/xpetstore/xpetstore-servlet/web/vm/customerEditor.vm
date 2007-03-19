@@ -1,0 +1,88 @@
+<!-- Personal information -->
+<tr>
+	<td colspan="2" class="sectionheader">$texts.getString( "personal_information" )</td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "firstname" ):</td>
+	<td><input type="text" name="customer/firstname" value="$customer.firstname"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "lastname" ):</td>
+	<td><input type="text" name="customer/lastname" value="$customer.lastname"/></td>
+</tr>
+<tr>
+	<td class="label"><span class="required">*</span>$texts.getString( "email" ):</td>
+	<td><input type="text" name="customer/email" value="$customer.email"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "telephone" ):</td>
+	<td><input type="text" name="customer/telephone" value="$customer.telephone"/></td>
+</tr>
+
+<!-- Address -->
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td colspan="2" class="sectionheader">$texts.getString( "address" )</td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "street1" ):</td>
+	<td><input type="text" name="customer/address/street1" value="$customer.address.street1"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "street2" ):</td>
+	<td><input type="text" name="customer/address/street2" value="$customer.address.street2"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "city" ):</td>
+	<td><input type="text" name="customer/address/city" value="$customer.address.city"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "state" ):</td>
+	<td><input type="text" name="customer/address/state" value="$customer.address.state" maxlength="3"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "zipcode" ):</td>
+	<td><input type="text" name="customer/address/zipcode" value="$customer.address.zipcode" maxlength="10"/></td>
+</tr>
+<tr>
+	<td class="label">$texts.getString( "country" ):</td>
+	<td><input type="text" name="customer/address/country" value="$customer.address.country" maxlength="3"/></td>
+</tr>
+
+<!-- Credit card -->
+<tr><td colspan="2">&nbsp;</td></tr>
+<tr>
+	<td colspan="2"  class="sectionheader">$texts.getString( "ccInfos" )</td>
+</tr>
+<tr>
+	<td class="label"><span class="required">*</span>$texts.getString( "ccType" ):</td>
+	<td>
+		<select name="customer/creditCard/type">
+			<option name=""></option>
+			
+			#set ( $cc = [ "Visa", "MasterCard", "American Express" ] )
+			#foreach( $type in $cc )
+			
+				#if ( $type == $customer.creditCard.type )
+				
+					<option name="$type" selected>$type</option>
+					
+				#else
+				
+					<option name="$type">$type</option>
+					
+				#end
+				
+			#end
+			
+		</select>
+	</td>
+</tr>
+<tr>
+	<td class="label"><span class="required">*</span>$texts.getString( "ccNumber" ):</td>
+	<td><input type="text" name="customer/creditCard/number" value="$customer.creditCard.number"></td>
+</tr>
+<tr>
+	<td class="label"><span class="required">*</span>$texts.getString( "ccExpiryDate" ) (<small>MM-YY</small>):</td>
+	<td><input type="text" name="customer/creditCard/expiryDate" value="$customer.creditCard.expiryDate" maxlength="5"></td>
+</tr>

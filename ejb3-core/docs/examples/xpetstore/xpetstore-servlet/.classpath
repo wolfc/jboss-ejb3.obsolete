@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="java"/>
+    <classpathentry kind="src" path="resources"/>
+    <classpathentry kind="src" path="web"/>
+    <classpathentry kind="src" path="build/java"/>
+    <classpathentry kind="src" path="sql"/>
+    <classpathentry excluding="java/|resources/|web/|build/java/|sql/"
+        kind="src" path=""/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/cirrus.hibernate/c3p0.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.commons/commons-collections.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/cirrus.hibernate/cglib.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/cirrus.hibernate/hibernate.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/cirrus.hibernate/jcs.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/cirrus.hibernate/odmg.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/servlet.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.commons/commons-lang.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.commons/commons-logging.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/com.opensymphony.module.webwork/webwork.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.log4j/log4j.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/mail.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/activation.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.jdom/jdom.jar"/>
+    <classpathentry kind="output" path="build/classes"/>
+</classpath>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application>
+   <display-name>Clustered entity with scoped classloader test ear</display-name>
+   <module>
+      <ejb>clusteredentity-classloader-test.jar</ejb>
+   </module>
+</application>

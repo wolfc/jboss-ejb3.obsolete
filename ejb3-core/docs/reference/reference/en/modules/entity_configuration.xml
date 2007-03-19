@@ -1,0 +1,371 @@
+<chapter id="entityconfig">
+
+   <title>Entity Configuration Files</title>
+
+   <sect1 id="xml-overview" revision="1">
+      <title>Intro</title>
+      <para>
+         This section talks about various configuration parameters for getting entities to work within JBoss.
+         JBoss EJB 3.0 is built on top of the Hibernate ORM solution, and more specifically, the Hibernate Entity Manager
+         whose documentation comes with your JBoss EJB 3.0 distribution.  JBoss EJB 3.0 also requires JBoss JDBC connection pools.
+         You'll learn you to configure both and how they relate to eachother.
+      </para>
+   </sect1>
+   <sect1 id="props" revision="1">
+      <title>Configuration Files</title>
+      <para>
+         To use Entity beans within JBoss EJB 3.0 you'll need to do a few things.
+         <itemizedlist>
+            <listitem>
+               Configure a JBoss datasource using *-ds.xml file.  Check out our documentation
+               or you can view example configurations for many different datasources within:
+               jboss-dist/docs/examples/jca
+            </listitem>
+            <listitem>
+               Create a persistence.xml file and jar up your entity classes with the persistence.xml
+               file living in the META-INF/ directory.
+            </listitem>
+         </itemizedlist>
+      </para>
+
+      <sect2>
+         <title>Configure JBoss datasource</title>
+         <para>
+            For datasources,
+            JBoss comes with the Hypersonic SQL database
+            embedded within it and a default datasource available in JNDI under {{java:/DefaultDS}}.  Otherwise, you'll need to specify your own datasource.  Please refer to the JBoss AS guide on how to create a jBoss connection pool.
+            Also, there are examples in the jboss distrubtion under docs/examples/jca.
+         </para>
+      </sect2>
+
+      <sect2>
+         <title>persistence.xml and .jar files</title>
+         <para>
+            For those of you familiar with older versions of the spec, there is no .par file anymore.
+            Entities are placed in a EJB-JAR .jar file or a .jar file all their own.  You must
+            also define a persistence.xml file that resides in the META-INF folder of the .jar file.  Here's an example of
+            a persistence.xml file.
+         </para>
+          <programlisting><![CDATA[
+<persistence>
+   <persistence-unit name="manager1">
+       <jta-data-source>java:/DefaultDS</jta-data-source>
+       <jar-file>../MyApp.jar</jar-file>
+       <class>org.acme.Employee</class>
+       <class>org.acme.Person</class>
+       <class>org.acme.Address</class>
+       <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+       </properties>
+   </persistence-unit>
+</persistence>]]>
+          </programlisting>
+
+          <variablelist spacing="compact">
+             <varlistentry>
+                <term><code>name</code></term>
+                <listitem>
+                   <para>
+                      You are required to name your persistence unit.
+                      If your persistence classes are within a EJB JAR archive, and it is the only persistence
+                      unit defined, then you do not have to reference this name explicitly in your @PersistenceContext and @PersistenceUnit
+                      annotations.
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>jta-data-source</code>, <code>non-jta-data-source</code>
+      </term>
+                <listitem>
+                   <para>
+                      This is the JNDI name of where the javax.sql.DataSource is located.  This is ignored when *not* used within
+                      an application server.  When running outside of an application server, you must specify JDBC connections
+                      with Hibernate specific properties (see below).  If you're running inside JBoss, put the jndi name of the
+                      datasource you defined in the earlier section.  Remember to put the "java:/" in front of the jndi name
+                      you selected for your datasource.
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>jar-file and class</code></term>
+                <listitem>
+                   <para>
+                      The class element specifies a fully qualified classname that you will belong to the persistence unit.
+                      The jar-file element specifies another jar you want automatically scanned for @Entity classes.
+                      When using jar-file, you must specify a path relative to the jar file the persistence.xml
+                      file is in.
+                      By default also, the jar the persistence.xml file is placed in is scanned for @Entity classes
+                      as well.
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>properties</code></term>
+                <listitem>
+                   <para>
+                      The properties element is used to specify vendor specific properties.  This is where you will define
+                      your JBoss and Hibernate specific configurations.
+                   </para>
+                </listitem>
+             </varlistentry>
+          </variablelist>
+         <para>
+            JBoss EJB 3.0 is built on top of Hibernate 3.0 ORM solution.  You may need to provide information to Hibernate so that it knows
+            the database vendor dialect (MySQL, Oracle, etc...), caching, as well as other settings.  JBoss EJB 3.0 also has some specific
+            configurable properties as well.  Here's a table of properties.  We don't list all the Hibernate ones.  You can go look in the
+            Hibernate documentation for those.
+         </para>
+         <table frame="topbot" id="3rdpartylibs">
+            <title>
+              Example Config Properties
+            </title>
+            <tgroup cols="2" rowsep="1" colsep="1">
+               <colspec colname="c1" colwidth="1*"/>
+               <colspec colname="c2" colwidth="2*"/>
+               <thead>
+                  <row>
+                     <entry align="center">
+                          Property
+                     </entry>
+                     <entry align="center">
+                          Description
+                     </entry>
+                  </row>
+               </thead>
+               <tbody>
+                  <row>
+                     <entry>
+                          hibernate.dialect
+                     </entry>
+                     <entry>
+                           Usually Hibernate can figure out the database dialect itself, but maybe not.
+                           Check the hibernate doco for information on this
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          hibernate.hbm2ddl.auto=update
+                     </entry>
+                     <entry>
+                           Creates the database schema on deploy if it doesn't exist.  Alters it if it has changed.  Useful
+                           for when you want to generate database schema from entity beans
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          hibernate.cache.provider_class
+                     </entry>
+                     <entry>
+                           Defines the caching architecture that Hibernate should use.  There is a tutorial to set up a clustered cache.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.entity.manager.jndi.name
+                     </entry>
+                     <entry>
+                           JBoss does not publish container managed EntityManagers in JNDI by default.  Use this to bind it.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.entity.manager.factory.jndi.name
+                     </entry>
+                     <entry>
+                           JBoss does not publish container managed EntityManagerFactorys in JNDI by default.  Use this to bind it.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.no.implicit.datasource.dependency
+                     </entry>
+                     <entry>
+                           JBoss tries to register deployment dependencies for datasource by guessing the dependency name
+                           based on the jndi name of the datasource.  Use this switch if the guess is wrong.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.depends.{some arbitrary name}
+                     </entry>
+                     <entry>
+		          Specify an MBean dependency for the persistence unit deployment.
+                     </entry>
+                  </row>
+               </tbody>
+             </tgroup>
+            </table>
+      </sect2>
+   </sect1>
+   <sect1 id="ear" revision="1">
+      <title>EAR and WAR files</title>
+      <para>
+          JBoss 4.0.x does not support the Java EE 5 EAR format.  So, if you want to deploy a standalone
+          persistence archive, you must list it within application.xml as an ejb module.
+      </para>
+      <para>
+          For WAR files, JBoss 4.0.x does not yet support deploying a persistence archive with WEB-INF/lib
+          as required by the spec.
+      </para>
+   </sect1>
+   <sect1 id="referencing" revision="1">
+      <title>Referencing persistence units</title>
+      <sect2>
+         <title>Scoped deployments</title>
+         <para>
+            If a persistence unit is defined in an EJB-JAR file it is not visible to other deployed jars
+            using the @PersistenceContext or @PersistenceUnit annotation.  This scoping is required by the specification.
+         </para>
+      </sect2>
+      <sect2>
+         <title>Referencing from Global JNDI</title>
+         <para>
+            Persistence units are not available within global JNDI unless you explicitly configure them
+            to do so.  There are two properties you can specify in your persistence.xml file to enable this.
+            <literal>jboss.entity.manager.jndi.name</literal> gives you a transaction scoped entity manager 
+            you can interact with.  <literal>jboss.entity.manager.factory.jndi.name</literal> binds the
+            entity manager factory into global JNDI.
+         </para>
+          <programlisting><![CDATA[
+<persistence>
+   <persistence-unit name="manager1">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <properties>
+         <property name="jboss.entity.manager.jndi.name" value="java:/Manager1"/>
+         <property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/>
+      </properties>
+   </persistence-unit>
+</persistence>]]>
+          </programlisting>
+       </sect2>
+   </sect1>
+   <sect1>
+      <title>Securing Entity Beans</title>
+      <para>
+         There is no spec defined way of security EJB 3.0 entity beans.  JBoss does provide a solution but it is only
+         available within the JBoss Application Server.  You can secure access to the CRUD operations of your entity, but not
+         method invocations on the entity.  Basically, what you are securing is when the Entitymanager does persist(), remove(),
+         etc. operations on an entity.  To secure an entity you must add additional property information within persistence.xml.  here's an example:
+         <programlisting><![CDATA[
+            <?xml version="1.0" encoding="UTF-8"?>
+            <persistence>
+               <persistence-unit name="tempdb">
+                  <jta-data-source>java:/DefaultDS</jta-data-source>
+                  <properties>
+                      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.AllEntity" value="insert,update,delete,read"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.StarEntity" value="*"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.SomeEntity" value="insert,delete"/>
+
+                     <property name="hibernate.jacc.enabled" value="true"/>
+                  </properties>
+               </persistence-unit>
+            </persistence>]]>
+         </programlisting>
+      </para>
+      <para>
+         The property name has the role and the entity class within it.  It is "hiberante.jacc." + role + FQN of entity class.
+      </para>
+      <para>
+         The value can be one of insert, update, delete, or read.  That is the permission.
+         The "*" character can be used to specify all.
+      </para>
+      <para>
+         Now the configuration gets a bit more complicated.  You have to interact with the EntityManager within a secured jacc enabled
+         EJB (session) or secured jacc enabled WAR.  For jacc enabling a WAR, see this URL http://wiki.jboss.org/wiki/Wiki.jsp?page=JACC.
+         There is an aspect domain defined for this "JACC Stateless Bean" or "JACC Stateful Bean".
+         For example:
+         <programlisting>
+            @javax.ejb.Stateless
+            @SecurityDomain ("other")
+            @AspectDomain("JACC Stateless Bean")
+            public class StatelessBean implements Stateless
+            {
+               @PersistenceContext
+               EntityManager em;
+
+               @PermitAll
+               public int unchecked(int i)
+               {
+                  System.out.println("stateless unchecked");
+                  return i;
+               }
+
+               @RolesAllowed ("allowed")
+               public int checked(int i)
+               {
+                  System.out.println("stateless checked");
+                  return i;
+               }
+         </programlisting>
+         You must do similar configuration on Tomcat to jacc enable wars and your servlets.
+      </para>
+      <para>
+         The final thing you must do is to create an jacc-service.xml file that will go in your deploy directory.  This jacc configuration is defined in more detail at
+         http://wiki.jboss.org/wiki/Wiki.jsp?page=JACC.
+         <programlisting>
+            <![CDATA[
+
+<server>
+   <mbean code="org.jboss.security.jacc.DelegatingPolicy"
+      name="jboss.security:service=JaccPolicyProvider"
+      xmbean-dd="">
+      <xmbean>
+         <attribute access="read-only" getMethod="getPolicyProxy">
+            <description>The java.security.Policy implementation</description>
+            <name>PolicyProxy</name>
+            <type>java.security.Policy</type>
+         </attribute>
+         <attribute access="read-write" getMethod="getExternalPermissionTypes"
+                    setMethod="setExternalPermissionTypes">
+            <description>The types of non-javax.security.jacc permissions that
+               should be validated against this policy</description>
+            <name>ExternalPermissionTypes</name>
+            <type>[Ljava.lang.Class;</type>
+         </attribute>
+         <operation>
+            <name>listContextPolicies</name>
+            <return-type>java.lang.String</return-type>
+         </operation>
+      </xmbean>
+      <!-- Not used, just here to test that custom permissions don't break the
+      current behavior of javax.security.jacc.* permissions.
+      -->
+      <attribute name="ExternalPermissionTypes">org.jboss.security.srp.SRPPermission</attribute>
+   </mbean>
+   <mbean code="org.jboss.security.jacc.SecurityService"
+      name="jboss.security:service=JaccSecurityService"
+      xmbean-dd="">
+      <xmbean>
+         <descriptors>
+            <injection id="MBeanServerType" setMethod="setMBeanServer" />
+            <injection id="ObjectNameType" setMethod="setObjectName" />
+         </descriptors>
+         <attribute access="read-write" getMethod="getPolicyName" setMethod="setPolicyName">
+            <description>The policy provider MBean name</description>
+            <name>PolicyName</name>
+            <type>javax.management.ObjectName</type>
+         </attribute>
+         <attribute access="read-write" getMethod="getPolicyAttributeName"
+            setMethod="setPolicyAttributeName">
+            <description>The Policy attribute name on the PolicyName MBean</description>
+            <name>PolicyAttributeName</name>
+            <type>java.lang.String</type>
+         </attribute>
+         <operation>
+            <name>start</name>
+         </operation>
+         <operation>
+            <name>stop</name>
+         </operation>
+      </xmbean>
+      <attribute name="PolicyName">jboss.security:service=JaccPolicyProvider</attribute>
+      <attribute name="PolicyAttributeName">PolicyProxy</attribute>
+   </mbean>
+</server>]]>
+         </programlisting>
+      </para>
+   </sect1>
+</chapter>
+

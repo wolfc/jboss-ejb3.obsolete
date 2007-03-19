@@ -1,0 +1,59 @@
+
+&lt;Server port="8005" shutdown="SHUTDOWN" debug="0">
+  ...
+  &lt;Service name="Tomcat-Standalone">
+    ...
+    &lt;Engine name="Standalone" defaultHost="localhost" debug="0">
+
+      &lt;Logger className="org.apache.catalina.logger.FileLogger"
+              prefix="catalina_log." suffix=".txt"
+              timestamp="true"/>
+
+      &lt;Realm className="org.apache.catalina.realm.UserDatabaseRealm" debug="0" resourceName="UserDatabase"/>
+
+      &lt;Host name="localhost" debug="0" appBase="webapps" unpackWARs="true" autoDeploy="true" liveDeploy="true">
+        ...
+        &lt;!-- xPetstore -->
+        &lt;Context path="/xpetstore-servlet" docBase="xpetstore-servlet" debug="0"   reloadable="true" crossContext="true">
+          &lt;!-- xPetsore Logger -->
+          &lt;Logger className="org.apache.catalina.logger.FileLogger" directory="logs"  prefix="xpetstore-servlet_log." suffix=".txt" timestamp="true"/>
+
+          &lt;!-- xPetstore datasource -->
+          &lt;Resource name="jdbc/xpetstoreDS" auth="Container" type="javax.sql.DataSource"/>		 
+          &lt;ResourceParams name="jdbc/xpetstoreDS">
+            &lt;parameter> 
+              &lt;name>factory&lt;/name>
+              &lt;value>org.apache.commons.dbcp.BasicDataSourceFactory&lt;/value>
+            &lt;/parameter>            
+            &lt;parameter>
+              &lt;name>username&lt;/name>
+              &lt;value>herve&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>password&lt;/name>
+              &lt;value>herve&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>driverClassName&lt;/name>
+              &lt;value>org.postgresql.Driver&lt;/value>
+            &lt;/parameter>
+            &lt;parameter>
+              &lt;name>url&lt;/name>
+              &lt;value>jdbc:postgresql://localhost:5432/xpetstore&lt;/value>
+            &lt;/parameter>
+          &lt;/ResourceParams>
+
+          &lt;!-- xPetstore mail session -->
+          &lt;Resource name="mail/xpetstore/MailSession" auth="Container" type="javax.mail.Session"/>
+          &lt;ResourceParams name="mail/xpetstore/MailSession">
+            &lt;parameter>
+              &lt;name>mail.smtp.host&lt;/name>
+              &lt;value>mail&lt;/value>
+            &lt;/parameter>
+          &lt;/ResourceParams>
+        &lt;/Context>
+        ...
+      &lt;/Host>
+  &lt;/Engine>
+  &lt;/Service>
+&lt;/Server>

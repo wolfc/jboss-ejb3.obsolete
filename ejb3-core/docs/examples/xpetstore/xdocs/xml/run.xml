@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>Running xPetstore</title>
+  </properties>
+
+<body>
+
+<section name="Running xPetstore">
+
+	<p>
+		<ol>
+			<li>
+				<b><u> Start the application server</u></b>
+				<ul>
+					<li>
+						For JBoss, run the following commands:
+						<ul>
+							<li> cd JBOSS_HOME/bin </li>
+							<li> ./run.sh -c xpetstore </li>
+						</ul>
+					</li>
+					
+					<li>
+						For WebLogic, run the following commands:
+						<ul>
+							<li> cd WL_HOME/../user_projects/xpetstore </li>
+							<li> ./startWebLogic.sh </li>
+						</ul>
+					</li>
+					
+					<li>
+						For Orion, run the following commands:
+						<ul>
+							<li> cd ORION_HOME</li>
+							<li> 
+								java -jar orion.jar
+								<br/>
+								<u>Note:</u> The first time you run the Orion, you may have errorrs because the xpetstore 
+								application are not registered. No worry, as soon as you're going to deploy them, it will
+								resolve this issue.
+							</li>
+						</ul>
+					</li>
+					
+					<li>
+						For Tomcat, run the following commands:
+						<ul>
+							<li> cd TOMCAT_HOME/bin</li>
+							<li> ./startup.sh</li>
+						</ul>
+					</li>
+				</ul>					
+			</li>
+			
+		
+			<li>
+				<b><u> Select the Application Server </u></b>
+				<ul>
+					<li>
+						Edit the file <code>XPETSTORE_HOME/conf/as/appserver.properties</code> and set the 
+						property <code>app.server</code>.
+						You may want to review <code>XPETSTORE_HOME/conf/as/<i>&lt;app.server></i>.properties</code>
+						to make sure that all the properties are properly set.
+					</li>
+				</ul>					
+			</li>
+			
+			<li>
+				<b><u> Select the Database </u></b>
+				<ul>
+					<li>
+						Edit the file <code>XPETSTORE_HOME/conf/db/database.properties</code> and set the 
+						property <code>db.name</code> 
+					</li>
+					
+					<li>
+						Edit the file <code>XPETSTORE_HOME/conf/db/<i>&lt;db.name></i>.properties</code> to configure the
+						database.<br/>
+						You must set the following properties:
+						<ul>
+							<li> db.driver </li>
+							<li> db.url </li>
+							<li> db.user </li>
+							<li> db.password </li>
+							<li> db.classpath </li>
+						</ul>
+						<u>PS:</u> Don't change the <code>hibernate</code> properties.
+					</li>
+				</ul>
+			</li>
+			
+			<li>
+				<b><u> Build the source code </u></b>
+				<ul>
+					<li> 
+						cd <code>XPETSTORE_HOME/xpetstore-<i>implementation</i></code> 
+					</li>
+					
+					<li>
+						./build.sh <br/>
+						This command will :
+						<ul>
+							<li> 
+								Generate Java code in <code>XPETSTORE_HOME/xpetstore-<i>implementation</i>/build/java</code> 
+							</li>
+							
+							<li> 
+								Generate the deployment descriptors at <code>XPETSTORE_HOME/xpetstore-<i>implementation</i>/build/META-INF</code>
+								and <code>XPETSTORE_HOME/xpetstore-<i>implementation</i>/build/WEB-INF</code>
+							</li>
+							
+							<li>
+								Compile the source code and build <code>.jar</code>, <code>.war</code> and <code>.ear</code> files
+								at <code>XPETSTORE_HOME/dist</code>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			
+			<li>
+				<b><u> Test the application (for xpetstore-ejb only)</u></b>
+				<ul>
+					<li> 
+						./build.sh test <br/>
+						This run all the test cases and generate a report at 
+						<code>XPETSTORE_HOME/xpetstore-<i>implementation</i>/build/junit/index.html</code>
+					</li>
+				</ul>				
+			</li>
+			
+			<li>
+				<b><u> Deploy the application </u></b>
+				<ul>
+					<li> 
+						./build.sh deploy
+					</li>
+				</ul>				
+			</li>
+			
+			<li>
+				<b><u> Initialize the database </u></b>
+				<ul>
+					<li> 
+						./build.sh db
+					</li>
+				</ul>				
+			</li>
+			
+			
+			<li>
+				<b><u> Run the application </u></b>
+				<ul>
+					<li> 
+						For xpetstore-ejb: <a href="http://localhost:8080/xpetstore-ejb/">http://localhost:8080/xpetstore-ejb/</a>
+					</li>
+					<li> 
+						For xpetstore-servlet: <a href="http://localhost:8080/xpetstore-servlet/">http://localhost:8080/xpetstore-servlet/</a>
+					</li>
+				</ul>				
+			</li>
+			
+		</ol>
+		
+	</p>
+	
+</section>
+
+</body>
+
+</document>

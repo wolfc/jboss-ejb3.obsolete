@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE application PUBLIC '-//Sun Microsystems, Inc.//DTD J2EE Application 1.3//EN' 'http://java.sun.com/dtd/application_1_3.dtd'>
+
+<application>
+  <display-name>xPetstore - EJB</display-name>
+  
+  <module>
+    <ejb>xpetstore-ejb3.ejb3</ejb>
+  </module>
+  
+  <module>
+    <web>
+      <web-uri>xpetstore-ejb3.war</web-uri>
+      <context-root>xpetstore-ejb</context-root>
+    </web>
+  </module>
+  
+  <module>
+    <web>
+      <web-uri>xpetstore-ejb3-test.war</web-uri>
+      <context-root>xpetstore-test</context-root>
+    </web>
+  </module>
+  
+</application>
+
+

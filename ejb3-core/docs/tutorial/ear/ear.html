@@ -1,0 +1,103 @@
+<html>
+<body>
+<p>
+<h2>EARs and WARs</h2>
+
+Ears and wars are created just as they were in J2EE 1.4/EJB 2.1.
+</p><p>
+<pre>
+&lt;application&gt;
+   &lt;display-name&gt;EJB3 Ear tutorial&lt;/display-name&gt;
+
+   &lt;module&gt;
+      &lt;web&gt;
+         &lt;web-uri&gt;tutorial.war&lt;/web-uri&gt;
+         &lt;context-root&gt;/tutorial&lt;/context-root&gt;
+      &lt;/web&gt;
+   &lt;/module&gt;
+   &lt;module&gt;
+      &lt;ejb&gt;tutorial.jar&lt;/ejb&gt;
+   &lt;/module&gt;
+&lt;/application&gt;
+</pre>
+</p><p>
+<h4>Packaging Persistence Units</h4>
+
+JBoss will not support the Java EE 5 EAR format until version JBoss 5.x.  To deploy a persistence archive (a .jar with no EJBs and just persistence units),
+you must list it in application.xml as an ejb module.
+</p><p>
+<h4>Lookup of EJBs</h4>
+
+@EJB annotations are usable in servlets and JSPs, but unfortunately, we have not yet updated tomcat to support it.  Also, Tomcat works with the old XML format so 
+you cannot use XML either.  So for now, you must lookup the EJB via its global JNDI name.  This
+is not compliant, but if you abstract out enough you'll be fine.
+</p><p>
+<pre>
+
+   public void init() throws ServletException
+   {
+      super.init();
+      try
+      {
+         InitialContext ctx = new InitialContext();
+
+         // J2EE 1.5 has not yet defined exact XML &lt;ejb-ref&gt; syntax for EJB3
+         CalculatorLocal calculator = (CalculatorLocal) ctx.lookup("tutorial/CalculatorBean/local");
+         setCalculator(calculator);
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException(e);
+      }
+
+   }
+
+</pre>
+One thing about EAR packaging is that the default JNDI name is recalculated to be <tt>EARNAME/EJBNAME/local</tt> for Local interfaces and <tt>EARNAME/EJBNAME/remote</tt> for remote interfaces.
+</p><p>
+</p><p>
+To give you a preview of how injection will work inside servlets/jsps, we've simulated the code.  Take a look at <a href="src/org/jboss/tutorial/ear/servlet/CalculatorActionServlet.java">CalculatorActionServlet.java</a>.
+You can use this pattern until the XML Schema is updated for J2EE 1.5 for injection, or until Tomcat supports EJB injection annotations.
+<pre>
+   private CalculatorLocal calculator;
+
+   /**
+    * The @EJB annotation is similated.  Tomcat does not yet understand injection annotations.
+    * @param calculator
+    */
+   @EJB(name = "calculator")
+   public void setCalculator(CalculatorLocal calculator)
+   {
+      this.calculator = calculator;
+   }
+</pre>
+</p><p>
+<h4>Looking up EntityManagers from within an EAR/WAR</h4>
+
+The @PersistenceUnit and &lt;persistence-unit-ref&gt; elements can be used within Servlets and JSPs to access EntityManagerFactory only.  You cannot inject
+EntityManagers directly into web components.  Unfortunately, again, Tomcat doesn't support them, so you have to lookup the EntityManagerFactory in JNDI.  
+To be able to do that you need to set the <tt>entity.manager.factory.jndi.name</tt> property in your persistence.xml file:
+</p><p>
+<pre>
+&lt;persistence&gt;
+   &lt;persistence-unit name="testdb"&gt;
+      ...
+   &lt;properties&gt;
+      &lt;property name="entity.manager.factory.jndi.name" value="java:/MyEntityManagerFactory"/&gt;
+   &lt;/properties&gt;
+&lt;/persistence&gt;
+</pre>
+</p><p>
+<h4>Building and Running</h4>
+
+To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+</pre>
+</p><p>
+After building, you can then goto <a href="http://localhost:8080/tutorial/calculator.jsp">calculator.jsp</a>
+</p>
+</body>
+</html>

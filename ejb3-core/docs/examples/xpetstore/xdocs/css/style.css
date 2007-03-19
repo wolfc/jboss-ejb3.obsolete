@@ -1,0 +1,78 @@
+<style>
+
+em
+{
+    font-family:    Verdana;
+    font-size:      12px;
+}
+
+td
+{
+    padding:		2px;
+}
+
+th
+{
+	background:		darkgray;
+    color:			white;
+	font-weight:  	bold;
+    padding:		2px;
+    text-align:		left;
+}
+
+table
+{
+    color:          #040404;
+    font-family:    Tahoma;
+    font-size:      12px;
+    font-weight:  	normal;
+}
+
+.example
+{
+	border:			1px solid black;
+	padding:		4px 4px 4px 4px;
+}
+
+.header
+{
+	border:			1px solid darkgray;
+    padding:		4px;
+}
+
+.navigation
+{
+	background:		#efefef;
+	border-bottom:	1px solid darkgray;
+	border-left:	1px solid darkgray;
+	border-right:	1px solid darkgray;
+    padding:		4px;
+}
+
+.logo
+{
+	background:		wihte;
+	color:			black;
+    font-family:    Verdana;
+    font-size:      20px;
+    font-weight:  	2500;
+    padding:		4px;
+}
+
+.section_name
+{
+	background:		darkblue;
+    color:          white;
+    padding:		4px;
+}
+
+.title
+{
+	background:		#efefef;
+	border:			1px solid darkgray;
+	color:			black;
+    font-weight:  	bold;
+    padding:		4px;
+}
+
+</style>

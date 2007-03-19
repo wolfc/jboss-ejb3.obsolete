@@ -1,0 +1,136 @@
+<html>
+<head>
+    <title>$texts.getString( "order.title" )</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<form action="createOrder.action" method="post">
+
+<h2>$texts.getString( "order.subtitle" )</h2>
+
+<!-- Customer informations -->
+<table border="0" cellspacing="4">
+
+	<!-- Address -->
+	#set( $address = $customer.address )
+	
+	<tr>
+		<td colspan="2" class="sectionheader">$texts.getString( "address" )</td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "street1" ):</td>
+		<td>$address.street1 </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "street2" ):</td>
+		<td>$address.street2 </td>
+	</tr>
+	<tr>
+		<td class="label"$texts.getString( "city" ):</td>
+		<td>$address.city </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "state" ):</td>
+		<td>$address.state </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "zipcode" ):</td>
+		<td>$address.zipcode </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "country" ):</td>
+		<td>$address.country </td>
+	</tr>
+
+	<!-- Credit card -->
+	#set( $creditCard = $customer.creditCard )
+	
+	<tr><td colspan="2">&nbsp;</td></tr>
+	<tr>
+		<td colspan="2"  class="sectionheader">$texts.getString( "ccInfos" )</td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "ccType" ):</td>
+		<td>$creditCard.type </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "ccNumber" ):</td>
+		<td>$creditCard.number </td>
+	</tr>
+	<tr>
+		<td class="label">$texts.getString( "ccExpiryDate" ):</td>
+		<td>$creditCard.expiryDate </td>
+	</tr>
+</table>
+
+<!-- Shopping cart -->
+<p>
+<table class="grid">
+    <tr>
+        <th class="gridheader">$texts.getString( "itemId" )</th>
+        <th class="gridheader">$texts.getString( "description" )</th>
+        <th class="gridheader">$texts.getString( "unitCost" )</th>
+        <th class="gridheader">$texts.getString( "quantity" )</th>
+        <th class="gridheader">$texts.getString( "subTotal" )</th>
+    </tr>
+
+#if ( $cartItems.size() == 0 )
+
+    <tr>
+        <td class="griddata" colspan="5">
+        	$texts.getString( "cart_empty" )
+        </td>
+    </tr>
+
+#else
+
+	#set ( $total = 0 )
+	#foreach ( $cartItem in $cartItems )
+		#set ( $item = $cartItem.item )
+		#set ( $total = $cartItem.subTotal )
+		
+        <tr>
+            <td class="griddata">
+                $item.itemId
+                <input type="hidden" name="itemId" value="$item.itemId">
+            </td>
+            <td class="griddata">
+            	$item.description
+            </td>
+            <td class="griddata" align="right">
+            	$cartItem.unitPrice
+            </td>
+            <td class="griddata" align="right">
+                $cartItem.quantity
+            </td>
+            <td class="griddata"align="right">
+            	$cartItem.subTotal
+            </td>
+        </tr>
+        
+	#end
+
+	<!-- Total -->
+    <tr>
+        <td class="griddata" colspan="4" align="right">
+            <b>$texts.getString( "total" )</b>
+        </td>
+        <td class="griddata" align="right">
+            $total
+        </td>
+    </tr>
+	
+#end
+
+</table>
+
+#if ( $cartItems.size() > 0 )
+    <p>
+	<input type="image" src="images/button_submit.gif" border="0" />
+#end
+
+</form>
+
+</body>
+</html>

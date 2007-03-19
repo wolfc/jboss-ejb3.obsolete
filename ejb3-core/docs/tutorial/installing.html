@@ -1,0 +1,49 @@
+<html>
+<body>
+<p>
+<h2>Installing EJB 3.0 RC4 - PFD</h2>
+<p>
+EJB 3.0 RC4 has been tested with JBoss 4.0.3SP1 and JBoss 4.0.4RC1.  JBoss 4.0.3SP1 comes with an <b>older version</b> so don't use its graphical installer.
+If you are using JBoss 4.0.4RC1 application server, you can use its graphical installer to enable EJB3 RC4.
+</p>
+<hr>
+<h2>Installing into JBoss 4.0.3SP1</h2>
+<p>
+Note, the ejb 3.0 implementation that comes with the JBoss AS 4.0.3SP1 installers is old, you should
+download the latest EJB3 impl and follow these directions.
+</p>
+<ol>
+<li> Download <a href="http://sourceforge.net/project/showfiles.php?group_id=22866&package_id=132063">EJB 3.0 RC4 - PFD</a>.</li>
+<li> Unzip this file.</li>
+
+<li> Copy <tt>ejb3.deployer</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-clustered-sfsbcache-service.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-entity-cache-service.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-interceptors-aop.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>jboss-aop-jdk50.deployer</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>jboss-remoting.jar</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Copy <tt>jboss-serialization.jar</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Copy <tt>jboss-j2ee.jar</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>ejb3-persistence.jar</tt> from <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>hibernate3.jar</tt> from <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>hibernate-annotations.jar</tt> from <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>hibernate-entitymanager.jar</tt> from <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>jboss-aop.deployer/</tt> from <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Start jboss up with the <tt>all</tt> configuration <tt>run.sh -c all</tt></li>
+</ol>
+<p>
+<i> If you do not want to run with the all configuration, the skip the steps of copying the 
+<tt>ejb3-clustered-sfsbcache-service.xml</tt> and the <tt>ejb3-entity-cache-service.xml</tt></i>
+</p>
+<p>
+Because you patched 4.0.3SP1, the client jars in the jboss-4.0.3SP1/client directory will be invalid.
+Build your client classpath from:
+<ol>
+<li>jboss-4.0.3SP1/lib</li>
+<li>jboss-4.0.3SP1/server/all/lib</li>
+<li>jboss-4.0.3SP1/server/all/deploy/ejb3.deployer</li>
+<li>jboss-4.0.3SP1/server/all/deploy/jboss-aop-jdk50.deployer</li>
+</ol>
+</p>
+</body>
+</html>

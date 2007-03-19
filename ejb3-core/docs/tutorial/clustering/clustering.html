@@ -1,0 +1,66 @@
+<html>
+<body>
+<p>
+<h2>Clustering EJBs</h2>
+
+The section shows you how to do clustering with JBoss EJB3.
+</p><p>
+<h4>Stateless Beans and Clustering</h4>
+
+All you have to do to enable clustering for a Stateless bean is to use the <tt>@org.jboss.annotation.ejb.Clustered</tt> annotation
+on the bean class and the bean will be clustered.  A clustered stateless bean has loadbalancing and failover of a request.
+</p><p>
+<b>@Clustered</b>
+<pre>
+public @interface Clustered
+{
+   Class loadBalancePolicy() default LoadBalancePolicy.class;
+
+   String partition() default "DefaultPartition";
+}
+</pre>
+</p><p>
+You can plug in any load balanc policy you like.  The default is <tt>org.jboss.ha.framework.interfaces.RandomRobin</tt>.
+Also, you can change the cluster partition with the <tt>partition</tt> attribute of <tt>@Clustered</tt>.
+</p><p>
+Take a look at <a href="src/org/jboss/tutorial/clustering/bean/SessionBean.java">SessionBean.java</a> for this in action.
+You must run with the all configuration <tt>run.sh -c all</tt> to use clustering in JBoss.
+</p><p>
+<h4>Stateful Beans and Clustering</h4>
+
+Stateful beans are configured mostly like stateless as shown above.  Stateful Beans, are well...stateful.  Their
+state needs to be replicated across the cluster.   To use stateful bean clustered, you must copy the <tt>ejb3-clustered-sfsbcache-service.xml</tt>
+from the EJB3 distribution into the JBoss deploy/ directory of the ALL configuration.  <tt>jboss-dist/server/all/deploy</tt>.
+You must also run with the all configuration <tt>run.sh -c all</tt>.
+</p><p>
+Take a look at <a href="src/org/jboss/tutorial/clustering/bean/StatefulBean.java">StatefulBean.java</a> for this in action.
+</p><p>
+</p><p>
+</p><p>
+<h4>Client</h4>
+
+Open up <a href="src/org/jboss/tutorial/clustering/client/StatelessRun.java">StatelessRun.java</a>.  You'll see that it invokes the stateless
+bean in a loop.  The idea is to bring up to JBoss instances and kill one server and see the other automatically get the new requests.
+There is a Stateful one as well that increments a counter.
+</p><p>
+<h4>Building and Running</h4>
+
+To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+$ ant run.stateless (or ant.run.stateful if you're doing stateful test.)
+
+</pre>
+</p><p>
+<h4>Jar structure</h4>
+
+EJB 3.0 beans must be packaged in a JAR file with the suffix <tt>.jar</tt>.  Running the ant script above creates a JAR file within the deploy/ directory of JBoss.  All that needs to be in that jar is your server-side class files.  So basically just the CalculatorBean and the interfaces it implements.  JBoss will automatically browse the JAR file to determine if any EJBs are annotated by any classes within it.  THere is no precompilation step.
+</p><p>
+</p><p>
+</p><p>
+</p><p>
+</p>
+</body>
+</html>

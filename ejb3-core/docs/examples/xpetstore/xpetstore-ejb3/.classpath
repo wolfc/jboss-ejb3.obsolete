@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="java"/>
+    <classpathentry kind="src" path="resources"/>
+    <classpathentry kind="src" path="test"/>
+    <classpathentry kind="src" path="build/java"/>
+    <classpathentry kind="src" path="web"/>
+    <classpathentry kind="src" path="sql"/>
+    <classpathentry
+        excluding="java/|resources/|test/|build/java/|web/|sql/"
+        kind="src" path=""/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/ant/junit/junit.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/activation.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/j2ee.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/mail.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/javax.j2ee/servlet.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.struts/struts.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.commons/commons-logging.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.apache.commons/commons-digester.jar"/>
+    <classpathentry kind="var" path="XPETSTORE_HOME/lib/main/org.junitee/junitee.jar"/>
+    <classpathentry kind="output" path="build/classes"/>
+</classpath>

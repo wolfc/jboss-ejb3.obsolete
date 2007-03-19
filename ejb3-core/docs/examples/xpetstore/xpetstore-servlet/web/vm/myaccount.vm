@@ -1,0 +1,51 @@
+<html>
+<head>
+    <title>$texts.getString( "myaccount.title" )</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<form action="updateCustomer.action" method="post">
+
+<h2>$texts.getString( "myaccount.subtitle" )</h2>
+
+#parse ( "errors.vm" )
+
+<table border="0" cellspacing="4">
+	<tr>
+		<td colspan="2" class="sectionheader">
+			$texts.getString( "account_information" )
+		</td>
+	</tr>
+	<tr>
+		<td class="label">
+			$texts.getString( "userId" )
+		</td>
+		<td>
+			$customer.account.userId
+			<input type="hidden" name="customer/account/userId" value="$customer.userId" maxlength="10" />
+		</td>
+	</tr>
+
+	<tr>
+		<td class="label">
+			<span class="required">*</span>
+			$texts.getString( "password" )
+		</td>
+		<td>
+			<input type="password" name="customer/account/password" value="$customer.account.password" maxlength="10" />
+		</td>
+	</tr>
+
+	<tr><td colspan="2">&nbsp;</td></tr>
+	
+	#parse( "customerEditor.vm" )
+</table>
+
+<p>
+<input type="image" src="images/button_submit.gif" border="0" />
+
+</form>
+
+</body>
+</html>

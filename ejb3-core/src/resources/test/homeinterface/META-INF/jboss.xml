@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+	<enterprise-beans>
+		<session>
+			<ejb-name>DescriptorStatelessBean</ejb-name>
+			<home-jndi-name>DescriptorStatelessHome</home-jndi-name>
+			<local-home-jndi-name>DescriptorStatelessLocalHome</local-home-jndi-name>
+		</session>
+		<session>
+			<ejb-name>DescriptorStatefulBean</ejb-name>
+			<home-jndi-name>DescriptorStatefulHome</home-jndi-name>
+			<local-home-jndi-name>DescriptorStatefulLocalHome</local-home-jndi-name>
+		</session>
+	</enterprise-beans>
+</jboss>
+

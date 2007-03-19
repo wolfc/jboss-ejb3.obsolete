@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE orion-web-app PUBLIC "-//Evermind//DTD Orion Web Application 2.3//EN" "http://www.orionserver.com/dtds/orion-web.dtd">
+
+<orion-web-app
+	deployment-version="@orion.version@"
+>
+	<session-tracking />
+	
+	<resource-ref-mapping 
+		location="@orion.mail.session@" 
+		name="@jndi.mail.session@"
+	/>
+	
+</orion-web-app>

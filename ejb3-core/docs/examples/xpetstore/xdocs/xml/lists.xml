@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Mailing Lists</title>
+  </properties>
+
+<body>
+
+<section name="Downlaod">
+	<p>
+    	These are the mailing lists that have been established for this project.
+    </p>
+    <p>
+    	<table border="0" cellspacing="1" width="100%">
+    		<tr>
+    			<th><b>List Name</b></th>
+    			<th></th>
+    		</tr>
+    		<tr>
+    			<td>
+    				Develloper List
+    			</td>
+    			<td>
+    				<a href="http://lists.sourceforge.net/lists/listinfo/xpetstore-devel">Subscribe</a>
+    				<a href="http://lists.sourceforge.net/lists/listinfo/xpetstore-devel">Unsubscribe</a>
+    				<a href="http://sourceforge.net/mail/?group_id=67431">Archive</a>
+    			</td>
+    		</tr>
+    	</table>
+    </p>
+</section>
+
+</body>
+</document>

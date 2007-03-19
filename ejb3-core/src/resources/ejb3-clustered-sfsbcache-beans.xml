@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <!-- First we create a Configuration object for the cache -->
+   <bean name="EJB3SFSBCacheConfig"
+   		 class="org.jboss.cache.config.Configuration">
+      
+      <!-- Externally injected services -->  
+      <property name="runtimeConfig">
+         <bean name="EJB3SFSBCacheRuntimeConfig" class="org.jboss.cache.config.RuntimeConfig">
+            <!--property name="transactionManager"><inject bean="jboss:service=TransactionManager" property="transactionManager"/></property-->
+            <property name="muxChannelFactory"><inject bean="jgroups.mux:name=Multiplexer"/></property>
+         </bean>
+      </property>
+      
+      <property name="multiplexerStack">${jboss.multiplexer.stack:udp}</property>
+
+      <property name="clusterName">${jboss.partition.name:DefaultPartition}-SFSBCache</property>
+      
+      <!--
+              Node locking level : SERIALIZABLE
+                                   REPEATABLE_READ (default)
+                                   READ_COMMITTED
+                                   READ_UNCOMMITTED
+                                   NONE
+      -->
+      <property name="isolationLevelString">REPEATABLE_READ</property>
+
+      <!--     Valid modes are LOCAL
+                               REPL_ASYNC
+                               REPL_SYNC
+      -->
+      <property name="cacheModeString">REPL_ASYNC</property>
+
+      <!--    Number of milliseconds to wait until all responses for a
+              synchronous call have been received.
+      -->
+      <property name="syncReplTimeout">17500</property>
+
+      <!--  Max number of milliseconds to wait for a lock acquisition -->
+      <property name="lockAcquisitionTimeout">15000</property>
+        
+      <property name="exposeManagementStatistics">true</property>
+
+      <!-- We want to activate/inactivate regions as beans are deployed -->
+      <property name="useRegionBasedMarshalling">true</property>
+      <!-- Must match the value of "useRegionBasedMarshalling" -->
+      <property name="inactiveOnStartup">true</property>
+
+      <!--  Specific eviction policy configurations. This is LRU -->
+      <property name="evictionConfig">
+      	 <bean name="EJB3SFSBEvictionConfig" class="org.jboss.cache.config.EvictionConfig">
+      	   <property name="defaultEvictionPolicyClass">org.jboss.cache.eviction.LRUPolicy</property>
+            <property name="wakeupIntervalSeconds">5</property>
+            <property name="evictionRegionConfigs">
+            	<list>
+            		<!-- So default region would never timeout -->
+            		<bean name="EJB3SFSBDefaultEvictionRegionConfig" class="org.jboss.cache.config.EvictionRegionConfig">
+            			<property name="regionName">/_default_</property>
+            			<property name="evictionPolicyConfig">
+            				<bean name="EJB3SFSBDefaultLRUConfig" class="org.jboss.cache.eviction.LRUConfiguration">
+               					<property name="maxNodes">0</property>
+               					<property name="timeToLiveSeconds">0</property>
+               				</bean>
+               			</property>
+            		</bean>
+            	</list>
+			</property>
+         </bean>
+      </property>
+      
+      <property name="cacheLoaderConfig">
+      	<bean name="EJB3SFSBCacheLoaderConfig" 
+      		class="org.jboss.cache.config.CacheLoaderConfig">
+      		
+      		<property name="passivation">true</property>
+            <property name="shared">false</property>
+            <property name="individualCacheLoaderConfigs">
+              	<list>
+              		<bean name="EJB3SFSBFileCacheLoader" class="org.jboss.cache.loader.FileCacheLoaderConfig">
+               			<!-- Temporary workaround to a bug in JBC 2.0.0.ALPHA1 -->
+               			<property name="className">org.jboss.ejb3.cache.tree.SFSBFileCacheLoader</property>
+               			<property name="location">${jboss.server.data.dir}${/}sfsb</property>
+                   		<property name="async">false</property>
+                   		<property name="fetchPersistentState">true</property>
+                   		<property name="ignoreModifications">false</property>
+               		</bean>
+               	</list>
+            </property>
+      	 </bean>
+      </property>     
+   </bean>
+    
+   <!-- Now we use the above configuration to construct the cache itself -->
+   <bean name="EJB3SFSBClusteredCache" class="org.jboss.cache.jmx.CacheJmxWrapper">
+      
+      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.cache:service=EJB3SFSBClusteredCache", exposedInterface=org.jboss.cache.jmx.CacheJmxWrapperMBean.class, registerDirectly=true)</annotation>
+      
+      <property name="configuration"><inject bean="EJB3SFSBCacheConfig"/></property>
+        
+   </bean>
+
+</deployment>
+

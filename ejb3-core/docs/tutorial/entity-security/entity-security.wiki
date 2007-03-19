@@ -1,0 +1,136 @@
+!!! Entity Bean Security
+There is no spec defined way of security EJB 3.0 entity beans.  JBoss does provide a solution but it is only
+available within the JBoss Application Server.  You can secure access to the CRUD operations of your entity, but not
+method invocations on the entity.  Basically, what you are securing is when the Entitymanager does persist(), remove(),
+etc. operations on an entity.
+
+!! Step 1: Specify Permissions in persistence.xml
+
+To secure an entity you must add additional property information within persistence.xml.  here's an example:
+{{{
+            <?xml version="1.0" encoding="UTF-8"?>
+            <persistence>
+               <persistence-unit name="tempdb">
+                  <jta-data-source>java:/DefaultDS</jta-data-source>
+                  <properties>
+                      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.AllEntity" value="insert,update,delete,read"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.StarEntity" value="*"/>
+                     <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.SomeEntity" value="insert,delete"/>
+
+                     <property name="hibernate.jacc.enabled" value="true"/>
+                  </properties>
+               </persistence-unit>
+            </persistence>
+}}}
+The Entity class you are securing as well as the roles allowed and the permissions allowed for that role are stored in property information within persistence.xml
+properties.  The property name has the role and the entity class within it.  It is "hiberante.jacc." + role + FQN of entity class.
+
+The value can be one of insert, update, delete, or read.  That is the permission. The "*" character can be used to specify all permissions.  So,
+in the above example, for the {{org.jboss.ejb3.test.jacc.AllEntity}} entity, the role "allowed" has permission to insert,update, delete, and read.
+
+!! Step 2: Enable JACC Security
+Now the configuration gets a bit more complicated.  You have to interact with the EntityManager within a secured jacc enabled
+EJB (session) or secured jacc enabled WAR.  For jacc enabling a WAR, see our [JACC Wiki|URL http://wiki.jboss.org/wiki/Wiki.jsp?page=JACC].
+To jacc enable an EJB, you have to use a JBoss specific aspect domain.  An aspect domain is a container configuration template.
+There is an aspect domain defined for jacc, either "JACC Stateless Bean" or "JACC Stateful Bean" depending on the type of EJB you are securing.
+
+For example:
+{{{
+            @javax.ejb.Stateless
+            @SecurityDomain ("other")
+            @AspectDomain("JACC Stateless Bean")
+            public class StatelessBean implements Stateless
+            {
+               @PersistenceContext
+               EntityManager em;
+
+               @PermitAll
+               public int unchecked(int i)
+               {
+                  System.out.println("stateless unchecked");
+                  return i;
+               }
+
+               @RolesAllowed ("allowed")
+               public int checked(int i)
+               {
+                  System.out.println("stateless checked");
+                  return i;
+               }
+}}}
+You must do similar configuration on Tomcat to jacc enable wars and your servlets.
+
+
+!! Step 3: Enable JACC Security Serverwide
+
+The final thing you must do is to create an jacc-service.xml file that will go in your deploy/ejb3.deployer directory.  This jacc configuration is defined in more detail at  [JACC Wiki Page|http://wiki.jboss.org/wiki/Wiki.jsp?page=JACC].  The jacc-service.xml file must be deployed before your EJB3 Deployer.  Putting this file in the {{deploy/ejb3.deployer}} directory ensures that this service starts before the EJB3 subsystem.  You could also set up an explicit dependency on the jacc service within the {{ejb.deployer/META-INF/jboss-service.xml}} file if you do not like that kind of setup.
+{{{
+<server>
+   <mbean code="org.jboss.security.jacc.DelegatingPolicy"
+      name="jboss.security:service=JaccPolicyProvider"
+      xmbean-dd="">
+      <xmbean>
+         <attribute access="read-only" getMethod="getPolicyProxy">
+            <description>The java.security.Policy implementation</description>
+            <name>PolicyProxy</name>
+            <type>java.security.Policy</type>
+         </attribute>
+         <attribute access="read-write" getMethod="getExternalPermissionTypes"
+                    setMethod="setExternalPermissionTypes">
+            <description>The types of non-javax.security.jacc permissions that
+               should be validated against this policy</description>
+            <name>ExternalPermissionTypes</name>
+            <type>[Ljava.lang.Class;</type>
+         </attribute>
+         <operation>
+            <name>listContextPolicies</name>
+            <return-type>java.lang.String</return-type>
+         </operation>
+      </xmbean>
+      <!-- Not used, just here to test that custom permissions don't break the
+      current behavior of javax.security.jacc.* permissions.
+      -->
+      <attribute name="ExternalPermissionTypes">org.jboss.security.srp.SRPPermission</attribute>
+   </mbean>
+   <mbean code="org.jboss.security.jacc.SecurityService"
+      name="jboss.security:service=JaccSecurityService"
+      xmbean-dd="">
+      <xmbean>
+         <descriptors>
+            <injection id="MBeanServerType" setMethod="setMBeanServer" />
+            <injection id="ObjectNameType" setMethod="setObjectName" />
+         </descriptors>
+         <attribute access="read-write" getMethod="getPolicyName" setMethod="setPolicyName">
+            <description>The policy provider MBean name</description>
+            <name>PolicyName</name>
+            <type>javax.management.ObjectName</type>
+         </attribute>
+         <attribute access="read-write" getMethod="getPolicyAttributeName"
+            setMethod="setPolicyAttributeName">
+            <description>The Policy attribute name on the PolicyName MBean</description>
+            <name>PolicyAttributeName</name>
+            <type>java.lang.String</type>
+         </attribute>
+         <operation>
+            <name>start</name>
+         </operation>
+         <operation>
+            <name>stop</name>
+         </operation>
+      </xmbean>
+      <attribute name="PolicyName">jboss.security:service=JaccPolicyProvider</attribute>
+      <attribute name="PolicyAttributeName">PolicyProxy</attribute>
+   </mbean>
+</server>
+}}}
+
+!! Run the tutorial
+
+To run the tutorial you must first shut down JBoss.  This is because the JACC service needs to be started at boot time.
+
+{{{
+$ ant
+-- start up jboss app server
+$ ant run
+}}}

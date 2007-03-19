@@ -1,0 +1,115 @@
+<html>
+<head>
+<title>EJB3 SSL Tutorial</title>
+</head>
+<body>
+<p>
+<h2>Invoking EJBs through SSL</h2>
+
+This tutorial shows you how to invoke remote EJBs through a SSL connection.
+</p><p>
+Setting up SSL for use in EJB3 involves creating a keystore and making sure the correct transport is available in the EJB3 configuration.
+After which you only have to use the RemoteBinding annotation with a clientBindUrl to make sure the bean is called through SSL.
+</p><p>
+This tutorial assumes you've setup JBoss 4.0.4.GA with EJB3 support. Make sure the enviroment variable JBOSS_HOME refers to the
+installation directory.
+<br/><i>TODO: simple SSL remoting doesn't work in 4.0.4.GA, only advanced.</i>
+</p><p>
+<h4>Creating a keystore</h4>
+For SSL to work we need to create a public/private key pair, which will be stored in a keystore. Generate this using the <tt class="literal">genkey</tt> command that comes with the JDK.
+<pre class="programlisting">
+   $ cd $JBOSS_HOME/server/default/conf/
+   $ keytool -genkey -alias ejb3-ssl -keypass opensource -keystore localhost.keystore
+   Enter keystore password:  opensource
+   What is your first and last name?
+     [Unknown]:
+   What is the name of your organizational unit?
+     [Unknown]:
+   What is the name of your organization?
+     [Unknown]:
+   What is the name of your City or Locality?
+     [Unknown]:
+   What is the name of your State or Province?
+     [Unknown]:
+   What is the two-letter country code for this unit?
+     [Unknown]:
+   Is CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown correct?
+     [no]:  yes
+</pre>
+</p><p>
+Since we have not signed our certificate through any certification authoritiy, we also need to create a truststore for the client, 
+explicitly saying that we trust the certificate we just created. The first step is to export the certificate using the JDK keytool:
+<pre class="programlisting">
+   $ keytool -export -alias ejb3-ssl -file mycert.cer -keystore localhost.keystore
+   Enter keystore password:  opensource
+   Certificate stored in file &lt;mycert.cer&gt;
+
+</pre>
+</p><p>
+Then we need to create the truststore if it does not exist and import the certificate into the trueststore:
+<pre class="programlisting">
+   $ keytool -import -alias ejb3-ssl -file mycert.cer -keystore localhost.truststore
+   Enter keystore password:  opensource
+   Owner: CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+   Issuer: CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, ST=Unknown, C=Unknown
+   Serial number: 43bff927
+   Valid from: Sat Jan 07 18:23:51 CET 2006 until: Fri Apr 07 19:23:51 CEST 2006
+   Certificate fingerprints:
+            MD5:  CF:DC:71:A8:F4:EA:8F:5A:E9:94:E3:E6:5B:A9:C8:F3
+            SHA1: 0E:AD:F3:D6:41:5E:F6:84:9A:D1:54:3D:DE:A9:B2:01:28:F6:7C:26
+   Trust this certificate? [no]:  yes
+   Certificate was added to keystore 
+</pre>
+</p><p>
+<h4>Setting up the transport</h4>
+To setup the transport open $JBOSS_HOME/server/default/deploy/ejb3.deployer/META-INF/jboss-service.xml in your favorite text editor.
+Add the following mbean to it:
+<pre>
+   &lt;mbean code="org.jboss.remoting.transport.Connector"
+      name="jboss.remoting:type=Connector,transport=socket3843,handler=ejb3"&gt;
+      &lt;depends&gt;jboss.aop:service=AspectDeployer&lt;/depends&gt;
+      &lt;attribute name="InvokerLocator"&gt;sslsocket://0.0.0.0:3843&lt;/attribute&gt;
+      &lt;attribute name="Configuration"&gt;
+         &lt;handlers&gt;
+            &lt;handler subsystem="AOP"&gt;org.jboss.aspects.remoting.AOPRemotingInvocationHandler&lt;/handler&gt;
+         &lt;/handlers&gt;
+      &lt;/attribute&gt;
+   &lt;/mbean&gt;
+</pre>
+</p><p>
+<h4>Starting JBoss</h4>
+We need to tell JBoss Remoting where to find the keystore to be used for SSl and its password. This is done using the
+<tt class="literal">javax.net.ssl.keyStore</tt> and <tt class="literal">javax.net.ssl.keyStorePassword=opensource</tt> system properties when starting JBoss, as the
+following example shows:
+<pre class="programlisting">
+    $ cd $JBOSS_HOME/bin
+    $ ./run.sh -Djavax.net.ssl.keyStore=../server/default/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource
+</pre>
+</p><p>
+<h4>Creating your beans</h4>
+Create your EJBs as usual and add the following annotation to bind it to the SSL invoker.
+<pre>
+@RemoteBinding(clientBindUrl="sslsocket://0.0.0.0:3843")
+</pre>
+For the purpose this tutorial an example bean is provided (see src/org/jboss/tutorial/ssl/bean/CalculatorBean.java).
+To compile and deploy the example simple execute <tt class="literal">ant ejbjar</tt>.
+</p><p>
+<h4>Running your client</h4>
+While making sure all the correct libraries are on the classpath we can run the provided client.
+<pre class="programlisting">
+    $ java -Djavax.net.ssl.trustStore=$JBOSS_HOME/server/default/conf/localhost.truststore -Djavax.net.ssl.trustStorePassword=opensource org.jboss.tutorial.ssl.client.Client
+</pre>
+Or better yet, just run <tt class="literal">ant run</tt>.
+<h4>OLD</h4>
+If you build the tutorial, an ejb jar is created with ssl-service.xml and the local.keystore file.  The ssl-service.xml sets up a JAAS security manager to manage the SSL keystore.  This is documented pretty well in the JBoss 4.x manual.  ssl-service.xml also defines a JBoss Remoting connector.  The CalculatorBean EJB, uses the @RemoteBinding annotation to bind the SSL connector to the EJB.  The client has define the truststore used be the client.
+</p><p>
+<i>TODO:  better explanation here!</i>
+</p><p>
+<h4>References</h4>
+<ul>
+<li><a href="http://docs.jboss.org/ejb3/app-server/reference/build/reference/en/html/transport.html">JBoss EJB3 Reference, Chapter 9. Transports</a></li>
+<li><a href="http://labs.jboss.com/portal/jbossremoting/docs/guide/ch05.html">JBoss Remoting Guide, Chapter 5. Configuration</a></li>
+</ul>
+</p>
+</body>
+</html>

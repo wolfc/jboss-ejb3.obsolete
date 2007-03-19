@@ -1,0 +1,19 @@
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+        <session>
+            <ejb-name>XMLOnlySLSB</ejb-name>
+            <jndi-name>org.jboss.ejb3.test.interceptors2.XMLOnlySLSBRemote</jndi-name>
+            
+            <!-- The default is ThreadlocalPool, which could lead to new constructs. Same goes for maxSize. -->
+            <pool-config>
+            	<pool-class>org.jboss.ejb3.StrictMaxPool</pool-class>
+            	<pool-max-size>1</pool-max-size>
+            </pool-config>
+        </session>
+   </enterprise-beans>
+</jboss>

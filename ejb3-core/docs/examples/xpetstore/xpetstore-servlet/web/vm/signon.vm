@@ -1,0 +1,59 @@
+<html>
+<head>
+	<title> $texts.getString( "login.title" )</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<form action="login.action" method="post">
+
+<h2>$texts.getString( "login.message" )</h2>
+
+<p>
+#parse ( "errors.vm" )
+
+<table>
+	<tr>
+		<td>
+			$texts.getString( "userId" )
+		</td>
+		<td>
+			<input type="text" name="userId" value="">
+		</td>
+		<td>
+			(Ex: <i>user1</i>)
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			$texts.getString( "password" )
+		</td>
+		<td>
+			<input type="password" name="password" value="">
+		</td>
+		<td>
+			(Ex: <i>password1</i>)
+		</td>
+	</tr>
+
+	<tr>
+		<td colspan="3" align="center">
+			<input type="image" border="0" src="images/button_submit.gif" >
+		</td>
+ 	</tr>
+ 	
+	<input type="hidden" name="redirectUri" value="$redirectUri" >
+ 	
+</table>
+
+</form>
+
+<form action="register.action" method="post">
+	<input type="hidden" name="redirectUri" value="$redirectUri" >
+	<input type="image" border="0" src="images/button_register_now.gif"/>
+</form>
+
+
+</body>
+</html>

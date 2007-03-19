@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore Mailing Lists</title>
+  </properties>
+
+<body>
+
+<section name="Web Access">
+	<p>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/xpetstore/</p>
+</section>
+
+<section name="Anonymous Access">
+	<p>
+    	This project's CVS repository can be checked out through anonymous (pserver) CVS 
+    	with the following instruction set. When prompted for a password for anonymous, 
+    	simply press the <i>Enter</i> key. 
+        <br/><br/>
+		cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xpetstore login
+        <br/><br/>
+		cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xpetstore/ co xpetstore
+	</p>
+</section>
+
+<section name="Developer Access via SSH">
+	<p>
+        Only project developers can access the CVS tree via this method. 
+        SSH1 must be installed on your client machine. 
+        <br/><br/>
+        export CVS_RSH=ssh 
+        <br/><br/>   
+        cvs -z3 -d:ext:<i>developername</i>@cvs.sourceforge.net:/cvsroot/xpetstore co xpetstore
+	</p>
+</section>
+
+</body>
+</document>

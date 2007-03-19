@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore EJB implementation</title>
+  </properties>
+
+<body>
+
+<section name="The Database">
+	<p>
+   	  	The database is composed of the following tables:
+   	  	<p/>
+		<table width="100%">
+			<tr>
+				<th>Name</th>
+				<th>Description</th>
+			</tr>
+			<tr>
+				<td>T_ACCOUNT</td>
+				<td>Login table for the customers</td>
+			</tr>
+			<tr>
+				<td>T_CUSTOMER</td>
+				<td>Customer' information</td>
+			</tr>
+			<tr>
+				<td>T_CATEGORY</td>
+				<td>The catalog categories (i.e. Fish, Dogs, Cats, etc.)</td>
+			</tr>
+			<tr>
+				<td>T_PRODUCT</td>
+				<td>
+					Catalog products. 
+					Each product may have one or more variants (Items). 
+					A typical variant is usually male or female
+				</td>
+			</tr>
+			<tr>
+				<td>T_ITEM</td>
+				<td>Individual product details</td>
+			</tr>
+			<tr>
+				<td>T_ORDER</td>
+				<td>Customers' orders</td>
+			</tr>
+			<tr>
+				<td>T_ORDER_ITEM</td>
+				<td>Items ordered by the Customers</td>
+			</tr>
+		</table>
+	</p>
+</section>
+
+
+<section name="The Domain">
+	<p>
+		The domain contains all the business objects of the application.
+		The business objects maintains and persists the state of the application into the database.
+		<p/>
+		<img border="1" src="images/ejb-domain.png" />
+	</p>
+</section> 
+
+
+<section name="The Services">
+	<p>
+		 The services manages the logic of the application.
+		 <p/>
+		<img border="1" src="images/ejb-services.png" />
+	</p>
+</section> 
+
+<section name="The Web">
+	<p>
+		<img border="1" src="images/ejb-web.png" />
+	</p>
+</section> 
+
+<section name="The Code Generation Patterns">
+	<p>
+		<b><u>EntityBean</u></b><br/>
+		Each EntityBean named <code>xpetstore.*.ejb.<i>name</i>EJB</code> 
+		will have the following classed generated:
+		
+		<p/>
+		<table border="0" cellspacing="2">
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>Local</code></td>
+				<td>The local business interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>LocalHome</code></td>
+				<td>The local home interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.util.<i>name</i>Value</code></td>
+				<td>The Value Object</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.util.<i>name</i>Util</code></td>
+				<td>Utility class for creating home objects</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.ejb.<i>name</i>CMP</code></td>
+				<td>The business implementation class</td>
+			</tr>
+		</table>
+		
+		<p/>
+		Each EntityBean will be also described in <code>META-INF/ejb-jar.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>SessionBean</u></b><br/>
+		Each SessionBean named <code>xpetstore.*.ejb.<i>name</i>EJB</code> 
+		will have the following classed generated:
+		
+		<p/>
+		<table border="0" cellspacing="2">
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>Local</code></td>
+				<td>The local business interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>LocalHome</code></td>
+				<td>The local home interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>Remote</code></td>
+				<td>The remote business interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.interfaces.<i>name</i>RemoteHome</code></td>
+				<td>The remote home interface</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.util.<i>name</i>Util</code></td>
+				<td>Utility class for creating home objects</td>
+			</tr>
+			<tr>
+				<td>- <code>xpetstore.*.ejb.<i>name</i>Session</code></td>
+				<td>The business implementation class</td>
+			</tr>
+		</table>
+		
+		<p/>
+		Each SessionBean will be also described in <code>META-INF/ejb-jar.xml</code>.
+	</p>
+
+	<p>
+		<b><u>MessageDrivenBean</u></b><br/>
+		Each SessionBean will be described in <code>META-INF/ejb-jar.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>Struts</u></b><br/>
+		All Struts classes named <code>xpetstore.web.struts.action.*</code>
+		will be described in <code>WEB-INF/struts-config.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>JSP Taglibs</u></b><br/>
+		All classes named <code>xpetstore.web.taglib.*</code> 
+		will be described in <code>WEB-INF/xpetstore.tld</code>.
+	</p>
+	
+	<p>
+		<b><u>Web Filters</u></b><br/>
+		All classes named <code>xpetstore.web.filter.*</code> 
+		will be described in <code>WEB-INF/web.xml</code>.
+	</p>
+	
+	<p>
+		<b><u>Application Server Deployment Desciptors</u></b><br/>
+		Application server specific deployment descriptors will also be generated:
+		<ul>
+			<li> JBoss: jboss.xml, jbosscmp-jdbc.xml, jboss-web.xml </li>
+			<li> WebLogic: weblogic-ejb-jar.xml, weblogic-cmp-rdbms-jar.xml, weblogic.xml </li>
+		</ul>
+	</p>	
+	
+</section> 
+
+</body>
+</document>

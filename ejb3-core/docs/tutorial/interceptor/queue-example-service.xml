@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=email">
+      <attribute name="JNDIName">queue/tutorial/email</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=trace">
+      <attribute name="JNDIName">queue/tutorial/accounts</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+
+
+</server>

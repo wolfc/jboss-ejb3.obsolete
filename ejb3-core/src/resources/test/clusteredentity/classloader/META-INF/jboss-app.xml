@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jboss-app>
+   <loader-repository>
+      jboss.test:ear=clusteredentity-classloader-test.ear
+      <!--
+      <loader-repository-config>
+         java2ParentDelegation=false
+      </loader-repository-config>
+      -->
+   </loader-repository>
+   <module>
+      <service>clusteredentity-ds.xml</service>
+   </module>
+</jboss-app>

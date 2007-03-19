@@ -1,0 +1,118 @@
+<project name="xpetstore-servlet-orion" default="xdoclet" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- Application server -->
+        <property file="${conf.dir}/as/appserver.properties" />    
+		<property file="${conf.dir}/as/orion.properties" />		
+       	
+   		<!-- Paths -->
+        <path id="xdoclet.class.path">
+    		<fileset dir="${lib.xdoclet.dir}"	includes="**/*.jar" />
+    		<fileset dir="${lib.log4j.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.commons.dir}" 	includes="**/*.jar" />
+    		<fileset dir="${lib.j2ee.dir}" 		includes="**/*.jar" />
+        </path>
+        
+        <path id="orion.class.path">
+			<pathelement location="${orion.home.dir}/orion.jar" />
+            <pathelement location="${orion.home.dir}/ejb.jar" />
+            <pathelement location="${orion.home.dir}/jndi.jar" />
+        </path>
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- xDoclet                                        -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="xdoclet" depends="init">
+		<antcall target="xdoclet.web" />
+	</target>
+	
+	<target name="xdoclet.web" depends="init">
+		<copy todir="${build.dir}/WEB-INF">
+			<fileset dir="${xdoclet.merge.dir}/orion/WEB-INF" includes="orion-web.xml" />
+		</copy>
+		
+		<replace file="${build.dir}/WEB-INF/orion-web.xml">
+			<replacefilter 
+			    token="@orion.mail.session@" 
+			    value="${orion.mail.session}"
+			/>
+			<replacefilter 
+			    token="@jndi.mail.session@" 
+			    value="${jndi.mail.session}"
+			/>
+			<replacefilter 
+			    token="@orion.version@" 
+			    value="${orion.version}"
+			/>
+		</replace>
+	</target>
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Deploy                                         -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="deploy" depends="init">
+		<java 
+			classname="com.evermind.client.orion.OrionConsoleAdmin" 
+			fork="yes"
+			classpathref="orion.class.path"
+		>
+			<arg value="${orion.deploy.ormi}" />
+            <arg value="${orion.user.name}" />
+            <arg value="${orion.user.password}" />
+            <arg value="-deploy" />
+            <arg value="-file" />
+            <arg value="${dist.dir}/${ear.name}" />
+            <arg value="-deploymentName" />
+            <arg value="${app.name}" />
+		</java>	
+	</target>
+
+
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Undeploy                                       -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="undeploy" depends="init">
+		<java 
+			classname="com.evermind.client.orion.OrionConsoleAdmin" 
+			fork="yes"
+			classpathref="orion.class.path"
+		>
+			<arg value="${orion.deploy.ormi}" />
+            <arg value="${orion.user.name}" />
+            <arg value="${orion.user.password}" />
+            <arg value="-undeploy" />
+            <arg value="${app.name}" />
+		</java>	
+	</target>
+	
+</project>

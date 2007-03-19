@@ -1,0 +1,1313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+   <!ENTITY buildmagic SYSTEM "../tools/etc/buildmagic/buildmagic.ent">
+   <!ENTITY libraries SYSTEM "../tools/etc/buildmagic/libraries.ent">
+   <!ENTITY modules SYSTEM "../tools/etc/buildmagic/modules.ent">
+]>
+
+<!-- ====================================================================== -->
+<!--                                                                        -->
+<!--  JBoss, the OpenSource J2EE webOS                                      -->
+<!--                                                                        -->
+<!--  Distributable under LGPL license.                                     -->
+<!--  See terms of license at http://www.gnu.org.                           -->
+<!--                                                                        -->
+<!-- ====================================================================== -->
+
+<!-- $Id$ -->
+
+<project default="main" name="JBoss/EJB3 Tests">
+
+   <!-- ================================================================== -->
+   <!-- Setup                                                              -->
+   <!-- ================================================================== -->
+
+   <!--
+      | Include the common Buildmagic elements.
+      |
+      | This defines several different targets, properties and paths.
+      | It also sets up the basic extention tasks amoung other things.
+    -->
+
+   &buildmagic;
+
+
+   <!-- ================================================================== -->
+   <!-- Initialization                                                     -->
+   <!-- ================================================================== -->
+
+   <!--
+      | Initialize the build system.  Must depend on '_buildmagic:init'.
+      | Other targets should depend on 'init' or things will mysteriously fail.
+    -->
+
+   <target name="init" unless="init.disable" depends="_buildmagic:init">
+   </target>
+
+   <target name="most"/>
+
+
+   <!-- ================================================================== -->
+   <!-- Configuration                                                      -->
+   <!-- ================================================================== -->
+
+   <!--
+      | Configure the build system.
+      |
+      | This target is invoked by the Buildmagic initialization logic and
+      | should contain module specific configuration elements.
+    -->
+
+   <target name="configure" unless="configure.disable">
+
+      <!-- =================== -->
+      <!-- Basic Configuration -->
+      <!-- =================== -->
+
+      <!-- Module name(s) & version -->
+      <property name="module.name" value="ejb3"/>
+      <property name="module.Name" value="JBoss EJB3"/>
+      <property name="module.version" value="DEV"/>
+
+      <!-- ========= -->
+      <!-- Libraries -->
+      <!-- ========= -->
+      &libraries;
+      <!-- The combined library classpath -->
+      <path id="library.classpath">
+         <path refid="sun.jaf.classpath"/>
+         <path refid="sun.servlet.classpath"/>
+         <path refid="javassist.classpath"/>
+         <path refid="qdox.classpath"/>
+         <path refid="hibernate3.classpath"/>
+         <path refid="dom4j.dom4j.classpath"/>
+         <path refid="javassist.classpath"/>
+         <path refid="trove.classpath"/>
+         <path refid="cglib.classpath"/>
+         <path refid="xdoclet.xdoclet.classpath"/>
+         <path refid="apache.ant.classpath"/>
+         <path refid="oswego.concurrent.classpath"/>
+         <path refid="junit.junit.classpath"/>
+         <path refid="apache.log4j.classpath"/>
+         <path refid="apache.xerces.classpath"/>
+         <path refid="jboss.remoting.classpath"/>
+      </path>
+
+      <!-- ======= -->
+      <!-- Modules -->
+      <!-- ======= -->
+
+      &modules;
+
+      <!-- The combined dependent module classpath -->
+      <path id="dependentmodule.classpath">
+         <path refid="jboss.j2ee.classpath"/>
+         <path refid="jboss.j2se.classpath"/>
+         <path refid="jboss.aop.classpath"/>
+         <path refid="jboss.aspects.classpath"/>
+         <path refid="jboss.ejb3x.classpath"/>
+         <path refid="jboss.common.classpath"/>
+         <path refid="jboss.cache.classpath"/>
+         <path refid="jboss.cluster.classpath"/>
+         <path refid="jboss.system.classpath"/>
+         <path refid="jboss.naming.classpath"/>
+         <path refid="jboss.transaction.classpath"/>
+         <path refid="jboss.security.classpath"/>
+         <!-- this is for the NonSerializableFactory -->
+         <path refid="jboss.server.classpath"/>
+         <path refid="jboss.messaging.classpath"/>
+         <path refid="jboss.test.classpath"/>
+         <path refid="jboss.container.classpath"/>
+         <path refid="jboss.kernel.classpath"/>
+      </path>
+
+
+      <!-- ===== -->
+      <!-- Tasks -->
+      <!-- ===== -->
+
+      <!-- Where source files live -->
+      <property name="source.java" value="${module.source}/test"/>
+      <property name="source.etc" value="${module.source}/etc"/>
+      <property name="resources" value="${module.source}/resources"/>
+
+      <!-- Where build generated files will go -->
+      <property name="build.reports" value="${module.output}/reports"/>
+      <property name="build.testlog" value="${module.output}/log"/>
+      <property name="build.classes" value="${module.output}/classes"/>
+      <property name="build.lib" value="${module.output}/lib"/>
+      <property name="build.api" value="${module.output}/api"/>
+      <property name="build.etc" value="${module.output}/etc"/>
+
+      <path id="standalone.classpath">
+         <fileset dir="${build.lib}/embeddable/lib">
+            <include name="*.jar"/>
+         </fileset>
+         <pathelement location="${build.lib}/embeddable/config"/>
+      </path>
+
+      <!-- Install/Release structure -->
+      <property name="install.id" value="${module.name}-${module.version}"/>
+      <property name="release.id" value="${install.id}"/>
+      <property name="install.root" value="${module.output}/${install.id}"/>
+
+      <!-- The combined thirdparty classpath -->
+      <path id="thirdparty.classpath">
+         <path refid="library.classpath"/>
+         <path refid="dependentmodule.classpath"/>
+      </path>
+
+      <!-- This module is based on Java 1.2 -->
+      <property name="javac.target" value="1.2"/>
+
+      <!-- classpath and local.classpath must have a value using with a path -->
+      <property name="classpath" value=""/>
+      <property name="local.classpath" value=""/>
+
+      <!-- The classpath required to build classes. -->
+      <path id="javac.classpath">
+         <pathelement path="${classpath}"/>
+         <pathelement path="${local.classpath}"/>
+         <path refid="thirdparty.classpath"/>
+      </path>
+
+      <!-- The classpath required to build javadocs. -->
+      <path id="javadoc.classpath">
+         <path refid="javac.classpath"/>
+      </path>
+
+      <!-- Packages to include when generating api documentation -->
+      <property name="javadoc.packages" value="javax.*"/>
+
+      <!-- Override JUnit defaults -->
+      <property name="jbosstest.iterationcount" value="10"/>
+      <property name="jbosstest.threadcount" value="5"/>
+      <property name="jbosstest.beancount" value="5"/>
+      <property name="jbosstest.nodeploy" value="false"/>
+   </target>
+
+
+   <!-- ================================================================== -->
+   <!-- Compile                                                            -->
+   <!-- ================================================================== -->
+
+   <!--
+      | Compile everything.
+      |
+      | This target should depend on other compile-* targets for each
+      | different type of compile that needs to be performed, short of
+      | documentation compiles.
+    -->
+
+   <!-- Compile all class files -->
+   <target name="compile-classes" depends="init">
+      <mkdir dir="${build.classes}"/>
+      <javac destdir="${build.classes}"
+         optimize="${javac.optimize}"
+         debug="${javac.debug}"
+         source="1.5"
+         target="1.5"
+         depend="${javac.depend}"
+         verbose="${javac.verbose}"
+         deprecation="${javac.deprecation}"
+         includeAntRuntime="${javac.include.ant.runtime}"
+         includeJavaRuntime="${javac.include.java.runtime}"
+         failonerror="${javac.fail.onerror}">
+         <src path="${project.root}/testsuite/src/main"/>
+         <classpath refid="javac.classpath"/>
+         <include name="org/jboss/test/*.java"/>
+      </javac>
+      <javac destdir="${build.classes}"
+         optimize="${javac.optimize}"
+         debug="${javac.debug}"
+         source="1.5"
+         target="1.5"
+         depend="${javac.depend}"
+         verbose="${javac.verbose}"
+         deprecation="${javac.deprecation}"
+         includeAntRuntime="${javac.include.ant.runtime}"
+         includeJavaRuntime="${javac.include.java.runtime}"
+         failonerror="${javac.fail.onerror}">
+         <src path="${source.java}"/>
+         <classpath refid="javac.classpath"/>
+      </javac>
+   </target>
+
+   <!-- ================================================================== -->
+   <!-- Archives                                                           -->
+   <!-- ================================================================== -->
+
+   <target name="initial"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/initial-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/initial/Test.class"/>
+            <include name="org/jboss/ejb3/test/initial/TestLocal.class"/>
+            <include name="org/jboss/ejb3/test/initial/TestRemote.class"/>
+            <include name="org/jboss/ejb3/test/initial/TestBean.class"/>
+            <include name="org/jboss/ejb3/test/initial/StatefulTest.class"/>
+            <include name="org/jboss/ejb3/test/initial/StatefulTestBean.class"/>
+            <include name="org/jboss/ejb3/test/initial/StatefulTestLocal.class"/>
+            <include name="org/jboss/ejb3/test/initial/StatefulTestRemote.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecuredTest.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecuredTestRemote.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecuredTestLocal.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecuredTestBean.class"/>
+
+            <include name="org/jboss/ejb3/test/initial/FirstInterceptor.class"/>
+            <include name="org/jboss/ejb3/test/initial/InterceptedSFTest.class"/>
+            <include name="org/jboss/ejb3/test/initial/InterceptedSFTestBean.class"/>
+            <include name="org/jboss/ejb3/test/initial/InterceptedSLTest.class"/>
+            <include name="org/jboss/ejb3/test/initial/InterceptedSLTestBean.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecondInterceptor.class"/>
+            <include name="org/jboss/ejb3/test/initial/TestStatus.class"/>
+            <include name="org/jboss/ejb3/test/initial/TestStatusBean.class"/>
+            <include name="org/jboss/ejb3/test/initial/ExternalCallbackListener.class"/>
+            <include name="org/jboss/ejb3/test/initial/ClassInjected.class"/>
+            <include name="org/jboss/ejb3/test/initial/ClassInjectedBean.class"/>
+         </fileset>
+         <fileset dir="${resources}/test">
+            <include name="*.properties"/>
+         </fileset>
+      </jar>
+
+
+      <jar jarfile="${build.lib}/initial-ejb3-test.sar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/initial/Tester*.class"/>
+            <include name="org/jboss/ejb3/test/initial/TxTester*.class"/>
+            <include name="org/jboss/ejb3/test/initial/SecurityTester*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test">
+            <include name="META-INF/jboss-service.xml"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <include name="initial-test.ejb3"/>
+         </fileset>
+      </jar>
+
+
+   </target>
+
+   <target name="cache"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/cache-test.sar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/cache/Tester*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/cache">
+            <include name="META-INF/jboss-service.xml"/>
+         </fileset>
+      </jar>
+
+      <jar jarfile="${build.lib}/cache-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/cache/Stateful*.class"/>
+            <include name="org/jboss/ejb3/test/cache/SimpleStateful*.class"/>
+         </fileset>
+      </jar>
+
+      <copy todir="${build.lib}">
+         <fileset dir="${resources}/test/cache">
+            <include name="*.xml"/>
+         </fileset>
+      </copy>
+
+
+   </target>
+
+   <target name="benchmark"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/benchmark.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/microbench/StatelessBean.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessRemote.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessLocal.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessTest.class"/>
+         </fileset>
+      </jar>
+
+      <jar jarfile="${build.lib}/benchmark.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/microbench/StatelessBean21.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessRemote21.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessLocal21.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessHomeRemote.class"/>
+            <include name="org/jboss/ejb3/test/microbench/StatelessHomeLocal.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/microbench">
+            <include name="META-INF/ejb-jar.xml"/>
+            <include name="META-INF/jboss.xml"/>
+         </fileset>
+      </jar>
+
+
+      <jar jarfile="${build.lib}/benchmark-ejb3-test.sar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/microbench/Bench*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/microbench">
+            <include name="META-INF/jboss-service.xml"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <include name="benchmark.ejb3"/>
+            <include name="benchmark.jar"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="asynchronous"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/asynchronous-test.sar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/asynchronous/Tester*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/asynchronous">
+            <include name="META-INF/jboss-service.xml"/>
+         </fileset>
+      </jar>
+      <jar jarfile="${build.lib}/asynchronous-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/asynchronous/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test">
+            <include name="users.properties"/>
+            <include name="roles.properties"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="timer"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/timer-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/timer/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="pkg"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/pkg-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/pkg/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="dd"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/dd.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/dd/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="bank"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/bank.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/bank/*.class"/>
+         </fileset>
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/bank/ejbutil/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/bank">
+            <include name="META-INF/*.xml"/>
+            <include name="users.properties"/>
+            <include name="roles.properties"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="dd/mdb"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/dd-mdb.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/dd/mdb/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/dd/mdb">
+            <include name="META-INF/*.xml"/>
+         </fileset>
+         <fileset dir="${resources}/test/dd/mdb">
+            <include name="*.xml"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="exception"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/exception.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/exception/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="dd/override"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <copy file="${resources}/test/dd/override/META-INF/ejb-jarB.xml" tofile="${resources}/test/dd/override/META-INF/ejb-jar.xml"/>
+
+      <jar jarfile="${build.lib}/dd-override1B.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/dd/override/FooBean1.class"/>
+	      <include name="org/jboss/ejb3/test/dd/override/Foo.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/dd/override">
+            <include name="META-INF/ejb-jar.xml"/>
+         </fileset>
+         <fileset dir="${resources}/test">
+            <include name="*.properties"/>
+         </fileset>
+      </jar>
+   </target>
+
+
+   <target name="hbm"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/hbm-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/hbm/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/hbm">
+           <include name="META-INF/**"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="regressionHHH275"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/regressionHHH275-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/regressionHHH275/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="regression"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/regression-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/regression/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="strictpool"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/strictpool-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/strictpool/*.class"/>
+         </fileset>
+      </jar>
+      <copy todir="${build.lib}">
+         <fileset dir="${resources}/test/strictpool">
+            <include name="*.xml"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="relationships"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/relationships-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/relationships/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="entity"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/entity-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/entity/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="longlived"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/longlived-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/longlived/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="entityexception"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/entityexception-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/entityexception/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="composite"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/composite-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/composite/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="composite2"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/composite2-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/composite2/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="lob"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/lob-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/lob/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="manytomany"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/manytomany-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/manytomany/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="joininheritance"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/join-inheritance-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/joininheritance/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="singletable"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/single-table-inheritance-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/singletableinheritance/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="mdb"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/mdb-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/mdb/*.class"/>
+         </fileset>
+      </jar>
+      <copy todir="${build.lib}">
+         <fileset dir="${resources}/test/mdb">
+            <include name="*.xml"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="consumer"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/consumer-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/consumer/*.class"/>
+         </fileset>
+      </jar>
+      <copy todir="${build.lib}">
+         <fileset dir="${resources}/test/mdb">
+            <include name="*.xml"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="tableperclass"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/table-per-class-inheritance-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/tableperinheritance/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="dependent"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/dependent-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/dependent/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="stateful"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/stateful-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/stateful/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="stateless"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/stateless-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/stateless/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test">
+            <include name="users.properties"/>
+            <include name="roles.properties"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="service"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/service-test.sar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/service/Tester*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/service">
+            <include name="META-INF/jboss-service.xml"/>
+         </fileset>
+      </jar>
+      <jar jarfile="${build.lib}/service-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/service/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="entitycallback"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/entitycallback-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/entitycallback/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="secondary"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/secondary-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/secondary/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="xmlcfg"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/xmlcfg-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/xmlcfg/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/xmlcfg">
+            <include name="META-INF/**"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="clusteredentity"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/clusteredentity-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/clusteredentity/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/clusteredentity">
+            <include name="META-INF/hibernate.cfg.xml"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="simplecluster"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/simplecluster-test.ejb3">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/simplecluster/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="jars" depends="exception, dd/override, stateless, standalone-jar, dd/mdb, bank, dd, longlived, xmlcfg, hbm, pkg, regressionHHH275, entityexception, asynchronous, consumer, clusteredentity, secondary, stateful, service, lob,cache,initial,timer,benchmark,entity,joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression, composite, composite2, entitycallback, relationships, simplecluster, strictpool"/>
+
+   <target name="test" depends="init" if="test"
+      description="Execute all tests in the given test directory.">
+      <mkdir dir="${build.reports}"/>
+      <mkdir dir="${build.testlog}"/>
+      <!-- Remove the test.log so each run has a fresh log -->
+      <delete file="${build.testlog}/test.log"/>
+      <junit dir="${module.output}"
+         printsummary="yes"
+         haltonerror="false"
+         haltonfailure="false"
+         fork="true">
+
+         <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
+         <sysproperty key="build.testlog" value="${build.testlog}"/>
+         <sysproperty key="log4j.configuration" value="file:${resources}/test/log4j.xml"/>
+         <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
+         <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
+         <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
+
+
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+
+         <formatter type="plain" usefile="true"/>
+         <formatter type="xml" usefile="true"/>
+
+         <batchtest todir="${build.reports}"
+            haltonerror="false"
+            haltonfailure="false"
+            fork="true">
+
+            <fileset dir="${build.classes}">
+               <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
+            </fileset>
+         </batchtest>
+      </junit>
+   </target>
+
+   <target name="standalone-jar"
+      description="Builds all jar files."
+      depends="compile-classes">
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/embeddable/config/standalone.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/standalone/*.class"/>
+         </fileset>
+      </jar>
+   </target>
+
+   <target name="standalone-test" depends="init" if="test"
+      description="Execute all tests in the given test directory.">
+      <mkdir dir="${build.reports}"/>
+      <mkdir dir="${build.testlog}"/>
+      <!-- Remove the test.log so each run has a fresh log -->
+      <delete file="${build.testlog}/test.log"/>
+      <junit dir="${module.output}"
+         printsummary="yes"
+         haltonerror="false"
+         haltonfailure="false"
+         fork="true">
+
+         <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
+         <sysproperty key="build.testlog" value="${build.testlog}"/>
+         <sysproperty key="log4j.configuration" value="file:${resources}/test/log4j.xml"/>
+         <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
+         <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
+         <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
+
+
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <path refid="standalone.classpath"/>
+            <path refid="jboss.test.classpath"/>
+            <path refid="hsqldb.hsqldb.classpath"/>
+         </classpath>
+
+         <formatter type="plain" usefile="true"/>
+         <formatter type="xml" usefile="true"/>
+
+         <batchtest todir="${build.reports}"
+            haltonerror="false"
+            haltonfailure="false"
+            fork="true">
+
+            <fileset dir="${build.classes}">
+               <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
+            </fileset>
+         </batchtest>
+      </junit>
+   </target>
+
+   <target name="run-clusteredentity" depends="init"
+      description="Runs the clusteredentity stuff in a cluster">
+
+      <!-- clusteredentity-test.ejb3 file needs to be deployed manually-->
+
+      <!-- IP:port of the two nodes in the cluster -->
+      <property name="naming1" value="192.168.1.1:1099"/>
+      <property name="naming1" value="192.168.1.2:1099"/>
+
+      <java fork="yes" className="org.jboss.ejb3.test.clusteredentity.unit.CachedEntityRun">
+         <arg value="${naming1}"/>
+         <arg value="${naming2}"/>
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+      </java>
+   </target>
+
+
+
+   <target name="run" depends="init" if="class"
+      description="Execute all tests in the given test directory.">
+      <java fork="true" classname="${class}">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+      </java>
+   </target>
+
+   <target name="tests" depends="init" description="Execute all tests">
+      <antcall target="ejb-tests" inheritRefs="true"/>
+      <antcall target="entity-tests" inheritRefs="true"/>
+   </target>
+
+   <target name="ejb-tests" depends="init" description="Execute all tests">
+      <antcall target="standalone-test" inheritRefs="true">
+         <param name="test" value="standalone"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="service"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="stateful"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="initial"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="timer"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="asynchronous"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="microbench"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="mdb"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="consumer"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="cache"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="strictpool"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="stateless"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="dd"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="bank"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="dd/mdb"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="dd/override"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="exception"/>
+      </antcall>
+   </target>
+
+   <target name="entity-tests" depends="init" description="Execute all tests">
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="longlived"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="hbm"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="pkg"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="entityexception"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="secondary"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="xmlcfg"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="clusteredentity"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="lob"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="composite"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="composite2"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="entity"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="manytomany"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="joininheritance"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="singletableinheritance"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="tableperinheritance"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="dependent"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="entitycallback"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="regressionHHH275"/>
+      </antcall>
+   </target>
+
+   <target name="entity2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.entity.Company"/>
+         <arg value="org.jboss.ejb3.test.entity.Customer"/>
+         <arg value="org.jboss.ejb3.test.entity.Flight"/>
+         <arg value="org.jboss.ejb3.test.entity.Ticket"/>
+         <arg value="org.jboss.ejb3.test.entity.Address"/>
+         <arg value="org.jboss.ejb3.test.entity.FieldCompany"/>
+         <arg value="org.jboss.ejb3.test.entity.FieldCustomer"/>
+         <arg value="org.jboss.ejb3.test.entity.FieldFlight"/>
+         <arg value="org.jboss.ejb3.test.entity.FieldTicket"/>
+         <arg value="org.jboss.ejb3.test.entity.FieldAddress"/>
+      </java>
+   </target>
+
+   <target name="hbm2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.hbm.Annotated"/>
+      </java>
+   </target>
+
+   <target name="relationships2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.relationships.Customer"/>
+         <arg value="org.jboss.ejb3.test.relationships.CustomerRecord"/>
+         <arg value="org.jboss.ejb3.test.relationships.LineItem"/>
+         <arg value="org.jboss.ejb3.test.relationships.Order"/>
+      </java>
+   </target>
+
+   <target name="composite2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.composite.Customer"/>
+         <arg value="org.jboss.ejb3.test.composite.Flight"/>
+         <arg value="org.jboss.ejb3.test.composite.Ticket"/>
+      </java>
+   </target>
+
+   <target name="lob2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.lob.BlobEntity"/>
+      </java>
+   </target>
+
+   <target name="regression2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.regression.Branch"/>
+         <arg value="org.jboss.ejb3.test.regression.Contact"/>
+         <arg value="org.jboss.ejb3.test.regression.Employee"/>
+      </java>
+   </target>
+
+   <target name="many2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.manytomany.Company"/>
+         <arg value="org.jboss.ejb3.test.manytomany.Customer"/>
+         <arg value="org.jboss.ejb3.test.manytomany.Flight"/>
+         <arg value="org.jboss.ejb3.test.manytomany.Ticket"/>
+         <arg value="org.jboss.ejb3.test.manytomany.Address"/>
+      </java>
+   </target>
+
+   <target name="inherit2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.joininheritance.Customer"/>
+         <arg value="org.jboss.ejb3.test.joininheritance.Person"/>
+         <arg value="org.jboss.ejb3.test.joininheritance.Employee"/>
+      </java>
+   </target>
+
+   <target name="single2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.singletableinheritance.Customer"/>
+         <arg value="org.jboss.ejb3.test.singletableinheritance.Person"/>
+         <arg value="org.jboss.ejb3.test.singletableinheritance.Employee"/>
+      </java>
+   </target>
+
+   <target name="table2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.tableperinheritance.Customer"/>
+         <arg value="org.jboss.ejb3.test.tableperinheritance.Person"/>
+         <arg value="org.jboss.ejb3.test.tableperinheritance.Employee"/>
+      </java>
+   </target>
+
+   <target name="dependent2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.dependent.Customer"/>
+         <arg value="org.jboss.ejb3.test.dependent.FieldCustomer"/>
+      </java>
+   </target>
+
+   <target name="entitycallback2xml" depends="init">
+      <java fork="yes" failOnError="true" className="org.jboss.ejb3.entity.EntityToHibernateXml">
+         <classpath>
+            <pathelement location="${build.classes}"/>
+            <pathelement location="${resources}/test"/>
+            <path refid="javac.classpath"/>
+         </classpath>
+         <arg value="org.jboss.ejb3.test.entitycallback.Customer"/>
+         <arg value="org.jboss.ejb3.test.entitycallback.Journey"/>
+         <arg value="org.jboss.ejb3.test.entitycallback.TrainJourney"/>
+         <arg value="org.jboss.ejb3.test.entitycallback.BusJourney"/>
+      </java>
+   </target>
+
+   <!-- ================================================================== -->
+   <!-- Cleaning                                                           -->
+   <!-- ================================================================== -->
+
+   <!-- Clean up all build output -->
+   <target name="clean"
+      description="Cleans up most generated files." depends="init">
+      <delete dir="${build.classes}/org/jboss/test"/>
+      <delete dir="${build.classes}/org/jboss/ejb3/test"/>
+   </target>
+
+   <!-- ================================================================== -->
+   <!-- Misc.                                                              -->
+   <!-- ================================================================== -->
+
+   <target name="main"
+      description="Executes the default target (most)."
+      depends="jars"/>
+
+</project>

@@ -1,0 +1,5 @@
+<!-- Velocity -->
+<servlet-mapping>
+    <servlet-name>velocity</servlet-name>
+    <url-pattern>*.vm</url-pattern>
+</servlet-mapping>

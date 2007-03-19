@@ -1,0 +1,141 @@
+<chapter id="session-bean-config">
+
+   <title>Session EJB and MDB Configuration</title>
+
+   <sect1>
+      <title>Pooling</title>
+      <para>
+         Both Stateless Session beans and Message Driven Beans have an instance pool.  The basic configuration of JBoss uses a thread local pool
+         to avoid Java synchronization (org.jboss.ejb3.ThreadLocalPool).  These EJB types can be configured to use an alternative pooling mechanism.  For example,
+         JBoss has a strict pool size implementation that will only allow a fixed number of concurrent requests to run at one time.  If there are more requests running
+         than the pool's strict size, those requests will block until an instance becomes available.  This is configured via the
+         @org.jboss.annotation.ejb.PoolClass annotation.
+         <programlisting>
+            @Retention(RetentionPolicy.RUNTIME)
+            @Target({ElementType.TYPE})
+            public @interface PoolClass
+            {
+               Class value();
+               int maxSize() default 30;
+               long timeout()default Long.MAX_VALUE;
+            }
+         </programlisting>
+         </para>
+      <para>
+         The value() parameter defines the pool implementation class you want to plug in.  maxSize() defines the size of the pool while timeout() is a time in
+         milliseconds you want to block when waiting for an instance to be ready.  This annotation can be applied to a stateless or message driven bean class.
+         Here's an example of using it.
+         <programlisting>
+            @Stateless
+            @PoolClass (value=org.jboss.ejb3.StrictMaxPool.class, maxSize=5, timeout=10000)
+            @Remote(StrictlyPooledSession.class)
+            public class StrictlyPooledSessionBean implements StrictlyPooledSession
+            {
+             ...
+            }
+         </programlisting>
+       </para>
+       <para>
+          There is no nice way of applying the same configuration through XML.  To do it through XML you must define a new aspect domain (an EJB container configuration template)
+          and define an annotation override within that domain and then apply the domain through jboss.xml.  Here's an example:
+       </para>
+      <para>
+         First create the aspect domain.  Create a file called mydomain-aop.xml and put this in the top level directory of your EJB jar.  Might seem a little cryptic
+         but what this is doing is declaring an annotation that will be created by the EJB container.  Our EJB3 implementation is based on JBoss AOP.  See the
+         JBoss AOP documentation for more info on annotation overrides.
+         <programlisting><![CDATA[
+<aop>
+   <domain name="Strictly Pooled Stateless Bean" extends="Stateless Bean" inheritBindings="true">
+      <annotation expr="!class(@org.jboss.annotation.ejb.PoolClass)">
+          @org.jboss.annotation.ejb.PoolClass (value=org.jboss.ejb3.StrictMaxPool.class, maxSize=5, timeout=10000)
+      </annotation>
+   </domain>
+   <domain name="Strictly Pooled Message Driven Bean" extends="Message Driven Bean" inheritBindings="true">
+      <annotation expr="!class(@org.jboss.annotation.ejb.PoolClass)">
+          @org.jboss.annotation.ejb.PoolClass (value=org.jboss.ejb3.StrictMaxPool.class, maxSize=5, timeout=10000)
+      </annotation>
+   </domain>
+</aop>
+
+]]>
+         </programlisting>
+      </para>
+      <para>
+         There is no nice way of applying the same configuration through XML.  To do it through XML you must define a new aspect domain (an EJB container configuration template)
+         and define an annotation override within that domain and then apply the domain through jboss.xml.  Here's an example:
+      </para>
+     <para>
+        The next thing you have to do is apply the aspect domain to your EJB within a jboss.xml file in the META-INF directory.
+        <programlisting><![CDATA[
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <session>
+         <ejb-name>MySessionBean</ejb-name>
+         <aop-domain-name>Strictly Pooled Stateless Bean</aop-domain-name>
+      </session>
+   </enterprise-beans>
+</jboss>
+  ]]>
+        </programlisting>
+     </para>
+   </sect1>
+   <sect1>
+      <title>The Stateful Session Bean Cache</title>
+      <para>
+         Stateful beans are stored in a cache.  This cache is responsible for passivated stateful sessions when
+         the cache becomes too full or a bean is too old.  You may want to set things like the max size of this cache, and when
+         beans should become idle.  Configuration is different depending on whether you are clustered or not.
+      </para>
+      <sect2>
+         <title>Non-Clustered</title>
+         <para>
+            For non clustered stateful beans, the @org.jboss.annotation.ejb.cache.simple.CacheConfig annotation is
+            responsible for configuring the cache.
+            <programlisting>
+               public @interface CacheConfig
+               {
+                  int maxSize() default 100000;
+
+                  long idleTimeoutSeconds() default 300;
+               }
+            </programlisting>
+  If you want an XML version, you must do a similar pattern as shown in the pooling
+            section above.  You must create an aspect domain through XML and apply that domain through XML.
+         </para>
+      </sect2>
+      <sect2>
+         <title>Clustered</title>
+         <para>
+            For non clustered stateful beans, the @org.jboss.annotation.ejb.cache.tree.CacheConfig annotation is
+            responsible for configuring the cache.
+            <programlisting>
+               public @interface CacheConfig
+               {
+                  String name() default "jboss.cache:service=EJB3SFSBClusteredCache";
+
+                  int maxSize() default 10000;
+
+                  long idleTimeoutSeconds() default 300;
+               }
+            </programlisting>
+            The name() attribute specificies the kernel name of the clustered cache you are using.  Usually you won't change this value.
+            If you want an XML version, you must do a similar pattern as shown in the pooling
+            section above.  You must create an aspect domain through XML and apply that domain through XML.
+         </para>
+      </sect2>
+      <sect2>
+         <title>No Passivation</title>
+         <para>
+            Sometimes it is useful to turn off passivation entirely.  This can be done by plugging in the caching implementation
+            using the @org.jboss.annotation.ejb.cache.Cache (org.jboss.ejb3.cache.NoPassivationCache.class) annotation.
+         </para>
+      </sect2>
+   </sect1>
+</chapter>
+

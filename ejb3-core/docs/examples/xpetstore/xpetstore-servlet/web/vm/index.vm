@@ -1,0 +1,33 @@
+<html>
+<head>
+	<title>$texts.getString( "index.title" )</title>
+	<link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<map name="estoremap">
+		<area alt="Birds" coords="72,2,280,250" shape="RECT" 
+			href="category.action?categoryId=BIRDS"
+		/>
+		<area alt="Fish" coords="2,180,72,250" shape="RECT"
+			href="category.action?categoryId=FISH"
+		/>
+		<area alt="Dogs" coords="60,250,130,320" shape="RECT" 
+			href="category.action?categoryId=DOGS"
+		/>
+		<area alt="Reptiles" coords="140,270,210,340" shape="RECT"
+			href="category.action?categoryId=REPTILES"
+		/>
+		<area alt="Cats" coords="225,240,295,310" shape="RECT"
+			href="category.action?categoryId=CATS"
+		/>
+		<area alt="Birds" coords="280,180,350,250"  shape="RECT"
+			href="category.action?categoryId=BIRDS"
+		/>
+	</map>	
+	
+	<img src="images/splash.gif" 
+		border="0" height="355" 
+		align="center" usemap="#estoremap" width="350" />
+</body>
+
+</html>

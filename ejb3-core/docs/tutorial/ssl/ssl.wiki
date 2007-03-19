@@ -1,0 +1,5 @@
+!!! Invoking EJBs through SSL
+
+If you build the tutorial, an ejb jar is created with ssl-service.xml and the local.keystore file.  The ssl-service.xml sets up a JAAS security manager to manage the SSL keystore.  This is documented pretty well in the JBoss 4.x manual.  ssl-service.xml also defines a JBoss Remoting connector.  The CalculatorBean EJB, uses the @RemoteBinding annotation to bind the SSL connector to the EJB.  The client has define the truststore used be the client.
+
+''TODO:  better explanation here!''

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <message-driven>
+         <ejb-name>testmdb</ejb-name>
+         <resource-adapter-name>swiftmq.rar</resource-adapter-name>
+      </message-driven>
+   </enterprise-beans>
+</jboss>

@@ -1,0 +1,44 @@
+<project name="xpetstore-ejb-database" default="all" basedir="./">
+
+
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Initialization                                 -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="init">
+	
+    	<!-- General config -->
+        <tstamp />
+        <property environment="env" />        
+        <property file="${basedir}/build.properties" />
+        
+		<!-- database config -->
+		<property file="${conf.dir}/db/database.properties" />
+		<echo>Database=${database}</echo>	
+		<property file="${conf.dir}/db/${database}.properties" /> 	
+	</target>
+    
+    
+    
+    
+<!-- ============================================== -->
+<!--                                                -->
+<!-- Data                                           -->
+<!--                                                -->
+<!-- ============================================== -->
+
+	<target name="data" depends="init">
+        <echo message="url=${db.url}"/>
+        <sql 
+        	src="${sql.dir}/data.sql"
+            driver="${db.driver}" 
+            url="${db.url}"
+            userid="${db.user}" 
+            password="${db.password}"
+            classpath="${db.classpath}"
+        />
+	</target>
+	
+</project>

@@ -1,0 +1,229 @@
+!!!Embeddable EJB 3.0
+JBoss EJB 3.0 supports an embeddable version that can be run outside of the application server in standalone applications,
+junit tests, Tomcat, or even other non-jboss application servers.  The full JBoss JEMS suite is not all embeddable yet, but here's what is available.
+
+* Local JNDI
+* Transaction Manager
+* JMS
+* Local TX datasource/connection pool
+* Stateful, Stateless, Service, Consumer, Producer, and MDBs
+* EJB 3 Persistence
+* Hibernate integration
+* EJB Security
+
+These are the limitations
+
+* We have only sparsely tested the embedded stack.  Consider it an alpha release
+* The Embedded stack is based off of CVS HEAD, not JBoss 4.0.x.  Future versions will be based off of 4.0.x code.
+* Documentation is sparse.  Hopefully the tutorial examples are enough to get started.
+* XA Connection pool is not available yet.
+* When embedding into Tomcat, you still require a JBoss specific JNDI implementation.  Tomcat's JNDI is read-only.
+* You still must use the JBoss transaction manager even when embedding in another app server vendor.  This will be remedied in the future when the JBoss AOP/Microcontainer integration is complete.
+* Distributed remote communication is not supported yet.
+* EJB Timer service not supported
+* Even though @Remote interfaces are local, you can only communicate through local connections.
+* You cannot access JMS remotely.  Only locally.  Thus, you have to lookup the "java:/ConnectionFactory".
+* JNDI is not available remotely
+
+!!!Javadoc
+Heres a link to the [javadocs|api/index.html]
+
+
+!!!Installing
+Embeddable EJB 3.0 requires that all classes and configuration files be in your classpath so that it can locate them.  Make sure the
+conf/ directory and all jars in the lib/ directory are in your classpath.  That's about it.  Also, you will need JDK 5.0.  EJB 3.0
+requires annotations and generics.
+
+!!!Using Embeddable EJB 3.0
+Embeddable EJB 3.0 is built on top of the new JBoss Microcontainer that will be the core of JBoss 5.0.  It is a dependency injection
+container and the configuration files will look very similar to other injection frameworks.  It should be very possible to
+port Embeddable EJB 3.0 to other IoC frameworks.   If you are interested in contributing such a port, please email us and we
+will be happy to include it within the distribution.
+
+!!Defining a datasource
+Open [conf/embedded-jboss-beans.xml|../conf/embedded-jboss-beans.xml] and search for DefaultDS.  This example configures
+a default datasource that is used by the JMS Persistence Manager and is the default datasource for EJB3 Entity beans.
+
+{{{
+   <bean name="DefaultDSBootstrap" class="org.jboss.resource.adapter.jdbc.local.LocalTxDataSource">
+      <property name="driverClass"><value>org.hsqldb.jdbcDriver</value></property>
+      <property name="connectionURL"><value>jdbc:hsqldb:.</value></property>
+      <property name="userName"><value>sa</value></property>
+      <property name="jndiName"><value>java:/DefaultDS</value></property>
+      <property name="minSize"><value>0</value></property>
+      <property name="maxSize"><value>10</value></property>
+      <property name="blockingTimeout"><value>1000</value></property>
+      <property name="idleTimeout"><value>50000</value></property>
+      <property name="transactionManager"><inject bean="TransactionManager"/></property>
+      <property name="cachedConnectionManager"><inject bean="CachedConnectionManager"/></property>
+      <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+   </bean>
+
+   <bean name="DefaultDS" class="java.lang.Object">
+      <constructor factoryMethod="getDatasource">
+         <factory bean="DefaultDSBootstrap"/>
+      </constructor>
+   </bean>
+}}}
+
+If you need to define your own datasource, basically cut and paste this XML.  The properties are pretty self explanatory.
+''DefaultDSBootstrap'' is the real configuration of the datasource.  The ''DefaultDS'' bean is only there to make the datasource
+available for injection into other Microcontainer defined beans.
+
+The DefaultDS, uses an in-memory database and thus will not persist changes to a file on disk.  If you want changes persisted using the
+DefaultDS, then make the following change:
+
+{{{
+<property name="connectionURL"><value>jdbc:hsqldb:/home/put/your/path/here/localDB</value></property>
+}}}
+
+!! Security
+Security works just like JBoss application server security.  Only the user/role property file domain has been tested, but others should work too.  A login-config.xml file must be available in your classpath. There is one already built for you in the conf/ directory of the distribution.  Also, the JBoss Security manager is not loaded by default.  It is configured in the security-beans.xml file in the conf/ directory but the MC file is not loaded by default.  To enable it you must do:
+
+{{{
+      EJB3StandaloneBootstrap.deployXmlResource("security-beans.xml");
+}}}
+
+There is a [security tutorial|embedded-tutorial/security] in the embedded distribution.
+
+!! Embedding in Standalone Applications and JUnit tests
+You can embedded EJB 3.0 in standalone applications and junit tests.  See the [org.jboss.ejb3.embedded|api/org/jboss/ejb3/embedded/package-summary.html] package for more information on what classes you need.
+The tutorial has a bunch of examples for bootstrapping your applications.  Check out the Main.java file in each one to see how it works.
+
+The simplest way of finding EJBs/Entities to deploy is by using the EJB3StandaloneBootstrap.scanClasspath() method.  It will search all paths returned
+by the {{java.class.path}} System property.  Here's an example of bootstrapping Embeddable EJB 3.0 in a standalone environment.  It is taken from the
+JMS {{mdb-standalone}} tutorial example.
+
+{{{
+      EJB3StandaloneBootstrap.boot(null);
+      // initialize JBoss MQ core services
+      EJB3StandaloneBootstrap.deployXmlResource("jboss-jms-beans.xml");
+      // initialize configured test queue and topic
+      EJB3StandaloneBootstrap.deployXmlResource("testjms.xml");
+      // scan classpath for ejbs and MDBs
+      EJB3StandaloneBootstrap.scanClasspath();
+}}}
+
+The boot() method creates the JBoss Microcontainer kernel and deploys the embedded-jboss-beans.xml file into it.  This file
+creates a bunch of JBoss services like  JNDI, Transaction Manager, and a default datasource.  The boot() method
+also loads the ejb3-interceptors-aop.xml file which initializes AOP aspects that are used by the EJB containers.
+
+The deployXmlResource() method deploys a JBoss Microcontainer XML file that is available in your Classpath.  In the above example,
+it loads jboss-jms-beans.xml which are initialize the core services for JMS.  It also loads the testjms.xml file that contains
+user definitions of topics and queues that their app is using.
+
+The scanClasspath() method looks scans all jars and directories listed in the {{java.class.path}} System property.  This
+environment variable is not guaranteed to be accurate, so you may have to result to some of the advanced deployment options
+discussed in the {{advanced-deployment}} tutorials.  The scanClasspath() method is also overloaded with a comma delimited string parameter
+where you can specify a list of jars/directories to scan only and not he entire classpath.
+
+
+!! Testing with JUnit
+Testing Embeddable EJBs with JUnit is really very much the same as running a standalone SE app.  One thing you might want to do
+is to bootstrap the container only at the beginning of testing and not with every method call.  Here is a code snippet for doing this:
+
+{{{
+   public static Test suite() throws Exception
+   {
+      TestSuite suite = new TestSuite();
+      suite.addTestSuite(EmbeddedEjb3TestCase.class);
+
+
+      // setup test so that embedded JBoss is started/stopped once for all tests here.
+      TestSetup wrapper = new TestSetup(suite)
+      {
+         protected void setUp()
+         {
+            startupEmbeddedJboss();
+         }
+
+         protected void tearDown()
+         {
+            shutdownEmbeddedJboss();
+         }
+      };
+
+      return wrapper;
+   }
+
+   public static void startupEmbeddedJboss()
+   {
+         EJB3StandaloneBootstrap.boot(null);
+         EJB3StandaloneBootstrap.scanClasspath();
+   }
+
+   public static void shutdownEmbeddedJboss()
+   {
+      EJB3StandaloneBootstrap.shutdown();
+   }
+}}}
+
+This code snippet is taken from the {{test-with-junit}} example tutorial.  Basically this will make sure that startupEmbeddedJBoss
+and shutdownEmbeddedJBoss only happen once for all test methods in that class.
+
+!! Embedding EJB 3.0 into a WAR/Tomcat
+You can initialize WAR deployments in servlet code like you do in standalone code, but there is a better solution.  JBoss comes with a
+context listener class that you can use to configure your application.  You put the following in your web.xml file of your WAR.
+
+{{{
+   <context-param>
+      <param-name>jboss-kernel-deployments</param-name>
+      <param-value>embedded-jboss-beans.xml, jboss-jms-beans.xml</param-value>
+   </context-param>
+
+   <listener>
+      <listener-class>org.jboss.ejb3.embedded.ServletBootstrapListener</listener-class>
+   </listener>
+}}}
+
+The ''jboss-kernel-deployments'' param specifies a list of JBoss Microcontainer resources to deploy when the WAR is created.  These XML
+files are comma delimited and must be in your classpath (in your WEB-INF/classes directory for example).  The tutorial has a full example.
+If you are not using JMS then you can remove the ''jboss-kernel-deployments'' context-param as embedded-jboss-beans.xml will be
+loaded automatically by the ServletBootstrapListener.  If you have defined your own datasources, or JMS queues or topics, you must additionally
+add these XML files to the ''jboss-kernel-deployments'' context-param list.  All of the XML files must be available in the WAR's classpath.
+
+The ''ServletBootstrapListener'' will automatically scan all Jars within ''/WEB-INF/lib'' for EJBs and Entity beans that can be deployed.  If you
+have more complex deployments then you can turn off scanning by this context-param:
+{{{
+   <context-param>
+      <param-name>automatic-scan</param-name>
+      <param-value>false</param-value>
+   </context-param>
+}}}
+
+You can use the advanced deployment techniques instead to deploy your EJBs as described below.
+
+!! JNDI Requirements
+EJB requires JNDI.  Embeddable EJB 3.0 comes with a local-only JBoss JNDI implementation.  The default configuration
+initializes and uses this JBoss JNDI implementation at runtime even in Tomcat or other app server environments.  To connect
+to it you must use the following JNDI properties
+{{{
+      Hashtable props = new Hashtable();
+      props.put("java.naming.factory.initial", "org.jnp.interfaces.LocalOnlyContextFactory");
+      props.put("java.naming.factory.url.pkgs", "org.jboss.naming:org.jnp.interfaces");
+}}}
+Just like any app that uses JNDI, you can set these properties as System properties, or have a jndi.properties file that is
+in your classpath.
+
+It is theoritically possible (no tests done yet) to use other vendor's JNDI implementations as long as they allow you to bind into them (EJB
+creates a bunch of bindings).  For instance, Tomcat's JNDI implementation is read-only at runtime, so you are required
+to use JBoss's implementation.
+
+
+!!Tutorial
+The [tutorial|embedded-tutorial] goes through a bunch of different ways to configure your embedded EJB 3.0.
+* [simple-deployment|embedded-tutorial/simple-deployment] is a simple app that deploys one EJB and one Entity bean.  It discovers EJB deployments by scanning the {{java.class.path}} System property and is the simplest way to deploy EJB in a standalone environment
+* [mdb-standalone|embedded-tutorial/mdb-standalone] Shows how to configure a JMS Queue and Topic and EJB 3 MDB in a standalone/embedded environment.
+* [security|embedded-tutorial/security] Shows basic EJB security.
+* [test-with-junit|embedded-tutorial/test-with-junit] Shows how to run Embedded EJB3 within a JUnit test suite.
+* [embedded-war|embedded-tutorial/embedded-war] Creates a WAR that you can deploy To tomcat.  Go to [http://localhost:8080/standalone/EmbeddedEJB3.jsp|http://localhost:8080/standalone/EmbeddedEJB3.jsp] to try it out once you've copied the built war into your Tomcat distribution.
+
+!!Advanced Deployment Tutorials
+If you have more complex deployment requirements, these tutorials walk you through different ways you can deploy your EJBs/Entities.
+
+* [archive|embedded-tutorial/advanced-deployment/archive] walks you through a standalone application that bootstraps EJB 3.0 and finds your EJB3 archives by you explicitly specifying the archive location via a URL.
+* [archive-by-resource|embedded-tutorial/advanced-deployment/archive-by-resource] Looks for deployments by doing ClassLoader.getResources. You specify resource string names that are contained within a archive, and EJB 3.0 will look for annotated EJB3s and deployment descriptors within the archive that the resource is within.
+* [deploy-dir|embedded-tutorial/advanced-deployment/deploy-dir]  Specify URLs that point to directories where your jar files and classes reside.  The EJB3 implementation will search all for annotated class files, deployment descriptors with jar files and directories within those urls.
+* [deploy-dir-by-resource|embedded-tutorial/advanced-deployment/deploy-dir-by-resource] Looks for deploy directories by doing ClassLoader.getResources.  You specify a resource string and EJB3 will look for deploy directories of the archive this resource is contained in and scan these deploy directories.
+* [microcontainer-deployment|embedded-tutorial/advanced-deployment/microcontainer-deployment] You can avoid coding most of EJB3 bootstraping by defining deployments within JBoss Microcontainer XML.
+

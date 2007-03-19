@@ -1,0 +1,39 @@
+<html>
+<body>
+<p>
+<h2>Installing EJB 3.0 RC10</h2>
+<p>
+EJB 3.0 RC2 has been tested with JBoss 4.0.2, JBoss 4.0.3RC1, JBoss 4.0.3RC2, JBoss 4.0.3 Final.  You might
+want to download the graphical JBoss 4.0.3 installer to install EJB3.
+</p>
+<hr>
+<h2>Installing into JBoss AS 4.0.3 Final</h2>
+<p>
+EJB 3.0 comes with 4.0.3 if you use the graphical installer
+</p>
+<hr>
+<h2>Installing into JBoss AS 4.0.2, JBoss AS 4.0.3RC1, JBoss AS 4.0.3RC2</h2>
+<p>
+Note, the ejb 3.0 installation with JBoss AS 4.0.3RC2 is old, you should
+download the latest EJB3 RC2 impl and follow these directions.
+<ol>
+<li> Download <a
+href="http://sourceforge.net/project/showfiles.php?group_id=22866&package_id=16942">JBoss
+4.0.2 (or 4.0.3RC1 or 4.0.3RC2)</a>.</li>
+
+<li> Download <a href="http://sourceforge.net/project/showfiles.php?group_id=22866&package_id=132063">EJB 3.0 RC2</a>.</li>
+<li> Unzip both of these downloads</li>
+
+reqg,gw/<li> Copy <tt>ejb3.deployer</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-clustered-sfsbcache-service.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-entity-cache-service.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>ejb3-interceptors-aop.xml</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>jboss-aop-jdk50.deployer</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/deploy</tt></li>
+<li> Copy <tt>jboss-xb.jar</tt> from the <tt>lib/</tt> directory of the distribution to <tt>jboss-4.0.x/server/all/lib</tt></li>
+<li> Remove <tt>jboss-aop.deployer/</tt> from <tt>jboss-4.0.x/server/all/deploy</tt></li>
+
+<li> Start jboss up with the <tt>all</tt> configuration <tt>run.sh -c all</tt></li>
+</ol>
+</p>
+</body>
+</html>

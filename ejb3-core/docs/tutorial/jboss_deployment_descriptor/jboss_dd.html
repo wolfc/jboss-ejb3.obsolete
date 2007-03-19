@@ -1,0 +1,56 @@
+<html>
+<body>
+<p>
+<h2>Jboss.xml Deployment Descriptor</h2>
+
+The EJB 3.0 specification supports the usage of deployment descriptors to describe ejb metadata or override most metadata described via annotations. The Jboss.xml deployment descriptor describes JBoss specific metadata, including
+remote and local JNDI names, cluster configuration, a security domain, additional references, security principal, and container configuration. Annotations which define the ejb (e.g. <tt>@Stateful</tt>, <tt>@RemoteInterface</tt>) cannot be
+ovveridden.
+</p><p>
+<h4>JBoss.xml</h4>
+
+Take a look at <a href="META-INF/jboss.xml">JBoss.xml</a>.
+</p><p>
+The <tt>jndi-name</tt> element defines the remote JNDI binding for the <tt>ShoppingCart</tt> stateful session bean. This JNDI binding overrides the default binding or a binding specified through the <tt>@RemoteBinding</tt> annotation.
+Similiarly, the <tt>local-jndi-name</tt> element specifies the local JNDI binding.
+&lt;/p&gt;&lt;p&gt;
+The <tt>clustered</tt> element indicates that the ejb is clustered, with <tt>partition-name</tt> and <tt>load-balance-policy</tt> specifying the cluster name and load balance policy, respectively. The latter elements will 
+override the parameters specified in the <tt>@Clustered</tt> annotation. In this example, you will see that the <tt>ShoppingCart</tt> ejb is clustered. If you build and run this example (see below) with the default server
+configuration, the deployment will fail, as the default server configuration does not support clustering.
+&lt;/p&gt;&lt;p&gt;
+The <tt>security-domain</tt> element specifies a security domain for the ejb, overriding any security domain set through the <tt>@SecurityDomain</tt> annotation. In this example, you will see that a security domain is set through the 
+jboss.xml deployment descriptor and unless a Principal and Credential (i.e. user/password) is set in the client, requests to the ejb will fail with a javax.ejb.EJBAccessException.
+</p><p>
+<h4>Building and Running</h4>
+
+To build and run the example, make sure you have <tt>ejb3.deployer</tt> installed in JBoss 4.0.x and have JBoss running.  See the reference manual on how to install EJB 3.0.  
+<pre>
+Unix:    $ export JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+Windows: $ set JBOSS_HOME=&lt;where your jboss 4.0 distribution is&gt;
+$ ant
+$ ant run
+
+run:
+     [java] Attempting to buy 1 memory stick with no user/password
+     [java] Attempting to buy 1 memory stick with incorrect password
+     [java] Caught javax.ejb.EJBAccessException as expected
+     [java] Setting user/password
+     [java] bill is a shopper, so is allowed to buy
+     [java] Buying 1 memory stick
+     [java] Buying another memory stick
+     [java] Buying a laptop
+     [java] Print cart:
+     [java] 3     Memory stick
+     [java] 1     Laptop
+     [java] bill is not a clerk, so is not allowed to price check
+     [java] Caught SecurityException as expected
+     [java] Checkout
+     [java] Should throw an object not found exception by invoking on cart after @Remove method
+     [java] Exception in thread "main" javax.ejb.EJBNoSuchObjectException: Could not find Stateful bean: a1616c-oseo5o-eabsujnb-1-eabtkmic-7</pre>
+}}}
+</p><p>
+</p><p>
+</p><p>
+</p>
+</body>
+</html>

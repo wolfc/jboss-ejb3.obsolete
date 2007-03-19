@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<jboss
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <service>
+         <ejb-name>ServiceOneDeploymentDescriptor</ejb-name>
+         <ejb-class>org.jboss.ejb3.test.servicexmbean.ServiceOneDeploymentDescriptor</ejb-class>
+         <object-name>jboss.ejb3.test:service=ServiceOneDeploymentDescriptor</object-name>
+         <remote>org.jboss.ejb3.test.servicexmbean.ServiceOneRemote</remote>
+         <xmbean>resource:service-xmbean.xml</xmbean>
+         <jndi-name>ServiceOneDeploymentDescriptor/remote</jndi-name>
+      </service>
+   </enterprise-beans>
+</jboss>

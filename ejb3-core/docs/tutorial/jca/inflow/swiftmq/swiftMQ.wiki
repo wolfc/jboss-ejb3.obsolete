@@ -1,0 +1,201 @@
+!!! SwiftMQ inbound resource adapter for MDB
+
+SwiftMQ provide a JCA 1.5 resource that allows JMS message delivery to an MDB. The attached example ant project shows how to deploy such an EJB3 MDB.
+
+!! AnnotatedTestMDBBean.java
+
+The AnnotatedTestMDBBean.java is the source for the EJB3 MDB. Note the annotations:
+
+{{{
+@MessageDriven(name="test/mdb", activationConfig =
+{
+@ActivationConfigProperty(propertyName="messagingType", propertyValue="javax.jms.MessageListener"),
+@ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
+@ActivationConfigProperty(propertyName="Destination", propertyValue="testqueue"),
+@ActivationConfigProperty(propertyName="ConnectionFactoryName", propertyValue="ConnectionFactory"),
+@ActivationConfigProperty(propertyName="Transacted", propertyValue="true"),
+@ActivationConfigProperty(propertyName="Xa", propertyValue="true"),
+@ActivationConfigProperty(propertyName="DeliveryOption", propertyValue="B"),
+@ActivationConfigProperty(propertyName="SubscriptionDurability", propertyValue="Durable"),
+@ActivationConfigProperty(propertyName="MaxPoolSize", propertyValue="20"),
+@ActivationConfigProperty(propertyName="MaxMessages", propertyValue="1"),
+})
+@ResourceAdapter("swiftmq.rar")
+}}}
+
+These annotations correspond the following deployment descriptors:
+
+NOTE: these properties could equally go in jboss.xml if you want to avoid
+polluting ejb-jar.xml with vendor specific properties.
+
+!! ejb-jar.xml
+
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ejb-jar xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+         http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+         version="2.1">
+
+   <enterprise-beans>
+      <message-driven >
+         <ejb-name>test/mdb</ejb-name>
+         <ejb-class>test.mdb.TestMDBBean</ejb-class>
+      <messaging-type>javax.jms.MessageListener</messaging-type>
+      <transaction-type>Container</transaction-type>
+      <activation-config>
+        <activation-config-property>
+          <activation-config-property-name>
+            DestinationType
+          </activation-config-property-name>
+          <activation-config-property-value>
+            javax.jms.Queue
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            Destination
+          </activation-config-property-name>
+          <activation-config-property-value>
+            testqueue
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            SubscriptionDurability
+          </activation-config-property-name>
+          <activation-config-property-value>
+            Durable
+          </activation-config-property-value>
+        </activation-config-property>
+        <!--activation-config-property>
+          <activation-config-property-name>
+            ClientId
+          </activation-config-property-name>
+          <activation-config-property-value>
+            Testclient
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            DurableName
+          </activation-config-property-name>
+          <activation-config-property-value>
+            dur1
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            MessageSelector
+          </activation-config-property-name>
+          <activation-config-property-value>
+            msgno between 20 and 30
+          </activation-config-property-value>
+        </activation-config-property-->
+        <activation-config-property>
+          <activation-config-property-name>
+            ConnectionFactoryName
+          </activation-config-property-name>
+          <activation-config-property-value>
+            ConnectionFactory
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            Transacted
+          </activation-config-property-name>
+          <activation-config-property-value>
+            true
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            Xa
+          </activation-config-property-name>
+          <activation-config-property-value>
+            true
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            DeliveryOption
+          </activation-config-property-name>
+          <activation-config-property-value>
+            B
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            MaxPoolSize
+          </activation-config-property-name>
+          <activation-config-property-value>
+            20
+          </activation-config-property-value>
+        </activation-config-property>
+        <activation-config-property>
+          <activation-config-property-name>
+            MaxMessages
+          </activation-config-property-name>
+          <activation-config-property-value>
+            1
+          </activation-config-property-value>
+        </activation-config-property>
+      </activation-config>
+    </message-driven>
+  </enterprise-beans>
+</ejb-jar>
+}}}
+
+!! jboss.xml
+
+Here we define jboss specific stuff. There are two main items:
+* We define we want to use the jca 1.5 message inflow container
+* We tell jboss which rar will provide the inflow
+
+{{{
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE jboss PUBLIC "-//JBoss//DTD JBOSS//EN" "http://www.jboss.org/j2ee/dtd/jboss.dtd">
+
+<jboss>
+   <enterprise-beans>
+      <message-driven>
+         <ejb-name>test/mdb</ejb-name>
+         <resource-adapter-name>swiftmq.rar</resource-adapter-name>
+      </message-driven>
+   </enterprise-beans>
+</jboss>
+}}}
+
+!! Running the example
+
+* Make sure you have the Swift jmsxaasf swiftlet installed within SwiftMQ
+* Add swiftmq.rar to the deploy directory
+* Change build.properties to point at your JBoss installation
+* Deploy the mdb by typing "ant" to run the deploy target in build.xml
+* Use the swiftmq example {{{SimpleQueueSender}}} to send a message to the queue
+
+You should get some output like the following on the jboss console:
+{{{
+12:47:29,515 INFO  [STDOUT] [TextMessageImpl com.swiftmq.jms.TextMessageImpl@4065c4
+messageIndex = 5_0
+messageId = ID:/10.10.10.115-11333728494210
+userId = anonymous
+clientId = null
+timeStamp = 1133372849421
+correlationId = null
+replyTo = null
+destination = testqueue@router1
+deliveryMode = 2
+redelivered = false
+deliveryCount = 1
+type = null
+expiration = 0
+priority = 4
+props = null
+readOnly = true
+sourceRouter = null
+destRouter = null
+destQueue = testqueue@router1 text=Here is a message]}}}

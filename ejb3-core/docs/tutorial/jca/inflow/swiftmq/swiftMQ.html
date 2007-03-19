@@ -1,0 +1,79 @@
+<html>
+<body>
+<p>
+<h2>SwiftMQ inbound resource adapter for MDB</h2>
+
+SwiftMQ provide a JCA 1.5 resource that allows JMS message delivery to an MDB. The attached example ant project shows how to deploy such an EJB3 MDB.
+
+</p><p>
+<h4>AnnotatedTestMDBBean.java</h4>
+The AnnotatedTestMDBBean.java is the source for the EJB3 MDB. Note the annotations:
+</p><p>
+<pre>
+@MessageDriven(name="test/mdb", activationConfig =
+{
+@ActivationConfigProperty(propertyName="messagingType", propertyValue="javax.jms.MessageListener"),
+@ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
+@ActivationConfigProperty(propertyName="Destination", propertyValue="testqueue"),
+@ActivationConfigProperty(propertyName="ConnectionFactoryName", propertyValue="ConnectionFactory"),
+@ActivationConfigProperty(propertyName="Transacted", propertyValue="true"),
+@ActivationConfigProperty(propertyName="Xa", propertyValue="true"),
+@ActivationConfigProperty(propertyName="DeliveryOption", propertyValue="B"),
+@ActivationConfigProperty(propertyName="SubscriptionDurability", propertyValue="Durable"),
+@ActivationConfigProperty(propertyName="MaxPoolSize", propertyValue="20"),
+@ActivationConfigProperty(propertyName="MaxMessages", propertyValue="1"),
+@ActivationConfigProperty(propertyName="resourceAdaptorName", propertyValue="swiftmq.rar")
+})
+@ResourceAdapter("swiftmq.rar")
+
+</pre>
+</p><p>
+These annotations correspond the following deployment descriptors:
+</p><p>
+NOTE: these properties could equally go in jboss.xml if you want to avoid
+polluting ejb-jar.xml with vendor specific properties.
+</p><p>
+<a href="resources/META-INF/ejb-jar.xml">ejb-jar.xml</a>
+</p><p>
+<a href="resources/META-INF/jboss.xml">jboss.xml</a>
+</p><p>
+Here we define jboss specific stuff. There are two main items:
+* We define we want to use the jca 1.5 message inflow container
+* We tell jboss which rar will provide the inflow
+</p><p>
+
+<h4>Running the example</h4>
+</p><p>
+* Make sure you have the Swift jmsxaasf swiftlet installed within SwiftMQ<br/>
+* Add swiftmq.rar to the deploy directory<br/>
+* Change build.properties to point at your JBoss installation<br/>
+* Deploy the mdb by typing "ant" to run the deploy target in build.xml<br/>
+* Use the swiftmq example {{{SimpleQueueSender}}} to send a message to the queue<br/>
+</p><p>
+You should get some output like the following on the jboss console:
+</p><p>
+<pre>
+12:47:29,515 INFO  [STDOUT] [TextMessageImpl com.swiftmq.jms.TextMessageImpl@4065c4
+messageIndex = 5_0
+messageId = ID:/10.10.10.115-11333728494210
+userId = anonymous
+clientId = null
+timeStamp = 113337849421
+correlationId = null
+replyTo = null
+destination = testqueue@router1
+deliveryMode = 2
+redelivered = false
+deliveryCount = 1
+type = null
+expiration = 0
+priority = 4
+props = null
+readOnly = true
+sourceRouter = null
+destRouter = null
+destQueue = testqueue@router1 text=Here is a message]
+</pre>
+</p>
+</body>
+</html>

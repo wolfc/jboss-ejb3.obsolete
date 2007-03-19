@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<document>
+
+  <properties>
+    <author email="tchbansi@users.sourceforge.net">Herve Tchepannou</author>
+    <title>xPetstore</title>
+  </properties>
+
+<body>
+
+<section name="Overview">
+	<p>
+    	xPetstore is a re-implementation of Sun Microsystem
+    	<a href="http://java.sun.com/blueprints/code/index.html#java_pet_store_demo">PetStore</a> based on
+    	<a href="http://xdoclet.sourceforge.net">xDoclet</a>
+    	<br/>
+    	This demo application demonstrate how to use open source frameworks to build
+    	<i>WODRA</i> (Write Once, Deploy and Run Anywhere) J2EE applications.
+	</p>
+	
+	<p>	
+    	xPetstore has been implemented using 2 differents approaches:
+    	<ul>
+    		<li> A pure EJB solution based on JSP, <a href="http://jakarta.apache.org/struts">Struts</a>,
+    			 <a href="http://www.opensymphony.com/sitemesh">Sitemesh</a>, EJB 2.0 and CMP 2.0 
+    		</li>
+    			 
+    		<li> A Servlet solution based on <a href="http://jakarta.apache.org/velocity">Velocity</a>,
+    	  	 	 <a href="http://www.opensymphony.com/webwork">WebWork</a>,
+    			 <a href="http://www.opensymphony.com/sitemesh">Sitemesh</a>,
+    			 POJO and <a href="http://hibernate.sourceforge.net">Hibernate</a>.
+    		</li>
+    	</ul>
+    	
+    	Both solutions have been deployed and tested on the following platforms:
+    	<ul>
+    		<li> Operating System: 
+    			<ul>
+    				<li> Linux </li>
+    				<li> Windows </li>
+    			</ul>
+    		</li>
+    		
+    		<li> Application Servers: 
+    			<ul>
+    				<li> <a href="www.jboss.org">JBoss 3.x</a> </li>
+    				<li> <a href="http://www.bea.com/products/weblogic">WebLogic 7.x</a> </li>
+    				<li> <a href="http://www.orionserver.com">Orion 2.x</a> </li>
+    				<li> <a href="http://jakarta.apache.org/tomcat">Tomcat 4.x</a> </li>
+    			</ul>
+    		</li>
+    			
+    		<li> Databases: 
+    			<ul>
+    				<li> <a href="http://www.hsqldb.org">Hypersonic SQL</a> </li>
+    				<li> <a href="http://www.postgresql.org">PostgreSQL</a> </li>
+    				<li> <a href="http://www.sapdb.org">SapDB</a> </li>
+    				<li> <a href="http://www.mysql.org">MySQL</a> </li>
+    				<li> <a href="http://www.oracle.com">Oracle</a> </li>
+    				<li> <a href="http://www.microsoft.com/sql/default.asp">MS SQL Server</a> </li>
+    			</ul>
+    		</li>
+    	</ul>
+    </p>
+</section>
+
+<section name="Features">
+	<p>
+		With xPetstore, you will learn how to use <a href="http://xdoclet.sourceforge.net">xDoclet</a> to:
+		<ul>
+			<li> Generate EJB 2.0 files:
+				<ul>
+					<li> Home and Business interfaces (local and remotes) </li>
+					<li> ejb-jar.xml </li>
+					<li> Application server specific deployment descriptors </li>
+					<li> Value Objects classes </li>
+				</ul>
+			</li>			
+			<li> Use J2EE 1.3 features like CMP 2.0 and CMR </li>			
+			<li> Generate web deployment descriptors for:
+				<ul>
+					<li> Servlets </li>
+					<li> Web Filters </li>
+					<li> JSP Taglibs </li>
+				</ul>
+			</li>
+			<li> Generate <a href="http://jakarta.apache.org/struts">Struts</a> deployement descriptors </li>
+			<li> Generate <a href="http://www.opensymphony.com/webwork">Webwork</a> deployment descriptor </li>
+			<li> Use other  web template technology like <a href="http://jakarta.apache.org/velocity">Velocity</a> </li>
+			<li> Use <a href="http://hibernate.sourceforge.net">Hibernate</a> as persistence layer </li>
+			<li> Use <a href="http://xdoclet.sourceforge.net">xDoclet</a> merge points to add extra stuff </li>
+			<li> Test J2EE application using <a href="http://junitee.sourceforge.net">JUnitEE</a> framework </li>
+		</ul>
+	</p>
+</section>
+
+</body>
+
+</document>

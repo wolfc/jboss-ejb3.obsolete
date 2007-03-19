@@ -1,0 +1,69 @@
+<chapter id="hibernate">
+
+   <title>Hibernate Integration</title>
+   <sect1>
+      <title>Hibernate Mapping Files</title>
+      <para>
+         Persistent classes that are mapped using Hibernate .hbm.xml files are supported.  The EJB3 Deployer will search
+         the archive for any <literal>.hbm.xml</literal> files and add them to the definition of the underlying Hibernate SessionFactory.  These
+         <literal>.hbm.xml</literal> files can be virtually anywhere within the archive under any java package or directory.
+      </para>
+      <para>
+         Class Mappings defined in <literal>.hbm.xml</literal> files can be managed by EntityManagers just as annotated
+         @Entity beans are.  Also, you are allowed to have relationships between a <literal>.hbm.xml</literal>
+         mapped class and an EJB3 entity.  So, mixing/matching is allowed.
+      </para>
+   </sect1>
+   <sect1>
+      <title>Injection Hibernate Session and SessionFactory</title>
+      <para>
+         You can inject a <literal>org.hibernate.Session</literal> and <literal>org.hibernate.SessionFactory</literal>
+         directly into your EJBs just as you can do with EntityManagers and EntityManagerFactorys.  The behavior of a Session is
+         just the same as the behavior of an injected EntityManager.  The application server controls the lifecycle of the
+         Session so that you do not have to open, flush, or close the session.  Extended persistence contexts also work
+         with injected Hibernate Sessions.
+      </para>
+      <programlisting>
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+@Stateful public class MyStatefulBean ... {
+   @PersistenceContext(unitName="crm") Session session1;
+   @PersistenceContext(unitName="crm2", type=EXTENDED) Session extendedpc;
+   @PersistenceUnit(unitName="crm") SessionFactory factory;
+         
+}
+      </programlisting>
+
+   </sect1>
+   <sect1>
+      <title>Access to org.hibernate.Session</title>
+      <para>
+         You can get access to the current underlying Hibernate Session by typecasting your reference to EntityManager.
+      </para>
+      <programlisting>
+       @PersistenceContext EntityManager entityManager;
+       public void someMethod();
+       {
+         org.jboss.ejb3.entity.HibernateSession hs = (HibernateSession)entityManager;
+         org.hibernate.Session session = hs.getHibernateSession();
+       }
+      </programlisting>
+   </sect1>
+   <sect1>
+      <title>Access to org.hibernate.Query</title>
+      <para>
+         You can get access to the current underlying Hibernate Query by typecasting your reference to a <code>org.hibernate.ejb.QueryImpl</code>.
+      </para>
+      <programlisting>
+       @PersistenceContext EntityManager entityManager;
+       public void someMethod();
+       {
+         javax.persistence.Query query = entityManager.createQuery(...);
+         org.hiberante.ejb.QueryImpl hs = (QueryImpl)query;
+         org.hibernate.Query hbQuery = hs.getHibernateQuery();
+       }
+      </programlisting>
+   </sect1>
+</chapter>
+

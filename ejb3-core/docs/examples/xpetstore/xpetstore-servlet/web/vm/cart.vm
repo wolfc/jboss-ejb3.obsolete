@@ -1,0 +1,97 @@
+<html>
+<head>
+    <title> $texts.getString( "cart.title" )</title>
+    <link href="style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+<form action="updateCart.action" method="post">
+
+<h2>$texts.getString( "cart.subtitle" )</h2>
+
+<table class="grid">
+    <tr>
+        <th class="gridheader">$texts.getString( "itemId" )</th>
+        <th class="gridheader">$texts.getString( "description" )</th>
+        <th class="gridheader">$texts.getString( "unitCost" )</th>
+        <th class="gridheader">$texts.getString( "quantity" )</th>
+        <th class="gridheader">$texts.getString( "subTotal" )</th>
+        <th class="gridheader">&nbsp;</th>
+    </tr>
+
+#if ( $cartItems.size() == 0 )
+
+    <tr>
+        <td class="griddata" colspan="6">
+        	$texts.getString( "cart_empty" )
+        </td>
+    </tr>
+
+#else
+
+	#set ( $total = 0 )
+	#foreach ( $cartItem in $cartItems )
+		#set ( $item = $cartItem.item )
+		#set ( $total = $cartItem.subTotal )
+		
+        <tr>
+            <td class="griddata">
+            	<a href="item.action?itemId=$item.itemId">
+                    $item.itemId
+                    <input type="hidden" name="itemId" value="$item.itemId">
+                </a>
+            </td>
+            <td class="griddata">
+            	$item.description
+            </td>
+            <td class="griddata" align="right">
+            	$cartItem.unitPrice
+            </td>
+            <td class="griddata" align="right">
+                <input type="text" name="quantity" size="3" maxlength="3" value="$cartItem.quantity">
+            </td>
+            <td class="griddata"align="right">
+            	$cartItem.subTotal
+            </td>
+            <td class="griddata" align="center">
+            	<a href="removeItem.action?itemId=$item.itemId">
+                    <img border="0" src="images/button_remove.gif"/>
+                </a>
+            </td>
+        </tr>
+        
+	#end
+
+	<!-- Total -->
+    <tr>
+        <td class="griddata" colspan="4" align="right">
+            <b>$texts.getString( "total" )</b>
+        </td>
+        <td class="griddata" align="right">
+            $total
+        </td>
+        <td class="griddata">&nbsp;</td>
+    </tr>
+    <tr>
+        <td class="griddata" colspan="6" align="center">
+            <input type="image" src="images/button_update_cart.gif" border="0" />
+        </td>
+    </tr>
+	
+#end
+
+</table>
+
+#if ( $cartItems.size() > 0 )
+
+    <p>
+    <a href="checkout.action">
+        <img src="images/button_checkout.gif" border="0" />
+    <a>
+    
+#end
+
+</form>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.jboss.ejb3.test.dependent;
+
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+/**
+ * Company customer
+ *
+ * @author Emmanuel Bernard
+ */
+@Entity
+public class FieldCustomer implements java.io.Serializable
+{
+   @Id
+   @GeneratedValue(strategy= GenerationType.IDENTITY)
+   Long id;
+
+   String name;
+
+   @Embedded
+   Address address;
+
+   @Embedded   @AttributeOverrides({
+   @AttributeOverride(name = "street", column = @Column(name = "street2")),
+   @AttributeOverride(name = "city", column = @Column(name = "city2")),
+   @AttributeOverride(name = "state", column = @Column(name = "state2")),
+   @AttributeOverride(name = "zip", column = @Column(name = "zip2"))
+   })
+
+   FieldAddress address2;
+
+   public FieldCustomer()
+   {
+   }
+
+   public Long getId()
+   {
+      return id;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public void setId(Long long1)
+   {
+      id = long1;
+   }
+
+   public void setName(String string)
+   {
+      name = string;
+   }
+
+   public Address getAddress()
+   {
+      return address;
+   }
+
+   public void setAddress(Address address)
+   {
+      this.address = address;
+   }
+
+   public FieldAddress getAddress2()
+   {
+      return address2;
+   }
+
+   public void setAddress2(FieldAddress address)
+   {
+      this.address2 = address;
+   }
+
+}
+

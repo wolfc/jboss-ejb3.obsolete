@@ -1,0 +1,314 @@
+<chapter id="jboss_deployment_descriptor">
+   <title>JBoss EJB 3.0 jboss.xml deployment descriptor</title>
+   <para>
+      Jboss supports several vendor specific extensions EJB 3.0. The extensions are specified either as source code annotations or 
+      through the jboss.xml deployment descriptor. The chapter discusses the tags and options of the EJB 3.0 jboss.xml deployment 
+      descriptor.
+   </para>
+   <sect1>
+      <title>Bean extensions</title>
+      <para>
+         JBoss offers the capability to create additional Service and Consumer/Producer bean types.
+      </para>
+      <sect2> 
+         <title>Service</title>
+         <para>
+            JBoss offers the capability to create services through the <literal>@Service</literal> annotation or through the 
+            <literal>jboss.xml</literal> deployment descriptor. They are singleton beans and are not pooled. Service beans can expose both
+            local and remote interfaces so they can be accessed from java clients. When different clients access the interfaces for Service beans,
+            all clients will be accessing the same instance on the server. Below is an example of a <literal>jboss.xml</literal> deployment 
+            descriptor that specifies a Service. 
+         </para>
+         <para>
+            The implementing class is specified by the <literal>ejb-class</literal> tag. Local and remote interfaces are specified
+            with the <literal>local</literal> and <literal>remote</literal> tags, respectively. JNDI bindings are specified through the
+            <literal>jndi-name</literal> and the <literal>local-jndi-name</literal> tags.
+         </para>
+         <para>
+            A Service bean can also implement a management interface, which wraps the MBean and installs the Service as an MBean on 
+            the MBean server. The management interface is specified by the <literal>management</literal> tag. The management interface
+            can support the standard lifecycle management of JBoss JMX.
+         </para>
+         <para>
+            When deployed, the bean is assigned a JMX ObjectName in the MBean server. The ObjectName can be explicitly set with the
+            <literal>object-name</literal> tag.
+            The default is: <literal>jboss.j2ee:service=EJB3,name=&lt;Fully qualified name of @Service bean&gt;,type=service</literal>.
+         </para>
+         <para>
+            Here is the example remote interface:
+            <programlisting>
+public interface ServiceSixRemote
+{
+   boolean getCalled();
+   void setCalled(boolean called);
+   void remoteMethod();
+}
+            </programlisting>
+         </para>
+         <para>
+            Here is the example local interface:
+            <programlisting>
+public interface ServiceSixLocal
+{
+   boolean getCalled();
+   void setCalled(boolean called);
+   void localMethod();
+}
+            </programlisting>
+         </para>
+         <para>
+            Here is the example management interface:
+            <programlisting>
+public interface ServiceSixManagement
+{
+   String jmxOperation(String s);
+   String[] jmxOperation(String[] s);
+   int getAttribute();
+   void setAttribute(int i);
+   int getSomeAttr();
+   void setSomeAttr(int i);
+   int getOtherAttr();
+   void setOtherAttr(int i);
+   void setWriteOnly(int i);
+   int getReadOnly();
+
+   void create() throws Exception;
+   void start() throws Exception;
+   void stop();
+   void destroy();
+}
+            </programlisting>
+         </para>
+         <para>
+            Here is the implementing Service bean class:
+            <programlisting>
+public class ServiceSix implements ServiceSixLocal, ServiceSixRemote, ServiceSixManagement
+{
+   boolean called;
+   
+   int localMethodCalls;
+   int remoteMethodCalls;
+   int jmxAttribute;
+   int someJmxAttribute;
+   int otherJmxAttribute;
+   int readWriteOnlyAttribute;
+
+
+   public boolean getCalled()
+   {
+      return called;
+   }
+
+   public void setCalled(boolean called)
+   {
+      this.called = called;
+   }
+
+   public void localMethod()
+   {
+      called = true;
+   }
+
+   public void remoteMethod()
+   {
+      called = true;
+   }
+   
+   public String jmxOperation(String s)
+   {
+      return "x" + s + "x";
+   }
+
+   public String[] jmxOperation(String[] s)
+   {
+      return s;
+   }
+
+   public int getAttribute()
+   {
+      return jmxAttribute;
+   }
+
+   public void setAttribute(int i)
+   {
+      jmxAttribute = i;
+   }
+
+   public int getSomeAttr()
+   {
+      return someJmxAttribute;
+   }
+
+   public void setSomeAttr(int i)
+   {
+      someJmxAttribute = i;
+   }
+
+   public int getOtherAttr()
+   {
+      return otherJmxAttribute;
+   }
+
+   public void setOtherAttr(int i)
+   {
+      otherJmxAttribute = i;
+   }
+
+   public void setWriteOnly(int i)
+   {
+      readWriteOnlyAttribute = i;
+   }
+
+   public int getReadOnly()
+   {
+      return readWriteOnlyAttribute;
+   }
+
+
+   public void create() throws Exception
+   {
+   }
+
+   public void start() throws Exception
+   {
+   }
+
+   public void stop()
+   {
+   }
+
+   public void destroy()
+   {
+   }
+            </programlisting>
+         </para>
+         <para>
+            Here is the example deployment descriptor:
+<programlisting><![CDATA[
+<jboss>
+   <enterprise-beans>
+      <service>
+         <ejb-class>org.jboss.ejb3.test.service.ServiceSix</ejb-class>
+         <local>org.jboss.ejb3.test.service.ServiceSixLocal</local>
+         <remote>org.jboss.ejb3.test.service.ServiceSixRemote</remote>
+         <management>org.jboss.ejb3.test.service.ServiceSixManagement</management>
+         <jndi-name>serviceSix/remote</jndi-name>
+         <local-jndi-name>serviceSix/local</local-jndi-name>
+      </service>
+   </enterprise-beans>
+</jboss>]]></programlisting>
+         </para>
+      </sect2>
+      <sect2>
+         <title>Consumer/Producer</title>
+         <para>
+            JBoss offers the capability to create message producers and consumers through the <literal>@Producer</literal> and <literal>@Consumer</literal>
+            annotations or through the <literal>jboss.xml</literal> deployment descriptor. The Consumer class is specified using the 
+            <literal>consumer</literal> and <literal>ejb-class</literal> tags. The destination and destination type are specified in the 
+            <literal>destination</literal> and <literal>destination-type</literal> tags. The Producer interface is specified by the 
+            <literal>producer</literal> tag. Messages are created and sent to the configured destination when one of the Producer methods is called.
+            A Consumer is configured to listen on a destination and when a message arrives, the current message is set in the implementing Consumer
+            bean based on the <literal>current-message</literal> tag.
+         </para>
+         <para>
+            Here is the example for the remote and Producer interfaces:
+            <programlisting>
+public interface DeploymentDescriptorQueueTestRemote
+{
+   void method1(String msg, int num);
+
+   void method2(String msg, float num);
+}
+            </programlisting>
+         </para>
+         <para>
+            Here is the example for the implementing Consumer/Producer bean class
+            <programlisting>
+public class DeploymentDescriptorQueueTestConsumer implements DeploymentDescriptorQueueTestRemote
+{
+   Message currentMessage;
+
+   private Message setterMessage;
+
+   void setMessage(Message msg)
+   {
+      setterMessage = msg;
+   }
+
+   public void method1(String msg, int num)
+   {
+      TestStatusBean.queueRan = "method1";
+      TestStatusBean.fieldMessage = currentMessage != null;
+      TestStatusBean.setterMessage = setterMessage != null;
+
+      System.out.println("method1(" + msg + ", " + num + ")");
+   }
+
+   public void method2(String msg, float num)
+   {
+      TestStatusBean.queueRan = "method2";
+
+      TestStatusBean.fieldMessage = currentMessage != null;
+      TestStatusBean.setterMessage = setterMessage != null;
+
+      System.out.println("method2(" + msg + ", " + num + ")");
+   }
+}
+            </programlisting>
+         </para>
+         <para>
+            Here is an example code snippet for a Consumer/Producer client. When the <literal>tester.method#</literal> methods are called, the current
+            message is set in the Consumer bean.
+            <programlisting>
+ public void testDeploymentDescriptorQueue() throws Exception
+   {
+     
+      DeploymentDescriptorQueueTestRemote tester = (DeploymentDescriptorQueueTestRemote) getInitialContext().lookup(DeploymentDescriptorQueueTestRemote.class.getName());
+      ProducerManager manager = (ProducerManager) ((ProducerObject) tester).getProducerManager();
+      manager.connect();
+      try
+      {
+         tester.method1("testQueue", 5);
+
+         tester.method2("testQueue", 5.5F);
+      }
+      finally
+      {
+         manager.close();
+      }
+   }
+            </programlisting>
+         </para>
+         <para>
+            Here is the example deployment descriptor:
+<programlisting><![CDATA[
+<jboss>
+   <enterprise-beans>
+      <consumer>
+         <ejb-name>DeploymentDescriptorQueueTestConsumer</ejb-name>
+         <ejb-class>org.jboss.ejb3.test.consumer.DeploymentDescriptorQueueTestConsumer</ejb-class>
+         <destination>queue/consumertest</destination>
+         <destination-type>javax.jms.Queue</destination-type>
+         <producer>org.jboss.ejb3.test.consumer.DeploymentDescriptorQueueTestRemote</producer>
+         <current-message>
+            <method>
+               <method-name>currentMessage</method-name>
+            </method>
+            <method>
+               <method-name>setMessage</method-name>
+            </method>
+         </current-message>
+         <message-properties>
+            <method>
+               <method-name>method2</method-name>
+            </method>
+            <delivery>NonPersistent</delivery>
+         </message-properties>
+      </consumer>
+   </enterprise-beans>
+</jboss>]]></programlisting>
+         </para>
+      </sect2>
+   </sect1>
+</chapter>
+
