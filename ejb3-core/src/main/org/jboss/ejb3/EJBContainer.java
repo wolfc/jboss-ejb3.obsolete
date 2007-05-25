@@ -601,9 +601,22 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       try
       {
          Thread.currentThread().setContextClassLoader(classloader);
+         // UserTransaction
          try
          {
             Util.rebind(getEnc(), "UserTransaction", new UserTransactionImpl());
+         }
+         catch (NamingException e)
+         {
+            NamingException namingException = new NamingException("Could not bind user transaction for ejb name " + ejbName + " into JNDI under jndiName: " + getEnc().getNameInNamespace() + "/" + "UserTransaction");
+            namingException.setRootCause(e);
+            throw namingException;
+         }
+         // TransactionSynchronizationRegistry
+         try
+         {
+            Util.createLinkRef(getEnc(), "TransactionSynchronizationRegistry", "TransactionSynchronizationRegistry");
+            log.debug("Linked java:comp/TransactionSynchronizationRegistry to JNDI name: TransactionSynchronizationRegistry");
          }
          catch (NamingException e)
          {
