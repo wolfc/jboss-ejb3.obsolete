@@ -33,11 +33,17 @@ public class Client
 {
    public static void main(String[] args) throws Exception
    {
+      processMessage("queue/tutorial/example");
+      processMessage("queue/tutorial/defaultedexample");
+   }
+   
+   private static void processMessage(String queueBinding) throws Exception
+   {
       QueueConnection cnn = null;
       QueueSender sender = null;
       QueueSession session = null;
       InitialContext ctx = new InitialContext();
-      Queue queue = (Queue) ctx.lookup("queue/tutorial/example");
+      Queue queue = (Queue) ctx.lookup(queueBinding);
       QueueConnectionFactory factory = (QueueConnectionFactory) ctx.lookup("ConnectionFactory");
       cnn = factory.createQueueConnection();
       session = cnn.createQueueSession(false, QueueSession.AUTO_ACKNOWLEDGE);
@@ -46,7 +52,7 @@ public class Client
 
       sender = session.createSender(queue);
       sender.send(msg);
-      System.out.println("Message sent successfully to remote queue.");
+      System.out.println("Message sent successfully to remote queue " + queueBinding);
 
    }
 }

@@ -60,8 +60,12 @@
          <fileset dir="${build.classes.dir}">
             <include name="**/*.class"/>
          </fileset>
+      	<fileset dir=".">
+            <include name="custom-ejb3-interceptors-aop.xml"/>
+         </fileset>
       </jar>
       <copy file="queue-example-service.xml" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
+   	  <!--copy file="custom-ejb3-interceptors-aop.xml" todir="${jboss.home}/server/${jboss.server.config}/deploy"/-->
       <sleep seconds="5"/>
       <copy file="build/tutorial.jar" todir="${jboss.home}/server/${jboss.server.config}/deploy"/>
    </target>
@@ -83,6 +87,7 @@
       <delete dir="${build.dir}"/>
       <delete file="${jboss.home}/server/${jboss.server.config}/deploy/tutorial.jar"/>
       <delete file="${jboss.home}/server/${jboss.server.config}/deploy/queue-example-service.xml"/>
+   	  <!--delete file="${jboss.home}/server/${jboss.server.config}/deploy/custom-ejb3-interceptors-aop.xml"/-->
    </target>
 
 
