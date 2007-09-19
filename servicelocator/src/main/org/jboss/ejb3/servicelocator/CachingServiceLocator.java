@@ -1,0 +1,267 @@
+package org.jboss.ejb3.servicelocator;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public abstract class CachingServiceLocator implements ServiceLocator
+{
+   // Class Members
+
+   private static final Log logger = LogFactory.getLog(CachingServiceLocator.class);
+
+   // Instance Members
+
+   /**
+    * Object cache used for storing stubs to remote services/beans, indexed by unique business interface
+    */
+   private Map<Class<?>, Object> objectCache = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
+
+   // Required Implementations
+
+   /**
+    * Obtains a stub to the the SLSB service with the specified business 
+    * interface.  If this is the first request for this service, it will 
+    * be obtained from JNDI and placed in a cache such that subsequent 
+    * requests will not require the overhead of a JNDI lookup. 
+    * 
+    * @param <T>
+    * @param clazz The business interface of the desired service
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on any of the configured local/remote hosts
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the configured local/remote hosts, or if the
+    *   specified class is no an interface 
+    */
+   public <T> T getStatelessService(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException
+   {
+      // Log
+      logger.trace("getStatelessService requesting " + clazz.getName());
+
+      // Obtain object, from cache if possible
+      return this.getObject(clazz, true);
+   }
+
+   /**
+    * Obtains a stub to the the SFSB with the specified business 
+    * interface.  This call will always result in a call to JNDI 
+    * for a new stub; no caching will take place
+    * 
+    * @param <T>
+    * @param clazz The business interface of the desired service
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on any of the configured local/remote hosts
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the configured local/remote hosts, or if the
+    *   specified class is no an interface 
+    */
+   public <T> T getStatefulBean(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException
+   {
+      // Log
+      logger.trace("getStatefulBean requesting " + clazz.getName());
+
+      // Obtain object, never from cache (Stateful stubs must be unique)
+      return this.getObject(clazz, false);
+   }
+
+   /**
+    * Obtains a stub to the the JMX (MBean, Singleton) service with 
+    * the specified business interface.  If this is the first 
+    * request for this service, it will be obtained from JNDI and 
+    * placed in a cache such that subsequent requests will not 
+    * require the overhead of a JNDI lookup.  Convenience
+    * method; equivalent to <code>getStatelessService</code>
+    * 
+    * @param <T>
+    * @param clazz The business interface of the desired service
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on any of the configured local/remote hosts
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the configured local/remote hosts, or if the
+    *   specified class is no an interface 
+    */
+   public <T> T getJmxService(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException
+   {
+      // Log
+      logger.trace("getJmxService requesting " + clazz.getName());
+
+      // Obtain object, from cache if possible
+      return this.getObject(clazz, true);
+   }
+
+   // Internal Methods
+
+   /**
+    * Obtains the object associated with the specified business interface.  
+    * This may be obtained from the cache if possible when the "useCache" 
+    * flag is set, otherwise caching will be bypassed and a unique lookup 
+    * will take place on each subsequent request.
+    * 
+    * @param <T>
+    * @param clazz The business interface of the desired service
+    * @param useCache Whether or not to retrieve the object from the cache, if possible.
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on any of the configured local/remote hosts
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the configured local/remote hosts, or if the
+    *   specified class is no an interface 
+    */
+   protected <T> T getObject(Class<T> clazz, boolean useCache) throws Ejb3NotFoundException, IllegalArgumentException
+   {
+      // Ensure specified business interface is an interface
+      if (!clazz.isInterface())
+      {
+         throw new IllegalArgumentException("Specified class \"" + clazz.getName() + "\" is not an interface");
+      }
+
+      // If caching is enabled and the object exists in the cache
+      if (useCache && this.isObjectCached(clazz))
+      {
+         // Obtain from cache
+         T obj = this.getObjectFromCache(clazz);
+
+         // Ensure implements specified interface
+         if (!objectImplementsInterface(obj, clazz))
+         {
+            // Object was placed into cache under incorrect key; integrity of cache broken
+            throw new ServiceLocatorException("Object in cache under key " + clazz.getName()
+                  + " does not implement this interface; cache integrity compromised.");
+         }
+
+         // Return from cache
+         return obj;
+      }
+
+      // Obtain from the remote host
+      T obj = this.getObjectFromRemoteHost(clazz);
+
+      // If caching is enabled 
+      if (useCache)
+      {
+         // Place into the cache
+         this.addInterfaceAndSuperinterfacesToCache(clazz, obj);
+      }
+
+      // Return
+      return obj;
+
+   }
+
+   /**
+    * Determines whether an object with the specified business interface 
+    * is currently cached
+    * 
+    * @param clazz
+    * @return
+    */
+   private boolean isObjectCached(Class<?> clazz)
+   {
+      return this.objectCache.containsKey(clazz);
+   }
+
+   /**
+    * Obtains the specified object from the cache
+    * 
+    * @param <T>
+    * @param clazz
+    * @return
+    */
+   @SuppressWarnings(value = "unchecked")
+   private <T> T getObjectFromCache(Class<T> clazz)
+   {
+      // Obtain
+      T obj = (T) this.objectCache.get(clazz);
+
+      // Ensure present
+      if (obj == null)
+      {
+         throw new ServiceLocatorException("Call to retrieve object implementing " + clazz.getName()
+               + " from cache failed; object is not cached.");
+      }
+
+      // Return
+      return obj;
+   }
+
+   /**
+    * Returns whether the specified object implements the specified interface
+    * 
+    * @param obj
+    * @param interfaze
+    * @return
+    */
+   protected boolean objectImplementsInterface(Object obj, Class<?> interfaze)
+   {
+      // Loop through all implemented interfaces, looking for specified
+      for (Class<?> ifaze : obj.getClass().getInterfaces())
+      {
+         // Specified interface found
+         if (interfaze.equals(ifaze))
+         {
+            return true;
+         }
+      }
+
+      // Specified interface was not found
+      return false;
+   }
+
+   /**
+    * Adds the specified class and all superclasses to the cache of bound
+    * objects
+    * 
+    * @param interfaze
+    * @param obj
+    */
+   private <T> void addInterfaceAndSuperinterfacesToCache(Class<T> interfaze, T obj)
+   {
+      // Ensure not already cached, escape
+      if (!this.isObjectCached(interfaze))
+      {
+         // Add the object to the list of objects implementing this
+         // interface
+         this.objectCache.put(interfaze, obj);
+      }
+
+      // Add all super interfaces recursively
+      for (Class<T> superInterface : interfaze.getInterfaces())
+      {
+         this.addInterfaceAndSuperinterfacesToCache(superInterface, obj);
+      }
+   }
+
+   // Contracts
+
+   /**
+    * Obtains the object associated with the specified business interface 
+    * from one of the configured remote hosts.
+    * 
+    * @param <T>
+    * @param clazz The business interface of the desired service
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on any of the configured local/remote hosts
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the configured local/remote hosts, or if the
+    *   specified class is no an interface 
+    */
+   public abstract <T> T getObjectFromRemoteHost(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException;
+
+}
