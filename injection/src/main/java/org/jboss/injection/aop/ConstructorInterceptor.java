@@ -26,6 +26,9 @@ import org.jboss.aop.joinpoint.Invocation;
 
 /**
  * Intercepts construction of new objects and fires up injection.
+ * 
+ * Note that this is useless for EJB 3, because the lifecycle of a bean
+ * contains passivation and activation.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
