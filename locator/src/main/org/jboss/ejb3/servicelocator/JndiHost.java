@@ -1,3 +1,4 @@
+package org.jboss.ejb3.servicelocator;
 
 
 import java.io.Serializable;

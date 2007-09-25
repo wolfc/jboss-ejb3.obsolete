@@ -1,5 +1,12 @@
 package org.jboss.ejb3.servicelocator;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * JndiCachingServiceLocator
  * 
@@ -10,8 +17,33 @@ package org.jboss.ejb3.servicelocator;
  * @version $Revision $
  * @author <a href="mailto:alr@alrubinger.com">ALR</a>
  */
-public class JndiCachingServiceLocator extends CachingServiceLocator
+public final class JndiCachingServiceLocator extends CachingServiceLocator
 {
+
+   // Class Members
+   private static final Log logger = LogFactory.getLog(JndiCachingServiceLocator.class);
+
+   private static JndiCachingServiceLocator instance = null;
+
+   // Instance Members
+
+   /**
+    * List of JNDI Hosts on which Services may be bound
+    */
+   private List<JndiHost> jndiHosts = Collections.synchronizedList(new ArrayList<JndiHost>());
+
+   // Constructor
+
+   /**
+    * Constructor
+    */
+   JndiCachingServiceLocator(List<JndiHost> jndiHosts)
+   {
+      super();
+      this.jndiHosts = jndiHosts;
+   }
+
+   // Contracts
 
    /**
     * Obtains the object associated with the specified business interface 
