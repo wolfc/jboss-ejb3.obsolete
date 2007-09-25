@@ -1,5 +1,5 @@
 <projectDescription>
-  <name>injection</name>
+  <name>jboss-ejb3-injection</name>
   <comment>JBoss POJO Injection Framework</comment>
   <projects/>
   <buildSpec>

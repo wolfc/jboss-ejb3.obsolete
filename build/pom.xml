@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  The parent maven for the microcontainer project that expects a structure like: 
+  vi:ts=2:sw=2:expandtab:
+
+  The parent maven for the ejb3 project that expects a structure like: 
     build/pom.xml
     [...]/pom.xml
     [...]/pom.xml
@@ -16,44 +18,55 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
-    <groupId>jboss</groupId>
+    <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>2-SNAPSHOT</version>
+    <version>3</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3</artifactId>
-  <version>0.11-SNAPSHOT</version>
+  <version>0.11.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>JBoss EJB3 RC11 Build</name>
-  <url>http://www.jboss.com</url>
+  <url>http://labs.jboss.com/jbossejb3</url>
   <description>
     The JBoss EJB3 Release Candidate 11 Preview
   </description>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
+    <url>http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb3/trunk</url>
+  </scm>
+
+  <properties>
+    <version.ant.junit>1.7.0</version.ant.junit>
+    <version.jboss.aop>2.0.0.beta1</version.jboss.aop>
+    <version.jboss.ejb.api>3.0.0.20070913080910</version.jboss.ejb.api>
+    <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
+    <version.jboss.logging.spi>2.0.2.GA</version.jboss.logging.spi>
+    <version.junit>3.8.1</version.junit>
+  </properties>
+
   <build>
     <!-- Per default we use maven layout
     <sourceDirectory>src/main</sourceDirectory>
     <testSourceDirectory>src/tests</testSourceDirectory>
     -->
+    <outputDirectory>${ejb3.outputDirectory}</outputDirectory>
+    <testOutputDirectory>${ejb3.testOutputDirectory}</testOutputDirectory>
     <finalName>${artifactId}</finalName>
-    <resources>
-      <resource>
-        <directory>src/etc</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/resources</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-        <filtering>true</filtering>
-      </testResource>
-    </testResources>
     <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.5</source>
+          <target>1.5</target>
+          <showDeprecation>false</showDeprecation>
+          <showWarnings>true</showWarnings>
+          <optimize>true</optimize>
+        </configuration>
+      </plugin>
 <!--
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -82,16 +95,27 @@
           <includes>
             <include>**/**TestCase.java</include>
           </includes>
-          <!--skip>true</skip-->
         </configuration>
       </plugin>
-      <!-- FIXME: test of deploy plugin, to be replaced by new version of jboss-parent -->
       <plugin>
-        <groupId>jboss.maven-plugins</groupId>
-        <artifactId>jboss-deploy-maven-plugin</artifactId>
+        <groupId>org.jboss.maven.plugins</groupId>
+        <artifactId>maven-jboss-deploy-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jboss-deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <jbossDeployRoot>${jboss.repository.root}</jbossDeployRoot>
+          <groupId>jboss</groupId>
+        </configuration>
       </plugin>
     </plugins>
   </build>
+
   <repositories>
     <repository>
       <id>jboss</id>
@@ -99,14 +123,30 @@
       <layout>default</layout>
       <url>http://repository.jboss.com/maven2/</url>
       <snapshots>
-        <enabled>true</enabled>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>snapshots.jboss.org</id>
+      <name>JBoss Snapshots Repository</name>
+      <layout>default</layout>
+      <url>http://snapshots.jboss.org/maven2/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+    </repository>
   </repositories>
+
+  <!-- moved to ejb3 parent
   <modules>
     <module>../ejb3-core</module>
     <module>../jboss-metamodel-dd</module>
   </modules>
+  -->
+
   <reporting>
     <plugins>
       <plugin>
@@ -123,6 +163,92 @@
           </reportSet>
         </reportSets>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>1.0.0</version>
+      </plugin>
     </plugins>
   </reporting>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- ejb3 -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-injection</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- external -->
+      <dependency>
+        <groupId>org.jboss.aop</groupId>
+        <artifactId>jboss-aop</artifactId>
+        <version>${version.jboss.aop}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.javaee</groupId>
+        <artifactId>jboss-ejb-api</artifactId>
+        <version>${version.jboss.ejb.api}</version>
+      </dependency>
+      <dependency>
+        <groupId>jboss</groupId>
+        <artifactId>jboss-logging-log4j</artifactId>
+        <version>${version.jboss.logging.log4j}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>jboss</groupId>
+        <artifactId>jboss-logging-spi</artifactId>
+        <version>${version.jboss.logging.spi}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${version.junit}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <ejb3.outputDirectory>target/classes</ejb3.outputDirectory>
+        <ejb3.testOutputDirectory>target/tests-classes</ejb3.testOutputDirectory>
+      </properties>
+    </profile>
+    <profile>
+      <id>eclipse</id>
+      <build>
+        <defaultGoal>process-test-resources</defaultGoal>
+        <plugins>
+          <plugin>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>eclipse</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>eclipse</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <downloadSources>true</downloadSources>
+              <buildOutputDirectory>${ejb3.outputDirectory}</buildOutputDirectory>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <ejb3.outputDirectory>eclipse-target/classes</ejb3.outputDirectory>
+        <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
+      </properties>
+    </profile>
+  </profiles>
 </project>

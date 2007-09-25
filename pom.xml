@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+
+  The parent maven for the ejb3 project
+
+  This pom aggregates the subproject pom
+  
+  To build this project maven 2 should be installed and in the system path.  From the command line
+  run "mvn" from the build directory and "install" will be used as the default goal.  In order to use 
+  the "deploy" goal, the mvn.cvs.root should be specified in settings.xml.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-parent</artifactId>
+  <version>0.11.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBoss Microcontainer Aggregator</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    The JBoss EJB 3 implementation.
+  </description>
+  
+  <modules>
+    <module>build</module>
+    <!--module>core</module-->
+    <module>injection</module>
+    <module>ejb3-cache</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>eclipse</id>
+      <build>
+        <defaultGoal>process-test-resources</defaultGoal>
+      </build>
+    </profile>
+    <profile>
+      <id>docs</id>
+      <modules>
+        <module>docs</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>assembly</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>make-assembly</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>assembly</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <finalName>jboss-ejb3-${project.version}</finalName>
+              <descriptors>
+                <descriptor>build/assembly/dist.xml</descriptor>
+                <descriptor>build/assembly/src.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <modules>
+        <module>docs</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <distributionManagement>
+    <repository>
+      <!-- Copy the distribution jar file to a local checkout of the maven repository 
+        -  This variable can be set in $MAVEN_HOME/conf/settings.xml -->
+      <id>repository.jboss.org</id>
+      <url>file://${maven.repository.root}</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots.jboss.org</id>
+      <name>JBoss Snapshot Repository</name>
+      <url>dav:https://snapshots.jboss.org/maven2</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>
