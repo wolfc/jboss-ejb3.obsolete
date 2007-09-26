@@ -19,9 +19,9 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.GenericValidator;
-import org.jboss.ejb3.servicelocator.Ejb3NotFoundException;
-import org.jboss.ejb3.servicelocator.JndiHost;
-import org.jboss.ejb3.servicelocator.ServiceLocatorException;
+import org.jboss.ejb3.locator.client.Ejb3NotFoundException;
+import org.jboss.ejb3.locator.client.JndiHost;
+import org.jboss.ejb3.locator.client.ServiceLocatorException;
 import org.xml.sax.SAXException;
 
 /**

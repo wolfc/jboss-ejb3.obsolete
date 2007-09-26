@@ -9,8 +9,8 @@ import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.ejb3.servicelocator.Ejb3NotFoundException;
-import org.jboss.ejb3.servicelocator.ServiceLocatorException;
+import org.jboss.ejb3.locator.client.Ejb3NotFoundException;
+import org.jboss.ejb3.locator.client.ServiceLocatorException;
 
 /**
  * ServiceLocator
