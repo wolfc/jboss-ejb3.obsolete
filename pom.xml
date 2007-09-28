@@ -29,6 +29,7 @@
     <module>injection</module>
     <module>ejb3-cache</module>
     <module>pool</module>
+    <module>locator</module>
   </modules>
 
   <profiles>
