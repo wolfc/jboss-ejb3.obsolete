@@ -27,13 +27,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.GenericValidator;
 import org.xml.sax.SAXException;
 
 public class JndiHostMetadataParser
 {
 
    // Class Members
+   private static final Log logger = LogFactory.getLog(JndiHostMetadataParser.class);
+
    private static JndiHostMetadataParser instance = null;
+
+   private static final String DEFAULT_JNDI_HOST_ID_PREFIX = "JNDIHOST-";
 
    // Internal Constructor
    private JndiHostMetadataParser()
@@ -64,11 +71,12 @@ public class JndiHostMetadataParser
       // Add Rules for parsing configuration
       this.addJnpHostDefinitionsParsingRules(jndiHostDefinitionsDigester);
 
-      //TODO Assign each JNDI Host a unique ID
       // Parse
+      List<JndiHost> jndiHosts = null;
       try
       {
-         return (List<JndiHost>) jndiHostDefinitionsDigester.parse(inStream);
+         // Parse
+         jndiHosts = (List<JndiHost>) jndiHostDefinitionsDigester.parse(inStream);
       }
       catch (IOException e)
       {
@@ -78,6 +86,31 @@ public class JndiHostMetadataParser
       {
          throw new ServiceLocatorException(e);
       }
+
+      // Assign each JNDI Host a unique ID, if not assigned
+      int id = 0;
+      List<String> ids = new ArrayList<String>();
+      for (JndiHost jndiHost : jndiHosts)
+      {
+         // No ID specified for this host, assign one
+         if (GenericValidator.isBlankOrNull(jndiHost.getId()))
+         {
+            jndiHost.setId(JndiHostMetadataParser.DEFAULT_JNDI_HOST_ID_PREFIX + Integer.toString((id++)));
+         }
+
+         // Check for multiple IDs
+         if (ids.contains(jndiHost.getId()))
+         {
+            throw new ServiceLocatorException("JNDI Host with address " + jndiHost.getAddress()
+                  + " has conflicting/duplicate ID of " + jndiHost.getId());
+         }
+         else
+         {
+            // Add to list of IDs
+            ids.add(jndiHost.getId());
+         }
+      }
+      return jndiHosts;
    }
 
    // Internal Helper Methods
@@ -89,30 +122,31 @@ public class JndiHostMetadataParser
     */
    private void addJnpHostDefinitionsParsingRules(Digester digester)
    {
+
       // When the root is encountered, create a List
       // to hold the JNP Host Definitions
-      digester.addObjectCreate("jndi-hosts", ArrayList.class);
+      digester.addObjectCreate("service-locator/jndi-hosts", ArrayList.class);
 
       // When a new host definition is encountered,
       // create a new JNP Host
-      digester.addObjectCreate("jndi-hosts/host", JndiHost.class);
+      digester.addObjectCreate("service-locator/jndi-hosts/jndi-host", JndiHost.class);
 
       // Set all properties (in this case, "name")
       // from the "host" entry to the "JnpHost.name"
       // object
-      digester.addSetProperties("jndi-hosts/host");
+      digester.addSetProperties("service-locator/jndi-hosts/jndi-host");
 
       // Set the address
-      digester.addCallMethod("jndi-hosts/host/address", "setAddress", 1);
-      digester.addCallParam("jndi-hosts/host/address", 0);
+      digester.addCallMethod("service-locator/jndi-hosts/jndi-host/address", "setAddress", 1);
+      digester.addCallParam("service-locator/jndi-hosts/jndi-host/address", 0);
 
       // Set the port
-      digester.addCallMethod("jndi-hosts/host/port", "setPort", 1, new Class[]
+      digester.addCallMethod("service-locator/jndi-hosts/jndi-host/port", "setPort", 1, new Class[]
       {Integer.class});
-      digester.addCallParam("jndi-hosts/host/port", 0);
+      digester.addCallParam("service-locator/jndi-hosts/jndi-host/port", 0);
 
       // Add the JNP Host to the List
-      digester.addSetNext("jndi-hosts/host", "add");
+      digester.addSetNext("service-locator/jndi-hosts/jndi-host", "add");
 
    }
 

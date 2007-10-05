@@ -157,7 +157,7 @@ public abstract class CachingServiceLocator implements ServiceLocator
          T obj = this.getObjectFromCache(clazz);
 
          // Ensure implements specified interface
-         if (!objectImplementsInterface(obj, clazz))
+         if (!clazz.isAssignableFrom(obj.getClass()))
          {
             // Object was placed into cache under incorrect key; integrity of cache broken
             throw new ServiceLocatorException("Object in cache under key " + clazz.getName()
@@ -217,29 +217,6 @@ public abstract class CachingServiceLocator implements ServiceLocator
 
       // Return
       return obj;
-   }
-
-   /**
-    * Returns whether the specified object implements the specified interface
-    * 
-    * @param obj
-    * @param interfaze
-    * @return
-    */
-   protected boolean objectImplementsInterface(Object obj, Class<?> interfaze)
-   {
-      // Loop through all implemented interfaces, looking for specified
-      for (Class<?> ifaze : obj.getClass().getInterfaces())
-      {
-         // Specified interface found
-         if (interfaze.equals(ifaze))
-         {
-            return true;
-         }
-      }
-
-      // Specified interface was not found
-      return false;
    }
 
    /**

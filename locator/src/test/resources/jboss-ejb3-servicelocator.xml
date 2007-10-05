@@ -1,0 +1,12 @@
+<service-locator>
+
+	<jndi-hosts>
+
+		<jndi-host>
+			<address>localhost</address>
+			<port>1099</port>
+		</jndi-host>
+
+	</jndi-hosts>
+
+</service-locator>
