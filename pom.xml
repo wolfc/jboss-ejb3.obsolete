@@ -46,6 +46,7 @@
     <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
     <version.jboss.logging.spi>2.0.2.GA</version.jboss.logging.spi>
     <version.junit>3.8.1</version.junit>
+    <maven.test.jvmargs></maven.test.jvmargs>
   </properties>
 
   <build>
@@ -95,6 +96,8 @@
           <includes>
             <include>**/**TestCase.java</include>
           </includes>
+          <forkMode>once</forkMode>
+          <argLine>${maven.test.jvmargs}</argLine>
         </configuration>
       </plugin>
       <plugin>
