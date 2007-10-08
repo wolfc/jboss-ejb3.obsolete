@@ -27,9 +27,9 @@ import junit.framework.TestCase;
 
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
-import org.jboss.ejb3.cache.grouped.PassivationGroup;
+import org.jboss.ejb3.cache.grouped.SerializationGroup;
 import org.jboss.ejb3.cache.impl.FileObjectStore;
-import org.jboss.ejb3.cache.impl.PassivationGroupContainer;
+import org.jboss.ejb3.cache.impl.SerializationGroupContainer;
 import org.jboss.ejb3.cache.impl.SimplePassivatingCache;
 import org.jboss.logging.Logger;
 
@@ -37,7 +37,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class GroupedPassivatingUnitTestCache extends TestCase
 {
@@ -57,13 +57,13 @@ public class GroupedPassivatingUnitTestCache extends TestCase
    
    public void test1()
    {
-      PassivationGroupContainer container = new PassivationGroupContainer();
-      StatefulObjectFactory<PassivationGroup> factory = container;
-      PassivationManager<PassivationGroup> passivationManager = container;
-      FileObjectStore<PassivationGroup> store = new FileObjectStore<PassivationGroup>();
+      SerializationGroupContainer container = new SerializationGroupContainer();
+      StatefulObjectFactory<SerializationGroup> factory = container;
+      PassivationManager<SerializationGroup> passivationManager = container;
+      FileObjectStore<SerializationGroup> store = new FileObjectStore<SerializationGroup>();
       store.setStorageDirectory("./target/tmp/groups");
       store.start();
-      SimplePassivatingCache<PassivationGroup> groupCache = new SimplePassivatingCache<PassivationGroup>(factory, passivationManager, store);
+      SimplePassivatingCache<SerializationGroup> groupCache = new SimplePassivatingCache<SerializationGroup>(factory, passivationManager, store);
       groupCache.setName("PassivationGroupContainer");
       groupCache.setSessionTimeout(0);
       groupCache.start();
@@ -83,7 +83,7 @@ public class GroupedPassivatingUnitTestCache extends TestCase
       ctx2.shared = shared;
       
       // TODO: how will passivation groups be created?
-      PassivationGroup group = groupCache.create(null, null);
+      SerializationGroup group = groupCache.create(null, null);
       container1.getCache().setGroup(ctx1, group);
       container2.getCache().setGroup(ctx2, group);
       // TODO: currently we need to release the group

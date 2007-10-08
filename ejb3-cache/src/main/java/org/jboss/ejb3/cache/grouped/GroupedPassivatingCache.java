@@ -25,12 +25,24 @@ import org.jboss.ejb3.cache.Identifiable;
 import org.jboss.ejb3.cache.PassivatingCache;
 
 /**
- * Allows objects to the members of a PassivationGroup.
+ * Allows objects to be the members of a SerializationGroup.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface GroupedPassivatingCache<T extends Identifiable> extends PassivatingCache<T>
 {
-   void setGroup(T obj, PassivationGroup group);
+   /**
+    * Assign the given object to the given group.  The group will be
+    * of the {@link SerializationGroup} implementation type returned
+    * by {@link #createGroup()}.
+    * 
+    * @param obj
+    * @param group
+    * 
+    * @throws IllegalArgumentException if the 
+    *   {@link SerializationGroup#isClustered() group's support for clustering}
+    *   does not match {@link Cache#isClustered() our own}.
+    */
+   void setGroup(T obj, SerializationGroup group);
 }

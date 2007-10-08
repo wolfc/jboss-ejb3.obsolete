@@ -33,34 +33,36 @@ import org.jboss.ejb3.cache.PassivatingCache;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.grouped.GroupedPassivatingCache;
-import org.jboss.ejb3.cache.grouped.PassivationGroup;
+import org.jboss.ejb3.cache.grouped.SerializationGroup;
+import org.jboss.ejb3.cache.grouped.SerializationGroupMember;
 import org.jboss.logging.Logger;
 
 /**
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> implements GroupedPassivatingCache<T>
 {
    private static final Logger log = Logger.getLogger(GroupedPassivatingCacheImpl.class);
    
-   private PassivatingCache<PassivationGroup> groupCache;
+   private PassivatingCache<SerializationGroup> groupCache;
    
-   private SimplePassivatingCache<Entry> delegate;
-   private Map<Object, Entry> storage = new HashMap<Object, Entry>();
+   private SimplePassivatingCache<Entry<T>> delegate;
+   private Map<Object, Entry<T>> storage = new HashMap<Object, Entry<T>>();
    
-   protected class Entry implements Identifiable, Serializable
+   protected class Entry<C extends Identifiable & Serializable> 
+      implements SerializationGroupMember, Serializable
    {
       private static final long serialVersionUID = 1L;
       
       Object id;
-      T obj;
-      PassivationGroupImpl group;
+      C obj;
+      SerializationGroup group;
       Object groupId;
       
-      Entry(T obj)
+      Entry(C obj)
       {
          assert obj != null : "obj is null";
          
@@ -73,7 +75,12 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
          return id;
       }
       
-      void passivate()
+      public C getSerializableObject()
+      {
+         return obj;
+      }
+      
+      public void prePassivate()
       {
          // make sure we don't passivate the group twice
          group = null;
@@ -83,6 +90,17 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
          obj = null;
       }
       
+      public void preReplicate()
+      {
+         throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                                 GroupedPassivatingCacheImpl.this.getClass().getName());
+      }
+      
+      public boolean isClustered()
+      {
+         return false;
+      }
+      
       @Override
       public String toString()
       {
@@ -90,7 +108,7 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
       }
    }
    
-   private class EntryContainer implements StatefulObjectFactory<Entry>, PassivationManager<Entry>, ObjectStore<Entry>
+   private class EntryContainer implements StatefulObjectFactory<Entry<T>>, PassivationManager<Entry<T>>, ObjectStore<Entry<T>>
    {
       private StatefulObjectFactory<T> factory;
       private PassivationManager<T> passivationManager;
@@ -103,19 +121,19 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
          this.store = store;
       }
       
-      public Entry create(Class<?>[] initTypes, Object[] initValues)
+      public Entry<T> create(Class<?>[] initTypes, Object[] initValues)
       {
-         return new Entry(factory.create(initTypes, initValues));
+         return new Entry<T>(factory.create(initTypes, initValues));
       }
 
-      public void destroy(Entry entry)
+      public void destroy(Entry<T> entry)
       {
-         factory.destroy(entry.obj);
+         factory.destroy(entry.getSerializableObject());
       }
       
-      public Entry load(Object key)
+      public Entry<T> load(Object key)
       {
-         Entry entry = storage.get(key);
+         Entry<T> entry = storage.get(key);
          if(entry != null)
          {
             log.trace("entry = " + entry);
@@ -125,26 +143,27 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
          T obj = store.load(key);
          if(obj == null)
             return null;
-         return new Entry(obj);
+         return new Entry<T>(obj);
       }
       
       @SuppressWarnings("unchecked")
-      public void postActivate(Entry entry)
+      public void postActivate(Entry<T> entry)
       {
          log.trace("post activate " + entry);
-         if(entry.obj == null)
+         if(entry.getSerializableObject() == null)
          {
             if(entry.group == null)
             {
                // TODO: peek or get?
-               entry.group = (PassivationGroupImpl) groupCache.peek(entry.groupId);
+               entry.group = groupCache.peek(entry.groupId);
             }
-            entry.obj = (T) entry.group.getMember(entry.id);
+            entry.obj = (T) entry.group.getMemberObject(entry.id);
+            entry.group.addActive(entry);
          }
          passivationManager.postActivate(entry.obj);
       }
       
-      public void prePassivate(Entry entry)
+      public void prePassivate(Entry<T> entry)
       {
          log.trace("pre passivate " + entry);
          passivationManager.prePassivate(entry.obj);
@@ -160,7 +179,24 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
          }
       }
       
-      public void store(Entry entry)
+      public boolean isClustered()
+      {
+         return false;
+      }
+      
+      public void preReplicate(Entry<T> entry)
+      {
+         throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                                 getClass().getName());
+      }
+      
+      public void postReplicate(Entry<T> entry)
+      {
+         throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                                 getClass().getName());
+      }
+      
+      public void store(Entry<T> entry)
       {
          log.trace("store " + entry);
          if(entry.groupId == null)
@@ -170,14 +206,26 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
       }
    }
    
-   public GroupedPassivatingCacheImpl(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, ObjectStore<T> store, PassivatingCache<PassivationGroup> groupCache)
+   public GroupedPassivatingCacheImpl(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, ObjectStore<T> store, PassivatingCache<SerializationGroup> groupCache)
    {
       assert groupCache != null : "groupCache is null";
       assert passivationManager != null : "passivationManager is null";
+      assert groupCache.isClustered() == false : "groupCache should not be clustered";
       
       this.groupCache = groupCache;
       EntryContainer container = new EntryContainer(factory, passivationManager, store);
-      this.delegate = new SimplePassivatingCache<Entry>(container, container, container);
+      this.delegate = new SimplePassivatingCache<Entry<T>>(container, container, container);
+   }
+   
+   public boolean isClustered()
+   {
+      return false;
+   }
+   
+   public void replicate(Object key)
+   {
+      throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                              getClass().getName());      
    }
    
    public void passivate(Object key)
@@ -210,17 +258,21 @@ public class GroupedPassivatingCacheImpl<T extends Identifiable & Serializable> 
       delegate.remove(key);
    }
 
-   public void setGroup(T obj, PassivationGroup group)
+   
+   public void setGroup(T obj, SerializationGroup group)
    {
-      Entry entry;
+      if (group.isClustered())
+      {
+         throw new IllegalArgumentException(group + " is clustered; this cache does not support clustering");
+      }
       Object key = obj.getId();
-      entry = delegate.peek(key);
+      Entry<T>entry = delegate.peek(key);
       if(entry.group != null)
          throw new IllegalStateException("object " + key + " already associated with a passivation group");
-      entry.group = (PassivationGroupImpl) group;
+      entry.group = group;
       entry.groupId = group.getId();
       // TODO: remove member at the appropriate time
-      entry.group.addMember(key, entry);
+      entry.group.addMember(entry);
    }
 
    public void setName(String name)

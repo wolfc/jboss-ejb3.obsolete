@@ -24,10 +24,10 @@ package org.jboss.ejb3.cache;
 import java.io.Serializable;
 
 /**
- * Manage passivation lifecycle callbacks on an object.
+ * Manage passivation and replication lifecycle callbacks on an object.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface PassivationManager<T extends Serializable>
 {
@@ -44,6 +44,44 @@ public interface PassivationManager<T extends Serializable>
     * ObjectStore.
     * 
     * @param obj    the object
+    * 
+    * @throws ItemInUseException if <code>obj</code>, or another object in the 
+    *                            same {@link SerializationGroup} as 
+    *                            <code>obj</code>, is in use. 
     */
    void prePassivate(T obj);
+   
+   /**
+    * Gets whether this PassivationManager supports clustering functionality.
+    * 
+    * @return <code>true</code> if clustering is supported, <code>false</code>
+    *         otherwise
+    */
+   boolean isClustered();
+   
+   /**
+    * This method is called after a previously replicated object has been 
+    * retrieved from a clustered cache.
+    * 
+    * @param obj    the object. 
+    * 
+    * @throws UnsupportedOperationException if {@link #isClustered()} returns
+    *                                       <code>false</code>
+    */
+   void postReplicate(T obj);
+   
+   /**
+    * This method is called before an object is replicated by a clustered
+    * cache.
+    * 
+    * @param obj    the object
+    * 
+    * @throws ItemInUseException if <code>obj</code>, or another object in the 
+    *                            same {@link SerializationGroup} as 
+    *                            <code>obj</code>, is in use. .
+    *                             
+    * @throws UnsupportedOperationException if {@link #isClustered()} returns
+    *                                       <code>false</code>
+    */
+   void preReplicate(T obj);
 }

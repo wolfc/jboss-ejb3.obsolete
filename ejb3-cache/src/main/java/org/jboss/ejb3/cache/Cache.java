@@ -78,6 +78,27 @@ public interface Cache<T extends Identifiable>
    void remove(Object key);
    
    /**
+    * Gets whether this cache supports clustering functionality.
+    * 
+    * @return <code>true</code> if clustering is supported, <code>false</code>
+    *         otherwise
+    */
+   boolean isClustered();
+   
+   /**
+    * Replicate the object. The object must not be in use.
+    * 
+    * @param key    the identifier of the object
+    * 
+    * @throws ItemInUseException if the object, or another object in the 
+    *                            same {@link SerializationGroup} as the object, 
+    *                            is in use. 
+    * @throws UnsupportedOperationException if {@link #isClustered()} returns
+    *                                       <code>false</code>
+    */
+   void replicate(Object key);
+   
+   /**
     * Start the cache.
     */
    void start();

@@ -29,7 +29,7 @@ package org.jboss.ejb3.cache;
  * callbacks on the object.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface PassivatingCache<T extends Identifiable> extends Cache<T>
 {
@@ -37,6 +37,10 @@ public interface PassivatingCache<T extends Identifiable> extends Cache<T>
     * Force passivation of an object. The object must not be in use.
     * 
     * @param key    the identifier of the object
+    * 
+    * @throws ItemInUseException if the object, or another object in the 
+    *                            same {@link SerializationGroup} as the object, 
+    *                            is in use. 
     */
    void passivate(Object key);
 }

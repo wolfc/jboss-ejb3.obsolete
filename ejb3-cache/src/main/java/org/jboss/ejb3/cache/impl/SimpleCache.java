@@ -90,6 +90,17 @@ public class SimpleCache<T extends Identifiable> implements Cache<T>
       }
       if(obj != null)
          factory.destroy(obj);
+   } 
+   
+   public boolean isClustered()
+   {
+      return false;
+   }  
+   
+   public void replicate(Object key)
+   {
+      throw new UnsupportedOperationException("Clustering is not supported by " + 
+            getClass().getName());      
    }
    
    public void start()

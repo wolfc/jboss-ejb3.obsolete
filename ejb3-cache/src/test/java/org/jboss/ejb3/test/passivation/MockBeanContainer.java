@@ -29,7 +29,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MockBeanContainer implements StatefulObjectFactory<MockBeanContext>, PassivationManager<MockBeanContext>
 {
@@ -65,5 +65,19 @@ public class MockBeanContainer implements StatefulObjectFactory<MockBeanContext>
       {
          notifyAll();
       }
+   }
+   public boolean isClustered()
+   {
+      // TODO Auto-generated method stub
+      return false;
+}
+   public void postReplicate(MockBeanContext obj)
+   {
+      throw new UnsupportedOperationException("Clustering not supported");      
+   }
+
+   public void preReplicate(MockBeanContext obj)
+   {
+      throw new UnsupportedOperationException("Clustering not supported"); 
    }
 }

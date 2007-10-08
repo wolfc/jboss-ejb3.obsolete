@@ -25,7 +25,7 @@ import org.jboss.ejb3.cache.PassivatingCache;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.grouped.GroupedPassivatingCache;
-import org.jboss.ejb3.cache.grouped.PassivationGroup;
+import org.jboss.ejb3.cache.grouped.SerializationGroup;
 import org.jboss.ejb3.cache.impl.FileObjectStore;
 import org.jboss.ejb3.cache.impl.GroupedPassivatingCacheImpl;
 import org.jboss.logging.Logger;
@@ -34,7 +34,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MockBeanContainer implements StatefulObjectFactory<MockBeanContext>, PassivationManager<MockBeanContext>
 {
@@ -45,7 +45,7 @@ public class MockBeanContainer implements StatefulObjectFactory<MockBeanContext>
    
    private GroupedPassivatingCache<MockBeanContext> cache;
    
-   public MockBeanContainer(String name, int sessionTimeout, PassivatingCache<PassivationGroup> groupCache)
+   public MockBeanContainer(String name, int sessionTimeout, PassivatingCache<SerializationGroup> groupCache)
    {
       FileObjectStore<MockBeanContext> store = new FileObjectStore<MockBeanContext>();
       store.setStorageDirectory("./target/tmp/" + name);
@@ -94,4 +94,20 @@ public class MockBeanContainer implements StatefulObjectFactory<MockBeanContext>
          notifyAll();
       }
    }
+   public boolean isClustered()
+   {
+      // TODO Auto-generated method stub
+      return false;
+}
+   public void postReplicate(MockBeanContext obj)
+   {
+      throw new UnsupportedOperationException("Clustering not supported");      
+   }
+
+   public void preReplicate(MockBeanContext obj)
+   {
+      throw new UnsupportedOperationException("Clustering not supported"); 
+   }
+   
+   
 }

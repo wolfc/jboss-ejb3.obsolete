@@ -34,7 +34,7 @@ import org.jboss.ejb3.cache.StatefulObjectFactory;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class EntryStateCache<T extends Identifiable> implements Cache<T>
 {
@@ -139,6 +139,17 @@ public class EntryStateCache<T extends Identifiable> implements Cache<T>
    {
       // TODO Auto-generated method stub
 
+   }
+   
+   public boolean isClustered()
+   {
+      return false;
+   }
+   
+   public void replicate(Object key)
+   {
+      throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                              getClass().getName());      
    }
 
 }

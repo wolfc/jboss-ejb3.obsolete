@@ -39,7 +39,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SimplePassivatingCache<T extends Identifiable & Serializable> implements PassivatingCache<T>
 {
@@ -138,6 +138,17 @@ public class SimplePassivatingCache<T extends Identifiable & Serializable> imple
       this.passivationManager = passivationManager;
       this.store = store;
       this.cache = new HashMap<Object, Entry>();
+   }
+   
+   public boolean isClustered()
+   {
+      return false;
+   }
+   
+   public void replicate(Object key)
+   {
+      throw new UnsupportedOperationException("Clustering is not supported by " + 
+                                              getClass().getName());      
    }
    
    public T create(Class<?>[] initTypes, Object[] initValues)
