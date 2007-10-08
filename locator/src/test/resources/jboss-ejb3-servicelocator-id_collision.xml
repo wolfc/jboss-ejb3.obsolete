@@ -1,0 +1,20 @@
+<service-locator>
+
+	<jndi-hosts>
+
+		<jndi-host>
+			<id>MyID1</id>
+			<address>localhost</address>
+			<port>1099</port>
+		</jndi-host>
+		
+		<!-- Collision, invalid entry -->
+		<jndi-host>
+			<id>MyID1</id>
+			<address>localhost</address>
+			<port>1099</port>
+		</jndi-host>
+
+	</jndi-hosts>
+
+</service-locator>

@@ -24,12 +24,28 @@ package org.jboss.ejb3.locator.client;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class ServiceLocatorFactory
 {
 
    // Class Members
    private static ServiceLocator serviceLocator = null;
+   
+   private static final String CONFIGURATION_FILE_USER_OVERRIDE_FILENAME_SYSTEM_PROPERTY_KEY = "jboss.servicelocator.location";
+   
+   private static final String CONFIGURATION_FILE_USER_OVERRIDE_JAR_SYSTEM_PROPERTY_KEY = "jboss.servicelocator.classloader";
+
+   private static final String CONFIGURATION_FILE_DEFAULT_FILENAME = "jboss-servicelocator.xml";
+
+   private static final String CONFIGURATION_FILE_DEFAULT_INCONTAINER_URI = System
+         .getProperty("jboss.server.config.url")
+         + ServiceLocatorFactory.CONFIGURATION_FILE_DEFAULT_FILENAME;
+
+   private static final String CONFIGURATION_FILE_DEFAULT_OUTCONTAINER_LOCATION = "META-INF/"
+         + ServiceLocatorFactory.CONFIGURATION_FILE_DEFAULT_FILENAME;
 
    /*
     * Initialize Service Locator depending upon external configuration of JNDI
@@ -37,20 +53,38 @@ public class ServiceLocatorFactory
     */
    static
    {
-      // Obatin Metadata and parse
-      // TODO Needs to follow rules, order of finding config file
-      File jndiHostConfigFile = new File("IMPLEMENT.xml");
+
+      // Initialize
+      InputStream configuration = null;
+
+      // Attempt to obtain default in-container file
       try
       {
-         ServiceLocatorFactory.serviceLocator = new JndiCachingServiceLocator(JndiHostMetadataParser.getInstance()
-               .parse(new FileInputStream(jndiHostConfigFile)));
+         configuration = new FileInputStream(new File(new URI(
+               ServiceLocatorFactory.CONFIGURATION_FILE_DEFAULT_INCONTAINER_URI)));
       }
-      catch (FileNotFoundException e)
+      catch (FileNotFoundException fnfe)
       {
-         // TODO Add more elegant error message
+         // Not defined as default in-container location
+      }
+      catch (URISyntaxException e)
+      {
          throw new ServiceLocatorException(e);
       }
 
+      // Not found as default in-container file, attempt for default in-JAR file
+      configuration = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+            ServiceLocatorFactory.CONFIGURATION_FILE_DEFAULT_OUTCONTAINER_LOCATION);
+      
+      // If default in-JAR file is not found
+      if(configuration==null)
+      {
+         //TODO
+      }
+
+      // Parse
+      ServiceLocatorFactory.serviceLocator = new JndiCachingServiceLocator(JndiHostConfigurationParser.getInstance()
+            .parse(configuration));
    }
 
    /**

@@ -32,33 +32,33 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.GenericValidator;
 import org.xml.sax.SAXException;
 
-public class JndiHostMetadataParser
+public class JndiHostConfigurationParser
 {
 
    // Class Members
-   private static final Log logger = LogFactory.getLog(JndiHostMetadataParser.class);
+   private static final Log logger = LogFactory.getLog(JndiHostConfigurationParser.class);
 
-   private static JndiHostMetadataParser instance = null;
+   private static JndiHostConfigurationParser instance = null;
 
-   private static final String DEFAULT_JNDI_HOST_ID_PREFIX = "JNDIHOST-";
+   public static final String DEFAULT_JNDI_HOST_ID_PREFIX = "JNDIHOST-";
 
    // Internal Constructor
-   private JndiHostMetadataParser()
+   private JndiHostConfigurationParser()
    {
 
    }
 
    // Singleton Accessor
-   public static synchronized JndiHostMetadataParser getInstance()
+   public static synchronized JndiHostConfigurationParser getInstance()
    {
       // Ensure instanciated
-      if (JndiHostMetadataParser.instance == null)
+      if (JndiHostConfigurationParser.instance == null)
       {
-         JndiHostMetadataParser.instance = new JndiHostMetadataParser();
+         JndiHostConfigurationParser.instance = new JndiHostConfigurationParser();
       }
 
       // Return
-      return JndiHostMetadataParser.instance;
+      return JndiHostConfigurationParser.instance;
    }
 
    // Functional Methods
@@ -69,7 +69,7 @@ public class JndiHostMetadataParser
       // Initialize
       Digester jndiHostDefinitionsDigester = new Digester();
       // Add Rules for parsing configuration
-      this.addJnpHostDefinitionsParsingRules(jndiHostDefinitionsDigester);
+      this.addJndiHostDefinitionsParsingRules(jndiHostDefinitionsDigester);
 
       // Parse
       List<JndiHost> jndiHosts = null;
@@ -95,7 +95,7 @@ public class JndiHostMetadataParser
          // No ID specified for this host, assign one
          if (GenericValidator.isBlankOrNull(jndiHost.getId()))
          {
-            jndiHost.setId(JndiHostMetadataParser.DEFAULT_JNDI_HOST_ID_PREFIX + Integer.toString((id++)));
+            jndiHost.setId(JndiHostConfigurationParser.DEFAULT_JNDI_HOST_ID_PREFIX + Integer.toString((id++)));
          }
 
          // Check for multiple IDs
@@ -120,7 +120,7 @@ public class JndiHostMetadataParser
     * 
     * @param digester
     */
-   private void addJnpHostDefinitionsParsingRules(Digester digester)
+   private void addJndiHostDefinitionsParsingRules(Digester digester)
    {
 
       // When the root is encountered, create a List
@@ -135,6 +135,10 @@ public class JndiHostMetadataParser
       // from the "host" entry to the "JnpHost.name"
       // object
       digester.addSetProperties("service-locator/jndi-hosts/jndi-host");
+      
+      // Set the ID
+      digester.addCallMethod("service-locator/jndi-hosts/jndi-host/id", "setId", 1);
+      digester.addCallParam("service-locator/jndi-hosts/jndi-host/id", 0);
 
       // Set the address
       digester.addCallMethod("service-locator/jndi-hosts/jndi-host/address", "setAddress", 1);
