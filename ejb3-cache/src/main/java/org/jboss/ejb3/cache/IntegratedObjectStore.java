@@ -32,9 +32,18 @@ package org.jboss.ejb3.cache;
 public interface IntegratedObjectStore<T extends Cacheable>
 {
    /**
-    * Put a new entry into the store.
+    * Put a new entry into the store. This operation should only be
+    * performed once per entry.
     * 
     * @param entry the object to store. Cannot be <code>null</code>.
+    * 
+    * @throws IllegalStateException if the store is already managing an entry
+    *                               with the same {@link Identifiable#getId() id}.
+    *                               It is not a requirement that the store throw
+    *                               this exception in this case, but it is
+    *                               permissible. This basically puts the onus on
+    *                               callers to ensure this operation is only
+    *                               performed once per entry.
     */
    void insert(T entry);
    
@@ -43,12 +52,12 @@ public interface IntegratedObjectStore<T extends Cacheable>
     * 
     * @param key {@link Identifiable#getId() id} of the entry.
     *           Cannot be <code>null</code>.
-    * @return the object store under <code>id</code>. May return <code>null</code>
+    * @return the object store under <code>id</code>. May return <code>null</code>.
     */
    T get(Object key);
    
    /**
-    * Replicate an already cached item. Only valid for 
+    * Update an already cached item. Only valid for 
     * {@link #isClustered() clustered} stores, as the purpose of this
     * method is to advise the store that the state of it's locally cached copy 
     * of an entry has changed and that any other caches in the cluster should
@@ -58,8 +67,16 @@ public interface IntegratedObjectStore<T extends Cacheable>
     *           
     * @throws UnsupportedOperationException if {@link #isClustered()} returns
     *                                       <code>false</code>
+    * 
+    * @throws IllegalStateException if the store isn't already managing an entry
+    *                               with the same {@link Identifiable#getId() id}.
+    *                               It is not a requirement that the store throw
+    *                               this exception in this case, but it is
+    *                               permissible. This basically puts the onus on
+    *                               callers to ensure {@link #insert(Cacheable)}
+    *                               is invoked before the first replication.
     */
-   void replicate(T entry);
+   void update(T entry);
    
    /**
     * Remove the object with the given key from the store.
