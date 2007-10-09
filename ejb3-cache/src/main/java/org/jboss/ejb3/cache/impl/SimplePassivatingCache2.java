@@ -29,6 +29,7 @@ import org.jboss.ejb3.cache.Cacheable;
 import org.jboss.ejb3.cache.IntegratedObjectStore;
 import org.jboss.ejb3.cache.ItemInUseException;
 import org.jboss.ejb3.cache.PassivatingCache;
+import org.jboss.ejb3.cache.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.logging.Logger;
@@ -57,6 +58,10 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
       this.factory = factory;
       this.passivationManager = passivationManager;
       this.store = store;
+      if (store instanceof PassivatingIntegratedObjectStore)
+      {
+         ((PassivatingIntegratedObjectStore<T>) store).setPassivatingCache(this);
+      }
    }
    
    public boolean isClustered()
@@ -94,6 +99,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
    public T create(Class<?>[] initTypes, Object[] initValues)
    {
       T obj = factory.create(initTypes, initValues);
+      obj.setInUse(true);
       synchronized (store)
       {
          store.insert(obj);
@@ -154,12 +160,16 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
          if(entry == null)
             throw new NoSuchEJBException(String.valueOf(key));
          
-         if (isClustered())
-         {
-            passivationManager.postReplicate(entry);
-         }
+         // TODO why call these in peek?  We should *always* call
+         // them in get() and let the PassivationManager sort out
+         // whether they really need to be called
          
-         passivationManager.postActivate(entry);
+//         if (isClustered())
+//         {
+//            passivationManager.postReplicate(entry);
+//         }
+//         
+//         passivationManager.postActivate(entry);
          
          return entry;
       }
