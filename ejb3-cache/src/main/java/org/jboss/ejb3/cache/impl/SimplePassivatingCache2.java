@@ -92,7 +92,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
          
          passivationManager.preReplicate(entry);
          
-         store.replicate(entry);
+         store.update(entry);
       }
    }
    
