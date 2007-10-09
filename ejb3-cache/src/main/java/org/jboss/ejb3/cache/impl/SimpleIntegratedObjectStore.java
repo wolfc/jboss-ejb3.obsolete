@@ -143,11 +143,14 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
          if (sessionTimeoutRunner == null)
          {
             assert name != null : "name has not been set";
+            assert owningCache != null;
             
             sessionTimeoutRunner = new SessionTimeoutRunner();
          }
          sessionTimeoutRunner.start();
-      }
+      }     
+      
+      log.debug("Started " + name);
    }
 
    public void stop()
@@ -156,6 +159,8 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
       {
          sessionTimeoutRunner.stop();
       }      
+      
+      log.debug("Stopped " + name);
    }
 
    // ---------------------------------------  PassivatingIntegratedObjectStore
@@ -225,6 +230,26 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
       }
       
    }   
+   
+   public int getIdleTimeSeconds()
+   {
+      return idleTimeSeconds;
+   }
+
+   public void setIdleTimeSeconds(int idleTimeSeconds)
+   {
+      this.idleTimeSeconds = idleTimeSeconds;
+   }
+
+   public int getExpirationTimeSeconds()
+   {
+      return expirationTimeSeconds;
+   }
+   
+   public void setExpirationTimeSeconds(int timeout)
+   {
+      this.expirationTimeSeconds = timeout;
+   } 
 
    private SortedSet<CacheableTimestamp> getInMemoryEntries()
    {      
