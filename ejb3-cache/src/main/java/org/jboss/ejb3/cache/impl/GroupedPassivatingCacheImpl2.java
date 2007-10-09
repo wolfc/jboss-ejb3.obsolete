@@ -28,11 +28,11 @@ import javax.ejb.NoSuchEJBException;
 import org.jboss.ejb3.cache.Cacheable;
 import org.jboss.ejb3.cache.IntegratedObjectStore;
 import org.jboss.ejb3.cache.PassivatingCache;
+import org.jboss.ejb3.cache.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.grouped.GroupedPassivatingCache;
 import org.jboss.ejb3.cache.grouped.SerializationGroup;
-import org.jboss.ejb3.cache.grouped.SerializationGroupMember;
 import org.jboss.logging.Logger;
 
 /**
@@ -56,7 +56,7 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
     *  our EntryContainer for StatefulObjectFactory, PassivationManager
     *  and IntegratedObjectStore functions.
     */
-   private SimplePassivatingCache2<Entry<T>> delegate;
+   private SimplePassivatingCache2<SerializationGroupMemberImpl<T>> delegate;
    
    /** 
     * Do we support clustering? This field is really just a minor
@@ -65,160 +65,69 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
     */
    private boolean clustered;
    
-   public class Entry<C extends Cacheable & Serializable> implements Cacheable, SerializationGroupMember, Serializable
-   {
-      private static final long serialVersionUID = 1L;
-      
-      Object id;
-      /**
-       * The underlying object (e.g. bean context).
-       * Preferably, this field would be transient. It isn't now because it is 
-       * possible this entry will never be assigned to a PassivationGroup,
-       * in which case we need to serialize obj.
-       * TODO Relying on nulling this field is fragile. Can we make this
-       * field transient by ensuring we only use this cache class with bean 
-       * classes that are sure to be part of a group?
-       */
-      C obj;
-      /** The group. Never serialize the group; only the groupCache does that */
-      transient SerializationGroup group;
-      Object groupId;
-      long lastUsed;
-      
-      Entry(C obj)
-      {
-         assert obj != null : "obj is null";
-         
-         this.obj = obj;
-         this.id = obj.getId();
-      }
-      
-      public Object getId()
-      {
-         return id;
-      }
-      
-      public boolean isClustered()
-      {
-         // Value from the containing cache
-         return clustered;
-      }
-      
-      @SuppressWarnings("unchecked")
-      public C getSerializableObject()
-      {
-         return obj;
-      }
-      
-      // Called by PassivationGroup prior to its passivating
-      public void prePassivate()
-      {
-         // make sure we don't passivate the group twice
-         group = null;
-         // null out obj so when delegate passivates this entry
-         // we don't serialize it. It serializes with the PassivationGroup only
-         obj = null;
-         
-         delegate.passivate(this.id);
-      }
-      
-      // Called by PassivationGroup prior to its replicating
-      public void preReplicate()
-      {
-         // make sure we don't replicate the group twice
-         group = null;
-         // null out obj so when delegate passivates this entry
-         // we don't serialize it. It serializes with the PassivationGroup only
-         obj = null;
-         
-         delegate.replicate(this.id);
-      }
-      
-      public long getLastUsed()
-      {
-         return obj == null ? lastUsed : obj.getLastUsed();
-      }
-
-      public boolean isInUse()
-      {
-         return obj == null ? false : obj.isInUse();
-      }
-
-      public void setInUse(boolean inUse)
-      {
-         if (obj != null)
-         {
-            obj.setInUse(inUse);
-            lastUsed = obj.getLastUsed();
-         }
-      }
-
-      @Override
-      public String toString()
-      {
-         return super.toString() + "{id=" + id + ",obj=" + obj + ",groupId=" + groupId + ",group=" + group + "}";
-      }
-   }
+   private EntryContainer entryContainer;
    
    private class EntryContainer   
-      implements StatefulObjectFactory<Entry<T>>, PassivationManager<Entry<T>>, IntegratedObjectStore<Entry<T>>
+      implements StatefulObjectFactory<SerializationGroupMemberImpl<T>>, PassivationManager<SerializationGroupMemberImpl<T>>, IntegratedObjectStore<SerializationGroupMemberImpl<T>>
    {
       private StatefulObjectFactory<T> factory;
       private PassivationManager<T> passivationManager;
-      private IntegratedObjectStore<Entry<T>> store;
+      private IntegratedObjectStore<SerializationGroupMemberImpl<T>> store;
       
-      EntryContainer(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, IntegratedObjectStore<Entry<T>> store)
+      EntryContainer(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, IntegratedObjectStore<SerializationGroupMemberImpl<T>> store)
       {
          this.factory = factory;
          this.passivationManager = passivationManager;
          this.store = store;
       }
       
-      public Entry<T> create(Class<?>[] initTypes, Object[] initValues)
+      public SerializationGroupMemberImpl<T> create(Class<?>[] initTypes, Object[] initValues)
       {
-         return new Entry<T>(factory.create(initTypes, initValues));
+         return new SerializationGroupMemberImpl<T>(factory.create(initTypes, initValues), 
+                             delegate);
       }
 
-      public void destroy(Entry<T> entry)
+      public void destroy(SerializationGroupMemberImpl<T> entry)
       {
-         factory.destroy(entry.obj);
-         if (entry.group != null) 
+         factory.destroy(entry.getSerializableObject());
+         if (entry.getGroup() != null) 
          {
-            entry.group.removeMember(entry.id);
-            if (entry.group.size() == 0)
+            entry.getGroup().removeMember(entry.getId());
+            if (entry.getGroup().size() == 0)
             {
-               groupCache.remove(entry.groupId);
+               groupCache.remove(entry.getGroupId());
             }
          }
       }
       
       @SuppressWarnings("unchecked")
-      public void postActivate(Entry<T> entry)
+      public void postActivate(SerializationGroupMemberImpl<T> entry)
       {
          log.trace("post activate " + entry);
          
          // Restore the entry's ref to the group and object
-         if(entry.obj == null)
+         if(entry.getGroup() == null)
          {
-            if(entry.group == null)
-            {
-               // TODO: peek or get?
-               // BES 2007/10/06 I think peek is better; no
-               // sense marking the group as in-use and then having
-               // to release it or something
-               entry.group = groupCache.peek(entry.groupId);
-            }
-            entry.obj = (T) entry.group.getMemberObject(entry.id);
+            // TODO: peek or get?
+            // BES 2007/10/06 I think peek is better; no
+            // sense marking the group as in-use and then having
+            // to release it or something
+            entry.setGroup(groupCache.peek(entry.getGroupId()));
+         }
+         
+         if(entry.getSerializableObject() == null)
+         {
+            entry.setSerializableObject((T) entry.getGroup().getMemberObject(entry.getId()));
          }
          
          // Notify the group that this entry is active
-         entry.group.addActive(entry);
+         entry.getGroup().addActive(entry);
          
          // Invoke callbacks on the underlying object
-         passivationManager.postActivate(entry.obj);
+         passivationManager.postActivate(entry.getSerializableObject());
       }
       
-      public void prePassivate(Entry<T> entry)
+      public void prePassivate(SerializationGroupMemberImpl<T> entry)
       {
          log.trace("pre-passivate " + entry);
          
@@ -228,26 +137,26 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
          // the group, we'll just call postActivate on it then, which is OK.
          // By always invoking the callbacks here, we avoid possible bugs
          // where they sometimes don't get called.
-         passivationManager.prePassivate(entry.obj);
+         passivationManager.prePassivate(entry.getSerializableObject());
          
          // If this call is coming via delegate.passivate(), entry.group will
          // *not* be null.  In that case we are the controller for the
          // group passivation. If the call is coming via Entry.prePassivate(), 
          // entry.group *will* be null. In that case we are not the controller 
          // of the passivation and can just return.
-         if(entry.group != null)
+         if(entry.getGroup() != null)
          {
             // Remove ourself from group's active list so we don't get
             // called again via Entry.prePassivate()            
-            entry.group.removeActive(entry.id);
+            entry.getGroup().removeActive(entry.getId());
             
             // Only tell the group to passivate if no members are in use
-            if (!entry.group.isInUse())
+            if (!entry.getGroup().isInUse())
             {
                // Tell group to prePassivate other active members
-               entry.group.prePassivate();
+               entry.getGroup().prePassivate();
                // Go ahead and do the real passivation
-               groupCache.passivate(entry.groupId);
+               groupCache.passivate(entry.getGroupId());
             }
             // else {
             // this turns into a pretty meaningless exercise of just
@@ -260,30 +169,30 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
             // group and obj) so we have to do it ourselves. Otherwise
             // when this call returns, delegate will serialize the entry
             // with a ref to group and obj.            
-            entry.group = null;
-            entry.obj = null;
+            entry.setGroup(null);
+            entry.setSerializableObject(null);
          }
       }
       
-      public void preReplicate(Entry<T> entry)
+      public void preReplicate(SerializationGroupMemberImpl<T> entry)
       {         
          // This method follows the same conceptual logic as prePassivate.
          // See the detailed comments in that method.
          
          log.trace("pre-replicate " + entry);
          
-         passivationManager.preReplicate(entry.obj);
+         passivationManager.preReplicate(entry.getSerializableObject());
          
-         if(entry.group != null)
+         if(entry.getGroup() != null)
          {
-            entry.group.removeActive(entry.id);
+            entry.getGroup().removeActive(entry.getId());
             
             try
             {
-               if (!entry.group.isInUse())
+               if (!entry.getGroup().isInUse())
                {
-                  entry.group.preReplicate();
-                  groupCache.replicate(entry.groupId);
+                  entry.getGroup().preReplicate();
+                  groupCache.replicate(entry.getGroupId());
                }
             }
             finally
@@ -291,41 +200,41 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
                // Here we differ from prePassivate!!
                // Restore the entry as "active" so it can get
                // passivation callbacks
-               entry.group.addActive(entry);
+               entry.getGroup().addActive(entry);
             }
             
-            entry.group = null;
-            entry.obj = null;
+            entry.setGroup(null);
+            entry.setSerializableObject(null);
          }
       }
       
       @SuppressWarnings("unchecked")
-      public void postReplicate(Entry<T> entry)
+      public void postReplicate(SerializationGroupMemberImpl<T> entry)
       {
          log.trace("postreplicate " + entry);
          
          // Restore the entry's ref to the group and object
-         if(entry.obj == null)
+         if(entry.getSerializableObject() == null)
          {
-            if(entry.group == null)
+            if(entry.getGroup() == null)
             {
                // TODO: peek or get?
                // BES 2007/10/06 I think peek is better; no
                // sense marking the group as in-use and then having
                // to release it or something
-               entry.group = groupCache.peek(entry.groupId);
+               entry.setGroup(groupCache.peek(entry.getGroupId()));
             }
-            entry.obj = (T) entry.group.getMemberObject(entry.id);
+            entry.setSerializableObject((T) entry.getGroup().getMemberObject(entry.getId()));
          }
          
          // Notify the group that this entry is active
-         entry.group.addActive(entry);
+         entry.getGroup().addActive(entry);
          
          // Invoke callbacks on the underlying object
-         passivationManager.postReplicate(entry.obj);
+         passivationManager.postReplicate(entry.getSerializableObject());
       }
 
-      public void replicate(Entry<T> entry)
+      public void replicate(SerializationGroupMemberImpl<T> entry)
       {
          store.replicate(entry);
       }
@@ -337,22 +246,25 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
          return clustered;
       }
       
-      public Entry<T> get(Object key)
+      public SerializationGroupMemberImpl<T> get(Object key)
       {
-         return store.get(key);
+         SerializationGroupMemberImpl<T> entry = store.get(key);
+         // In case it was deserialized, make sure it has a ref to us
+         entry.setPassivatingCache(delegate);
+         return entry;
       }
 
-      public void passivate(Entry<T> entry)
+      public void passivate(SerializationGroupMemberImpl<T> entry)
       {
          store.passivate(entry);         
       }
 
-      public void insert(Entry<T> entry)
+      public void insert(SerializationGroupMemberImpl<T> entry)
       {
          store.insert(entry);         
       }
 
-      public Entry<T> remove(Object key)
+      public SerializationGroupMemberImpl<T> remove(Object key)
       {
          return store.remove(key);
       }
@@ -368,7 +280,7 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
       }      
    }
    
-   public GroupedPassivatingCacheImpl2(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, IntegratedObjectStore<Entry<T>> store, PassivatingCache<SerializationGroup> groupCache)
+   public GroupedPassivatingCacheImpl2(StatefulObjectFactory<T> factory, PassivationManager<T> passivationManager, IntegratedObjectStore<SerializationGroupMemberImpl<T>> store, PassivatingCache<SerializationGroup> groupCache)
    {
       assert groupCache != null : "groupCache is null";
       assert passivationManager != null : "passivationManager is null";
@@ -378,8 +290,15 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
 
       this.clustered = store.isClustered();
       this.groupCache = groupCache;
-      EntryContainer container = new EntryContainer(factory, passivationManager, store);
-      this.delegate = new SimplePassivatingCache2<Entry<T>>(container, container, container);
+      entryContainer = new EntryContainer(factory, passivationManager, store);
+      this.delegate = new SimplePassivatingCache2<SerializationGroupMemberImpl<T>>(entryContainer, entryContainer, entryContainer);
+      
+      // We pass 'entryContainer' to the delegate, and that's not a PassivatingIntegratedObjectStore
+      // so delegate won't provide the real store with a ref. So we do it here.
+      if (store instanceof PassivatingIntegratedObjectStore)
+      {
+         ((PassivatingIntegratedObjectStore<SerializationGroupMemberImpl<T>>) store).setPassivatingCache(delegate);
+      }
    }
    
    public boolean isClustered()
@@ -399,31 +318,31 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
 
    public T create(Class<?>[] initTypes, Object[] initValues)
    {
-      return delegate.create(initTypes, initValues).obj;
+      return delegate.create(initTypes, initValues).getSerializableObject();
    }
 
    public T get(Object key) throws NoSuchEJBException
    {
-      Entry<T> entry = delegate.get(key);
-      if (entry.group != null)
+      SerializationGroupMemberImpl<T> entry = delegate.get(key);
+      if (entry.getGroup() != null)
       {
-         entry.group.addInUse(key);
+         entry.getGroup().addInUse(key);
       }
-      return entry.obj;
+      return entry.getSerializableObject();
    }
 
    public T peek(Object key) throws NoSuchEJBException
    {
-      return delegate.peek(key).obj;
+      return delegate.peek(key).getSerializableObject();
    }
 
    public void release(T obj)
    {
       Object key = obj.getId();
-      Entry<T> entry = delegate.releaseByKey(key);
-      if (entry.group != null)
+      SerializationGroupMemberImpl<T> entry = delegate.releaseByKey(key);
+      if (entry.getGroup() != null)
       {
-         entry.group.removeInUse(key);
+         entry.getGroup().removeInUse(key);
       }      
    }
 
@@ -434,14 +353,14 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
    
    public void setGroup(T obj, SerializationGroup group)
    {
-      Entry<T> entry;
+      SerializationGroupMemberImpl<T> entry;
       Object key = obj.getId();
       entry = delegate.peek(key);
-      if(entry.group != null)
+      if(entry.getGroup() != null)
          throw new IllegalStateException("object " + key + " already associated with a passivation group");
-      entry.group = group;
-      entry.groupId = group.getId();
-      entry.group.addMember(entry);
+      entry.setGroup(group);
+      entry.setGroupId(group.getId());
+      entry.getGroup().addMember(entry);
    }
    
    public void start()
