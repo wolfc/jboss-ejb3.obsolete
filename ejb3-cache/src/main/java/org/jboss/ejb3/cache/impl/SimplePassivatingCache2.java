@@ -190,6 +190,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
          if(!entry.isInUse())
             throw new IllegalStateException("entry " + entry + " is not in use");
          entry.setInUse(false);
+         store.update(entry);
          return entry;
       }
    }
