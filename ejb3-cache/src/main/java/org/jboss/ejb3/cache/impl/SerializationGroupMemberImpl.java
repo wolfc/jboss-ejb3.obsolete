@@ -152,6 +152,11 @@ public class SerializationGroupMemberImpl<T extends Cacheable & Serializable>
       
       this.delegate = delegate;
    }
+   
+   public boolean isModified()
+   {
+      return (obj != null && obj.isModified());
+   }
 
    @Override
    public String toString()

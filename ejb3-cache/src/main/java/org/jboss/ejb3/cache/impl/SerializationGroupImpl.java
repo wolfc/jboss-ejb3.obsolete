@@ -183,6 +183,14 @@ public class SerializationGroupImpl implements SerializationGroup
    {
       lastUsed = System.currentTimeMillis();
    }
+   
+   /**
+    * Always returns <code>true</code>.
+    */
+   public boolean isModified()
+   {
+      return true;
+   }
 
    private void readObject(java.io.ObjectInputStream in)
          throws IOException, ClassNotFoundException

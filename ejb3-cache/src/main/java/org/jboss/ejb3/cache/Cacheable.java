@@ -80,4 +80,12 @@ public interface Cacheable extends Identifiable
     * @return
     */
    long getLastUsed();
+   
+   /**
+    * Gets whether this object's internal state has been modified since
+    * the last request to this method.
+    * 
+    * @return
+    */
+   boolean isModified();   
 }
