@@ -102,11 +102,15 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
       Object key = entry.getId();
       synchronized (cache)
       {
+         if (cache.containsKey(key) || passivatedEntries.containsKey(key))
+         {
+            throw new IllegalStateException(key + " is already in store");
+         }
          cache.put(key, entry);
       }
    }
    
-   public void replicate(T entry)
+   public void update(T entry)
    {
       throw new UnsupportedOperationException("Clustering is not supported by " + 
                                               getClass().getName());      
