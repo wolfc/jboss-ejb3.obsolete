@@ -115,13 +115,13 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
             entry.setGroup(groupCache.peek(entry.getGroupId()));
          }
          
-         if(entry.getSerializableObject() == null)
+         if(entry.getGroup() != null)
          {
             entry.setSerializableObject((T) entry.getGroup().getMemberObject(entry.getId()));
+            
+            // Notify the group that this entry is active
+            entry.getGroup().addActive(entry);
          }
-         
-         // Notify the group that this entry is active
-         entry.getGroup().addActive(entry);
          
          // Invoke callbacks on the underlying object
          passivationManager.postActivate(entry.getSerializableObject());
@@ -214,29 +214,30 @@ public class GroupedPassivatingCacheImpl2<T extends Cacheable & Serializable> im
          log.trace("postreplicate " + entry);
          
          // Restore the entry's ref to the group and object
-         if(entry.getSerializableObject() == null)
+         if(entry.getGroup() == null)
          {
-            if(entry.getGroup() == null)
-            {
-               // TODO: peek or get?
-               // BES 2007/10/06 I think peek is better; no
-               // sense marking the group as in-use and then having
-               // to release it or something
-               entry.setGroup(groupCache.peek(entry.getGroupId()));
-            }
-            entry.setSerializableObject((T) entry.getGroup().getMemberObject(entry.getId()));
+            // TODO: peek or get?
+            // BES 2007/10/06 I think peek is better; no
+            // sense marking the group as in-use and then having
+            // to release it or something
+            entry.setGroup(groupCache.peek(entry.getGroupId()));
          }
          
-         // Notify the group that this entry is active
-         entry.getGroup().addActive(entry);
+         if(entry.getGroup() != null)
+         {
+            entry.setSerializableObject((T) entry.getGroup().getMemberObject(entry.getId()));
+            
+            // Notify the group that this entry is active
+            entry.getGroup().addActive(entry);
+         }
          
          // Invoke callbacks on the underlying object
          passivationManager.postReplicate(entry.getSerializableObject());
       }
 
-      public void replicate(SerializationGroupMemberImpl<T> entry)
+      public void update(SerializationGroupMemberImpl<T> entry)
       {
-         store.replicate(entry);
+         store.update(entry);
       }
 
       public boolean isClustered()
