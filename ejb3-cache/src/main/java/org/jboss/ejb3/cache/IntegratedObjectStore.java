@@ -23,7 +23,7 @@
 package org.jboss.ejb3.cache;
 
 /**
- * A in-memory store for identifiable objects that integrates a persistent store. 
+ * An in-memory store for identifiable objects that integrates a persistent store. 
  * Note that this class does NOT call any callbacks.
  * 
  * @author Brian Stansberry
@@ -57,16 +57,9 @@ public interface IntegratedObjectStore<T extends Cacheable>
    T get(Object key);
    
    /**
-    * Update an already cached item. Only valid for 
-    * {@link #isClustered() clustered} stores, as the purpose of this
-    * method is to advise the store that the state of it's locally cached copy 
-    * of an entry has changed and that any other caches in the cluster should
-    * be made aware of the new state.
+    * Update an already cached item.
     * 
-    * @param  entry the entry to replicate
-    *           
-    * @throws UnsupportedOperationException if {@link #isClustered()} returns
-    *                                       <code>false</code>
+    * @param  entry the entry to update
     * 
     * @throws IllegalStateException if the store isn't already managing an entry
     *                               with the same {@link Identifiable#getId() id}.

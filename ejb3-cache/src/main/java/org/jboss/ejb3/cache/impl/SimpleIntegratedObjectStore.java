@@ -112,8 +112,16 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
    
    public void update(T entry)
    {
-      throw new UnsupportedOperationException("Clustering is not supported by " + 
-                                              getClass().getName());      
+      Object key = entry.getId();
+      synchronized (cache)
+      {
+         if (!cache.containsKey(key) && !passivatedEntries.containsKey(key))
+         {
+            throw new IllegalStateException(key + " is not managed by this store");
+         }
+         
+         // Otherwise we do nothing; we already have a ref to the entry
+      }
    }
 
    public void passivate(T entry)
