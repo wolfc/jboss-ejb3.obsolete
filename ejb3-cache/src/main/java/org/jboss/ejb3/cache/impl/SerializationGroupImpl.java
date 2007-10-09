@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.cache.impl;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -181,6 +182,16 @@ public class SerializationGroupImpl implements SerializationGroup
    public void setInUse(boolean inUse)
    {
       lastUsed = System.currentTimeMillis();
-   }   
+   }
+
+   private void readObject(java.io.ObjectInputStream in)
+         throws IOException, ClassNotFoundException
+   {
+      in.defaultReadObject();
+      active = new HashMap<Object, SerializationGroupMember>();
+      inUseKeys = new HashSet<Object>();
+   }
+   
+   
    
 }
