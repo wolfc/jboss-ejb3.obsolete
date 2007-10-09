@@ -22,9 +22,15 @@
 
 package org.jboss.ejb3.test.distributed;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -51,14 +57,29 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    private static final Logger log = Logger.getLogger(MockJBCIntegratedObjectStore.class);
 
    /** 
-    * The "JBoss Cache" instance.
+    * Our in-VM "JBoss Cache" instance.
     */
-   private Map<Object, T> mockJBC;
+   private Map<Object, Object> localJBC;
+   /** 
+    * A remote "JBoss Cache" instance. We only store byte[] values,
+    * mocking the effect of replication.
+    */
+   private Map<Object, Object> remoteJBC;
    
    /**
     * Those keys in the mockJBC map that haven't been "passivated"
     */
    private Set<Object> inMemory;
+   
+   /**
+    * Those keys that have been updated locally but not copied to remoteJBC.
+    */
+   private Set<Object> dirty;
+   
+   private Map<Object, Long> timestamps;
+
+   /** A mock transaction manager */
+   private ThreadLocal<Boolean> tm = new ThreadLocal<Boolean>();
    
    /**
     * Support callbacks when our MockEvictionRunner decides to
@@ -71,10 +92,13 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    
    private SessionTimeoutRunner sessionTimeoutRunner;
    
-   public MockJBCIntegratedObjectStore()
+   public MockJBCIntegratedObjectStore(Map<Object, Object> localCache, 
+                                       Map<Object, Object> remoteCache)
    {      
-      mockJBC = new HashMap<Object, T>();
+      this.localJBC = localCache;
+      this.remoteJBC = remoteCache;
       inMemory = new HashSet<Object>();
+      timestamps = new HashMap<Object, Long>();
    }
 
    // --------------------------------------------------  IntegratedObjectStore
@@ -86,41 +110,141 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    
    public T get(Object key)
    {
-      T entry = mockJBC.get(key);
-      if (entry != null)
-      {
-         // We just pulled this data "into memory"
-         inMemory.add(key);
-      }
+      T entry = unmarshall(key, localJBC.get(key));
+      timestamps.put(key, new Long(System.currentTimeMillis()));
       return entry;
    }
 
    public void insert(T entry)
    {
-      Object key = entry.getId();
-      mockJBC.put(key, entry);
-      inMemory.add(key);
+      putInCache(entry.getId(), entry);
    }
    
-   public void replicate(T entry)
+   public void update(T entry)
    {
-      mockJBC.put(entry.getId(), entry);
+      putInCache(entry.getId(), entry);
    }
 
+   @SuppressWarnings("unchecked")
    public void passivate(T entry)
    {
-      inMemory.remove(entry.getId());
+      Object key = entry.getId();
+      if (inMemory.contains(key))
+      {
+         log.trace("converting " + key + " to passivated state");
+         localJBC.put(key, marshall((T) localJBC.get(key)));
+         inMemory.remove(key);
+      }
    }
 
    public T remove(Object key)
    {
-      T entry = mockJBC.remove(key);
-      if (entry != null)
+      return unmarshall(key, putInCache(key, null));
+   }
+   
+   
+   // ------------------------------------------------------------ Transaction
+   
+   public void startTransaction()
+   {
+      if (tm.get() != null)
+         throw new IllegalStateException("Transaction already started");
+      tm.set(Boolean.TRUE);
+   }
+   
+   public void commitTransaction()
+   {
+      try
       {
-         inMemory.remove(key);
+         for (Iterator<Object> iter = dirty.iterator(); iter.hasNext();)
+         {
+            Object key = iter.next();
+            replicate(key, unmarshall(key, localJBC.get(key)));
+            iter.remove();
+         }
       }
-      return entry;
-   } 
+      finally
+      {
+         tm.set(null);
+      }
+   }
+   
+   @SuppressWarnings("unchecked")
+   private T unmarshall(Object key, Object obj)
+   {
+      if (obj == null)
+         return null;
+      else if (!(obj instanceof byte[]))
+         return (T) obj;
+      
+      log.trace("unmarshalling " + key);
+      ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) obj);
+      try
+      {
+         ObjectInputStream ois = new ObjectInputStream(bais);
+         T entry = (T) ois.readObject();
+         localJBC.put(key, entry);
+         inMemory.add(key);
+         return entry;
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+   
+   private Object putInCache(Object key, T value)
+   {
+      Object existing = null;
+      if (value != null)
+      {
+         existing = localJBC.put(key, value);
+         inMemory.add(key);
+         timestamps.put(key, new Long(System.currentTimeMillis()));
+      }
+      else
+      {
+         existing = localJBC.remove(key);
+         inMemory.remove(key);
+         timestamps.remove(key);
+      }
+      
+      if (tm.get() == null)
+      {
+         replicate(key, value);
+      }
+      else
+      {
+         dirty.add(key);
+      }
+      
+      return existing;
+   }
+   
+   private void replicate(Object key, T value)
+   {
+      if (value != null)
+         remoteJBC.put(key, marshall(value));
+      else
+         remoteJBC.remove(key);
+   }
+   
+   private byte[] marshall(T value)
+   {
+      log.trace("marshalling " + value.getId());
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      try
+      {
+         ObjectOutputStream oos = new ObjectOutputStream(baos);
+         oos.writeObject(value);
+         oos.close();
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException(e);
+      }
+      return baos.toByteArray();
+   }
 
    // ---------------------------------------  PassivatingIntegratedObjectStore
    
@@ -242,11 +366,11 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    private SortedSet<CacheableTimestamp> getTimestampSet(boolean passivated)
    {      
       SortedSet<CacheableTimestamp> set = new TreeSet<CacheableTimestamp>();
-      for (Map.Entry<Object, T> entry : mockJBC.entrySet())
+      for (Map.Entry<Object, Long> entry : timestamps.entrySet())
       {
          if (passivated != inMemory.contains(entry.getKey()))
          {
-            set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().getLastUsed()));
+            set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
          }
       }
       return set;
