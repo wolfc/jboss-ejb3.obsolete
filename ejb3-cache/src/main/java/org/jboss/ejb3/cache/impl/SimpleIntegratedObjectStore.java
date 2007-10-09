@@ -30,7 +30,6 @@ import java.util.TreeSet;
 
 import org.jboss.ejb3.cache.Cacheable;
 import org.jboss.ejb3.cache.IntegratedObjectStore;
-import org.jboss.ejb3.cache.ItemInUseException;
 import org.jboss.ejb3.cache.ObjectStore;
 import org.jboss.ejb3.cache.PassivatingCache;
 import org.jboss.ejb3.cache.PassivatingIntegratedObjectStore;
@@ -208,9 +207,10 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
                   remove(ts.getId());
                }
             }
-            catch (ItemInUseException ignored)
+            catch (IllegalStateException ise)
             {
-               log.trace("skipping in-use entry " + ts.getId());
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }    
       }      
@@ -234,9 +234,10 @@ public class SimpleIntegratedObjectStore<T extends Cacheable & Serializable>
                   owningCache.passivate(ts.getId());
                }
             }
-            catch (ItemInUseException ignored)
+            catch (IllegalStateException ise)
             {
-               log.trace("skipping in-use entry " + ts.getId());
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }
       }

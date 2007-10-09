@@ -27,7 +27,6 @@ import javax.ejb.NoSuchEJBException;
 
 import org.jboss.ejb3.cache.Cacheable;
 import org.jboss.ejb3.cache.IntegratedObjectStore;
-import org.jboss.ejb3.cache.ItemInUseException;
 import org.jboss.ejb3.cache.PassivatingCache;
 import org.jboss.ejb3.cache.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.PassivationManager;
@@ -87,7 +86,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
          
          if(entry.isInUse())
          {
-            throw new ItemInUseException("entry " + entry + " is in use");
+            throw new IllegalStateException("entry " + entry + " is in use");
          }
          
          passivationManager.preReplicate(entry);
@@ -143,7 +142,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
          
          if(entry.isInUse())
          {
-            throw new ItemInUseException("entry " + entry + " is in use");
+            throw new IllegalStateException("entry " + entry + " is in use");
          }
 
          passivationManager.prePassivate(entry);
@@ -202,7 +201,7 @@ public class SimplePassivatingCache2<T extends Cacheable & Serializable> impleme
       {
          entry = store.remove(key);
          if(entry.isInUse())
-            throw new ItemInUseException("entry " + entry + " is in use");
+            throw new IllegalStateException("entry " + entry + " is in use");
       }
       if(entry != null)
          factory.destroy(entry);

@@ -45,9 +45,12 @@ public interface PassivationManager<T extends Serializable>
     * 
     * @param obj    the object
     * 
-    * @throws ItemInUseException if <code>obj</code>, or another object in the 
+    * @throws IllegalStateException if <code>obj</code>, or another object in the 
     *                            same {@link SerializationGroup} as 
-    *                            <code>obj</code>, is in use. 
+    *                            <code>obj</code>, is in use. Checking if
+    *                            an object is in use and throwing this
+    *                            exception is not required, so callers should
+    *                            not assume it will be thrown.
     */
    void prePassivate(T obj);
    
@@ -76,9 +79,12 @@ public interface PassivationManager<T extends Serializable>
     * 
     * @param obj    the object
     * 
-    * @throws ItemInUseException if <code>obj</code>, or another object in the 
+    * @throws IllegalStateException if <code>obj</code>, or another object in the 
     *                            same {@link SerializationGroup} as 
-    *                            <code>obj</code>, is in use. .
+    *                            <code>obj</code>, is in use. Checking if
+    *                            an object is in use and throwing this
+    *                            exception is not required, so callers should
+    *                            not assume it will be thrown.
     *                             
     * @throws UnsupportedOperationException if {@link #isClustered()} returns
     *                                       <code>false</code>

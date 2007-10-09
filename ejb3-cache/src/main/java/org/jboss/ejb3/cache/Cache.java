@@ -90,7 +90,7 @@ public interface Cache<T extends Identifiable>
     * 
     * @param key    the identifier of the object
     * 
-    * @throws ItemInUseException if the object, or another object in the 
+    * @throws IllegalStateException if the object, or another object in the 
     *                            same {@link SerializationGroup} as the object, 
     *                            is in use. 
     * @throws UnsupportedOperationException if {@link #isClustered()} returns
