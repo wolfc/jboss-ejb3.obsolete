@@ -39,9 +39,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision$
  */
-public class GroupedPassivatingUnitTestCache extends TestCase
+public class GroupedPassivatingUnitTestCase extends TestCase
 {
-   private static final Logger log = Logger.getLogger(GroupedPassivatingUnitTestCache.class);
+   private static final Logger log = Logger.getLogger(GroupedPassivatingUnitTestCase.class);
    
    private static void sleep(long micros)
    {
