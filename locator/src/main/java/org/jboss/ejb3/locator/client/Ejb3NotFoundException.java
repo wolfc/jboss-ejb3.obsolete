@@ -21,6 +21,12 @@
  */
 package org.jboss.ejb3.locator.client;
 
+/**
+ * 
+ * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
+ * @version $Revision $
+ *
+ */
 public class Ejb3NotFoundException extends RuntimeException
 {
    // Class Members

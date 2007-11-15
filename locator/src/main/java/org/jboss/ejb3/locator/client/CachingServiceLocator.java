@@ -169,7 +169,7 @@ public abstract class CachingServiceLocator implements ServiceLocator
       }
 
       // Obtain from the remote host
-      T obj = this.getObjectFromRemoteHost(clazz);
+      T obj = this.getObject(clazz);
 
       // If caching is enabled 
       if (useCache)
@@ -258,8 +258,29 @@ public abstract class CachingServiceLocator implements ServiceLocator
     * @throws IllegalArgumentException
     *   If the specified class is a business interface implemented by more than 
     *   one service across the configured local/remote hosts, or if the
-    *   specified class is no an interface 
+    *   specified class is not an interface 
     */
-   public abstract <T> T getObjectFromRemoteHost(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException;
+   public abstract <T> T getObject(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException;
+
+   /**
+    * Obtains the object associated with the specified business interface 
+    * from the host with the specified ID.
+    * 
+    * @param <T>
+    * @param hostId The ID of the host from which to obtain the 
+    *   object with the specified business interface
+    * @param clazz The business interface of the desired service
+    * @return
+    * @throws Ejb3NotFoundException 
+    *   If no services implementing the specified business interface 
+    *   could be found on the specified host
+    * @throws IllegalArgumentException
+    *   If the specified class is a business interface implemented by more than 
+    *   one service across the specified host, if the
+    *   specified class is not an interface, or if the specified host ID is not 
+    *   valid for one of the configured hosts 
+    */
+   public abstract <T> T getObject(String hostId, Class<T> clazz) throws Ejb3NotFoundException,
+         IllegalArgumentException;
 
 }

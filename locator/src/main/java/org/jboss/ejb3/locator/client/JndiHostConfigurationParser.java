@@ -24,7 +24,9 @@ package org.jboss.ejb3.locator.client;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
@@ -64,7 +66,7 @@ public class JndiHostConfigurationParser
    // Functional Methods
 
    @SuppressWarnings(value = "unchecked")
-   public List<JndiHost> parse(InputStream inStream)
+   public Map<String,JndiHost> parse(InputStream inStream)
    {
       // Initialize
       Digester jndiHostDefinitionsDigester = new Digester();
@@ -110,7 +112,16 @@ public class JndiHostConfigurationParser
             ids.add(jndiHost.getId());
          }
       }
-      return jndiHosts;
+      
+      // Add to Map, indexed by ID
+      Map<String,JndiHost> hosts = new HashMap<String, JndiHost>();
+      for(JndiHost host : jndiHosts)
+      {
+         hosts.put(host.getId(), host);
+      }
+      
+      // Return Map
+      return hosts;
    }
 
    // Internal Helper Methods

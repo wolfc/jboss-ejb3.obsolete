@@ -6,6 +6,7 @@
  */
 package org.jboss.ejb3.test.locator.client.jndihostconfigparsing;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -133,8 +134,10 @@ public class JndiHostParsingTestCase extends TestCase
     */
    private List<JndiHost> getConfigurationFromConfigFile(String fileName)
    {
-      return JndiHostConfigurationParser.getInstance().parse(
-            Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName));
+      List<JndiHost> hosts = new ArrayList<JndiHost>();
+      hosts.addAll(JndiHostConfigurationParser.getInstance().parse(
+            Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName)).values());
+      return hosts;
    }
 
 }
