@@ -22,8 +22,8 @@
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/>
       </bind>
-      <annotation expr="!class(@org.jboss.annotation.ejb.PoolClass)">
-         @org.jboss.annotation.ejb.PoolClass (value=org.jboss.ejb3.StrictMaxPool.class, maxSize=15, timeout=10000)
+      <annotation expr="!class(@org.jboss.annotation.ejb.Pool)">
+         @org.jboss.annotation.ejb.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
       </annotation>
       <annotation expr="!class(@org.jboss.annotation.ejb.DefaultActivationSpecs)">
          @org.jboss.annotation.ejb.DefaultActivationSpecs (value={@javax.ejb.ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"), @javax.ejb.ActivationConfigProperty(propertyName="destination", propertyValue="queue/tutorial/defaultedexample")})
