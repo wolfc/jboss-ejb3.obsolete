@@ -21,7 +21,7 @@
    <!-- Artifact Information -->
    <groupId>org.jboss.ejb3</groupId>
    <artifactId>jboss-ejb3-impl</artifactId>
-   <version>0.1.1.Beta1</version>
+   <version>0.1.2-SNAPSHOT</version>
    <name>JBoss EJB 3 Implementation Classes</name>
    <description>
       JBoss EJB 3 Implementation Internals conforming to API
@@ -30,9 +30,9 @@
 
    <!-- SCM -->
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb33/tags/jboss-ejb3-impl-0.1.1.Beta1</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-impl-0.1.1.Beta1</developerConnection>
-      <url>http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb33/tags/jboss-ejb3-impl-0.1.1.Beta1</url>
+      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk/</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb/trunk/</developerConnection>
+      <url>http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb3/trunk/</url>
    </scm>
 
    <!-- 
