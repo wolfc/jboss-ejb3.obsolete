@@ -102,7 +102,7 @@
       <dependency>
          <groupId>org.jboss.ejb3</groupId>
          <artifactId>jboss-ejb3-ext-api</artifactId>
-         <version>0.1.1-SNAPSHOT</version>
+         <version>0.1.1.Beta2</version>
       </dependency>
    </dependencies>
 
