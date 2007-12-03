@@ -19,9 +19,10 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.jndipolicy;
+package org.jboss.ejb3.jndipolicy.impl;
 
-import org.jboss.ejb3.Ejb3DeploymentSummary;
+import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
+import org.jboss.ejb3.jndipolicy.Ejb3DeploymentSummary;
 
 /**
  * The JBoss Default JNDI Binding Policy
@@ -78,7 +79,7 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
 
    public String getDefaultRemoteJndiName(Ejb3DeploymentSummary summary)
    {
-      
+
       String name = summary.getEjbName() + PackagingBasedJndiBindingPolicy.JNDI_SUFFIX_REMOTE;
       if (summary.getDeploymentScopeBaseName() != null)
          name = summary.getDeploymentScopeBaseName() + "/" + name;
