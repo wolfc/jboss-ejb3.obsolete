@@ -22,9 +22,8 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 
-import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.ejb3.annotation.Management;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -38,12 +37,12 @@ public class ManagementImpl implements Management
    {
       this.value = value;
    }
-   
+
    public void setObjectName(Class value)
    {
       this.value = value;
    }
-   
+
    public Class value()
    {
       return value;

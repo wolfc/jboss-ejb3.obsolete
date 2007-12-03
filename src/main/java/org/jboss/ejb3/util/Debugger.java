@@ -1,8 +1,8 @@
 /*
- * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
- * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors.
+ * JBoss, Home of Professional Open Source
+ * Copyright 2007, Red Hat Middleware LLC, and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -19,22 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.annotation;
-
-import java.lang.annotation.Annotation;
+package org.jboss.ejb3.util;
 
 /**
- * @version <tt>$Revision$</tt>
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * Comment
+ *
+ * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @version $Revision$
  */
-public class IgnoreDependencyImpl implements IgnoreDependency
+public class Debugger
 {
-   public IgnoreDependencyImpl()
+   public static StackTraceElement constructionPoint()
    {
-   }
-
-   public Class<? extends Annotation> annotationType()
-   {
-      return IgnoreDependency.class;
+      return new Exception().getStackTrace()[2];
    }
 }

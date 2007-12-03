@@ -22,9 +22,8 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 
-import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.ejb3.annotation.CurrentMessage;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -32,10 +31,10 @@ import org.jboss.annotation.ejb.RemoteBinding;
  */
 public class CurrentMessageImpl implements CurrentMessage
 {
-   
+
    public CurrentMessageImpl()
    {
-      
+
    }
 
    public Class<? extends Annotation> annotationType()

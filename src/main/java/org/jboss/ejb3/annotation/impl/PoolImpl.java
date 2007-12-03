@@ -23,6 +23,8 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.jboss.ejb3.annotation.Pool;
+
 /**
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -30,18 +32,20 @@ import java.lang.annotation.Annotation;
 public class PoolImpl implements Pool
 {
    public String value;
+
    public int maxSize = 30;
+
    public long timeout = Long.MAX_VALUE;
 
    public PoolImpl()
    {
    }
-   
+
    public String value()
    {
       return value;
    }
-   
+
    public void setValue(String value)
    {
       this.value = value;
@@ -51,7 +55,7 @@ public class PoolImpl implements Pool
    {
       return maxSize;
    }
-   
+
    public void setMaxSize(int maxSize)
    {
       this.maxSize = maxSize;
@@ -61,7 +65,7 @@ public class PoolImpl implements Pool
    {
       return timeout;
    }
-   
+
    public void setTimeout(long timeout)
    {
       this.timeout = timeout;
@@ -71,7 +75,7 @@ public class PoolImpl implements Pool
    {
       return Pool.class;
    }
-   
+
    public String toString()
    {
       StringBuffer sb = new StringBuffer(100);

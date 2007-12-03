@@ -23,8 +23,9 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
-import org.jboss.ejb3.annotation.impl.defaults.RemoteBindingDefaults;
-import org.jboss.ejb3.annotation.impl.util.Debugger;
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.defaults.RemoteBindingDefaults;
+import org.jboss.ejb3.util.Debugger;
 
 /**
  * Comment
@@ -35,19 +36,22 @@ import org.jboss.ejb3.annotation.impl.util.Debugger;
 public class RemoteBindingImpl implements RemoteBinding
 {
    private String jndi;
+
    private String stack;
+
    private String bindUrl;
+
    private String proxyFactory;
-   
+
    private StackTraceElement constructionPoint;
-   
+
    public RemoteBindingImpl()
    {
       jndi = "";
       stack = "";
       bindUrl = "";
       proxyFactory = RemoteBindingDefaults.PROXY_FACTORY_DEFAULT;
-      
+
       this.constructionPoint = Debugger.constructionPoint();
    }
 
@@ -57,30 +61,30 @@ public class RemoteBindingImpl implements RemoteBinding
       this.stack = stack;
       this.bindUrl = bindUrl;
       this.proxyFactory = proxyFactory;
-      
+
       this.constructionPoint = Debugger.constructionPoint();
    }
-   
+
    public void setStack(String stack)
    {
       this.stack = stack;
    }
-   
+
    public void setFactory(String factory)
    {
       this.proxyFactory = factory;
    }
-   
+
    public void setJndiBinding(String jndi)
    {
       this.jndi = jndi;
    }
-   
+
    public void setBindUrl(String bindUrl)
    {
       this.bindUrl = bindUrl;
    }
-   
+
    public String jndiBinding()
    {
       return jndi;
@@ -100,28 +104,28 @@ public class RemoteBindingImpl implements RemoteBinding
    {
       return proxyFactory;
    }
-   
+
    public void merge(RemoteBinding annotation)
-   {   
+   {
       if (jndi.length() == 0)
          jndi = annotation.jndiBinding();
-      
+
       if (stack.length() == 0)
          stack = annotation.interceptorStack();
-      
+
       if (bindUrl.length() == 0)
          bindUrl = annotation.clientBindUrl();
-      
+
       if (proxyFactory.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
          proxyFactory = annotation.factory();
-      
+
    }
 
    public Class<? extends Annotation> annotationType()
    {
       return RemoteBinding.class;
    }
-   
+
    public String toString()
    {
       StringBuffer sb = new StringBuffer(100);

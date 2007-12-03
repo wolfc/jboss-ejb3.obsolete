@@ -22,11 +22,11 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
+
+import org.jboss.ejb3.annotation.DefaultActivationSpecs;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -35,25 +35,25 @@ import javax.ejb.MessageDriven;
 public class DefaultActivationSpecsImpl implements DefaultActivationSpecs
 {
    private HashMap activationConfigProperties = new HashMap();
-   
+
    public DefaultActivationSpecsImpl()
    {
    }
-   
+
    public ActivationConfigProperty[] value()
    {
       ActivationConfigProperty[] value = new ActivationConfigProperty[activationConfigProperties.size()];
       activationConfigProperties.values().toArray(value);
       return value;
    }
-   
+
    public void addActivationConfigProperty(ActivationConfigProperty property)
    {
       activationConfigProperties.put(property.propertyName(), property);
    }
-   
+
    public void merge(DefaultActivationSpecs annotation)
-   {   
+   {
       for (ActivationConfigProperty property : annotation.value())
       {
          if (!activationConfigProperties.containsKey(property.propertyName()))

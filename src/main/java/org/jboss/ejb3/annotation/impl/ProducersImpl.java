@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.mdb;
+package org.jboss.ejb3.annotation.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.annotation.Annotation;
-import org.jboss.annotation.ejb.Producer;
-import org.jboss.annotation.ejb.Producers;
+
+import org.jboss.ejb3.annotation.Producer;
+import org.jboss.ejb3.annotation.Producers;
 
 /**
  * comment
@@ -36,25 +36,25 @@ import org.jboss.annotation.ejb.Producers;
 public class ProducersImpl implements Producers, Serializable
 {
    private static final long serialVersionUID = 6593673540842223866L;
-   
+
    private List producers = new ArrayList();
-   
+
    public ProducersImpl()
    {
    }
-   
+
    public Producer[] value()
    {
       Producer[] result = new Producer[producers.size()];
       producers.toArray(result);
       return result;
    }
-   
+
    public void addProducer(Producer producer)
    {
       producers.add(producer);
    }
-   
+
    public Class annotationType()
    {
       return Producers.class;

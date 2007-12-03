@@ -23,6 +23,8 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.jboss.ejb3.annotation.AspectDomain;
+
 /**
  * Comment
  *

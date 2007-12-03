@@ -23,8 +23,9 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
-import org.jboss.annotation.ejb.RemoteBinding;
-import org.jboss.annotation.ejb.RemoteBindings;
+
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteBindings;
 
 /**
  * Comment
@@ -43,7 +44,7 @@ public class RemoteBindingsImpl implements RemoteBindings
 
    public RemoteBindingsImpl(List bindings)
    {
-      this.bindings = (RemoteBinding[])bindings.toArray(new RemoteBinding[bindings.size()]);
+      this.bindings = (RemoteBinding[]) bindings.toArray(new RemoteBinding[bindings.size()]);
    }
 
    public RemoteBinding[] value()

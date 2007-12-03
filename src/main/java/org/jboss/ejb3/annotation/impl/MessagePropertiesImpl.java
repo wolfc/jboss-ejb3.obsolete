@@ -21,10 +21,11 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
 import java.io.Serializable;
-import org.jboss.annotation.ejb.DeliveryMode;
-import org.jboss.annotation.ejb.MessageProperties;
+import java.lang.annotation.Annotation;
+
+import org.jboss.ejb3.annotation.DeliveryMode;
+import org.jboss.ejb3.annotation.MessageProperties;
 
 /**
  * comment
@@ -32,12 +33,15 @@ import org.jboss.annotation.ejb.MessageProperties;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
 public class MessagePropertiesImpl implements MessageProperties, Serializable
-{   
+{
    private static final long serialVersionUID = 4630480271844522009L;
-   
+
    private DeliveryMode deliveryMode = DeliveryMode.PERSISTENT;
+
    private int ttl = 0;
+
    private int priority = 4;
+
    private Class interfac;
 
    public MessagePropertiesImpl(DeliveryMode deliveryMode, int ttl, int priority)
@@ -53,12 +57,12 @@ public class MessagePropertiesImpl implements MessageProperties, Serializable
       ttl = props.timeToLive();
       priority = props.priority();
    }
-   
+
    public void setDelivery(DeliveryMode mode)
    {
       this.deliveryMode = mode;
    }
-   
+
    public void setPriority(int priority)
    {
       this.priority = priority;
@@ -83,12 +87,12 @@ public class MessagePropertiesImpl implements MessageProperties, Serializable
    {
       return priority;
    }
-   
+
    public Class getInterface()
    {
       return interfac;
    }
-   
+
    public void setInterface(Class interfac)
    {
       this.interfac = interfac;

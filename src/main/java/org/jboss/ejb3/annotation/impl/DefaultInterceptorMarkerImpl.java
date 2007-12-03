@@ -18,10 +18,12 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */ 
+ */
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
+
+import org.jboss.ejb3.annotation.DefaultInterceptorMarker;
 
 /**
  * 
@@ -35,5 +37,5 @@ public class DefaultInterceptorMarkerImpl implements DefaultInterceptorMarker
    {
       return DefaultInterceptorMarker.class;
    }
-   
+
 }

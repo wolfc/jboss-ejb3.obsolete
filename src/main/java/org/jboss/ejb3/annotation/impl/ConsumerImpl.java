@@ -22,13 +22,12 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import javax.ejb.ActivationConfigProperty;
 
-import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.ejb3.annotation.Consumer;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -37,8 +36,9 @@ import org.jboss.annotation.ejb.RemoteBinding;
 public class ConsumerImpl implements Consumer
 {
    private String name = "";
+
    private HashMap<String, ActivationConfigProperty> activationConfig = new HashMap<String, ActivationConfigProperty>();
-   
+
    public ConsumerImpl(Consumer consumer)
    {
       if (consumer != null)
@@ -53,28 +53,28 @@ public class ConsumerImpl implements Consumer
          }
       }
    }
-   
+
    public String name()
    {
       return name;
    }
-   
+
    public void setName(String name)
    {
       this.name = name;
    }
-   
+
    public ActivationConfigProperty[] activationConfig()
    {
       ActivationConfigProperty[] result = new ActivationConfigProperty[activationConfig.size()];
       int i = 0;
-      for (Iterator<ActivationConfigProperty> it = activationConfig.values().iterator() ; it.hasNext() ; )
+      for (Iterator<ActivationConfigProperty> it = activationConfig.values().iterator(); it.hasNext();)
       {
-         result[i++] = it.next(); 
+         result[i++] = it.next();
       }
       return result;
    }
-   
+
    public void addActivationConfig(ActivationConfigProperty config)
    {
       activationConfig.put(config.propertyName(), config);

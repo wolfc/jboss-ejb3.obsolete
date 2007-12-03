@@ -22,9 +22,8 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 
-import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.ejb3.annotation.TransactionTimeout;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -33,22 +32,22 @@ import org.jboss.annotation.ejb.RemoteBinding;
 public class TransactionTimeoutImpl implements TransactionTimeout
 {
    private int value = 0;
-   
+
    public TransactionTimeoutImpl()
    {
-      
+
    }
 
    public TransactionTimeoutImpl(int value)
    {
       this.value = value;
    }
-   
+
    public void setValue(int value)
    {
       this.value = value;
    }
-   
+
    public int value()
    {
       return value;

@@ -18,8 +18,8 @@
 * License along with this software; if not, write to the Free
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
-*/ 
-package org.jboss.annotation.internal;
+*/
+package org.jboss.ejb3.annotation;
 
 /**
  * Annotation for internal use. We need an annotation to match for in ejb3-interceptors-aop.xml to trigger

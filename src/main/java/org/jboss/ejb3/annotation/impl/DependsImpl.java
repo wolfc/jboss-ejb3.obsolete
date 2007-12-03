@@ -24,6 +24,8 @@ package org.jboss.ejb3.annotation.impl;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
+import org.jboss.ejb3.annotation.Depends;
+
 /**
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -31,18 +33,18 @@ import java.util.ArrayList;
 public class DependsImpl implements Depends
 {
    private ArrayList<String> dependencies = new ArrayList();
-   
+
    public DependsImpl()
    {
    }
-   
+
    public String[] value()
    {
       String[] value = new String[dependencies.size()];
       dependencies.toArray(value);
       return value;
    }
-   
+
    public void addDependency(String dependency)
    {
       dependencies.add(dependency);
