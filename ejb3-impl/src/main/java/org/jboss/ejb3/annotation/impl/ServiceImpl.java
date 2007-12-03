@@ -23,6 +23,7 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.jboss.ejb3.annotation.Service;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -31,9 +32,11 @@ import java.lang.annotation.Annotation;
 public class ServiceImpl implements Service
 {
    private String objectName = "";
+
    private String name = "";
+
    private String xmbean = "";
-   
+
    public ServiceImpl(Service service)
    {
       if (service != null)
@@ -47,17 +50,17 @@ public class ServiceImpl implements Service
    {
       this.objectName = objectName;
    }
-   
+
    public void setObjectName(String objectName)
    {
-         this.objectName = objectName;
+      this.objectName = objectName;
    }
-   
+
    public void setName(String name)
    {
       this.name = name;
    }
-   
+
    public String objectName()
    {
       return objectName;
@@ -67,17 +70,17 @@ public class ServiceImpl implements Service
    {
       return name;
    }
-   
+
    public void setXMBean(String xmbean)
    {
       this.xmbean = xmbean;
    }
-   
+
    public String xmbean()
    {
       return xmbean;
    }
-   
+
    public Class<? extends Annotation> annotationType()
    {
       return Service.class;

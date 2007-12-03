@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import org.jboss.ejb3.annotation.RunAsPrincipal;
+
 /**
  * // *
  * 
@@ -30,11 +32,12 @@ package org.jboss.ejb3.annotation.impl;
 public class RunAsPrincipalImpl implements RunAsPrincipal
 {
    private String value;
+
    public RunAsPrincipalImpl(String value)
    {
       this.value = value;
    }
-   
+
    public String value()
    {
       return value;
@@ -44,7 +47,7 @@ public class RunAsPrincipalImpl implements RunAsPrincipal
    {
       return RunAsPrincipal.class;
    }
-   
+
    public String toString()
    {
       return annotationType().getName() + " value=" + value;

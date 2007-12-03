@@ -22,12 +22,8 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.MessageDriven;
-
-import org.jboss.annotation.ejb.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 
 /**
  * Comment
@@ -37,22 +33,22 @@ import org.jboss.annotation.ejb.RemoteBinding;
 public class RemoteHomeBindingImpl implements RemoteHomeBinding
 {
    private String jndi;
-   
+
    public RemoteHomeBindingImpl()
    {
       jndi = "";
    }
-   
+
    public RemoteHomeBindingImpl(String jndi)
    {
       this.jndi = jndi;
    }
-   
+
    public void setJndiBinding(String jndi)
    {
       this.jndi = jndi;
    }
-   
+
    public String jndiBinding()
    {
       return jndi;
@@ -62,7 +58,7 @@ public class RemoteHomeBindingImpl implements RemoteHomeBinding
    {
       return RemoteHomeBinding.class;
    }
-   
+
    public String toString()
    {
       StringBuffer sb = new StringBuffer(100);

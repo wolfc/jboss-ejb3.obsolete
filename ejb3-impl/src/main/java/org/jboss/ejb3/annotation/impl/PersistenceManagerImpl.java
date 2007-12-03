@@ -23,7 +23,8 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
-import org.jboss.ejb3.annotation.impl.cache.simple.StatefulSessionFilePersistenceManager;
+import org.jboss.ejb3.annotation.PersistenceManager;
+import org.jboss.ejb3.annotation.defaults.PersistenceManagerDefaults;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -31,18 +32,18 @@ import org.jboss.ejb3.annotation.impl.cache.simple.StatefulSessionFilePersistenc
  */
 public class PersistenceManagerImpl implements PersistenceManager
 {
-   private Class value = StatefulSessionFilePersistenceManager.class;
+   private String value = PersistenceManagerDefaults.PERSISTENCE_MANAGER_IMPLEMENTATION_STATEFUL_SESSION_FILE;
 
    public PersistenceManagerImpl()
    {
    }
-   
-   public Class value()
+
+   public String value()
    {
       return value;
    }
-   
-   public void setValue(Class value)
+
+   public void setValue(String value)
    {
       this.value = value;
    }

@@ -19,12 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.mdb;
+package org.jboss.ejb3.annotation.impl;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import org.jboss.annotation.ejb.Producer;
 
+import org.jboss.ejb3.annotation.Producer;
 /**
  * comment
  *

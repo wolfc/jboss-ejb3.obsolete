@@ -23,6 +23,8 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.jboss.ejb3.annotation.ResourceAdapter;
+
 /**
  * Comment
  *
@@ -38,7 +40,10 @@ public class ResourceAdapterImpl implements ResourceAdapter
       this.adapter = adapter;
    }
 
-   public String value() { return adapter; }
+   public String value()
+   {
+      return adapter;
+   }
 
    public Class<? extends Annotation> annotationType()
    {

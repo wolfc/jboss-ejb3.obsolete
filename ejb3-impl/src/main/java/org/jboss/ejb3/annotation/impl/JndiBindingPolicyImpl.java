@@ -23,6 +23,7 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
+import org.jboss.ejb3.annotation.JndiBindingPolicy;
 import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
 
 /**
@@ -33,21 +34,22 @@ import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
  */
 public class JndiBindingPolicyImpl implements JndiBindingPolicy
 {
-   
+
    // Instance Members
    private Class<? extends DefaultJndiBindingPolicy> policy;
-   
+
    // Contracts
-   
-   public Class<? extends DefaultJndiBindingPolicy> policy(){
+
+   public Class<? extends DefaultJndiBindingPolicy> policy()
+   {
       return policy;
    }
-   
+
    public void setPolicy(Class<? extends DefaultJndiBindingPolicy> policy)
    {
       this.policy = policy;
    }
-   
+
    // Required Implementations
 
    public Class<? extends Annotation> annotationType()

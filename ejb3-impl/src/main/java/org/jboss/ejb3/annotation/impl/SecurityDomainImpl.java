@@ -21,9 +21,7 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
-
-import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 /**
  * // *
@@ -34,28 +32,29 @@ import org.jboss.annotation.security.SecurityDomain;
 public class SecurityDomainImpl implements SecurityDomain
 {
    private String value;
+
    private String unauthenticatedPrincipal = null;
-   
+
    public SecurityDomainImpl()
    {
       this("");
    }
-   
+
    public SecurityDomainImpl(String value)
    {
       this.value = value;
    }
-   
+
    public String value()
    {
       return value;
    }
-   
+
    public String unauthenticatedPrincipal()
    {
       return unauthenticatedPrincipal;
    }
-   
+
    public void setUnauthenticatedPrincipal(String unauthenticatedPrincipal)
    {
       this.unauthenticatedPrincipal = unauthenticatedPrincipal;
@@ -65,7 +64,7 @@ public class SecurityDomainImpl implements SecurityDomain
    {
       return SecurityDomain.class;
    }
-   
+
    public String toString()
    {
       StringBuffer sb = new StringBuffer(100);
