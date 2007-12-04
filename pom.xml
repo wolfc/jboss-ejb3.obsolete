@@ -21,19 +21,23 @@
    <!-- Artifact Information -->
    <groupId>org.jboss.ejb3</groupId>
    <artifactId>jboss-ejb3-ext-api</artifactId>
-   <version>0.1.2-SNAPSHOT</version>
+   <version>0.1.2</version>
    <name>JBoss EJB 3 External API</name>
    <description>JBoss EJB 3 API for Bean Providers</description>
    <url>http://labs.jboss.com/jbossejb3/</url>
 
    <!-- SCM -->
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk/</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb/trunk/</developerConnection>
-      <url>http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb3/trunk/</url>
+      <connection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/0.1.2</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/0.1.2</developerConnection>
+      <url>https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/0.1.2</url>
    </scm>
 
-
+   <!-- 
+      
+      NOTE: This section should likely be configured in the parent
+      
+   -->
    <build>
       <plugins>
 
