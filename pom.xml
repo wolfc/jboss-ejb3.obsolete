@@ -28,12 +28,16 @@
 
    <!-- SCM -->
    <scm>
-      <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk/</connection>
-      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb/trunk/</developerConnection>
-      <url>http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb3/trunk/</url>
+      <connection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/ejb3-ext-api-0.1.2</connection>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/ejb3-ext-api-0.1.2</developerConnection>
+      <url>https://svn.jboss.org/repos/jbossas/projects/ejb3/branches/ejb3-ext-api-0.1.2</url>
    </scm>
 
-
+   <!-- 
+      
+      NOTE: This section should likely be configured in the parent
+      
+   -->
    <build>
       <plugins>
 
