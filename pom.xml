@@ -100,48 +100,8 @@
           <argLine>${maven.test.jvmargs}</argLine>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.jboss.maven.plugins</groupId>
-        <artifactId>maven-jboss-deploy-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jboss-deploy</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <jbossDeployRoot>${jboss.repository.root}</jbossDeployRoot>
-          <groupId>jboss</groupId>
-        </configuration>
-      </plugin>
     </plugins>
   </build>
-
-  <repositories>
-    <repository>
-      <id>jboss</id>
-      <name>JBoss Repository</name>
-      <layout>default</layout>
-      <url>http://repository.jboss.com/maven2/</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>snapshots.jboss.org</id>
-      <name>JBoss Snapshots Repository</name>
-      <layout>default</layout>
-      <url>http://snapshots.jboss.org/maven2/</url>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-    </repository>
-  </repositories>
 
   <!-- moved to ejb3 parent
   <modules>
@@ -252,6 +212,35 @@
         <ejb3.outputDirectory>eclipse-target/classes</ejb3.outputDirectory>
         <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
       </properties>
+    </profile>
+    <profile>
+      <!-- This profile is on by default.  To de-activate it, pass the property "skip.jboss.deploy" -->
+      <id>jboss-deploy</id>
+      <activation>
+        <property>
+          <name>!skip.jboss.deploy</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jboss.maven.plugins</groupId>
+            <artifactId>maven-jboss-deploy-plugin</artifactId>
+            <version>1.4</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jboss-deploy</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <jbossDeployRoot>${jboss.repository.root}</jbossDeployRoot>
+              <groupId>jboss</groupId>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
