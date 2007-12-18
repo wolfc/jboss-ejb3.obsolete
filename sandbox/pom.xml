@@ -1,0 +1,51 @@
+<!-- 
+  vi:ts=2:sw=2:expandtab 
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3</artifactId>
+    <version>0.11.0-SNAPSHOT</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jboss-ejb3-sandbox</artifactId>
+  <packaging>jar</packaging>
+  <name>JBoss EJB 3 Sandbox</name>
+  <url>http://www.jboss.org</url>
+  <description>The JBoss EJB 3 Sandbox is a try out area</description>
+  
+  <dependencies>
+    <!-- internal -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-pool</artifactId>
+    </dependency>
+
+    <!-- external -->
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jnpserver</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-ejb-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>
