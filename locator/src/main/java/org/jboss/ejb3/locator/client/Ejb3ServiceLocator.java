@@ -28,11 +28,11 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public abstract class CachingServiceLocator implements ServiceLocator
+public abstract class Ejb3ServiceLocator implements JndiServiceLocator
 {
    // Class Members
 
-   private static final Log logger = LogFactory.getLog(CachingServiceLocator.class);
+   private static final Log logger = LogFactory.getLog(Ejb3ServiceLocator.class);
 
    // Instance Members
 

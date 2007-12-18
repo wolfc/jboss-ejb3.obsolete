@@ -22,31 +22,33 @@
 package org.jboss.ejb3.locator.client;
 
 /**
- * Ejb3NotFoundException
+ * JndiHostNotFoundException
  * 
- * Thrown upon failed attempt to lookup an EJB3 component
+ * Thrown upon failed attempt to lookup a JNDI Host
+ * by its ID
  * 
  * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
  * @version $Revision $$
  *
  */
-public class Ejb3NotFoundException extends RuntimeException
+public class JndiHostNotFoundException extends Exception
 {
    // Class Members
-   private static final long serialVersionUID = 6533428942404073608L;
+
+   private static final long serialVersionUID = 2054153832183595691L;
 
    // Constructors
-   public Ejb3NotFoundException(String arg0)
+   public JndiHostNotFoundException(String arg0)
    {
       super(arg0);
    }
 
-   public Ejb3NotFoundException(String arg0, Throwable arg1)
+   public JndiHostNotFoundException(String arg0, Throwable arg1)
    {
       super(arg0, arg1);
    }
 
-   public Ejb3NotFoundException(Throwable arg0)
+   public JndiHostNotFoundException(Throwable arg0)
    {
       super(arg0);
    }

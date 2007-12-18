@@ -21,6 +21,8 @@
   */
 package org.jboss.ejb3.locator.client;
 
+import javax.naming.NameNotFoundException;
+
 /**
  * ServiceLocator
  * 
@@ -29,7 +31,7 @@ package org.jboss.ejb3.locator.client;
  * @version $Revision $
  * @author <a href="mailto:alr@alrubinger.com">ALR</a>
  */
-public interface ServiceLocator
+public interface JndiServiceLocator
 {
 
    /**
@@ -89,5 +91,18 @@ public interface ServiceLocator
     *   specified class is no an interface 
     */
    public <T> T getJmxService(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException;
+   
+   
+   /**
+    * Fetches the object bound at the specified JNDI Address
+    * from the JNDI Host with the specified ID
+    * 
+    * @param hostId
+    * @param jndiName
+    * @return
+    * @throws NameNotFoundException If the specified JNDI Address is 
+    * 	not a valid binding for the specified host
+    */
+   public Object getObject(String hostId,String jndiName) throws NameNotFoundException;
 
 }

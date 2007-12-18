@@ -32,7 +32,7 @@ public class ServiceLocatorFactory
 {
 
    // Class Members
-   private static ServiceLocator serviceLocator = null;
+   private static JndiServiceLocator serviceLocator = null;
    
    private static final String CONFIGURATION_FILE_USER_OVERRIDE_FILENAME_SYSTEM_PROPERTY_KEY = "jboss.servicelocator.location";
    
@@ -83,7 +83,7 @@ public class ServiceLocatorFactory
       }
 
       // Parse
-      ServiceLocatorFactory.serviceLocator = new JndiCachingServiceLocator(JndiHostConfigurationParser.getInstance()
+      ServiceLocatorFactory.serviceLocator = new Ejb3ServiceLocatorImpl(JndiHostConfigurationParser.getInstance()
             .parse(configuration));
    }
 
@@ -92,7 +92,7 @@ public class ServiceLocatorFactory
     * 
     * @return
     */
-   public ServiceLocator getServiceLocator()
+   public JndiServiceLocator getServiceLocator()
    {
       return ServiceLocatorFactory.serviceLocator;
    }
