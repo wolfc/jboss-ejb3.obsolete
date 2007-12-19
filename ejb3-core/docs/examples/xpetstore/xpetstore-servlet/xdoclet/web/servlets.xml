@@ -1,5 +1,0 @@
-<!-- Velocity -->
-<servlet>
-    <servlet-name>velocity</servlet-name>
-    <servlet-class>webwork.view.velocity.WebWorkVelocityServlet</servlet-class>
-</servlet>
