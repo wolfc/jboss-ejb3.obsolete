@@ -21,32 +21,36 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import javax.ejb.Remove;
 
-import javax.ejb.Local;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class RemoveImpl implements Remove
 {
-   private Class<?>[] classes;
+   private boolean retain = false;
 
-   public LocalImpl(Class<?>[] classes)
+   public RemoveImpl()
    {
-      this.classes = classes;
+
    }
 
-   public Class<?>[] value()
+   public RemoveImpl(boolean retain)
    {
-      return classes;
+      this.retain = retain;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public boolean retainIfException()
    {
-      return Local.class;
+      return retain;
+   }
+
+   public Class annotationType()
+   {
+      return Remove.class;
    }
 }

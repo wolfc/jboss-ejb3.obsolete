@@ -21,32 +21,31 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import javax.ejb.ApplicationException;
 
-import javax.ejb.Local;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class ApplicationExceptionImpl implements ApplicationException
 {
-   private Class<?>[] classes;
-
-   public LocalImpl(Class<?>[] classes)
+   private boolean rollback ;
+   
+   public ApplicationExceptionImpl(boolean rollback)
    {
-      this.classes = classes;
+      this.rollback = rollback;
    }
 
-   public Class<?>[] value()
+   public boolean rollback()
    {
-      return classes;
+      return rollback;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public Class annotationType()
    {
-      return Local.class;
+      return ApplicationException.class;
    }
 }

@@ -22,8 +22,7 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
-
-import javax.ejb.Local;
+import javax.ejb.Remote;
 
 /**
  * Comment
@@ -31,22 +30,23 @@ import javax.ejb.Local;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class RemoteImpl implements Remote
 {
-   private Class<?>[] classes;
+   private Class[] classes;
 
-   public LocalImpl(Class<?>[] classes)
+   public RemoteImpl(Class[] classes)
    {
       this.classes = classes;
    }
 
-   public Class<?>[] value()
+
+   public Class[] value()
    {
       return classes;
    }
 
    public Class<? extends Annotation> annotationType()
    {
-      return Local.class;
+      return Remote.class;
    }
 }

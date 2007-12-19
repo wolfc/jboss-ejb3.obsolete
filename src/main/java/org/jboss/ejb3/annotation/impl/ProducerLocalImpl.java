@@ -23,30 +23,23 @@ package org.jboss.ejb3.annotation.impl;
 
 import java.lang.annotation.Annotation;
 
-import javax.ejb.Local;
+import org.jboss.ejb3.annotation.ProducerLocal;
 
 /**
  * Comment
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class ProducerLocalImpl implements ProducerLocal
 {
-   private Class<?>[] classes;
 
-   public LocalImpl(Class<?>[] classes)
+   public ProducerLocalImpl()
    {
-      this.classes = classes;
-   }
-
-   public Class<?>[] value()
-   {
-      return classes;
    }
 
    public Class<? extends Annotation> annotationType()
    {
-      return Local.class;
+      return ProducerLocal.class;
    }
 }

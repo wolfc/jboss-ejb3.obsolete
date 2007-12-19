@@ -21,32 +21,35 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import javax.ejb.Stateless;
 
-import javax.ejb.Local;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class StatelessImpl implements Stateless
 {
-   private Class<?>[] classes;
+   private String name;
 
-   public LocalImpl(Class<?>[] classes)
+   public StatelessImpl(String name)
    {
-      this.classes = classes;
+      this.name = name;
    }
 
-   public Class<?>[] value()
+   public String name()
    {
-      return classes;
+      return name;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public Class annotationType()
    {
-      return Local.class;
+      return Stateless.class;
    }
+
+   public String mappedName() { return "";}
+   public String description() { return "";}
+   
 }

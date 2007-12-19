@@ -21,32 +21,45 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
-
-import javax.ejb.Local;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class TransactionAttributeImpl implements TransactionAttribute
 {
-   private Class<?>[] classes;
+   private TransactionAttributeType type;
 
-   public LocalImpl(Class<?>[] classes)
+   public TransactionAttributeImpl()
    {
-      this.classes = classes;
    }
 
-   public Class<?>[] value()
+   public TransactionAttributeImpl(TransactionAttributeType type)
    {
-      return classes;
+      this.type = type;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public void setType(TransactionAttributeType type)
    {
-      return Local.class;
+      this.type = type;
+   }
+
+   public TransactionAttributeType value()
+   {
+      return type;
+   }
+
+   public Class annotationType()
+   {
+      return TransactionAttribute.class;
+   }
+
+   public String name()
+   {
+      return TransactionAttribute.class.getName();
    }
 }

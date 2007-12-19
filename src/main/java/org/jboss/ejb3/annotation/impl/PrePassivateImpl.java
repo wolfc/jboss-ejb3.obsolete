@@ -21,32 +21,22 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
-
-import javax.ejb.Local;
+import javax.ejb.PrePassivate;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class PrePassivateImpl implements PrePassivate
 {
-   private Class<?>[] classes;
-
-   public LocalImpl(Class<?>[] classes)
+   public PrePassivateImpl()
    {
-      this.classes = classes;
    }
 
-   public Class<?>[] value()
+   public Class annotationType()
    {
-      return classes;
-   }
-
-   public Class<? extends Annotation> annotationType()
-   {
-      return Local.class;
+      return PrePassivate.class;
    }
 }
