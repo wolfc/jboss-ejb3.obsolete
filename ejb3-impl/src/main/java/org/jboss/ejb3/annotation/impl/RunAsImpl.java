@@ -21,32 +21,35 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
-
-import javax.ejb.Local;
+import javax.annotation.security.RunAs;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class RunAsImpl implements RunAs
 {
-   private Class<?>[] classes;
+   private String value;
 
-   public LocalImpl(Class<?>[] classes)
+   public RunAsImpl(String value)
    {
-      this.classes = classes;
+      this.value = value;
    }
 
-   public Class<?>[] value()
+   public String value()
    {
-      return classes;
+      return value;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public Class<RunAs> annotationType()
    {
-      return Local.class;
+      return RunAs.class;
+   }
+
+   public String name()
+   {
+      return RunAs.class.getName();
    }
 }

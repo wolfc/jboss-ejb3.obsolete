@@ -21,32 +21,48 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import javax.ejb.ActivationConfigProperty;
 
-import javax.ejb.Local;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class ActivationConfigPropertyImpl implements ActivationConfigProperty
 {
-   private Class<?>[] classes;
+   private String name;
+   private String value;
 
-   public LocalImpl(Class<?>[] classes)
+   public ActivationConfigPropertyImpl(String name, String value)
    {
-      this.classes = classes;
+      this.name = name;
+      this.value = value;
    }
 
-   public Class<?>[] value()
+   public String propertyName()
    {
-      return classes;
+      return name;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public String propertyValue()
    {
-      return Local.class;
+      return value;
+   }
+
+   public String name()
+   {
+      return ActivationConfigProperty.class.getName();
+   }
+
+   public Class annotationType()
+   {
+      return ActivationConfigProperty.class;
+   }
+   
+   public String toString()
+   {
+      return "ActivationConfigPropertyImpl:name=" + name + ", value=" + value;
    }
 }

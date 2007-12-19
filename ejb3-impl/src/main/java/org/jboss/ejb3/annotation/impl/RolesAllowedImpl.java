@@ -21,32 +21,43 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 
-import javax.ejb.Local;
+import javax.annotation.security.RolesAllowed;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class RolesAllowedImpl implements RolesAllowed
 {
-   private Class<?>[] classes;
+   private ArrayList values = new ArrayList();
 
-   public LocalImpl(Class<?>[] classes)
+   public RolesAllowedImpl()
    {
-      this.classes = classes;
    }
 
-   public Class<?>[] value()
+   public void addValue(String value)
    {
-      return classes;
+      values.add(value);
    }
 
-   public Class<? extends Annotation> annotationType()
+   public String[] value()
    {
-      return Local.class;
+      String[] value = new String[values.size()];
+      values.toArray(value);
+      return value;
+   }
+
+   public Class annotationType()
+   {
+      return RolesAllowed.class;
+   }
+
+   public String name()
+   {
+      return RolesAllowed.class.getName();
    }
 }

@@ -21,32 +21,32 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import javax.annotation.security.DeclareRoles;
 
-import javax.ejb.Local;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class DeclareRolesImpl implements DeclareRoles
 {
-   private Class<?>[] classes;
+   private String[] v;
 
-   public LocalImpl(Class<?>[] classes)
+   public DeclareRolesImpl(String[] v)
    {
-      this.classes = classes;
+      this.v = v;
    }
 
-   public Class<?>[] value()
+   public String[] value()
    {
-      return classes;
+      return v;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public Class annotationType()
    {
-      return Local.class;
+      return DeclareRoles.class;
    }
+
 }

@@ -18,35 +18,69 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
- */
+ */ 
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import javax.ejb.Local;
+import javax.interceptor.Interceptors;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class InterceptorsImpl implements Interceptors
 {
-   private Class<?>[] classes;
+   private Set<Class<?>> values = new LinkedHashSet<Class<?>>();
 
-   public LocalImpl(Class<?>[] classes)
+   public InterceptorsImpl()
    {
-      this.classes = classes;
    }
 
    public Class<?>[] value()
    {
-      return classes;
+      Class<?>[] result = new Class[values.size()];
+      values.toArray(result);
+      return result;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public void addValue(Class<?> value)
    {
-      return Local.class;
+      values.add(value);
+   }
+
+   public static InterceptorsImpl getImpl(Interceptors interceptors)
+   {
+      if (interceptors == null)
+      {
+         return new InterceptorsImpl();
+      }
+      
+      if (interceptors instanceof InterceptorsImpl)
+      {
+         return (InterceptorsImpl)interceptors;
+      }
+      
+      InterceptorsImpl impl = new InterceptorsImpl();
+      
+      for (Class<?> clazz : interceptors.value())
+      {
+         impl.addValue(clazz);
+      }
+      return impl;
+   }
+   
+   public Class<Interceptors> annotationType()
+   {
+      return Interceptors.class;
+   }
+   
+   @Override
+   public String toString()
+   {
+      return super.toString() + "{value=" + values + "}";
    }
 }

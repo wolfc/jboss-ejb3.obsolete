@@ -21,32 +21,27 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
-import java.lang.annotation.Annotation;
-
-import javax.ejb.Local;
+import javax.interceptor.AroundInvoke;
 
 /**
- * Comment
+ * // *
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author <a href="mailto:bill@jboss.org">William DeCoste</a>
  * @version $Revision$
  */
-public class LocalImpl implements Local
+public class AroundInvokeImpl implements AroundInvoke
 {
-   private Class<?>[] classes;
-
-   public LocalImpl(Class<?>[] classes)
+   public AroundInvokeImpl()
    {
-      this.classes = classes;
    }
 
-   public Class<?>[] value()
+   public Class annotationType()
    {
-      return classes;
+      return AroundInvoke.class;
    }
 
-   public Class<? extends Annotation> annotationType()
+   public String name()
    {
-      return Local.class;
+      return AroundInvoke.class.getName();
    }
 }
