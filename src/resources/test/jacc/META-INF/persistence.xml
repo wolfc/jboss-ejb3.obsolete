@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="tempdb">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <properties>
+          <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+         <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.AllEntity" value="insert,update,delete,read"/>
+         <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.StarEntity" value="*"/>
+         <property name="hibernate.jacc.allowed.org.jboss.ejb3.test.jacc.SomeEntity" value="insert,delete"/>
+
+         <property name="hibernate.jacc.enabled" value="true"/>
+      </properties>
+   </persistence-unit>
+</persistence>
+
+
+
+

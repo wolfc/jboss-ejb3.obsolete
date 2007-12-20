@@ -1,0 +1,8 @@
+<aop>
+	<bind pointcut="execution(* org.jboss.ejb3.test.ejbthree1023.AnnotatedLocalBean->woven())">
+		<interceptor class="org.jboss.ejb3.test.ejbthree1023.TestInterceptor"/>
+	</bind>
+	<bind pointcut="execution(* org.jboss.ejb3.test.ejbthree1023.DefaultLocalBean->woven())">
+		<interceptor class="org.jboss.ejb3.test.ejbthree1023.TestInterceptor"/>
+	</bind>
+</aop>

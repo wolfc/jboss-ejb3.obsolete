@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop>
+   <interceptor class="org.jboss.ejb3.test.bank.TellerInterceptor" scope="PER_VM"/>
+   
+   <stack name="TellerClientInterceptors">
+      <interceptor-ref name="org.jboss.ejb3.remoting.IsLocalInterceptor"/>
+      <interceptor-ref name="org.jboss.ejb3.test.bank.TellerInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.security.SecurityClientInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
+      <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
+   </stack>
+</aop>

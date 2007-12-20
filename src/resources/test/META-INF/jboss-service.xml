@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <depends>jboss.ejb3:service=EJB3Deployer</depends>
+
+   <mbean code="org.jboss.ejb3.test.initial.Tester" name="jboss.ejb3:service=Tester,test=initial"/>
+   <mbean code="org.jboss.ejb3.test.initial.TxTester" name="jboss.ejb3:service=TxTester,test=initial"/>
+   <mbean code="org.jboss.ejb3.test.initial.SecurityTester" name="jboss.ejb3:service=SecurityTester,test=initial"/>
+
+</server>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-app>
+   <loader-repository>
+      jboss.test:test=ejb3factory
+   </loader-repository>
+   <module>
+      <service>util.jar</service>
+   </module>
+</jboss-app>

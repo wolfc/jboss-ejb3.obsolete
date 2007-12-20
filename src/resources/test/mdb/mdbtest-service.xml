@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=cmtmdbtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/cmtmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=queuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/mdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=defaultedqueuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/defaultedmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=overridedefaultedqueuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/overridedefaultedmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=nondurablequeuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/nondurablemdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=bmtqueuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/bmtmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=overridequeuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/overridequeuetest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.TopicService"
+      name="jboss.messaging.destination:service=Topic,name=topictest"
+      xmbean-dd="xmdesc/Topic-xmbean.xml">
+      <attribute name="JNDIName">topic/mdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=transactionmdbtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/transactionmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=expirytest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/expirytest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=dlqtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/dlqtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=cmttxnotsupmdbtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/cmttxnotsupmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=expirationmdbtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/expirationmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=rollbackcmtmdbtest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/rollbackcmtmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+   
+   <mbean code="org.jboss.jms.server.destination.QueueService"
+      name="jboss.messaging.destination:service=Queue,name=mismatchedqueuetest"
+      xmbean-dd="xmdesc/Queue-xmbean.xml">
+      <attribute name="JNDIName">queue/mismatchedmdbtest</attribute>
+      <depends optional-attribute-name="ServerPeer">jboss.messaging:service=ServerPeer</depends>
+      <depends>jboss.messaging:service=PostOffice</depends>
+   </mbean>
+</server>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="tempdb" transaction-type="JTA">
+      <jta-data-source>java:/ClusteredEntityTestDS</jta-data-source>
+      <properties>
+         <property name="hibernate.cache.provider_class" value="org.jboss.ejb3.entity.TreeCacheProviderHook"/>
+         <property name="hibernate.treecache.mbean.object_name" value="jboss.cache:service=EJB3EntityTreeCache"/>
+         <!-- Must use "update" here as we do a test of redeployment and don't want to drop the db -->
+         <property name="hibernate.hbm2ddl.auto" value="update"/>
+         <property name="hibernate.cache.use_query_cache" value="true"/>
+         <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+         <property name="hibernate.cache.region_prefix" value="myprefix"/>
+      </properties>
+   </persistence-unit>
+</persistence>

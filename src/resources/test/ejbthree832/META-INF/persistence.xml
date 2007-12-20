@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="tempdb" transaction-type="JTA">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <properties>
+          <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+          <property name="hibernate.cache.provider_class" value="org.hibernate.cache.OptimisticTreeCacheProvider"/>
+      </properties>
+   </persistence-unit>
+</persistence>
