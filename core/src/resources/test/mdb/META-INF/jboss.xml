@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jboss
+        xmlns="http://www.jboss.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+
+   <enterprise-beans>
+      <message-driven>
+         <ejb-name>OverrideTestMDB</ejb-name>
+         <destination-jndi-name>queue/overridequeuetest</destination-jndi-name>
+      </message-driven>
+      <message-driven>
+         <ejb-name>OverrideDefaultedQueueTestMDB</ejb-name>
+         <activation-config>
+            <activation-config-property>
+               <activation-config-property-name>destinationType</activation-config-property-name>
+               <activation-config-property-value>javax.jms.Queue</activation-config-property-value>
+            </activation-config-property>
+         </activation-config>
+      </message-driven>
+   </enterprise-beans>
+</jboss>

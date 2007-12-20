@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <mbean code="org.jboss.cache.TreeCache" name="jboss.cache:service=EJB3TreeCache">
+      <!--
+              Node locking level : SERIALIZABLE
+                                   REPEATABLE_READ (default)
+                                   READ_COMMITTED
+                                   READ_UNCOMMITTED
+                                   NONE
+      -->
+      <attribute name="IsolationLevel">REPEATABLE_READ</attribute>
+
+      <!--     Valid modes are LOCAL
+                               REPL_ASYNC
+                               REPL_SYNC
+      -->
+      <attribute name="CacheMode">LOCAL</attribute>
+
+      <!--    Number of milliseconds to wait until all responses for a
+              synchronous call have been received.
+      -->
+      <attribute name="SyncReplTimeout">16000</attribute>
+
+      <!--  Max number of milliseconds to wait for a lock acquisition -->
+      <attribute name="LockAcquisitionTimeout">15000</attribute>
+
+      <!--  Name of the eviction policy class. -->
+      <attribute name="EvictionPolicyClass">org.jboss.cache.eviction.LRUPolicy</attribute>
+
+      <!--  Specific eviction policy configurations. This is LRU -->
+      <attribute name="EvictionPolicyConfig">
+         <config>
+            <attribute name="wakeUpIntervalSeconds">1</attribute>
+            <name>stateful</name>
+            <region name="/_default_">
+               <attribute name="maxNodes">5000</attribute>
+               <attribute name="timeToIdleSeconds">1000</attribute>
+            </region>
+         </config>
+      </attribute>
+
+      <attribute name="CacheLoaderConfiguration">
+            <config>
+                <!-- if passivation is true, only the first cache loader is used; the rest are ignored -->
+                <passivation>true</passivation>
+                <preload>/</preload>
+                <shared>false</shared>
+
+                <!-- we can now have multiple cache loaders, which get chained -->
+                <cacheloader>
+                    
+                  <class>org.jboss.cache.loader.FileCacheLoader</class>
+                      <!-- 
+                      -->
+                  <properties>
+                       location=${jboss.server.data.dir}${/}sfsb-test 
+                  </properties>
+                    <!-- whether the cache loader writes are asynchronous -->
+                    <async>false</async>
+                    <!-- only one cache loader in the chain may set fetchPersistentState to true.
+                        An exception is thrown if more than one cache loader sets this to true. -->
+                    <fetchPersistentState>true</fetchPersistentState>
+                    <!-- determines whether this cache loader ignores writes - defaults to false. -->
+                    <ignoreModifications>false</ignoreModifications>
+                </cacheloader>
+
+            </config>
+        </attribute>
+   </mbean>
+
+</server>
+

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE jboss PUBLIC
+      "-//JBoss//DTD JBOSS 3.2//EN"
+      "http://www.jboss.org/j2ee/dtd/jboss_4_0.dtd">
+<jboss>
+   <!--invoker-proxy-bindings>
+      <invoker-proxy-binding>
+         <name>my-message-driven-bean</name>
+         <invoker-mbean>default</invoker-mbean>
+         <proxy-factory>org.jboss.ejb.plugins.jms.JMSContainerInvoker</proxy-factory>
+         <proxy-factory-config>
+            <JMSProviderAdapterJNDI>DefaultJMSProvider</JMSProviderAdapterJNDI>
+            <ServerSessionPoolFactoryJNDI>StdJMSPool</ServerSessionPoolFactoryJNDI>
+            <MaximumSize>15</MaximumSize>
+            <MaxMessages>1</MaxMessages>
+            <MDBConfig>
+               <ReconnectIntervalSec>10</ReconnectIntervalSec>
+               <DLQConfig>
+                  <DestinationQueue>queue/DLQ</DestinationQueue>
+                  <MaxTimesRedelivered>10</MaxTimesRedelivered>
+                  <TimeToLive>0</TimeToLive>
+               </DLQConfig>
+            </MDBConfig>
+         </proxy-factory-config>
+      </invoker-proxy-binding>
+   </invoker-proxy-bindings-->
+
+   <enterprise-beans>
+      <message-driven>
+         <ejb-name>QueueBean21</ejb-name>
+         <destination-jndi-name>queue/mdb21test</destination-jndi-name>
+      </message-driven>
+   </enterprise-beans>
+</jboss>

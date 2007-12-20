@@ -1,0 +1,65 @@
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+
+  <enterprise-beans>
+    <session>
+      <ejb-name>JMSTest</ejb-name>
+      <remote>org.jboss.ejb3.test.jms.managed.JMSTest</remote>
+      <ejb-class>org.jboss.ejb3.test.jms.managed.JMSTestBean</ejb-class>
+      <session-type>Stateful</session-type>
+      <transaction-type>Container</transaction-type>
+      
+      <resource-ref>
+         <res-ref-name>jms/MyConnectionFactory</res-ref-name>
+         <res-type>javax.jms.ConnectionFactory</res-type>
+         <res-auth>Container</res-auth>
+      </resource-ref>
+       
+      <resource-ref>
+         <res-ref-name>jms/MyQueue</res-ref-name>
+         <res-type>javax.jms.Queue</res-type>
+         <res-auth>Container</res-auth>
+      </resource-ref> 
+       
+    </session>
+     
+    <message-driven>
+       <ejb-name>MessageBean</ejb-name>
+       <ejb-class>org.jboss.ejb3.test.jms.managed.MessageBean</ejb-class>
+       <transaction-type>Container</transaction-type>
+       <message-destination-type>javax.jms.Queue</message-destination-type>
+       <activation-config>   
+          <activation-config-property>
+          	<activation-config-property-name>acknowledgeMode</activation-config-property-name>
+          	<activation-config-property-value>AUTO_ACKNOWLEDGE</activation-config-property-value>
+          </activation-config-property>
+        </activation-config>
+    </message-driven>
+     
+  </enterprise-beans>
+   
+  <assembly-descriptor>
+     
+     <container-transaction>
+      <method>
+        <ejb-name>MessageBean</ejb-name>
+        <method-name>*</method-name>
+      </method>
+      <trans-attribute>Required</trans-attribute>
+    </container-transaction>
+
+    <container-transaction>
+      <method>
+        <ejb-name>JMSTest</ejb-name>
+        <method-name>*</method-name>
+      </method>
+     
+      <trans-attribute>Required</trans-attribute>
+    </container-transaction>
+
+  </assembly-descriptor>
+</ejb-jar>

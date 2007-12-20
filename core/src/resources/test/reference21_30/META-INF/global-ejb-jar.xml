@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ejb-jar PUBLIC "-//Sun Microsystems, Inc.//DTD Enterprise JavaBeans 2.0//EN" 
+                         "http://java.sun.com/dtd/ejb-jar_2_0.dtd">
+<ejb-jar> 
+   <description>jBoss test application </description>
+   <display-name>Test</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>Session21</ejb-name>
+         <home>org.jboss.ejb3.test.reference21_30.Session21Home</home>
+         <remote>org.jboss.ejb3.test.reference21_30.Session21</remote>
+         <ejb-class>org.jboss.ejb3.test.reference21_30.Session21Bean</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

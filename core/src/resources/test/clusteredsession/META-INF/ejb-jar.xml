@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <enterprise-beans>
+      <session>
+         <ejb-name>NonAnnotationStateful</ejb-name>
+         <remote>org.jboss.ejb3.test.clusteredsession.StatefulRemote</remote>
+         <ejb-class>org.jboss.ejb3.test.clusteredsession.NonAnnotationStatefulBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+      <session>
+         <ejb-name>EjbJarOverrideAnnotationStateful</ejb-name>
+         <remote>org.jboss.ejb3.test.clusteredsession.StatefulRemote</remote>
+         <ejb-class>org.jboss.ejb3.test.clusteredsession.OverrideAnnotationStatefulBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+      <session>
+         <ejb-name>NonClusteredStateful</ejb-name>
+         <remote>org.jboss.ejb3.test.clusteredsession.OverrideStatefulRemote</remote>
+         <ejb-class>org.jboss.ejb3.test.clusteredsession.OverrideStatefulBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

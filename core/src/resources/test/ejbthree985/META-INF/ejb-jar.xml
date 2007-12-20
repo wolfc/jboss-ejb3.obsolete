@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/javaee" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  version="3.0" 
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd">
+  <enterprise-beans>
+    <session>
+      <ejb-name>OptionalEnvEntryBean</ejb-name>
+      <env-entry>
+        <description>default env-entry</description>
+        <env-entry-name>entry</env-entry-name>
+        <env-entry-type>java.lang.Double</env-entry-type>
+        <injection-target>
+          <injection-target-class>org.jboss.ejb3.test.ejbthree985.OptionalEnvEntryBean</injection-target-class>
+          <injection-target-name>entry</injection-target-name>
+        </injection-target>
+      </env-entry>
+    </session>
+  </enterprise-beans>
+</ejb-jar>

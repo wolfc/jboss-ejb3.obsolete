@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/javaee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	metadata-complete="false" 
+	version="3.0" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd">
+	
+	<enterprise-beans>
+		<session>
+			<ejb-name>InjectionTesterBean</ejb-name>
+			<business-remote>org.jboss.ejb3.test.ejbthree712.InjectionTester</business-remote>
+			<ejb-class>org.jboss.ejb3.test.ejbthree712.InjectionTesterBean</ejb-class>
+			<session-type>Stateless</session-type>
+			<transaction-type>Container</transaction-type>
+			<resource-env-ref>
+				<resource-env-ref-name>ctx</resource-env-ref-name>
+				<resource-env-ref-type>javax.ejb.SessionContext</resource-env-ref-type>
+				<!--mapped-name>java:comp/EJBContext</mapped-name-->
+				<injection-target>
+					<injection-target-class>org.jboss.ejb3.test.ejbthree712.InjectionTesterBean</injection-target-class>
+					<injection-target-name>ctx</injection-target-name>
+				</injection-target>
+			</resource-env-ref>
+		</session>
+	</enterprise-beans>
+</ejb-jar>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="ejbref">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <class>org.jboss.ejb3.test.ear.ReferencedEntity</class>
+      <properties>
+         <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      </properties>
+   </persistence-unit>
+</persistence>
