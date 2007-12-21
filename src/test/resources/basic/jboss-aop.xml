@@ -1,0 +1,112 @@
+<aop>
+	<aspect name="AroundInvokeInterceptor" class="org.jboss.ejb3.interceptors.aop.AroundInvokeInterceptor" scope="PER_INSTANCE"/>
+	<aspect name="InterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InterceptorsFactory" scope="PER_INSTANCE"/>
+	<aspect name="InterceptorsInterceptor" class="org.jboss.ejb3.interceptors.aop.InterceptorsInterceptor" scope="PER_INSTANCE"/>
+	<aspect name="InvocationContextInterceptor" class="org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor" scope="PER_VM"/>
+	<aspect name="PostConstructInterceptor" class="org.jboss.ejb3.interceptors.aop.PostConstructInterceptor" scope="PER_INSTANCE"/>
+	
+	<interceptor name="BootstrapInterceptor" class="org.jboss.ejb3.interceptors.aop.BootstrapInterceptor" scope="PER_VM"/>
+	<interceptor name="LoggingInterceptor" class="org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor" scope="PER_VM"/>
+	
+	<!-- Not needed we can do this in the domain itself 
+	<bind pointcut="construction(org.jboss.ejb3.interceptors.aop.ClassContainer->new(..))">
+		<interceptor-ref name="BootstrapInterceptor"/>
+	</bind>
+	-->
+	
+	<!-- This one works
+	<bind pointcut="construction(org.jboss.ejb3.test.*->new(..))">
+		<interceptor-ref name="BootstrapInterceptor"/>
+	</bind>
+	
+	<bind pointcut="execution(org.jboss.ejb3.test.*->new(..))">
+		<interceptor-ref name="BootstrapInterceptor"/>
+	</bind>
+	
+	<bind pointcut="execution(* org.jboss.ejb3.test.*->*(..))">
+		<interceptor-ref name="BootstrapInterceptor"/>
+	</bind>
+	-->
+	
+	<!-- TODO: this is actually the bootstrap container -->
+	<domain name="InterceptorContainer">
+		<prepare expr="all(*)"/>
+		
+		<!-- Why does this not work? -->
+		<!-- 
+		<bind pointcut="execution(@javax.interceptor.Interceptors->new(..))">
+			<interceptor-ref name="LoggingInterceptor"/>
+			<interceptor-ref name="BootstrapInterceptor"/>
+		</bind>
+		-->
+		
+		<!-- Make sure we can _preDestroy -->
+		<introduction expr="constructor(@javax.interceptor.Interceptors->new(..)) OR has(* *->@javax.interceptor.Interceptors(..))">
+			<interfaces>org.jboss.ejb3.interceptors.aop.Destructable</interfaces>
+		</introduction>
+		
+		<!-- This one does work -->
+		<!-- Setup AOP interceptors based on spec interceptors -->
+		<bind pointcut="construction(@javax.interceptor.Interceptors->new(..)) OR has(* *->@javax.interceptor.Interceptors(..))">
+			<interceptor-ref name="LoggingInterceptor"/>
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<!-- 
+			<interceptor-ref name="InterceptorsFactory"/>
+			-->
+			<around name="invoke" aspect="InterceptorsFactory"/>
+			<!-- 
+			<after name="invoke" aspect="PostConstructInterceptor"/>
+			-->
+		</bind>
+		
+		<!-- TODO: Junk
+		<bind pointcut="execution(* *->@javax.interceptor.Interceptors(..))">
+			<interceptor-ref name="LoggingInterceptor"/>
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="invoke" aspect="AroundInvokeInterceptor"/>
+		</bind>
+		-->
+		
+		<!-- Make sure we an invocation context   -->
+		<!-- 
+		<bind pointcut="execution(* *->@javax.interceptor.Interceptors(..))">
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="fillMethod" aspect="InvocationContextInterceptor"/>
+		</bind>
+		-->
+		
+		<bind pointcut="execution(* *->*(..)) AND (has(* *->@javax.interceptor.Interceptors(..)) OR has(@javax.interceptor.Interceptors->new(..)))">
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="fillMethod" aspect="InvocationContextInterceptor"/>
+		</bind>
+		
+		<!-- The bootstrap interceptor container doesn't do default interceptors
+		<bind pointcut="!execution(* *->@javax.interceptor.ExcludeDefaultInterceptors(..)) AND !execution(* @javax.interceptor.ExcludeDefaultInterceptors(..))">
+			<around name="invokeDefaultInterceptors" aspect="InterceptorsInterceptor"/>
+		</bind>
+		-->
+		
+		<bind pointcut="!execution(* *->@javax.interceptor.ExcludeClassInterceptors(..))">
+			<around name="invokeClassInterceptors" aspect="InterceptorsInterceptor"/>
+		</bind>
+		
+		<bind pointcut="execution(* *->*(..)) AND has(* *->@javax.interceptor.Interceptors(..))">
+			<around name="invokeBusinessMethodInterceptors" aspect="InterceptorsInterceptor"/>
+		</bind>
+		
+		<!-- TODO: Junk: Log everything 
+		<bind pointcut="execution(* *->*(..)) AND !execution(* org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor->*(..))">
+			<interceptor-ref name="LoggingInterceptor"/>
+		</bind>
+		<bind pointcut="call(*->new(..)) AND !withincode(* org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor->*(..))">
+			<interceptor-ref name="LoggingInterceptor"/>
+		</bind>
+		-->
+		
+		<!-- TODO: Junk
+		<bind pointcut="construction(*->@javax.interceptor.PostConstruct(javax.interceptor.InvocationContext))">
+			<interceptor-ref name="LoggingInterceptor"/>
+		</bind>
+		-->
+	</domain>
+</aop>
