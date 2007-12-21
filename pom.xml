@@ -229,7 +229,7 @@
           </execution>
         </executions>
         <configuration>
-          <!-- Should be defined in local ~./m2/settings.xml -->
+          <!-- Should be defined in local ~/.m2/settings.xml -->
           <jbossDeployRoot>${jboss.repository.root}</jbossDeployRoot>
           <groupId>jboss</groupId>
           <removeArtifactVersion>true</removeArtifactVersion>
