@@ -123,19 +123,13 @@
       External
       
     -->
-    <version.apache.commons.digester>
-      1.8
-    </version.apache.commons.digester>
-    <version.apache.commons.validator>
-      1.3.1
-    </version.apache.commons.validator>
+    <version.apache.commons.digester>1.8</version.apache.commons.digester>
+    <version.apache.commons.validator>1.3.1</version.apache.commons.validator>
     <version.ant.junit>1.7.0</version.ant.junit>
     <version.gnu.trove>2.1.1</version.gnu.trove>
     <version.jboss.aop>2.0.0.beta1</version.jboss.aop>
     <version.jboss.common.core>2.2.1.GA</version.jboss.common.core>
-    <version.jboss.common.logging.log4j>
-      2.0.4.GA
-    </version.jboss.common.logging.log4j>
+    <version.jboss.common.logging.log4j>2.0.4.GA</version.jboss.common.logging.log4j>
     <version.jboss.ejb.api>3.0.0.20070913080910</version.jboss.ejb.api>
     <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
     <version.jboss.logging.spi>2.0.2.GA</version.jboss.logging.spi>
@@ -150,9 +144,7 @@
   <!-- Build Configurations -->
   <build>
     <outputDirectory>${ejb3.outputDirectory}</outputDirectory>
-    <testOutputDirectory>
-      ${ejb3.testOutputDirectory}
-    </testOutputDirectory>
+    <testOutputDirectory>${ejb3.testOutputDirectory}</testOutputDirectory>
     <finalName>${artifactId}</finalName>
     <plugins>
 
@@ -383,9 +375,7 @@
       </activation>
       <properties>
         <ejb3.outputDirectory>target/classes</ejb3.outputDirectory>
-        <ejb3.testOutputDirectory>
-          target/tests-classes
-        </ejb3.testOutputDirectory>
+        <ejb3.testOutputDirectory>target/tests-classes</ejb3.testOutputDirectory>
       </properties>
     </profile>
     <profile>
@@ -406,20 +396,14 @@
             </executions>
             <configuration>
               <downloadSources>true</downloadSources>
-              <buildOutputDirectory>
-                ${ejb3.outputDirectory}
-              </buildOutputDirectory>
+              <buildOutputDirectory>${ejb3.outputDirectory}</buildOutputDirectory>
             </configuration>
           </plugin>
         </plugins>
       </build>
       <properties>
-        <ejb3.outputDirectory>
-          eclipse-target/classes
-        </ejb3.outputDirectory>
-        <ejb3.testOutputDirectory>
-          eclipse-target/tests-classes
-        </ejb3.testOutputDirectory>
+        <ejb3.outputDirectory>eclipse-target/classes</ejb3.outputDirectory>
+        <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
       </properties>
     </profile>
   </profiles>
