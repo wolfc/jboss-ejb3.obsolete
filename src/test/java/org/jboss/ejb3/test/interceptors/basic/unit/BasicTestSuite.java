@@ -102,7 +102,7 @@ public class BasicTestSuite extends TestSuite
    public static Test suite() throws Exception
    {
       BasicTestSuite suite = new BasicTestSuite();
-      suite.addTestSuite(BasicTestRunner.class);
+      suite.addTestSuite("org.jboss.ejb3.test.interceptors.basic.unit.BasicTestRunner");
       return suite;
    }
    
@@ -113,7 +113,7 @@ public class BasicTestSuite extends TestSuite
       // trick or treat
       try
       {
-         super.addTestSuite(classLoader.loadClass(testClass.getName()));
+         addTestSuite(testClass.getName());
       }
       catch(final ClassNotFoundException e)
       {
@@ -126,5 +126,12 @@ public class BasicTestSuite extends TestSuite
          };
          super.addTest(test);
       }
+   }
+
+   @SuppressWarnings("unchecked")
+   public void addTestSuite(String testClassName) throws ClassNotFoundException
+   {
+      // trick or treat
+      super.addTestSuite((Class<? extends TestCase>) classLoader.loadClass(testClassName));
    }
 }

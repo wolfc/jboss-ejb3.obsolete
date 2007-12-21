@@ -23,11 +23,13 @@ package org.jboss.ejb3.test.interceptors.basic.unit;
 
 import java.util.Arrays;
 
+import junit.framework.TestCase;
+
+import org.jboss.aop.InstanceAdvised;
+import org.jboss.ejb3.interceptors.aop.Destructable;
 import org.jboss.ejb3.test.interceptors.basic.BasicBean;
 import org.jboss.ejb3.test.interceptors.basic.BasicInterceptor;
 import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
-
-import junit.framework.TestCase;
 
 /**
  * This one must run within a domain class loader.
@@ -44,6 +46,7 @@ public class BasicTestRunner extends TestCase
       assertEquals(0, BasicInterceptor.postConstructs);
       
       BasicBean bean = new BasicBean();
+      System.out.println("instanceAdvisor = " + ((InstanceAdvised) bean)._getInstanceAdvisor());
       
       assertEquals("BasicInterceptor postConstruct must have been called once", 1, BasicInterceptor.postConstructs);
       

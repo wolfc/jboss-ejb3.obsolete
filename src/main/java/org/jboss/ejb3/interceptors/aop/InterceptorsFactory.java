@@ -32,9 +32,9 @@ import javax.interceptor.Interceptors;
 import org.jboss.aop.Advised;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
-import org.jboss.aop.advice.AspectFactory;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Joinpoint;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -44,22 +44,17 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptorsFactory implements AspectFactory
+public class InterceptorsFactory extends AbstractInterceptorFactory
 {
    private static final Logger log = Logger.getLogger(InterceptorsFactory.class);
    
-   public Object createPerClass(Advisor advisor)
-   {
-      throw new IllegalStateException("Only per instance scope is supported");
-   }
-
    public Object createPerInstance(Advisor advisor, InstanceAdvisor instanceAdvisor)
    {
       try
       {
          log.debug("createPerInstance");
-         log.debug(" advisor " + advisor.getName());
-         log.debug(" instanceAdvisor " + instanceAdvisor);
+         log.debug(" advisor " + advisor.getClass().getName());
+         log.debug(" instanceAdvisor " + toString(instanceAdvisor));
          
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          assert interceptorsAnnotation != null : "interceptors annotation not found"; // FIXME: not correct, bean can be without interceptors
@@ -69,9 +64,10 @@ public class InterceptorsFactory implements AspectFactory
          {
             Object interceptor = interceptorClass.newInstance();
             Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
-            log.info("interceptorAdvisor = " + interceptorAdvisor.getName());
+            log.debug("  interceptorAdvisor = " + interceptorAdvisor.getName());
             InstanceAdvisor interceptorInstanceAdvisor = ((Advised) interceptor)._getInstanceAdvisor();
-            log.info("interceptorInstanceAdvisor = " + interceptorInstanceAdvisor);
+            log.debug("  interceptorInstanceAdvisor = " + interceptorInstanceAdvisor.getClass().getName());
+            // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
             for(Method method : ClassHelper.getAllMethods(interceptorClass))
             {
                if(interceptorAdvisor.hasAnnotation(method, PostConstruct.class))
@@ -88,16 +84,17 @@ public class InterceptorsFactory implements AspectFactory
          }
          
          Class<?> beanClass = advisor.getClazz();
+         List<Interceptor> beanInterceptors = new ArrayList<Interceptor>();
          for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
          {
             interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(beanMethod, Interceptors.class);
             if(interceptorsAnnotation != null)
             {
                List<Interceptor> businessMethodInterceptors = new ArrayList<Interceptor>();
-               // TODO: use visitors
+               // TODO: use visitors?
                for(Class<?> interceptorClass : interceptorsAnnotation.value())
                {
-                  // TODO: do not create perse, we might already have done that
+                  // FIXME: do not create perse, we might already have done that
                   Object interceptor = interceptorClass.newInstance();
                   Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
                   for(Method method : ClassHelper.getAllMethods(interceptorClass))
@@ -115,17 +112,25 @@ public class InterceptorsFactory implements AspectFactory
                   }
                }
                assert businessMethodInterceptors.size() > 0 : "TODO: lucky guess";
-               instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, beanMethod, businessMethodInterceptors.toArray(new Interceptor[0]));
+               instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, beanMethod, businessMethodInterceptors);
+            }
+            
+            if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
+            {
+               beanInterceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
             }
          }
+         log.debug("Found bean interceptors " + beanInterceptors);
+         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "beanInterceptors", beanInterceptors);
          
-         log.debug("classInterceptors " + classInterceptors);
+         log.debug("Found class interceptors " + classInterceptors);
          // Class Interceptors
-         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "classInterceptors", classInterceptors.toArray(new Interceptor[0]));
+         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "classInterceptors", classInterceptors);
          
          // Put the postConstructs interceptors here in the chain
          // TODO: why? We may need more control
          return new InterceptorSequencer(postConstructs.toArray(new Interceptor[0]));
+         //return null;
       }
       catch(InstantiationException e)
       {
@@ -142,25 +147,42 @@ public class InterceptorsFactory implements AspectFactory
       }
    }
 
-   public Object createPerJoinpoint(Advisor advisor, Joinpoint jp)
+   @SuppressWarnings("unchecked")
+   public static List<Interceptor> getBeanInterceptors(InstanceAdvisor instanceAdvisor)
    {
-      throw new IllegalStateException("Only per instance scope is supported");
+      return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "beanInterceptors");
    }
-
-   public Object createPerJoinpoint(Advisor advisor, InstanceAdvisor instanceAdvisor, Joinpoint jp)
+   
+   @SuppressWarnings("unchecked")
+   @Deprecated
+   public static Interceptor[] getBusinessMethodInterceptors(MethodInvocation invocation)
    {
-      log.warn("Only per instance scope is supported");
-      return createPerInstance(advisor, instanceAdvisor);
+      List<Interceptor> list = (List<Interceptor>) invocation.getMetaData(InterceptorsFactory.class, invocation.getActualMethod());
+      if(list == null) return null;
+      return list.toArray(new Interceptor[0]);
    }
-
-   public Object createPerVM()
+   
+   @SuppressWarnings("unchecked")
+   public static List<Interceptor> getBusinessMethodInterceptors(InstanceAdvisor instanceAdvisor, Method businessMethod)
    {
-      throw new IllegalStateException("Only per instance scope is supported");
+      return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, businessMethod);
    }
-
-   public String getName()
+   
+   @SuppressWarnings("unchecked")
+   @Deprecated
+   public static Interceptor[] getClassInterceptors(Invocation invocation)
    {
-      return "InterceptorsFactory";
+      return ((List<Interceptor>) invocation.getMetaData(InterceptorsFactory.class, "classInterceptors")).toArray(new Interceptor[0]);
    }
-
+   
+   @SuppressWarnings("unchecked")
+   public static List<Interceptor> getClassInterceptors(InstanceAdvisor instanceAdvisor)
+   {
+      return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "classInterceptors");
+   }
+   
+   private String toString(Object obj)
+   {
+      return obj.getClass().getName() + "@" + System.identityHashCode(obj);
+   }
 }

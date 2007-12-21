@@ -31,6 +31,8 @@ import org.jboss.logging.Logger;
  * The basic bean has one class interceptor: BasicInterceptor
  * 
  * On the intercepter method there is a business method interceptor: BasicMethodInterceptor
+ * 
+ * And it has bean method interceptors: aroundInvoke
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -52,6 +54,10 @@ public class BasicBean
    Object aroundInvoke(InvocationContext ctx) throws Exception
    {
       log.debug("aroundInvoke " + ctx);
+      if(ctx.getTarget() != this)
+         throw new IllegalStateException("target is not this");
+      if(ctx.getMethod().getDeclaringClass() != getClass())
+         throw new IllegalStateException("method " + ctx.getMethod() + " not of this class (" + ctx.getMethod().getDeclaringClass() + " != " +  getClass() + ")");
       aroundInvokes++;
       return ctx.proceed();
    }
