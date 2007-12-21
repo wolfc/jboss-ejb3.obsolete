@@ -1,235 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-   <!-- Parent -->
-   <parent>
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3</artifactId>
+    <version>0.12.0-SNAPSHOT</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <artifactId>jboss-ejb3-core</artifactId>
+  <packaging>jar</packaging>
+  <name>JBoss EJB 3.0 Core</name>
+  <url>http://labs.jboss.com/jbossejb3</url>
+  <description>JBoss EJB 3.0 Core</description>
+
+  <!-- Dependency Version Properties -->
+
+  <!-- 
+    
+    TODO: Move all version information to 
+    the Parent Build POM
+    
+  -->
+
+  <properties>
+    <version.jboss.ejb3.cache>0.11.1</version.jboss.ejb3.cache>
+    <version.jboss.persistence.api>
+      3.0.0.Beta3Update1
+    </version.jboss.persistence.api>
+    <version.jboss.kernel>2.0.0.Beta9</version.jboss.kernel>
+    <version.jboss.jacc.api>1.1.0.Beta3Update1</version.jboss.jacc.api>
+    <version.jboss.metadata>1.0.0.Beta4</version.jboss.metadata>
+    <version.jboss.security.spi.bare>
+      2.0.2.Beta1
+    </version.jboss.security.spi.bare>
+    <version.jboss.sx.client>2.0.2.beta</version.jboss.sx.client>
+    <version.jboss.test>1.0.5-20071215.191923-3</version.jboss.test>
+    <version.hibernate.annotations>
+      3.3.0.ga
+    </version.hibernate.annotations>
+    <version.hibernate.entitymanager>
+      3.3.2.Beta1
+    </version.hibernate.entitymanager>
+    <version.hibernate.persistence>
+      3.3.2.Beta1
+    </version.hibernate.persistence>
+    <version.hibernate>3.2.4.sp1</version.hibernate>
+    <version.jboss.ha.client>1.0.0.BETA1</version.jboss.ha.client>
+    <version.jboss.deployers.core.spi>
+      2.0.0.Beta9
+    </version.jboss.deployers.core.spi>
+    <version.jboss.as.iiop>
+      5.0.0-20071211.184358-1
+    </version.jboss.as.iiop>
+    <version.jboss.ejb.api>3.0.0.Beta3Update1</version.jboss.ejb.api>
+    <version.jboss.transaction.spi>
+      5.0.0.Beta4
+    </version.jboss.transaction.spi>
+    <version.jboss.as.naming>
+      5.0.0-20071211.184358-1
+    </version.jboss.as.naming>
+    <version.jboss.aop>2.0.0.CR1</version.jboss.aop>
+    <version.jboss.aop.aspects>2.0.0.alpha6</version.jboss.aop.aspects>
+    <version.jboss.as.aspects>5.0.0-SNAPSHOT</version.jboss.as.aspects>
+    <version.quartz>1.6.0</version.quartz>
+    <version.jboss.jca.api>1.5.0.Beta3Update1</version.jboss.jca.api>
+    <version.jboss.as.connector>
+      5.0.0-20071211.184358-1
+    </version.jboss.as.connector>
+  </properties>
+
+  <!-- Build Information -->
+  <build>
+    <sourceDirectory>src/main</sourceDirectory>
+    <!--testSourceDirectory>src/test</testSourceDirectory-->
+    <outputDirectory>classes</outputDirectory>
+    <!--testOutputDirectory>test-classes</testOutputDirectory-->
+    <finalName>${artifactId}</finalName>
+  </build>
+
+  <!-- Dependencies -->
+
+  <!-- 
+    
+    TODO: Move all version information to 
+    the Parent Build POM
+    
+  -->
+
+
+  <dependencies>
+    <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3</artifactId>
-      <version>0.12.0-SNAPSHOT</version>
-      <relativePath>../build/pom.xml</relativePath>
-   </parent>
-
-   <!-- POM Model Version -->
-   <modelVersion>4.0.0</modelVersion>
-
-   <!-- Artifact Information -->
-   <artifactId>jboss-ejb3-core</artifactId>
-   <packaging>jar</packaging>
-   <name>JBoss EJB 3.0 Core</name>
-   <url>http://labs.jboss.com/jbossejb3</url>
-   <description>JBoss EJB 3.0 Core</description>
-
-   <!-- Dependency Version Properties -->
-   
-   <!-- 
-   
-   TODO: Move all version information to 
-   the Parent Build POM
-   
-    -->
-   
-   <properties>
-      <version.jboss.ejb3.cache>0.11.1</version.jboss.ejb3.cache>
-      <version.jboss.persistence.api>
-         3.0.0.Beta3Update1
-      </version.jboss.persistence.api>
-      <version.jboss.kernel>2.0.0.Beta9</version.jboss.kernel>
-      <version.jboss.jacc.api>
-         1.1.0.Beta3Update1
-      </version.jboss.jacc.api>
-      <version.jboss.metadata>1.0.0.Beta4</version.jboss.metadata>
-      <version.jboss.security.spi.bare>
-         2.0.2.Beta1
-      </version.jboss.security.spi.bare>
-      <version.jboss.sx.client>2.0.2.beta</version.jboss.sx.client>
-      <version.jboss.test>1.0.5-20071215.191923-3</version.jboss.test>
-      <version.hibernate.annotations>
-         3.3.0.ga
-      </version.hibernate.annotations>
-      <version.hibernate.entitymanager>
-         3.3.2.Beta1
-      </version.hibernate.entitymanager>
-      <version.hibernate.persistence>
-         3.3.2.Beta1
-      </version.hibernate.persistence>
-      <version.hibernate>3.2.4.sp1</version.hibernate>
-      <version.jboss.ha.client>1.0.0.BETA1</version.jboss.ha.client>
-      <version.jboss.deployers.core.spi>
-         2.0.0.Beta9
-      </version.jboss.deployers.core.spi>
-      <version.jboss.as.iiop>
-         5.0.0-20071211.184358-1
-      </version.jboss.as.iiop>
-      <version.jboss.ejb.api>3.0.0.Beta3Update1</version.jboss.ejb.api>
-      <version.jboss.transaction.spi>
-         5.0.0.Beta4
-      </version.jboss.transaction.spi>
-      <version.jboss.as.naming>
-         5.0.0-20071211.184358-1
-      </version.jboss.as.naming>
-      <version.jboss.aop>2.0.0.CR1</version.jboss.aop>
-      <version.jboss.aop.aspects>
-         2.0.0.alpha6
-      </version.jboss.aop.aspects>
-      <version.jboss.as.aspects>
-         5.0.0-SNAPSHOT
-      </version.jboss.as.aspects>
-      <version.quartz>1.6.0</version.quartz>
-      <version.jboss.jca.api>1.5.0.Beta3Update1</version.jboss.jca.api>
-      <version.jboss.as.connector>
-         5.0.0-20071211.184358-1
-      </version.jboss.as.connector>
-   </properties>
-
-   <!-- Build Information -->
-   <build>
-      <sourceDirectory>src/main</sourceDirectory>
-      <!--testSourceDirectory>src/test</testSourceDirectory-->
-      <outputDirectory>classes</outputDirectory>
-      <!--testOutputDirectory>test-classes</testOutputDirectory-->
-      <finalName>${artifactId}</finalName>
-   </build>
-
-   <!-- Dependencies -->
-   
-   <!-- 
-   
-   TODO: Move all version information to 
-   the Parent Build POM
-   
-    -->
-   
-   
-   <dependencies>
-      <dependency>
-         <groupId>org.jboss.ejb3</groupId>
-         <artifactId>jboss-ejb3-impl</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-persistence-api</artifactId>
-         <version>${version.jboss.persistence.api}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.microcontainer</groupId>
-         <artifactId>jboss-kernel</artifactId>
-         <version>${version.jboss.kernel}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jacc-api</artifactId>
-         <version>${version.jboss.jacc.api}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.ejb3</groupId>
-         <artifactId>jboss-ejb3-ext-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.ejb3</groupId>
-         <artifactId>jboss-ejb3-impl</artifactId>
-         <version>${version.jboss.ejb3.impl}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-metadata</artifactId>
-         <version>${version.jboss.metadata}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jboss-security-spi-bare</artifactId>
-         <version>${version.jboss.security.spi.bare}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jbosssx-client</artifactId>
-         <version>${version.jboss.sx.client}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.hibernate</groupId>
-         <artifactId>hibernate-annotations</artifactId>
-         <version>${version.hibernate.annotations}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.hibernate</groupId>
-         <artifactId>hibernate-entitymanager</artifactId>
-         <version>${version.hibernate.entitymanager}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.hibernate</groupId>
-         <artifactId>ejb3-persistence</artifactId>
-         <version>${version.hibernate.persistence}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.hibernate</groupId>
-         <artifactId>hibernate</artifactId>
-         <version>${version.hibernate}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.cluster</groupId>
-         <artifactId>jboss-ha-client</artifactId>
-         <version>${version.jboss.ha.client}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.microcontainer</groupId>
-         <artifactId>jboss-deployers-core-spi</artifactId>
-         <version>${version.jboss.deployers.core.spi}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossas</groupId>
-         <artifactId>jboss-as-iiop</artifactId>
-         <version>${version.jboss.as.iiop}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-ejb3-cache</artifactId>
-         <version>${version.jboss.ejb3.cache}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-ejb-api</artifactId>
-         <version>${version.jboss.ejb.api}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-transaction-spi</artifactId>
-         <version>${version.jboss.transaction.spi}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossas</groupId>
-         <artifactId>jboss-as-naming</artifactId>
-         <version>${version.jboss.as.naming}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.aop</groupId>
-         <artifactId>jboss-aop</artifactId>
-         <version>${version.jboss.aop}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.aop</groupId>
-         <artifactId>jboss-aop-aspects</artifactId>
-         <version>${version.jboss.aop.aspects}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossas</groupId>
-         <artifactId>jboss-as-aspects</artifactId>
-         <version>${version.jboss.as.aspects}</version>
-      </dependency>
-      <dependency>
-         <groupId>quartz</groupId>
-         <artifactId>quartz</artifactId>
-         <version>${version.quartz}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.javaee</groupId>
-         <artifactId>jboss-jca-api</artifactId>
-         <version>${version.jboss.jca.api}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossas</groupId>
-         <artifactId>jboss-as-connector</artifactId>
-         <version>${version.jboss.as.connector}</version>
-      </dependency>
-   </dependencies>
+      <artifactId>jboss-ejb3-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-persistence-api</artifactId>
+      <version>${version.jboss.persistence.api}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+      <version>${version.jboss.kernel}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jacc-api</artifactId>
+      <version>${version.jboss.jacc.api}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-impl</artifactId>
+      <version>${version.jboss.ejb3.impl}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-metadata</artifactId>
+      <version>${version.jboss.metadata}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jboss-security-spi-bare</artifactId>
+      <version>${version.jboss.security.spi.bare}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbosssx-client</artifactId>
+      <version>${version.jboss.sx.client}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>${version.hibernate.annotations}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>${version.hibernate.entitymanager}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>ejb3-persistence</artifactId>
+      <version>${version.hibernate.persistence}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>${version.hibernate}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-client</artifactId>
+      <version>${version.jboss.ha.client}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-deployers-core-spi</artifactId>
+      <version>${version.jboss.deployers.core.spi}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-iiop</artifactId>
+      <version>${version.jboss.as.iiop}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-ejb3-cache</artifactId>
+      <version>${version.jboss.ejb3.cache}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-ejb-api</artifactId>
+      <version>${version.jboss.ejb.api}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-transaction-spi</artifactId>
+      <version>${version.jboss.transaction.spi}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-naming</artifactId>
+      <version>${version.jboss.as.naming}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+      <version>${version.jboss.aop}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop-aspects</artifactId>
+      <version>${version.jboss.aop.aspects}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-aspects</artifactId>
+      <version>${version.jboss.as.aspects}</version>
+    </dependency>
+    <dependency>
+      <groupId>quartz</groupId>
+      <artifactId>quartz</artifactId>
+      <version>${version.quartz}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jca-api</artifactId>
+      <version>${version.jboss.jca.api}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-connector</artifactId>
+      <version>${version.jboss.as.connector}</version>
+    </dependency>
+  </dependencies>
 
 </project>
