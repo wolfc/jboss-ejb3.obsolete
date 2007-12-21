@@ -1,64 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<artifactId>jboss-ejb3</artifactId>
-		<groupId>org.jboss.ejb3</groupId>
-		<version>0.11.0-SNAPSHOT</version>
-		<relativePath>../build/pom.xml</relativePath>
-	</parent>
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.jboss</groupId>
-	<artifactId>jboss-ejb3-locator</artifactId>
-	<version>0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<name>JBoss EJB 3 Service Locator</name>
-	<description>JBoss EJB 3 Client-Side Service Locator</description>
-	<scm>
-		<connection>
-			scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk/
-		</connection>
-		<developerConnection>
-			scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb/trunk/
-		</developerConnection>
-		<url>
-			http://viewvc.jboss.org/cgi-bin/viewvc.cgi/jbossas/projects/ejb3/trunk/
-		</url>
-	</scm>
-	<url>http://www.jboss.org</url>
-	<dependencies>
-		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-common-logging-spi</artifactId>
-			<version>2.0.4.GA</version>
-		</dependency>
-		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-common-logging-log4j</artifactId>
-			<version>2.0.4.GA</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-validator</groupId>
-			<artifactId>commons-validator</artifactId>
-			<version>1.3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-digester</groupId>
-			<artifactId>commons-digester</artifactId>
-			<version>1.8</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+   <!-- Define Parent -->
+   <parent>
+      <artifactId>jboss-ejb3</artifactId>
+      <groupId>org.jboss.ejb3</groupId>
+      <version>0.12.0-SNAPSHOT</version>
+      <relativePath>../build/pom.xml</relativePath>
+   </parent>
+
+   <!-- Maven POM Model Version -->
+   <modelVersion>4.0.0</modelVersion>
+
+   <!-- Artifact Information -->
+   <groupId>org.jboss</groupId>
+   <artifactId>jboss-ejb3-locator</artifactId>
+   <version>0.1-SNAPSHOT</version>
+   <packaging>jar</packaging>
+   <name>JBoss EJB 3.0 Service Locator</name>
+   <description>JBoss EJB 3.0 Client-Side Service Locator</description>
+   <url>http://labs.jboss.com/jbossejb3/</url>
+
+   <!-- Dependencies -->
+
+   <!-- 
+      
+      Version information is centralized in 
+      the Parent Build POM
+      
+   -->
+
+   <dependencies>
+
+      <!-- Apache Commons Validator -->
+      <dependency>
+         <groupId>commons-validator</groupId>
+         <artifactId>commons-validator</artifactId>
+      </dependency>
+
+      <!-- Apache Commons Digester -->
+      <dependency>
+         <groupId>commons-digester</groupId>
+         <artifactId>commons-digester</artifactId>
+      </dependency>
+
+      <!-- JUnit -->
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+      </dependency>
+
+   </dependencies>
+   
 </project>
 
