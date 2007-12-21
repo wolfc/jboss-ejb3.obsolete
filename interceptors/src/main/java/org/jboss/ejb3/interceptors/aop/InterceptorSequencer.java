@@ -21,8 +21,12 @@
  */
 package org.jboss.ejb3.interceptors.aop;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.logging.Logger;
 
 /**
  * Invokes some interceptors in sequence.
@@ -32,11 +36,27 @@ import org.jboss.aop.joinpoint.Invocation;
  */
 public class InterceptorSequencer implements Interceptor 
 {
+   private static final Logger log = Logger.getLogger(InterceptorSequencer.class);
+   
    private Interceptor[] interceptors;
+   
+   public InterceptorSequencer(List<Interceptor> interceptors)
+   {
+      this(interceptors.toArray(new Interceptor[0]));
+   }
    
    public InterceptorSequencer(Interceptor interceptors[])
    {
+      assert interceptors != null;
+      
+      //log.debug("InterceptorSequencer");
       this.interceptors = interceptors;
+   }
+   
+   public Object aroundInvoke(Invocation invocation) throws Throwable
+   {
+      log.debug("aroundInvoke " + invocation);
+      return invoke(invocation);
    }
    
    public String getName()
@@ -45,9 +65,16 @@ public class InterceptorSequencer implements Interceptor
       return "InterceptorSequence";
    }
 
+   @Deprecated
    public Object invoke(Invocation invocation) throws Throwable
    {
+      if(log.isTraceEnabled()) log.trace("interceptors " + Arrays.toString(interceptors));
       Invocation newInvocation = invocation.getWrapper(interceptors);
       return newInvocation.invokeNext();
+   }
+   
+   public Object postConstruct(Invocation invocation) throws Throwable
+   {
+      return invoke(invocation);
    }
 }

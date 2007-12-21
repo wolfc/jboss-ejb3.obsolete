@@ -33,7 +33,6 @@ import java.security.PrivilegedExceptionAction;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 
-import org.jboss.aop.Advised;
 import org.jboss.aop.Domain;
 import org.jboss.ejb3.interceptors.lang.BootstrapClassLoader;
 import org.jboss.logging.Logger;
@@ -194,7 +193,7 @@ public class DomainClassLoader extends ClassLoader
          // Define the class
          Class<?> cls = defineClassFromBytes(name, classBytes, resolve);
          if(resolve) resolveClass(cls);
-         assert Advised.class.isAssignableFrom(cls) : "Class " + cls + " is not really transformed";
+         //assert Advised.class.isAssignableFrom(cls) : "Class " + cls + " is not really transformed";
          return cls;
       }
       catch(ClassNotFoundException e)

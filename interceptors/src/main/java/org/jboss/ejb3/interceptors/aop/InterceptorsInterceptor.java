@@ -40,20 +40,19 @@ public class InterceptorsInterceptor
    
    public InterceptorsInterceptor()
    {
-      log.debug("InterceptorsInterceptor");
+      //log.debug("InterceptorsInterceptor");
    }
    
    public Object invokeBusinessMethodInterceptors(Invocation invocation) throws Throwable
    {
       assert invocation instanceof MethodInvocation : "Can only have business method interceptors on a method invocation";
-      MethodInvocation mi = (MethodInvocation) invocation;
-      Interceptor interceptors[] = (Interceptor[]) invocation.getMetaData(InterceptorsFactory.class, mi.getMethod());
+      Interceptor interceptors[] = InterceptorsFactory.getBusinessMethodInterceptors((MethodInvocation) invocation);
       return invocation.getWrapper(interceptors).invokeNext();
    }
    
    public Object invokeClassInterceptors(Invocation invocation) throws Throwable
    {
-      Interceptor interceptors[] = (Interceptor[]) invocation.getMetaData(InterceptorsFactory.class, "classInterceptors");
+      Interceptor interceptors[] = InterceptorsFactory.getClassInterceptors(invocation);
       return invocation.getWrapper(interceptors).invokeNext();
    }
    
@@ -62,5 +61,11 @@ public class InterceptorsInterceptor
       log.warn("Invoking defaults interceptors is NYI");
       log.debug("advisor " + invocation.getAdvisor().getName());
       return invocation.invokeNext();
+   }
+   
+   public Object postConstruct(Invocation invocation) throws Throwable
+   {
+      log.warn("postConstruct is NYI");
+      return null;
    }
 }

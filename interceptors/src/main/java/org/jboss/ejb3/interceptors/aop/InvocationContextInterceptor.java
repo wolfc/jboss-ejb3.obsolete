@@ -38,13 +38,22 @@ import org.jboss.aop.joinpoint.MethodInvocation;
  */
 public class InvocationContextInterceptor
 {
-   public static final String INVOCATION_CONTEXT_KEY = InvocationContextInterceptor.class.getName() + ".invocationContext";
+   private static final String INVOCATION_CONTEXT_KEY = InvocationContextInterceptor.class.getName() + ".invocationContext";
 
+   /**
+    * Obtain the invocation context associated with the given invocation.
+    * 
+    * @param invocation     the AOP invocation
+    * @return               the EJB invocation context
+    */
    public static InvocationContext getInvocationContext(Invocation invocation)
    {
       InvocationContext ctx = (InvocationContext) invocation.getResponseAttachment(INVOCATION_CONTEXT_KEY);
       if(ctx == null)
          throw new IllegalStateException("InvocationContextInterceptor must be in the interceptor chain");
+      //assert ctx.invocation == invocation : "using InvocationContextInterceptor from a different bind";
+      // FIXME: is this allowed?
+      ctx.invocation = invocation;
       return ctx;
    }
    
@@ -58,7 +67,7 @@ public class InvocationContextInterceptor
       assert invocation instanceof MethodInvocation : "InvocationContextInterceptor.fillMethod only works on method invocation " + invocation;
       MethodInvocation mi = (MethodInvocation) invocation;
       InvocationContext ctx = getInvocationContext(invocation);
-      ctx.setBusinessMethodInvocation(mi.getActualMethod(), mi.getArguments());
+      ctx.setBusinessMethodInvocation(mi.getMethod(), mi.getArguments());
       return invocation.invokeNext();
    }
    
@@ -80,7 +89,8 @@ public class InvocationContextInterceptor
       finally
       {
          // TODO: I can't remove the ctx, invalidate it somehow
-         invocation.addResponseAttachment(INVOCATION_CONTEXT_KEY, null);
+         //invocation.addResponseAttachment(INVOCATION_CONTEXT_KEY, null);
+         invocation.getResponseContextInfo().remove(INVOCATION_CONTEXT_KEY);
       }
    }
 
@@ -151,6 +161,11 @@ public class InvocationContextInterceptor
          // TODO: might need more checks
          this.params = params;
          ((MethodInvocation) invocation).setArguments(params);
+      }
+      
+      public String toString()
+      {
+         return invocation.toString();
       }
    }
 }
