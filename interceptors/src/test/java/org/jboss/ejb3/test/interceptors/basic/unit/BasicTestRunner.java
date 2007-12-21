@@ -30,8 +30,10 @@ import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
 import junit.framework.TestCase;
 
 /**
- * This one runs within the class loader scope.
- *
+ * This one must run within a domain class loader.
+ * 
+ * Named TestRunner, so surefire does not pick it up.
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
