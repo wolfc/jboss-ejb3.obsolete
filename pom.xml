@@ -388,44 +388,40 @@
         </ejb3.testOutputDirectory>
       </properties>
     </profile>
-
-    <!-- ALR: Necessary?
-      <profile>
+    <profile>
       <id>eclipse</id>
       <build>
-      <defaultGoal>process-test-resources</defaultGoal>
-      <plugins>
-      <plugin>
-      <artifactId>maven-eclipse-plugin</artifactId>
-      <executions>
-      <execution>
-      <id>eclipse</id>
-      <phase>process-test-resources</phase>
-      <goals>
-      <goal>eclipse</goal>
-      </goals>
-      </execution>
-      </executions>
-      <configuration>
-      <downloadSources>true</downloadSources>
-      <buildOutputDirectory>
-      ${ejb3.outputDirectory}
-      </buildOutputDirectory>
-      </configuration>
-      </plugin>
-      </plugins>
+        <defaultGoal>process-test-resources</defaultGoal>
+        <plugins>
+          <plugin>
+            <artifactId>maven-eclipse-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>eclipse</id>
+                <phase>process-test-resources</phase>
+                <goals>
+                  <goal>eclipse</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <downloadSources>true</downloadSources>
+              <buildOutputDirectory>
+                ${ejb3.outputDirectory}
+              </buildOutputDirectory>
+            </configuration>
+          </plugin>
+        </plugins>
       </build>
       <properties>
-      <ejb3.outputDirectory>
-      eclipse-target/classes
-      </ejb3.outputDirectory>
-      <ejb3.testOutputDirectory>
-      eclipse-target/tests-classes
-      </ejb3.testOutputDirectory>
+        <ejb3.outputDirectory>
+          eclipse-target/classes
+        </ejb3.outputDirectory>
+        <ejb3.testOutputDirectory>
+          eclipse-target/tests-classes
+        </ejb3.testOutputDirectory>
       </properties>
-      </profile>
-      
-    -->
+    </profile>
   </profiles>
 
 </project>
