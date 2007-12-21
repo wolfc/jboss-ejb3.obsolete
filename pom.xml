@@ -198,6 +198,7 @@
           <testFailureIgnore>true</testFailureIgnore>
           <includes>
             <include>**/**TestCase.java</include>
+            <include>**/**TestSuite.java</include>
           </includes>
           <forkMode>once</forkMode>
           <argLine>${jvmargs}</argLine>
@@ -280,6 +281,11 @@
         <artifactId>jboss-ejb3-ext-api</artifactId>
         <version>${version.jboss.ejb3.ext-api}</version>
       </dependency>
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-pool</artifactId>
+        <version>${project.version}</version>
+      </dependency>
 
       <!-- 
         
@@ -349,6 +355,12 @@
         <version>${version.jboss.logging.spi}</version>
       </dependency>
 
+      <dependency>
+        <groupId>jboss</groupId>
+        <artifactId>jboss-remoting</artifactId>
+        <version>${version.jboss.remoting}</version>
+      </dependency>
+      
       <!-- JBoss Serialization -->
       <dependency>
         <groupId>jboss</groupId>
@@ -363,7 +375,13 @@
         <version>${version.junit}</version>
         <scope>test</scope>
       </dependency>
-
+      
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jnpserver</artifactId>
+        <version>${version.jnpserver}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
