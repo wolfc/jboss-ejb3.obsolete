@@ -26,7 +26,6 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.jboss.aop.InstanceAdvised;
-import org.jboss.ejb3.interceptors.aop.Destructable;
 import org.jboss.ejb3.test.interceptors.basic.BasicBean;
 import org.jboss.ejb3.test.interceptors.basic.BasicInterceptor;
 import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
@@ -56,7 +55,7 @@ public class BasicTestRunner extends TestCase
       System.out.println(result);
       
       assertEquals("sayHi didn't invoke BasicInterceptor.aroundInvoke once", 1, BasicInterceptor.aroundInvokes);
-//      assertEquals("sayHi didn't invoke BasicBean.aroundInvoke once", 1, BasicBean.aroundInvokes);
+      assertEquals("sayHi didn't invoke BasicBean.aroundInvoke once", 1, BasicBean.aroundInvokes);
       
       bean.intercept();
       assertEquals("intercept didn't invoke BasicMethodInterceptor.aroundInvoke", 1, BasicMethodInterceptor.aroundInvokes);
