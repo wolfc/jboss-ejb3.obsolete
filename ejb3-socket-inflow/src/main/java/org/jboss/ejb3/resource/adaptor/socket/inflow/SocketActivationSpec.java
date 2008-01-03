@@ -54,12 +54,12 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
    private SocketResourceAdaptor resourceAdaptor;
 
    /*
-    * Address upon which to bind Server to listen for incoming AJAX Requests
+    * Address upon which to bind Server to listen for incoming Socket Requests
     */
-   private String bindAddress;
+   private String host;
 
    /*
-    * Port upon which to bind Server to listen for incoming AJAX Requests
+    * Port upon which to bind Server to listen for incoming Socket Requests
     */
    private int port;
 
@@ -72,9 +72,9 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
    public void validate() throws InvalidPropertyException
    {
       // Ensure Bind Address is Specified
-      if (this.getBindAddress() == null || this.getBindAddress().equals(""))
+      if (this.getHost() == null || this.getHost().equals(""))
       {
-         throw new InvalidPropertyException("ActivationSpec Property 'bindAddress' is required");
+         throw new InvalidPropertyException("ActivationSpec Property 'host' is required");
       }
       // Ensure Port is specified
       if (this.getPort() == 0)
@@ -107,7 +107,7 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
       }
 
       // Create an InetSocketAddress to ensure binding is possible to properties specified
-      InetSocketAddress address = new InetSocketAddress(this.getBindAddress(), this.getPort());
+      InetSocketAddress address = new InetSocketAddress(this.getHost(), this.getPort());
       // Ensure binding succeeds
       if (address.isUnresolved())
       {
@@ -137,14 +137,14 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
       this.resourceAdaptor = resourceAdaptor;
    }
 
-   protected String getBindAddress()
+   protected String getHost()
    {
-      return bindAddress;
+      return host;
    }
 
-   protected void setBindAddress(String bindAddress)
+   protected void setHost(String host)
    {
-      this.bindAddress = bindAddress;
+      this.host = host;
    }
 
    protected int getPort()
