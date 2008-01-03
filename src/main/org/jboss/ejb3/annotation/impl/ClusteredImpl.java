@@ -24,7 +24,8 @@ package org.jboss.ejb3.annotation.impl;
 import java.lang.annotation.Annotation;
 
 import org.jboss.ejb3.annotation.Clustered;
-import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
+
+import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
 
 /**
  * Comment
@@ -34,17 +35,17 @@ import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
  */
 public class ClusteredImpl implements Clustered
 {
-   private Class<? extends LoadBalancePolicy> loadBalancePolicy = LoadBalancePolicy.class;
-   private Class<? extends LoadBalancePolicy> homeLoadBalancePolicy = LoadBalancePolicy.class;
+   private String loadBalancePolicy = ClusteredDefaults.LOAD_BALANCE_POLICY_DEFAULT;
+   private String homeLoadBalancePolicy = ClusteredDefaults.LOAD_BALANCE_POLICY_DEFAULT;
    private String partition = "${jboss.partition.name:DefaultPartition}";
    
 
-   public Class<? extends LoadBalancePolicy> loadBalancePolicy()
+   public String loadBalancePolicy()
    {
       return loadBalancePolicy;
    }
    
-   public void setLoadBalancePolicy(Class<? extends LoadBalancePolicy> loadBalancePolicy)
+   public void setLoadBalancePolicy(String loadBalancePolicy)
    {
       this.loadBalancePolicy = loadBalancePolicy;
    }
@@ -59,12 +60,12 @@ public class ClusteredImpl implements Clustered
       this.partition = partition;
    }
 
-   public Class<? extends LoadBalancePolicy> homeLoadBalancePolicy()
+   public String homeLoadBalancePolicy()
    {
       return homeLoadBalancePolicy;
    }
 
-   public void setHomeLoadBalancePolicy(Class<? extends LoadBalancePolicy> homeLoadBalancePolicy)
+   public void setHomeLoadBalancePolicy(String homeLoadBalancePolicy)
    {
       this.homeLoadBalancePolicy = homeLoadBalancePolicy;
    }
