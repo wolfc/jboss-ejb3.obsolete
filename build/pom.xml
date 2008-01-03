@@ -125,14 +125,15 @@
     -->
     <version.apache.commons.digester>1.8</version.apache.commons.digester>
     <version.apache.commons.validator>1.3.1</version.apache.commons.validator>
-    <version.ant.junit>1.7.0</version.ant.junit>
-    <version.gnu.trove>2.1.1</version.gnu.trove>
+    <version.ant.junit>3.8.1</version.ant.junit>
+    <version.gnu.trove>1.0.2</version.gnu.trove>
     <version.jboss.aop>2.0.0.beta1</version.jboss.aop>
     <version.jboss.common.core>2.2.1.GA</version.jboss.common.core>
     <version.jboss.common.logging.log4j>2.0.4.GA</version.jboss.common.logging.log4j>
     <version.jboss.ejb.api>3.0.0.20070913080910</version.jboss.ejb.api>
     <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
     <version.jboss.logging.spi>2.0.2.GA</version.jboss.logging.spi>
+    <version.jboss.remoting></version.jboss.remoting>
     <version.jboss.serialization>1.0.3.GA</version.jboss.serialization>
     <version.junit>4.4</version.junit>
 
@@ -312,7 +313,6 @@
         <groupId>trove</groupId>
         <artifactId>trove</artifactId>
         <version>${version.gnu.trove}</version>
-        <scope>runtime</scope>
       </dependency>
 
       <!-- JavaEE EJB3 API -->
@@ -355,11 +355,11 @@
         <version>${version.jboss.logging.spi}</version>
       </dependency>
 
-      <dependency>
+      <!--dependency>
         <groupId>jboss</groupId>
         <artifactId>jboss-remoting</artifactId>
         <version>${version.jboss.remoting}</version>
-      </dependency>
+      </dependency-->
       
       <!-- JBoss Serialization -->
       <dependency>

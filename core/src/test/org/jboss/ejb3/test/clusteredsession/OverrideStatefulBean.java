@@ -34,7 +34,7 @@ import org.jboss.system.server.ServerConfig;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
 @Stateful(name="OverrideStateful")
-@Clustered(partition="BogusPartition", loadBalancePolicy=org.jboss.ejb3.test.clusteredsession.BogusPolicy.class)
+@Clustered(partition="BogusPartition", loadBalancePolicy= "org.jboss.ejb3.test.clusteredsession.BogusPolicy")
 @CacheConfig(maxSize=1000, idleTimeoutSeconds=2)
 @Remote(OverrideStatefulRemote.class)
 public class OverrideStatefulBean implements OverrideStatefulRemote

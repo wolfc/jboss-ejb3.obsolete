@@ -25,8 +25,6 @@ import javax.ejb.Stateless;
 import javax.ejb.Remote;
 
 import org.jboss.ejb3.annotation.Clustered;
-import org.jboss.ha.framework.interfaces.RandomRobin;
-import org.jboss.ha.framework.interfaces.RoundRobin;
 import org.jboss.logging.Logger;
 
 /**
@@ -34,7 +32,7 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 @Remote(StatelessRemote.class)
-@Clustered(loadBalancePolicy = RandomRobin.class)
+@Clustered(loadBalancePolicy = "org.jboss.ha.framework.interfaces.RandomRobin")
 public class StatelessBean implements StatelessRemote
 {
    private static final Logger log = Logger.getLogger(StatelessBean.class);

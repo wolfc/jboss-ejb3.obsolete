@@ -13,7 +13,6 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
 import org.jboss.ejb3.annotation.Clustered;
-import org.jboss.ha.framework.interfaces.RoundRobin;
 
 /**
  * Simple stateless bean
@@ -21,7 +20,7 @@ import org.jboss.ha.framework.interfaces.RoundRobin;
  * @author Ben Wang
  */
 @Stateless(name="clusteredStateless")
-@Clustered(loadBalancePolicy = RoundRobin.class)
+@Clustered(loadBalancePolicy = "org.jboss.ha.framework.interfaces.RoundRobin")
 @Remote(ClusteredStatelessRemote.class)
 public class ClusteredStatelessSessionBean implements ClusteredStatelessRemote
 {

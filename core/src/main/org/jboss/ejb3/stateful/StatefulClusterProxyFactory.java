@@ -109,7 +109,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       }
       else
       {
-         lbPolicy = clustered.loadBalancePolicy().newInstance();
+         lbPolicy = (LoadBalancePolicy)getContainer().getBeanClass().getClassLoader().loadClass(clustered.loadBalancePolicy()).newInstance();
       }
       wrapper = new FamilyWrapper(proxyFamilyName, hatarget.getReplicants());
       
