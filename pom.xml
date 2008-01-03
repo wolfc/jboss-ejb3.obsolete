@@ -63,6 +63,9 @@
     <version.quartz>1.6.0</version.quartz>
     <version.jboss.jca.api>1.5.0.Beta3Update1</version.jboss.jca.api>
     <version.jboss.as.connector>5.0.0-20071211.184358-1</version.jboss.as.connector>
+    <version.trove>1.0.2</version.trove>
+    <version.junit>3.8.1</version.junit>
+    <version.ant>1.6.5</version.ant>
   </properties>
 
   <!-- Build Information -->
@@ -249,6 +252,27 @@
       <artifactId>jboss-as-connector</artifactId>
       <version>${version.jboss.as.connector}</version>
     </dependency>
+    <dependency>
+	  <groupId>org.jboss</groupId>
+	  <artifactId>jboss-test</artifactId>
+	  <version>${version.jboss.test}</version>
+	</dependency>
+    <dependency>
+      <groupId>trove</groupId>
+      <artifactId>trove</artifactId>
+      <version>${version.trove}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <version>${version.junit}</version>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>${version.ant}</version>
+    </dependency>
+    
   </dependencies>
 
 </project>
