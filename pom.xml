@@ -34,59 +34,80 @@
   -->
 
   <properties>
+    <resources>${project.basedir}/src/resources/test</resources>
+	<build.test.lib>${project.build.directory}/test-lib</build.test.lib>
+	<directory>output</directory>
+	<outputDirectory>output/classes</outputDirectory>
+	<testOutputDirectory>output/test-classes</testOutputDirectory>
     <version.jboss.ejb3.cache>0.11.1</version.jboss.ejb3.cache>
-    <version.jboss.persistence.api>
-      3.0.0.Beta3Update1
-    </version.jboss.persistence.api>
+    <version.jboss.persistence.api>3.0.0.Beta3Update1</version.jboss.persistence.api>
     <version.jboss.kernel>2.0.0.Beta9</version.jboss.kernel>
     <version.jboss.jacc.api>1.1.0.Beta3Update1</version.jboss.jacc.api>
     <version.jboss.metadata>1.0.0.Beta4</version.jboss.metadata>
-    <version.jboss.security.spi.bare>
-      2.0.2.Beta1
-    </version.jboss.security.spi.bare>
+    <version.jboss.security.spi.bare>2.0.2.Beta1</version.jboss.security.spi.bare>
     <version.jboss.sx.client>2.0.2.beta</version.jboss.sx.client>
     <version.jboss.test>1.0.5-20071215.191923-3</version.jboss.test>
-    <version.hibernate.annotations>
-      3.3.0.ga
-    </version.hibernate.annotations>
-    <version.hibernate.entitymanager>
-      3.3.2.Beta1
-    </version.hibernate.entitymanager>
-    <version.hibernate.persistence>
-      3.3.2.Beta1
-    </version.hibernate.persistence>
+    <version.hibernate.annotations>3.3.0.ga</version.hibernate.annotations>
+    <version.hibernate.entitymanager>3.3.2.Beta1</version.hibernate.entitymanager>
+    <version.hibernate.persistence>3.3.2.Beta1</version.hibernate.persistence>
     <version.hibernate>3.2.4.sp1</version.hibernate>
     <version.jboss.ha.client>1.0.0.BETA1</version.jboss.ha.client>
-    <version.jboss.deployers.core.spi>
-      2.0.0.Beta9
-    </version.jboss.deployers.core.spi>
-    <version.jboss.as.iiop>
-      5.0.0-20071211.184358-1
-    </version.jboss.as.iiop>
+    <version.jboss.deployers.core.spi>2.0.0.Beta9</version.jboss.deployers.core.spi>
+    <version.jboss.as.iiop>5.0.0-20071211.184358-1</version.jboss.as.iiop>
     <version.jboss.ejb.api>3.0.0.Beta3Update1</version.jboss.ejb.api>
-    <version.jboss.transaction.spi>
-      5.0.0.Beta4
-    </version.jboss.transaction.spi>
-    <version.jboss.as.naming>
-      5.0.0-20071211.184358-1
-    </version.jboss.as.naming>
+    <version.jboss.transaction.spi>5.0.0.Beta4</version.jboss.transaction.spi>
+    <version.jboss.as.naming>5.0.0-20071211.184358-1</version.jboss.as.naming>
     <version.jboss.aop>2.0.0.CR1</version.jboss.aop>
     <version.jboss.aop.aspects>2.0.0.alpha6</version.jboss.aop.aspects>
     <version.jboss.as.aspects>5.0.0-SNAPSHOT</version.jboss.as.aspects>
     <version.quartz>1.6.0</version.quartz>
     <version.jboss.jca.api>1.5.0.Beta3Update1</version.jboss.jca.api>
-    <version.jboss.as.connector>
-      5.0.0-20071211.184358-1
-    </version.jboss.as.connector>
+    <version.jboss.as.connector>5.0.0-20071211.184358-1</version.jboss.as.connector>
   </properties>
 
   <!-- Build Information -->
   <build>
     <sourceDirectory>src/main</sourceDirectory>
-    <!--testSourceDirectory>src/test</testSourceDirectory-->
-    <outputDirectory>classes</outputDirectory>
-    <!--testOutputDirectory>test-classes</testOutputDirectory-->
+	<testSourceDirectory>src/test</testSourceDirectory>
+	<outputDirectory>${outputDirectory}</outputDirectory>
+    <testOutputDirectory>${testOutputDirectory}</testOutputDirectory>
+    <directory>${directory}</directory>
     <finalName>${artifactId}</finalName>
+    
+    <plugins>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.1</version>
+        <executions>
+          <execution>
+            <id>build-tests</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <tasks>
+                <ant antfile="build-test.xml"/>
+                <!--property name="java.vm.version" value="${java.vm.version}"/>
+                <mkdir dir="${build.test.lib}"/>
+              
+                <jar jarfile="${build.test.lib}/stateless-test.jar">
+			         <fileset dir="${testOutputDirectory}">
+			            <include name="org/jboss/ejb3/test/stateless/*.class"/>
+			         </fileset>
+			         <fileset dir="${resources}">
+			            <include name="users.properties"/>
+			            <include name="roles.properties"/>
+			         </fileset>
+		        </jar-->
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+  </plugins>    
+    
   </build>
 
   <!-- Dependencies -->
