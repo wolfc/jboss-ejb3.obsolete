@@ -40,16 +40,18 @@ import org.jboss.ejb3.resource.adaptor.socket.inflow.SocketActivationSpec;
 
 public class SocketResourceAdaptor implements ResourceAdapter, Work
 {
+   // Class Members
+
+   /*
+    * Server to handle Socket Requests
+    */
+   private static NonBlockingSocketServer server;
+
    // Instance Members
    /*
     * Bootstrap Context
     */
    private BootstrapContext ctx;
-
-   /*
-    * Server to handle AJAX Requests
-    */
-   private NonBlockingSocketServer server;
 
    /*
     * ActivationSpec / MessageEndpoint Factories 
@@ -65,16 +67,6 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
    public void setCtx(BootstrapContext ctx)
    {
       this.ctx = ctx;
-   }
-
-   private NonBlockingSocketServer getServer()
-   {
-      return server;
-   }
-
-   private void setServer(NonBlockingSocketServer server)
-   {
-      this.server = server;
    }
 
    private Map<ActivationSpec, MessageEndpointFactory> getActivationSpecFactories()
@@ -120,7 +112,8 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
       try
       {
          //TODO Handler from ActivationConfig properties
-         this.setServer(new NonBlockingSocketServer(CopyHttpRequestToResponseRequestHandler.class.newInstance()));
+         SocketResourceAdaptor.server = new NonBlockingSocketServer(CopyHttpRequestToResponseRequestHandler.class
+               .newInstance());
       }
       catch (InstantiationException e)
       {
@@ -153,12 +146,12 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
    public void run()
    {
       // Start the Server
-      this.getServer().start();
+      SocketResourceAdaptor.server.start();
    }
 
    public void release()
    {
       // Shutdown the Server
-      this.getServer().shutdown();
+      SocketResourceAdaptor.server.shutdown();
    }
 }

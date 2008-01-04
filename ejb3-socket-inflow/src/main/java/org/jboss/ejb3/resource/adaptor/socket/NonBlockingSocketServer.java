@@ -118,21 +118,28 @@ public class NonBlockingSocketServer
     */
    public void start()
    {
-      try
+      // Only Start if not Running
+      if (!this.isRunning())
       {
-         // Bind the Server and Register the MultiPlexor
-         this.bindAndRegisterConnection();
+         try
+         {
+            // Bind the Server and Register the MultiPlexor
+            this.bindAndRegisterConnection();
 
-         // Set as running
-         this.setRunning(true);
+            // Set as running
+            this.setRunning(true);
 
-         // Listen for incoming connections
-         this.listenForIncomingConnections();
+            // Log
+            logger.info("Server at " + this.getBindAddress().toString() + " Started");
 
-      }
-      catch (IOException ioe)
-      {
-         throw new RuntimeException(ioe);
+            // Listen for incoming connections
+            this.listenForIncomingConnections();
+
+         }
+         catch (IOException ioe)
+         {
+            throw new RuntimeException(ioe);
+         }
       }
    }
 
@@ -141,25 +148,28 @@ public class NonBlockingSocketServer
     */
    public void shutdown()
    {
-
-      // Set Flag
-      this.setRunning(false);
-
-      // Shutdown
-      this.getMultiplexor().wakeup();
-
-      // Close Channel
-      try
+      // Only Shutdown if Running
+      if (this.isRunning())
       {
-         this.getChannel().close();
-      }
-      // Ignore
-      catch (IOException e)
-      {
-      }
+         // Set Flag
+         this.setRunning(false);
 
-      // Log
-      logger.info("Server at " + this.getBindAddress().toString() + " shutdown");
+         // Shutdown
+         this.getMultiplexor().wakeup();
+
+         // Close Channel
+         try
+         {
+            this.getChannel().close();
+         }
+         // Ignore
+         catch (IOException e)
+         {
+         }
+
+         // Log
+         logger.info("Server at " + this.getBindAddress().toString() + " Shutdown");
+      }
    }
 
    // Internal Helper Methods

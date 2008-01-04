@@ -80,6 +80,9 @@ public class CopyHttpRequestToResponseRequestHandler implements SocketBasedReque
                break;
             }
          }
+         
+         // Flush Outstream
+         outStream.flush();
       }
       catch (IOException ioe)
       {

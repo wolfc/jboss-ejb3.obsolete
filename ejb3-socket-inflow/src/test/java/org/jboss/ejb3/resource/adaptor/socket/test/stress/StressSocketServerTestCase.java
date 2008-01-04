@@ -96,18 +96,22 @@ public class StressSocketServerTestCase extends TestCase
    {
       // Call super implementation
       super.setUp();
+
       // Create a new Server
       if (this.serverThread == null)
       {
          this.serverThread = new ServerThread();
       }
+
       // Start the ServerThread
       this.serverThread.start();
+
       // Block until Server is running
       while (this.serverThread.getServer() == null || !this.serverThread.getServer().isRunning())
       {
          Thread.sleep(10);
       }
+
       // Log Started
       System.out.println("Server Started");
    }
@@ -246,14 +250,14 @@ public class StressSocketServerTestCase extends TestCase
 
       // Functional Methods
       public void shutdown()
-      {
+      {         
          // Delegate to Server to shutdown
          this.getServer().shutdown();
 
          // Block until shutdown
          while (this.getServer().isRunning())
          {
-
+            
          }
 
          // Stop Thread

@@ -21,7 +21,7 @@
   <groupId>org.jboss</groupId>
   <artifactId>jboss-ejb3-socket-inflow</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>rar</packaging>
+  <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Socket Inflow</name>
   <description>JBoss EJB 3.0 Socket Inflow Adaptor RAR</description>
   <url>http://labs.jboss.com/jbossejb3/</url>
