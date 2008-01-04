@@ -23,7 +23,7 @@ package org.jboss.ejb3.resource.adaptor.socket.handler.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.Socket;
 
 import org.jboss.ejb3.resource.adaptor.socket.handler.RequestHandlingException;
@@ -56,31 +56,46 @@ public class CopyHttpRequestToResponseRequestHandler implements SocketBasedReque
    public void handleClientRequest(Socket clientSocket) throws RequestHandlingException
    {
       // Initialize Streams
-      OutputStream outStream = null;
+      PrintStream outStream = null;
       InputStream inStream = null;
 
       // Obtain Streams
       try
       {
-         outStream = clientSocket.getOutputStream();
+         outStream = new PrintStream(clientSocket.getOutputStream());
          inStream = clientSocket.getInputStream();
 
          // Copy request content to response
-         byte[] buffer = new byte[1024];
+         int bufferSize = 1024;
+         byte[] buffer = new byte[bufferSize];
          int i = 0;
          while ((i = inStream.read(buffer)) != -1)
          {
-            outStream.write(buffer);
 
-            // If HTTP EOF is encountered
-            if (CopyHttpRequestToResponseRequestHandler.indexOf(buffer,
-                  CopyHttpRequestToResponseRequestHandler.HTTP_REQUEST_EOF) != -1)
+            // Find HTTP EOF
+            int httpEof = CopyHttpRequestToResponseRequestHandler.indexOf(buffer,
+                  CopyHttpRequestToResponseRequestHandler.HTTP_REQUEST_EOF);
+
+            // If EOF is encountered
+            if (httpEof != -1)
             {
+               // Print only part of buffer until EOF is reached
+               int useableSize = httpEof + CopyHttpRequestToResponseRequestHandler.HTTP_REQUEST_EOF.length;
+               byte[] newBuffer = new byte[useableSize];
+               System.arraycopy(buffer, 0, newBuffer, 0, newBuffer.length);
+               outStream.print(new String(newBuffer));
+
                // Stop
                break;
             }
+            // EOF not encountered
+            else
+            {
+               // Print entire buffer
+               outStream.print(new String(buffer));
+            }
          }
-         
+
          // Flush Outstream
          outStream.flush();
       }
