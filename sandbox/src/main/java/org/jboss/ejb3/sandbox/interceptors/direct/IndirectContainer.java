@@ -19,15 +19,8 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.sandbox.stateless;
+package org.jboss.ejb3.sandbox.interceptors.direct;
 
-import java.lang.reflect.Method;
-
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
-
-import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
-import org.jboss.logging.Logger;
 
 /**
  * Comment
@@ -35,21 +28,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class StatelessInterceptor
+public interface IndirectContainer<T>
 {
-   private static final Logger log = Logger.getLogger(StatelessInterceptor.class);
-   
-   @AroundInvoke
-   public Object invoke(InvocationContext ctx) throws Exception
-   {
-      // TODO: a lot, the pool should be here
-      InterceptorContainer container = (InterceptorContainer) ctx.getTarget(); 
-      Object instance = container.getBeanClass().newInstance();
-      log.debug("ctx = " + ctx);
-      Method method = (Method) ctx.getParameters()[0];
-      Object args[] = (Object[]) ctx.getParameters()[1];
-      Object result = method.invoke(instance, args);
-      ctx.proceed();
-      return result;
-   }
+   void setDirectContainer(DirectContainer<T> container);
 }

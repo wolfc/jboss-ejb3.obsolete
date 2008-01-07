@@ -45,26 +45,27 @@ public class LocalBusinessInterfaceInterceptor
    private static final Logger log = Logger.getLogger(LocalBusinessInterfaceInterceptor.class);
    
    @PostConstruct
-   public void postConstruct(InterceptorContainer.BeanClassInvocationContext ctx) throws Exception
+   public void postConstruct(InvocationContext ctx) throws Exception
    {
       log.debug("postConstruct " + ctx);
       
       Class<?> businessInterfaces[];
-      Local local = ctx.getTarget().getAnnotation(Local.class);
+      InterceptorContainer container = (InterceptorContainer) ctx.getTarget();
+      Local local = container.getAnnotation(Local.class);
       if(local != null)
          businessInterfaces = local.value();
-      else if(ctx.getTarget().getBeanClass().getInterfaces().length == 1)
-         businessInterfaces = new Class<?>[] { ctx.getTarget().getBeanClass().getInterfaces()[0] };
+      else if(container.getBeanClass().getInterfaces().length == 1)
+         businessInterfaces = new Class<?>[] { container.getBeanClass().getInterfaces()[0] };
       else
          throw new IllegalArgumentException("TODO");
       
       // TODO: determine JNDI name
-      String jndiName = ctx.getTarget().getBeanClass().getSimpleName() + "/local";
+      String jndiName = container.getBeanClass().getSimpleName() + "/local";
       log.debug("jndiName = " + jndiName);
 
-      Object proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), businessInterfaces, new LocalProxy(ctx.getTarget()));
+      Object proxy = Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), businessInterfaces, new LocalProxy(container));
       
-      Util.createSubcontext(new InitialContext(), ctx.getTarget().getBeanClass().getSimpleName());
+      Util.createSubcontext(new InitialContext(), container.getBeanClass().getSimpleName());
       NonSerializableFactory.rebind(new InitialContext(), jndiName, proxy);
       
       ctx.proceed();

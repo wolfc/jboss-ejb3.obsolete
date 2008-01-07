@@ -21,14 +21,19 @@
  */
 package org.jboss.ejb3.test.sandbox.stateless.unit;
 
+import java.net.URL;
+
 import javax.naming.InitialContext;
 
+import junit.framework.TestCase;
+
+import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
+import org.jboss.ejb3.sandbox.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.sandbox.stateless.SimpleStatelessBean;
 import org.jboss.ejb3.test.sandbox.stateless.SimpleStatelessLocal;
+import org.jboss.logging.Logger;
 import org.jnp.server.SingletonNamingServer;
-
-import junit.framework.TestCase;
 
 /**
  * Comment
@@ -38,12 +43,23 @@ import junit.framework.TestCase;
  */
 public class SimpleStatelessUnitTestCase extends TestCase
 {
-   public void test1() throws Exception
+   private static final Logger log = Logger.getLogger(SimpleStatelessUnitTestCase.class);
+   
+   public void test1() throws Throwable
    {
+//      AspectManager.verbose = true;
+      
       SingletonNamingServer namingServer = new SingletonNamingServer();
       
-      //StatelessContainer statelessContainer = new StatelessContainer();
-      InterceptorContainer container = new InterceptorContainer(SimpleStatelessBean.class);
+      // Bootstrap AOP
+      URL url = Thread.currentThread().getContextClassLoader().getResource("stateless/jboss-aop.xml");
+      log.info("deploying AOP from " + url);
+      AspectXmlLoader.deployXML(url);
+
+      DirectContainer<InterceptorContainer> interceptorContainerContainer = new DirectContainer<InterceptorContainer>("FIXME", "InterceptorContainer", InterceptorContainer.class);
+      Object args[] = { SimpleStatelessBean.class };
+      Class<?> parameterTypes[] = { Class.class };
+      InterceptorContainer interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
       
       InitialContext ctx = new InitialContext();
       

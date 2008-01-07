@@ -1,0 +1,77 @@
+<aop>
+	<aspect name="AroundInvokeInterceptor" class="org.jboss.ejb3.interceptors.aop.AroundInvokeInterceptor" scope="PER_INSTANCE"/>
+	<aspect name="InjectInterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InjectInterceptorsFactory" scope="PER_JOINPOINT"/>
+	<aspect name="InterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InterceptorsFactory" scope="PER_INSTANCE"/>
+	<aspect name="InterceptorsInterceptor" class="org.jboss.ejb3.interceptors.aop.InterceptorsInterceptor" scope="PER_INSTANCE"/>
+	<aspect name="InvocationContextInterceptor" class="org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor" scope="PER_VM"/>
+	<aspect name="PostConstructInterceptor" class="org.jboss.ejb3.interceptors.aop.PostConstructInterceptor" scope="PER_INSTANCE"/>
+	
+	<!-- Create AOP interceptors out of spec interceptors -->
+	<aspect name="ClassInterceptors" factory="org.jboss.ejb3.interceptors.aop.InjectInterceptorsFactory" scope="PER_INSTANCE">
+		<attribute name="interceptors" value="class"/>
+	</aspect>
+	<aspect name="DefaultInterceptors" factory="org.jboss.ejb3.interceptors.aop.DefaultInterceptorsFactory" scope="PER_INSTANCE"/>
+	
+	<!-- TODO: deprecated -->
+	<interceptor name="BootstrapInterceptor" class="org.jboss.ejb3.interceptors.aop.BootstrapInterceptor" scope="PER_VM"/>
+	
+	<!-- test only -->
+	<!-- 
+	<interceptor name="LoggingInterceptor" class="org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor" scope="PER_VM"/>
+	-->
+	
+	<!-- TODO: this is actually the bootstrap container -->
+	<domain name="InterceptorContainer">
+		<pointcut name="beanAroundInvokeCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.AroundInvoke(..))"/>
+		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PostConstruct(..))"/>
+		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PreDestroy(..))"/>
+		
+		<pointcut name="beanLifecycleCallbackMethods" expr="beanAroundInvokeCallbackMethods OR beanPostConstructCallbackMethods OR beanPreDestroyCallbackMethods"/>
+		
+		<!-- Prepare for dynamic AOP -->
+		<!-- TODO: optimize, we only need managed objects (and interceptors!) to be aspectized -->
+		<!-- prepare expr="all(*) AND has(@org.jboss.ejb3.interceptors.ManagedObject->new(..))"/ -->
+		<prepare expr="all(*)"/>
+		
+		<!-- Make sure we can _preDestroy -->
+		<introduction expr="constructor(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
+			<interfaces>org.jboss.ejb3.interceptors.aop.Destructable</interfaces>
+		</introduction>
+		
+		<!-- Setup AOP interceptors based on spec interceptors -->
+		<bind pointcut="construction(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
+			<!-- interceptor-ref name="LoggingInterceptor"/ -->
+			<!-- TODO: we don't need invocation context here -->
+			<!-- TODO: we do until we've seperated the post constructs -->
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="invoke" aspect="InterceptorsFactory"/>
+		</bind>
+		
+		<!-- Lifecycle Event Callbacks (EJB 3 12.4) -->
+		
+		<bind pointcut="construction(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
+			<!-- interceptor-ref name="LoggingInterceptor"/-->
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="postConstruct" aspect="InjectInterceptorsFactory"/>
+		</bind>
+		
+		<!-- 
+		<bind pointcut="execution(* @org.jboss.ejb3.interceptors.ManagedObject->*(..))">
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="fillMethod" aspect="InvocationContextInterceptor"/>
+		</bind>
+		-->
+		
+		<bind pointcut="execution(* @org.jboss.ejb3.interceptors.ManagedObject->*(..)) AND !beanLifecycleCallbackMethods">
+			<around name="setup" aspect="InvocationContextInterceptor"/>
+			<around name="fillMethod" aspect="InvocationContextInterceptor"/>
+			<around name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+		</bind>
+	</domain>
+	
+	<domain name="StatelessContainer" extends="InterceptorContainer" inheritBindings="true">
+		<annotation-introduction expr="has(@javax.ejb.Stateless->new(..))">
+			@org.jboss.ejb3.interceptors.ManagedObject
+		</annotation-introduction>
+	</domain>
+</aop>

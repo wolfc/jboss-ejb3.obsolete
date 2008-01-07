@@ -19,37 +19,51 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.sandbox.stateless;
+package org.jboss.ejb3.sandbox.interceptorcontainer.impl;
 
-import java.lang.reflect.Method;
+import java.util.Arrays;
 
+import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.sandbox.interceptorcontainer.ContainerInterceptors;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * This is the interceptor that checks for ContainerInterceptors
+ * and executes them.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class StatelessInterceptor
+public class ContainersInterceptorsInterceptor
 {
-   private static final Logger log = Logger.getLogger(StatelessInterceptor.class);
+   private static final Logger log = Logger.getLogger(ContainersInterceptorsInterceptor.class);
+   
+   private ContainerInterceptorsExecutor executor;
    
    @AroundInvoke
-   public Object invoke(InvocationContext ctx) throws Exception
+   public Object arroundInvoke(InvocationContext ctx) throws Exception
    {
-      // TODO: a lot, the pool should be here
-      InterceptorContainer container = (InterceptorContainer) ctx.getTarget(); 
-      Object instance = container.getBeanClass().newInstance();
       log.debug("ctx = " + ctx);
-      Method method = (Method) ctx.getParameters()[0];
-      Object args[] = (Object[]) ctx.getParameters()[1];
-      Object result = method.invoke(instance, args);
-      ctx.proceed();
-      return result;
+      return executor.aroundInvoke(ctx);
+   }
+   
+   // FIXME: should be protected (bug in ejb3-interceptors)
+   @PostConstruct
+   public void postConstruct(InvocationContext ctx) throws Exception
+   {
+      InterceptorContainer container = (InterceptorContainer) ctx.getTarget();
+      ContainerInterceptors containerInterceptors = container.getAnnotation(ContainerInterceptors.class);
+      if(containerInterceptors != null)
+      {
+         log.debug("containerInterceptors = " + Arrays.toString(containerInterceptors.value()));
+         //throw new RuntimeException("NYI");
+         //container.addInterceptors(containerInterceptors.value());
+         executor = new ContainerInterceptorsExecutor(container, containerInterceptors.value());
+         executor.postConstruct(ctx);
+      }
    }
 }

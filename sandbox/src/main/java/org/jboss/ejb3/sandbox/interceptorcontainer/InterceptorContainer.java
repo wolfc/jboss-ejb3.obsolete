@@ -23,17 +23,15 @@ package org.jboss.ejb3.sandbox.interceptorcontainer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
+import javax.interceptor.Interceptors;
+
+import org.jboss.aop.Advised;
+import org.jboss.ejb3.interceptors.ManagedObject;
+import org.jboss.ejb3.sandbox.interceptorcontainer.impl.ContainersInterceptorsInterceptor;
+import org.jboss.ejb3.sandbox.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.sandbox.interceptors.direct.IndirectContainer;
 
 /**
  * An interceptor container keeps track of container interceptors
@@ -42,85 +40,30 @@ import javax.interceptor.InvocationContext;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptorContainer implements AnnotatedElement
+@Interceptors(ContainersInterceptorsInterceptor.class)
+@ManagedObject
+public class InterceptorContainer implements AnnotatedElement, IndirectContainer<InterceptorContainer>
 {
    private Class<?> beanClass;
    private Object[] interceptors;
+   private DirectContainer<InterceptorContainer> directContainer;
    
-   public class BeanClassInvocationContext implements InvocationContext
+   private static final Method INVOKE_METHOD;
+   
+   static
    {
-      private Class<? extends Annotation> annotationClass;
-      private Method method;
-      private Object args[];
-      
-      private Map<String, Object> contextData = new HashMap<String, Object>();
-      
-      private Iterator<Object> it = Arrays.asList(interceptors).iterator();
-      
-      protected BeanClassInvocationContext(Class<? extends Annotation> annotationClass)
+      try
       {
-         assert annotationClass != null : "annotationClass is null";
-         
-         this.annotationClass = annotationClass;
+         INVOKE_METHOD = InterceptorContainer.class.getDeclaredMethod("invoke", new Class<?>[] { Method.class, new Object[0].getClass() });
       }
-      
-      protected BeanClassInvocationContext(Class<? extends Annotation> annotationClass, Method method, Object args[])
+      catch (SecurityException e)
       {
-         this(annotationClass);
-         
-         assert method != null : "method is null";
-         assert args != null : "args is null";
-         
-         this.method = method;
-         this.args = args;
+         throw new RuntimeException(e);
       }
-      
-      public Map<String, Object> getContextData()
+      catch (NoSuchMethodException e)
       {
-         // Must not return null
-         return contextData;
+         throw new RuntimeException(e);
       }
-
-      public Method getMethod()
-      {
-         // For lifecycle callback methods, returns null
-         
-         return method;
-      }
-
-      public Object[] getParameters()
-      {
-         if(method == null && args == null)
-         {
-            // If invoked in a lifecycle callback
-            throw new IllegalStateException();
-         }
-         return args;
-      }
-
-      public InterceptorContainer getTarget()
-      {
-         return InterceptorContainer.this;
-      }
-
-      public Object proceed() throws Exception
-      {
-         if(!it.hasNext())
-            return null;
-         Object interceptor = it.next();
-         Method callback = findMethod(interceptor.getClass(), annotationClass);
-         if(callback == null)
-            return proceed();
-         Object args[] = { BeanClassInvocationContext.this };
-         return callback.invoke(interceptor, args);
-      }
-
-      public void setParameters(Object[] params)
-      {
-         // If invoked in a lifecycle callback
-         throw new IllegalStateException();
-      }
-      
    }
    
    public InterceptorContainer(Class<?> beanClass) throws Exception
@@ -128,23 +71,6 @@ public class InterceptorContainer implements AnnotatedElement
       assert beanClass != null;
       
       this.beanClass = beanClass;
-      
-      // TODO: use a delegate to get annotations (so we can hook into meta data)
-      ContainerInterceptors interceptors = beanClass.getAnnotation(ContainerInterceptors.class);
-      if(interceptors == null)
-         throw new IllegalArgumentException("Class " + beanClass + " doesn't have any container interceptors");
-      
-      Class<?> interceptorClasses[] = interceptors.value();
-      this.interceptors = new Object[interceptorClasses.length];
-      for(int i = 0; i < interceptorClasses.length; i++)
-      {
-         this.interceptors[i] = interceptorClasses[i].newInstance();
-      }
-      
-      // TODO: inject interceptors
-      
-      // Post construct
-      new BeanClassInvocationContext(PostConstruct.class).proceed();
    }
 
    private static <A extends Annotation> Method findMethod(Class<?> cls, Class<A> annotationClass)
@@ -168,7 +94,29 @@ public class InterceptorContainer implements AnnotatedElement
    
    public Object invoke(Method method, Object[] args) throws Throwable
    {
-      return new BeanClassInvocationContext(AroundInvoke.class, method, args).proceed();
+      //return new BeanClassInvocationContext(AroundInvoke.class, method, args).proceed();
+      //throw new RuntimeException("Interceptor chain does not contain an instance interceptor");
+      // TODO: I actually want to invoke the direct container if we're not already running a chain
+      // and then continue invocation if we are.
+      // I can run in two modes: direct advisement or indirect advisement
+      if(directContainer != null)
+      {
+         // I'm indirectly advised, let's delegate to the direct container
+         Object arguments[] = { method, args };
+         return directContainer.invokeIndirect(this, INVOKE_METHOD, arguments);
+      }
+      else
+      {
+         // I'm directly advised
+         assert this instanceof Advised;
+         return null;
+      }
+   }
+
+   public void setDirectContainer(DirectContainer<InterceptorContainer> container)
+   {
+      assert container != null : "directContainer is null";
+      this.directContainer = container;
    }
    
    /*
@@ -190,8 +138,18 @@ public class InterceptorContainer implements AnnotatedElement
       return beanClass.getAnnotations();
    }
 
+   public boolean isAnnotationPresent(Class<?> cls, Class<? extends Annotation> annotationClass)
+   {
+      return cls.isAnnotationPresent(annotationClass);
+   }
+   
    public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass)
    {
       return beanClass.isAnnotationPresent(annotationClass);
+   }
+   
+   public boolean isAnnotationPresent(Method method, Class<? extends Annotation> annotationClass)
+   {
+      return method.isAnnotationPresent(annotationClass);
    }
 }

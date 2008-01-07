@@ -103,6 +103,10 @@
   </category>
   -->
 
+  <category name="org.jboss">
+    <priority value="INFO"/>
+  </category>
+  
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
