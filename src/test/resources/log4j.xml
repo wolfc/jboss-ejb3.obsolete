@@ -103,15 +103,23 @@
   -->
 
   <category name="org.jboss.aop">
-    <priority value="ALL"/>
+    <priority value="INFO"/>
   </category>
   
   <category name="org.jboss">
-    <priority value="ALL"/>
+    <priority value="INFO"/>
   </category>
   
   <category name="org.jboss.ejb3.interceptors.aop.DomainClassLoader">
     <priority value="INFO"/>
+  </category>
+  
+  <category name="org.jboss.ejb3.test">
+    <priority value="WARN"/>
+  </category>
+  
+  <category name="org.jboss.ejb3.test.interceptors.proxy">
+    <priority value="ALL"/>
   </category>
   
   <!-- ======================= -->

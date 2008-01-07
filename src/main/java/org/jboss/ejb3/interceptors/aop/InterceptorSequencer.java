@@ -77,4 +77,10 @@ public class InterceptorSequencer implements Interceptor
    {
       return invoke(invocation);
    }
+   
+   @Override
+   public String toString()
+   {
+      return super.toString() + "[interceptors=" + Arrays.toString(interceptors) + "]";
+   }
 }

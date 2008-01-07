@@ -1,6 +1,7 @@
 package org.jboss.ejb3.interceptors.aop;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -165,7 +166,7 @@ public class InvocationContextInterceptor
       
       public String toString()
       {
-         return invocation.toString();
+         return "[target=" + getTarget() + ", method=" + method + ", parameters=" + Arrays.toString(params) + ", contextData=" + contextData + "]";
       }
    }
 }

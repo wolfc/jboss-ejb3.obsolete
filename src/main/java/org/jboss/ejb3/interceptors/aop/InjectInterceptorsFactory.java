@@ -109,6 +109,13 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       }
    }
    
+   @Override
+   public Object createPerJoinpoint(Advisor advisor, Joinpoint jp)
+   {
+      log.warn("WEIRDNESS IN AOP: advisor " + advisor);
+      return new InterceptorSequencer(new Interceptor[0]);
+   }
+   
    private static final boolean isExcludeClassInterceptors(Advisor advisor, Method method)
    {
       return advisor.hasAnnotation(method, ExcludeClassInterceptors.class);

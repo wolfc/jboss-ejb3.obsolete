@@ -46,7 +46,7 @@ public abstract class AbstractInterceptorFactory implements AspectFactory
 
    public Object createPerJoinpoint(Advisor advisor, Joinpoint jp)
    {
-      throw new IllegalStateException("Per joinpoint scope not supported");
+      throw new IllegalStateException("Per joinpoint scope not supported on " + this);
    }
 
    public Object createPerJoinpoint(Advisor advisor, InstanceAdvisor instanceAdvisor, Joinpoint jp)

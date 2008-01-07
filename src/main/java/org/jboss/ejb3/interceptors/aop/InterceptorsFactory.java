@@ -63,10 +63,11 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          for(Class<?> interceptorClass : interceptorsAnnotation.value())
          {
             Object interceptor = interceptorClass.newInstance();
-            Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+            //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+            Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
             log.debug("  interceptorAdvisor = " + interceptorAdvisor.getName());
-            InstanceAdvisor interceptorInstanceAdvisor = ((Advised) interceptor)._getInstanceAdvisor();
-            log.debug("  interceptorInstanceAdvisor = " + interceptorInstanceAdvisor.getClass().getName());
+//            InstanceAdvisor interceptorInstanceAdvisor = ((Advised) interceptor)._getInstanceAdvisor();
+//            log.debug("  interceptorInstanceAdvisor = " + interceptorInstanceAdvisor.getClass().getName());
             // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
             for(Method method : ClassHelper.getAllMethods(interceptorClass))
             {

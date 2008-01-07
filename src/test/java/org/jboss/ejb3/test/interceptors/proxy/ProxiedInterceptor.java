@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.interceptors.basic;
+package org.jboss.ejb3.test.interceptors.proxy;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -34,9 +34,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class BasicInterceptor
+public class ProxiedInterceptor
 {
-   private static final Logger log = Logger.getLogger(BasicInterceptor.class);
+   private static final Logger log = Logger.getLogger(ProxiedInterceptor.class);
    
    public static int preDestroys = 0, postConstructs = 0, aroundInvokes = 0;
    
@@ -52,8 +52,6 @@ public class BasicInterceptor
    public void postConstruct(InvocationContext ctx) throws Exception
    {
       log.debug("postConstruct " + ctx);
-      if(ctx.getTarget() == null)
-         throw new IllegalStateException("target is null");
       try { ctx.getMethod(); throw new Exception("should not come here"); } catch(IllegalStateException e) { }
       postConstructs++;
       ctx.proceed();
