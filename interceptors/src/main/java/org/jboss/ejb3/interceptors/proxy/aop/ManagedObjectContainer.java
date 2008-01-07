@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.interceptors.proxy.aop;
 
+import java.util.List;
+
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
@@ -28,6 +30,7 @@ import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.InstanceAdvisorDelegate;
 import org.jboss.aop.advice.AspectDefinition;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.introduction.AnnotationIntroduction;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.logging.Logger;
@@ -54,6 +57,35 @@ public class ManagedObjectContainer extends ClassAdvisor implements InstanceAdvi
       this.instanceAdvisorDelegate = new InstanceAdvisorDelegate(this, this);
    }
 
+   private void deployAnnotationIntroduction(AnnotationIntroduction introduction)
+   {
+      // Poke introductions into the overrides
+      deployAnnotationOverride(introduction);
+   }
+   
+   @SuppressWarnings("unchecked")
+   private void deployAnnotationIntroductions()
+   {
+      List<AnnotationIntroduction> annotationIntroductions = getManager().getAnnotationIntroductions();
+      if (annotationIntroductions != null)
+      {
+         for(AnnotationIntroduction ai : annotationIntroductions)
+         {
+            deployAnnotationIntroduction(ai);
+         }
+      }
+   }
+
+   @Override
+   protected void rebindClassMetaData()
+   {
+      super.rebindClassMetaData();
+      
+      // Why does AOP not process the annotation introductions!?
+      deployAnnotationIntroductions();
+   }
+   
+   
    public void appendInterceptor(Interceptor interceptor)
    {
       throw new RuntimeException("NYI");
