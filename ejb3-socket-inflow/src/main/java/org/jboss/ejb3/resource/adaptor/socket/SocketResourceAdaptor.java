@@ -35,9 +35,14 @@ import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 import javax.transaction.xa.XAResource;
 
-import org.jboss.ejb3.resource.adaptor.socket.handler.http.CopyHttpRequestToResponseRequestHandler;
 import org.jboss.ejb3.resource.adaptor.socket.inflow.SocketActivationSpec;
 
+/**
+ * A Socket Server Resource Adaptor
+ * 
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
+ */
 public class SocketResourceAdaptor implements ResourceAdapter, Work
 {
    // Class Members
@@ -45,7 +50,7 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
    /*
     * Server to handle Socket Requests
     */
-   private static NonBlockingSocketServer server;
+   private static ResourceAdaptorNonBlockingSocketServer server;
 
    // Instance Members
    /*
@@ -56,7 +61,7 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
    /*
     * ActivationSpec / MessageEndpoint Factories 
     */
-   private ConcurrentMap<ActivationSpec, MessageEndpointFactory> activationSpecFactories = new ConcurrentHashMap<ActivationSpec, MessageEndpointFactory>();
+   private ConcurrentMap<ActivationSpec, MessageEndpointFactory> messageEndpointFactories = new ConcurrentHashMap<ActivationSpec, MessageEndpointFactory>();
 
    // Accessors / Mutators
    public BootstrapContext getCtx()
@@ -69,9 +74,9 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
       this.ctx = ctx;
    }
 
-   private Map<ActivationSpec, MessageEndpointFactory> getActivationSpecFactories()
+   public Map<ActivationSpec, MessageEndpointFactory> getMessageEndpointFactories()
    {
-      return activationSpecFactories;
+      return messageEndpointFactories;
    }
 
    // ResourceAdaptor Required Implementations
@@ -81,20 +86,22 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
    {
       // Initialize
       Class<?> activationSpecType = SocketActivationSpec.class;
+
       // Ensure assignable
       if (!(activationSpecType.isAssignableFrom(activationSpec.getClass())))
       {
          throw new ResourceException("Supplied ActivationSpec must be of type " + activationSpecType.getName()
                + "; is instead of type " + activationSpec.getClass().getName());
       }
-      // Place Activation Spec into factories
-      this.getActivationSpecFactories().put(activationSpec, messageEndpointFactory);
+
+      // Place ActivationSpec/Factory
+      this.getMessageEndpointFactories().put(activationSpec, messageEndpointFactory);
    }
 
    public void endpointDeactivation(MessageEndpointFactory messageEndpointFactory, ActivationSpec activationSpec)
    {
-      // Remove ActivationSpec from factories
-      this.getActivationSpecFactories().remove(activationSpec);
+      // Remove ActivationSpec/Factory
+      this.getMessageEndpointFactories().remove(activationSpec);
    }
 
    public XAResource[] getXAResources(ActivationSpec[] activationSpec) throws ResourceException
@@ -108,30 +115,21 @@ public class SocketResourceAdaptor implements ResourceAdapter, Work
       // Set Context
       this.setCtx(bootstrapContext);
 
-      // Create new Server
-      try
+      // If the Server has not yet been created
+      if (SocketResourceAdaptor.server == null)
       {
-         //TODO Handler from ActivationConfig properties
-         SocketResourceAdaptor.server = new NonBlockingSocketServer(CopyHttpRequestToResponseRequestHandler.class
-               .newInstance());
-      }
-      catch (InstantiationException e)
-      {
-         throw new ResourceAdapterInternalException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new ResourceAdapterInternalException(e);
-      }
+         // Create new Server
+         SocketResourceAdaptor.server = new ResourceAdaptorNonBlockingSocketServer(this);
 
-      // Start the Server in own Thread
-      try
-      {
-         this.getCtx().getWorkManager().startWork(this);
-      }
-      catch (WorkException e)
-      {
-         throw new ResourceAdapterInternalException(e);
+         // Start the Server in own Thread
+         try
+         {
+            this.getCtx().getWorkManager().startWork(this);
+         }
+         catch (WorkException e)
+         {
+            throw new ResourceAdapterInternalException(e);
+         }
       }
    }
 

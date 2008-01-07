@@ -40,7 +40,7 @@ import org.jboss.ejb3.resource.adaptor.socket.SocketResourceAdaptor;
 public class SocketActivationSpec implements ActivationSpec, Serializable
 {
    // Class Members
-   
+
    /*
     * Serial Version UID
     */
@@ -61,12 +61,7 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
    /*
     * Port upon which to bind Server to listen for incoming Socket Requests
     */
-   private int port;
-
-   /*
-    * Handler to Service incoming client requests 
-    */
-   private String handlerClassName;
+   private String port;
 
    // ActivationSpec Required Implementations
    public void validate() throws InvalidPropertyException
@@ -77,37 +72,13 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
          throw new InvalidPropertyException("ActivationSpec Property 'host' is required");
       }
       // Ensure Port is specified
-      if (this.getPort() == 0)
+      if (Integer.parseInt(this.getPort()) == 0)
       {
          throw new InvalidPropertyException("ActivationSpec Property 'port' is required");
       }
 
-      // Ensure Handler is specified
-      if (this.getHandlerClassName() == null || this.getHandlerClassName().equals(""))
-      {
-         throw new InvalidPropertyException("ActivationSpec Property 'handlerClassName' is required");
-      }
-
-      // Ensure Handler is Valid
-      try
-      {
-         Class.forName(this.getHandlerClassName()).newInstance();
-      }
-      catch (InstantiationException e)
-      {
-         throw new InvalidPropertyException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new InvalidPropertyException(e);
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new InvalidPropertyException(e);
-      }
-
       // Create an InetSocketAddress to ensure binding is possible to properties specified
-      InetSocketAddress address = new InetSocketAddress(this.getHost(), this.getPort());
+      InetSocketAddress address = new InetSocketAddress(this.getHost(), Integer.parseInt(this.getPort()));
       // Ensure binding succeeds
       if (address.isUnresolved())
       {
@@ -126,7 +97,7 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
    }
 
    // Accessors / Mutators
-   
+
    protected SocketResourceAdaptor getResourceAdaptor()
    {
       return resourceAdaptor;
@@ -137,33 +108,24 @@ public class SocketActivationSpec implements ActivationSpec, Serializable
       this.resourceAdaptor = resourceAdaptor;
    }
 
-   protected String getHost()
+   public String getHost()
    {
       return host;
    }
 
-   protected void setHost(String host)
+   public void setHost(String host)
    {
       this.host = host;
    }
 
-   protected int getPort()
+   public String getPort()
    {
       return port;
    }
 
-   protected void setPort(int port)
+   public void setPort(String port)
    {
       this.port = port;
    }
 
-   protected String getHandlerClassName()
-   {
-      return handlerClassName;
-   }
-
-   protected void setHandlerClassName(String handler)
-   {
-      this.handlerClassName = handler;
-   }
 }

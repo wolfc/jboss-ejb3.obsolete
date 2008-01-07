@@ -23,57 +23,130 @@ package org.jboss.ejb3.resource.adaptor.socket.handler.http;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Set;
 
+import javax.resource.spi.ActivationSpec;
+import javax.resource.spi.UnavailableException;
+import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.resource.spi.work.Work;
+
+import org.jboss.ejb3.resource.adaptor.socket.HttpRequestMessage;
+import org.jboss.ejb3.resource.adaptor.socket.SocketResourceAdaptor;
 import org.jboss.ejb3.resource.adaptor.socket.handler.RequestHandlingException;
 import org.jboss.ejb3.resource.adaptor.socket.handler.SocketBasedRequestHandler;
+import org.jboss.ejb3.resource.adaptor.socket.listener.SocketMessageListener;
+import org.jboss.logging.Logger;
 
 /**
- * Request Handler implementation to read in the client request and 
- * echo it as a response.  Mostly used in testing without practical application.
+ * 
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class CopyHttpRequestToResponseRequestHandler implements SocketBasedRequestHandler
+public class ResourceAdaptorHttpRequestHandlerImpl implements SocketBasedRequestHandler, Work
 {
 
-   // Instance Members
-
-   private Socket socket;
-
-   // Constructor
-   public CopyHttpRequestToResponseRequestHandler(Socket socket)
-   {
-      this.setSocket(socket);
-   }
-
    // Class Members
+
+   /*
+    * Logger
+    */
+   private static final Logger logger = Logger.getLogger(ResourceAdaptorHttpRequestHandlerImpl.class);
+
    /*
     * Byte Pattern designating HTTP Request EOF
     */
    public static final byte[] HTTP_REQUEST_EOF = "\r\n\r\n".getBytes();
 
+   // Instance Members
+   
+   private String requestContents;
+
+   private SocketResourceAdaptor ra;
+
+   // Constructor
+
+   public ResourceAdaptorHttpRequestHandlerImpl(Socket clientSocket, SocketResourceAdaptor ra)
+   {
+      this.setRequestContents(this.getRequest(clientSocket));
+      this.setRa(ra);
+   }
+
    // Required Implementations
 
    /**
-    * Reads in the client request and mirrors the content in the response
+    * 
     * 
     * @param clientSocket
     * @throws RequestHandlingException
     */
    public void handleClientRequest() throws RequestHandlingException
    {
-      // Initialize Streams
-      PrintStream outStream = null;
+      // Initialize
+      MessageEndpointFactory factory = null;
+      SocketMessageListener endpoint = null;
+
+      // Obtain all ActivationSpecs
+      Set<ActivationSpec> activationSpecs = this.getRa().getMessageEndpointFactories().keySet();
+
+      // For each ActivationSpec
+      for (ActivationSpec spec : activationSpecs)
+      {
+         // Obtain the associated EndpointFactory
+         factory = (MessageEndpointFactory) this.getRa().getMessageEndpointFactories().get(spec);
+
+         // Create the Endpoint
+         try
+         {
+            endpoint = (SocketMessageListener) factory.createEndpoint(null);
+         }
+         catch (UnavailableException e)
+         {
+            throw new RuntimeException(e);
+         }
+         
+         // Send the Message to the Endpoint
+         endpoint.onMessage(new HttpRequestMessage(this.getRequestContents()));
+
+      }
+
+   }
+
+   public void release()
+   {
+
+   }
+
+   public void run()
+   {
+      try
+      {
+         this.handleClientRequest();
+      }
+      catch (RequestHandlingException e)
+      {
+         logger.error(e);
+         throw new RuntimeException(e);
+      }
+      catch (Throwable t)
+      {
+         logger.error(t);
+      }
+   }
+
+   // Internal Helper Methods
+
+   private String getRequest(Socket clientSocket)
+   {
+      // Initialize 
+      StringBuffer sb = new StringBuffer();
       InputStream inStream = null;
 
       // Obtain Streams
       try
       {
-         outStream = new PrintStream(this.getSocket().getOutputStream());
-         inStream = this.getSocket().getInputStream();
+         inStream = clientSocket.getInputStream();
 
          // Copy request content to response
          int bufferSize = 1024;
@@ -93,7 +166,7 @@ public class CopyHttpRequestToResponseRequestHandler implements SocketBasedReque
                int useableSize = httpEof + CopyHttpRequestToResponseRequestHandler.HTTP_REQUEST_EOF.length;
                byte[] newBuffer = new byte[useableSize];
                System.arraycopy(buffer, 0, newBuffer, 0, newBuffer.length);
-               outStream.print(new String(newBuffer));
+               sb.append(new String(newBuffer));
 
                // Stop
                break;
@@ -102,12 +175,12 @@ public class CopyHttpRequestToResponseRequestHandler implements SocketBasedReque
             else
             {
                // Print entire buffer
-               outStream.print(new String(buffer));
+               sb.append(new String(buffer));
             }
          }
 
-         // Flush Outstream
-         outStream.flush();
+         // Return
+         return sb.toString();
       }
       catch (IOException ioe)
       {
@@ -115,33 +188,25 @@ public class CopyHttpRequestToResponseRequestHandler implements SocketBasedReque
       }
    }
 
-   // Accesors / Mutators
+   // Accessors / Mutators
 
-   public Socket getSocket()
+   public SocketResourceAdaptor getRa()
    {
-      return socket;
+      return ra;
    }
 
-   public void setSocket(Socket socket)
+   public void setRa(SocketResourceAdaptor ra)
    {
-      this.socket = socket;
+      this.ra = ra;
    }
 
-   // Internal Helper Methods
-
-   /**
-    * Returns the index of the specified pattern to find in the specified byte array, 
-    * or -1 if not found 
-    * 
-    * @param arrayToSearch
-    * @param patternToFind
-    * @return
-    */
-   //TODO Should be centralized to I/O Utility
-   public static int indexOf(byte[] arrayToSearch, byte[] patternToFind)
+   public String getRequestContents()
    {
-      String toSearch = new String(arrayToSearch);
-      String toFind = new String(patternToFind);
-      return toSearch.indexOf(toFind);
+      return requestContents;
+   }
+
+   public void setRequestContents(String requestContents)
+   {
+      this.requestContents = requestContents;
    }
 }

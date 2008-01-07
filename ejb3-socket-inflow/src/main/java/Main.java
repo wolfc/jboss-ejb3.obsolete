@@ -1,5 +1,4 @@
-import org.jboss.ejb3.resource.adaptor.socket.NonBlockingSocketServer;
-import org.jboss.ejb3.resource.adaptor.socket.handler.http.CopyHttpRequestToResponseRequestHandler;
+import org.jboss.ejb3.resource.adaptor.socket.TestNonBlockingSocketServer;
 
 /**
  * Standalone Application to launch Server for Testing
@@ -15,7 +14,7 @@ public class Main
     */
    public static void main(String[] args)
    {
-      NonBlockingSocketServer server = new NonBlockingSocketServer(new CopyHttpRequestToResponseRequestHandler());
+      TestNonBlockingSocketServer server = new TestNonBlockingSocketServer();
       server.start();
 
       while (true)

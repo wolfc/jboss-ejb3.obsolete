@@ -1,6 +1,6 @@
 package org.jboss.ejb3.resource.adaptor.socket.listener;
 
-import org.jboss.ejb3.resource.adaptor.socket.SocketMessage;
+import org.jboss.ejb3.resource.adaptor.socket.HttpRequestMessage;
 
 /**
  * Listener for new Socket Messages
@@ -15,5 +15,5 @@ public interface SocketMessageListener
     * 
     * @param message
     */
-   public void onMessage(SocketMessage message);
+   public void onMessage(HttpRequestMessage message);
 }

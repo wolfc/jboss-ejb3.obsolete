@@ -32,6 +32,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.resource.adaptor.socket.NonBlockingSocketServer;
+import org.jboss.ejb3.resource.adaptor.socket.TestNonBlockingSocketServer;
 import org.jboss.ejb3.resource.adaptor.socket.handler.http.CopyHttpRequestToResponseRequestHandler;
 import org.junit.Test;
 
@@ -243,21 +244,21 @@ public class StressSocketServerTestCase extends TestCase
          // Call super implementation
          super.run();
          // Create new Server
-         this.setServer(new NonBlockingSocketServer(new CopyHttpRequestToResponseRequestHandler()));
+         this.setServer(new TestNonBlockingSocketServer());
          // Start Server
          this.getServer().start();
       }
 
       // Functional Methods
       public void shutdown()
-      {         
+      {
          // Delegate to Server to shutdown
          this.getServer().shutdown();
 
          // Block until shutdown
          while (this.getServer().isRunning())
          {
-            
+
          }
 
          // Stop Thread

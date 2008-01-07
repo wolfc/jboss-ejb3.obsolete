@@ -31,8 +31,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Set;
 
-import org.jboss.ejb3.resource.adaptor.socket.handler.RequestHandlingException;
-import org.jboss.ejb3.resource.adaptor.socket.handler.SocketBasedRequestHandler;
 import org.jboss.logging.Logger;
 
 /**
@@ -42,7 +40,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class NonBlockingSocketServer
+public abstract class NonBlockingSocketServer
 {
    // Class Members
 
@@ -57,7 +55,7 @@ public class NonBlockingSocketServer
    public static final int DEFAULT_BIND_PORT = 9001;
 
    /*
-    * The Default Bind Address 
+    * The Default Bind Host 
     */
    public static final InetAddress DEFAULT_BIND_HOST;
    static
@@ -84,22 +82,17 @@ public class NonBlockingSocketServer
 
    private ServerSocketChannel channel;
 
-   private SocketBasedRequestHandler handler;
-
    // Constructors
 
-   public NonBlockingSocketServer(SocketBasedRequestHandler handler)
+   public NonBlockingSocketServer()
    {
-      this(NonBlockingSocketServer.DEFAULT_BIND_HOST, NonBlockingSocketServer.DEFAULT_BIND_PORT, handler);
+      this(NonBlockingSocketServer.DEFAULT_BIND_HOST, NonBlockingSocketServer.DEFAULT_BIND_PORT);
    }
 
-   public NonBlockingSocketServer(InetAddress bindHost, int bindPort, SocketBasedRequestHandler handler)
+   public NonBlockingSocketServer(InetAddress bindHost, int bindPort)
    {
       // Set as not Running
       this.setRunning(false);
-
-      // Set Handler
-      this.setHandler(handler);
 
       // Set Bind Address
       this.setBindAddress(new InetSocketAddress(bindHost, bindPort));
@@ -116,7 +109,7 @@ public class NonBlockingSocketServer
    /**
     * Starts the Server
     */
-   public void start()
+   public synchronized void start()
    {
       // Only Start if not Running
       if (!this.isRunning())
@@ -231,16 +224,8 @@ public class NonBlockingSocketServer
                   // Accept the client channel, and get a reference to its socket                  
                   clientSocket = clientChannel.accept().socket();
 
-                  // Dispatch to handler
-                  try
-                  {
-                     handler.handleClientRequest(clientSocket);
-                  }
-                  // An error has occurred in processing the request
-                  catch (RequestHandlingException e)
-                  {
-                     throw new RuntimeException(e);
-                  }
+                  // Dispatch the client request
+                  this.dispatchClientRequest(clientSocket);
 
                }
                finally
@@ -258,6 +243,13 @@ public class NonBlockingSocketServer
          }
       }
    }
+
+   /**
+    * 
+    * 
+    * @param clientSocket
+    */
+   protected abstract void dispatchClientRequest(Socket clientSocket);
 
    // Accessors / Mutators
 
@@ -299,16 +291,6 @@ public class NonBlockingSocketServer
    protected void setChannel(ServerSocketChannel channel)
    {
       this.channel = channel;
-   }
-
-   protected SocketBasedRequestHandler getHandler()
-   {
-      return handler;
-   }
-
-   protected void setHandler(SocketBasedRequestHandler handler)
-   {
-      this.handler = handler;
    }
 
    public int getNumberOfConnections()

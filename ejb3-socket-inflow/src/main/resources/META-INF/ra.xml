@@ -47,23 +47,23 @@
     </resourceadapter-class>
 
     <!-- Default Configuration Properties 
-    <config-property>
+      <config-property>
       <config-property-name>Port</config-property-name>
       <config-property-type>java.lang.Integer</config-property-type>
       <config-property-value>9001</config-property-value>
-    </config-property>
-    <config-property>
+      </config-property>
+      <config-property>
       <config-property-name>Host</config-property-name>
       <config-property-type>java.lang.String</config-property-type>
       <config-property-value>localhost</config-property-value>
-    </config-property>
-    <config-property>
+      </config-property>
+      <config-property>
       <config-property-name>HandlerClassName</config-property-name>
       <config-property-type>java.lang.String</config-property-type>
       <config-property-value>
-        org.jboss.ejb3.resource.adaptor.socket.handler.SocketBasedRequestHandler
+      org.jboss.ejb3.resource.adaptor.socket.handler.SocketBasedRequestHandler
       </config-property-value>
-    </config-property> -->
+      </config-property> -->
 
     <!-- The Inbound Resource Adaptor -->
 
@@ -78,19 +78,10 @@
               org.jboss.ejb3.resource.adaptor.socket.inflow.SocketActivationSpec
             </activationspec-class>
             <required-config-property>
-              <config-property-name>
-                HandlerClassName
-              </config-property-name>
+              <config-property-name>host</config-property-name>
             </required-config-property>
             <required-config-property>
-              <config-property-name>
-                Host
-              </config-property-name>
-            </required-config-property>
-            <required-config-property>
-              <config-property-name>
-                Port
-              </config-property-name>
+              <config-property-name>port</config-property-name>
             </required-config-property>
           </activationspec>
         </messagelistener>

@@ -21,10 +21,8 @@
  */
 package org.jboss.ejb3.resource.adaptor.socket.handler;
 
-import java.net.Socket;
-
 /**
- * Contract defining how socket-bsaed requests from a client
+ * Contract defining how socket-based requests from a client
  * may be implemented
  * 
  * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
@@ -33,13 +31,9 @@ import java.net.Socket;
 public interface SocketBasedRequestHandler
 {
    /**
-    * Services the client request represented by the specified
-    * socket.  Typical implementations may read in request data,
-    * perform appropriate processing, and write the response, closing
-    * the socket when complete.  
-    * 
-    * @param socket
+    * Services the Client Request
+    *
     * @throws RequestHandlingException
     */
-   void handleClientRequest(Socket socket) throws RequestHandlingException;
+   void handleClientRequest() throws RequestHandlingException;
 }
