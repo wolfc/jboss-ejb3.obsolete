@@ -19,51 +19,57 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.interceptors.basic;
+package org.jboss.ejb3.test.interceptors.proxy;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.interceptor.AroundInvoke;
+import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.interceptors.ManagedObject;
 import org.jboss.logging.Logger;
 
 /**
- * A basic interceptor, does nothing useful.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class BasicInterceptor
+@Interceptors(ProxiedInterceptor.class)
+@ManagedObject
+public class ProxiedBean implements MyInterface
 {
-   private static final Logger log = Logger.getLogger(BasicInterceptor.class);
+   private static final Logger log = Logger.getLogger(ProxiedBean.class);
    
-   public static int preDestroys = 0, postConstructs = 0, aroundInvokes = 0;
+   public static int constructors = 0, aroundInvokes = 0;
    
-   @PreDestroy
-   public void preDestroy(InvocationContext ctx) throws Exception
+   public ProxiedBean()
    {
-      log.debug("preDestroy " + ctx);
-      preDestroys++;
-      ctx.proceed();
-   }
-   
-   @PostConstruct
-   public void postConstruct(InvocationContext ctx) throws Exception
-   {
-      log.debug("postConstruct " + ctx);
-      if(ctx.getTarget() == null)
-         throw new IllegalStateException("target is null");
-      try { ctx.getMethod(); throw new Exception("should not come here"); } catch(IllegalStateException e) { }
-      postConstructs++;
-      ctx.proceed();
+      log.debug("ProxiedBean");
+      constructors++;
    }
    
    @AroundInvoke
-   public Object aroundInvoke(InvocationContext ctx) throws Exception
+   Object aroundInvoke(InvocationContext ctx) throws Exception
    {
       log.debug("aroundInvoke " + ctx);
+      if(ctx.getTarget() != this)
+         throw new IllegalStateException("target is not this");
+      if(ctx.getMethod().getDeclaringClass() != getClass())
+         throw new IllegalStateException("method " + ctx.getMethod() + " not of this class (" + ctx.getMethod().getDeclaringClass() + " != " +  getClass() + ")");
       aroundInvokes++;
       return ctx.proceed();
    }
+   
+   public String sayHi(String name)
+   {
+      log.debug("sayHi");
+      return "Hi " + name;
+   }
+   /*
+   @Interceptors(BasicMethodInterceptor.class)
+   public void intercept()
+   {
+      log.debug("intercept");
+   }
+   */
 }
