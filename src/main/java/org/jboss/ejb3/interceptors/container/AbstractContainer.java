@@ -45,13 +45,19 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>>
    
    private ManagedObjectAdvisor<T, C> advisor;
    
+   /**
+    * For a completely customized startup.
+    * 
+    * Note that before construction ends advisor must be set!
+    */
+   protected AbstractContainer()
+   {
+      
+   }
+   
    public AbstractContainer(String name, Domain domain, Class<? extends T> beanClass)
    {
-      assert name != null : "name is null";
-      assert domain != null : "domain is null";
-      assert beanClass != null : "beanClass is null";
-      
-      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain, beanClass);
+      initializeAdvisor(name, domain, beanClass);
    }
    
    public AbstractContainer(String name, String domainName, Class<? extends T> beanClass)
@@ -59,8 +65,30 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>>
       this(name, getDomain(domainName), beanClass);
    }
    
+   /**
+    * Finalize construction of the abstract container by setting the advisor.
+    * 
+    * @param name       the name of the advisor
+    * @param domain     the domain for the advisor
+    * @param beanClass  the class being advised
+    */
+   protected void initializeAdvisor(String name, Domain domain, Class<? extends T> beanClass)
+   {
+      if(this.advisor != null) throw new IllegalStateException("advisor already set to " + advisor);
+      
+      assert name != null : "name is null";
+      assert domain != null : "domain is null";
+      assert beanClass != null : "beanClass is null";
+      
+      // Decouple setting the advisor and initializing it, so interceptors
+      // can get it.
+      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain);
+      advisor.initialize(beanClass);
+   }
+   
    protected final ClassAdvisor getAdvisor()
    {
+      if(advisor == null) throw new IllegalStateException("advisor has not been initialized");
       return advisor;
    }
    
@@ -89,7 +117,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>>
    public Object invoke(Object target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);
-      MethodInfo info = advisor.getMethodInfo(methodHash);
+      MethodInfo info = getAdvisor().getMethodInfo(methodHash);
       if(info == null)
          throw new IllegalArgumentException("method " + method + " is not under advisement by " + this);
       MethodInvocation invocation = new MethodInvocation(info, info.getInterceptors());

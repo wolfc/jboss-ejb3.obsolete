@@ -47,6 +47,11 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
 {
    private static final Logger log = Logger.getLogger(AbstractDirectContainer.class);
    
+   protected AbstractDirectContainer()
+   {
+      
+   }
+   
    protected AbstractDirectContainer(String name, Domain domain, Class<? extends T> beanClass)
    {
       super(name, domain, beanClass);
