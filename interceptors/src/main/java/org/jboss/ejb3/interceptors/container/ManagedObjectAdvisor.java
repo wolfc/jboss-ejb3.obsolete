@@ -49,21 +49,15 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
    private C container;
    private InstanceAdvisorDelegate instanceAdvisorDelegate;
    
-   protected ManagedObjectAdvisor(C container, String name, AspectManager manager, Class<?> beanClass)
+   protected ManagedObjectAdvisor(C container, String name, AspectManager manager)
    {
       super(name, manager);
       assert container != null : "container is null";
-      assert beanClass != null : "beanClass is null";
       
       this.container = container;
       
       // For convenience we add the ManagedObject annotation
       annotations.addClassAnnotation(ManagedObject.class, new Object());
-      
-      // Poking starts here
-      attachClass(beanClass);
-      
-      this.instanceAdvisorDelegate = new InstanceAdvisorDelegate(this, this);
    }
 
    private void deployAnnotationIntroduction(AnnotationIntroduction introduction)
@@ -89,6 +83,16 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
    public C getContainer()
    {
       return container;
+   }
+   
+   protected void initialize(Class<?> beanClass)
+   {
+      assert beanClass != null : "beanClass is null";
+      
+      // Poking starts here
+      attachClass(beanClass);
+      
+      this.instanceAdvisorDelegate = new InstanceAdvisorDelegate(this, this);
    }
    
    @Override
