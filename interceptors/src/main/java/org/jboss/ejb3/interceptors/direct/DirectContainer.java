@@ -43,7 +43,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractContainer<T>
+public class DirectContainer<T> extends AbstractContainer<T, DirectContainer<T>>
 {
    private static final Logger log = Logger.getLogger(DirectContainer.class);
    
@@ -102,7 +102,6 @@ public class DirectContainer<T> extends AbstractContainer<T>
       return getAdvisor().getClazz();
    }
    
-   // FIXME: copy of ProxyContainer.invoke
    public Object invokeIndirect(Object target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);

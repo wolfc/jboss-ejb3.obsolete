@@ -44,7 +44,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ProxyContainer<T> extends AbstractContainer<T>
+public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
 {
    private static final Logger log = Logger.getLogger(ProxyContainer.class);
    

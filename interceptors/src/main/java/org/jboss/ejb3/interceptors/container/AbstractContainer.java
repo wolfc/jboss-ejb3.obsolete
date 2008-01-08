@@ -31,7 +31,6 @@ import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
-import org.jboss.ejb3.interceptors.proxy.aop.ManagedObjectContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -40,11 +39,11 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class AbstractContainer<T>
+public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>>
 {
    private static final Logger log = Logger.getLogger(AbstractContainer.class);
    
-   private ManagedObjectContainer advisor;
+   private ManagedObjectAdvisor<T, C> advisor;
    
    public AbstractContainer(String name, Domain domain, Class<? extends T> beanClass)
    {
@@ -52,7 +51,7 @@ public abstract class AbstractContainer<T>
       assert domain != null : "domain is null";
       assert beanClass != null : "beanClass is null";
       
-      this.advisor = new ManagedObjectContainer(name, domain, beanClass);
+      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain, beanClass);
    }
    
    public AbstractContainer(String name, String domainName, Class<? extends T> beanClass)

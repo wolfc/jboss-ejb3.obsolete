@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.proxy.aop;
+package org.jboss.ejb3.interceptors.container;
 
 import java.util.List;
 
@@ -42,17 +42,19 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ManagedObjectContainer extends ClassAdvisor implements InstanceAdvisor
+public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends ClassAdvisor implements InstanceAdvisor
 {
-   private static final Logger log = Logger.getLogger(ManagedObjectContainer.class);
+   private static final Logger log = Logger.getLogger(ManagedObjectAdvisor.class);
    
+   private C container;
    private InstanceAdvisorDelegate instanceAdvisorDelegate;
    
-   public ManagedObjectContainer(String name, AspectManager manager, Class<?> beanClass)
+   protected ManagedObjectAdvisor(C container, String name, AspectManager manager, Class<?> beanClass)
    {
       super(name, manager);
       assert beanClass != null : "beanClass is null";
       
+      // For convenience we add the ManagedObject annotation
       annotations.addClassAnnotation(ManagedObject.class, new Object());
       
       // Poking starts here
@@ -81,6 +83,11 @@ public class ManagedObjectContainer extends ClassAdvisor implements InstanceAdvi
       }
    }
 
+   public C getContainer()
+   {
+      return container;
+   }
+   
    @Override
    protected void rebindClassMetaData()
    {
