@@ -29,9 +29,9 @@ import javax.interceptor.Interceptors;
 
 import org.jboss.aop.Advised;
 import org.jboss.ejb3.interceptors.ManagedObject;
+import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.interceptors.direct.IndirectContainer;
 import org.jboss.ejb3.sandbox.interceptorcontainer.impl.ContainersInterceptorsInterceptor;
-import org.jboss.ejb3.sandbox.interceptors.direct.DirectContainer;
-import org.jboss.ejb3.sandbox.interceptors.direct.IndirectContainer;
 
 /**
  * An interceptor container keeps track of container interceptors

@@ -28,8 +28,8 @@ import javax.naming.InitialContext;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
-import org.jboss.ejb3.sandbox.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.sandbox.stateless.SimpleStatelessBean;
 import org.jboss.ejb3.test.sandbox.stateless.SimpleStatelessLocal;
 import org.jboss.logging.Logger;

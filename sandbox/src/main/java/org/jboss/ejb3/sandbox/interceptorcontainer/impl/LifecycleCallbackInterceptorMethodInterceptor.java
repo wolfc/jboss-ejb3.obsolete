@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.sandbox.interceptorcontainer.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -67,9 +68,21 @@ public class LifecycleCallbackInterceptorMethodInterceptor implements Intercepto
 
    public Object invoke(final InvocationContext ctx) throws Exception
    {
-      Object args[] = { ctx };
-      method.invoke(interceptor, args);
-      // TODO: return null or invokeTarget?
-      return ctx.proceed();
+      try
+      {
+         Object args[] = { ctx };
+         method.invoke(interceptor, args);
+         // TODO: return null or invokeTarget?
+         return ctx.proceed();
+      }
+      catch(InvocationTargetException e)
+      {
+         Throwable cause = e.getCause();
+         if(cause instanceof Error)
+            throw (Error) cause;
+         if(cause instanceof RuntimeException)
+            throw (RuntimeException) cause;
+         throw (Exception) cause;
+      }
    }
 }
