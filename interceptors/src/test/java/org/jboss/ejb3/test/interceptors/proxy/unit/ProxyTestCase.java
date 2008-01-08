@@ -53,7 +53,7 @@ public class ProxyTestCase extends TestCase
 
       Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
       
-      ProxyContainer container = new ProxyContainer("ProxyTestCase", "InterceptorContainer", ProxiedBean.class);
+      ProxyContainer<ProxiedBean> container = new ProxyContainer<ProxiedBean>("ProxyTestCase", "InterceptorContainer", ProxiedBean.class);
       
       assertEquals(0, ProxiedInterceptor.postConstructs);
       

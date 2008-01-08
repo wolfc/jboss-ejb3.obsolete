@@ -33,6 +33,7 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.introduction.AnnotationIntroduction;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.metadata.SimpleMetaData;
+import org.jboss.ejb3.interceptors.ManagedObject;
 import org.jboss.logging.Logger;
 
 /**
@@ -51,6 +52,9 @@ public class ManagedObjectContainer extends ClassAdvisor implements InstanceAdvi
    {
       super(name, manager);
       assert beanClass != null : "beanClass is null";
+      
+      annotations.addClassAnnotation(ManagedObject.class, new Object());
+      
       // Poking starts here
       attachClass(beanClass);
       
@@ -59,6 +63,7 @@ public class ManagedObjectContainer extends ClassAdvisor implements InstanceAdvi
 
    private void deployAnnotationIntroduction(AnnotationIntroduction introduction)
    {
+      log.debug("deploy annotation introduction " + introduction);
       // Poke introductions into the overrides
       deployAnnotationOverride(introduction);
    }

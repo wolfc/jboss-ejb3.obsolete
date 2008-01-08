@@ -50,6 +50,36 @@ public class ClassHelper
    }
    
    /**
+    * Returns the method with the specified method name.
+    * 
+    * (Slow method)
+    * 
+    * @param methodName
+    * @return
+    * @throws NoSuchMethodException 
+    */
+   public static Method getMethod(Class<?> cls, String methodName) throws NoSuchMethodException
+   {
+      if(cls == null)
+         throw new NoSuchMethodException(methodName);
+      Method methods[] = cls.getDeclaredMethods();
+      for(Method method : methods)
+      {
+         if(method.getName().equals(methodName))
+            return method;
+         // TODO: shall we continue search for ambiguous match?
+      }
+      try
+      {
+         return getMethod(cls.getSuperclass(), methodName);
+      }
+      catch(NoSuchMethodException e)
+      {
+         throw new NoSuchMethodException("No method named " + methodName + " in " + cls + " (or super classes)");
+      }
+   }
+   
+   /**
     * Find all methods starting with the most general super class.
     * (See 12.4.1 bullet 4)
     * 

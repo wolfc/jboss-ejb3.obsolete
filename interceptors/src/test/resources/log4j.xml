@@ -103,7 +103,7 @@
   -->
 
   <category name="org.jboss.aop">
-    <priority value="INFO"/>
+    <priority value="ALL"/>
   </category>
   
   <category name="org.jboss">
@@ -118,7 +118,7 @@
     <priority value="WARN"/>
   </category>
   
-  <category name="org.jboss.ejb3.test.interceptors.proxy">
+  <category name="org.jboss.ejb3.test.interceptors">
     <priority value="ALL"/>
   </category>
   

@@ -29,7 +29,6 @@ import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
-import org.jboss.aop.Advised;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.advice.Interceptor;
@@ -97,7 +96,8 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                {
                   // FIXME: do not create perse, we might already have done that
                   Object interceptor = interceptorClass.newInstance();
-                  Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+                  //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+                  Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
                   for(Method method : ClassHelper.getAllMethods(interceptorClass))
                   {
                      /* EJB 3 12.7 footnote 57: no lifecycle callbacks on business method interceptors
