@@ -52,7 +52,10 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
    protected ManagedObjectAdvisor(C container, String name, AspectManager manager, Class<?> beanClass)
    {
       super(name, manager);
+      assert container != null : "container is null";
       assert beanClass != null : "beanClass is null";
+      
+      this.container = container;
       
       // For convenience we add the ManagedObject annotation
       annotations.addClassAnnotation(ManagedObject.class, new Object());
