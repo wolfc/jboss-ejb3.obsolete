@@ -27,17 +27,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
-import org.jboss.aop.Advisor;
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.ConstructionInfo;
 import org.jboss.aop.Domain;
-import org.jboss.aop.DomainDefinition;
-import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.aop.util.MethodHashing;
-import org.jboss.ejb3.interceptors.proxy.aop.ManagedObjectContainer;
+import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -49,11 +44,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ProxyContainer
+public class ProxyContainer<T> extends AbstractContainer<T>
 {
    private static final Logger log = Logger.getLogger(ProxyContainer.class);
-   
-   private Advisor advisor;
    
    private class ProxyInvocationHandler implements InvocationHandler
    {
@@ -72,18 +65,14 @@ public class ProxyContainer
       }
    }
    
-   public ProxyContainer(String name, Domain domain, Class<?> beanClass)
+   public ProxyContainer(String name, Domain domain, Class<? extends T> beanClass)
    {
-      assert domain != null : "domain is null";
-      assert beanClass != null : "beanClass is null";
-      
-      ManagedObjectContainer delegate = new ManagedObjectContainer(name, domain, beanClass);
-      this.advisor = delegate;
+      super(name, domain, beanClass);
    }
    
-   public ProxyContainer(String name, String domainName, Class<?> beanClass)
+   public ProxyContainer(String name, String domainName, Class<? extends T> beanClass)
    {
-      this(name, getDomain(domainName), beanClass);
+      super(name, domainName, beanClass);
    }
    
    @SuppressWarnings("unchecked")
@@ -92,6 +81,7 @@ public class ProxyContainer
       // assert interfaces contains I
       Object args[] = null;
       int idx = 0; // TODO: find default constructor
+      ClassAdvisor advisor = getAdvisor();
       // ClassAdvisor
       ConstructionInfo constructionInfo = advisor.getConstructionInfos()[idx];
       Interceptor[] cInterceptors = constructionInfo.getInterceptors();
@@ -112,28 +102,5 @@ public class ProxyContainer
       //Class<?> interfaces[] = { intf };
       Object proxy = Proxy.newProxyInstance(loader, interfaces, new ProxyInvocationHandler(instance));
       return (I) proxy;
-   }
-   
-   /*
-    * TODO: this should not be here, it's an AspectManager helper function.
-    */
-   private static final Domain getDomain(String domainName)
-   {
-      DomainDefinition domainDefinition = AspectManager.instance().getContainer(domainName);
-      if(domainDefinition == null)
-         throw new IllegalArgumentException("Domain definition '" + domainName + "' can not be found");
-      
-      final Domain domain = (Domain) domainDefinition.getManager();
-      return domain;
-   }
-   
-   protected Object invoke(Object target, Method method, Object arguments[]) throws Throwable
-   {
-      long methodHash = MethodHashing.calculateHash(method);
-      MethodInfo info = advisor.getMethodInfo(methodHash);
-      MethodInvocation invocation = new MethodInvocation(info, info.getInterceptors());
-      invocation.setArguments(arguments);
-      invocation.setTargetObject(target);
-      return invocation.invokeNext();
    }
 }
