@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.interceptors.direct.DirectBean;
 import org.jboss.ejb3.test.interceptors.direct.DirectInterceptor;
@@ -47,6 +48,20 @@ public class DirectTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(DirectTestCase.class);
    
+   private class MyContainer<T> extends DirectContainer<T>
+   {
+      public MyContainer(String name, String domainName, Class<? extends T> beanClass)
+      {
+         super(name, domainName, beanClass);
+      }
+
+      public void testAdvisor()
+      {
+         assertNotNull("container not set in managed object advisor", ((ManagedObjectAdvisor<T, DirectContainer<T>>) getAdvisor()).getContainer());
+         assertTrue(((ManagedObjectAdvisor<T, DirectContainer<T>>) getAdvisor()).getContainer() == this);
+      }
+   }
+   
    public void test() throws Throwable
    {
       AspectManager.verbose = true;
@@ -59,7 +74,8 @@ public class DirectTestCase extends TestCase
       
       assertEquals(0, DirectInterceptor.postConstructs);
       
-      DirectContainer<DirectBean> container = new DirectContainer<DirectBean>("DirectBean", "InterceptorContainer", DirectBean.class);
+      MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "InterceptorContainer", DirectBean.class);
+      container.testAdvisor();
       
       DirectBean bean = container.construct();
       
