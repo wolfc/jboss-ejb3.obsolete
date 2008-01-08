@@ -21,17 +21,7 @@
  */
 package org.jboss.ejb3.interceptors.direct;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-
-import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
-import org.jboss.aop.MethodInfo;
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.ConstructionInvocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.aop.util.MethodHashing;
-import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,7 +33,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractContainer<T, DirectContainer<T>>
+public class DirectContainer<T> extends AbstractDirectContainer<T, DirectContainer<T>>
 {
    private static final Logger log = Logger.getLogger(DirectContainer.class);
    
@@ -55,70 +45,5 @@ public class DirectContainer<T> extends AbstractContainer<T, DirectContainer<T>>
    public DirectContainer(String name, String domainName, Class<? extends T> beanClass)
    {
       super(name, domainName, beanClass);
-   }
-   
-   public T construct() throws SecurityException, NoSuchMethodException
-   {
-      return construct(null, null);
-   }
-   
-   @SuppressWarnings("unchecked")
-   public T construct(Object initargs[], Class<?> parameterTypes[]) throws SecurityException, NoSuchMethodException
-   {
-      ClassAdvisor advisor = getAdvisor();
-      Constructor<T> constructor = advisor.getClazz().getConstructor(parameterTypes);
-      int idx = advisor.getConstructorIndex(constructor);
-      assert idx != -1 : "can't find constructor in the advisor";
-      try
-      {
-         T targetObject = (T) advisor.invokeNew(initargs, idx);
-         
-         Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
-         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
-         invocation.setAdvisor(advisor);
-         invocation.setTargetObject(targetObject);
-         invocation.invokeNext();
-         
-         if(targetObject instanceof IndirectContainer)
-            ((IndirectContainer<T>) targetObject).setDirectContainer(this);
-         
-         return targetObject;
-      }
-      catch(Throwable t)
-      {
-         // TODO: disect
-         if(t instanceof RuntimeException)
-            throw (RuntimeException) t;
-         throw new RuntimeException(t);
-      }
-   }
-   
-   /**
-    * Do not call, for use in indirect container implementations.
-    * @return
-    */
-   public Class<?> getBeanClass()
-   {
-      return getAdvisor().getClazz();
-   }
-   
-   public Object invokeIndirect(Object target, Method method, Object arguments[]) throws Throwable
-   {
-      long methodHash = MethodHashing.calculateHash(method);
-      MethodInfo info = getAdvisor().getMethodInfo(methodHash);
-      if(info == null)
-         throw new IllegalArgumentException("method " + method + " is not under advisement by " + this);
-      MethodInvocation invocation = new MethodInvocation(info, info.getInterceptors())
-      {
-         @Override
-         public Object invokeTarget() throws Throwable
-         {
-            // TODO: invoke the real target in special modus
-            return null;
-         }
-      };
-      invocation.setArguments(arguments);
-      invocation.setTargetObject(target);
-      return invocation.invokeNext();
    }
 }

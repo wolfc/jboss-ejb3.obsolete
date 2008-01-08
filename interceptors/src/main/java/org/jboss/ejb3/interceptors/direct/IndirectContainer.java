@@ -21,15 +21,13 @@
  */
 package org.jboss.ejb3.interceptors.direct;
 
-
-
 /**
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface IndirectContainer<T>
+public interface IndirectContainer<T, C extends AbstractDirectContainer<T, C>>
 {
-   void setDirectContainer(DirectContainer<T> container);
+   void setDirectContainer(AbstractDirectContainer<T, C> container);
 }
