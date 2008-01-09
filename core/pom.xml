@@ -193,6 +193,11 @@
       <version>${version.jboss.ha.client}</version>
     </dependency>
     <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-server-api</artifactId>
+      <version>${version.jboss.ha.server.api}</version>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
       <version>${version.jboss.deployers.core.spi}</version>
