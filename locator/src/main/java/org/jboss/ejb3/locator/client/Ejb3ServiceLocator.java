@@ -28,7 +28,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public abstract class Ejb3ServiceLocator implements JndiServiceLocator
+public abstract class Ejb3ServiceLocator implements ServiceLocator
 {
    // Class Members
 
@@ -60,7 +60,7 @@ public abstract class Ejb3ServiceLocator implements JndiServiceLocator
     *   one service across the configured local/remote hosts, or if the
     *   specified class is no an interface 
     */
-   public <T> T getStatelessService(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException
+   public <T> T getStatelessBean(Class<T> clazz) throws Ejb3NotFoundException, IllegalArgumentException
    {
       // Log
       logger.trace("getStatelessService requesting " + clazz.getName());

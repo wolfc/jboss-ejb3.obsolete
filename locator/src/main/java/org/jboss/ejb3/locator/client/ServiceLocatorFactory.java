@@ -28,14 +28,16 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.commons.validator.GenericValidator;
+
 public class ServiceLocatorFactory
 {
 
    // Class Members
-   private static JndiServiceLocator serviceLocator = null;
-   
+   private static ServiceLocator serviceLocator = null;
+
    private static final String CONFIGURATION_FILE_USER_OVERRIDE_FILENAME_SYSTEM_PROPERTY_KEY = "jboss.servicelocator.location";
-   
+
    private static final String CONFIGURATION_FILE_USER_OVERRIDE_JAR_SYSTEM_PROPERTY_KEY = "jboss.servicelocator.classloader";
 
    private static final String CONFIGURATION_FILE_DEFAULT_FILENAME = "jboss-servicelocator.xml";
@@ -75,11 +77,48 @@ public class ServiceLocatorFactory
       // Not found as default in-container file, attempt for default in-JAR file
       configuration = Thread.currentThread().getContextClassLoader().getResourceAsStream(
             ServiceLocatorFactory.CONFIGURATION_FILE_DEFAULT_OUTCONTAINER_LOCATION);
-      
-      // If default in-JAR file is not found
-      if(configuration==null)
+
+      // If default in-JAR file is not found 
+      if (configuration == null)
       {
-         //TODO
+         // Obtain in-JAR filename override
+         String inJarFileNameOverride = System
+               .getProperty(ServiceLocatorFactory.CONFIGURATION_FILE_USER_OVERRIDE_JAR_SYSTEM_PROPERTY_KEY);
+
+         // If In-JAR Filename override is specified
+         if (!GenericValidator.isBlankOrNull(inJarFileNameOverride))
+         {
+            // Obtain configuration
+            configuration = Thread.currentThread().getContextClassLoader().getResourceAsStream(inJarFileNameOverride);
+
+            // If configuration is not found
+            if (configuration == null)
+            {
+               throw new ServiceLocatorException(
+                     "Could not find configuration file in JAR as specified in in user override at \""
+                           + inJarFileNameOverride + "\"");
+            }
+         }
+
+         // Obtain file system filename override
+         String fileSystemFileNameOverride = System
+               .getProperty(ServiceLocatorFactory.CONFIGURATION_FILE_USER_OVERRIDE_FILENAME_SYSTEM_PROPERTY_KEY);
+
+         // If filesystem override is specified
+         if (!GenericValidator.isBlankOrNull(fileSystemFileNameOverride))
+         {
+            // Obtain configuration
+            configuration = Thread.currentThread().getContextClassLoader().getResourceAsStream(
+                  fileSystemFileNameOverride);
+
+            // If configuration is not found
+            if (configuration == null)
+            {
+               throw new ServiceLocatorException(
+                     "Could not find configuration file in filesystem specified in user override at \""
+                           + fileSystemFileNameOverride + "\"");
+            }
+         }
       }
 
       // Parse
@@ -92,7 +131,7 @@ public class ServiceLocatorFactory
     * 
     * @return
     */
-   public JndiServiceLocator getServiceLocator()
+   public ServiceLocator getServiceLocator()
    {
       return ServiceLocatorFactory.serviceLocator;
    }

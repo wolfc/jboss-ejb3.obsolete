@@ -308,7 +308,7 @@ public final class Ejb3ServiceLocatorImpl extends Ejb3ServiceLocator
    {
       Properties props = new Properties();
       props.put(Context.INITIAL_CONTEXT_FACTORY, "org.jnp.interfaces.NamingContextFactory");
-      props.put(Context.URL_PKG_PREFIXES, "org.jboss.naming");
+      props.put(Context.URL_PKG_PREFIXES, "org.jboss.naming:org.jnp.interfaces");
       return props;
    }
 
@@ -336,6 +336,7 @@ public final class Ejb3ServiceLocatorImpl extends Ejb3ServiceLocator
    /**
     * 
     */
+   @SuppressWarnings("unchecked")
    private <T> T getObject(JndiHost host, Class<T> clazz) throws Ejb3NotFoundException
    {
       // Determine JNDI Host providing type
