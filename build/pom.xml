@@ -17,7 +17,7 @@
   be used as the default goal.  In order to use the "deploy" goal, 
   the jboss.repository.root should be specified in settings.xml.
   
-  See: http://wiki.jboss.org/wiki/Wiki.jsp?page=MavenSettings
+  See: http://wiki.jboss.org/wiki/Wiki.jsp?page=Maven
   
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -68,7 +68,7 @@
     </developer>
     <developer>
       <name>Andrew Lee Rubinger</name>
-      <email>andrew.rubinger@redhat.com</email>
+      <email>andrew.rubinger@jboss.org</email>
       <organization>JBoss, a division of Red Hat, Inc.</organization>
       <organizationUrl>http://www.jboss.com</organizationUrl>
       <roles>
@@ -111,33 +111,54 @@
       
     -->
 
-    <!-- EJB3 External API -->
-    <version.jboss.ejb3.ext-api>
-      0.1.3-SNAPSHOT
-    </version.jboss.ejb3.ext-api>
-    <!-- EJB3 Implementation Classes conforming to API -->
-    <version.jboss.ejb3.impl>0.1.3-SNAPSHOT</version.jboss.ejb3.impl>
+    <version.org.jboss.ejb3:jboss-ejb3-cache>0.13.0-SNAPSHOT</version.org.jboss.ejb3:jboss-ejb3-cache>
+    <version.org.jboss.ejb3:jboss-ejb3-ext-api>0.1.3-SNAPSHOT</version.org.jboss.ejb3:jboss-ejb3-ext-api>
+    <version.org.jboss.ejb3:jboss-ejb3-impl>0.1.3-SNAPSHOT</version.org.jboss.ejb3:jboss-ejb3-impl>
+    <version.org.jboss.ejb3:jboss-ejb3-pool>0.13.0-SNAPSHOT</version.org.jboss.ejb3:jboss-ejb3-pool>
 
     <!--  
       
       External
       
     -->
-    <version.apache.commons.digester>1.8</version.apache.commons.digester>
-    <version.apache.commons.validator>1.3.1</version.apache.commons.validator>
-    <version.ant.junit>3.8.1</version.ant.junit>
-    <version.gnu.trove>1.0.2</version.gnu.trove>
-    <version.jboss.aop>2.0.0.beta1</version.jboss.aop>
-    <version.jboss.common.core>2.2.1.GA</version.jboss.common.core>
-    <version.jboss.ha.server.api>1.0.0.BETA2-SNAPSHOT</version.jboss.ha.server.api>
-    <version.jboss.common.logging.log4j>2.0.4.GA</version.jboss.common.logging.log4j>
-    <version.jboss.ejb.api>3.0.0.20070913080910</version.jboss.ejb.api>
-    <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
-    <version.jboss.logging.spi>2.0.2.GA</version.jboss.logging.spi>
+    <version.ant:ant>1.6.5</version.ant:ant>
+    <version.commons-digester:commons-digester>1.8</version.commons-digester:commons-digester>
+    <version.commons-validator:commons-validator>1.3.1</version.commons-validator:commons-validator>
+    <version.jboss:jboss-common-logging-log4j>2.0.4.GA</version.jboss:jboss-common-logging-log4j>
+    <version.jboss:jboss-logging-log4j>2.0.2.GA</version.jboss:jboss-logging-log4j>
+    <version.jboss:jboss-logging-spi>2.0.2.GA</version.jboss:jboss-logging-spi>
+    <version.jboss:jboss-serialization>1.0.3.GA</version.jboss:jboss-serialization>
     <version.jboss.remoting></version.jboss.remoting>
-    <version.jboss.serialization>1.0.3.GA</version.jboss.serialization>
-    <version.junit>4.4</version.junit>
-
+    <version.junit:junit>4.4</version.junit:junit>
+    <version.org.hibernate:ejb3-persistence>3.3.2.Beta1</version.org.hibernate:ejb3-persistence>
+    <version.org.hibernate:hibernate>3.2.4.sp1</version.org.hibernate:hibernate>
+    <version.org.hibernate:hibernate-annotations>3.3.0.ga</version.org.hibernate:hibernate-annotations>
+    <version.org.hibernate:hibernate-entitymanager>3.3.2.Beta1</version.org.hibernate:hibernate-entitymanager>
+    <version.org.jboss:jboss-common-core>2.2.1.GA</version.org.jboss:jboss-common-core>
+    <version.org.jboss:jboss-metadata>1.0.0.Beta4</version.org.jboss:jboss-metadata>
+    <version.org.jboss:jboss-transaction-spi>5.0.0.Beta4</version.org.jboss:jboss-transaction-spi>
+    <version.org.jboss:jboss-test>1.0.5-20071215.191923-3</version.org.jboss:jboss-test>
+    <version.org.jboss.aop:jboss-aop>2.0.0.CR1</version.org.jboss.aop:jboss-aop>
+    <version.org.jboss.aop:jboss-aop-aspects>2.0.0-SNAPSHOT</version.org.jboss.aop:jboss-aop-aspects>
+    <version.org.jboss.cluster:jboss-ha-client>1.0.0.BETA2-SNAPSHOT</version.org.jboss.cluster:jboss-ha-client>
+    <version.org.jboss.cluster:jboss-ha-server-api>1.0.0.BETA2-SNAPSHOT</version.org.jboss.cluster:jboss-ha-server-api>
+    <version.org.jboss.javaee:jboss-ejb-api>3.0.0.20070913080910</version.org.jboss.javaee:jboss-ejb-api>
+    <version.org.jboss.javaee:jboss-jacc-api>1.1.0.Beta3Update1</version.org.jboss.javaee:jboss-jacc-api>
+    <version.org.jboss.javaee:jboss-jca-api>1.5.0.Beta3Update1</version.org.jboss.javaee:jboss-jca-api>
+    <version.org.jboss.javaee:jboss-persistence-api>3.0.0.Beta3Update1</version.org.jboss.javaee:jboss-persistence-api>
+    <version.org.jboss.jbossas:jboss-as-aspects>5.0.0-SNAPSHOT</version.org.jboss.jbossas:jboss-as-aspects>
+    <version.org.jboss.jbossas:jboss-as-connector>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-connector>
+    <version.org.jboss.jbossas:jboss-as-iiop>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-iiop>
+    <version.org.jboss.jbossas:jboss-as-naming>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-naming>
+    <version.org.jboss:jnpserver>?</version.org.jboss:jnpserver>
+    <version.org.jboss.microcontainer:jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-deployers-core-spi>
+    <version.org.jboss.microcontainer:jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer:jboss-deployers-vfs-spi>
+    <version.org.jboss.microcontainer:jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-kernel>
+    <version.org.jboss.security:jboss-security-spi-bare>2.0.2.Beta1</version.org.jboss.security:jboss-security-spi-bare>
+    <version.org.jboss.security:jbosssx-client>2.0.2.beta</version.org.jboss.security:jbosssx-client>
+    <version.trove:trove>1.0.2</version.trove:trove>
+    <version.quartz:quartz>1.6.0</version.quartz:quartz>
+   
     <!-- Miscellaneous -->
     <jvmargs></jvmargs>
 
@@ -218,6 +239,17 @@
         </configuration>
       </plugin>
 
+      <!-- Maven RAR Plugin Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-rar-plugin</artifactId>
+        <configuration>
+          <includeJar>true</includeJar>
+          <rarSourceDirectory>src/main/java</rarSourceDirectory>
+          <raXmlFile>src/main/resources/META-INF/ra.xml</raXmlFile>
+        </configuration>
+      </plugin>
+
       <!-- JBoss Deploy Plugin -->
       <plugin>
         <groupId>org.jboss.maven.plugins</groupId>
@@ -281,12 +313,25 @@
       <dependency>
         <groupId>org.jboss.ejb3</groupId>
         <artifactId>jboss-ejb3-ext-api</artifactId>
-        <version>${version.jboss.ejb3.ext-api}</version>
+        <version>${version.org.jboss.ejb3:jboss-ejb3-ext-api}</version>
       </dependency>
+      <!-- EJB Implementation Classes -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-impl</artifactId>
+        <version>${version.org.jboss.ejb3:jboss-ejb3-impl}</version>
+      </dependency>
+      <!-- EJB3 Pool -->
       <dependency>
         <groupId>org.jboss.ejb3</groupId>
         <artifactId>jboss-ejb3-pool</artifactId>
-        <version>${project.version}</version>
+        <version>${version.org.jboss.ejb3:jboss-ejb3-pool}</version>
+      </dependency>
+      <!-- EJB3 Cache -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-cache</artifactId>
+        <version>${version.org.jboss.ejb3:jboss-ejb3-cache}</version>
       </dependency>
 
       <!-- 
@@ -299,90 +344,238 @@
       <dependency>
         <groupId>commons-digester</groupId>
         <artifactId>commons-digester</artifactId>
-        <version>${version.apache.commons.digester}</version>
+        <version>${version.commons-digester:commons-digester}</version>
       </dependency>
 
       <!-- Apache Commons Validator -->
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>${version.apache.commons.validator}</version>
+        <version>${version.commons-validator:commons-validator}</version>
       </dependency>
 
-      <!-- GNU Trove -->
+      <!-- Apache Ant -->
       <dependency>
-        <groupId>trove</groupId>
-        <artifactId>trove</artifactId>
-        <version>${version.gnu.trove}</version>
+        <groupId>ant</groupId>
+        <artifactId>ant</artifactId>
+        <version>${version.ant:ant}</version>
+      </dependency>
+
+      <!-- Hibernate -->
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate</artifactId>
+        <version>${version.org.hibernate:hibernate}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-annotations</artifactId>
+        <version>${version.org.hibernate:hibernate-annotations}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>${version.org.hibernate:hibernate-entitymanager}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>ejb3-persistence</artifactId>
+        <version>${version.org.hibernate:ejb3-persistence}</version>
       </dependency>
 
       <!-- JavaEE EJB3 API -->
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-ejb-api</artifactId>
-        <version>${version.jboss.ejb.api}</version>
+        <version>${version.org.jboss.javaee:jboss-ejb-api}</version>
+      </dependency>
+
+      <!-- JavaEE JCA API -->
+      <dependency>
+        <groupId>org.jboss.javaee</groupId>
+        <artifactId>jboss-jca-api</artifactId>
+        <version>${version.org.jboss.javaee:jboss-jca-api}</version>
+      </dependency>
+
+      <!-- JavaEE JACC API -->
+      <dependency>
+        <groupId>org.jboss.javaee</groupId>
+        <artifactId>jboss-jacc-api</artifactId>
+        <version>${version.org.jboss.javaee:jboss-jacc-api}</version>
+      </dependency>
+
+      <!-- JavaEE JPA API -->
+      <dependency>
+        <groupId>org.jboss.javaee</groupId>
+        <artifactId>jboss-persistence-api</artifactId>
+        <version>${version.org.jboss.javaee:jboss-persistence-api}</version>
       </dependency>
 
       <!-- JBoss AOP -->
       <dependency>
         <groupId>org.jboss.aop</groupId>
         <artifactId>jboss-aop</artifactId>
-        <version>${version.jboss.aop}</version>
+        <version>${version.org.jboss.aop:jboss-aop}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.aop</groupId>
+        <artifactId>jboss-aop-aspects</artifactId>
+        <version>${version.org.jboss.aop:jboss-aop-aspects}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.jbossas</groupId>
+        <artifactId>jboss-as-aspects</artifactId>
+        <version>${version.org.jboss.jbossas:jboss-as-aspects}</version>
       </dependency>
 
       <!-- JBoss Common Core -->
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
-        <version>${version.jboss.common.core}</version>
+        <version>${version.org.jboss:jboss-common-core}</version>
+      </dependency>
+
+      <!-- JBoss Connector -->
+      <dependency>
+        <groupId>org.jboss.jbossas</groupId>
+        <artifactId>jboss-as-connector</artifactId>
+        <version>${version.org.jboss.jbossas:jboss-as-connector}</version>
+      </dependency>
+
+      <!-- JBoss HA -->
+      <dependency>
+        <groupId>org.jboss.cluster</groupId>
+        <artifactId>jboss-ha-client</artifactId>
+        <version>${version.org.jboss.cluster:jboss-ha-client}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.cluster</groupId>
+        <artifactId>jboss-ha-server-api</artifactId>
+        <version>${version.org.jboss.cluster:jboss-ha-server-api}</version>
+      </dependency>
+
+      <!-- JBoss IIOP -->
+      <dependency>
+        <groupId>org.jboss.jbossas</groupId>
+        <artifactId>jboss-as-iiop</artifactId>
+        <version>${version.org.jboss.jbossas:jboss-as-iiop}</version>
+      </dependency>
+
+      <!-- JBoss JNP Server -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jnpserver</artifactId>
+        <version>${version.org.jboss:jnpserver}</version>
+        <scope>test</scope>
       </dependency>
 
       <!-- JBoss Logging -->
       <dependency>
         <groupId>jboss</groupId>
         <artifactId>jboss-logging-log4j</artifactId>
-        <version>${version.jboss.logging.log4j}</version>
+        <version>${version.jboss:jboss-logging-log4j}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>jboss</groupId>
         <artifactId>jboss-common-logging-log4j</artifactId>
-        <version>${version.jboss.common.logging.log4j}</version>
+        <version>${version.jboss:jboss-common-logging-log4j}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>jboss</groupId>
         <artifactId>jboss-logging-spi</artifactId>
-        <version>${version.jboss.logging.spi}</version>
+        <version>${version.jboss:jboss-logging-spi}</version>
+      </dependency>
+      
+      <!-- JBoss Metadata -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-metadata</artifactId>
+        <version>${version.org.jboss:jboss-metadata}</version>
       </dependency>
 
-      <!--dependency>
-        <groupId>jboss</groupId>
-        <artifactId>jboss-remoting</artifactId>
-        <version>${version.jboss.remoting}</version>
-      </dependency-->
-      
+      <!-- JBoss Microcontainer -->
+      <dependency>
+        <groupId>org.jboss.microcontainer</groupId>
+        <artifactId>jboss-kernel</artifactId>
+        <version>${version.org.jboss.microcontainer:jboss-kernel}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.microcontainer</groupId>
+        <artifactId>jboss-deployers-core-spi</artifactId>
+        <version>${version.org.jboss.microcontainer:jboss-deployers-core-spi}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.microcontainer</groupId>
+        <artifactId>jboss-deployers-vfs-spi</artifactId>
+        <version>${version.org.jboss.microcontainer:jboss-deployers-vfs-spi}</version>
+      </dependency>
+
+      <!-- JBoss Naming -->
+      <dependency>
+        <groupId>org.jboss.jbossas</groupId>
+        <artifactId>jboss-as-naming</artifactId>
+        <version>${version.org.jboss.jbossas:jboss-as-naming}</version>
+      </dependency>
+
+      <!-- JBoss Security SPI -->
+      <dependency>
+        <groupId>org.jboss.security</groupId>
+        <artifactId>jboss-security-spi-bare</artifactId>
+        <version>${version.org.jboss.security:jboss-security-spi-bare}</version>
+      </dependency>
+
+      <!-- JBoss SX Client -->
+      <dependency>
+        <groupId>org.jboss.security</groupId>
+        <artifactId>jbosssx-client</artifactId>
+        <version>${version.org.jboss.security:jbosssx-client}</version>
+      </dependency>
+
       <!-- JBoss Serialization -->
       <dependency>
         <groupId>jboss</groupId>
         <artifactId>jboss-serialization</artifactId>
-        <version>${version.jboss.serialization}</version>
+        <version>${version.jboss:jboss-serialization}</version>
+      </dependency>
+
+      <!-- JBoss Test -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-test</artifactId>
+        <version>${version.org.jboss:jboss-test}</version>
+      </dependency>
+
+      <!-- JBoss Transaction SPI -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-transaction-spi</artifactId>
+        <version>${version.org.jboss:jboss-transaction-spi}</version>
       </dependency>
 
       <!-- JUnit -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>${version.junit}</version>
+        <version>${version.junit:junit}</version>
         <scope>test</scope>
       </dependency>
-      
+
+      <!-- GNU Trove -->
       <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jnpserver</artifactId>
-        <version>${version.jnpserver}</version>
-        <scope>test</scope>
+        <groupId>trove</groupId>
+        <artifactId>trove</artifactId>
+        <version>${version.trove:trove}</version>
       </dependency>
+
+      <!-- Quartz -->
+      <dependency>
+        <groupId>quartz</groupId>
+        <artifactId>quartz</artifactId>
+        <version>${version.quartz:quartz}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
