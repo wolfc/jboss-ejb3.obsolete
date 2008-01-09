@@ -19,39 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.direct;
+package org.jboss.ejb3.interceptors.annotation;
 
-import org.jboss.aop.Advisor;
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
-import org.jboss.logging.Logger;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
- * The direct container invokes interceptors directly on an instance.
+ * A container can advise multiple classes for annotations.
  * 
- * It's useful in an environment where we don't want to fiddle with the
- * classloader and still have control on how instances are called.
+ * (An AOP Advisor can only do one.)
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractDirectContainer<T, DirectContainer<T>>
+public interface AnnotationAdvisor
 {
-   private static final Logger log = Logger.getLogger(DirectContainer.class);
+   <T extends Annotation> T getAnnotation(Class<?> cls, Class<T> annotationClass);
    
-   public DirectContainer(String name, Domain domain, Class<? extends T> beanClass)
-   {
-      super(name, domain, beanClass);
-   }
+   <T extends Annotation> T getAnnotation(Class<?> cls, Field field, Class<T> annotationClass);
    
-   public DirectContainer(String name, String domainName, Class<? extends T> beanClass)
-   {
-      super(name, domainName, beanClass);
-   }
+   <T extends Annotation> T getAnnotation(Class<?> cls, Method method, Class<T> annotationClass);
    
-   @SuppressWarnings("unchecked")
-   public static <C extends DirectContainer<?>> C getContainer(Advisor advisor)
-   {
-      return (C) ((ManagedObjectAdvisor<?, DirectContainer<C>>) advisor).getContainer();
-   }
+   boolean isAnnotationPresent(Class<?> cls, Class<? extends Annotation> annotationClass);
+   
+   boolean isAnnotationPresent(Class<?> cls, Field field, Class<? extends Annotation> annotationClass);
+   
+   boolean isAnnotationPresent(Class<?> cls, Method method, Class<? extends Annotation> annotationClass);
 }

@@ -34,6 +34,8 @@ import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
+import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorHelper;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -55,6 +57,8 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          log.debug(" advisor " + advisor.getClass().getName());
          log.debug(" instanceAdvisor " + toString(instanceAdvisor));
          
+         // TODO: the whole interceptor advisor & annotation stuff is butt ugly
+         
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          assert interceptorsAnnotation != null : "interceptors annotation not found"; // FIXME: not correct, bean can be without interceptors
          List<Interceptor> postConstructs = new ArrayList<Interceptor>();
@@ -63,18 +67,19 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          {
             Object interceptor = interceptorClass.newInstance();
             //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
-            Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
-            log.debug("  interceptorAdvisor = " + interceptorAdvisor.getName());
+            //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
+            AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+            log.debug("  interceptorAdvisor = " + interceptorAdvisor);
 //            InstanceAdvisor interceptorInstanceAdvisor = ((Advised) interceptor)._getInstanceAdvisor();
 //            log.debug("  interceptorInstanceAdvisor = " + interceptorInstanceAdvisor.getClass().getName());
             // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
             for(Method method : ClassHelper.getAllMethods(interceptorClass))
             {
-               if(interceptorAdvisor.hasAnnotation(method, PostConstruct.class))
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
                {
                   postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
                }
-               if(interceptorAdvisor.hasAnnotation(method, AroundInvoke.class))
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
                {
                   classInterceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
                }
@@ -97,16 +102,17 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                   // FIXME: do not create perse, we might already have done that
                   Object interceptor = interceptorClass.newInstance();
                   //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
-                  Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
+                  //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
+                  AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
                   for(Method method : ClassHelper.getAllMethods(interceptorClass))
                   {
                      /* EJB 3 12.7 footnote 57: no lifecycle callbacks on business method interceptors
-                     if(interceptorAdvisor.hasAnnotation(method, PostConstruct.class))
+                     if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
                      {
                         postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
                      }
                      */
-                     if(interceptorAdvisor.hasAnnotation(method, AroundInvoke.class))
+                     if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
                      {
                         businessMethodInterceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
                      }

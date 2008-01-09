@@ -74,7 +74,7 @@ public class DirectTestCase extends TestCase
       
       assertEquals(0, DirectInterceptor.postConstructs);
       
-      MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "InterceptorContainer", DirectBean.class);
+      MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "Test", DirectBean.class);
       container.testAdvisor();
       
       DirectBean bean = container.construct();
