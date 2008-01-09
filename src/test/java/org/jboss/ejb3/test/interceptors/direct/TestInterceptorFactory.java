@@ -19,39 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.direct;
+package org.jboss.ejb3.test.interceptors.direct;
 
 import org.jboss.aop.Advisor;
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.ejb3.interceptors.aop.AbstractInterceptorFactory;
+import org.jboss.ejb3.interceptors.aop.InterceptorSequencer;
+import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.logging.Logger;
 
 /**
- * The direct container invokes interceptors directly on an instance.
- * 
- * It's useful in an environment where we don't want to fiddle with the
- * classloader and still have control on how instances are called.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractDirectContainer<T, DirectContainer<T>>
+public class TestInterceptorFactory extends AbstractInterceptorFactory
 {
-   private static final Logger log = Logger.getLogger(DirectContainer.class);
+   private static final Logger log = Logger.getLogger(TestInterceptorFactory.class);
    
-   public DirectContainer(String name, Domain domain, Class<? extends T> beanClass)
+   @Override
+   public Object createPerClass(Advisor advisor)
    {
-      super(name, domain, beanClass);
-   }
-   
-   public DirectContainer(String name, String domainName, Class<? extends T> beanClass)
-   {
-      super(name, domainName, beanClass);
-   }
-   
-   @SuppressWarnings("unchecked")
-   public static <C extends DirectContainer<?>> C getContainer(Advisor advisor)
-   {
-      return (C) ((ManagedObjectAdvisor<?, DirectContainer<C>>) advisor).getContainer();
+      log.info("advisor = " + advisor);
+      // This must not throw a ClassCastException
+      DirectContainer.getContainer(advisor);
+      return new InterceptorSequencer(new Interceptor[0]);
    }
 }

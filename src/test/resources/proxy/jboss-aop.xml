@@ -115,4 +115,12 @@
 			<around name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
 		</bind>
 	</domain>
+	
+	<aspect name="org.jboss.ejb3.test.interceptors.direct.TestInterceptor" factory="org.jboss.ejb3.test.interceptors.direct.TestInterceptorFactory" scope="PER_CLASS"/>
+	
+	<domain name="Test" extends="InterceptorContainer" inheritBindings="true">
+		<bind pointcut="execution(public * *->*(..))">
+			<around name="aroundInvoke" aspect="org.jboss.ejb3.test.interceptors.direct.TestInterceptor"/>
+		</bind>
+	</domain>
 </aop>

@@ -30,6 +30,8 @@ import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
+import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
+import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -39,7 +41,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>>
+public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> extends AnnotationAdvisorSupport implements AnnotationAdvisor
 {
    private static final Logger log = Logger.getLogger(AbstractContainer.class);
    
