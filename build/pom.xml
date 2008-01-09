@@ -129,6 +129,7 @@
     <version.gnu.trove>1.0.2</version.gnu.trove>
     <version.jboss.aop>2.0.0.beta1</version.jboss.aop>
     <version.jboss.common.core>2.2.1.GA</version.jboss.common.core>
+    <version.jboss.ha.server.api>1.0.0.BETA2-SNAPSHOT</version.jboss.ha.server.api>
     <version.jboss.common.logging.log4j>2.0.4.GA</version.jboss.common.logging.log4j>
     <version.jboss.ejb.api>3.0.0.20070913080910</version.jboss.ejb.api>
     <version.jboss.logging.log4j>2.0.2.GA</version.jboss.logging.log4j>
