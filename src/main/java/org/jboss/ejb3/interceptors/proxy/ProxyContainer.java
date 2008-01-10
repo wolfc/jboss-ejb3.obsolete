@@ -25,13 +25,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 
-import org.jboss.aop.ClassAdvisor;
-import org.jboss.aop.ConstructionInfo;
 import org.jboss.aop.Domain;
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.logging.Logger;
 
@@ -50,9 +45,9 @@ public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
    
    private class ProxyInvocationHandler implements InvocationHandler
    {
-      private Object target;
+      private T target;
       
-      public ProxyInvocationHandler(Object target)
+      public ProxyInvocationHandler(T target)
       {
          assert target != null : "target is null";
          
@@ -78,25 +73,8 @@ public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
    @SuppressWarnings("unchecked")
    public <I> I constructProxy(Class<?> interfaces[]) throws Throwable
    {
-      // assert interfaces contains I
-      Object args[] = null;
-      int idx = 0; // TODO: find default constructor
-      ClassAdvisor advisor = getAdvisor();
-      // ClassAdvisor
-      ConstructionInfo constructionInfo = advisor.getConstructionInfos()[idx];
-      Interceptor[] cInterceptors = constructionInfo.getInterceptors();
-      if (cInterceptors == null) cInterceptors = new Interceptor[0];
-      log.debug("constructor interceptors " + Arrays.toString(cInterceptors));
-      Constructor<?> constructor = advisor.getConstructors()[idx];
-      ConstructionInvocation invocation = new ConstructionInvocation(cInterceptors, constructor);
-      
-      invocation.setAdvisor(advisor);
-      invocation.setArguments(args);
-      // First we create the instance
-      Object instance = constructor.newInstance();
-      invocation.setTargetObject(instance);
-      // then we do (construction) interception
-      invocation.invokeNext();
+      Constructor<? extends T> constructor = getBeanClass().getConstructor();
+      T instance = construct(constructor);
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       //Class<?> interfaces[] = { intf };
