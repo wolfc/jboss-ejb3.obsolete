@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+	
+  <description>JBoss EJB3 Test</description>
+  <display-name>Test</display-name>
+  <enterprise-beans>
+    <session>
+      <ejb-name>Foo</ejb-name>
+      <ejb-class>org.jboss.ejb3.test.dd.override.FooBean1</ejb-class>
+    </session>
+
+	<session>
+		<ejb-name>LocalFoo</ejb-name>
+        <remote>org.jboss.ejb3.test.dd.override.LocalFoo</remote>
+        <ejb-class>org.jboss.ejb3.test.dd.override.LocalFooBean</ejb-class>
+	</session>
+  </enterprise-beans>
+  <assembly-descriptor>
+    <method-permission>
+      <role-name>allowed</role-name>
+      <method>
+        <ejb-name>Foo</ejb-name>
+        <method-name>bar</method-name>
+      </method>
+    </method-permission>
+
+    <container-transaction>
+      <method>
+        <ejb-name>Foo</ejb-name>
+        <method-name>bar</method-name>
+      </method>
+      <trans-attribute>NotSupported</trans-attribute>
+    </container-transaction>
+  </assembly-descriptor>
+</ejb-jar>

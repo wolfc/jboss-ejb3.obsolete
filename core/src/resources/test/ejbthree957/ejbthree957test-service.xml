@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=ejbthree957">
+      <attribute name="JNDIName">queue/ejbthree957In</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+
+   <mbean code="org.jboss.mq.server.jmx.Queue"
+      name="jboss.mq.destination:service=Queue,name=ejbthree957Out">
+      <attribute name="JNDIName">queue/ejbthree957Out</attribute>
+      <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+   </mbean>
+</server>

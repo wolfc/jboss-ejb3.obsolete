@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE aop PUBLIC
+   "-//JBoss//DTD JBOSS AOP 1.0//EN"
+   "http://labs.jboss.com/portal/jbossaop/dtd/jboss-aop_1_0.dtd">
+
+<aop>
+   <!--interceptor class="org.jboss.ejb3.asynchronous.AsynchronousInterceptor" scope="PER_CLASS"/>
+   <interceptor class="org.jboss.ejb3.ENCPropagationInterceptor" scope="PER_VM"/>
+   <interceptor factory="org.jboss.ejb3.security.AuthenticationInterceptorFactory" scope="PER_CLASS"/>
+   <interceptor name="Basic Authorization" factory="org.jboss.ejb3.security.RoleBasedAuthorizationInterceptorFactory" scope="PER_CLASS"/>
+   <interceptor factory="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory" scope="PER_CLASS"/>
+   <interceptor factory="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory" scope="PER_CLASS"/>
+   <interceptor class="org.jboss.ejb3.stateless.StatelessInstanceInterceptor" scope="PER_VM"/>
+   <interceptor class="org.jboss.aspects.tx.ClientTxPropagationInterceptor" scope="PER_VM"/>
+   <interceptor factory="org.jboss.ejb3.tx.TxInterceptorFactory" scope="PER_CLASS_JOINPOINT"/>
+   <interceptor class="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor" scope="PER_VM"/>
+   <interceptor factory="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory" scope="PER_CLASS_JOINPOINT"/-->
+   
+   <domain name="Test Stateless Bean">
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
+      </bind>
+      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..))">
+         <interceptor-ref name="Basic Authorization"/>
+      </bind>
+      <bind pointcut="execution(public * @javax.annotation.security.RunAs->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
+      </bind>
+      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.Clustered->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory"/>
+      </bind>
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
+         <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/>
+      </bind>
+      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
+         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy.class)
+      </annotation>
+      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+         @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
+      </annotation>
+      <annotation expr="!class(@org.jboss.ejb3.annotation.RemoteBinding)">
+         @org.jboss.ejb3.annotation.RemoteBinding (jndiBinding="DefaultedStateless", factory = "RemoteProxyFactory", interceptorStack="", clientBindUrl = "")
+      </annotation>
+   </domain>
+</aop>
