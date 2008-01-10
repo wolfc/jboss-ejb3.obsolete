@@ -69,39 +69,39 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
          
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
-         assert interceptorsAnnotation != null : "interceptors annotation not found"; // FIXME: not correct, bean can be without interceptors
          Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
          List<Interceptor> postConstructs = new ArrayList<Interceptor>();
          List<Interceptor> classInterceptors = new ArrayList<Interceptor>();
-         for(Class<?> interceptorClass : interceptorsAnnotation.value())
+         if(interceptorsAnnotation != null)
          {
-            // TODO: what if I've specified the same interceptor twice? (throw an Exception?)
-            Object interceptor = interceptors.get(interceptorClass);
-            if(interceptor == null)
+            for(Class<?> interceptorClass : interceptorsAnnotation.value())
             {
-               interceptor = interceptorFactory.create(advisor, interceptorClass);
-               interceptors.put(interceptorClass, interceptor);
-            }
-            //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
-            //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
-            AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
-            log.debug("  interceptorAdvisor = " + interceptorAdvisor);
-//            InstanceAdvisor interceptorInstanceAdvisor = ((Advised) interceptor)._getInstanceAdvisor();
-//            log.debug("  interceptorInstanceAdvisor = " + interceptorInstanceAdvisor.getClass().getName());
-            // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
-            for(Method method : ClassHelper.getAllMethods(interceptorClass))
-            {
-               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
+               // TODO: what if I've specified the same interceptor twice? (throw an Exception?)
+               Object interceptor = interceptors.get(interceptorClass);
+               if(interceptor == null)
                {
-                  postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
+                  interceptor = interceptorFactory.create(advisor, interceptorClass);
+                  interceptors.put(interceptorClass, interceptor);
                }
-               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
+               //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+               //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
+               AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+               log.debug("  interceptorAdvisor = " + interceptorAdvisor);
+               // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
+               for(Method method : ClassHelper.getAllMethods(interceptorClass))
                {
-                  classInterceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
+                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
+                  {
+                     postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
+                  }
+                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
+                  {
+                     classInterceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
+                  }
                }
+               //instanceAdvisor.appendInterceptorStack(stackName);
+               //instanceAdvisor.appendInterceptor(new InvokeSpecInterceptorInterceptor());
             }
-            //instanceAdvisor.appendInterceptorStack(stackName);
-            //instanceAdvisor.appendInterceptor(new InvokeSpecInterceptorInterceptor());
          }
          
          Class<?> beanClass = advisor.getClazz();
@@ -138,7 +138,6 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                      }
                   }
                }
-               assert businessMethodInterceptors.size() > 0 : "TODO: lucky guess";
                instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, beanMethod, businessMethodInterceptors);
             }
             
