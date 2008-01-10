@@ -24,12 +24,13 @@ package org.jboss.ejb3.stateful;
 import java.lang.reflect.Method;
 
 import javax.ejb.Remove;
+
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.advice.AspectFactory;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.joinpoint.MethodJoinpoint;
-import org.jboss.ejb.RemoveImpl;
+import org.jboss.ejb3.annotation.impl.RemoveImpl;
 import org.jboss.logging.Logger;
 
 /**

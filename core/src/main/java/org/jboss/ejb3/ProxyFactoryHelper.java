@@ -39,14 +39,14 @@ import javax.jws.WebService;
 import javax.management.ObjectName;
 
 import org.jboss.aop.Advisor;
-import org.jboss.ejb.LocalImpl;
-import org.jboss.ejb.RemoteImpl;
 import org.jboss.ejb3.annotation.JndiBindingPolicy;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.annotation.RemoteHomeBinding;
+import org.jboss.ejb3.annotation.impl.LocalImpl;
+import org.jboss.ejb3.annotation.impl.RemoteImpl;
 import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
 import org.jboss.ejb3.jndipolicy.Ejb3DeploymentSummary;
 import org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy;
