@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="urn:jboss:bean-deployer bean-deployer_1_0.xsd"
+  xmlns="urn:jboss:bean-deployer">
+  
+  <bean name="jboss.mq.destination:service=Queue,name=defaultedqueuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>defaultedmdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=overridedefaultedqueuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>overridedefaultedmdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=nondurablequeuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>nondurablemdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=bmtqueuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>bmtmdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=overridequeuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>overridequeuetest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Topic,name=topictest" class="org.jboss.mq.kernel.Topic">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>mdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=queuetest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>mdbtest</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=expirytest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>expirytest</value></property>
+    <property name="expiryDestinationJndi"><value>queue/DLQ</value></property>
+  </bean>
+  
+  <bean name="jboss.mq.destination:service=Queue,name=dlqtest" class="org.jboss.mq.kernel.Queue">
+    <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+    <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+    <property name="destinationName"><value>dlqtest</value></property>
+  </bean>
+  
+</deployment>
+

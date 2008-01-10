@@ -1,0 +1,31 @@
+<Server>
+
+   <!-- Optional listener which ensures correct init and shutdown of APR,
+        and provides information if it is not installed -->
+   <Listener className="org.apache.catalina.core.AprLifecycleListener" />
+
+   <Service name="jboss.web"
+      className="org.jboss.web.tomcat.tc6.StandardService">
+
+      <Connector port="8080" address="${jboss.bind.address}"
+         maxThreads="250" strategy="ms" maxHttpHeaderSize="8192"
+         emptySessionPath="true"
+         enableLookups="false" redirectPort="8443" acceptCount="100"
+         connectionTimeout="20000" disableUploadTimeout="true"/>
+
+      <Engine name="jboss.web" defaultHost="localhost">
+         <Realm className="org.jboss.web.tomcat.security.JaccAuthorizationRealm"
+            certificatePrincipal="org.jboss.security.auth.certs.SubjectDNMapping"
+            allRolesMode="authOnly"
+            />
+         
+         <Host name="localhost"
+            autoDeploy="false" deployOnStartup="false" deployXML="false" >
+            
+            <Valve className="org.apache.catalina.authenticator.SingleSignOn" />
+            
+            <DefaultContext cookies="true" crossContext="true" override="true"/>
+         </Host> 
+      </Engine>
+   </Service>
+</Server>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:jboss:bean-deployer bean-deployer_1_0.xsd"
+            xmlns="urn:jboss:bean-deployer">
+
+   <bean name="jcainflow-rar-WorkManager" class="org.jboss.ejb3.embedded.resource.JBossWorkManager">
+   </bean>
+
+   <bean name="jcainflow-rar-DeploymentInfo" class="org.jboss.ejb3.embedded.resource.Ejb3DeploymentInfo">
+      <constructor>
+         <parameter class="java.lang.String">jcainflow.rar</parameter>
+         <parameter class="java.lang.String">org.jboss.ejb3.test.jca.inflow.TestMessageListener</parameter>
+         <parameter class="java.lang.String">org.jboss.ejb3.test.jca.inflow.TestActivationSpec</parameter>
+      </constructor>
+   </bean>
+   
+   <bean name="jboss.jca:name='jcainflow.rar',service=RARDeployment" class="org.jboss.ejb3.embedded.resource.RARDeployment">
+   <!--bean name="jboss.test:test=TestResourceAdapter" class="org.jboss.ejb3.embedded.resource.RARDeployment"-->
+         <constructor>
+         <parameter class="org.jboss.deployment.DeploymentInfo">
+            <inject bean="jcainflow-rar-DeploymentInfo"/>
+         </parameter>
+      </constructor>
+      <property name="workManager"><inject bean="jcainflow-rar-WorkManager"/></property>
+   </bean>
+   
+   <bean name="jboss.mq.destination:service=Queue,name=queuetest" class="org.jboss.mq.kernel.Queue">
+      <property name="destinationManagerPojo"><inject bean="jboss.mq:service=DestinationManager"/></property>
+      <property name="initialContextProperties"><inject bean="InitialContextProperties"/></property>
+      <property name="destinationName"><value>inflowmdbtest</value></property>
+   </bean>
+
+</deployment>
