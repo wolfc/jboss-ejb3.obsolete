@@ -152,7 +152,7 @@
     <version.org.jboss.jbossas:jboss-as-connector>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-connector>
     <version.org.jboss.jbossas:jboss-as-iiop>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-iiop>
     <version.org.jboss.jbossas:jboss-as-naming>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-naming>
-    <version.org.jboss:jnpserver>?</version.org.jboss:jnpserver>
+    <version.org.jboss:jnpserver>5.0.0.Beta3</version.org.jboss:jnpserver>
     <version.org.jboss.microcontainer:jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-deployers-core-spi>
     <version.org.jboss.microcontainer:jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer:jboss-deployers-vfs-spi>
     <version.org.jboss.microcontainer:jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-kernel>
@@ -328,6 +328,12 @@
         <groupId>org.jboss.ejb3</groupId>
         <artifactId>jboss-ejb3-pool</artifactId>
         <version>${version.org.jboss.ejb3:jboss-ejb3-pool}</version>
+      </dependency>
+      <!-- EJB3 Interceptors -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-interceptors</artifactId>
+        <version>${project.version}</version>
       </dependency>
       <!-- EJB3 Cache -->
       <dependency>
