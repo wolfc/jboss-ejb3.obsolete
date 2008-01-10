@@ -42,7 +42,7 @@ import org.jboss.ejb3.sandbox.interceptorcontainer.impl.ContainersInterceptorsIn
  */
 @Interceptors(ContainersInterceptorsInterceptor.class)
 @ManagedObject
-public class InterceptorContainer implements AnnotatedElement, IndirectContainer<InterceptorContainer>
+public class InterceptorContainer implements AnnotatedElement, IndirectContainer<InterceptorContainer, DirectContainer<InterceptorContainer>>
 {
    private Class<?> beanClass;
    private Object[] interceptors;
