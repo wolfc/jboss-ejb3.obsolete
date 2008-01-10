@@ -154,6 +154,7 @@
     <version.org.jboss.jbossas:jboss-as-iiop>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-iiop>
     <version.org.jboss.jbossas:jboss-as-naming>5.0.0-20071211.184358-1</version.org.jboss.jbossas:jboss-as-naming>
     <version.org.jboss:jnpserver>5.0.0.Beta3</version.org.jboss:jnpserver>
+    <version.org.jboss.microcontainer:jboss-container>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-container>
     <version.org.jboss.microcontainer:jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-deployers-core-spi>
     <version.org.jboss.microcontainer:jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer:jboss-deployers-vfs-spi>
     <version.org.jboss.microcontainer:jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer:jboss-kernel>
@@ -519,6 +520,11 @@
       </dependency>
 
       <!-- JBoss Microcontainer -->
+      <dependency>
+        <groupId>org.jboss.microcontainer</groupId>
+        <artifactId>jboss-container</artifactId>
+        <version>${version.org.jboss.microcontainer:jboss-container}</version>
+      </dependency>
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-kernel</artifactId>
