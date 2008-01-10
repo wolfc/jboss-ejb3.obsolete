@@ -25,14 +25,7 @@
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
 
-  <!-- Dependency Version Properties -->
-
-  <!-- 
-    
-    TODO: Move all version information to 
-    the Parent Build POM
-    
-  -->
+  <!-- Properties -->
 
   <properties>
     <resources>${project.basedir}/src/resources/test</resources>
@@ -50,7 +43,10 @@
     <testOutputDirectory>${testOutputDirectory}</testOutputDirectory>
     <directory>${directory}</directory>
     <finalName>${artifactId}</finalName>
+    
+    <!--
 
+    Commented out for time being; tests to be run manually via ant
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -66,7 +62,9 @@
             <configuration>
               <tasks>
                 <ant antfile="build-test.xml" />
-                <!--property name="java.vm.version" value="${java.vm.version}"/>
+                !-
+
+                  property name="java.vm.version" value="${java.vm.version}"/>
                   <mkdir dir="${build.test.lib}"/>
                   
                   <jar jarfile="${build.test.lib}/stateless-test.jar">
@@ -77,11 +75,25 @@
                   <include name="users.properties"/>
                   <include name="roles.properties"/>
                   </fileset>
-                  </jar-->
+                  </jar- 
               </tasks>
             </configuration>
           </execution>
         </executions>
+      </plugin>
+    </plugins>
+    -->
+
+   <!-- Temporarily, don't run any tests here -->
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*.java</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
 
