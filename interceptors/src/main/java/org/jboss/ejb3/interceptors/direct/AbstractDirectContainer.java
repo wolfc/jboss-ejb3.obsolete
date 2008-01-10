@@ -27,11 +27,10 @@ import java.lang.reflect.Method;
 import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
+import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
 /**
@@ -64,7 +63,7 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
    
    public T construct() throws SecurityException, NoSuchMethodException
    {
-      return construct(null, null);
+      return construct((Object[]) null, null);
    }
    
    @SuppressWarnings("unchecked")
@@ -72,41 +71,53 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
    {
       ClassAdvisor advisor = getAdvisor();
       Constructor<T> constructor = advisor.getClazz().getConstructor(parameterTypes);
-      int idx = advisor.getConstructorIndex(constructor);
-      assert idx != -1 : "can't find constructor in the advisor";
-      try
-      {
-         T targetObject = (T) advisor.invokeNew(initargs, idx);
-         
-         Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
-         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
-         invocation.setAdvisor(advisor);
-         invocation.setTargetObject(targetObject);
-         invocation.invokeNext();
-         
-         if(targetObject instanceof IndirectContainer)
-            ((IndirectContainer<T, C>) targetObject).setDirectContainer(this);
-         
-         return targetObject;
-      }
-      catch(Throwable t)
-      {
-         // TODO: disect
-         if(t instanceof RuntimeException)
-            throw (RuntimeException) t;
-         throw new RuntimeException(t);
-      }
+      T targetObject = construct(constructor, initargs);
+      
+      if(targetObject instanceof IndirectContainer)
+         ((IndirectContainer<T, C>) targetObject).setDirectContainer((C) this);
+      
+      return targetObject;
    }
    
    /**
     * Do not call, for use in indirect container implementations.
     * @return
     */
-   public Class<?> getBeanClass()
+   public Class<? extends T> getBeanClass()
    {
-      return getAdvisor().getClazz();
+      return super.getBeanClass();
    }
    
+   // expose the invoke method
+   @Override
+   public Object invoke(T target, Method method, Object[] arguments) throws Throwable
+   {
+      return super.invoke(target, method, arguments);
+   }
+   
+   // the compiler won't allow me to expose the super method
+   /**
+    * A convenient, but unchecked and slow method to call a method upon a target.
+    * 
+    * (Slow method)
+    * 
+    * @param <R>        the return type
+    * @param target     the target to invoke upon
+    * @param methodName the method name to invoke
+    * @param args       the arguments to the method
+    * @return           the return value
+    * @throws Throwable if anything goes wrong
+    */
+   @SuppressWarnings("unchecked")
+   public <R> R invoke(T target, String methodName, Object ... args) throws Throwable
+   {
+      Method method = ClassHelper.getMethod(target.getClass(), methodName);
+      return (R) invoke(target, method, args);
+   }
+   
+   /**
+    * Do not call, for use in indirect container implementations.
+    */
    public Object invokeIndirect(Object target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);

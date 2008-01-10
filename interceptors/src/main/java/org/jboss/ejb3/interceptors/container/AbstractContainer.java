@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.interceptors.container;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.jboss.aop.AspectManager;
@@ -28,6 +29,8 @@ import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
@@ -36,7 +39,10 @@ import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * The base of all containers. Provides functions to allow for object
+ * construction and invocation with interception.
+ * 
+ * Note that it's up to the actual implementation to expose any methods.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -57,14 +63,39 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       
    }
    
-   public AbstractContainer(String name, Domain domain, Class<? extends T> beanClass)
+   protected AbstractContainer(String name, Domain domain, Class<? extends T> beanClass)
    {
       initializeAdvisor(name, domain, beanClass);
    }
    
-   public AbstractContainer(String name, String domainName, Class<? extends T> beanClass)
+   protected AbstractContainer(String name, String domainName, Class<? extends T> beanClass)
    {
       this(name, getDomain(domainName), beanClass);
+   }
+   
+   protected T construct(Constructor<? extends T> constructor, Object ... initargs)
+   {
+      int idx = advisor.getConstructorIndex(constructor);
+      assert idx != -1 : "can't find constructor in the advisor";
+      try
+      {
+         T targetObject = (T) advisor.invokeNew(initargs, idx);
+         
+         Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
+         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
+         invocation.setAdvisor(advisor);
+         invocation.setTargetObject(targetObject);
+         invocation.invokeNext();
+         
+         return targetObject;
+      }
+      catch(Throwable t)
+      {
+         // TODO: disect
+         if(t instanceof RuntimeException)
+            throw (RuntimeException) t;
+         throw new RuntimeException(t);
+      }
    }
    
    /**
@@ -94,6 +125,12 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       return advisor;
    }
    
+   @SuppressWarnings("unchecked")
+   protected Class<? extends T> getBeanClass()
+   {
+      return getAdvisor().getClazz();
+   }
+   
    /*
     * TODO: this should not be here, it's an AspectManager helper function.
     */
@@ -116,7 +153,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
     * @return           return value of the method
     * @throws Throwable if anything goes wrong
     */
-   public Object invoke(Object target, Method method, Object arguments[]) throws Throwable
+   protected Object invoke(T target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);
       MethodInfo info = getAdvisor().getMethodInfo(methodHash);
@@ -141,7 +178,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
     * @throws Throwable if anything goes wrong
     */
    @SuppressWarnings("unchecked")
-   public <R> R invoke(Object target, String methodName, Object ... args) throws Throwable
+   protected <R> R invoke(T target, String methodName, Object ... args) throws Throwable
    {
       Method method = ClassHelper.getMethod(target.getClass(), methodName);
       return (R) invoke(target, method, args);
