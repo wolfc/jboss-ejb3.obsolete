@@ -23,7 +23,9 @@ package org.jboss.ejb3.interceptors.aop;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
@@ -61,11 +63,18 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          assert interceptorsAnnotation != null : "interceptors annotation not found"; // FIXME: not correct, bean can be without interceptors
+         Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
          List<Interceptor> postConstructs = new ArrayList<Interceptor>();
          List<Interceptor> classInterceptors = new ArrayList<Interceptor>();
          for(Class<?> interceptorClass : interceptorsAnnotation.value())
          {
-            Object interceptor = interceptorClass.newInstance();
+            // TODO: what if I've specified the same interceptor twice? (throw an Exception?)
+            Object interceptor = interceptors.get(interceptorClass);
+            if(interceptor == null)
+            {
+               interceptor = interceptorClass.newInstance();
+               interceptors.put(interceptorClass, interceptor);
+            }
             //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
             //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
             AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
@@ -99,8 +108,12 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                // TODO: use visitors?
                for(Class<?> interceptorClass : interceptorsAnnotation.value())
                {
-                  // FIXME: do not create perse, we might already have done that
-                  Object interceptor = interceptorClass.newInstance();
+                  Object interceptor = interceptors.get(interceptorClass);
+                  if(interceptor == null)
+                  {
+                     interceptor = interceptorClass.newInstance();
+                     interceptors.put(interceptorClass, interceptor);
+                  }
                   //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
                   //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
                   AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
