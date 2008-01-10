@@ -36,6 +36,8 @@ import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.interceptors.InterceptorFactory;
+import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorHelper;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
@@ -61,6 +63,11 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          
          // TODO: the whole interceptor advisor & annotation stuff is butt ugly
          
+         InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
+         if(interceptorFactoryRef == null)
+            throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
+         InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
+         
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          assert interceptorsAnnotation != null : "interceptors annotation not found"; // FIXME: not correct, bean can be without interceptors
          Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
@@ -72,7 +79,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
             Object interceptor = interceptors.get(interceptorClass);
             if(interceptor == null)
             {
-               interceptor = interceptorClass.newInstance();
+               interceptor = interceptorFactory.create(advisor, interceptorClass);
                interceptors.put(interceptorClass, interceptor);
             }
             //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
@@ -111,7 +118,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                   Object interceptor = interceptors.get(interceptorClass);
                   if(interceptor == null)
                   {
-                     interceptor = interceptorClass.newInstance();
+                     interceptor = interceptorFactory.create(advisor, interceptorClass);
                      interceptors.put(interceptorClass, interceptor);
                   }
                   //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
