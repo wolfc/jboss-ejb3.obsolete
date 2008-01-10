@@ -195,11 +195,6 @@
         <artifactId>jboss-as-naming</artifactId>
       </dependency>
       <dependency>
-        <groupId>org.jboss.embedded</groupId>
-        <artifactId>jboss-embedded</artifactId>
-        <version>beta3-SNAPSHOT</version>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.aop</groupId>
         <artifactId>jboss-aop</artifactId>
       </dependency>
