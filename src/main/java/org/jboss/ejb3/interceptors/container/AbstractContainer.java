@@ -24,6 +24,7 @@ package org.jboss.ejb3.interceptors.container;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
@@ -33,6 +34,7 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
+import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
@@ -98,6 +100,11 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       }
    }
    
+   protected Object createInterceptor(Class<?> interceptorClass) throws InstantiationException, IllegalAccessException
+   {
+      return interceptorClass.newInstance();
+   }
+   
    /**
     * Finalize construction of the abstract container by setting the advisor.
     * 
@@ -116,6 +123,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       // Decouple setting the advisor and initializing it, so interceptors
       // can get it.
       this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain);
+      advisor.getAnnotations().addClassAnnotation(InterceptorFactoryRef.class, new InterceptorFactoryRefImpl(ContainerInterceptorFactory.class));
       advisor.initialize(beanClass);
    }
    
@@ -129,6 +137,12 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    protected Class<? extends T> getBeanClass()
    {
       return getAdvisor().getClazz();
+   }
+   
+   @SuppressWarnings("unchecked")
+   public static <C extends AbstractContainer<?, ?>> C getContainer(Advisor advisor)
+   {
+      return (C) ((ManagedObjectAdvisor) advisor).getContainer();
    }
    
    /*

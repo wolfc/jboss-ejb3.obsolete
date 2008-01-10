@@ -19,39 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.direct;
+package org.jboss.ejb3.interceptors.container;
 
-import org.jboss.aop.Domain;
-import org.jboss.logging.Logger;
+import org.jboss.aop.Advisor;
+import org.jboss.ejb3.interceptors.InterceptorFactory;
 
 /**
- * The direct container invokes interceptors directly on an instance.
- * 
- * It's useful in an environment where we don't want to fiddle with the
- * classloader and still have control on how instances are called.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractDirectContainer<T, DirectContainer<T>>
+public class ContainerInterceptorFactory implements InterceptorFactory
 {
-   private static final Logger log = Logger.getLogger(DirectContainer.class);
-   
-   public DirectContainer(String name, Domain domain, Class<? extends T> beanClass)
+   public Object create(Advisor advisor, Class<?> interceptorClass) throws InstantiationException, IllegalAccessException
    {
-      super(name, domain, beanClass);
+      AbstractContainer<?, ?> container = AbstractContainer.getContainer(advisor);
+      return container.createInterceptor(interceptorClass);
    }
-   
-   public DirectContainer(String name, String domainName, Class<? extends T> beanClass)
-   {
-      super(name, domainName, beanClass);
-   }
-   
-   /*
-   @SuppressWarnings("unchecked")
-   public static <C extends DirectContainer<?>> C getContainer(Advisor advisor)
-   {
-      return (C) ((ManagedObjectAdvisor<?, DirectContainer<C>>) advisor).getContainer();
-   }
-   */
 }

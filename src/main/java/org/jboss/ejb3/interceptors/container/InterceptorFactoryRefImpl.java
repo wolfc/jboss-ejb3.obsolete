@@ -19,39 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.direct;
+package org.jboss.ejb3.interceptors.container;
 
-import org.jboss.aop.Domain;
-import org.jboss.logging.Logger;
+import java.lang.annotation.Annotation;
+
+import org.jboss.ejb3.interceptors.InterceptorFactory;
+import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 
 /**
- * The direct container invokes interceptors directly on an instance.
- * 
- * It's useful in an environment where we don't want to fiddle with the
- * classloader and still have control on how instances are called.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class DirectContainer<T> extends AbstractDirectContainer<T, DirectContainer<T>>
+public class InterceptorFactoryRefImpl implements InterceptorFactoryRef
 {
-   private static final Logger log = Logger.getLogger(DirectContainer.class);
-   
-   public DirectContainer(String name, Domain domain, Class<? extends T> beanClass)
+   private Class<? extends InterceptorFactory> interceptorFactoryClass;
+
+   public InterceptorFactoryRefImpl(Class<? extends InterceptorFactory> interceptorFactoryClass)
    {
-      super(name, domain, beanClass);
+      assert interceptorFactoryClass != null : "interceptorFactoryClass is null";
+      this.interceptorFactoryClass = interceptorFactoryClass;
    }
    
-   public DirectContainer(String name, String domainName, Class<? extends T> beanClass)
+   public Class<? extends InterceptorFactory> value()
    {
-      super(name, domainName, beanClass);
+      return interceptorFactoryClass;
    }
-   
-   /*
-   @SuppressWarnings("unchecked")
-   public static <C extends DirectContainer<?>> C getContainer(Advisor advisor)
+
+   public Class<? extends Annotation> annotationType()
    {
-      return (C) ((ManagedObjectAdvisor<?, DirectContainer<C>>) advisor).getContainer();
+      return InterceptorFactoryRef.class;
    }
-   */
 }
