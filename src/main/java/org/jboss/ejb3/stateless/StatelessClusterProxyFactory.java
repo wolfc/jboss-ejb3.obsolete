@@ -100,7 +100,8 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       }
       else
       {
-         lbPolicy = clustered.loadBalancePolicy().newInstance();
+         lbPolicy = (LoadBalancePolicy) Thread.currentThread().getContextClassLoader().loadClass(
+               clustered.loadBalancePolicy()).newInstance();
       }
       wrapper = new FamilyWrapper(proxyFamilyName, hatarget.getReplicants());
       

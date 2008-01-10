@@ -1575,15 +1575,13 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          
          if (config.getBeanLoadBalancePolicy() != null)
          {
-            Class<? extends LoadBalancePolicy> policy = (Class<? extends LoadBalancePolicy>) di.getClassLoader()
-                  .loadClass(config.getBeanLoadBalancePolicy());
+            String policy = config.getBeanLoadBalancePolicy();
             clusteredAnnotation.setLoadBalancePolicy(policy);
          }
          
          if (config.getHomeLoadBalancePolicy() != null)
          {
-            Class<? extends LoadBalancePolicy> policy = (Class<? extends LoadBalancePolicy>) di.getClassLoader()
-                  .loadClass(config.getHomeLoadBalancePolicy());
+            String policy = config.getHomeLoadBalancePolicy();
             clusteredAnnotation.setHomeLoadBalancePolicy(policy);
          }
 
