@@ -28,21 +28,29 @@
   <!-- Properties -->
 
   <properties>
+  
+  <!-- 
     <resources>${project.basedir}/src/resources/test</resources>
     <build.test.lib>${project.build.directory}/test-lib</build.test.lib>
     <directory>output</directory>
     <outputDirectory>output/classes</outputDirectory>
     <testOutputDirectory>output/test-classes</testOutputDirectory>
+    
+     -->
   </properties>
 
   <!-- Build Information -->
   <build>
+  
+  <!-- 
     <sourceDirectory>src/main</sourceDirectory>
     <testSourceDirectory>src/test</testSourceDirectory>
     <outputDirectory>${outputDirectory}</outputDirectory>
     <testOutputDirectory>${testOutputDirectory}</testOutputDirectory>
     <directory>${directory}</directory>
     <finalName>${artifactId}</finalName>
+    
+     -->
     
     <!--
 
