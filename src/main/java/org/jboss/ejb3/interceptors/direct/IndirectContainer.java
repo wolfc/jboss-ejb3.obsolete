@@ -29,5 +29,5 @@ package org.jboss.ejb3.interceptors.direct;
  */
 public interface IndirectContainer<T, C extends AbstractDirectContainer<T, C>>
 {
-   void setDirectContainer(AbstractDirectContainer<T, C> container);
+   void setDirectContainer(C container);
 }
