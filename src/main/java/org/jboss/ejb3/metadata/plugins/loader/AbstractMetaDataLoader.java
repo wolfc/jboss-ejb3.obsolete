@@ -19,20 +19,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.metadata.interceptor;
+package org.jboss.ejb3.metadata.plugins.loader;
 
-import javax.interceptor.InvocationContext;
+import org.jboss.logging.Logger;
+import org.jboss.metadata.plugins.loader.BasicMetaDataLoader;
+import org.jboss.metadata.spi.retrieval.AnnotationsItem;
+import org.jboss.metadata.spi.scope.ScopeKey;
 
 /**
- * Nothing to see, move along.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptedBean
+public abstract class AbstractMetaDataLoader extends BasicMetaDataLoader
 {
-   public void aroundInvoke(InvocationContext ctx)
+   private static final Logger log = Logger.getLogger(AbstractMetaDataLoader.class);
+
+   protected AbstractMetaDataLoader(ScopeKey key)
    {
-      
+      super(key);
+   }
+   
+   /**
+    * It depends on the question being asked. For now the easy
+    * way out: not empty.
+    */
+   public boolean isEmpty()
+   {
+      return false;
+   }
+
+   /**
+    * Do not call.
+    */
+   @Deprecated
+   public AnnotationsItem retrieveAnnotations()
+   {
+      throw new RuntimeException("NYI");
    }
 }

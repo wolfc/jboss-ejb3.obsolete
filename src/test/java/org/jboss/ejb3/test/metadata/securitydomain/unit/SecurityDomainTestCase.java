@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.metadata.securitydomain.SecurityDomainBean;
+import org.jboss.ejb3.test.metadata.securitydomain.SecurityDomainMetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -83,9 +84,14 @@ public class SecurityDomainTestCase extends TestCase
       JBoss50MetaData metaData = (JBoss50MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(JBoss50MetaData.class));
       
       JBossEnterpriseBeanMetaData beanMetaData = metaData.getEnterpriseBean("SecurityDomainBean");
+      assertNotNull(beanMetaData);
+      
+      // Bootstrap meta data bridge 
       String canonicalObjectName = "Not important";
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       AnnotationRepositoryToMetaData repository = new AnnotationRepositoryToMetaData(SecurityDomainBean.class, beanMetaData, canonicalObjectName, classLoader);
+      repository.addMetaDataBridge(new SecurityDomainMetaDataBridge());
+      
       SecurityDomain securityDomain = (SecurityDomain) repository.resolveClassAnnotation(SecurityDomain.class);
       assertNotNull(securityDomain);
       assertEquals("test", securityDomain.value());

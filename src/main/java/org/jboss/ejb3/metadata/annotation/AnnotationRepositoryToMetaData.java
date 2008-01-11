@@ -35,7 +35,9 @@ import javassist.NotFoundException;
 
 import org.jboss.annotation.factory.AnnotationCreator;
 import org.jboss.aop.annotation.AnnotationRepository;
-import org.jboss.ejb3.metadata.EJBMetaDataLoader;
+import org.jboss.ejb3.metadata.ComponentMetaDataLoaderFactory;
+import org.jboss.ejb3.metadata.MetaDataBridge;
+import org.jboss.ejb3.metadata.plugins.loader.BridgedMetaDataLoader;
 import org.jboss.ejb3.metadata.spi.signature.ClassSignature;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -73,6 +75,8 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
    
    /** The classloader */
    private ClassLoader classLoader;
+   
+   private BridgedMetaDataLoader<JBossEnterpriseBeanMetaData> bridgedMetaDataLoader;
 
    /**
     * 
@@ -92,12 +96,23 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       MetaDataRetrieval classMetaData = ClassMetaDataRetrievalFactory.INSTANCE.getMetaDataRetrieval(new Scope(CommonLevels.CLASS, beanClass));
       ScopeKey instanceScope = new ScopeKey(CommonLevels.INSTANCE, canonicalObjectName);
       mutableMetaData = new MemoryMetaDataLoader(instanceScope);
-      MetaDataRetrieval dynamicXml = new EJBMetaDataLoader(instanceScope, beanMetaData, classLoader);
+      //MetaDataRetrieval dynamicXml = new EJBMetaDataLoader(instanceScope, beanMetaData, classLoader);
+      this.bridgedMetaDataLoader = new BridgedMetaDataLoader<JBossEnterpriseBeanMetaData>(instanceScope, beanMetaData, classLoader);
       
       MetaDataContext classContext = new AbstractMetaDataContext(classMetaData);
-      MetaDataRetrieval[] instance = { dynamicXml, mutableMetaData }; 
+      MetaDataRetrieval[] instance = { bridgedMetaDataLoader, mutableMetaData }; 
       MetaDataContext instanceContext = new AbstractMetaDataContext(classContext, Arrays.asList(instance));
       metaData = new MetaDataRetrievalToMetaDataBridge(instanceContext);
+   }
+   
+   public boolean addComponentMetaDataLoaderFactory(ComponentMetaDataLoaderFactory<JBossEnterpriseBeanMetaData> componentMetaDataLoaderFactory)
+   {
+      return bridgedMetaDataLoader.addComponentMetaDataLoaderFactory(componentMetaDataLoaderFactory);
+   }
+   
+   public boolean addMetaDataBridge(MetaDataBridge<JBossEnterpriseBeanMetaData> bridge)
+   {
+      return bridgedMetaDataLoader.addMetaDataBridge(bridge);
    }
    
    protected static Signature getSignature(Class<?> cls)

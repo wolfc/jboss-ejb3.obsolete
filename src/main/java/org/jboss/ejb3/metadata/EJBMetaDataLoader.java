@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -34,12 +35,14 @@ import org.jboss.ejb3.metadata.plugins.loader.ClassMetaDataLoader;
 import org.jboss.ejb3.metadata.plugins.loader.InterceptorClassMetaDataLoader;
 import org.jboss.ejb3.metadata.spi.signature.ClassSignature;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingsMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorsMetaData;
-import org.jboss.metadata.plugins.loader.BasicMetaDataLoader;
 import org.jboss.metadata.spi.retrieval.AnnotationItem;
 import org.jboss.metadata.spi.retrieval.AnnotationsItem;
 import org.jboss.metadata.spi.retrieval.MetaDataRetrieval;
@@ -55,7 +58,7 @@ import org.jboss.metadata.spi.signature.Signature;
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @version $Revision: 1.1 $
  */
-public class EJBMetaDataLoader extends ClassMetaDataLoader
+public class EJBMetaDataLoader extends ClassMetaDataLoader<JBossEnterpriseBeanMetaData>
 {
    /** The container */
    private JBossEnterpriseBeanMetaData beanMetaData;
@@ -71,7 +74,7 @@ public class EJBMetaDataLoader extends ClassMetaDataLoader
     */
    public EJBMetaDataLoader(ScopeKey key, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader)
    {
-      super(key);
+      super(key, beanMetaData);
       assert classLoader != null : "classLoader is null";
       
       this.beanMetaData = beanMetaData;
@@ -201,11 +204,8 @@ public class EJBMetaDataLoader extends ClassMetaDataLoader
    /**
     * MethodMetaDataRetrieval.
     */
-   private class MethodMetaDataRetrieval extends BasicMetaDataLoader
+   private class MethodMetaDataRetrieval extends ClassMetaDataLoader<JBossEnterpriseBeanMetaData>.MethodMetaDataRetrieval
    {
-      /** The signature */
-      private MethodSignature signature;
-      
       /**
        * Create a new MethodMetaDataRetrieval.
        * 
@@ -213,7 +213,7 @@ public class EJBMetaDataLoader extends ClassMetaDataLoader
        */
       public MethodMetaDataRetrieval(MethodSignature methodSignature)
       {
-         this.signature = methodSignature;
+         super(methodSignature);
       }
 
       public MetaDataRetrieval getComponentMetaDataRetrieval(Signature signature)
@@ -228,6 +228,25 @@ public class EJBMetaDataLoader extends ClassMetaDataLoader
 
       public <T extends Annotation> AnnotationItem<T> retrieveAnnotation(Class<T> annotationType)
       {
+         if(beanMetaData == null)
+            return null;
+         
+         if(annotationType == AroundInvoke.class)
+         {
+            AroundInvokesMetaData aroundInvokes = null;
+//            if(beanMetaData instanceof JBossGenericBeanMetaData)
+//               aroundInvokes = ((JBossGenericBeanMetaData) beanMetaData).getAroundInvokes();
+            if(beanMetaData instanceof JBossMessageDrivenBeanMetaData)
+               aroundInvokes = ((JBossMessageDrivenBeanMetaData) beanMetaData).getAroundInvokes();
+            else if(beanMetaData instanceof JBossSessionBeanMetaData)
+               aroundInvokes = ((JBossSessionBeanMetaData) beanMetaData).getAroundInvokes();
+            if(aroundInvokes != null)
+            {
+               Annotation annotation = getAroundInvokeAnnotation(aroundInvokes);
+               if(annotation != null)
+                  return new SimpleAnnotationItem<T>(annotationType.cast(annotation));
+            }
+         }
          /* Example 
          JBossEnterpriseBeanMetaData beanMetaData = getBeanMetaData();
          if (beanMetaData == null)
@@ -240,7 +259,7 @@ public class EJBMetaDataLoader extends ClassMetaDataLoader
             return new SimpleAnnotationItem(new TransactionTimeoutImpl(timeout));
          }
          */
-         return null;
+         return super.retrieveAnnotation(annotationType);
       }
 
       public AnnotationsItem retrieveAnnotations()
