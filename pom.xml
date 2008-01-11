@@ -12,10 +12,10 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-metadata</artifactId>
   <packaging>jar</packaging>
-  <name>JBoss EJB 3 Interceptors</name>
+  <name>JBoss EJB 3 Meta Data bridge</name>
   <url>http://www.jboss.org</url>
   <description>
-    The JBoss EJB 3 MetaData component implements the meta data retrieval
+    The JBoss EJB 3 Meta Data component implements the meta data retrieval
     bridge between jboss-metadata and annotations.
   </description>
   
