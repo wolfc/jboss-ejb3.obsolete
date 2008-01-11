@@ -9,6 +9,9 @@
     <enterprise-beans>
     	<session>
     		<ejb-name>InterceptedBean</ejb-name>
+    		<around-invoke>
+    			<method-name>aroundInvoke</method-name>
+    		</around-invoke>
     	</session>
     </enterprise-beans>
     <interceptors>

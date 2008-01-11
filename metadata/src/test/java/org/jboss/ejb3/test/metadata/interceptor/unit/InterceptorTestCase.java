@@ -23,6 +23,8 @@ package org.jboss.ejb3.test.metadata.interceptor.unit;
 
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,13 +34,19 @@ import javax.interceptor.InvocationContext;
 
 import junit.framework.TestCase;
 
+import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.test.metadata.interceptor.BeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor;
+import org.jboss.ejb3.test.metadata.interceptor.InterceptedBean;
+import org.jboss.ejb3.test.metadata.interceptor.InterceptorComponentMetaDataLoaderFactory;
+import org.jboss.ejb3.test.metadata.interceptor.InterceptorMetaDataBridge;
 import org.jboss.ejb3.test.metadata.securitydomain.SecurityDomainBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
+import org.jboss.metadata.ejb.spec.InterceptorMetaData;
 import org.jboss.xb.binding.Unmarshaller;
 import org.jboss.xb.binding.UnmarshallerFactory;
 import org.jboss.xb.binding.sunday.unmarshalling.SchemaBinding;
@@ -105,9 +113,16 @@ public class InterceptorTestCase extends TestCase
       
       JBossEnterpriseBeanMetaData beanMetaData = metaData.getEnterpriseBean("InterceptedBean");
       assertNotNull("beanMetaData is null", beanMetaData);
+      
+      // Bootstrap meta data bridge
       String canonicalObjectName = "Not important";
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       AnnotationRepositoryToMetaData repository = new AnnotationRepositoryToMetaData(SecurityDomainBean.class, beanMetaData, canonicalObjectName, classLoader);
+      List<MetaDataBridge<InterceptorMetaData>> interceptorBridges = new ArrayList<MetaDataBridge<InterceptorMetaData>>();
+      interceptorBridges.add(new InterceptorMetaDataBridge());
+      repository.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
+      repository.addMetaDataBridge(new BeanInterceptorMetaDataBridge());
+      
       Interceptors interceptors = (Interceptors) repository.resolveClassAnnotation(Interceptors.class);
       assertNotNull(interceptors);
       Class<?> expected[] = { DummyInterceptor.class };
@@ -124,5 +139,8 @@ public class InterceptorTestCase extends TestCase
       
       Method preDestroy = DummyInterceptor.class.getMethod("preDestroy", parameterTypes);
       assertTrue(repository.hasAnnotation(DummyInterceptor.class, preDestroy, PreDestroy.class));
+      
+      Method beanAroundInvoke = InterceptedBean.class.getMethod("aroundInvoke", InvocationContext.class);
+      assertTrue(repository.hasAnnotation(beanAroundInvoke, AroundInvoke.class));
    }
 }

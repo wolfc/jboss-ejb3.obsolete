@@ -19,20 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.metadata.interceptor;
+package org.jboss.ejb3.metadata;
 
-import javax.interceptor.InvocationContext;
+import java.lang.annotation.Annotation;
 
 /**
- * Nothing to see, move along.
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptedBean
+public interface MetaDataBridge<M>
 {
-   public void aroundInvoke(InvocationContext ctx)
-   {
-      
-   }
+   /**
+    * Retrieve a class annotation.
+    * 
+    * @param <A>
+    * @param annotationClass
+    * @param metaData
+    * @param classLoader
+    * @return                   the annotation or null if not found
+    */
+   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader);
+   
+   /**
+    * Retrieve a method annotation.
+    * 
+    * @param <A>
+    * @param annotationClass
+    * @param metaData
+    * @param classLoader
+    * @param methodName
+    * @param parameterNames
+    * @return                   the annotation of null if not found
+    */
+   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, String methodName, String ... parameterNames);
 }

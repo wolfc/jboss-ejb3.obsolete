@@ -19,20 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.metadata.interceptor;
+package org.jboss.ejb3.metadata;
 
-import javax.interceptor.InvocationContext;
+import org.jboss.metadata.spi.retrieval.MetaDataRetrieval;
+import org.jboss.metadata.spi.scope.ScopeKey;
+import org.jboss.metadata.spi.signature.Signature;
 
 /**
- * Nothing to see, move along.
+ * The EJBMetaDataLoader visits all ComponentMetaDataLoaderFactories
+ * until it finds one that will create a MetaDataRetrieval for the given
+ * signature.
+ * 
+ * For example it could ask for a retrieval given the signature
+ * of an interceptor class. In that case an interceptor meta data loader must
+ * be instantiated using the interceptor meta data from the bean meta data.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptedBean
+public interface ComponentMetaDataLoaderFactory<M>
 {
-   public void aroundInvoke(InvocationContext ctx)
-   {
-      
-   }
+   /**
+    * @param metaData       meta data to find the component in
+    * @param signature      the signature of the sub-component
+    * @param key
+    * @param classLoader
+    * @return               the retrieval for the sub-component or null if nothing sensible is found
+    */
+   MetaDataRetrieval createComponentMetaDataRetrieval(M metaData, Signature signature, ScopeKey key, ClassLoader classLoader);
 }
