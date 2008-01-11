@@ -24,10 +24,12 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-impl</artifactId>
+      <scope>test</scope>
     </dependency>
 
     <!-- external -->
@@ -56,14 +58,9 @@
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-ejb-api</artifactId>
+      <scope>test</scope>
     </dependency>
     
-    <!-- broken transitive dependencies of AOP -->
-    <!--
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-container</artifactId>
-    </dependency>
-    -->
+    <!-- TODO: javassist -->
   </dependencies>
 </project>
