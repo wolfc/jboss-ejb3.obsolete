@@ -24,12 +24,21 @@ package org.jboss.ejb3.metadata;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
+import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.annotation.impl.InterceptorsImpl;
 import org.jboss.ejb3.annotation.impl.SecurityDomainImpl;
+import org.jboss.ejb3.metadata.plugins.loader.ClassMetaDataLoader;
+import org.jboss.ejb3.metadata.plugins.loader.InterceptorClassMetaDataLoader;
+import org.jboss.ejb3.metadata.spi.signature.ClassSignature;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorBindingMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorBindingsMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorsMetaData;
 import org.jboss.metadata.plugins.loader.BasicMetaDataLoader;
 import org.jboss.metadata.spi.retrieval.AnnotationItem;
 import org.jboss.metadata.spi.retrieval.AnnotationsItem;
@@ -46,25 +55,56 @@ import org.jboss.metadata.spi.signature.Signature;
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @version $Revision: 1.1 $
  */
-public class EJBMetaDataLoader extends BasicMetaDataLoader
+public class EJBMetaDataLoader extends ClassMetaDataLoader
 {
    /** The container */
    private JBossEnterpriseBeanMetaData beanMetaData;
    
-   /** Component cache */
-   private Map<Signature, MetaDataRetrieval> cache = new ConcurrentHashMap<Signature, MetaDataRetrieval>();
+   private ClassLoader classLoader;
    
    /**
     * Create a new EJBMetaDataLoader.
     * 
-    * @param key the scope
-    * @param container the container
+    * @param key            the scope
+    * @param beanMetaData   the meta data associated with this EJB or null
+    * @param classLoader    the class loader that must be used to load new classes
     */
-   public EJBMetaDataLoader(ScopeKey key, JBossEnterpriseBeanMetaData beanMetaData)
+   public EJBMetaDataLoader(ScopeKey key, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader)
    {
       super(key);
-      assert beanMetaData != null : "beanMetaData is null";
+      assert classLoader != null : "classLoader is null";
+      
       this.beanMetaData = beanMetaData;
+      this.classLoader = classLoader;
+   }
+   
+   protected MetaDataRetrieval createComponentMetaDataRetrieval(Signature signature)
+   {
+      JBossEnterpriseBeanMetaData beanMetaData = getBeanMetaData();
+      if (beanMetaData == null)
+         return null;
+
+      MetaDataRetrieval retrieval = null;
+      if(signature instanceof ClassSignature)
+      {
+         // FIXME: it's not always an interceptor, could be a super class
+         retrieval = new InterceptorClassMetaDataLoader(getScope(), findInterceptor(signature.getName()));
+      }
+      else if(signature instanceof MethodSignature)
+         retrieval = new MethodMetaDataRetrieval((MethodSignature) signature);
+      
+      return retrieval;
+   }
+
+   private InterceptorMetaData findInterceptor(String name)
+   {
+      InterceptorsMetaData interceptors = beanMetaData.getEjbJarMetaData().getInterceptors();
+      for(InterceptorMetaData interceptorMetaData : interceptors)
+      {
+         if(interceptorMetaData.getInterceptorClass().equals(name))
+            return interceptorMetaData;
+      }
+      return null;
    }
    
    /**
@@ -77,34 +117,65 @@ public class EJBMetaDataLoader extends BasicMetaDataLoader
       return beanMetaData;
    }
    
-   public MetaDataRetrieval getComponentMetaDataRetrieval(Signature signature)
-   {
-      JBossEnterpriseBeanMetaData beanMetaData = getBeanMetaData();
-      if (beanMetaData == null)
-         return null;
-
-      if (signature instanceof MethodSignature == false)
-         return null;
-      
-      MetaDataRetrieval retrieval = cache.get(signature);
-      if (retrieval != null)
-         return retrieval;
-
-      retrieval = new MethodMetaDataRetrieval((MethodSignature) signature);
-      cache.put(signature, retrieval);
-      return retrieval;
-   }
-
    public boolean isEmpty()
    {
       return getBeanMetaData() != null;
    }
 
+   private Class<?> loadClass(String name)
+   {
+      try
+      {
+         return classLoader.loadClass(name);
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+   
    public <T extends Annotation> AnnotationItem<T> retrieveAnnotation(Class<T> annotationType)
    {
       JBossEnterpriseBeanMetaData beanMetaData = getBeanMetaData();
       if (beanMetaData == null)
          return null;
+      
+      String ejbName = beanMetaData.getEjbName();
+      
+      if(annotationType == Interceptors.class)
+      {
+         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
+         if(bindings != null)
+         {
+            for(InterceptorBindingMetaData binding : bindings)
+            {
+               // For the method component
+               if(binding.getMethod() != null)
+                  continue;
+               
+               String bindingEjbName = binding.getEjbName();
+               if(bindingEjbName.equals("*") || bindingEjbName.equals(ejbName))
+               {
+                  //List<Class<?>> interceptorClasses = new ArrayList<Class<?>>();
+                  InterceptorsImpl interceptors = new InterceptorsImpl();
+                  InterceptorClassesMetaData interceptorClassesMetaData;
+                  if(binding.isTotalOrdering())
+                  {
+                     interceptorClassesMetaData = binding.getInterceptorOrder();
+                  }
+                  else
+                  {
+                     interceptorClassesMetaData = binding.getInterceptorClasses();
+                  }
+                  for(String interceptorClassName : interceptorClassesMetaData)
+                  {
+                     interceptors.addValue(loadClass(interceptorClassName));
+                  }
+                  return new SimpleAnnotationItem<T>(annotationType.cast(interceptors));
+               }
+            }
+         }
+      }
       
       if (annotationType == SecurityDomain.class)
       {

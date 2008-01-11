@@ -6,6 +6,11 @@
                             http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
         version="3.0">
     <display-name>InterceptorsTest</display-name>
+    <enterprise-beans>
+    	<session>
+    		<ejb-name>InterceptedBean</ejb-name>
+    	</session>
+    </enterprise-beans>
     <interceptors>
 		<interceptor>
 			<interceptor-class>org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor</interceptor-class>
