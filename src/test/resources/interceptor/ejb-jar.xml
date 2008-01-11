@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+    <display-name>InterceptorsTest</display-name>
+    <interceptors>
+		<interceptor>
+			<interceptor-class>org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor</interceptor-class>
+			<around-invoke>
+				<method-name>aroundInvoke</method-name>
+			</around-invoke>
+			<post-construct>
+				<lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+			</post-construct>
+			<pre-destroy>
+				<lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+			</pre-destroy>
+		</interceptor>	   
+    </interceptors>
+    <assembly-descriptor>
+    	<interceptor-binding>
+    		<ejb-name>InterceptedBean</ejb-name>
+    		<interceptor-class>org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor</interceptor-class>
+    	</interceptor-binding>
+    </assembly-descriptor>
+</ejb-jar>
