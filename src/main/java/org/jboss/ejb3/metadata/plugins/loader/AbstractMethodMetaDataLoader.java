@@ -19,27 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.metadata.spi.retrieval;
+package org.jboss.ejb3.metadata.plugins.loader;
 
+import org.jboss.logging.Logger;
+import org.jboss.metadata.plugins.loader.BasicMetaDataLoader;
+import org.jboss.metadata.spi.retrieval.AnnotationsItem;
 import org.jboss.metadata.spi.retrieval.MetaDataRetrieval;
+import org.jboss.metadata.spi.signature.Signature;
 
 /**
- * Allows a component be made of multiple classes.
- * 
- * (In EJB 3 you have the bean class and its interceptor classes.)
+ * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface ClassMetaDataRetrieval extends MetaDataRetrieval
+public class AbstractMethodMetaDataLoader extends BasicMetaDataLoader
 {
-   /**
-    * Get the component metadata retrieval of another class.
-    * 
-    * The class is expected to be a part of this component.
-    * 
-    * @param    cls the class
-    * @return   the component metadata retrieval
-    */
-   MetaDataRetrieval getComponentMetaDataRetrieval(Class<?> cls);
+   private static final Logger log = Logger.getLogger(AbstractMethodMetaDataLoader.class);
+
+   @Override
+   public MetaDataRetrieval getComponentMetaDataRetrieval(Signature signature)
+   {
+      return null;
+   }
+
+   public boolean isEmpty()
+   {
+      return false;
+   }
+
+   public AnnotationsItem retrieveAnnotations()
+   {
+      throw new RuntimeException("NYI");
+   }
 }

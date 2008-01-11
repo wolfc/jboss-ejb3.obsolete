@@ -21,13 +21,19 @@
  */
 package org.jboss.ejb3.test.metadata.interceptor.unit;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
+import javax.interceptor.InvocationContext;
 
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor;
 import org.jboss.ejb3.test.metadata.securitydomain.SecurityDomainBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
@@ -76,6 +82,17 @@ public class InterceptorTestCase extends TestCase
       };
    }
 
+   private void assertArrayEquals(Object expected[], Object actual[])
+   {
+      if(expected == actual)
+         return;
+      assertEquals(expected.length, actual.length);
+      for(int i = 0; i < expected.length; i++)
+      {
+         assertEquals(expected[i], actual[i]);
+      }
+   }
+   
    public void test1() throws Exception
    {
       // Bootstrap metadata
@@ -87,12 +104,25 @@ public class InterceptorTestCase extends TestCase
       metaData.merge(null, ejbJarMetaData);
       
       JBossEnterpriseBeanMetaData beanMetaData = metaData.getEnterpriseBean("InterceptedBean");
+      assertNotNull("beanMetaData is null", beanMetaData);
       String canonicalObjectName = "Not important";
       ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
       AnnotationRepositoryToMetaData repository = new AnnotationRepositoryToMetaData(SecurityDomainBean.class, beanMetaData, canonicalObjectName, classLoader);
       Interceptors interceptors = (Interceptors) repository.resolveClassAnnotation(Interceptors.class);
       assertNotNull(interceptors);
+      Class<?> expected[] = { DummyInterceptor.class };
+      assertArrayEquals(expected, interceptors.value());
       
-      fail("NYI");
+      Class<?> parameterTypes[] = { InvocationContext.class };
+      
+      Method aroundInvoke = DummyInterceptor.class.getMethod("aroundInvoke", parameterTypes);
+      assertTrue(repository.hasAnnotation(DummyInterceptor.class, aroundInvoke, AroundInvoke.class));
+      assertFalse(repository.hasAnnotation(DummyInterceptor.class, aroundInvoke, PostConstruct.class));
+      
+      Method postConstruct = DummyInterceptor.class.getMethod("postConstruct", parameterTypes);
+      assertTrue(repository.hasAnnotation(DummyInterceptor.class, postConstruct, PostConstruct.class));
+      
+      Method preDestroy = DummyInterceptor.class.getMethod("preDestroy", parameterTypes);
+      assertTrue(repository.hasAnnotation(DummyInterceptor.class, preDestroy, PreDestroy.class));
    }
 }

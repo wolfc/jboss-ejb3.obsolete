@@ -74,10 +74,16 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
    /** The classloader */
    private ClassLoader classLoader;
 
+   /**
+    * 
+    * @param beanClass
+    * @param beanMetaData           the bean meta data or null
+    * @param canonicalObjectName
+    * @param classLoader
+    */
    public AnnotationRepositoryToMetaData(Class<?> beanClass, JBossEnterpriseBeanMetaData beanMetaData, String canonicalObjectName, ClassLoader classLoader)
    {
       assert beanClass != null : "beanClass is null";
-      assert beanMetaData != null : "beanMetaData is null";
       assert canonicalObjectName != null : "canonicalObjectName is null";
       assert classLoader != null : "classLoader is null";
       
@@ -86,7 +92,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       MetaDataRetrieval classMetaData = ClassMetaDataRetrievalFactory.INSTANCE.getMetaDataRetrieval(new Scope(CommonLevels.CLASS, beanClass));
       ScopeKey instanceScope = new ScopeKey(CommonLevels.INSTANCE, canonicalObjectName);
       mutableMetaData = new MemoryMetaDataLoader(instanceScope);
-      MetaDataRetrieval dynamicXml = new EJBMetaDataLoader(instanceScope, beanMetaData);
+      MetaDataRetrieval dynamicXml = new EJBMetaDataLoader(instanceScope, beanMetaData, classLoader);
       
       MetaDataContext classContext = new AbstractMetaDataContext(classMetaData);
       MetaDataRetrieval[] instance = { dynamicXml, mutableMetaData }; 
@@ -270,6 +276,8 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       if(annotationType == null)
          throw new IllegalArgumentException("annotationType is null");
       MetaData classComponent = getComponentMetaData(cls);
+      if(classComponent == null)
+         return false;
       MetaData component = classComponent.getComponentMetaData(Signature.getSignature(member));
       if(component == null)
          return false;
@@ -362,6 +370,8 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       if(annotationType == null)
          throw new IllegalArgumentException("annotationType is null");
       MetaData classComponent = getComponentMetaData(cls);
+      if(classComponent == null)
+         return null;
       MetaData component = classComponent.getComponentMetaData(Signature.getSignature(member));
       if (component == null)
          return null;
