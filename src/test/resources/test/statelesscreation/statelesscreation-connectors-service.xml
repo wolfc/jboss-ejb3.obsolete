@@ -2,7 +2,7 @@
 <!--
    JBoss EJB3Deployer
    
-   $Id$
+   $Id: statelesscreation-connectors-service.xml 68791 2008-01-10 06:29:29Z ALRubinger $
 -->
 <server>
 
