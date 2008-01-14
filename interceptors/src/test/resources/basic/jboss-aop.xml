@@ -21,8 +21,8 @@
 	<!-- TODO: this is actually the bootstrap container -->
 	<domain name="InterceptorContainer">
 		<pointcut name="beanAroundInvokeCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.AroundInvoke(..))"/>
-		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PostConstruct(..))"/>
-		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PreDestroy(..))"/>
+		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PostConstruct(..))"/>
+		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PreDestroy(..))"/>
 		
 		<pointcut name="beanLifecycleCallbackMethods" expr="beanAroundInvokeCallbackMethods OR beanPostConstructCallbackMethods OR beanPreDestroyCallbackMethods"/>
 		
@@ -30,6 +30,12 @@
 		<!-- TODO: or we have defaultInterceptors -->
 		<annotation-introduction expr="constructor(@javax.interceptor.Interceptors->new(..)) OR has(* *->@javax.interceptor.Interceptors(..))">
 			@org.jboss.ejb3.interceptors.ManagedObject
+		</annotation-introduction>
+		
+		<!-- Make sure we have an interceptor factory -->
+		<!-- There is a bug in AOP which ignores defaults on annotations -->
+		<annotation-introduction expr="has(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
+			@org.jboss.ejb3.interceptors.InterceptorFactoryRef(org.jboss.ejb3.interceptors.aop.DefaultInterceptorFactory.class)
 		</annotation-introduction>
 		
 		<!-- Prepare for dynamic AOP -->
@@ -118,12 +124,6 @@
 			<interceptor-ref name="LoggingInterceptor"/>
 		</bind>
 		<bind pointcut="call(*->new(..)) AND !withincode(* org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor->*(..))">
-			<interceptor-ref name="LoggingInterceptor"/>
-		</bind>
-		-->
-		
-		<!-- TODO: Junk
-		<bind pointcut="construction(*->@javax.interceptor.PostConstruct(javax.interceptor.InvocationContext))">
 			<interceptor-ref name="LoggingInterceptor"/>
 		</bind>
 		-->

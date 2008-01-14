@@ -21,8 +21,8 @@
 	<!-- TODO: this is actually the bootstrap container -->
 	<domain name="InterceptorContainer">
 		<pointcut name="beanAroundInvokeCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.AroundInvoke(..))"/>
-		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PostConstruct(..))"/>
-		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PreDestroy(..))"/>
+		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PostConstruct(..))"/>
+		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PreDestroy(..))"/>
 		
 		<pointcut name="beanLifecycleCallbackMethods" expr="beanAroundInvokeCallbackMethods OR beanPostConstructCallbackMethods OR beanPreDestroyCallbackMethods"/>
 		
