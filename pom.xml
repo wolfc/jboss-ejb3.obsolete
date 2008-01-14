@@ -5,14 +5,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.jboss.ejb3</groupId>
-    <artifactId>jboss-ejb3</artifactId>
+    <artifactId>jboss-ejb3-build</artifactId>
     <version>0.12.0-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-metadata</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>JBoss EJB 3 Meta Data bridge</name>
+  <name>JBoss EJB 3.0 Meta Data bridge</name>
   <url>http://www.jboss.org</url>
   <description>
     The JBoss EJB 3 Meta Data component implements the meta data retrieval
