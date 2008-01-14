@@ -26,11 +26,11 @@ import java.lang.reflect.Method;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
-import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
@@ -114,6 +114,11 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
     */
    protected void initializeAdvisor(String name, Domain domain, Class<? extends T> beanClass)
    {
+      initializeAdvisor(name, domain, beanClass, null);
+   }
+   
+   protected void initializeAdvisor(String name, Domain domain, Class<? extends T> beanClass, AnnotationRepository annotations)
+   {
       if(this.advisor != null) throw new IllegalStateException("advisor already set to " + advisor);
       
       assert name != null : "name is null";
@@ -122,12 +127,12 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       
       // Decouple setting the advisor and initializing it, so interceptors
       // can get it.
-      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain);
+      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain, annotations);
       advisor.getAnnotations().addClassAnnotation(InterceptorFactoryRef.class, new InterceptorFactoryRefImpl(ContainerInterceptorFactory.class));
       advisor.initialize(beanClass);
    }
    
-   protected final ClassAdvisor getAdvisor()
+   protected final ManagedObjectAdvisor<T, C> getAdvisor()
    {
       if(advisor == null) throw new IllegalStateException("advisor has not been initialized");
       return advisor;
@@ -148,7 +153,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    /*
     * TODO: this should not be here, it's an AspectManager helper function.
     */
-   private static final Domain getDomain(String domainName)
+   protected static final Domain getDomain(String domainName)
    {
       DomainDefinition domainDefinition = AspectManager.instance().getContainer(domainName);
       if(domainDefinition == null)
