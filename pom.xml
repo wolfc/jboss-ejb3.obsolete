@@ -19,14 +19,34 @@
     specified in Chapter 12 (Interceptors) of the EJB 3 specification.
   </description>
   
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- Because we fiddle with the class loader in BasicTestSuite.
+               Note that the other tests also change context class loader, but this is
+               to make surefire work at all. -->
+          <forkMode>pertest</forkMode>
+          <!--
+          <argLine>-enableassertions</argLine>
+          -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <!-- internal -->
-    <!--
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-pool</artifactId>
+      <artifactId>jboss-ejb3-impl</artifactId>
     </dependency>
-    -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-metadata</artifactId>
+    </dependency>
 
     <!-- external -->
     <dependency>
@@ -50,6 +70,10 @@
       <scope>test</scope>
     </dependency>
     -->
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop</artifactId>

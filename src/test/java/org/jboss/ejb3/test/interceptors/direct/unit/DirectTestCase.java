@@ -66,6 +66,9 @@ public class DirectTestCase extends TestCase
    {
       AspectManager.verbose = true;
       
+      // To make surefire happy
+      Thread.currentThread().setContextClassLoader(DirectBean.class.getClassLoader());
+      
       // Bootstrap AOP
       // FIXME: use the right jboss-aop.xml
       URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
