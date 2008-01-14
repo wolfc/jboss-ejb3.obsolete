@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   vi:ts=2:sw=2:expandtab:
-
+-->
+<!-- 
   The parent maven for the ejb3 project
 
   This pom aggregates the subproject pom
@@ -20,20 +21,53 @@
   <name>JBoss EJB 3.0 Aggregator</name>
   <url>http://labs.jboss.com/jbossejb3/</url>
   <description>
-    The JBoss EJB 3 implementation.
+    The JBoss EJB 3.0 Implementation
   </description>
-  
+
+  <!-- Build Configuration -->
+  <build>
+
+    <plugins>
+      <!-- Assembly Plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>assembly/installer.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifest>
+              <mainClass>org.jboss.ejb3.installer.Installer</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <!-- Aggregate Modules -->
   <modules>
     <module>build</module>
-    <module>core</module>
+    <module>ejb3-ext-api</module>
+    <module>ejb3-impl</module>
+    <module>ejb3-cache</module>
+    <module>pool</module>
     <module>injection</module>
     <module>interceptors</module>
     <module>metadata</module>
-    <module>ejb3-cache</module>
-    <module>pool</module>
     <module>locator</module>
-    <module>ejb3-ext-api</module>
-    <module>ejb3-impl</module>
+    <module>core</module>
+    <module>ejb3-installer</module>
     <module>sandbox</module>
   </modules>
 
@@ -44,55 +78,6 @@
         <defaultGoal>process-test-resources</defaultGoal>
       </build>
     </profile>
-    <profile>
-      <id>docs</id>
-      <modules>
-        <module>docs</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>assembly</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <inherited>false</inherited>
-            <executions>
-              <execution>
-                <id>make-assembly</id>
-                <phase>install</phase>
-                <goals>
-                  <goal>assembly</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <finalName>jboss-ejb3-${project.version}</finalName>
-              <descriptors>
-                <descriptor>build/assembly/dist.xml</descriptor>
-                <descriptor>build/assembly/src.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-      <modules>
-        <module>docs</module>
-      </modules>
-    </profile>
   </profiles>
 
-  <distributionManagement>
-    <repository>
-      <!-- Copy the distribution jar file to a local checkout of the maven repository 
-        -  This variable can be set in $MAVEN_HOME/conf/settings.xml -->
-      <id>repository.jboss.org</id>
-      <url>file://${maven.repository.root}</url>
-    </repository>
-    <snapshotRepository>
-      <id>snapshots.jboss.org</id>
-      <name>JBoss Snapshot Repository</name>
-      <url>dav:https://snapshots.jboss.org/maven2</url>
-    </snapshotRepository>
-  </distributionManagement>
 </project>
