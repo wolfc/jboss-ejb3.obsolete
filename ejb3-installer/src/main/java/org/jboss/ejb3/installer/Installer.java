@@ -387,6 +387,19 @@ public class Installer
       catch (IOException ioe)
       {
          throw new RuntimeException(ioe);
+      } 
+      finally 
+      {
+         // Close the Streams
+         try 
+         {
+            in.close();
+            out.close();
+         } 
+         catch (IOException ioe) 
+         {
+            // Ignore
+         }
       }
 
       // Log
@@ -436,8 +449,15 @@ public class Installer
       }
 
       // Remove
-      System.out.println(file.getAbsolutePath() + " Removed.");
-      file.delete();
+      boolean removed = file.delete();
+      if(removed)
+      {
+           System.out.println(file.getAbsolutePath() + " Removed.");
+      }
+      else
+      {
+           System.out.println("Unable to remove " + file.getAbsolutePath());
+      }
 
    }
 
