@@ -38,8 +38,6 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
-import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
-import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorHelper;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -66,6 +64,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
          if(interceptorFactoryRef == null)
             throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
+         log.info("interceptor factory class = " + interceptorFactoryRef.value());
          InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
          
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
@@ -85,7 +84,8 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                }
                //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
                //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
-               AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+               //AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+               ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
                log.debug("  interceptorAdvisor = " + interceptorAdvisor);
                // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
                for(Method method : ClassHelper.getAllMethods(interceptorClass))
@@ -123,7 +123,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
                   }
                   //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
                   //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
-                  AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+                  ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
                   for(Method method : ClassHelper.getAllMethods(interceptorClass))
                   {
                      /* EJB 3 12.7 footnote 57: no lifecycle callbacks on business method interceptors
