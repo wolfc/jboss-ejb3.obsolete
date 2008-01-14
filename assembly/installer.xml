@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<assembly xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.1.0-SNAPSHOT.xsd"
+>
+  <id>installer</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <moduleSets>
+    <moduleSet>
+      <includes>
+        <include>org.jboss.ejb3:jboss-ejb3-cache</include>
+        <include>org.jboss.ejb3:jboss-ejb3-core</include>
+        <include>org.jboss.ejb3:jboss-ejb3-ext-api</include>
+        <include>org.jboss.ejb3:jboss-ejb3-impl</include>
+        <include>org.jboss.ejb3:jboss-ejb3-interceptors</include>
+        <include>org.jboss.ejb3:jboss-ejb3-metadata</include>
+        <include>org.jboss.ejb3:jboss-ejb3-pool</include>
+      </includes>
+      <binaries>
+        <unpack>false</unpack>
+        <includeDependencies>false</includeDependencies>
+        <outputDirectory>lib</outputDirectory>
+        <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+      </binaries>
+    </moduleSet>
+    <moduleSet>
+      <includes>
+        <include>org.jboss.ejb3:jboss-ejb3-installer</include>
+      </includes>
+      <binaries>
+        <unpack>true</unpack>
+        <includeDependencies>false</includeDependencies>
+        <outputFileNameMapping></outputFileNameMapping>
+        <outputDirectory></outputDirectory>
+      </binaries>
+    </moduleSet>
+  </moduleSets>
+</assembly>
