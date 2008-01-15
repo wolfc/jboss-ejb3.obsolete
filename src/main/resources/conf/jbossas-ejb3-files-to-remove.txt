@@ -5,7 +5,6 @@ client/ejb3-persistence.jar
 client/jboss-ejb3-impl-javadoc.jar
 client/jboss-ejb3-ext-api.jar
 server/default/lib/jboss-ejb3-impl.jar
-server/default/lib/ejb3-persistence.jar
 server/default/lib/jboss-ejb3-cache.jar
 server/default/lib/jboss-ejb3-ext-api.jar
 server/default/deployers/ejb3.deployer/jboss-annotations-ejb3.jar
@@ -18,7 +17,6 @@ server/default/deploy/ejb3-interceptors-aop.xml
 server/default/deploy/ejb3-connectors-service.xml
 server/default/deploy/ejb3-timer-service.xml
 server/all/lib/jboss-ejb3-impl.jar
-server/all/lib/ejb3-persistence.jar
 server/all/lib/jboss-ejb3-cache.jar
 server/all/lib/jboss-ejb3-ext-api.jar
 server/all/deployers/ejb3.deployer/jboss-annotations-ejb3.jar

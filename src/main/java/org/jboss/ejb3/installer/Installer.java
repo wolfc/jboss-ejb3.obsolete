@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -73,21 +74,26 @@ public class Installer
     * Environment Property key for ANT_HOME 
     */
    private static final String ENV_PROPERTY_ANT_HOME = "ANT_HOME";
-   
+
    /*
     * Environment Property key for the Installation location
     */
    private static final String ENV_PROPERTY_INSTALL_LOCATION = "JBOSS_EJB3_PLUGIN_INSTALL_HOME";
-   
+
    /*
     * Namespace of the installer
     */
    private static final String NAMESPACE_DIRECTORY_INSTALLER = "jbossas-ejb3-plugin-installer";
 
    /*
-    * Location of the EJB3 Libraries
+    * Location of the Libraries
     */
    private static final String FILENAME_LIB_DIRECTORY = "lib";
+
+   /*
+    * Location of the Configuration
+    */
+   private static final String FILENAME_CONF_DIRECTORY = "conf";
 
    /*
     * Apache Ant executable
@@ -108,11 +114,6 @@ public class Installer
     * Filename of Ant Buildfile
     */
    private static final String FILENAME_BUILDFILE = "build-install-ejb3-plugin.xml";
-
-   /*
-    * Filename of include patterns of files to be removed from AS 
-    */
-   private static final String FILENAME_REMOVE_INCLUDES = "jbossas-ejb3-files-to-remove.txt";
 
    // Instance Members
 
@@ -169,10 +170,10 @@ public class Installer
    public void install()
    {
       // Log
-      System.out.println("\n*****************************************");
-      System.out.println("|| JBossAS 5.0.x EJB3 Plugin Installer ||");
-      System.out.println("*****************************************\n");
-      System.out.println("Installing EJB3 Libraries to Temp Directory...");
+      this.getPrintStream().println("\n*****************************************");
+      this.getPrintStream().println("|| JBossAS 5.0.x EJB3 Plugin Installer ||");
+      this.getPrintStream().println("*****************************************\n");
+      this.getPrintStream().println("Installing EJB3 Libraries to Temp Directory...");
 
       // Add Shutdown Hook
       Runtime.getRuntime().addShutdownHook(new Shutdown());
@@ -183,20 +184,23 @@ public class Installer
       // Ensure JBOSS_HOME exists
       this.ensureJbossHomeExists();
 
-      // For each EJB3 Library
-      for (JarEntry library : this.getAllEjb3Libraries())
+      // For each Library
+      for (JarEntry library : this.getAllLibraries())
       {
          // Copy to the installer temp directory
          this.copyFileFromJarToDirectory(this.getInstallerJarFile(), library, this.getInstallationDirectory());
       }
 
+      // For Configuration File
+      for (JarEntry conf : this.getAllConfigurationFiles())
+      {
+         // Copy to the installer temp directory
+         this.copyFileFromJarToDirectory(this.getInstallerJarFile(), conf, this.getInstallationDirectory());
+      }
+
       // Copy the buildfile to the installer temp directory
       this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
             Installer.FILENAME_BUILDFILE), this.getInstallationDirectory());
-
-      // Copy the remove includes file to the installer temp directory
-      this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
-            Installer.FILENAME_REMOVE_INCLUDES), this.getInstallationDirectory());
 
       // Run Ant
       this.runAnt();
@@ -226,7 +230,7 @@ public class Installer
          // Set as installation Directory
          this.setInstallationDirectory(installerDir);
          // Log
-         System.out.println("JBoss AS 5.0.x Installation Directory: " + this.installationDirectory);
+         this.getPrintStream().println("JBoss AS 5.0.x Installation Directory: " + this.installationDirectory);
       }
 
       // Return
@@ -267,9 +271,27 @@ public class Installer
    // Internal Helper Methods
 
    /**
-    * Returns all EJB3 Plugin libraries as references
+    * Returns all Libraries as references
     */
-   private List<JarEntry> getAllEjb3Libraries()
+   private List<JarEntry> getAllLibraries()
+   {
+      return this.getAllJarEntriesInDirectory(Installer.FILENAME_LIB_DIRECTORY);
+   }
+
+   /**
+    * Returns all configuration files as references
+    */
+   private List<JarEntry> getAllConfigurationFiles()
+   {
+      return this.getAllJarEntriesInDirectory(Installer.FILENAME_CONF_DIRECTORY);
+   }
+
+   /**
+    * Returns all references in the specified directory
+    * 
+    * @param directory The directory
+    */
+   private List<JarEntry> getAllJarEntriesInDirectory(String directory)
    {
       // Initialize
       List<JarEntry> libraries = new ArrayList<JarEntry>();
@@ -283,7 +305,7 @@ public class Installer
       {
          JarEntry entry = entries.nextElement();
          // Ensure it's in "lib" directory
-         if (entry.getName().startsWith(Installer.FILENAME_LIB_DIRECTORY) && !entry.isDirectory())
+         if (entry.getName().startsWith(directory) && !entry.isDirectory())
          {
             libraries.add(entry);
          }
@@ -307,10 +329,9 @@ public class Installer
       String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
       if (antHome == null || "".equals(antHome))
       {
-         throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME
-               + "' must be specified.");
+         throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME + "' must be specified.");
       }
-      System.out.println("Using ANT_HOME: " + antHome);
+      this.getPrintStream().println("Using ANT_HOME: " + antHome);
 
       // Construct "ant" command
       String antCommand = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
@@ -326,12 +347,14 @@ public class Installer
       antProcessBuilder.redirectErrorStream(true);
       antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
             this.getJbossAsInstallationDirectory().getAbsolutePath());
-      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_INSTALL_LOCATION, this.getInstallationDirectory().getAbsolutePath());
+      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_INSTALL_LOCATION,
+            this.getInstallationDirectory().getAbsolutePath());
 
       try
       {
          // Start the Process
-         System.out.println("Starting Ant> " + antCommand + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
+         this.getPrintStream().println(
+               "Starting Ant> " + antCommand + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
          antProcess = antProcessBuilder.start();
 
          // Capture the output
@@ -342,7 +365,7 @@ public class Installer
          int exitValue = antProcess.waitFor();
          if (exitValue == 0)
          {
-            System.out.println("Ant Build Completed");
+            this.getPrintStream().println("Ant Build Completed");
          }
          else
          {
@@ -374,13 +397,13 @@ public class Installer
    private void cleanup()
    {
       // Log
-      System.out.println("Starting Cleanup...");
+      this.getPrintStream().println("Starting Cleanup...");
 
       // Remove installation directory
       this.rmAndChildren(this.getInstallationDirectory());
 
       // Log
-      System.out.println("Cleanup Complete.");
+      this.getPrintStream().println("Cleanup Complete.");
    }
 
    /**
@@ -443,7 +466,7 @@ public class Installer
       }
 
       // Log
-      System.out.println("Copied " + fileToCopy.getName() + " to " + destinationFile.getAbsolutePath());
+      this.getPrintStream().println("Copied " + fileToCopy.getName() + " to " + destinationFile.getAbsolutePath());
    }
 
    /**
@@ -465,7 +488,7 @@ public class Installer
       {
          // Make the directory
          directory.mkdir();
-         System.out.println("Created Directory " + directory.getAbsolutePath());
+         this.getPrintStream().println("Created Directory " + directory.getAbsolutePath());
       }
    }
 
@@ -477,6 +500,12 @@ public class Installer
     */
    private void rmAndChildren(File file)
    {
+      // Only delete if exists
+      if (!file.exists())
+      {
+         return;
+      }
+
       // For all children
       File[] children = file.listFiles();
       if (children != null)
@@ -492,11 +521,11 @@ public class Installer
       boolean removed = file.delete();
       if (removed)
       {
-         System.out.println(file.getAbsolutePath() + " Removed.");
+         this.getPrintStream().println(file.getAbsolutePath() + " Removed.");
       }
       else
       {
-         System.out.println("Unable to remove " + file.getAbsolutePath());
+         this.getPrintStream().println("Unable to remove " + file.getAbsolutePath());
       }
 
    }
@@ -512,6 +541,15 @@ public class Installer
          throw new RuntimeException("Specified JBoss AS Installation Directory, '"
                + this.getJbossAsInstallationDirectory().getAbsolutePath() + "', does not exist. ");
       }
+   }
+
+   /**
+    * Return the Output Stream
+    * @return
+    */
+   private PrintStream getPrintStream()
+   {
+      return System.out;
    }
 
    // Inner Classes
@@ -532,13 +570,13 @@ public class Installer
          super.run();
 
          // Log
-         System.out.println("Shutdown Hook called...");
+         getPrintStream().println("Shutdown Hook called...");
 
          // Cleanup
          cleanup();
 
          // Log
-         System.out.println("");
+         getPrintStream().println("");
       }
    }
 
@@ -571,12 +609,12 @@ public class Installer
          // Obtain InputStream of process
          InputStream in = this.process.getInputStream();
 
-         // Read in and direct to stdout
+         // Read in and direct PrintStream
          try
          {
             while ((bytesRead = in.read(buffer)) != -1)
             {
-               System.out.write(buffer, 0, bytesRead);
+               getPrintStream().write(buffer, 0, bytesRead);
             }
          }
          catch (IOException ioe)
