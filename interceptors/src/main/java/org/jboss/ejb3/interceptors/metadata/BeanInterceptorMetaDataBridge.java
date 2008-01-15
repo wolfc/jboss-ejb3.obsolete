@@ -22,12 +22,16 @@
 package org.jboss.ejb3.interceptors.metadata;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.impl.InterceptorsImpl;
+import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
+import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptorsImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -68,6 +72,24 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       return true;
    }
    
+   protected static boolean add(List<Class<?>> interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
+   {
+      InterceptorClassesMetaData interceptorClassesMetaData;
+      if(binding.isTotalOrdering())
+      {
+         interceptorClassesMetaData = binding.getInterceptorOrder();
+      }
+      else
+      {
+         interceptorClassesMetaData = binding.getInterceptorClasses();
+      }
+      for(String interceptorClassName : interceptorClassesMetaData)
+      {
+         interceptors.add(loadClass(classLoader, interceptorClassName));
+      }
+      return true;
+   }
+   
    private static Class<?> loadClass(ClassLoader classLoader, String name)
    {
       try
@@ -83,11 +105,32 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    @Override
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader)
    {
-      if(annotationClass == Interceptors.class)
+      if(annotationClass == DefaultInterceptors.class)
       {
          InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
          if(bindings != null)
          {
+            List<Class<?>> interceptors = new ArrayList<Class<?>>();
+            for(InterceptorBindingMetaData binding : bindings)
+            {
+               String bindingEjbName = binding.getEjbName();
+               if(bindingEjbName.equals("*"))
+               {
+                  assert binding.getMethod() == null : "method binding not allowed on default interceptor";
+                  
+                  add(interceptors, classLoader, binding);
+               }
+            }
+            if(!interceptors.isEmpty())
+               return annotationClass.cast(new DefaultInterceptorsImpl(interceptors));
+         }
+      }
+      else if(annotationClass == Interceptors.class)
+      {
+         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
+         if(bindings != null)
+         {
+            InterceptorsImpl interceptors = new InterceptorsImpl();
             for(InterceptorBindingMetaData binding : bindings)
             {
                // For the method component
@@ -96,14 +139,10 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                
                String ejbName = beanMetaData.getEjbName();
                String bindingEjbName = binding.getEjbName();
-               if(bindingEjbName.equals("*") || bindingEjbName.equals(ejbName))
-               {
-                  //List<Class<?>> interceptorClasses = new ArrayList<Class<?>>();
-                  InterceptorsImpl interceptors = new InterceptorsImpl();
+               if(bindingEjbName.equals(ejbName))
                   add(interceptors, classLoader, binding);
-                  return annotationClass.cast(interceptors);
-               }
             }
+            return annotationClass.cast(interceptors);
          }
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader);

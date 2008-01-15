@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.interceptor.ExcludeClassInterceptors;
+import javax.interceptor.ExcludeDefaultInterceptors;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
@@ -85,9 +86,8 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
                return super.addAll(c);
             }
          };
-         // TODO: implement default interceptors
-//         if(!isIgnoreDefaultInterceptors(advisor, jp))
-//            interceptors.addAll(defaultInterceptors);
+         if(!isExcludeDefaultInterceptors(advisor, method))
+            interceptors.addAll(InterceptorsFactory.getDefaultInterceptors(instanceAdvisor));
          if(!isExcludeClassInterceptors(advisor, method))
             interceptors.addAll(InterceptorsFactory.getClassInterceptors(instanceAdvisor));
          interceptors.addAll(InterceptorsFactory.getBusinessMethodInterceptors(instanceAdvisor, method));
@@ -118,7 +118,12 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
    
    private static final boolean isExcludeClassInterceptors(Advisor advisor, Method method)
    {
-      return advisor.hasAnnotation(method, ExcludeClassInterceptors.class);
+      return advisor.hasAnnotation(method, ExcludeClassInterceptors.class) || advisor.resolveAnnotation(ExcludeClassInterceptors.class) != null;
+   }
+   
+   private static final boolean isExcludeDefaultInterceptors(Advisor advisor, Method method)
+   {
+      return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
    }
    
    public String getName()

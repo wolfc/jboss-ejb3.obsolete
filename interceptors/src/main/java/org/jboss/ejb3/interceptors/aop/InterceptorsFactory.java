@@ -38,6 +38,7 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
+import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -50,6 +51,43 @@ import org.jboss.logging.Logger;
 public class InterceptorsFactory extends AbstractInterceptorFactory
 {
    private static final Logger log = Logger.getLogger(InterceptorsFactory.class);
+   
+   private List<? extends Interceptor> createInterceptors(Advisor advisor, InterceptorFactory interceptorFactory, Class<?>[] interceptorClasses, List<BusinessMethodInterceptorMethodInterceptor> interceptors, Map<Class<?>, Object> existingInterceptors, List<LifecycleCallbackInterceptorMethodInterceptor> postConstructs) throws InstantiationException, IllegalAccessException
+   {
+      if(interceptorClasses != null)
+      {
+         for(Class<?> interceptorClass : interceptorClasses)
+         {
+            // TODO: what if I've specified the same interceptor twice? (throw an Exception?)
+            Object interceptor = existingInterceptors.get(interceptorClass);
+            if(interceptor == null)
+            {
+               interceptor = interceptorFactory.create(advisor, interceptorClass);
+               existingInterceptors.put(interceptorClass, interceptor);
+            }
+            //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
+            //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
+            //AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
+            ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
+            log.debug("  interceptorAdvisor = " + interceptorAdvisor);
+            // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
+            for(Method method : ClassHelper.getAllMethods(interceptorClass))
+            {
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
+               {
+                  postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
+               }
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
+               {
+                  interceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
+               }
+            }
+            //instanceAdvisor.appendInterceptorStack(stackName);
+            //instanceAdvisor.appendInterceptor(new InvokeSpecInterceptorInterceptor());
+         }
+      }
+      return interceptors;
+   }
    
    public Object createPerInstance(Advisor advisor, InstanceAdvisor instanceAdvisor)
    {
@@ -67,42 +105,26 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          log.info("interceptor factory class = " + interceptorFactoryRef.value());
          InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
          
-         Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
-         List<Interceptor> postConstructs = new ArrayList<Interceptor>();
-         List<Interceptor> classInterceptors = new ArrayList<Interceptor>();
+         List<LifecycleCallbackInterceptorMethodInterceptor> postConstructs = new ArrayList<LifecycleCallbackInterceptorMethodInterceptor>();
+         
+         DefaultInterceptors defaultInterceptorsAnnotation = (DefaultInterceptors) advisor.resolveAnnotation(DefaultInterceptors.class);
+         List<BusinessMethodInterceptorMethodInterceptor> defaultInterceptors = new ArrayList<BusinessMethodInterceptorMethodInterceptor>();
+         if(defaultInterceptorsAnnotation != null)
+            createInterceptors(advisor, interceptorFactory, defaultInterceptorsAnnotation.value(), defaultInterceptors, interceptors, postConstructs);
+         
+         log.debug("Found class interceptors " + defaultInterceptors);
+         // Default Interceptors
+         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "defaultInterceptors", defaultInterceptors);
+         
+         Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
+         List<BusinessMethodInterceptorMethodInterceptor> classInterceptors = new ArrayList<BusinessMethodInterceptorMethodInterceptor>();
          if(interceptorsAnnotation != null)
-         {
-            for(Class<?> interceptorClass : interceptorsAnnotation.value())
-            {
-               // TODO: what if I've specified the same interceptor twice? (throw an Exception?)
-               Object interceptor = interceptors.get(interceptorClass);
-               if(interceptor == null)
-               {
-                  interceptor = interceptorFactory.create(advisor, interceptorClass);
-                  interceptors.put(interceptorClass, interceptor);
-               }
-               //Advisor interceptorAdvisor = ((Advised) interceptor)._getAdvisor();
-               //Advisor interceptorAdvisor = advisor.getManager().getAdvisor(interceptorClass);
-               //AnnotationAdvisor interceptorAdvisor = AnnotationAdvisorHelper.getAnnotationAdvisor(advisor, interceptor);
-               ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
-               log.debug("  interceptorAdvisor = " + interceptorAdvisor);
-               // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
-               for(Method method : ClassHelper.getAllMethods(interceptorClass))
-               {
-                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
-                  {
-                     postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
-                  }
-                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
-                  {
-                     classInterceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
-                  }
-               }
-               //instanceAdvisor.appendInterceptorStack(stackName);
-               //instanceAdvisor.appendInterceptor(new InvokeSpecInterceptorInterceptor());
-            }
-         }
+            createInterceptors(advisor, interceptorFactory, interceptorsAnnotation.value(), classInterceptors, interceptors, postConstructs);
+         
+         log.debug("Found class interceptors " + classInterceptors);
+         // Class Interceptors
+         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "classInterceptors", classInterceptors);
          
          Class<?> beanClass = advisor.getClazz();
          List<Interceptor> beanInterceptors = new ArrayList<Interceptor>();
@@ -148,10 +170,6 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          }
          log.debug("Found bean interceptors " + beanInterceptors);
          instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "beanInterceptors", beanInterceptors);
-         
-         log.debug("Found class interceptors " + classInterceptors);
-         // Class Interceptors
-         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "classInterceptors", classInterceptors);
          
          // Put the postConstructs interceptors here in the chain
          // TODO: why? We may need more control
@@ -205,6 +223,12 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    public static List<Interceptor> getClassInterceptors(InstanceAdvisor instanceAdvisor)
    {
       return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "classInterceptors");
+   }
+   
+   @SuppressWarnings("unchecked")
+   public static List<Interceptor> getDefaultInterceptors(InstanceAdvisor instanceAdvisor)
+   {
+      return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "defaultInterceptors");
    }
    
    private String toString(Object obj)
