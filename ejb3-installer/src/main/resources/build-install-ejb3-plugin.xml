@@ -19,13 +19,14 @@
   <property environment="env" />
   <property name="jboss.home" value="${env.JBOSS_HOME}" />
   <property name="installer.home" value="${env.JBOSS_EJB3_PLUGIN_INSTALL_HOME}" />
-  
+
   <!-- Configuration -->
   <property name="installer.lib" value="${installer.home}/lib" />
 
-  <!-- Includes file of patterns to remove from existing AS Installation -->
+  <!-- Includefiles -->
   <property name="file.jbossas.remove.includes" value="conf/jbossas-ejb3-files-to-remove.txt" />
   <property name="file.jbossas.serverlib.includes" value="conf/jbossas-ejb3-files-to-place-in-serverlib.txt" />
+  <property name="file.jbossas.client.includes" value="conf/jbossas-ejb3-files-to-place-in-client.txt" />
 
   <!-- Servers to patch -->
   <property name="servers" value="default;all" />
@@ -80,6 +81,9 @@
 
     <echo>Installing EJB3 Plugin to ${jboss.home}</echo>
 
+    <!-- Copy all binaries to "client" -->
+    <antcall target="install-client" />
+
     <!-- Copy all binaries to "lib" directory of each server -->
     <foreach list="${servers}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
 
@@ -98,6 +102,21 @@
     <delete verbose="true" includeemptydirs="true">
       <fileset dir="${jboss.home}" includesfile="${file.jbossas.remove.includes}" />
     </delete>
+
+  </target>
+
+  <!-- 
+    
+    Installs binaries to the "client" directory of JBOSS_HOME
+    
+    -->
+  <target name="install-client">
+
+    <echo>Installing EJB3 Binaries to "client" of ${jboss.home}</echo>
+
+    <copy todir="${jboss.home}/client">
+      <fileset dir="${installer.lib}" includesfile="${file.jbossas.client.includes}" />
+    </copy>
 
   </target>
 
