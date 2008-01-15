@@ -55,19 +55,25 @@ public class Installer
    private static final String SYSTEM_PROPERTY_TMP_DIRECTORY = "java.io.tmpdir";
 
    /*
-    * System-independent path separator
-    */
-   private static final String SYSTEM_PROPERTY_FILE_SEPARATOR = "file.separator";
-
-   /*
     * Current Classpath
     */
    private static final String SYSTEM_PROPERTY_CLASS_PATH = "java.class.path";
 
    /*
+    * System Property Key for OS 
+    */
+   private static final String SYSTEM_PROPERTY_OS = "os.name";
+   
+   /*
     * Environment Property key for JBOSS_HOME
     */
    private static final String ENV_PROPERTY_JBOSS_HOME = "JBOSS_HOME";
+   
+   
+   /*
+    * Environment Property key for ANT_HOME 
+    */
+   private static final String SYSTEM_PROPERTY_ANT_HOME = "ANT_HOME";
 
    /*
     * Namespace of the installer
@@ -83,6 +89,11 @@ public class Installer
     * Apache Ant executable
     */
    private static final String COMMAND_ANT = "ant";
+   
+   /*
+    * Extension to append to Windows-based systems
+    */
+   private static final String COMMAND_EXTENSION_WINDOWS = ".bat";
 
    /*
     * Switch to set buildfile for Ant
@@ -277,21 +288,39 @@ public class Installer
    {
       // Initialize
       Process antProcess = null;
-      String buildfile = this.getInstallationDirectory() + System.getProperty(Installer.SYSTEM_PROPERTY_FILE_SEPARATOR)
+      String buildfile = this.getInstallationDirectory() + File.separator
             + Installer.FILENAME_BUILDFILE;
 
+      // Obtain ANT_HOME and ensure specified
+      String antHome = System.getenv(Installer.SYSTEM_PROPERTY_ANT_HOME);
+      if(antHome==null || "".equals(antHome))
+      {
+            throw new RuntimeException("Environment Variable '" + Installer.SYSTEM_PROPERTY_ANT_HOME + 
+                "' must be specified.");
+      }
+      System.out.println("Using ANT_HOME: " + antHome);
+      
+      // Construct "ant" command
+      String antCommand = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
+      
+      // Windows Hack
+      if(System.getProperty(Installer.SYSTEM_PROPERTY_OS).trim().toLowerCase().contains("windows"))
+      {
+          antCommand = antCommand + Installer.COMMAND_EXTENSION_WINDOWS;
+      }
+      
       // Construct the Process
-      ProcessBuilder antProcessBuilder = new ProcessBuilder(Installer.COMMAND_ANT, Installer.SWITCH_ANT_BUILDFILE,
+      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommand, Installer.SWITCH_ANT_BUILDFILE,
             buildfile);
       antProcessBuilder.redirectErrorStream(true);
       antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
             this.getJbossAsInstallationDirectory().getAbsolutePath());
-
+      
       try
       {
          // Start the Process
-         System.out.println("Starting Ant> " + Installer.COMMAND_ANT + " " + Installer.SWITCH_ANT_BUILDFILE + " "
-               + buildfile);
+         System.out.println("Starting Ant> " + antCommand + " "
+             + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
          antProcess = antProcessBuilder.start();
 
          // Capture the output
@@ -314,7 +343,7 @@ public class Installer
          // The command could not be found
          if (antProcess == null)
          {
-            throw new RuntimeException("Ensure Apache Ant is properly installed and available on your system's PATH",
+            throw new RuntimeException("Ensure Apache Ant is properly installed and Environment Variable ANT_HOME is set",
                   ioe);
          }
 
