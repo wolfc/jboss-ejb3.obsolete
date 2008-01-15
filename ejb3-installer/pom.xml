@@ -32,4 +32,18 @@
   <name>JBoss EJB 3.0 Installer</name>
   <description>Installer to patch existing JBoss AS 5.0.x Installation w/ EJB3 Plugin</description>
 
+  <!-- Properties -->
+  <properties>
+    <version.ant-contrib:ant-contrib>1.0b2</version.ant-contrib:ant-contrib>
+  </properties>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <dependency>
+      <groupId>ant-contrib</groupId>
+      <artifactId>ant-contrib</artifactId>
+      <version>${version.ant-contrib:ant-contrib}</version>
+    </dependency>
+  </dependencies>
+
 </project>

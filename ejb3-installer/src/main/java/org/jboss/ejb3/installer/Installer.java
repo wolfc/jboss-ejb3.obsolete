@@ -63,18 +63,22 @@ public class Installer
     * System Property Key for OS 
     */
    private static final String SYSTEM_PROPERTY_OS = "os.name";
-   
+
    /*
     * Environment Property key for JBOSS_HOME
     */
    private static final String ENV_PROPERTY_JBOSS_HOME = "JBOSS_HOME";
-   
-   
+
    /*
     * Environment Property key for ANT_HOME 
     */
-   private static final String SYSTEM_PROPERTY_ANT_HOME = "ANT_HOME";
-
+   private static final String ENV_PROPERTY_ANT_HOME = "ANT_HOME";
+   
+   /*
+    * Environment Property key for the Installation location
+    */
+   private static final String ENV_PROPERTY_INSTALL_LOCATION = "JBOSS_EJB3_PLUGIN_INSTALL_HOME";
+   
    /*
     * Namespace of the installer
     */
@@ -89,7 +93,7 @@ public class Installer
     * Apache Ant executable
     */
    private static final String COMMAND_ANT = "ant";
-   
+
    /*
     * Extension to append to Windows-based systems
     */
@@ -104,6 +108,11 @@ public class Installer
     * Filename of Ant Buildfile
     */
    private static final String FILENAME_BUILDFILE = "build-install-ejb3-plugin.xml";
+
+   /*
+    * Filename of include patterns of files to be removed from AS 
+    */
+   private static final String FILENAME_REMOVE_INCLUDES = "jbossas-ejb3-files-to-remove.txt";
 
    // Instance Members
 
@@ -164,7 +173,7 @@ public class Installer
       System.out.println("|| JBossAS 5.0.x EJB3 Plugin Installer ||");
       System.out.println("*****************************************\n");
       System.out.println("Installing EJB3 Libraries to Temp Directory...");
-      
+
       // Add Shutdown Hook
       Runtime.getRuntime().addShutdownHook(new Shutdown());
 
@@ -184,6 +193,10 @@ public class Installer
       // Copy the buildfile to the installer temp directory
       this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
             Installer.FILENAME_BUILDFILE), this.getInstallationDirectory());
+
+      // Copy the remove includes file to the installer temp directory
+      this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
+            Installer.FILENAME_REMOVE_INCLUDES), this.getInstallationDirectory());
 
       // Run Ant
       this.runAnt();
@@ -288,39 +301,37 @@ public class Installer
    {
       // Initialize
       Process antProcess = null;
-      String buildfile = this.getInstallationDirectory() + File.separator
-            + Installer.FILENAME_BUILDFILE;
+      String buildfile = this.getInstallationDirectory() + File.separator + Installer.FILENAME_BUILDFILE;
 
       // Obtain ANT_HOME and ensure specified
-      String antHome = System.getenv(Installer.SYSTEM_PROPERTY_ANT_HOME);
-      if(antHome==null || "".equals(antHome))
+      String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
+      if (antHome == null || "".equals(antHome))
       {
-            throw new RuntimeException("Environment Variable '" + Installer.SYSTEM_PROPERTY_ANT_HOME + 
-                "' must be specified.");
+         throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME
+               + "' must be specified.");
       }
       System.out.println("Using ANT_HOME: " + antHome);
-      
+
       // Construct "ant" command
       String antCommand = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
-      
+
       // Windows Hack
-      if(System.getProperty(Installer.SYSTEM_PROPERTY_OS).trim().toLowerCase().contains("windows"))
+      if (System.getProperty(Installer.SYSTEM_PROPERTY_OS).trim().toLowerCase().contains("windows"))
       {
-          antCommand = antCommand + Installer.COMMAND_EXTENSION_WINDOWS;
+         antCommand = antCommand + Installer.COMMAND_EXTENSION_WINDOWS;
       }
-      
+
       // Construct the Process
-      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommand, Installer.SWITCH_ANT_BUILDFILE,
-            buildfile);
+      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommand, Installer.SWITCH_ANT_BUILDFILE, buildfile);
       antProcessBuilder.redirectErrorStream(true);
       antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
             this.getJbossAsInstallationDirectory().getAbsolutePath());
-      
+      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_INSTALL_LOCATION, this.getInstallationDirectory().getAbsolutePath());
+
       try
       {
          // Start the Process
-         System.out.println("Starting Ant> " + antCommand + " "
-             + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
+         System.out.println("Starting Ant> " + antCommand + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
          antProcess = antProcessBuilder.start();
 
          // Capture the output
@@ -343,8 +354,8 @@ public class Installer
          // The command could not be found
          if (antProcess == null)
          {
-            throw new RuntimeException("Ensure Apache Ant is properly installed and Environment Variable ANT_HOME is set",
-                  ioe);
+            throw new RuntimeException(
+                  "Ensure Apache Ant is properly installed and Environment Variable ANT_HOME is set", ioe);
          }
 
          // Other I/O Error
@@ -416,16 +427,16 @@ public class Installer
       catch (IOException ioe)
       {
          throw new RuntimeException(ioe);
-      } 
-      finally 
+      }
+      finally
       {
          // Close the Streams
-         try 
+         try
          {
             in.close();
             out.close();
-         } 
-         catch (IOException ioe) 
+         }
+         catch (IOException ioe)
          {
             // Ignore
          }
@@ -479,13 +490,13 @@ public class Installer
 
       // Remove
       boolean removed = file.delete();
-      if(removed)
+      if (removed)
       {
-           System.out.println(file.getAbsolutePath() + " Removed.");
+         System.out.println(file.getAbsolutePath() + " Removed.");
       }
       else
       {
-           System.out.println("Unable to remove " + file.getAbsolutePath());
+         System.out.println("Unable to remove " + file.getAbsolutePath());
       }
 
    }

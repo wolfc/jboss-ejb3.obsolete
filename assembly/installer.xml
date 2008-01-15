@@ -36,6 +36,16 @@
       <binaries>
         <unpack>true</unpack>
         <includeDependencies>false</includeDependencies>
+        <dependencySets>
+          <dependencySet>
+            <includes>
+              <include>ant-contrib:ant-contrib</include>
+            </includes>
+            <unpack>false</unpack>
+            <outputFileNameMapping>${artifactId}.${extension}</outputFileNameMapping>
+            <outputDirectory>lib</outputDirectory>
+          </dependencySet>
+        </dependencySets>
         <outputFileNameMapping></outputFileNameMapping>
         <outputDirectory></outputDirectory>
       </binaries>
