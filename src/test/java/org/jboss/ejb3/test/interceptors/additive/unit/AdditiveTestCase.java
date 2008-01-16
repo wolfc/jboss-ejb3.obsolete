@@ -38,7 +38,6 @@ import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.interceptors.additive.MyInterceptor;
 import org.jboss.ejb3.test.interceptors.additive.MySessionBean;
 import org.jboss.ejb3.test.interceptors.additive.XMLInterceptor;
-import org.jboss.ejb3.test.interceptors.metadata.MetadataBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -64,7 +63,7 @@ import org.w3c.dom.ls.LSInput;
  * ride this ordering.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class AdditiveTestCase extends TestCase
 {
@@ -117,7 +116,7 @@ public class AdditiveTestCase extends TestCase
       AspectManager.verbose = true;
       
       // To make surefire happy
-      Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
+      Thread.currentThread().setContextClassLoader(MySessionBean.class.getClassLoader());
       
       // Bootstrap AOP
       // FIXME: use the right jboss-aop.xml
