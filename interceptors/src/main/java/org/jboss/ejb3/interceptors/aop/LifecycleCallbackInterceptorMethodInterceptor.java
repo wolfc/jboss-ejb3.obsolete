@@ -73,7 +73,16 @@ public class LifecycleCallbackInterceptorMethodInterceptor implements Intercepto
       try
       {
          Object args[] = { ctx };
-         method.invoke(interceptor, args);
+         boolean accessible = method.isAccessible();
+         method.setAccessible(true);
+         try
+         {
+            method.invoke(interceptor, args);
+         }
+         finally
+         {
+            method.setAccessible(accessible);
+         }
          // TODO: return null or invokeTarget?
          return invocation.invokeNext();
       }

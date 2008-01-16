@@ -74,7 +74,16 @@ public class BusinessMethodInterceptorMethodInterceptor implements Interceptor
       try
       {
          Object args[] = { ctx };
-         return method.invoke(interceptor, args);
+         boolean accessible = method.isAccessible();
+         method.setAccessible(true);
+         try
+         {
+            return method.invoke(interceptor, args);
+         }
+         finally
+         {
+            method.setAccessible(accessible);
+         }
       }
       catch(InvocationTargetException e)
       {
