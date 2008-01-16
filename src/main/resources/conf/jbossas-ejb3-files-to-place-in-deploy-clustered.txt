@@ -1,0 +1,2 @@
+ejb3-clustered-sfsbcache-service.xml
+ejb3-clustered-sfsbcache-beans.xml
