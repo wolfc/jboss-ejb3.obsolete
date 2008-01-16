@@ -30,7 +30,11 @@ import javax.interceptor.Interceptors;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * A new implementation of Interceptors which allows for
+ * a bit more functionality.
+ * 
+ * Note: this one has an unsafe life-cycle. Modifications can
+ * be made after it is in use.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -45,12 +49,12 @@ public class InterceptorsImpl implements Interceptors
    {
       if(annotation == null)
          return false;
+      boolean result = false;
       for(Class<?> cls : annotation.value())
       {
-         boolean result = values.add(cls);
-         assert result;
+         result |= values.add(cls);
       }
-      return true;
+      return result;
    }
    
    public Class<? extends Annotation> annotationType()
