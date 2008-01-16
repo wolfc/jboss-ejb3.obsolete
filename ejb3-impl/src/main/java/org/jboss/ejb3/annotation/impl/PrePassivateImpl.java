@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.PrePassivate;
 
 /**
@@ -35,7 +37,7 @@ public class PrePassivateImpl implements PrePassivate
    {
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return PrePassivate.class;
    }

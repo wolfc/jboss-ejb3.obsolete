@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.annotation.PreDestroy;
 
 /**
@@ -35,7 +37,7 @@ public class PreDestroyImpl implements PreDestroy
    {
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return PreDestroy.class;
    }

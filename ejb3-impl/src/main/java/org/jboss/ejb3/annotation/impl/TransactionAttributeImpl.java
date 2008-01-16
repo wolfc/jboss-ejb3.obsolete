@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
@@ -53,7 +55,7 @@ public class TransactionAttributeImpl implements TransactionAttribute
       return type;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return TransactionAttribute.class;
    }

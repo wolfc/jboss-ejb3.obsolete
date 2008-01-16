@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.Stateful;
 
 
@@ -44,7 +46,7 @@ public class StatefulImpl implements Stateful
       return name;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Stateful.class;
    }

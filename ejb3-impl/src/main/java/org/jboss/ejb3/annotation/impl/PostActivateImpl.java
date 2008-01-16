@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.PostActivate;
 
 /**
@@ -35,7 +37,7 @@ public class PostActivateImpl implements PostActivate
    {
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return PostActivate.class;
    }

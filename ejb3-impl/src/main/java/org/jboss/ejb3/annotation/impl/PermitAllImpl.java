@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.annotation.security.PermitAll;
 
 /**
@@ -35,7 +37,7 @@ public class PermitAllImpl implements PermitAll
    {
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return PermitAll.class;
    }

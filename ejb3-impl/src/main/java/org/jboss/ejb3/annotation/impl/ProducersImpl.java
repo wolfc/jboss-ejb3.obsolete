@@ -22,6 +22,7 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class ProducersImpl implements Producers, Serializable
       producers.add(producer);
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Producers.class;
    }
