@@ -22,14 +22,28 @@
 
   <!-- Configuration -->
   <property name="installer.lib" value="${installer.home}/lib" />
+  <property name="installer.deploy" value="${installer.home}/deploy" />
 
   <!-- Includefiles -->
   <property name="file.jbossas.remove.includes" value="conf/jbossas-ejb3-files-to-remove.txt" />
   <property name="file.jbossas.serverlib.includes" value="conf/jbossas-ejb3-files-to-place-in-serverlib.txt" />
   <property name="file.jbossas.client.includes" value="conf/jbossas-ejb3-files-to-place-in-client.txt" />
+  <property name="file.jbossas.deploy.unclustered.includes" value="conf/jbossas-ejb3-files-to-place-in-deploy-unclustered.txt" />
+  <property name="file.jbossas.deploy.clustered.includes" value="conf/jbossas-ejb3-files-to-place-in-deploy-clustered.txt" />
+  <property name="file.jbossas.unjar.deploy.includes" value="conf/jbossas-ejb3-files-to-unjar-for-deploy.txt" />
+  <property name="file.jbossas.patterns.deploy.includes" value="conf/jbossas-ejb3-patterns-to-unjar-for-deploy.txt" />
 
-  <!-- Servers to patch -->
-  <property name="servers" value="default;all" />
+  <!-- Servers to patch, semi-colon delimited -->
+  <property name="servers.unclustered" value="default" />
+  <property name="servers.clustered" value="all" />
+  <!-- 
+  
+  Examples
+  
+  <property name="servers.unclustered" value="default;my-server;my-server-2" />
+  <property name="servers.clustered" value="all;my-clustered-server;" />
+  
+  -->
 
   <!-- Optional Tasks =================================================================== -->
 
@@ -48,6 +62,7 @@
   -->
   <target name="init">
 
+    <!-- Ensure JBOSS_HOME is Set -->
     <if>
       <isset property="jboss.home" />
       <then>
@@ -59,6 +74,7 @@
       </else>
     </if>
 
+    <!-- Ensure INSTALLER_HOME is Set -->
     <if>
       <isset property="installer.home" />
       <then>
@@ -69,6 +85,12 @@
         <fail message="Ensure Environment Variable 'JBOSS_EJB3_PLUGIN_INSTALL_HOME' is set before running." />
       </else>
     </if>
+
+    <!-- Make "deploy" directory -->
+    <mkdir dir="${installer.deploy}" />
+
+    <!-- Unpackage deployable files -->
+    <antcall target="unpackage-deployable-files" />
 
   </target>
 
@@ -85,7 +107,15 @@
     <antcall target="install-client" />
 
     <!-- Copy all binaries to "lib" directory of each server -->
-    <foreach list="${servers}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
+    <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
+    <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
+
+    <!-- Copy all deployable files to "deploy" directory of each server -->
+    <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="install-deploy" inheritall="true" />
+    <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="install-deploy" inheritall="true" />
+
+    <!-- Copy appropriate deployable files to "deploy" directory of cluster-enabled servers -->
+    <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="install-deploy-clustered" inheritall="true" />
 
   </target>
 
@@ -114,7 +144,7 @@
 
     <echo>Installing EJB3 Binaries to "client" of ${jboss.home}</echo>
 
-    <copy todir="${jboss.home}/client">
+    <copy todir="${jboss.home}/client" verbose="true">
       <fileset dir="${installer.lib}" includesfile="${file.jbossas.client.includes}" />
     </copy>
 
@@ -130,9 +160,55 @@
 
     <echo>Installing EJB3 Binaries to "lib" of Server "${serverName}"</echo>
 
-    <copy todir="${jboss.home}/server/${serverName}/lib">
+    <copy todir="${jboss.home}/server/${serverName}/lib" verbose="true">
       <fileset dir="${installer.lib}" includesfile="${file.jbossas.serverlib.includes}" />
     </copy>
+
+  </target>
+
+  <!-- 
+  
+  Installs required files to the "deploy" directory of
+  the specified "serverName"
+  
+  -->
+  <target name="install-deploy">
+
+    <echo>Installing EJB3 Deployables to "deploy" of Server "${serverName}"</echo>
+
+    <copy todir="${jboss.home}/server/${serverName}/deploy" verbose="true">
+      <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deploy.unclustered.includes}" />
+    </copy>
+
+  </target>
+
+  <!-- 
+    
+    Installs required files to the "deploy" directory
+    of the the specified "serverName"
+    
+    -->
+  <target name="install-deploy-clustered">
+
+    <echo>Installing EJB3 Deployables to "deploy" of Server "${serverName}"</echo>
+
+    <copy todir="${jboss.home}/server/${serverName}/deploy/cluster" verbose="true">
+      <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deploy.clustered.includes}" />
+    </copy>
+
+  </target>
+
+  <!--
+  
+  Unpackages deployable files
+  
+  -->
+  <target name="unpackage-deployable-files">
+
+    <unjar dest="${installer.deploy}">
+      <fileset dir="${installer.lib}" includesfile="${file.jbossas.unjar.deploy.includes}" />
+      <patternset includesfile="${file.jbossas.patterns.deploy.includes}" />
+    </unjar>
 
   </target>
 
