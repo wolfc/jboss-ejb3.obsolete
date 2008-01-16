@@ -123,6 +123,10 @@
     <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="create-ejb3-deployer" inheritall="true" />
     <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="create-ejb3-deployer" inheritall="true" />
 
+    <!-- Rebuild Client JARs -->
+    <antcall target="rebuild-jbossall-client" />
+    <antcall target="rebuild-jboss-ejb3-client" />
+
   </target>
 
   <!-- 
@@ -232,6 +236,24 @@
       <patternset includesfile="${file.jbossas.patterns.deploy.includes}" />
     </unjar>
 
+  </target>
+
+  <!-- 
+  
+  Rebuilds the jbossall-client JAR
+  
+  -->
+  <target name="rebuild-jbossall-client">
+    <echo>IMPLEMENT</echo>
+  </target>
+
+  <!-- 
+    
+    Rebuilds the jboss-ejb3-client JAR
+    
+    -->
+  <target name="rebuild-jboss-ejb3-client">
+    <echo>IMPLEMENT</echo>
   </target>
 
 </project>
