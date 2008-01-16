@@ -23,6 +23,7 @@
   <!-- Configuration -->
   <property name="installer.lib" value="${installer.home}/lib" />
   <property name="installer.deploy" value="${installer.home}/deploy" />
+  <property name="jbossas.deployers.ejb3" value="deploy/deployers/ejb3.deployer" />
 
   <!-- Includefiles -->
   <property name="file.jbossas.remove.includes" value="conf/jbossas-ejb3-files-to-remove.txt" />
@@ -32,6 +33,7 @@
   <property name="file.jbossas.deploy.clustered.includes" value="conf/jbossas-ejb3-files-to-place-in-deploy-clustered.txt" />
   <property name="file.jbossas.unjar.deploy.includes" value="conf/jbossas-ejb3-files-to-unjar-for-deploy.txt" />
   <property name="file.jbossas.patterns.deploy.includes" value="conf/jbossas-ejb3-patterns-to-unjar-for-deploy.txt" />
+  <property name="file.jbossas.deployer.ejb3.includes" value="conf/jbossas-ejb3-files-to-place-in-ejb3-deployer.txt" />
 
   <!-- Servers to patch, semi-colon delimited -->
   <property name="servers.unclustered" value="default" />
@@ -117,6 +119,10 @@
     <!-- Copy appropriate deployable files to "deploy" directory of cluster-enabled servers -->
     <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="install-deploy-clustered" inheritall="true" />
 
+    <!-- Create EJB3 Deployer for each server -->
+    <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="create-ejb3-deployer" inheritall="true" />
+    <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="create-ejb3-deployer" inheritall="true" />
+
   </target>
 
   <!-- 
@@ -174,7 +180,7 @@
   -->
   <target name="install-deploy">
 
-    <echo>Installing EJB3 Deployables to "deploy" of Server "${serverName}"</echo>
+    <echo>Installing EJB3 Deployable Files to "deploy" of Server "${serverName}"</echo>
 
     <copy todir="${jboss.home}/server/${serverName}/deploy" verbose="true">
       <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deploy.unclustered.includes}" />
@@ -190,10 +196,26 @@
     -->
   <target name="install-deploy-clustered">
 
-    <echo>Installing EJB3 Deployables to "deploy" of Server "${serverName}"</echo>
+    <echo>Installing EJB3 Deployable Files to "deploy" of Server "${serverName}"</echo>
 
     <copy todir="${jboss.home}/server/${serverName}/deploy/cluster" verbose="true">
       <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deploy.clustered.includes}" />
+    </copy>
+
+  </target>
+
+  <!-- 
+    
+    Creates the EJB3 Deployer for the specified
+    "serverName"
+    
+    -->
+  <target name="create-ejb3-deployer">
+
+    <echo>Creating EJB3 Deployer for Server "${serverName}"</echo>
+
+    <copy todir="${jboss.home}/server/${serverName}/deployers/ejb3.deployer/" verbose="true">
+      <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deployer.ejb3.includes}" />
     </copy>
 
   </target>

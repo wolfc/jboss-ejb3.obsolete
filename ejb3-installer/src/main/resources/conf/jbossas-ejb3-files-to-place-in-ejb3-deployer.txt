@@ -1,0 +1,2 @@
+META-INF/ejb3-deployers-beans.xml
+META-INF/persistence.properties
