@@ -24,50 +24,19 @@
     The JBoss EJB 3.0 Implementation
   </description>
 
-  <!-- Build Configuration -->
-  <build>
-
-    <plugins>
-      <!-- Assembly Plugin -->
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>assembly</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <descriptors>
-            <descriptor>assembly/installer.xml</descriptor>
-          </descriptors>
-          <archive>
-            <manifest>
-              <mainClass>org.jboss.ejb3.installer.Installer</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-        <inherited>false</inherited>
-      </plugin>
-
-    </plugins>
-  </build>
-
   <!-- Aggregate Modules -->
   <modules>
     <module>build</module>
-    <module>ejb3-ext-api</module>
-    <module>ejb3-impl</module>
+    <module>core</module>
     <module>ejb3-cache</module>
-    <module>pool</module>
+    <module>ejb3-ext-api</module>
+    <module>ejb3-installer</module>
+    <module>ejb3-impl</module>
     <module>injection</module>
     <module>interceptors</module>
-    <module>metadata</module>
     <module>locator</module>
-    <module>core</module>
-    <module>ejb3-installer</module>
+    <module>metadata</module>
+    <module>pool</module>
     <module>sandbox</module>
   </modules>
 
