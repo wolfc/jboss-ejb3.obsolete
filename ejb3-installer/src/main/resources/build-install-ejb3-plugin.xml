@@ -249,9 +249,9 @@
 
   <!-- 
     
-    Rebuilds the jboss-ejb3-client JAR
+  Rebuilds the jboss-ejb3-client JAR
     
-    -->
+  -->
   <target name="rebuild-jboss-ejb3-client">
     <echo>IMPLEMENT</echo>
   </target>
