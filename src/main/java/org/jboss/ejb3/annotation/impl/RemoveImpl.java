@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.Remove;
 
 
@@ -49,7 +51,7 @@ public class RemoveImpl implements Remove
       return retain;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Remove.class;
    }

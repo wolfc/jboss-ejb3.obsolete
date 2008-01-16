@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.Stateless;
 
 
@@ -44,7 +46,7 @@ public class StatelessImpl implements Stateless
       return name;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Stateless.class;
    }

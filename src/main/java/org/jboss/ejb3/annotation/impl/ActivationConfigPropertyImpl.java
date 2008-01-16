@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.ActivationConfigProperty;
 
 
@@ -56,7 +58,7 @@ public class ActivationConfigPropertyImpl implements ActivationConfigProperty
       return ActivationConfigProperty.class.getName();
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return ActivationConfigProperty.class;
    }

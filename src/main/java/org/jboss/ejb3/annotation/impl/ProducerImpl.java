@@ -22,6 +22,7 @@
 package org.jboss.ejb3.annotation.impl;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 
 import org.jboss.ejb3.annotation.Producer;
 /**
@@ -82,7 +83,7 @@ public class ProducerImpl implements Producer, Serializable
       return acknowledgeMode;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Producer.class;
    }

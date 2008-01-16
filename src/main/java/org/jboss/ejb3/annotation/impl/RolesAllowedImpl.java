@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 
 import javax.annotation.security.RolesAllowed;
@@ -51,7 +52,7 @@ public class RolesAllowedImpl implements RolesAllowed
       return value;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return RolesAllowed.class;
    }

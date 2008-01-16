@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.annotation.security.DeclareRoles;
 
 
@@ -44,7 +46,7 @@ public class DeclareRolesImpl implements DeclareRoles
       return v;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return DeclareRoles.class;
    }

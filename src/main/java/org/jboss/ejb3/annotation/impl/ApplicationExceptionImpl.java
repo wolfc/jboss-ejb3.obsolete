@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.ejb.ApplicationException;
 
 
@@ -44,7 +46,7 @@ public class ApplicationExceptionImpl implements ApplicationException
       return rollback;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return ApplicationException.class;
    }

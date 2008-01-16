@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.annotation.impl;
 
+import java.lang.annotation.Annotation;
+
 import javax.annotation.Resource;
 
 
@@ -97,7 +99,7 @@ public class ResourceImpl implements Resource
       this.shareable = shareable;
    }
 
-   public Class annotationType()
+   public Class<? extends Annotation> annotationType()
    {
       return Resource.class;
    }
