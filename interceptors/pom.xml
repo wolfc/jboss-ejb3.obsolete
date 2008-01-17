@@ -42,7 +42,7 @@
     <!-- internal -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-impl</artifactId>
+      <artifactId>jboss-ejb3-ext-api-impl</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
