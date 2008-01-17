@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+
+<!-- 
+
+  This POM serves as Assembly for the JBoss EJB3 Plugin Installer
+
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  
+  <!-- Artifact Configuration -->
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>jorg.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-installer-assembly</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>JBoss EJB 3.0 Plugin Installer Assembly</name>
+  <description>JBoss EJB3 Plugin Installer Assembly</description>
+  <packaging>pom</packaging>
+  
+  <!-- Modules -->
+  <modules>
+    <module>../core</module>
+    <module>../cache</module>
+    <module>../ext-api</module>
+    <module>../ext-api-impl</module>
+    <module>../injection</module>
+    <module>../installer</module>
+    <module>../interceptors</module>
+    <module>../metadata</module>
+    <module>../pool</module>
+  </modules>
+  
+  <!-- Build Configuration -->
+  <build>
+
+    <plugins>
+      <!-- Assembly Plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assembly</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/resources/installer.xml</descriptor>
+          </descriptors>
+          <archive>
+            <manifest>
+              <mainClass>org.jboss.ejb3.installer.Installer</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
+
+    </plugins>
+  </build>
+  
+</project>
