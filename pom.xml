@@ -28,10 +28,10 @@
   <modules>
     <module>build</module>
     <module>core</module>
-    <module>ejb3-cache</module>
-    <module>ejb3-ext-api</module>
-    <module>ejb3-installer</module>
-    <module>ejb3-impl</module>
+    <module>cache</module>
+    <module>ext-api</module>
+    <module>installer</module>
+    <module>ext-api-impl</module>
     <module>injection</module>
     <module>interceptors</module>
     <module>locator</module>
