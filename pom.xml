@@ -144,8 +144,8 @@
     <version.org.jboss:jboss-test>1.0.5-20071215.191923-3</version.org.jboss:jboss-test>
     <version.org.jboss.aop:jboss-aop>2.0.0.CR1</version.org.jboss.aop:jboss-aop>
     <version.org.jboss.aop:jboss-aop-aspects>2.0.0-SNAPSHOT</version.org.jboss.aop:jboss-aop-aspects>
-    <version.org.jboss.cluster:jboss-ha-client>1.0.0.BETA2-SNAPSHOT</version.org.jboss.cluster:jboss-ha-client>
-    <version.org.jboss.cluster:jboss-ha-server-api>1.0.0.BETA2-SNAPSHOT</version.org.jboss.cluster:jboss-ha-server-api>
+    <version.org.jboss.cluster:jboss-ha-client>1.0.0.BETA2</version.org.jboss.cluster:jboss-ha-client>
+    <version.org.jboss.cluster:jboss-ha-server-api>1.0.0.BETA2</version.org.jboss.cluster:jboss-ha-server-api>
     <version.org.jboss.embedded:jboss-embedded>beta3-SNAPSHOT</version.org.jboss.embedded:jboss-embedded>
     <version.org.jboss.javaee:jboss-ejb-api>3.0.0.Beta3Update1</version.org.jboss.javaee:jboss-ejb-api>
     <version.org.jboss.javaee:jboss-jacc-api>1.1.0.Beta3Update1</version.org.jboss.javaee:jboss-jacc-api>
