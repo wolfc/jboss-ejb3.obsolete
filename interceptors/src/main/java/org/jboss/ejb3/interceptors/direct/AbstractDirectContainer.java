@@ -40,7 +40,7 @@ import org.jboss.logging.Logger;
  * classloader and still have control on how instances are called.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public abstract class AbstractDirectContainer<T, C extends AbstractDirectContainer<T, C>> extends AbstractContainer<T, C>
 {
@@ -77,6 +77,12 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
          ((IndirectContainer<T, C>) targetObject).setDirectContainer((C) this);
       
       return targetObject;
+   }
+   
+   @Override
+   public void destroy(T bean)
+   {
+      super.destroy(bean);
    }
    
    /**

@@ -58,7 +58,7 @@ import org.w3c.dom.ls.LSInput;
  * are routed through the direct container.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MetadataTestCase extends TestCase
 {
@@ -164,7 +164,9 @@ public class MetadataTestCase extends TestCase
       // 12.7 footnote 57
       assertEquals("DirectMethodInterceptor.postConstruct must not have been called", 0, DirectMethodInterceptor.postConstructs);
       
-      //((Destructable) bean)._preDestroy();
+      container.destroy(bean);
+      assertEquals(1, CommonInterceptor.preDestroys);
+      
       bean = null;
    }
 }

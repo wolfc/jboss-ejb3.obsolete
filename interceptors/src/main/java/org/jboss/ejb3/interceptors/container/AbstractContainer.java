@@ -23,6 +23,8 @@ package org.jboss.ejb3.interceptors.container;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
@@ -30,6 +32,7 @@ import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
@@ -37,6 +40,8 @@ import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
+import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
+import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -47,7 +52,7 @@ import org.jboss.logging.Logger;
  * Note that it's up to the actual implementation to expose any methods.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> extends AnnotationAdvisorSupport implements AnnotationAdvisor
 {
@@ -103,6 +108,28 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    protected Object createInterceptor(Class<?> interceptorClass) throws InstantiationException, IllegalAccessException
    {
       return interceptorClass.newInstance();
+   }
+   
+   protected void destroy(T bean)
+   {
+      try
+      {
+         // TODO: speed up
+         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getPreDestroys(advisor));
+         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+         
+         DestructionInvocation invocation = new DestructionInvocation(interceptors.toArray(new Interceptor[0]));
+         invocation.setAdvisor(advisor);
+         invocation.setTargetObject(bean);
+         invocation.invokeNext();
+      }
+      catch(Throwable t)
+      {
+         // TODO: disect
+         if(t instanceof RuntimeException)
+            throw (RuntimeException) t;
+         throw new RuntimeException(t);
+      }
    }
    
    /**
