@@ -42,7 +42,7 @@ import org.jboss.logging.Logger;
  * are routed through the direct container.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DirectTestCase extends TestCase
 {
@@ -83,6 +83,7 @@ public class DirectTestCase extends TestCase
       DirectBean bean = container.construct();
       
       assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
+      assertEquals("DirectBean postConstruct must have been called once", 1, DirectBean.postConstructs);
       
       System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
       System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));

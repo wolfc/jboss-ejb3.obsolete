@@ -37,7 +37,7 @@ import org.jboss.aop.joinpoint.Invocation;
  * void <METHOD> (InvocationContext)
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class LifecycleCallbackInterceptorMethodInterceptor implements Interceptor
 {
@@ -83,8 +83,7 @@ public class LifecycleCallbackInterceptorMethodInterceptor implements Intercepto
          {
             method.setAccessible(accessible);
          }
-         // TODO: return null or invokeTarget?
-         return invocation.invokeNext();
+         return null;
       }
       catch(InvocationTargetException e)
       {
