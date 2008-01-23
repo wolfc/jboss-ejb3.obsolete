@@ -34,45 +34,50 @@ import org.jboss.aop.joinpoint.Invocation;
  * void <METHOD>()
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class LifecycleCallbackBeanMethodInterceptor implements Interceptor
 {
-   private Object interceptor;
    private Method method;
    
    /**
     * 
-    * @param interceptor                an spec interceptor
-    * @param lifecycleCallbackMethod    a lifecycle callback on the spec interceptor
+    * @param lifecycleCallbackMethod    a lifecycle callback on the bean
     */
-   public LifecycleCallbackBeanMethodInterceptor(Object interceptor, Method lifecycleCallbackMethod)
+   public LifecycleCallbackBeanMethodInterceptor(Method lifecycleCallbackMethod)
    {
-      assert interceptor != null : "interceptor is null";
       assert lifecycleCallbackMethod != null : "lifecycleCallbackMethod is null";
       assert lifecycleCallbackMethod.getReturnType() == Void.TYPE : "return type must be void";
       assert lifecycleCallbackMethod.getParameterTypes().length == 0 : "wrong parameter signature";
       
-      this.interceptor = interceptor;
       this.method = lifecycleCallbackMethod;
    }
    
    public String getName()
    {
-      return "LifecycleCallbackBeanMethodInterceptor";
+      return getClass().getName();
    }
 
    public Object invoke(final Invocation invocation) throws Throwable
    {
       try
       {
-         method.invoke(interceptor);
-         // TODO: return null or invokeTarget?
-         return invocation.invokeNext();
+         boolean accessible = method.isAccessible();
+         method.setAccessible(true);
+         try
+         {
+            method.invoke(invocation.getTargetObject());
+         }
+         finally
+         {
+            method.setAccessible(accessible);
+         }
+         return null;
       }
       catch(InvocationTargetException e)
       {
          throw e.getCause();
       }
    }
+   
 }

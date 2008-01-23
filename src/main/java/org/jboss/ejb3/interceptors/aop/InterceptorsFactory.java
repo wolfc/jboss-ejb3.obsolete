@@ -70,7 +70,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    @SuppressWarnings("unchecked")
    private static final Class<? extends Annotation> lifeCycleAnnotationClasses[] = (Class<? extends Annotation>[]) new Class<?>[] { PostActivate.class, PostConstruct.class, PreDestroy.class, PrePassivate.class };
    
-   private List<? extends Interceptor> createInterceptors(Advisor advisor, InterceptorFactory interceptorFactory, Class<?>[] interceptorClasses, List<BusinessMethodInterceptorMethodInterceptor> interceptors, Map<Class<?>, Object> existingInterceptors, Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> lifeCycleInterceptors) throws InstantiationException, IllegalAccessException
+   private List<? extends Interceptor> createInterceptors(Advisor advisor, InterceptorFactory interceptorFactory, Class<?>[] interceptorClasses, List<BusinessMethodInterceptorMethodInterceptor> interceptors, Map<Class<?>, Object> existingInterceptors, Map<Class<? extends Annotation>, List<Interceptor>> lifeCycleInterceptors) throws InstantiationException, IllegalAccessException
    {
       if(interceptorClasses != null)
       {
@@ -128,10 +128,10 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          
          Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
          
-         Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> lifeCycleInterceptors = new HashMap<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>>();
+         Map<Class<? extends Annotation>, List<Interceptor>> lifeCycleInterceptors = new HashMap<Class<? extends Annotation>, List<Interceptor>>();
          for(Class<? extends Annotation> lifeCycleAnnotationClass : lifeCycleAnnotationClasses)
          {
-            List<LifecycleCallbackInterceptorMethodInterceptor> list = new ArrayList<LifecycleCallbackInterceptorMethodInterceptor>();
+            List<Interceptor> list = new ArrayList<Interceptor>();
             lifeCycleInterceptors.put(lifeCycleAnnotationClass, list);
          }
          
@@ -193,6 +193,13 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
             if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
             {
                beanInterceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
+            }
+            for(Class<? extends Annotation> lifeCycleAnnotationClass : lifeCycleAnnotationClasses)
+            {
+               if(advisor.hasAnnotation(beanMethod, lifeCycleAnnotationClass))
+               {
+                  lifeCycleInterceptors.get(lifeCycleAnnotationClass).add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
+               }
             }
          }
          log.debug("Found bean interceptors " + beanInterceptors);
@@ -261,12 +268,12 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    }
    
    @SuppressWarnings("unchecked")
-   private static Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor)
+   private static Map<Class<? extends Annotation>, List<Interceptor>> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor)
    {
-      return (Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "lifeCycleInterceptors");
+      return (Map<Class<? extends Annotation>, List<Interceptor>>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "lifeCycleInterceptors");
    }
    
-   public static List<? extends Interceptor> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor, Class<? extends Annotation> lifeCycleAnnotationClass)
+   public static List<Interceptor> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor, Class<? extends Annotation> lifeCycleAnnotationClass)
    {
       return getLifeCycleInterceptors(instanceAdvisor).get(lifeCycleAnnotationClass);
    }
@@ -277,7 +284,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
     * @return
     */
    @Deprecated
-   public static List<? extends Interceptor> getPreDestroys(InstanceAdvisor instanceAdvisor)
+   public static List<Interceptor> getPreDestroys(InstanceAdvisor instanceAdvisor)
    {
       return getLifeCycleInterceptors(instanceAdvisor, PreDestroy.class);
    }

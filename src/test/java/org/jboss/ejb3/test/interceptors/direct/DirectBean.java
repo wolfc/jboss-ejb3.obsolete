@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.interceptors.direct;
 
+import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
@@ -35,14 +36,14 @@ import org.jboss.logging.Logger;
  * And it has bean method interceptors: aroundInvoke
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Interceptors(DirectInterceptor.class)
 public class DirectBean
 {
    private static final Logger log = Logger.getLogger(DirectBean.class);
    
-   public static int constructors = 0, aroundInvokes = 0;
+   public static int constructors = 0, aroundInvokes = 0, postConstructs = 0;
    
    public DirectBean()
    {
@@ -72,5 +73,11 @@ public class DirectBean
    public void intercept()
    {
       log.debug("intercept");
+   }
+   
+   @PostConstruct
+   public void postConstruct()
+   {
+      postConstructs++;
    }
 }
