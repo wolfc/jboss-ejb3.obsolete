@@ -26,10 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.annotation.impl.InterceptorsImpl;
+import org.jboss.ejb3.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptorsImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
@@ -199,6 +203,24 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             }
             if(interceptors.value().length > 0)
                return annotationClass.cast(interceptors);
+         }
+      }
+      else if(annotationClass == PostActivate.class)
+      {
+         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         {
+            PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, methodName);
+            if(lifeCycleAnnotation != null)
+               return annotationClass.cast(lifeCycleAnnotation);
+         }
+      }
+      else if(annotationClass == PrePassivate.class)
+      {
+         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         {
+            PrePassivate lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPrePassivates(), PrePassivateImpl.class, methodName);
+            if(lifeCycleAnnotation != null)
+               return annotationClass.cast(lifeCycleAnnotation);
          }
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, methodName, parameterNames);

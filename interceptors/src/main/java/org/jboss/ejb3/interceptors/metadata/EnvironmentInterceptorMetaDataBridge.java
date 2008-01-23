@@ -75,7 +75,7 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       return null;
    }
    
-   private <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, String methodName)
+   protected <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, String methodName)
    {
       if(callbacks == null || callbacks.isEmpty())
          return null;

@@ -23,8 +23,12 @@ package org.jboss.ejb3.interceptors.metadata;
 
 import java.lang.annotation.Annotation;
 
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 
+import org.jboss.ejb3.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;
@@ -53,6 +57,18 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
          Annotation annotation = getAroundInvokeAnnotation(interceptorMetaData.getAroundInvokes(), methodName);
          if(annotation != null)
             return annotationClass.cast(annotation);
+      }
+      else if(annotationClass == PostActivate.class)
+      {
+         PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostActivates(), PostActivateImpl.class, methodName);
+         if(lifeCycleAnnotation != null)
+            return annotationClass.cast(lifeCycleAnnotation);
+      }
+      else if(annotationClass == PrePassivate.class)
+      {
+         PrePassivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPrePassivates(), PrePassivateImpl.class, methodName);
+         if(lifeCycleAnnotation != null)
+            return annotationClass.cast(lifeCycleAnnotation);
       }
       return super.retrieveAnnotation(annotationClass, interceptorMetaData, classLoader, methodName, parameterNames);
    }
