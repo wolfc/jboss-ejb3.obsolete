@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.interceptors.aop;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
@@ -45,7 +48,12 @@ import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * The interceptors factory analyzes the annotations and creates
+ * interceptor instances out of those. These are then attached
+ * to the advisor as meta data.
+ * 
+ * Do not access this meta data directly, use the provided static
+ * methods herein.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision$
@@ -54,7 +62,15 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
 {
    private static final Logger log = Logger.getLogger(InterceptorsFactory.class);
    
-   private List<? extends Interceptor> createInterceptors(Advisor advisor, InterceptorFactory interceptorFactory, Class<?>[] interceptorClasses, List<BusinessMethodInterceptorMethodInterceptor> interceptors, Map<Class<?>, Object> existingInterceptors, List<LifecycleCallbackInterceptorMethodInterceptor> postConstructs, List<LifecycleCallbackInterceptorMethodInterceptor> preDestroys) throws InstantiationException, IllegalAccessException
+   // TODO: allow for extensions (/ new life-cycle annotations) (and PostActive, PrePassivate are part of stateful) 
+   /**
+    * This defined the life-cycle annotations for which we build up
+    * an interceptor chain.
+    */
+   @SuppressWarnings("unchecked")
+   private static final Class<? extends Annotation> lifeCycleAnnotationClasses[] = (Class<? extends Annotation>[]) new Class<?>[] { PostActivate.class, PostConstruct.class, PreDestroy.class, PrePassivate.class };
+   
+   private List<? extends Interceptor> createInterceptors(Advisor advisor, InterceptorFactory interceptorFactory, Class<?>[] interceptorClasses, List<BusinessMethodInterceptorMethodInterceptor> interceptors, Map<Class<?>, Object> existingInterceptors, Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> lifeCycleInterceptors) throws InstantiationException, IllegalAccessException
    {
       if(interceptorClasses != null)
       {
@@ -75,17 +91,16 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
             // TODO: should be only non-overriden methods (EJB 3 12.4.1 last bullet)
             for(Method method : ClassHelper.getAllMethods(interceptorClass))
             {
-               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PostConstruct.class))
-               {
-                  postConstructs.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
-               }
-               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, PreDestroy.class))
-               {
-                  preDestroys.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
-               }
                if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
                {
                   interceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
+               }
+               for(Class<? extends Annotation> lifeCycleAnnotationClass : lifeCycleAnnotationClasses)
+               {
+                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, lifeCycleAnnotationClass))
+                  {
+                     lifeCycleInterceptors.get(lifeCycleAnnotationClass).add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, method));
+                  }
                }
             }
             //instanceAdvisor.appendInterceptorStack(stackName);
@@ -108,17 +123,22 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
          if(interceptorFactoryRef == null)
             throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
-         log.info("interceptor factory class = " + interceptorFactoryRef.value());
+         log.debug("interceptor factory class = " + interceptorFactoryRef.value());
          InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
          
          Map<Class<?>, Object> interceptors = new HashMap<Class<?>, Object>();
-         List<LifecycleCallbackInterceptorMethodInterceptor> postConstructs = new ArrayList<LifecycleCallbackInterceptorMethodInterceptor>();
-         List<LifecycleCallbackInterceptorMethodInterceptor> preDestroys = new ArrayList<LifecycleCallbackInterceptorMethodInterceptor>();
+         
+         Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> lifeCycleInterceptors = new HashMap<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>>();
+         for(Class<? extends Annotation> lifeCycleAnnotationClass : lifeCycleAnnotationClasses)
+         {
+            List<LifecycleCallbackInterceptorMethodInterceptor> list = new ArrayList<LifecycleCallbackInterceptorMethodInterceptor>();
+            lifeCycleInterceptors.put(lifeCycleAnnotationClass, list);
+         }
          
          DefaultInterceptors defaultInterceptorsAnnotation = (DefaultInterceptors) advisor.resolveAnnotation(DefaultInterceptors.class);
          List<BusinessMethodInterceptorMethodInterceptor> defaultInterceptors = new ArrayList<BusinessMethodInterceptorMethodInterceptor>();
          if(defaultInterceptorsAnnotation != null)
-            createInterceptors(advisor, interceptorFactory, defaultInterceptorsAnnotation.value(), defaultInterceptors, interceptors, postConstructs, preDestroys);
+            createInterceptors(advisor, interceptorFactory, defaultInterceptorsAnnotation.value(), defaultInterceptors, interceptors, lifeCycleInterceptors);
          
          log.debug("Found class interceptors " + defaultInterceptors);
          // Default Interceptors
@@ -127,7 +147,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
          List<BusinessMethodInterceptorMethodInterceptor> classInterceptors = new ArrayList<BusinessMethodInterceptorMethodInterceptor>();
          if(interceptorsAnnotation != null)
-            createInterceptors(advisor, interceptorFactory, interceptorsAnnotation.value(), classInterceptors, interceptors, postConstructs, preDestroys);
+            createInterceptors(advisor, interceptorFactory, interceptorsAnnotation.value(), classInterceptors, interceptors, lifeCycleInterceptors);
          
          log.debug("Found class interceptors " + classInterceptors);
          // Class Interceptors
@@ -178,11 +198,11 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          log.debug("Found bean interceptors " + beanInterceptors);
          instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "beanInterceptors", beanInterceptors);
          
-         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "preDestroys", Collections.unmodifiableList(preDestroys));
+         instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "lifeCycleInterceptors", Collections.unmodifiableMap(lifeCycleInterceptors));
          
          // Put the postConstructs interceptors here in the chain
          // TODO: why? We may need more control
-         return new InterceptorSequencer(postConstructs.toArray(new Interceptor[0]));
+         return new InterceptorSequencer(lifeCycleInterceptors.get(PostConstruct.class).toArray(new Interceptor[0]));
          //return null;
       }
       catch(InstantiationException e)
@@ -241,9 +261,25 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    }
    
    @SuppressWarnings("unchecked")
-   public static List<Interceptor> getPreDestroys(InstanceAdvisor instanceAdvisor)
+   private static Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor)
    {
-      return (List<Interceptor>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "preDestroys");
+      return (Map<Class<? extends Annotation>, List<LifecycleCallbackInterceptorMethodInterceptor>>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "lifeCycleInterceptors");
+   }
+   
+   public static List<? extends Interceptor> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor, Class<? extends Annotation> lifeCycleAnnotationClass)
+   {
+      return getLifeCycleInterceptors(instanceAdvisor).get(lifeCycleAnnotationClass);
+   }
+   
+   /**
+    * @deprecated use getLifeCycleInterceptors
+    * @param instanceAdvisor
+    * @return
+    */
+   @Deprecated
+   public static List<? extends Interceptor> getPreDestroys(InstanceAdvisor instanceAdvisor)
+   {
+      return getLifeCycleInterceptors(instanceAdvisor, PreDestroy.class);
    }
    
    private String toString(Object obj)
