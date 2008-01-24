@@ -205,12 +205,10 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
          log.debug("Found bean interceptors " + beanInterceptors);
          instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "beanInterceptors", beanInterceptors);
          
+         log.debug("Found life cycle interceptors " + lifeCycleInterceptors);
          instanceAdvisor.getMetaData().addMetaData(InterceptorsFactory.class, "lifeCycleInterceptors", Collections.unmodifiableMap(lifeCycleInterceptors));
          
-         // Put the postConstructs interceptors here in the chain
-         // TODO: why? We may need more control
-         return new InterceptorSequencer(lifeCycleInterceptors.get(PostConstruct.class).toArray(new Interceptor[0]));
-         //return null;
+         return new NopInterceptor();
       }
       catch(InstantiationException e)
       {

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 
@@ -103,9 +104,11 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       {
          // postConstruct
          
-         // FIXME: currently still handled by InterceptorsFactory
+         List<Interceptor> interceptors = InterceptorsFactory.getLifeCycleInterceptors(instanceAdvisor, PostConstruct.class);
          
-         return new InterceptorSequencer(new Interceptor[0]);
+         log.debug("PostConstruct interceptors " + interceptors);
+         
+         return new InterceptorSequencer(interceptors);
       }
    }
    
@@ -114,6 +117,13 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
    {
       log.warn("WEIRDNESS IN AOP: advisor " + advisor);
       return new InterceptorSequencer(new Interceptor[0]);
+      // If we're not running instrumented classes there is no instance advisor during
+      // construction. (I've no clue why.)
+      // Luckily our advisor is on the case.
+//      InstanceAdvisor instanceAdvisor = (InstanceAdvisor) advisor;
+//      return createPerJoinpoint(advisor, instanceAdvisor, jp);
+      // Can't do that, because the instance interceptors are not there yet (InterceptorsFactory)
+      // so the hack is in ManagedObjectAdvisor.createInterceptorChain.
    }
    
    private static final boolean isExcludeClassInterceptors(Advisor advisor, Method method)

@@ -24,6 +24,7 @@ package org.jboss.ejb3.interceptors.container;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.aop.AspectManager;
@@ -33,8 +34,11 @@ import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.InstanceAdvisorDelegate;
 import org.jboss.aop.advice.AspectDefinition;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.advice.InterceptorFactory;
+import org.jboss.aop.advice.Scope;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.introduction.AnnotationIntroduction;
+import org.jboss.aop.joinpoint.ConstructorJoinpoint;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptors.ManagedObject;
@@ -43,7 +47,9 @@ import org.jboss.ejb3.metadata.annotation.ExtendedAnnotationRepository;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * 
+ * Invariant:
+ * - there is always an instance advisor delegate
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -89,6 +95,30 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       annotations.addClassAnnotation(ManagedObject.class, annotation);
    }
    
+   @Override
+   protected void createInterceptorChain(InterceptorFactory[] factories, ArrayList newinterceptors, Joinpoint joinpoint)
+   {
+      // This is an ugly hack to make sure we have got an PER_JOINPOINT_INSTANCE interceptor.
+      // Normally AOP won't create a per joinpoint instance interceptor if the join point is
+      // a constructor and we're not running instrument (I've no clue why).
+      
+      if(joinpoint instanceof ConstructorJoinpoint)
+      {
+         for(InterceptorFactory factory : factories)
+         {
+            AspectDefinition def = factory.getAspect();
+            if(def.getScope() == Scope.PER_JOINPOINT)
+            {
+               //addPerInstanceJoinpointAspect(joinpoint, def);
+               newinterceptors.add(def.getFactory().createPerJoinpoint(this, this, joinpoint));
+               return;
+            }
+         }
+      }
+      
+      super.createInterceptorChain(factories, newinterceptors, joinpoint);
+   }
+   
    private void deployAnnotationIntroduction(AnnotationIntroduction introduction)
    {
       log.debug("deploy annotation introduction " + introduction);
@@ -120,8 +150,6 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       
       // Poking starts here
       attachClass(beanClass);
-      
-      this.instanceAdvisorDelegate = new InstanceAdvisorDelegate(this, this);
    }
    
    @Override
@@ -131,6 +159,28 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       
       // Why does AOP not process the annotation introductions!?
       deployAnnotationIntroductions();
+   }
+   
+   /**
+    * attachClass will want simpleMetaData at some point, which needs
+    * an instanceAdvisorDelegate. So we have detached construction.
+    * 
+    * @return the instance advisor delegate, never null
+    */
+   private final InstanceAdvisorDelegate getInstanceAdvisorDelegate()
+   {
+      if(instanceAdvisorDelegate != null)
+         return instanceAdvisorDelegate;
+
+      synchronized (this)
+      {
+         if(instanceAdvisorDelegate == null)
+         {
+            instanceAdvisorDelegate = new InstanceAdvisorDelegate(this, this);
+            instanceAdvisorDelegate.initialize();
+         }
+      }
+      return instanceAdvisorDelegate;
    }
    
    
@@ -171,23 +221,23 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
 
    public SimpleMetaData getMetaData()
    {
-      return instanceAdvisorDelegate.getMetaData();
+      return getInstanceAdvisorDelegate().getMetaData();
    }
 
    public Object getPerInstanceAspect(String aspectName)
    {
       // TODO: is this correct?
-      return instanceAdvisorDelegate.getPerInstanceAspect(aspectName);
+      return getInstanceAdvisorDelegate().getPerInstanceAspect(aspectName);
    }
 
    public Object getPerInstanceAspect(AspectDefinition def)
    {
-      return instanceAdvisorDelegate.getPerInstanceAspect(def);
+      return getInstanceAdvisorDelegate().getPerInstanceAspect(def);
    }
 
    public Object getPerInstanceJoinpointAspect(Joinpoint joinpoint, AspectDefinition def)
    {
-      return instanceAdvisorDelegate.getPerInstanceJoinpointAspect(joinpoint, def);
+      return getInstanceAdvisorDelegate().getPerInstanceJoinpointAspect(joinpoint, def);
    }
 
    public boolean hasInterceptors()
