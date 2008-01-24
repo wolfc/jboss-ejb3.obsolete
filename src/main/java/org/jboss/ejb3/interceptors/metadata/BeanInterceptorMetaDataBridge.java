@@ -31,9 +31,9 @@ import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 
-import org.jboss.ejb3.annotation.impl.InterceptorsImpl;
-import org.jboss.ejb3.annotation.impl.PostActivateImpl;
-import org.jboss.ejb3.annotation.impl.PrePassivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.InterceptorsImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptorsImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
