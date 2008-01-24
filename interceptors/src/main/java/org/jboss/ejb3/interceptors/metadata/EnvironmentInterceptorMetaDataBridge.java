@@ -28,9 +28,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.interceptor.AroundInvoke;
 
-import org.jboss.ejb3.annotation.impl.AroundInvokeImpl;
-import org.jboss.ejb3.annotation.impl.PostConstructImpl;
-import org.jboss.ejb3.annotation.impl.PreDestroyImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.AroundInvokeImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PostConstructImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PreDestroyImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;

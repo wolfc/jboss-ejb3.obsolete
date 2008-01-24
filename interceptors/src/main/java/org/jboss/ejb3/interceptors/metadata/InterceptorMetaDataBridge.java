@@ -27,8 +27,8 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 
-import org.jboss.ejb3.annotation.impl.PostActivateImpl;
-import org.jboss.ejb3.annotation.impl.PrePassivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;

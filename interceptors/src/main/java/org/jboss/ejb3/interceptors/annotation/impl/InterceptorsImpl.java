@@ -57,6 +57,11 @@ public class InterceptorsImpl implements Interceptors
       return result;
    }
    
+   public boolean addValue(Class<?> interceptorClass)
+   {
+      return values.add(interceptorClass);
+   }
+   
    public Class<? extends Annotation> annotationType()
    {
       return Interceptors.class;
