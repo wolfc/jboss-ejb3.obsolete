@@ -239,21 +239,6 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       mutableMetaData.addAnnotation(initAnnotation(value));
    }
 
-   public void disableAnnotation(Member m, String annotation)
-   {
-      throw new RuntimeException("Not implemented: disableAnnotation(" + m + ", " + annotation + ")");
-   }
-
-   public void disableAnnotation(String annotation)
-   {
-      throw new RuntimeException("Not implemented: disableAnnotation(" + annotation + ")");
-   }
-
-   public void enableAnnotation(String annotation)
-   {
-      throw new RuntimeException("Not implemented: enableAnnotation(" + annotation + ")");
-   }
-
    /**
     * Get the component meta data of another class which is
     * under advisement.
@@ -341,26 +326,6 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       if (annotation == null)
          throw new IllegalArgumentException("Null annotation");
       return metaData.isAnnotationPresent(loadClass(annotation));
-   }
-
-   public boolean isDisabled(Class annotation)
-   {
-      return false;
-   }
-
-   public boolean isDisabled(Member m, Class annotation)
-   {
-      return false;
-   }
-
-   public boolean isDisabled(Member m, String annotation)
-   {
-      return false;
-   }
-
-   public boolean isDisabled(String annotation)
-   {
-      return false;
    }
 
    public Object resolveClassAnnotation(Class annotation)
