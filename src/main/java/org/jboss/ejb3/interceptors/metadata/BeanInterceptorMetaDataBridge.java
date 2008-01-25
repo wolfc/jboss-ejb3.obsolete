@@ -60,6 +60,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
 
    private static boolean add(InterceptorsImpl interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
    {
+      boolean result = false;
       InterceptorClassesMetaData interceptorClassesMetaData;
       if(binding.isTotalOrdering())
       {
@@ -69,11 +70,14 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       {
          interceptorClassesMetaData = binding.getInterceptorClasses();
       }
-      for(String interceptorClassName : interceptorClassesMetaData)
+      if(interceptorClassesMetaData != null)
       {
-         interceptors.addValue(loadClass(classLoader, interceptorClassName));
+         for(String interceptorClassName : interceptorClassesMetaData)
+         {
+            result |= interceptors.addValue(loadClass(classLoader, interceptorClassName));
+         }
       }
-      return true;
+      return result;
    }
    
    protected static boolean add(List<Class<?>> interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
