@@ -55,5 +55,18 @@
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>
+    <!-- TODO: use arjuna -->
+    <dependency>
+      <groupId>jotm</groupId>
+      <artifactId>jotm</artifactId>
+      <version>2.0.10</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jca-api</artifactId>
+      <version>1.5.0.Beta3Update1</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 </project>
