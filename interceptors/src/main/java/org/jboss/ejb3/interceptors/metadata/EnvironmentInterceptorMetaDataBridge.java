@@ -33,8 +33,10 @@ import org.jboss.ejb3.interceptors.annotation.impl.PostConstructImpl;
 import org.jboss.ejb3.interceptors.annotation.impl.PreDestroyImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.spec.AroundInvokeMetaData;
 import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
+import org.jboss.metadata.javaee.spec.LifecycleCallbackMetaData;
 import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
 
 /**
@@ -68,10 +70,13 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
-      assert callbacks.size() == 1;
-      String callbackMethodName = callbacks.get(0).getMethodName();
-      if(methodName.equals(callbackMethodName))
-         return new AroundInvokeImpl();
+      for(AroundInvokeMetaData callback : callbacks)
+      {
+         // TODO: callback.classname
+         String callbackMethodName = callback.getMethodName();
+         if(methodName.equals(callbackMethodName))
+            return new AroundInvokeImpl();
+      }
       return null;
    }
    
@@ -80,11 +85,13 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
-      assert callbacks.size() == 1;
-      // TODO: callbacks[0].className
-      String callbackMethodName = callbacks.get(0).getMethodName();
-      if(methodName.equals(callbackMethodName))
-         return createAnnotationImpl(annotationImplType);
+      for(LifecycleCallbackMetaData callback : callbacks)
+      {
+         // TODO: callback.className
+         String callbackMethodName = callback.getMethodName();
+         if(methodName.equals(callbackMethodName))
+            return createAnnotationImpl(annotationImplType);
+      }
       return null;
    }
    
