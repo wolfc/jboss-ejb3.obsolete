@@ -1,28 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  vi:ts=2:sw=2:expandtab:
--->
-<!--
-  
-  The parent maven for the ejb3 project that expects a structure like: 
-  build/pom.xml
-  [...]/pom.xml
-  [...]/pom.xml
-  
-  This pom aggregates the subproject pom, and it also functions as a default 
-  configuration.  The subproject poms each inherit configuration from this one.
-  
-  To build this project maven 2 should be installed and in the system path. 
-  From the command line run "mvn" from the build directory and "install" will 
-  be used as the default goal.  In order to use the "deploy" goal, 
-  the jboss.repository.root should be specified in settings.xml.
-  
-  See: http://wiki.jboss.org/wiki/Wiki.jsp?page=Maven
-  
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
@@ -37,7 +13,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-build</artifactId>
-  <version>0.12.0-SNAPSHOT</version>
+  <version>0.12.0</version>
   <packaging>pom</packaging>
   <name>JBoss EJB 3.0 Build POM</name>
   <url>http://labs.jboss.com/jbossejb3</url>
@@ -80,15 +56,9 @@
 
   <!-- SCM -->
   <scm>
-    <connection>
-      scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk
-    </connection>
-    <developerConnection>
-      scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk
-    </developerConnection>
-    <url>
-      https://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk
-    </url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.12.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.12.0</developerConnection>
+    <url>https://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.12.0</url>
   </scm>
 
   <!-- Properties -->
@@ -132,7 +102,7 @@
     <version.jboss_jboss-logging-log4j>2.0.2.GA</version.jboss_jboss-logging-log4j>
     <version.jboss_jboss-logging-spi>2.0.2.GA</version.jboss_jboss-logging-spi>
     <version.jboss_jboss-serialization>1.0.3.GA</version.jboss_jboss-serialization>
-    <version.jboss.remoting></version.jboss.remoting>
+    <version.jboss.remoting />
     <version.junit_junit>4.4</version.junit_junit>
     <version.org.hibernate_ejb3-persistence>3.3.2.Beta1</version.org.hibernate_ejb3-persistence>
     <version.org.hibernate_hibernate>3.2.4.sp1</version.org.hibernate_hibernate>
@@ -167,7 +137,7 @@
     <version.quartz_quartz>1.6.0</version.quartz_quartz>
    
     <!-- Miscellaneous -->
-    <jvmargs></jvmargs>
+    <jvmargs />
 
   </properties>
 
