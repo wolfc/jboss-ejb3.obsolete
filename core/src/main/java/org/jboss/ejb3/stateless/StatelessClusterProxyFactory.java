@@ -171,7 +171,8 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
    
    public synchronized void replicantsChanged (String key, 
          List newReplicants, 
-         int newReplicantsViewId)
+         int newReplicantsViewId,
+         boolean merge)
    {
       try
       {
