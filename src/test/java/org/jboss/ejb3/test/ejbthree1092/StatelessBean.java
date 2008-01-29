@@ -21,12 +21,10 @@
  */
 package org.jboss.ejb3.test.ejbthree1092;
 
-import javax.ejb.Stateless;
 import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
 import org.jboss.ejb3.annotation.Clustered;
-import org.jboss.ha.framework.interfaces.RandomRobin;
-import org.jboss.ha.framework.interfaces.RoundRobin;
 import org.jboss.logging.Logger;
 
 /**
