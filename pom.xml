@@ -31,9 +31,10 @@
         <version>2.2-beta-1</version>
         <executions>
           <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
             <phase>package</phase>
             <goals>
-              <goal>assembly</goal>
+              <goal>attached</goal>
             </goals>
           </execution>
         </executions>
