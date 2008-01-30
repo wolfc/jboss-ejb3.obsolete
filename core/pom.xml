@@ -28,38 +28,18 @@
   <!-- Properties -->
 
   <properties>
-  
-  <!-- 
-    <resources>${project.basedir}/src/resources/test</resources>
-    <build.test.lib>${project.build.directory}/test-lib</build.test.lib>
-    <directory>output</directory>
-    <outputDirectory>output/classes</outputDirectory>
-    <testOutputDirectory>output/test-classes</testOutputDirectory>
-    
-     -->
+
   </properties>
 
   <!-- Build Information -->
   <build>
-  
-  <!-- 
-    <sourceDirectory>src/main</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
-    <outputDirectory>${outputDirectory}</outputDirectory>
-    <testOutputDirectory>${testOutputDirectory}</testOutputDirectory>
-    <directory>${directory}</directory>
-    <finalName>${artifactId}</finalName>
     
-     -->
-    
-    <!--
-
-    Commented out for time being; tests to be run manually via ant
     <plugins>
+
+      <!-- Antrun Plugin Configuration --> 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.1</version>
         <executions>
           <execution>
             <id>build-tests</id>
@@ -69,31 +49,69 @@
             <phase>package</phase>
             <configuration>
               <tasks>
+             
+                <!-- Set the jboss-test CP -->
+                <property name="jboss.test.path" value="${project.build.directory}/dependencies/lib/jboss-test/jboss-test.jar" />
+               
+                <!-- Excute the Test Build -->
                 <ant antfile="build-test.xml" />
-                !-
-
-                  property name="java.vm.version" value="${java.vm.version}"/>
-                  <mkdir dir="${build.test.lib}"/>
-                  
-                  <jar jarfile="${build.test.lib}/stateless-test.jar">
-                  <fileset dir="${testOutputDirectory}">
-                  <include name="org/jboss/ejb3/test/stateless/*.class"/>
-                  </fileset>
-                  <fileset dir="${resources}">
-                  <include name="users.properties"/>
-                  <include name="roles.properties"/>
-                  </fileset>
-                  </jar- 
+              
               </tasks>
             </configuration>
           </execution>
         </executions>
       </plugin>
-    </plugins>
-    -->
 
-   <!-- Temporarily, don't run any tests here -->
-    <plugins>
+
+      <!-- Dependency Plugin Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+
+          <!-- Unpack requisite build scripts -->
+          <execution>
+            <id>unpack-build-scripts</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss</groupId>
+                  <artifactId>jboss-test</artifactId>
+                </artifactItem>
+              </artifactItems> 
+              <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+            </configuration>
+          </execution>
+          
+          <!-- Copy jboss-test JAR -->
+          <execution>
+            <id>copy-jboss-test</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss</groupId>
+                  <artifactId>jboss-test</artifactId>
+                </artifactItem>
+              </artifactItems> 
+              <outputDirectory>${project.build.directory}/dependencies/lib/jboss-test</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+
+      <!-- Temporarily, don't run any tests here -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -110,6 +128,11 @@
   <!-- Dependencies -->
 
   <dependencies>
+  <dependency>
+   <groupId>org.jboss</groupId>
+   <artifactId>jboss-test</artifactId>
+   <version>3</version>
+  </dependency>
       <dependency>
         <groupId>org.jboss.ejb3</groupId>
         <artifactId>jboss-ejb3-ext-api</artifactId>
