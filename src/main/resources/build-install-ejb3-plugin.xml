@@ -21,6 +21,8 @@
   <property name="installer.home" value="${env.JBOSS_EJB3_PLUGIN_INSTALL_HOME}" />
 
   <!-- Configuration -->
+  <property name="jboss.client" value="${jboss.home}/client" />
+  <property name="installer.client" value="${installer.home}/client" />
   <property name="installer.lib" value="${installer.home}/lib" />
   <property name="installer.deploy" value="${installer.home}/deploy" />
   <property name="jbossas.deployers.ejb3" value="deploy/deployers/ejb3.deployer" />
@@ -34,6 +36,9 @@
   <property name="file.jbossas.unjar.deploy.includes" value="conf/jbossas-ejb3-files-to-unjar-for-deploy.txt" />
   <property name="file.jbossas.patterns.deploy.includes" value="conf/jbossas-ejb3-patterns-to-unjar-for-deploy.txt" />
   <property name="file.jbossas.deployer.ejb3.includes" value="conf/jbossas-ejb3-files-to-place-in-ejb3-deployer.txt" />
+  <property name="file.jbossas.jbossall.includes" value="conf/jbossas-ejb3-jar-jbossall-includes.txt" />
+  <property name="file.jbossas.jbossall.excludes" value="conf/jbossas-ejb3-jar-jbossall-excludes.txt" />
+  <property name="file.jbossas.ejb3client.includes" value="conf/jbossas-ejb3-jar-ejb3client-includes.txt" />
 
   <!-- Servers to patch, semi-colon delimited -->
   <property name="servers.unclustered" value="default" />
@@ -88,8 +93,10 @@
       </else>
     </if>
 
-    <!-- Make "deploy" directory -->
+    <!-- Make installer directories -->
     <mkdir dir="${installer.deploy}" />
+    <mkdir dir="${installer.client}" />
+    <mkdir dir="${installer.lib}" />
 
     <!-- Unpackage deployable files -->
     <antcall target="unpackage-deployable-files" />
@@ -149,7 +156,7 @@
     
     Installs binaries to the "client" directory of JBOSS_HOME
     
-    -->
+  -->
   <target name="install-client">
 
     <echo>Installing EJB3 Binaries to "client" of ${jboss.home}</echo>
@@ -197,7 +204,7 @@
     Installs required files to the "deploy" directory
     of the the specified "serverName"
     
-    -->
+  -->
   <target name="install-deploy-clustered">
 
     <echo>Installing EJB3 Deployable Files to "deploy" of Server "${serverName}"</echo>
@@ -244,7 +251,21 @@
   
   -->
   <target name="rebuild-jbossall-client">
-    <echo>IMPLEMENT</echo>
+
+    <!-- Remove existing jbossall-client JAR -->
+    <delete file="${jboss.client}/jbossall-client.jar" />
+
+    <!-- UnJAR appropriate libs for jbossall-client -->
+    <unjar dest="${installer.client}">
+      <fileset dir="${jboss.client}">
+        <includesfile name="${file.jbossas.jbossall.includes}" />
+        <excludesfile name="${file.jbossas.jbossall.excludes}" />
+      </fileset>
+    </unjar>
+
+    <!-- ReJAR jbossall-client -->
+    <jar destfile="${jboss.client}/jbossall-client.jar" basedir="${installer.client}" />
+
   </target>
 
   <!-- 

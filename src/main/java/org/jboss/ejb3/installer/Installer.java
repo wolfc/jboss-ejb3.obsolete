@@ -230,7 +230,7 @@ public class Installer
          // Set as installation Directory
          this.setInstallationDirectory(installerDir);
          // Log
-         this.getPrintStream().println("JBoss AS 5.0.x Installation Directory: " + this.installationDirectory);
+         this.getPrintStream().println("JBoss EJB3 Plugin Installation Directory: " + this.installationDirectory);
       }
 
       // Return
