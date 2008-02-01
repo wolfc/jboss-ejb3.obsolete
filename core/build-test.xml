@@ -78,7 +78,7 @@
    <property name="jbosstest.udpGroup" value="${udpGroup}"/>
 
    <!-- Import the jboss server run targets -->
-   <import file="target/dependencies/unpacked/jboss-test/server-config.xml"/>
+   <!--import file="target/dependencies/unpacked/jboss-test/server-config.xml"/-->
    <!-- Propagate the dist directory as a jbosstest system property -->
    <property name="jbosstest.dist" value="${jboss.dist}"/>
 
