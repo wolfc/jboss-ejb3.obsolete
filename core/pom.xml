@@ -62,6 +62,27 @@
         </executions>
       </plugin>
 
+      <!-- Assembly Plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+         <!-- JBoss EJB3 Client JAR -->
+         <descriptors>
+           <descriptor>jboss-ejb3-client.xml</descriptor>
+         </descriptors>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
 
       <!-- Dependency Plugin Configuration -->
       <plugin>
