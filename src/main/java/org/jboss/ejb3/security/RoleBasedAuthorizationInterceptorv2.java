@@ -122,6 +122,10 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
+      //Set the JACC ContextID
+      String contextID = (String) invocation.getMetaData("JACC", "ctx");
+      SecurityActions.setContextID(contextID);
+      
       MethodInvocation mi = (MethodInvocation)invocation;
       //Check for ejbTimeOut
       SecurityHelper shelper = new SecurityHelper(); 

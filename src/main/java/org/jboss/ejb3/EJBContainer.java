@@ -1248,7 +1248,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    public MethodInfo getMethodInfo(Method method)
    {
       long hash = MethodHashing.calculateHash(method);
-      MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+      MethodInfo info = super.getMethodInfo(hash);
       if (info == null)
       {
          throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());

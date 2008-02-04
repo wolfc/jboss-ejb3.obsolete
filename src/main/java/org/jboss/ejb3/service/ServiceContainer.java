@@ -345,7 +345,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          
          Thread.currentThread().setContextClassLoader(classloader);
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+         MethodInfo info = super.getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
@@ -386,7 +386,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       EJBContainerInvocation newSi = null;
       
       MethodInvocation si = (MethodInvocation) invocation;
-      MethodInfo info = (MethodInfo) methodInterceptors.get(si.getMethodHash());
+      MethodInfo info = super.getMethodInfo(si.getMethodHash());
       Method method = info.getUnadvisedMethod();
       try
       {

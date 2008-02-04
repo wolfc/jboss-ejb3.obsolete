@@ -36,6 +36,7 @@ import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
 import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.plugins.AbstractDemandMetaData;
 import org.jboss.beans.metadata.spi.SupplyMetaData;
+import org.jboss.beans.metadata.spi.DemandMetaData;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.spi.registry.KernelRegistryEntry;
 
@@ -124,21 +125,22 @@ public class MCKernelAbstraction
       log.info("installing bean: " + name + " with dependencies:");
       for (Object obj : policy.getDependencies())
       {
-         String msg;
+         Object msgObject = obj;
          if (obj instanceof AbstractDemandMetaData)
          {
-            msg = ((AbstractDemandMetaData)obj).getDemand().toString();
+            msgObject = ((AbstractDemandMetaData)obj).getDemand();
          }
-         else
-         {
-            msg = obj.toString();
-         }
-         log.info("\t" + msg);
+         log.info("\t" + msgObject);
+      }
+      log.info("  and demands:");
+      for(DemandMetaData dmd : policy.getDemands())
+      {
+         log.info("\t" + dmd.getDemand());
       }
       log.info("  and supplies:");
       for(SupplyMetaData smd : policy.getSupplies())
       {
-         log.info("\t" + smd.getSupply().toString());
+         log.info("\t" + smd.getSupply());
       }
       try
       {

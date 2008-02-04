@@ -73,7 +73,7 @@ public class MDB extends MessagingContainer
          messagingType = annotation.messageListenerInterface();
          if (messagingType.getName().equals(Object.class.getName()))
          {
-            Set<Class<?>> businessInterfaces = ProxyFactoryHelper.getBusinessInterfaces(clazz,true);
+            Set<Class<?>> businessInterfaces = ProxyFactoryHelper.getBusinessInterfaces(clazz,false);
             if (businessInterfaces.size() > 1 || businessInterfaces.size() == 0) 
                throw new RuntimeException("Unable to choose messagingType interface for MDB " + getEjbName() + " from " + businessInterfaces);
             messagingType = businessInterfaces.iterator().next();
@@ -86,7 +86,7 @@ public class MDB extends MessagingContainer
    public MethodInfo getMethodInfo(Method method)
    {
       long hash = MethodHashing.calculateHash(method);
-      MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+      MethodInfo info = super.getMethodInfo(hash);
       return info;
    }
 

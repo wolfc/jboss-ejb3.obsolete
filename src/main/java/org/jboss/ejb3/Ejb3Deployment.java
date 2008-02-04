@@ -347,7 +347,9 @@ public abstract class Ejb3Deployment implements JavaEEModule
    {
       ObjectName on = container.getObjectName();
       String name = on.getCanonicalName();
-      kernelAbstraction.install(name, container.getDependencyPolicy(), container);
+      DependencyPolicy dependsPolicy = container.getDependencyPolicy();
+      dependsPolicy.addDependency("jboss.ejb:service=EJBTimerService");
+      kernelAbstraction.install(name, dependsPolicy, container);
       mbeanServer.registerMBean(container.getMBean(), on);
       log.debug("Bound ejb3 container " + name);
    }

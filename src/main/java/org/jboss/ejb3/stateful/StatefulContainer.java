@@ -196,7 +196,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+         MethodInfo info = super.getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(
@@ -227,7 +227,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+         MethodInfo info = super.getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(
@@ -328,7 +328,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       {
          Thread.currentThread().setContextClassLoader(classloader);
          StatefulRemoteInvocation si = (StatefulRemoteInvocation) invocation;
-         MethodInfo info = (MethodInfo) methodInterceptors.get(si.getMethodHash());
+         MethodInfo info = super.getMethodInfo(si.getMethodHash());
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");

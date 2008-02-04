@@ -174,7 +174,7 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
          AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsFlags.IN_EJB_TIMEOUT);
          try
          {
-            MethodInfo info = (MethodInfo) methodInterceptors.get(callbackHandler.getTimeoutCalllbackHash());
+            MethodInfo info = super.getMethodInfo(callbackHandler.getTimeoutCalllbackHash());
             EJBContainerInvocation nextInvocation = new EJBContainerInvocation(info);
             nextInvocation.setAdvisor(this);
             nextInvocation.setArguments(args);
@@ -277,7 +277,7 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
       {
          Thread.currentThread().setContextClassLoader(classloader);
          MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = (MethodInfo) methodInterceptors.get(si.getMethodHash());
+         MethodInfo info = super.getMethodInfo(si.getMethodHash());
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");

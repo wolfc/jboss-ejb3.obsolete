@@ -250,7 +250,7 @@ public class EJB3StandaloneDeployer
       {
          try
          {
-            return vfsRoot.findChild(path);
+            return vfsRoot.getChild(path);
          }
          catch (IOException e)
          {

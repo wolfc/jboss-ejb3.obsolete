@@ -244,7 +244,7 @@ public class JmxDeploymentUnit implements DeploymentUnit
    {
       try
       {
-         return vfsRoot.findChild(path);
+         return vfsRoot.getChild(path);
       }
       catch (IOException e)
       {

@@ -98,7 +98,7 @@ public class ConsumerContainer extends MessagingContainer
       {
          Thread.currentThread().setContextClassLoader(classloader);
          MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = (MethodInfo) methodInterceptors.get(si.getMethodHash());
+         MethodInfo info = super.getMethodInfo(si.getMethodHash());
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");
