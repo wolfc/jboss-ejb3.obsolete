@@ -40,6 +40,9 @@
   <property name="file.jbossas.jbossall.excludes" value="conf/jbossas-ejb3-jar-jbossall-excludes.txt" />
   <property name="file.jbossas.ejb3client.includes" value="conf/jbossas-ejb3-jar-ejb3client-includes.txt" />
 
+  <!-- File names -->
+  <property name="filename.jbossas.ejb3.client" value="jboss-ejb3-client.jar" />
+
   <!-- Servers to patch, semi-colon delimited -->
   <property name="servers.unclustered" value="default" />
   <property name="servers.clustered" value="all" />
@@ -131,8 +134,8 @@
     <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="create-ejb3-deployer" inheritall="true" />
 
     <!-- Rebuild Client JARs -->
-    <antcall target="rebuild-jbossall-client" />
     <antcall target="rebuild-jboss-ejb3-client" />
+    <antcall target="rebuild-jbossall-client" />
 
   </target>
 
@@ -274,7 +277,14 @@
     
   -->
   <target name="rebuild-jboss-ejb3-client">
-    <echo>IMPLEMENT</echo>
+    
+    <echo>Copying EJB3 Client JAR</echo>
+    
+    <copy todir="${jboss.client}" verbose="true">
+      <fileset dir="${installer.lib}">
+        <include name="${filename.jbossas.ejb3.client}" />
+      </fileset>
+    </copy>
   </target>
 
 </project>
