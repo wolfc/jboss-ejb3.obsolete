@@ -114,7 +114,7 @@ public class JaasSecurityManagerService
           */
          String securityDomainName = name.get(1);
          final SecurityDomainContext ctx = new SecurityDomainContext(getSecurityManager(securityDomainName), null);
-         ctx.setAuthorizationManager(new JBossAuthorizationManager(securityDomainName, new SecurityAssociationHandler()));
+         ctx.setAuthorizationManager(new JBossAuthorizationManager(securityDomainName));
          return new BrainlessContext()
          {
             public Object lookup(Name name) throws NamingException

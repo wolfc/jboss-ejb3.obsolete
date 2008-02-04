@@ -357,7 +357,7 @@ public abstract class SessionContainer extends EJBContainer
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = (MethodInfo) methodInterceptors.get(hash);
+         MethodInfo info = super.getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(

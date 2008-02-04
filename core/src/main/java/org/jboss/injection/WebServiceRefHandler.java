@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Iterator;
 
 import javax.naming.Context;
 import javax.xml.ws.WebServiceRef;
@@ -35,9 +36,7 @@ import javax.xml.ws.WebServiceRefs;
 
 import org.jboss.logging.Logger;
 import org.jboss.metadata.javaee.jboss.JBossServiceReferenceMetaData;
-import org.jboss.metadata.javaee.spec.RemoteEnvironment;
-import org.jboss.metadata.javaee.spec.ServiceReferenceMetaData;
-import org.jboss.metadata.javaee.spec.ServiceReferencesMetaData;
+import org.jboss.metadata.javaee.spec.*;
 
 /**
  * Handle @WebServiceRef annotations
@@ -98,42 +97,124 @@ public class WebServiceRefHandler<X extends RemoteEnvironment> implements Inject
 
    public void handleMethodAnnotations(Method method, InjectionContainer container, Map<AccessibleObject, Injector> injectors)
    {
-      WebServiceRef wsref = method.getAnnotation(WebServiceRef.class);
-      if (wsref == null) return;
+      String serviceRefName = null;
+
+      // injector first
+      ServiceReferenceMetaData tmp = getServiceRefForInjectionTarget(method);
+      if(tmp!=null)
+      {
+         serviceRefName = tmp.getServiceRefName();
+      }
+      else
+      {
+         // annotation second
+         WebServiceRef wsref = method.getAnnotation(WebServiceRef.class);
+         if(wsref!=null)
+         {
+            serviceRefName = wsref.name();
+
+            if (serviceRefName.equals(""))
+               serviceRefName = InjectionUtil.getEncName(method).substring(4);
+         }
+      }
+
+      if(null==serviceRefName)
+         return;
 
       if (!method.getName().startsWith("set"))
          throw new RuntimeException("@WebServiceRef can only be used with a set method: " + method);
-
-      String name = wsref.name();
-      if (name.equals(""))
-         name = InjectionUtil.getEncName(method).substring(4);
       
-      String encName = "env/" + name;
+      String encName = "env/" + serviceRefName;
       Context encCtx = container.getEnc();
-      if (!container.getEncInjectors().containsKey(name))
+      if (!container.getEncInjectors().containsKey(serviceRefName))
       {
-         ServiceReferenceMetaData sref = getServiceRef(name);
-         container.getEncInjectors().put(name, new ServiceRefInjector(encName, method, sref));
+         ServiceReferenceMetaData sref = getServiceRef(serviceRefName);
+         container.getEncInjectors().put(serviceRefName, new ServiceRefInjector(encName, method, sref));
       }
 
       injectors.put(method, new JndiMethodInjector(method, encName, encCtx));
    }
 
+   private ServiceReferenceMetaData getServiceRefForInjectionTarget(Method method)
+   {
+      ServiceReferenceMetaData match = null;
+
+      Iterator<String> iterator = srefMap.keySet().iterator();
+      while(iterator.hasNext())
+      {
+         ServiceReferenceMetaData sref = srefMap.get(iterator.next());
+         if(sref.getInjectionTargets()!=null)
+         {
+            for(ResourceInjectionTargetMetaData injectionTuple : sref.getInjectionTargets())
+            {
+               if(method.getDeclaringClass().getName().equals(injectionTuple.getInjectionTargetClass())
+                 && method.getName().equals(injectionTuple.getInjectionTargetName()))
+               {
+                  match = sref;
+                  break;
+               }
+            }
+         }
+      }
+      return match;
+   }
+
+   private ServiceReferenceMetaData getServiceRefForInjectionTarget(Field field)
+   {
+      ServiceReferenceMetaData match = null;
+
+      Iterator<String> iterator = srefMap.keySet().iterator();
+      while(iterator.hasNext())
+      {
+         ServiceReferenceMetaData sref = srefMap.get(iterator.next());
+         if(sref.getInjectionTargets()!=null)
+         {
+            for(ResourceInjectionTargetMetaData injectionTuple : sref.getInjectionTargets())
+            {
+               if(field.getDeclaringClass().getName().equals(injectionTuple.getInjectionTargetClass())
+                 && field.getName().equals(injectionTuple.getInjectionTargetName()))
+               {
+                  match = sref;
+                  break;
+               }
+            }
+         }
+      }
+      return match;
+   }
+
    public void handleFieldAnnotations(Field field, InjectionContainer container, Map<AccessibleObject, Injector> injectors)
    {
-      WebServiceRef wsref = field.getAnnotation(WebServiceRef.class);
-      if (wsref == null) return;
+      String serviceRefName = null;
 
-      String name = wsref.name();
-      if (name.equals(""))
-         name = InjectionUtil.getEncName(field).substring(4);
-
-      String encName = "env/" + name;
-      Context encCtx = container.getEnc();
-      if (!container.getEncInjectors().containsKey(name))
+      // injector first
+      ServiceReferenceMetaData tmp = getServiceRefForInjectionTarget(field);
+      if(tmp!=null)
       {
-         ServiceReferenceMetaData sref = getServiceRef(name);
-         container.getEncInjectors().put(name, new ServiceRefInjector(encName, field, sref));
+         serviceRefName = tmp.getServiceRefName();
+      }
+      else
+      {
+         // annotation second
+         WebServiceRef wsref = field.getAnnotation(WebServiceRef.class);
+         if(wsref!=null)
+         {
+            serviceRefName = wsref.name();
+
+            if (serviceRefName.equals(""))
+               serviceRefName = InjectionUtil.getEncName(field).substring(4);
+         }
+      }
+
+      if(null==serviceRefName)
+         return;
+
+      String encName = "env/" + serviceRefName;
+      Context encCtx = container.getEnc();
+      if (!container.getEncInjectors().containsKey(serviceRefName))
+      {
+         ServiceReferenceMetaData sref = getServiceRef(serviceRefName);
+         container.getEncInjectors().put(serviceRefName, new ServiceRefInjector(encName, field, sref));
       }
 
       injectors.put(field, new JndiFieldInjector(field, encName, encCtx));
