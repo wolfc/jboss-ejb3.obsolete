@@ -518,11 +518,18 @@ public class Installer
       }
 
       // Remove
+      boolean isDir = file.isDirectory();
       boolean removed = file.delete();
-      if (removed)
+      if (removed && isDir)
       {
-         this.getPrintStream().println(file.getAbsolutePath() + " Removed.");
+         // Uncomment to log for debugging
+         //this.getPrintStream().println(file.getAbsolutePath() + " Removed.");
       }
+      else if(removed)
+      {
+         // Removed a file, do nothing (too verbose to log here)
+      }
+      // Error in deletion
       else
       {
          this.getPrintStream().println("Unable to remove " + file.getAbsolutePath());
