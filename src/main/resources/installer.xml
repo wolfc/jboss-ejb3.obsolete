@@ -24,12 +24,19 @@
       <includes>
         <include>ant-contrib:ant-contrib</include>
         <include>org.jboss.ejb3:jboss-ejb3-cache</include>
-        <include>org.jboss.ejb3:jboss-ejb3-core</include>
+        <include>org.jboss.ejb3:jboss-ejb3-core:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api-impl</include>
         <include>org.jboss.ejb3:jboss-ejb3-interceptors</include>
         <include>org.jboss.ejb3:jboss-ejb3-metadata</include>
         <include>org.jboss.ejb3:jboss-ejb3-pool</include>
+      </includes>
+      <outputDirectory>lib</outputDirectory>
+    </dependencySet>
+    <dependencySet>
+      <outputFileNameMapping>${classifier}.${extension}</outputFileNameMapping>
+      <includes>
+        <include>org.jboss.ejb3:jboss-ejb3-core:jar:jboss-ejb3-client</include>
       </includes>
       <outputDirectory>lib</outputDirectory>
     </dependencySet>
