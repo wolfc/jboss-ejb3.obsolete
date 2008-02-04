@@ -21,22 +21,14 @@
         <include>org/jboss/ejb3/Ejb3Registry.class</include>
         <include>org/jboss/ejb3/InitialContextFactory.class</include>
         <include>org/jboss/ejb3/asynchronous/*</include>
-        <include>
-          org/jboss/ejb3/interceptor/ClientInterceptorUtil.class
-        </include>
+        <include>org/jboss/ejb3/interceptor/ClientInterceptorUtil.class</include>
         <include>org/jboss/ejb3/mdb/ConsumerManager.class</include>
         <include>org/jboss/ejb3/mdb/Producer*.class</include>
-        <include>
-          org/jboss/ejb3/remoting/ClusteredIsLocalInterceptor.*
-        </include>
+        <include>org/jboss/ejb3/remoting/ClusteredIsLocalInterceptor.*</include>
         <include>org/jboss/ejb3/remoting/IsLocalInterceptor.*</include>
-        <include>
-          org/jboss/ejb3/remoting/IsLocalProxyFactoryInterceptor.*
-        </include>
+        <include>org/jboss/ejb3/remoting/IsLocalProxyFactoryInterceptor.*</include>
         <include>org/jboss/ejb3/stateful/ForwardId.class</include>
-        <include>
-          org/jboss/ejb3/stateful/StatefulRemoteInvocation.class
-        </include>
+        <include>org/jboss/ejb3/stateful/StatefulRemoteInvocation.class</include>
         <include>org/jboss/ejb3/ProxyUtils.class</include>
         <include>org/jboss/ejb3/**/*Proxy.class</include>
         <include>org/jboss/ejb3/**/*HandleImpl.class</include>
