@@ -207,6 +207,11 @@
         <artifactId>hibernate</artifactId>
       </dependency>
       <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-vfs</artifactId>
+        <version>2.0.0.Beta8</version>
+      </dependency>
+      <dependency>
         <groupId>org.jboss.cache</groupId>
         <artifactId>jbosscache-core</artifactId>
         <!-- not used anywhere else -->
