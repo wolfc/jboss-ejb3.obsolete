@@ -3971,15 +3971,17 @@
          -->
 
          <classpath>
+           
+           <!-- Include all dependencies -->
            <fileset dir="${location.dependencies.lib}">
-                   <include name="**/*.jar"/>
-                 </fileset>
+             <include name="**/*.jar"/>
+           </fileset>
+           
            <!-- EJB3 TestSuite -->
            <pathelement path="${location.artifact.tests}" />
+           
            <!-- JBoss Test Project -->
            <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
-        
-        
            
             <!-- <path refid="hibernate.hibernate.classpath"/> 
             <pathelement location="${build.classes}"/>
