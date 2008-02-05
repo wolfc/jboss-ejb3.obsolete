@@ -109,7 +109,7 @@
             </configuration>
           </execution>
           
-          <!-- Copy jboss-test JAR -->
+          <!--  Copy jboss-test JAR -->
           <execution>
             <id>copy-jboss-test</id>
             <phase>process-resources</phase>
@@ -123,12 +123,39 @@
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
               </artifactItems> 
-              <outputDirectory>${project.build.directory}/dependencies/lib/jboss-test</outputDirectory>
+              <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+          
+          <!-- Copy all dependencies -->
+          <execution>
+            <id>copy-core-dependencies</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <stripVersion>true</stripVersion>
             </configuration>
           </execution>
 
+        </executions>
+      </plugin>
+      
+      <!-- JAR the Tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
 
