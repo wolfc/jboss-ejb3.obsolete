@@ -29,6 +29,11 @@
 
     <!-- external -->
     <dependency>
+      <groupId>apache-log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.14</version>
+    </dependency>
+    <dependency>
       <groupId>jboss</groupId>
       <artifactId>jboss-logging-log4j</artifactId>
       <scope>test</scope>
@@ -54,6 +59,11 @@
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-ejb-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+      <version>2.0.0.Beta9</version>
     </dependency>
     <!-- TODO: use arjuna -->
     <dependency>
