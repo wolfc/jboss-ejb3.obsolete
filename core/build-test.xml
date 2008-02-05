@@ -79,7 +79,7 @@
   
   <!-- Externalized locations -->
   <property name="location.resources.main" value="${basedir}/src/main/resources"/>
-  <property name="location.resources.test" value="${basedir}/src/test/resourcesALR"/>
+  <property name="location.resources.test" value="${basedir}/src/test/resources"/>
   <property name="location.target" value="${basedir}/target"/>
   <property name="location.artifact.tests" value="${location.target}/jboss-ejb3-core-tests.jar" />
   <property name="location.dependencies" value="${location.target}/dependencies"/>
@@ -3948,7 +3948,7 @@
 
          <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
          <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${basedir}/test/log4.xml"/>
+         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
          <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
          <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
          <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
@@ -4263,7 +4263,7 @@
 
          <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
          <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${resources}/test/log4j.xml"/>
+         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
          <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
          <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
          <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
@@ -4364,7 +4364,7 @@
 
          <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
          <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${resources}/test/log4j.xml"/>
+         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
          <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
          <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
          <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
@@ -4414,7 +4414,7 @@
 
          <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
          <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${resources}/test/log4j.xml"/>
+         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
          <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
          <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
          <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
