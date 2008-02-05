@@ -141,8 +141,8 @@
    <property name="module.name" value="ejb3"/>
    <property name="module.Name" value="JBoss Testsuite"/>
    <property name="module.version" value="DEV"/>
-   <property name="module.source" value="./src"/>
-   <property name="module.output" value="./target"/>
+   <property name="module.source" value="${basedir}/src"/>
+   <property name="module.output" value="${basedir}/target"/>
    <property name="location.dependency" value ="./target" />
    <property name="location.dependency.unpacked" value ="${location.dependency}/unpacked" />
    <property name="location.dependency.unpacked.testsuite" value ="${location.dependency.unpacked}/jboss-test" />
