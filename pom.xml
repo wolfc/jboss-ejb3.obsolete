@@ -38,7 +38,7 @@
     <module>metadata</module>
     <module>plugin</module>
     <module>pool</module>
-    <module>sandbox</module>
+    <!-- module>sandbox</module -->
   </modules>
 
   <profiles>
