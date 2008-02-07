@@ -38,7 +38,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class StatelessInterceptor
 {
@@ -114,6 +114,6 @@ public class StatelessInterceptor
             
          }
       };
-      pool = new StrictMaxPool<Object>(factory, 5, 30, TimeUnit.SECONDS);
+      pool = new StrictMaxPool<Object>(factory, 5, 60, TimeUnit.SECONDS);
    }
 }
