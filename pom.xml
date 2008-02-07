@@ -62,7 +62,7 @@
       <artifactId>jboss-ejb3-installer</artifactId>
       <version>0.1.0-SNAPSHOT</version>
     </dependency>
-    
+
     <!-- The things to install -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
@@ -110,5 +110,15 @@
       <artifactId>jboss-ejb3-pool</artifactId>
       <version>0.13.0-SNAPSHOT</version>
     </dependency>
+
+    <!-- Dependent Libraries -->
+
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-client</artifactId>
+      <version>1.0.0.GA</version>
+    </dependency>
+
   </dependencies>
+
 </project>
