@@ -1,1 +1,2 @@
 jboss-ejb3-ext-api.jar
+jboss-ha-client.jar
