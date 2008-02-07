@@ -4,3 +4,4 @@ jboss-ejb3-ext-api.jar
 jboss-ejb3-ext-api-impl.jar
 jboss-ejb3-interceptors.jar
 jboss-ejb3-metadata.jar
+jboss-ha-client.jar
