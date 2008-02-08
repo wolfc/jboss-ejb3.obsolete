@@ -87,6 +87,9 @@
   <property name="location.dependencies.unpacked.jboss-test:jboss.test" value="${location.dependencies.unpacked}/jboss-test"/>
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
+  <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
+  <property name="location.client.lib" value="${JBOSS_HOME}/client"/>
+  <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
     
   <!-- Define the Path to Server Task Definitions, used by the JBoss Server Run targets -->
   <path id="server.taskdef.classpath">  
@@ -248,7 +251,7 @@
    <!-- Where source files live -->
    <property name="source.java" value="${module.source}/test/java"/>
    <property name="source.etc" value="${module.source}/etc"/>
-   <property name="resources" value="${module.source}/test/resources"/>
+   <property name="resources" value="${location.resources.test}"/>
    <property name="source.stylesheets" value="{location.dependency.unpacked.testsuite}/src/stylesheets"/>
 
    <!-- Where build generated files will go -->
@@ -3972,16 +3975,20 @@
 
          <classpath>
            
-           <!-- Include all dependencies -->
-           <fileset dir="${location.dependencies.lib}">
-             <include name="**/*.jar"/>
-           </fileset>
+           <!-- JBoss Client Binaries -->
+           <pathelement path="${location.client.lib.jbossall}" />
            
            <!-- EJB3 TestSuite -->
            <pathelement path="${location.artifact.tests}" />
            
            <!-- JBoss Test Project -->
            <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+           
+           <!-- JUnit -->
+           <pathelement path="${location.dependencies.lib.junit:junit}" />
+           
+           <!-- Root of jndi.properties -->
+           <pathelement location="${resources}/test"/>
            
             <!-- <path refid="hibernate.hibernate.classpath"/> 
             <pathelement location="${build.classes}"/>
