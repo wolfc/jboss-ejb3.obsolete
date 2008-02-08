@@ -78,7 +78,7 @@
    <property name="jbosstest.udpGroup" value="${udpGroup}"/>
   
   <!-- Set "jboss.dist" to JBOSS_HOME -->
-  <property name="jboss.dist" value="${JBOSS_HOME}"/>
+  <property name="jboss.dist" value="${env.JBOSS_HOME}"/>
   
   <!-- Propagate the dist directory as a jbosstest system property -->
   <property name="jbosstest.dist" value="${jboss.dist}"/>
