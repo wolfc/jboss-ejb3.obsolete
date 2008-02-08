@@ -77,6 +77,12 @@
    <!-- Same thing, but passed to the client -->
    <property name="jbosstest.udpGroup" value="${udpGroup}"/>
   
+  <!-- Set "jboss.dist" to JBOSS_HOME -->
+  <property name="jboss.dist" value="${JBOSS_HOME}"/>
+  
+  <!-- Propagate the dist directory as a jbosstest system property -->
+  <property name="jbosstest.dist" value="${jboss.dist}"/>
+  
   <!-- Externalized locations -->
   <property name="location.resources.main" value="${basedir}/src/main/resources"/>
   <property name="location.resources.test" value="${basedir}/src/test/resources"/>
@@ -88,7 +94,7 @@
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
-  <property name="location.client.lib" value="${JBOSS_HOME}/client"/>
+  <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
     
   <!-- Define the Path to Server Task Definitions, used by the JBoss Server Run targets -->
@@ -98,9 +104,6 @@
 
    <!-- Import the jboss server run targets -->
    <import file="${location.dependencies.unpacked.jboss-test:jboss.test}/server-config.xml" />
-    
-   <!-- Propagate the dist directory as a jbosstest system property -->
-   <property name="jbosstest.dist" value="${jboss.dist}"/>
 
    <property name="ejb3.jboss.jvmargs" value="-Xmx512m -Djava.net.preferIPv4Stack=true"/>
 
