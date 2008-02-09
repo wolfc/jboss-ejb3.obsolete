@@ -48,23 +48,22 @@
       <!-- Must match the value of "useRegionBasedMarshalling" -->
       <property name="inactiveOnStartup">true</property>
 
-      <!--  Specific eviction policy configurations. This is LRU -->
       <property name="evictionConfig">
       	 <bean name="EJB3SFSBEvictionConfig" class="org.jboss.cache.config.EvictionConfig">
-      	   <property name="defaultEvictionPolicyClass">org.jboss.cache.eviction.LRUPolicy</property>
+      	   <property name="defaultEvictionPolicyClass">org.jboss.cache.eviction.NullEvictionPolicyConfig</property>
             <property name="wakeupIntervalSeconds">5</property>
             <property name="evictionRegionConfigs">
             	<list>
-            		<!-- So default region would never timeout -->
+            		<!-- Default region would never timeout -->
             		<bean name="EJB3SFSBDefaultEvictionRegionConfig" class="org.jboss.cache.config.EvictionRegionConfig">
             			<property name="regionName">/_default_</property>
             			<property name="evictionPolicyConfig">
-            				<bean name="EJB3SFSBDefaultLRUConfig" class="org.jboss.cache.eviction.LRUConfiguration">
-               					<property name="maxNodes">0</property>
-               					<property name="timeToLiveSeconds">0</property>
-               				</bean>
+            				<bean name="EJB3SFSBDefaultLRUConfig" 
+            				      class="org.jboss.cache.eviction.NullEvictionPolicyConfig"/>
                			</property>
             		</bean>
+            		<!-- EJB3 integration code will programatically create other
+                       regions as beans are deployed -->
             	</list>
 			</property>
          </bean>
@@ -106,6 +105,7 @@
                    		<property name="async">false</property>
                    		<property name="fetchPersistentState">true</property>
                    		<property name="ignoreModifications">false</property>
+                        <property name="checkCharacterPortability">false</property>
                		</bean>
                	</list>
             </property>
