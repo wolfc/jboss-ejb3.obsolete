@@ -140,6 +140,7 @@
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <stripVersion>true</stripVersion>
+              <excludeTransitive>true</excludeTransitive>
             </configuration>
           </execution>
 
