@@ -183,6 +183,11 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version> <!-- Only used here, for Unit Tests -->
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
