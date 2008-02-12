@@ -65,13 +65,10 @@
             <goals>
               <goal>run</goal>
             </goals>
-            <phase>package</phase>
+            <phase>pre-integration-test</phase>
             <configuration>
               <tasks>
-             
-                <!-- Set the jboss-test CP -->
-                <property name="jboss.test.path" value="${project.build.directory}/dependencies/lib/jboss-test/jboss-test.jar" />
-               
+
                 <!-- Excute the Test Build -->
                 <ant antfile="build-test.xml" />
               
