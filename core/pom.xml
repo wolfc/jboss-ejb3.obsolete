@@ -35,6 +35,25 @@
   <build>
     
     <plugins>
+    
+        <!-- EJB3 TestRunner Configuration --> 
+      <plugin>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>run-ejb3-tests</id>
+            <goals>
+              <goal>run-tests</goal>
+            </goals>
+            <phase>integration-test</phase>
+            <configuration>
+               <!-- Config here -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
 
       <!-- Antrun Plugin Configuration --> 
       <plugin>
