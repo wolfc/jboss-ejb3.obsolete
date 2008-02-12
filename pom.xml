@@ -312,7 +312,7 @@
        <groupId>org.jboss.jbossas</groupId>
        <artifactId>jboss-as-server</artifactId>
        <version>5.0.0-SNAPSHOT</version> <!-- Only used here -->
-       <classifier>jboss-client</classifier>
+       <classifier>client</classifier>
     </dependency>
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
