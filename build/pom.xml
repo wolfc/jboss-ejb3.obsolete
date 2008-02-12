@@ -59,7 +59,13 @@
     <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
     <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
     <url>https://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</url>
-  </scm>
+  </scm>  
+  
+  <!-- Issues -->
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.jboss.com/jira/browse/EJBTHREE</url>
+  </issueManagement>
 
   <!-- Properties -->
   <properties>
