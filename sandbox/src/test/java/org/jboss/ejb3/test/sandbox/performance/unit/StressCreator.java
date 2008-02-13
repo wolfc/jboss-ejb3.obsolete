@@ -39,7 +39,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class StressCreator
 {
@@ -63,7 +63,7 @@ public class StressCreator
          start = System.currentTimeMillis();
          try
          {
-            return calculator.calculatePi(10000);
+            return calculator.calculatePi(8000);
          }
          finally
          {
