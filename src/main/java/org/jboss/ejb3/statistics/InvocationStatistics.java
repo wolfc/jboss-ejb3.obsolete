@@ -139,6 +139,36 @@ public class InvocationStatistics implements Serializable
     */
    public String toString()
    {
+      StringBuffer tmp = new StringBuffer("InvocationStatistics concurrentCalls='");
+      tmp.append(concurrentCalls);
+      tmp.append("'\n");
+
+      HashMap copy = new HashMap(methodStats);
+      Iterator iter = copy.entrySet().iterator();
+      while (iter.hasNext())
+      {
+         Map.Entry entry = (Map.Entry) iter.next();
+         TimeStatistic stat = (TimeStatistic) entry.getValue();
+         if (stat != null)
+         {
+            tmp.append("method name='");
+            tmp.append(entry.getKey());
+            tmp.append("' count='");
+            tmp.append(stat.count);
+            tmp.append("' minTime='");
+            tmp.append(stat.minTime);
+            tmp.append("' maxTime='");
+            tmp.append(stat.maxTime);
+            tmp.append("' totalTime='");
+            tmp.append(stat.totalTime);
+            tmp.append("' \n");
+         }
+      }
+      return tmp.toString();
+   }
+   
+   public String toXmlString()
+   {
       StringBuffer tmp = new StringBuffer("<InvocationStatistics concurrentCalls='");
       tmp.append(concurrentCalls);
       tmp.append("' >\n");
