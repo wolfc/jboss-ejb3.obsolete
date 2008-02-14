@@ -1,0 +1,31 @@
+<!-- 
+  
+  JBoss EJB3 TestSuite AS Configuration/Test Bindings
+  
+  This file defines bindings between EJB3 Integration Tests
+  and the AS Server Configurations in which they must run, 
+  representing a N:N relationship
+  
+  The grammar takes form:
+  
+  <configurations>
+  
+    <configuration name="uniqueNameMappingToServerName">
+  
+      <test name="example1" />
+      <test name="example1" />
+      <test name="example1" />
+  
+    </configuration>
+    
+  </configurations>
+  
+-->
+
+<configurations>
+
+  <configuration name="">
+
+  </configuration>
+
+</configurations>
