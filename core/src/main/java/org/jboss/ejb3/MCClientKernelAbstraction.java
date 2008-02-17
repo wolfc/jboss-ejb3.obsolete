@@ -29,6 +29,8 @@ import org.jboss.logging.Logger;
 import javax.management.ObjectName;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -81,5 +83,13 @@ public class MCClientKernelAbstraction implements ClientKernelAbstraction
          return field.get(target);
       }
       return null;
+   }
+   
+   public Set getMBeans(ObjectName query) throws Exception
+   {
+      Object target = kernel.getRegistry().getEntry(query);
+      Set set = new HashSet();
+      set.add(target);
+      return set;
    }
 }

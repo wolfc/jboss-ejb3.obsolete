@@ -21,6 +21,8 @@
 */
 package org.jboss.ejb3;
 
+import java.util.Set;
+
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import org.jboss.logging.Logger;
@@ -47,5 +49,12 @@ public class JmxClientKernelAbstraction implements ClientKernelAbstraction
    public Object getAttribute(ObjectName name, String attribute) throws Exception
    {
       return server.getAttribute(name, attribute);
+   }
+   
+   public Set getMBeans(ObjectName query) throws Exception
+   {
+      Set mbeans = server.queryMBeans(query, null);
+      
+      return mbeans;
    }
 }

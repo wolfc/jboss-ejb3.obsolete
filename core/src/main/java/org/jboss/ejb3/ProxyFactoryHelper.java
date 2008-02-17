@@ -22,8 +22,10 @@
 package org.jboss.ejb3;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ import javax.ejb.LocalHome;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.jws.WebService;
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.jboss.aop.Advisor;
@@ -769,27 +772,48 @@ public class ProxyFactoryHelper
       // Return
       return types;
    }
-
+   
    public static String getClientBindUrl(RemoteBinding binding) throws Exception
    {
       String clientBindUrl = binding.clientBindUrl();
       if (clientBindUrl.trim().length() == 0)
       {
-         ObjectName connectionON = new ObjectName(
-               "jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
+         ObjectName connectionON = new ObjectName("jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
          KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
          try
          {
-            clientBindUrl = (String) kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
-            if (clientBindUrl == null)
-               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+            clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
          }
          catch (Exception e)
          {
             clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
          }
       }
-
+      else if (clientBindUrl.indexOf("0.0.0.0") != -1)
+      {
+         KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+         ObjectName query = new ObjectName("jboss.remoting:type=Connector,handler=ejb3,*");
+         Set mbeanSet = kernelAbstraction.getMBeans(query);
+         
+         URI targetUri = new URI(clientBindUrl);
+         Iterator mbeans = mbeanSet.iterator();
+         while (mbeans.hasNext())
+         {
+            ObjectInstance invokerInstance = (ObjectInstance)mbeans.next();
+            ObjectName invokerName = invokerInstance.getObjectName();
+            String invokerLocator = (String)kernelAbstraction.getAttribute(invokerName, "InvokerLocator");
+            URI uri = new URI(invokerLocator);
+          
+            if (uri.getScheme().equals(targetUri.getScheme()) && uri.getPort() == targetUri.getPort())
+            {
+               return invokerLocator;
+            }
+         }
+      }
+      
+      if (clientBindUrl == null)
+         clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+      
       return clientBindUrl;
    }
 

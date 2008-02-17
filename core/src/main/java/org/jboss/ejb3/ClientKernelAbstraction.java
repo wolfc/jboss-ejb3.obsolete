@@ -21,6 +21,8 @@
 */
 package org.jboss.ejb3;
 
+import java.util.Set;
+
 import javax.management.ObjectName;
 
 import javax.management.MBeanServer;
@@ -33,4 +35,6 @@ public interface ClientKernelAbstraction
    Object invoke(ObjectName name, String operationName, Object[] params, String[] signature) throws Exception;
 
    public Object getAttribute(ObjectName name, String attribute) throws Exception;
+   
+   Set getMBeans(ObjectName query) throws Exception;
 }
