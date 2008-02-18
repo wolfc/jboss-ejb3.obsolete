@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.persistenceunits;
 
+import java.util.List;
+
 import org.jboss.logging.Logger;
 
 import javax.ejb.Remote;
@@ -60,5 +62,22 @@ public class EntityTestBean implements EntityTest
    public Entity2 loadEntity2(Long id)
    {
       return manager2.find(Entity2.class, id);
+   }
+   
+   public void testSharedEntity()
+   {
+      Entity1 entity = new Entity1();
+      entity.setData("TestShared1");
+      manager1.persist(entity);
+      
+      entity = new Entity1();
+      entity.setData("TestShared2");
+      manager1.persist(entity);
+
+      List<Entity1> result = manager1.createNamedQuery(Entity1.FIND_ALL).getResultList();
+      for (Entity1 e : result)
+      {
+          log.info("*** testSharedEntity result=" + e.getData());
+      }
    }
 }
