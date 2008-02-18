@@ -128,7 +128,7 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
       }
       // probably not deployed yet.
       // todo not sure if we should do this in JBoss 5
-      log.debug("******* could not find PU dependency so adding a default: " + PersistenceUnitDeployment.getDefaultKernelName(unitName));
+      log.warn("Could not find PU dependency for " + PersistenceUnitDeployment.getDefaultKernelName(unitName) + ". Waiting for dependency to resolve");
       container.getDependencyPolicy().addDependency(PersistenceUnitDeployment.getDefaultKernelName(unitName));
    }
 
