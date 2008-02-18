@@ -118,8 +118,8 @@
     <version.org.jboss_jboss-metadata>1.0.0.Beta4</version.org.jboss_jboss-metadata>
     <version.org.jboss_jboss-transaction-spi>5.0.0.Beta4</version.org.jboss_jboss-transaction-spi>
     <version.org.jboss_jboss-test>1.0.5-SNAPSHOT</version.org.jboss_jboss-test>
-    <version.org.jboss.aop_jboss-aop>2.0.0.CR1</version.org.jboss.aop_jboss-aop>
-    <version.org.jboss.aop_jboss-aop-aspects>2.0.0-SNAPSHOT</version.org.jboss.aop_jboss-aop-aspects>
+    <version.org.jboss.aop_jboss-aop>2.0.0.CR7</version.org.jboss.aop_jboss-aop>
+    <version.org.jboss.aop_jboss-aop-aspects>2.0.0.CR7</version.org.jboss.aop_jboss-aop-aspects>
     <version.org.jboss.cluster_jboss-ha-client>1.0.0.GA</version.org.jboss.cluster_jboss-ha-client>
     <version.org.jboss.cluster_jboss-ha-server-api>1.0.0.GA</version.org.jboss.cluster_jboss-ha-server-api>
     <version.org.jboss.embedded_jboss-embedded>beta3-SNAPSHOT</version.org.jboss.embedded_jboss-embedded>
@@ -128,11 +128,11 @@
     <version.org.jboss.javaee_jboss-jca-api>1.5.0.Beta3Update1</version.org.jboss.javaee_jboss-jca-api>
     <version.org.jboss.javaee_jboss-jms-api>1.1.0.Beta3Update1</version.org.jboss.javaee_jboss-jms-api>
     <version.org.jboss.javaee_jboss-persistence-api>3.0.0.Beta3Update1</version.org.jboss.javaee_jboss-persistence-api>
-    <version.org.jboss.jbossas_jboss-as-aspects>5.0.0-SNAPSHOT</version.org.jboss.jbossas_jboss-as-aspects>
-    <version.org.jboss.jbossas_jboss-as-connector>5.0.0-20071211.184358-1</version.org.jboss.jbossas_jboss-as-connector>
-    <version.org.jboss.jbossas_jboss-as-iiop>5.0.0-20071211.184358-1</version.org.jboss.jbossas_jboss-as-iiop>
-    <version.org.jboss.jbossas_jboss-as-naming>5.0.0-20071211.184358-1</version.org.jboss.jbossas_jboss-as-naming>
-    <version.org.jboss_jnpserver>5.0.0.Beta3</version.org.jboss_jnpserver>
+    <version.org.jboss.jbossas_jboss-as-aspects>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-aspects>
+    <version.org.jboss.jbossas_jboss-as-connector>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-connector>
+    <version.org.jboss.jbossas_jboss-as-iiop>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-iiop>
+    <version.org.jboss.jbossas_jboss-as-naming>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-naming>
+    <version.org.jboss_jnpserver>5.0.0.Beta4</version.org.jboss_jnpserver>
     <version.org.jboss.microcontainer_jboss-container>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-container>
     <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-deployers-core-spi>
     <version.org.jboss.microcontainer_jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer_jboss-deployers-vfs-spi>
@@ -338,6 +338,11 @@
       <dependency>
         <groupId>ant</groupId>
         <artifactId>ant</artifactId>
+        <version>${version.ant_ant}</version>
+      </dependency>
+      <dependency>
+        <groupId>ant</groupId>
+        <artifactId>ant-launcher</artifactId>
         <version>${version.ant_ant}</version>
       </dependency>
 
