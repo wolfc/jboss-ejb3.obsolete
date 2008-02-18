@@ -24,6 +24,8 @@ package org.jboss.ejb3.entity;
 import org.hibernate.Session;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.jboss.ejb3.PersistenceUnitRegistry;
+import org.jboss.ejb3.stateful.StatefulBeanContext;
+import org.jboss.logging.Logger;
 
 import javax.persistence.*;
 import java.io.Externalizable;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import java.util.List;
 
 /**
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
@@ -39,6 +42,8 @@ import java.io.ObjectOutput;
 public class TransactionScopedEntityManager implements EntityManager, HibernateSession, Externalizable
 {
    private static final long serialVersionUID = 4260828563883650376L;
+   
+   private static final Logger log = Logger.getLogger(TransactionScopedEntityManager.class);
    
    private transient ManagedEntityManagerFactory factory;
 
@@ -78,34 +83,34 @@ public class TransactionScopedEntityManager implements EntityManager, HibernateS
 
    public Object getDelegate()
    {
-      return factory.getTransactionScopedEntityManager().getDelegate();
+      return getEntityManager().getDelegate();
    }
 
    public void joinTransaction()
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().joinTransaction();
+      getEntityManager().joinTransaction();
    }
 
    public void clear()
    {
-      factory.getTransactionScopedEntityManager().clear();
+      getEntityManager().clear();
    }
 
    public FlushModeType getFlushMode()
    {
-      return factory.getTransactionScopedEntityManager().getFlushMode();
+      return getEntityManager().getFlushMode();
    }
 
    public void lock(Object entity, LockModeType lockMode)
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().lock(entity, lockMode);
+      getEntityManager().lock(entity, lockMode);
    }
 
    public <T> T getReference(Class<T> entityClass, Object primaryKey)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       try
       {
@@ -119,47 +124,47 @@ public class TransactionScopedEntityManager implements EntityManager, HibernateS
 
    public void setFlushMode(FlushModeType flushMode)
    {
-      factory.getTransactionScopedEntityManager().setFlushMode(flushMode);
+      getEntityManager().setFlushMode(flushMode);
    }
 
    public Query createQuery(String ejbqlString)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       return em.createQuery(ejbqlString);
    }
 
    public Query createNamedQuery(String name)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       return em.createNamedQuery(name);
    }
 
    public Query createNativeQuery(String sqlString)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       return em.createNativeQuery(sqlString);
    }
 
    public Query createNativeQuery(String sqlString, Class resultClass)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       return em.createNativeQuery(sqlString, resultClass);
    }
 
    public Query createNativeQuery(String sqlString, String resultSetMapping)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       return em.createNativeQuery(sqlString, resultSetMapping);
    }
 
    public <A> A find(Class<A> entityClass, Object primaryKey)
    {
-      EntityManager em = factory.getTransactionScopedEntityManager();
+      EntityManager em = getEntityManager();
       if (!factory.isInTx()) em.clear(); // em will be closed by interceptor
       try
       {
@@ -174,36 +179,36 @@ public class TransactionScopedEntityManager implements EntityManager, HibernateS
    public void persist(Object entity)
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().persist(entity);
+      getEntityManager().persist(entity);
    }
 
    public <A> A merge(A entity)
    {
       factory.verifyInTx();
-      return (A) factory.getTransactionScopedEntityManager().merge(entity);
+      return (A) getEntityManager().merge(entity);
    }
 
    public void remove(Object entity)
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().remove(entity);
+      getEntityManager().remove(entity);
    }
 
    public void refresh(Object entity)
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().refresh(entity);
+      getEntityManager().refresh(entity);
    }
 
    public boolean contains(Object entity)
    {
-      return factory.getTransactionScopedEntityManager().contains(entity);
+      return getEntityManager().contains(entity);
    }
 
    public void flush()
    {
       factory.verifyInTx();
-      factory.getTransactionScopedEntityManager().flush();
+      getEntityManager().flush();
    }
 
    public void close()
@@ -219,6 +224,25 @@ public class TransactionScopedEntityManager implements EntityManager, HibernateS
    public EntityTransaction getTransaction()
    {
       throw new IllegalStateException("Illegal to call this method from injected, managed EntityManager");
+   }
+   
+   protected EntityManager getEntityManager()
+   {
+      StatefulBeanContext beanContext = StatefulBeanContext.currentBean.get();
+     
+      EntityManager em;
+      if (beanContext != null)
+      {
+         List<StatefulBeanContext> beanContexts = StatefulBeanContext.currentBean.getList();
+         for( StatefulBeanContext bc : beanContexts)
+         {
+            em = bc.getExtendedPersistenceContext(factory.getKernelName());
+            if (em != null)
+               return em;
+         }
+      }
+     
+      return factory.getTransactionScopedEntityManager();
    }
 
 }
