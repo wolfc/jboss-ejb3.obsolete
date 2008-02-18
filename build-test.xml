@@ -155,6 +155,31 @@
    <!-- ========= -->
    <!-- Libraries -->
    <!-- ========= -->
+  
+    <!--
+    
+    Classpath used by the Test Client
+    
+    -->
+    <path id="test.client.classpath">
+      <!-- JBoss Client Binaries -->
+      <pathelement path="${location.client.lib.jbossall}" />
+
+      <!-- EJB3 TestSuite -->
+      <pathelement path="${location.artifact.tests}" />
+
+      <!-- JBoss Test Project -->
+      <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+
+      <!-- JUnit -->
+      <pathelement path="${location.dependencies.lib.junit:junit}" />
+
+      <!-- HSQL DB -->
+      <pathelement path="${location.dependencies.lib.hsqldb:hsqldb}" />
+
+      <!-- Root of jndi.properties -->
+      <pathelement location="${resources}/test" />
+    </path>
 
    <!-- The combined library classpath -->
    <path id="library.classpath">
@@ -4221,6 +4246,10 @@
 
          <jvmarg line="${jvmargs}" />
          <classpath>
+           
+           <path refid="test.client.classpath" />
+           
+           <!--
             <path refid="hibernate.hibernate.classpath"/>
             <pathelement location="${build.classes}"/>
             <path refid="${client.run.classpath}"/>
@@ -4244,17 +4273,17 @@
             <path refid="jboss.aop.classpath"/>
             <path refid="jboss.aspects.classpath"/>
             <path refid="jboss.jbossxb.classpath"/>
-         	<!-- for Corba -->
+         	 for Corba 
             <path refid="jboss.iiop.classpath"/>
          	<path refid="jacorb.jacorb.classpath"/>
          	<path refid="apache.avalon.classpath"/>
          	<path refid="apache.avalon.logkit.classpath"/>
 
-            <!-- EJBTHREE-485 needs javassist -->
+             EJBTHREE-485 needs javassist
             <path refid="javassist.classpath"/>
 
-            <!-- For clustered entities -->
-            <path refid="hsqldb.hsqldb.classpath"/>
+             For clustered entities 
+            <path refid="hsqldb.hsqldb.classpath"/> -->
          </classpath>
 
          <formatter type="plain" usefile="true"/>
