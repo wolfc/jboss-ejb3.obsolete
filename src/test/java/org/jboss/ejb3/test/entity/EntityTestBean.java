@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -305,5 +306,11 @@ public class EntityTestBean implements EntityTest
             && (session instanceof SessionImplementor)
             && (session instanceof EventSource)
             && (session instanceof JDBCContext.Context);
+   }
+   
+   @PostConstruct
+   public void construct()
+   {
+      manager.find(Customer.class, 1L);
    }
 }
