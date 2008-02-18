@@ -33,10 +33,10 @@
 
   <!-- Build Information -->
   <build>
-    
+
     <plugins>
-    
-        <!-- EJB3 TestRunner Configuration --> 
+
+      <!-- EJB3 TestRunner Configuration -->
       <plugin>
         <groupId>org.jboss.ejb3</groupId>
         <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
@@ -50,16 +50,16 @@
             <!-- <phase>integration-test</phase>  -->
             <phase>validate</phase>
             <configuration>
-                <jvmArgs>
-                  <jvmArg>-Xmx512M</jvmArg>
-                </jvmArgs>
-                <config>all</config>
+              <jvmArgs>
+                <jvmArg>-Xmx512M</jvmArg>
+              </jvmArgs>
+              <config>all</config>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
-      <!-- Antrun Plugin Configuration --> 
+      <!-- Integration Tests via Ant -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -69,13 +69,13 @@
             <goals>
               <goal>run</goal>
             </goals>
-            <phase>pre-integration-test</phase>
+            <phase>integration-test</phase>
             <configuration>
               <tasks>
 
                 <!-- Excute the Test Build -->
                 <ant antfile="build-test.xml" target="main" />
-              
+
               </tasks>
             </configuration>
           </execution>
@@ -88,7 +88,7 @@
         <version>2.2-beta-1</version>
         <executions>
           <execution>
-            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <id>make-assembly</id><!-- this is used for inheritance merges -->
             <phase>package</phase>
             <goals>
               <goal>attached</goal>
@@ -96,10 +96,10 @@
           </execution>
         </executions>
         <configuration>
-         <!-- JBoss EJB3 Client JAR -->
-         <descriptors>
-           <descriptor>jboss-ejb3-client.xml</descriptor>
-         </descriptors>
+          <!-- JBoss EJB3 Client JAR -->
+          <descriptors>
+            <descriptor>jboss-ejb3-client.xml</descriptor>
+          </descriptors>
         </configuration>
         <inherited>false</inherited>
       </plugin>
@@ -123,12 +123,12 @@
                   <groupId>org.jboss</groupId>
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
-              </artifactItems> 
+              </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
             </configuration>
           </execution>
-          
+
           <!--  Copy jboss-test JAR -->
           <execution>
             <id>copy-jboss-test</id>
@@ -142,13 +142,13 @@
                   <groupId>org.jboss</groupId>
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
-              </artifactItems> 
+              </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <stripVersion>true</stripVersion>
             </configuration>
           </execution>
-          
+
           <!-- Copy all dependencies -->
           <execution>
             <id>copy-core-dependencies</id>
@@ -166,7 +166,7 @@
 
         </executions>
       </plugin>
-      
+
       <!-- JAR the Tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -201,6 +201,11 @@
     <dependency>
       <groupId>ant</groupId>
       <artifactId>ant</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>ant</groupId>
+      <artifactId>ant-launcher</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
