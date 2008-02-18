@@ -31,4 +31,6 @@ public interface EntityTest
    Entity1 loadEntity1(Long id);
    Long persistEntity2(Entity2 entity2);
    Entity2 loadEntity2(Long id);
+   
+   void testSharedEntity();
 }

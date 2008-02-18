@@ -2548,7 +2548,7 @@
       </jar>
    </target>
 
-   <target name="persistenceunits"
+	<target name="persistenceunits"
       description="Builds all jar files."
       >
 
@@ -2556,7 +2556,7 @@
 
       <jar jarfile="${build.lib}/persistenceunits-test.jar">
          <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/persistenceunits/*.class"/>
+            <include name="org/jboss/ejb3/test/persistenceunits/Entity*.class"/>
          </fileset>
          <fileset dir="${resources}/test/persistenceunits">
             <include name="META-INF/persistence.xml"/>
@@ -2564,6 +2564,102 @@
             <include name="*.jar"/>
          </fileset>
       </jar>
+   	
+	  <jar jarfile="${build.lib}/persistenceunitscope.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/persistenceunits/Entity*.class"/>
+         </fileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+	        <include name="entity2-ds.xml"/>
+         </fileset>
+      </jar>
+	
+	  <jar jarfile="${build.lib}/persistenceunitscope1.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/persistenceunits/Entity1.class"/>
+	        <include name="org/jboss/ejb3/test/persistenceunits/Entity2.class"/>
+         </fileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+		    <include name="entity2-ds.xml"/>
+	     </fileset>
+		 <!--fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset-->
+      </jar>
+	
+	  <jar jarfile="${build.lib}/persistenceunitscope2.jar">
+         <fileset dir="${build.classes}">
+	        <include name="org/jboss/ejb3/test/persistenceunits/Entity1.class"/>
+		    <include name="org/jboss/ejb3/test/persistenceunits/Entity2.class"/>
+         </fileset>
+	     <!--fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset-->
+      </jar>
+	
+	  <jar jarfile="${build.lib}/persistenceunitscope-slsb.jar">
+         <fileset dir="${build.classes}">
+	        <include name="org/jboss/ejb3/test/persistenceunits/EntityTest*.class"/>
+         </fileset>
+	     <!--fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset-->
+      </jar>
+	
+	  <ear earfile="${build.lib}/persistenceunitscope-test.ear" appxml="${resources}/test/persistenceunits/application.xml">
+         <zipfileset dir="${build.lib}" prefix="lib">
+            <include name="persistenceunitscope.jar"/>
+         </zipfileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset>
+      </ear>
+   	
+   	  <ear earfile="${build.lib}/persistenceunitscope-test1.ear" appxml="${resources}/test/persistenceunits/application1.xml">
+         <zipfileset dir="${build.lib}" prefix="lib">
+            <include name="persistenceunitscope1.jar"/>
+	        <include name="persistenceunitscope-slsb.jar"/>
+         </zipfileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset>
+      </ear>
+	
+	  <ear earfile="${build.lib}/persistenceunitscope-test2.ear" appxml="${resources}/test/persistenceunits/application2.xml">
+         <zipfileset dir="${build.lib}" prefix="lib">
+            <include name="persistenceunitscope2.jar"/>
+	        <include name="persistenceunitscope-slsb.jar"/>
+         </zipfileset>
+	     <!--fileset dir="${resources}/test/persistenceunits">
+            <include name="META-INF/persistence.xml"/>
+         </fileset-->
+      </ear>
+   	
+   	  <jar jarfile="${build.lib}/persistenceunitsharedentity1.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/persistenceunits/Entity*.class"/>
+         </fileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+	        <include name="entity2-ds.xml"/>
+	        <include name="META-INF/persistence.xml"/>
+         </fileset>
+      </jar>
+	
+	  <jar jarfile="${build.lib}/persistenceunitsharedentity2.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/persistenceunits/Service*.class"/>
+         </fileset>
+	     <fileset dir="${resources}/test/persistenceunits">
+	        <include name="META-INF/persistence.xml"/>
+         </fileset>
+      </jar>
+	
+	  <ear earfile="${build.lib}/persistenceunitsharedentity-test.ear" appxml="${resources}/test/persistenceunits/sharedEntityApplication.xml">
+         <zipfileset dir="${build.lib}" prefix="lib">
+            <include name="persistenceunitsharedentity1.jar"/>
+			<include name="persistenceunitsharedentity2.jar"/>
+         </zipfileset>
+      </ear>
    </target>
 
    <target name="mdbtransactions"

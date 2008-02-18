@@ -19,50 +19,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.persistenceunits;
+package org.jboss.ejb3.test.persistenceunits.unit;
 
-import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.jboss.ejb3.test.persistenceunits.EntityTest;
+import org.jboss.ejb3.test.persistenceunits.ServiceRemote;
+
+import org.jboss.logging.Logger;
+import org.jboss.test.JBossTestCase;
+import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-@Entity
-@Table(name = "ENTITY1")
-@NamedQueries({
- @NamedQuery(name = "findAll", query = "from Entity1") 
- })
-public class Entity1 implements java.io.Serializable
+public class SharedEntityTestCase
+extends JBossTestCase
 {
-   public static final String FIND_ALL = "findAll";
-   
-   private Long id;
-   private String data;
+   private static final Logger log = Logger.getLogger(SharedEntityTestCase.class);
 
-   @Id
-   @GeneratedValue(strategy= GenerationType.IDENTITY)
-   public Long getId()
+   public SharedEntityTestCase(String name)
    {
-      return id;
+      super(name);
    }
 
-   public void setId(Long id)
+   public void testSharedEntity() throws Exception
    {
-      this.id = id;
+      EntityTest test = (EntityTest) getInitialContext().lookup("persistenceunitsharedentity-test/EntityTestBean/remote");
+      test.testSharedEntity();
+      
+      ServiceRemote service = (ServiceRemote) getInitialContext().lookup("persistenceunitsharedentity-test/ServiceBean/remote");
+      service.testSharedEntity();
    }
 
-   public String getData()
+   public static Test suite() throws Exception
    {
-      return data;
+      return getDeploySetup(SharedEntityTestCase.class, "persistenceunitsharedentity-test.ear");
    }
 
-   public void setData(String data)
-   {
-      this.data = data;
-   }
 }
