@@ -32,7 +32,7 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 @Remote(StatelessRemote.class)
-@Clustered(loadBalancePolicy = "org.jboss.ha.framework.interfaces.RandomRobin")
+@Clustered(loadBalancePolicy = "RandomRobin")
 public class StatelessBean implements StatelessRemote
 {
    private static final Logger log = Logger.getLogger(StatelessBean.class);
