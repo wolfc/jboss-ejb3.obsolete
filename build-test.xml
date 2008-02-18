@@ -4288,7 +4288,15 @@
 
          <formatter type="plain" usefile="true"/>
          <formatter type="xml" usefile="true"/>
-         <test name="${test}" todir="${build.reports}"/>
+         <batchtest todir="${build.reports}"
+                       haltonerror="false"
+                       haltonfailure="false"
+                       fork="true">
+
+                       <fileset dir="${build.classes}">
+                          <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
+                       </fileset>
+                    </batchtest>
       </junit>
    </target>
 
