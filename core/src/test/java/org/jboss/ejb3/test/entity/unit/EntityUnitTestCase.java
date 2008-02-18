@@ -213,6 +213,16 @@ extends JBossTestCase
       EntityTest test = (EntityTest) this.getInitialContext().lookup("EntityTestBean/remote");
       assertTrue( "Sesison object does not implement the private session interfaces", test.isTrueHibernateSession() );
    }
+   
+   public void testBadPU() throws Exception
+   {
+      try
+      {
+         EntityTest test = (EntityTest) this.getInitialContext().lookup("NoPUTestBean/remote");
+         fail("should not have deployed");
+      }
+      catch (javax.naming.NameNotFoundException e){}
+   }
 
    public static Test suite() throws Exception
    {
