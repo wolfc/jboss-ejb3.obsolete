@@ -1986,6 +1986,20 @@
          </fileset>
       </copy>
    </target>
+	
+   <target name="epcpropagation"
+      description="Builds all jar files."
+      >
+
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/epcpropagation-test.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/epcpropagation/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/epcpropagation"/>
+      </jar>
+   </target>
 
    <target name="ejbthree959"
       description="Builds a simple jar files."
@@ -3968,6 +3982,7 @@
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1155, ejbthree1157, jaxws, jbas4489,
+	  epcpropagation,
       aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
@@ -5023,6 +5038,9 @@
    </target>
 
    <target name="no-start-jboss-entity-tests" depends="init" description="Execute all tests">
+	  <antcall target="test" inheritRefs="true">
+         <param name="test" value="epcpropagation"/>
+      </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="regression/ejbthree440"/>
       </antcall>
