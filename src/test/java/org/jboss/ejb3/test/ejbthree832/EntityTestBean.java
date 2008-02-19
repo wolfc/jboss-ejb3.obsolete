@@ -36,16 +36,20 @@ public class EntityTestBean implements EntityTest
 {
    @PersistenceContext
    private EntityManager em;
-   
+
    /* (non-Javadoc)
     * @see org.jboss.ejb3.test.ejbthree832.EntityTest#test1()
     */
    public void test1()
    {
+      long id = 0;
+
       Person person = new Person("Emmanuel");
+      person.setId(++id);
       em.persist(person);
-      
+
       person = new Person("Gavin");
+      person.setId(++id);
       em.persist(person);
    }
 }
