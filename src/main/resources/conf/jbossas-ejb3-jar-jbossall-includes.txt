@@ -26,3 +26,6 @@ jboss-deployers-core.jar
 jboss-deployers-core-spi.jar
 jboss-deployers-client.jar
 jboss-deployers-client-spi.jar
+jboss-metadata.jar
+trove.jar
+javassist.jar
