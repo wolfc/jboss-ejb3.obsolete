@@ -22,6 +22,8 @@
 
   <!-- Configuration -->
   <property name="jboss.client" value="${jboss.home}/client" />
+  <!-- REMOVE: EJBTHREE-1194 -->
+  <property name="jboss.lib" value="${jboss.home}/lib" />
   <property name="installer.client" value="${installer.home}/client" />
   <property name="installer.lib" value="${installer.home}/lib" />
   <property name="installer.deploy" value="${installer.home}/deploy" />
@@ -37,6 +39,8 @@
   <property name="file.jbossas.patterns.deploy.includes" value="conf/jbossas-ejb3-patterns-to-unjar-for-deploy.txt" />
   <property name="file.jbossas.deployer.ejb3.includes" value="conf/jbossas-ejb3-files-to-place-in-ejb3-deployer.txt" />
   <property name="file.jbossas.jbossall.includes" value="conf/jbossas-ejb3-jar-jbossall-includes.txt" />
+  <!-- REMOVE: EJBTHREE-1194 -->
+  <property name="file.jbossas.jbossall.includeslib" value="conf/jbossas-ejb3-jar-jbossall-includeslib.txt" />
   <property name="file.jbossas.jbossall.excludes" value="conf/jbossas-ejb3-jar-jbossall-excludes.txt" />
   <property name="file.jbossas.ejb3client.includes" value="conf/jbossas-ejb3-jar-ejb3client-includes.txt" />
 
@@ -263,6 +267,13 @@
       <fileset dir="${jboss.client}">
         <includesfile name="${file.jbossas.jbossall.includes}" />
         <excludesfile name="${file.jbossas.jbossall.excludes}" />
+      </fileset>
+    </unjar>
+    
+    <!-- REMOVE: EJBTHREE-1194 -->
+    <unjar dest="${installer.client}">
+      <fileset dir="${jboss.lib}">
+        <includesfile name="${file.jbossas.jbossall.includeslib}" />
       </fileset>
     </unjar>
 
