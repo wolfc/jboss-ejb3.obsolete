@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.remoting;
 
+import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
+
 import java.util.Map;
 
 /**
@@ -33,7 +35,9 @@ public class RemoteProxyFactoryRegistry
 {
    // Instance Members
    private Map<String, Class<? extends RemoteProxyFactory>> factories;
-
+   
+   private Map<String, Class<LoadBalancePolicy>> loadBalancePolicies;
+  
    // Accessors / Mutators
 
    public Map<String, Class<? extends RemoteProxyFactory>> getFactories()
@@ -44,6 +48,16 @@ public class RemoteProxyFactoryRegistry
    public void setFactories(Map<String, Class<? extends RemoteProxyFactory>> factories)
    {
       this.factories = factories;
+   }
+   
+   public Map<String, Class<LoadBalancePolicy>> getLoadBalancePolicies()
+   {
+      return loadBalancePolicies;
+   }
+
+   public void setLoadBalancePolicies(Map<String, Class<LoadBalancePolicy>> loadBalancePolicies)
+   {
+      this.loadBalancePolicies = loadBalancePolicies;
    }
 
    // Functional Methods
@@ -68,6 +82,23 @@ public class RemoteProxyFactoryRegistry
       
       // Return 
       return proxyFactory;
+
+   }
+   
+   public Class<LoadBalancePolicy> getLoadBalancePolicy(String name) throws LoadBalancePolicyNotRegisteredException
+   {
+      // Obtain cache factory
+      Class<LoadBalancePolicy> loadBalancePolicy = this.loadBalancePolicies.get(name);
+
+      // Ensure registered
+      if (loadBalancePolicy == null)
+      {
+         throw new LoadBalancePolicyNotRegisteredException("LoadBalancePolicy with name " + name
+               + " is not registered.");
+      }
+      
+      // Return 
+      return loadBalancePolicy;
 
    }
 }
