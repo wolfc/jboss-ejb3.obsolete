@@ -109,7 +109,7 @@
    <property name="ejb3.jboss.jvmargs" value="-Xmx512m -Djava.net.preferIPv4Stack=true"/>
 
    <macrodef name="wait-on-host">
-      <attribute name="seconds" default="${jboss.startup.timeout}"/>
+      <attribute name="seconds" default="180"/>
       <attribute name="host" default="${node0}"/>
       <sequential>
          <echo>Waiting for @{host} to start (max wait @{seconds} seconds)...</echo>
@@ -122,7 +122,7 @@
    </macrodef>
 
    <macrodef name="wait-on-shutdown">
-      <attribute name="seconds" default="120"/>
+      <attribute name="seconds" default="180"/>
       <attribute name="conf"/>
       <sequential>
          <echo message="Waiting for '@{conf}' server to stop..."/>
