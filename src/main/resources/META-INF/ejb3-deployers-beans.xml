@@ -232,6 +232,27 @@
             </entry>            
          </map>
       </property>
+      <property name="loadBalancePolicies">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- RoundRobin -->
+            <entry>
+               <key>RoundRobin</key>
+               <value>org.jboss.ha.client.loadbalance.RoundRobin</value>
+            </entry>
+            <!-- RandomRobin -->
+            <entry>
+               <key>RandomRobin</key>
+               <value>org.jboss.ha.client.loadbalance.RandomRobin</value>
+            </entry>
+            <!-- FirstAvailable -->
+            <entry>
+               <key>FirstAvailable</key>
+               <value>org.jboss.ha.client.loadbalance.FirstAvailable</value>
+            </entry>
+         </map>
+      </property>
    </bean>
    
    <!-- EJB3 Persistence Manager Factory Registry -->

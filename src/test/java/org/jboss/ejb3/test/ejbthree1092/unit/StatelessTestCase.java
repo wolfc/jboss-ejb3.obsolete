@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.ejbthree1092.unit;
 
 import org.jboss.ejb3.test.ejbthree1092.StatelessRemote;
+import org.jboss.ejb3.test.ejbthree1092.StatefulRemote;
 
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
@@ -39,7 +40,7 @@ public class StatelessTestCase extends JBossTestCase
       super(name);
    }
  
-   public void testLoadBalanceOverride() throws Exception
+   public void testStatelessLoadBalanceOverride() throws Exception
    {
       StatelessRemote stateless = (StatelessRemote) getInitialContext().lookup("StatelessBean/remote");
       assertNotNull(stateless);
@@ -47,6 +48,18 @@ public class StatelessTestCase extends JBossTestCase
       for(int i = 0 ; i < 20 ; ++i)
       {
          stateless.test(i);
+         Thread.sleep(500);
+      }
+   }
+   
+   public void testStatefulLoadBalanceOverride() throws Exception
+   {
+      StatefulRemote stateful = (StatefulRemote) getInitialContext().lookup("StatefulBean/remote");
+      assertNotNull(stateful);
+      
+      for(int i = 0 ; i < 20 ; ++i)
+      {
+         stateful.test(i);
          Thread.sleep(500);
       }
    }

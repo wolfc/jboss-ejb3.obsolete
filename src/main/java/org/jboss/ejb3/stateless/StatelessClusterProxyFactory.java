@@ -32,7 +32,9 @@ import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
+import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.client.loadbalance.RandomRobin;
@@ -93,15 +95,27 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       HAPartition partition = (HAPartition) getContainer().getInitialContext().lookup("/HAPartition/" + partitionName);
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
-      ((StatelessContainer) getContainer()).getClusterFamilies().put(proxyFamilyName, hatarget);
+      StatelessContainer container = (StatelessContainer) getContainer();
+      
+      container.getClusterFamilies().put(proxyFamilyName, hatarget);
+      
       if (clustered.loadBalancePolicy() == null || clustered.loadBalancePolicy().equals(LoadBalancePolicy.class))
       {
          lbPolicy = new RandomRobin();
       }
       else
       {
-         lbPolicy = (LoadBalancePolicy) Thread.currentThread().getContextClassLoader().loadClass(
-               clustered.loadBalancePolicy()).newInstance();
+         String policyClass = clustered.loadBalancePolicy();
+         try
+         {
+            RemoteProxyFactoryRegistry registry = container.getDeployment().getRemoteProxyFactoryRegistry();
+            Class<LoadBalancePolicy> policy = registry.getLoadBalancePolicy(policyClass);
+            policyClass = policy.getName();
+         }
+         catch (LoadBalancePolicyNotRegisteredException e){}
+         
+         lbPolicy = (LoadBalancePolicy)Thread.currentThread().getContextClassLoader().loadClass(policyClass)
+               .newInstance();
       }
       wrapper = new FamilyWrapper(proxyFamilyName, hatarget.getReplicants());
       
