@@ -111,9 +111,9 @@
     <version.jboss.remoting />
     <version.junit_junit>4.4</version.junit_junit>
     <version.org.hibernate_ejb3-persistence>3.3.2.Beta1</version.org.hibernate_ejb3-persistence>
-    <version.org.hibernate_hibernate>3.2.4.sp1</version.org.hibernate_hibernate>
-    <version.org.hibernate_hibernate-annotations>3.3.0.ga</version.org.hibernate_hibernate-annotations>
-    <version.org.hibernate_hibernate-entitymanager>3.3.2.Beta1</version.org.hibernate_hibernate-entitymanager>
+    <version.hibernate_hibernate3>3.2.r14201-1</version.hibernate_hibernate3>
+    <version.hibernate-annotations_hibernate-annotations>3.3.0.GA</version.hibernate-annotations_hibernate-annotations>
+    <version.hibernate-entitymanager_hibernate-entitymanager>3.3.1.GA</version.hibernate-entitymanager_hibernate-entitymanager>
     <version.org.jboss_jboss-common-core>2.2.1.GA</version.org.jboss_jboss-common-core>
     <version.org.jboss_jboss-metadata>1.0.0.Beta4</version.org.jboss_jboss-metadata>
     <version.org.jboss_jboss-transaction-spi>5.0.0.Beta4</version.org.jboss_jboss-transaction-spi>
@@ -348,19 +348,19 @@
 
       <!-- Hibernate -->
       <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate</artifactId>
-        <version>${version.org.hibernate_hibernate}</version>
+        <groupId>hibernate</groupId>
+        <artifactId>hibernate3</artifactId>
+        <version>${version.hibernate_hibernate3}</version>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>hibernate-annotations</groupId>
         <artifactId>hibernate-annotations</artifactId>
-        <version>${version.org.hibernate_hibernate-annotations}</version>
+        <version>${version.hibernate-annotations_hibernate-annotations}</version>
       </dependency>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>hibernate-entitymanager</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
-        <version>${version.org.hibernate_hibernate-entitymanager}</version>
+        <version>${version.hibernate-entitymanager_hibernate-entitymanager}</version>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
