@@ -63,7 +63,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 123 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://127.0.0.1:3873");
+         assertEquals(proxyUri, "socket://127.0.0.1:3873/");
       }
 
       {
@@ -72,7 +72,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 456 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://127.0.0.1:3874");
+         assertEquals(proxyUri, "socket://127.0.0.1:3874/");
       }
       
       {
