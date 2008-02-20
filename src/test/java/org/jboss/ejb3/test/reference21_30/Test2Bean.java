@@ -41,31 +41,12 @@ implements javax.ejb.SessionBean
    {
       InitialContext jndiContext = new InitialContext();
       
-      lookup(jndiContext, "");
-      lookup(jndiContext, "java:comp");
-      lookup(jndiContext, "java:comp/env");
-      lookup(jndiContext, "java:comp/env/ejb");
-     
       Test3 session = (Test3)jndiContext.lookup("java:comp/env/ejb/Test3");
       session.testAccess();
      
       Test3Home home = (Test3Home)jndiContext.lookup("java:comp/env/ejb/Test3Home");
       session = home.create();
       session.testAccess();
-   }
-   
-   private void lookup(InitialContext jndiContext, String name)
-   {
-      log.info("!!!!!lookup " + name);
-      try {
-         NamingEnumeration names = jndiContext.list(name);
-         if (names != null){
-            while (names.hasMore()){
-               log.info("  " + names.next());
-            }
-         }
-      } catch (Exception e){
-      }
    }
    
    public void ejbCreate()
