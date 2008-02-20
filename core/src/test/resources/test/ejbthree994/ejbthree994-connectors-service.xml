@@ -15,5 +15,16 @@
          </handlers>
       </attribute>
    </mbean>
+   
+   <mbean code="org.jboss.remoting.transport.Connector"
+          name="jboss.remoting.test:type=Connector,name=Ejbthree994TestEjb3Connector,handler=ejb3">
+      <attribute name="InvokerLocator">socket://${jboss.bind.address}:3875</attribute>
+      <attribute name="Configuration">
+         <handlers>
+            <handler subsystem="AOP">org.jboss.aspects.remoting.AOPRemotingInvocationHandler</handler>
+         </handlers>
+      </attribute>
+   </mbean>
+   
 
 </server>
