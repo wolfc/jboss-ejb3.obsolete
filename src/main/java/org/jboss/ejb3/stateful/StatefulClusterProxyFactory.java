@@ -37,6 +37,7 @@ import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
 import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
@@ -107,7 +108,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       SessionContainer container = (SessionContainer) getContainer();
       container.getClusterFamilies().put(proxyFamilyName, hatarget);
       
-      if (clustered.loadBalancePolicy() == null || clustered.loadBalancePolicy().equals(LoadBalancePolicy.class))
+      if (clustered.loadBalancePolicy() == null || clustered.loadBalancePolicy().equals(ClusteredDefaults.LOAD_BALANCE_POLICY_DEFAULT))
       {
          lbPolicy = new FirstAvailable();
       }
