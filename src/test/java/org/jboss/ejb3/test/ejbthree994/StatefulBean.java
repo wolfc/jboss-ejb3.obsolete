@@ -34,7 +34,8 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 @Stateful
 @RemoteBindings({
    @RemoteBinding(clientBindUrl="socket://0.0.0.0:3873", jndiBinding="Stateful3873"),
-   @RemoteBinding(clientBindUrl="socket://0.0.0.0:3874", jndiBinding="Stateful3874")
+   @RemoteBinding(clientBindUrl="socket://0.0.0.0:3874", jndiBinding="Stateful3874"),
+   @RemoteBinding(invokerName="jboss.remoting.test:type=Connector,name=Ejbthree994TestEjb3Connector,handler=ejb3", jndiBinding="Stateful3875")
 })
 @Remote(BusinessInterface.class)
 public class StatefulBean implements BusinessInterface
