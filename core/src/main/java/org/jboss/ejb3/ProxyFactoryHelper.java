@@ -778,7 +778,7 @@ public class ProxyFactoryHelper
       String clientBindUrl = binding.clientBindUrl();
       if (clientBindUrl.trim().length() == 0)
       {
-         if (binding.invokerName().trim().length() != 0)
+         if (binding.invokerName()!=null && binding.invokerName().trim().length() != 0)
          {
             try
             {
