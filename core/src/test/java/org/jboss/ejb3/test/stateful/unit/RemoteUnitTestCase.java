@@ -38,7 +38,6 @@ import org.jboss.ejb3.test.stateful.ConcurrentStateful;
 import org.jboss.ejb3.test.stateful.Entity;
 import org.jboss.ejb3.test.stateful.EntityFacade;
 import org.jboss.ejb3.test.stateful.ExtendedState;
-import org.jboss.ejb3.test.stateful.ProxyFactoryInterface;
 import org.jboss.ejb3.test.stateful.RemoteBindingInterceptor;
 import org.jboss.ejb3.test.stateful.ServiceRemote;
 import org.jboss.ejb3.test.stateful.SmallCacheStateful;
@@ -172,7 +171,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestSmallCache() throws Exception
+   public void testSmallCache() throws Exception
    {
       ConcurrentInvocation[] threads = new ConcurrentInvocation[5];
       for (int i = 0; i < 5; i++) threads[i] = new ConcurrentInvocation(i);
@@ -189,7 +188,7 @@ extends JBossTestCase
    
    
 
-   public void atestStatefulSynchronization() throws Exception
+   public void testStatefulSynchronization() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -199,7 +198,7 @@ extends JBossTestCase
 
    }
    
-   public void atestEJBObject() throws Exception
+   public void testEJBObject() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -212,7 +211,7 @@ extends JBossTestCase
       assertNotNull(stateful);
    }
    
-   public void atestStatefulTx() throws Exception
+   public void testStatefulTx() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -237,7 +236,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestTemplateInterfaceTx() throws Exception
+   public void testTemplateInterfaceTx() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -255,7 +254,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestLocalSFSB() throws Exception
+   public void testLocalSFSB() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -275,7 +274,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestNotSerialableSFSB() throws Exception
+   public void testNotSerialableSFSB() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -287,7 +286,7 @@ extends JBossTestCase
       assertEquals("state", state);
    }
    
-   public void atestSFSBInit() throws Exception
+   public void testSFSBInit() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -301,7 +300,7 @@ extends JBossTestCase
       assertEquals("Extended_init", s);
    }
    
-   public void atestStackTrace() throws Exception
+   public void testStackTrace() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -321,7 +320,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestExceptionCase() throws Exception
+   public void testExceptionCase() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -342,7 +341,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestRemoteBindingInterceptorStack() throws Exception
+   public void testRemoteBindingInterceptorStack() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -353,7 +352,7 @@ extends JBossTestCase
       assertTrue(RemoteBindingInterceptor.accessed);
    }
 
-   public void atestUninstantiatedPassivation() throws Exception
+   public void testUninstantiatedPassivation() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -370,7 +369,7 @@ extends JBossTestCase
       stateful.testStateful();
    }
    
-   public void atestExtendedPersistencePassivation() throws Exception
+   public void testExtendedPersistencePassivation() throws Exception
    {
       EntityFacade stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
       Entity entity = null;
@@ -424,7 +423,7 @@ extends JBossTestCase
       System.out.println("maxConnectionsInUseCount \n" + maxConnectionsInUseCount); 
    }
    
-   public void atestTimeoutRemoval() throws Exception
+   public void testTimeoutRemoval() throws Exception
    {
       StatefulTimeout sfsb = (StatefulTimeout)getInitialContext().lookup("StatefulTimeoutBean/remote");
       sfsb.test();
@@ -451,7 +450,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestClusteredTimeoutRemoval() throws Exception
+   public void testClusteredTimeoutRemoval() throws Exception
    {
       StatefulTimeout sfsb = (StatefulTimeout)getInitialContext().lookup("StatefulClusteredTimeoutBean/remote");
       sfsb.test();
@@ -478,7 +477,7 @@ extends JBossTestCase
       }
    }
    
-   public void atestConcurrentClusteredTimeoutRemoval() throws Exception
+   public void testConcurrentClusteredTimeoutRemoval() throws Exception
    {
       int numThreads = 100;
       ConcurrentStatefulTimeoutClient[] clients = new ConcurrentStatefulTimeoutClient[numThreads];
@@ -516,7 +515,7 @@ extends JBossTestCase
       assertEquals(0, size);
    }
 
-   public void atestPassivation() throws Exception
+   public void testPassivation() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -557,7 +556,7 @@ extends JBossTestCase
       service.testInjection();
    }
    
-   public void atestClusteredPassivation() throws Exception
+   public void testClusteredPassivation() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -599,7 +598,7 @@ extends JBossTestCase
    }
 
    
-   public void atestRemove() throws Exception
+   public void testRemove() throws Exception
    {
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
@@ -621,14 +620,14 @@ extends JBossTestCase
       }
    }
 
-   public void atestRemoveWithRollback() throws Exception
+   public void testRemoveWithRollback() throws Exception
    {
       Tester test = (Tester) getInitialContext().lookup("TesterBean/remote");
       test.testRollback1();
       test.testRollback2();
    }
    
-   public void atestConcurrentAccess() throws Exception
+   public void testConcurrentAccess() throws Exception
    {
       ConcurrentStateful stateful = (ConcurrentStateful) new InitialContext().lookup("ConcurrentStateful");
       stateful.getState();
@@ -677,7 +676,7 @@ extends JBossTestCase
       assertTrue(wasConcurrentException);
    }
    
-   public void atestOverrideConcurrentAccess() throws Exception
+   public void testOverrideConcurrentAccess() throws Exception
    {
       ConcurrentStateful stateful = (ConcurrentStateful) new InitialContext().lookup("OverrideConcurrentStateful");
       stateful.getState();
@@ -705,7 +704,7 @@ extends JBossTestCase
       assertTrue(wasConcurrentException);
    }
    
-   public void atestJmxName() throws Exception
+   public void testJmxName() throws Exception
    {
       ObjectName deployment = new ObjectName("test.ejb3:name=Bill,service=EJB3");
 
@@ -714,7 +713,7 @@ extends JBossTestCase
       kernel.invoke(deployment, "start", new Object[0], new String[0]);
    }
    
-   public void atestDestroyException() throws Exception
+   public void testDestroyException() throws Exception
    {
       EntityFacade stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
       assertNotNull(stateful);
@@ -756,7 +755,7 @@ extends JBossTestCase
       */
    }
       
-   public void atestDestroyExceptionWithTx() throws Exception
+   public void testDestroyExceptionWithTx() throws Exception
    {
       EntityFacade stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
       assertNotNull(stateful);
