@@ -778,15 +778,33 @@ public class ProxyFactoryHelper
       String clientBindUrl = binding.clientBindUrl();
       if (clientBindUrl.trim().length() == 0)
       {
-         ObjectName connectionON = new ObjectName("jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
-         KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
-         try
+         if (binding.invokerName().trim().length() != 0)
          {
-            clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
+            try
+            {
+               ObjectName connectionON = new ObjectName(binding.invokerName());
+               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
+            }
+            catch (Exception e)
+            {
+               log.warn("Unable to find InvokerLocator " + binding.invokerName() + ". Using default. " + e);
+               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+            }
          }
-         catch (Exception e)
+         else
          {
-            clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+            try
+            {
+               ObjectName connectionON = new ObjectName("jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
+               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
+            }
+            catch (Exception e)
+            {
+               log.warn("Unable to find default InvokerLocator. Using default. " + e);
+               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+            }
          }
       }
       else if (clientBindUrl.indexOf("0.0.0.0") != -1)
