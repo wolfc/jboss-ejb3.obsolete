@@ -67,7 +67,7 @@ public class GlobalReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
  
-      Session30 session = (Session30) jndiContext.lookup("GlobalSession30Remote");
+      Session30RemoteBusiness session = (Session30RemoteBusiness) jndiContext.lookup("GlobalSession30Remote");
       String access = session.access();
       assertEquals("Session30", access);
       access = session.globalAccess21();

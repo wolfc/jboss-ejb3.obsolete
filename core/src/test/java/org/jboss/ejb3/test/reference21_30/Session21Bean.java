@@ -46,32 +46,12 @@ public class Session21Bean implements javax.ejb.SessionBean
       try {
          InitialContext jndiContext = new InitialContext();
          
-         lookup(jndiContext, "");
-         lookup(jndiContext, "Session30");
-         lookup(jndiContext, "java:comp");
-         lookup(jndiContext, "java:comp/env");
-         
-         
          Session30 session = (Session30)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/Session30");
          return session.access();
       } catch (Exception e)
       {
          e.printStackTrace();
          return null;
-      }
-   }
-   
-   private void lookup(InitialContext jndiContext, String name)
-   {
-      log.info("!!!!!lookup " + name);
-      try {
-         NamingEnumeration names = jndiContext.list(name);
-         if (names != null){
-            while (names.hasMore()){
-               log.info("  " + names.next());
-            }
-         }
-      } catch (Exception e){
       }
    }
    
