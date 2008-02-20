@@ -30,7 +30,9 @@ import javax.naming.InitialContext;
 
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.logging.Logger;
 
 /**
