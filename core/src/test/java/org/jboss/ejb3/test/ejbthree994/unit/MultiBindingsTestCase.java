@@ -74,6 +74,16 @@ public class MultiBindingsTestCase extends JBossTestCase
          String proxyUri = getProxyUri(bean);
          assertEquals(proxyUri, "socket://127.0.0.1:3874");
       }
+      
+      {
+         BusinessInterface bean = (BusinessInterface) getInitialContext().lookup("Stateful3875");
+         String actual = bean.echo("789");
+         assertEquals(actual, "*** 789 ***");
+         
+         String proxyUri = getProxyUri(bean);
+         assertEquals(proxyUri, "socket://127.0.0.1:3875/");
+      }
+
    }
    
    public static Test suite() throws Exception
