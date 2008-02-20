@@ -40,6 +40,8 @@ public class RemoteBindingImpl implements RemoteBinding
    private String stack;
 
    private String bindUrl;
+   
+   private String invokerName;
 
    private String proxyFactory;
 
@@ -50,6 +52,7 @@ public class RemoteBindingImpl implements RemoteBinding
       jndi = "";
       stack = "";
       bindUrl = "";
+      invokerName = "";
       proxyFactory = RemoteBindingDefaults.PROXY_FACTORY_DEFAULT;
 
       this.constructionPoint = Debugger.constructionPoint();
@@ -64,6 +67,18 @@ public class RemoteBindingImpl implements RemoteBinding
 
       this.constructionPoint = Debugger.constructionPoint();
    }
+   
+   public RemoteBindingImpl(String jndi, String stack, String bindUrl, String invokerName, String proxyFactory)
+   {
+      this.jndi = jndi;
+      this.stack = stack;
+      this.bindUrl = bindUrl;
+      this.invokerName = invokerName;
+      this.proxyFactory = proxyFactory;
+
+      this.constructionPoint = Debugger.constructionPoint();
+   }
+
 
    public void setStack(String stack)
    {
@@ -78,6 +93,11 @@ public class RemoteBindingImpl implements RemoteBinding
    public void setJndiBinding(String jndi)
    {
       this.jndi = jndi;
+   }
+   
+   public void setInvokerName(String invokerName)
+   {
+      this.invokerName = invokerName;
    }
 
    public void setBindUrl(String bindUrl)
@@ -98,6 +118,11 @@ public class RemoteBindingImpl implements RemoteBinding
    public String clientBindUrl()
    {
       return bindUrl;
+   }
+   
+   public String invokerName()
+   {
+      return invokerName;
    }
 
    public String factory()
