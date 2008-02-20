@@ -223,15 +223,15 @@
       <artifactId>ejb3-persistence</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
+      <groupId>hibernate</groupId>
+      <artifactId>hibernate3</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>hibernate-annotations</groupId>
       <artifactId>hibernate-annotations</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
+      <groupId>hibernate-entitymanager</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
     <dependency>
