@@ -11,11 +11,11 @@
          <jndi-name>Test2</jndi-name>
          <ejb-ref>
 		    <ejb-ref-name>ejb/Test3Home</ejb-ref-name>
-		    <jndi-name>Test3Home</jndi-name>
+		    <jndi-name>Test3/home</jndi-name>
 		 </ejb-ref>
          <ejb-ref>
             <ejb-ref-name>ejb/Test3</ejb-ref-name>
-            <jndi-name>Test3</jndi-name>
+            <jndi-name>Test3Remote</jndi-name>
          </ejb-ref>
       </session>
    </enterprise-beans>

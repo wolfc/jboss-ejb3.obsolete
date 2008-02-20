@@ -8,7 +8,7 @@
    <enterprise-beans>
       <session>
          <ejb-name>Session21</ejb-name>
-         <jndi-name>Session21</jndi-name>
+         <jndi-name>Session21Remote</jndi-name>
       </session>
       <session>
          <ejb-name>Session30</ejb-name>

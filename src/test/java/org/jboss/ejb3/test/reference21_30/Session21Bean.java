@@ -23,6 +23,8 @@ package org.jboss.ejb3.test.reference21_30;
 
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
+
 import org.jboss.ejb3.Container;
 import org.jboss.logging.Logger;
 
@@ -43,6 +45,13 @@ public class Session21Bean implements javax.ejb.SessionBean
    {
       try {
          InitialContext jndiContext = new InitialContext();
+         
+         lookup(jndiContext, "");
+         lookup(jndiContext, "Session30");
+         lookup(jndiContext, "java:comp");
+         lookup(jndiContext, "java:comp/env");
+         
+         
          Session30 session = (Session30)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/Session30");
          return session.access();
       } catch (Exception e)
@@ -52,11 +61,25 @@ public class Session21Bean implements javax.ejb.SessionBean
       }
    }
    
+   private void lookup(InitialContext jndiContext, String name)
+   {
+      log.info("!!!!!lookup " + name);
+      try {
+         NamingEnumeration names = jndiContext.list(name);
+         if (names != null){
+            while (names.hasMore()){
+               log.info("  " + names.next());
+            }
+         }
+      } catch (Exception e){
+      }
+   }
+   
    public String globalAccess30()
    {
       try {
          InitialContext jndiContext = new InitialContext();
-         Session30 session = (Session30)jndiContext.lookup("GlobalSession30Remote");
+         Session30RemoteBusiness session = (Session30RemoteBusiness)jndiContext.lookup("GlobalSession30Remote");
          return session.access();
       } catch (Exception e)
       {
