@@ -12,6 +12,13 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>3</version>
+  </parent>
+  
   <!-- Artifact Configuration -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss.ejb3</groupId>
@@ -120,5 +127,15 @@
     </dependency>
 
   </dependencies>
+
+  <!-- Distribution Management -->
+  <distributionManagement>
+    <snapshotRepository>
+      <id>snapshots.jboss.org</id>
+      <name>JBoss Snapshot Repository</name>
+      <url>dav:https://snapshots.jboss.org/maven2</url>
+    </snapshotRepository>
+
+  </distributionManagement>
 
 </project>
