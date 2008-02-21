@@ -98,6 +98,12 @@
   <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
     
+  <!-- EJB3 Internal Artifacts -->
+  <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
+  <property name="artifact.ejb3.extapi" value="${location.dependencies.lib}/jboss-ejb3-ext-api.jar"/>
+  <property name="artifact.ejb3.extapiimpl" value="${location.dependencies.lib}/jboss-ejb3-ext-api-impl.jar"/>
+  <property name="artifact.ejb3.core" value="${location.target}/jboss-ejb3-core.jar"/>
+    
   <!-- Define the Path to Server Task Definitions, used by the JBoss Server Run targets -->
   <path id="server.taskdef.classpath">  
      <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}"/>
@@ -156,31 +162,65 @@
    <!-- Libraries -->
    <!-- ========= -->
   
-    <!--
+  <!--
+
+  Classpath used by the Test Client
+
+  -->
+  <path id="client.classpath">
+
+    <!-- JBoss Client Binaries -->
+    <pathelement path="${location.client.lib.jbossall}" />
+
+  </path>
+  
+  <!--
+  
+  Path to EJB3 Internals
+  
+  -->
+  <path id="internals.path">
+  
+    <!-- EJB3 Cache -->
+    <pathelement path="${artifact.ejb3.cache}" />
+     
+    <!-- EJB3 Core -->
+    <pathelement path="${artifact.ejb3.core}" />
     
-    Classpath used by the Test Client
+  </path>
     
-    -->
-    <path id="test.client.classpath">
-      <!-- JBoss Client Binaries -->
-      <pathelement path="${location.client.lib.jbossall}" />
+  <!--
+  
+  Classpath used by Unit Tests
+  
+  -->
+  <path id="test.classpath">
+    
+    <!-- Client -->
+    <path refid="client.classpath" />
+    
+    <!-- EJB3 Internals -->
+    <path refid="internals.path" />
 
-      <!-- EJB3 TestSuite -->
-      <pathelement path="${location.artifact.tests}" />
+    <!-- EJB3 TestSuite -->
+    <pathelement path="${location.artifact.tests}" />
 
-      <!-- JBoss Test Project -->
-      <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+    <!-- JBoss Test Project -->
+    <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
 
-      <!-- JUnit -->
-      <pathelement path="${location.dependencies.lib.junit:junit}" />
+    <!-- JUnit -->
+    <pathelement path="${location.dependencies.lib.junit:junit}" />
 
-      <!-- HSQL DB -->
-      <pathelement path="${location.dependencies.lib.hsqldb:hsqldb}" />
+    <!-- HSQL DB -->
+    <pathelement path="${location.dependencies.lib.hsqldb:hsqldb}" />
 
-      <!-- Root of jndi.properties -->
-      <pathelement location="${resources}/test" />
-    </path>
-
+    <!-- Root of jndi.properties -->
+    <pathelement location="${resources}/test" />
+    
+  </path>
+  
+  
+  
    <!-- The combined library classpath -->
    <path id="library.classpath">
       <path refid="sun.jaf.classpath"/>
@@ -318,10 +358,10 @@
       <path refid="thirdparty.classpath"/>
    </path>
 
-   <path id="client.classpath">
+     <!--<path id="client.classpath">
       <pathelement path="${jboss.dist}/client/jbossall-client.jar"/>
       
-      <!-- FIXME - shouldn't these be in jbossall-client.jar???? -->
+       FIXME - shouldn't these be in jbossall-client.jar????
       <path refid="apache.codec.classpath"/>
       <path refid="apache.log4j.classpath"/>
       <path refid="apache.logging.classpath"/>
@@ -332,10 +372,10 @@
       <path refid="jboss.microcontainer.classpath"/>
       <path refid="jboss.metadata.classpath"/>
 
-      <!-- FIXME For cache passivation test -->
+      - FIXME For cache passivation test -
       <path refid="jboss.cache.classpath"/>
       <path refid="jboss.cluster.classpath"/>
-   </path>
+   </path> -->
 
    <!-- The "security" test needs JaasSecurityManagerServiceMBean -->
    <path id="security.client.classpath">
@@ -4112,25 +4152,10 @@
 
          <classpath>
            
-           <!-- JBoss Client Binaries -->
-           <pathelement path="${location.client.lib.jbossall}" />
+           <path refid="test.classpath" />
            
-           <!-- EJB3 TestSuite -->
-           <pathelement path="${location.artifact.tests}" />
-           
-           <!-- JBoss Test Project -->
-           <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
-           
-           <!-- JUnit -->
-           <pathelement path="${location.dependencies.lib.junit:junit}" />
-           
-           <!-- HSQL DB -->
-           <pathelement path="${location.dependencies.lib.hsqldb:hsqldb}" />
-           
-           <!-- Root of jndi.properties -->
-           <pathelement location="${resources}/test"/>
-           
-            <!-- <path refid="hibernate.hibernate.classpath"/> 
+            <!-- 
+            <path refid="hibernate.hibernate.classpath"/> 
             <pathelement location="${build.classes}"/>
             <path refid="${client.run.classpath}"/>
             <pathelement location="${resources}/test"/>
@@ -4247,7 +4272,7 @@
          <jvmarg line="${jvmargs}" />
          <classpath>
            
-           <path refid="test.client.classpath" />
+           <path refid="test.classpath" />
            
            <!--
             <path refid="hibernate.hibernate.classpath"/>
