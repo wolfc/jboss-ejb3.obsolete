@@ -2422,7 +2422,7 @@
 	     <include name="META-INF/persistence.xml"/>
          </fileset>
       </jar>
-      <jar jarfile="${build.lib}/hbm2-test.par">
+      <jar jarfile="${build.lib}/hbm2-test.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/hbm/HBM2.class"/>
          </fileset>
