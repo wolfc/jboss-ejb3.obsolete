@@ -71,7 +71,8 @@ public class RemoteProducerFactory extends ProducerFactory
 
       ProducerManagerImpl mImpl = null;
 
-      mImpl = new ProducerManagerImpl(pImpl, dest, factory, props.delivery(), props.timeToLive(), props.priority(), methodMap, initialContextProperties);
+      mImpl = new ProducerManagerImpl(dest, factory, props.delivery(), props.timeToLive(), props.priority(), methodMap,
+            initialContextProperties, pImpl.transacted(), pImpl.acknowledgeMode());
 
       Interceptor[] interceptors = {mImpl};
       ProducerProxy ih = new ProducerProxy(mImpl, interceptors);

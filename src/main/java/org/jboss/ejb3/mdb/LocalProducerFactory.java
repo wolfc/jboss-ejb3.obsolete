@@ -61,7 +61,8 @@ public class LocalProducerFactory extends ProducerFactory
 
       ProducerManagerImpl mImpl = null;
 
-      mImpl = new ProducerManagerImpl(pImpl, dest, factoryName, props.delivery(), props.timeToLive(), props.priority(), methodMap, initialContextProperties);
+      mImpl = new ProducerManagerImpl(dest, factoryName, props.delivery(), props.timeToLive(), props.priority(),
+            methodMap, initialContextProperties, pImpl.transacted(), pImpl.acknowledgeMode());
 
       Interceptor[] interceptors = {mImpl};
       ProducerProxy ih = new ProducerProxy(mImpl, interceptors);
