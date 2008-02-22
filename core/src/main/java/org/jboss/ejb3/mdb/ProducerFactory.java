@@ -77,22 +77,22 @@ public abstract class ProducerFactory implements ProxyFactory
 
 
       methodMap = new HashMap();
-      Method[] methods = producer.getMethods();
-      for (int i = 0 ; i < methods.length ; ++i)
-      {
-         MessageProperties mProps = (MessageProperties)methods[i].getAnnotation(MessageProperties.class);
-         if (mProps != null)
-         {
-            try
-            {
-               methodMap.put(new Long(MethodHashing.methodHash(methods[i])), new MessagePropertiesImpl(mProps));
-            }
-            catch (Exception e)
-            {
-               throw new RuntimeException(e);
-            }
-         }
-      }
+//      Method[] methods = producer.getMethods();
+//      for (int i = 0 ; i < methods.length ; ++i)
+//      {
+//         MessageProperties mProps = (MessageProperties)methods[i].getAnnotation(MessageProperties.class);
+//         if (mProps != null)
+//         {
+//            try
+//            {
+//               methodMap.put(new Long(MethodHashing.methodHash(methods[i])), new MessagePropertiesImpl(mProps));
+//            }
+//            catch (Exception e)
+//            {
+//               throw new RuntimeException(e);
+//            }
+//         }
+//      }
   
       Producer p = (Producer) producer.getAnnotation(Producer.class);
       if (p == null)

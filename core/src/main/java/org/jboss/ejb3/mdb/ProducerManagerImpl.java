@@ -45,7 +45,6 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.annotation.DeliveryMode;
 import org.jboss.ejb3.annotation.MessageProperties;
-import org.jboss.ejb3.annotation.Producer;
 import org.jboss.logging.Logger;
 
 /**
@@ -62,7 +61,6 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
    private static final int PERSISTENT = javax.jms.DeliveryMode.PERSISTENT;
    private static final int NON_PERSISTENT = javax.jms.DeliveryMode.NON_PERSISTENT;
    
-   protected Producer producer;
    protected Destination destination;
    protected String factoryLookup;
 
@@ -79,10 +77,12 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
    protected transient String password;
    protected transient InitialContext initialContext;
    protected Hashtable initialContextProperties;
+   
+   protected boolean transacted;
+   protected int acknowledgeMode;
 
    public void writeExternal(ObjectOutput out) throws IOException
    {
-      out.writeObject(producer);
       out.writeObject(destination);
       out.writeObject(factoryLookup);
       out.writeInt(deliveryMode);
@@ -94,13 +94,14 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
       {
          out.writeObject(factory);
       }
+      out.writeBoolean(this.transacted);
+      out.writeInt(this.acknowledgeMode);
    }
 
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
-      producer = (Producer) in.readObject();
       destination = (Destination) in.readObject();
-      factoryLookup = (String) in.readObject();
+      factoryLookup = (String) in.readObject(); 
       deliveryMode = in.readInt();
       timeToLive = in.readInt();
       priority = in.readInt();
@@ -129,40 +130,31 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
       {
          factory = (ConnectionFactory) in.readObject();
       }
+      this.transacted = in.readBoolean();
+      this.acknowledgeMode = in.readInt();
    }
 
-   public ProducerManagerImpl(Producer producer, Destination destination, ConnectionFactory factory, DeliveryMode deliveryMode, int timeToLive, int priority, HashMap methodMap, Hashtable initialContextProperties)
+   public ProducerManagerImpl(Destination destination, ConnectionFactory factory, DeliveryMode deliveryMode,
+         int timeToLive, int priority, HashMap methodMap, Hashtable initialContextProperties, boolean transacted,
+         int acknowledgeMode)
    {
-      this.initialContextProperties = initialContextProperties;
-      try
-      {
-         this.initialContext = InitialContextFactory.getInitialContext(initialContextProperties);
-      }
-      catch (NamingException e)
-      {
-         throw new RuntimeException(e);
-      }
-      this.producer = producer;
-      this.destination = destination;
+      this.init(destination, deliveryMode, timeToLive, priority, methodMap, initialContextProperties, transacted,
+            acknowledgeMode);
       this.factory = factory;
-      
-      int mode = deliveryMode.ordinal();
-      switch (mode)
-      {
-         case PERSISTENT:
-            this.deliveryMode = javax.jms.DeliveryMode.PERSISTENT;
-            break;
-         case NON_PERSISTENT:
-            this.deliveryMode = javax.jms.DeliveryMode.NON_PERSISTENT;
-            break;
-      }
-      this.timeToLive = timeToLive;
-      this.priority = priority;
-      this.methodMap = methodMap;
    }
 
-   public ProducerManagerImpl(Producer producer, Destination destination, String factory, DeliveryMode deliveryMode, int timeToLive, int priority, HashMap methodMap, Hashtable initialContextProperties)
+   public ProducerManagerImpl(Destination destination, String factory, DeliveryMode deliveryMode, int timeToLive,
+         int priority, HashMap methodMap, Hashtable initialContextProperties, boolean transacted, int acknowledgeMode)
    {
+      this.init(destination, deliveryMode, timeToLive, priority, methodMap, initialContextProperties, transacted,
+            acknowledgeMode);
+      this.factoryLookup = factory;
+   }
+
+   private void init(Destination destination, DeliveryMode deliveryMode, int timeToLive, int priority,
+         HashMap methodMap, Hashtable initialContextProperties, boolean transacted, int acknowledgeMode)
+   {
+
       this.initialContextProperties = initialContextProperties;
       try
       {
@@ -172,23 +164,23 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
       {
          throw new RuntimeException(e);
       }
-      this.producer = producer;
       this.destination = destination;
-      this.factoryLookup = factory;
-      
+
       int mode = deliveryMode.ordinal();
       switch (mode)
       {
-         case PERSISTENT:
+         case PERSISTENT :
             this.deliveryMode = javax.jms.DeliveryMode.PERSISTENT;
             break;
-         case NON_PERSISTENT:
+         case NON_PERSISTENT :
             this.deliveryMode = javax.jms.DeliveryMode.NON_PERSISTENT;
             break;
       }
       this.timeToLive = timeToLive;
       this.priority = priority;
       this.methodMap = methodMap;
+      this.transacted = transacted;
+      this.acknowledgeMode = acknowledgeMode;
    }
 
 
@@ -228,7 +220,7 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
       {
          connection = factory.createConnection();
       }
-      session = connection.createSession(producer.transacted(), producer.acknowledgeMode());
+      session = connection.createSession(this.transacted, this.acknowledgeMode);
       msgProducer = session.createProducer(destination);
       msgProducer.setDeliveryMode(deliveryMode);
       msgProducer.setTimeToLive(timeToLive);
@@ -267,17 +259,17 @@ public class ProducerManagerImpl implements ProducerManager, Externalizable, Int
          throw new RuntimeException("You must call connect() on the producer.  The JMS session has not been set");
       }
       ObjectMessage msg = session.createObjectMessage((Serializable) invocation);
-      MethodInvocation mi = (MethodInvocation) invocation;
-      MessageProperties props = (MessageProperties)methodMap.get(new Long(mi.getMethodHash()));
-      if (props != null)
-      {
-         int del = (props.delivery() == DeliveryMode.PERSISTENT) ? javax.jms.DeliveryMode.PERSISTENT : javax.jms.DeliveryMode.NON_PERSISTENT;
-         msgProducer.send(msg, del, props.priority(), props.timeToLive());
-      }
-      else
-      {
-         msgProducer.send(msg);
-      }
+//      MethodInvocation mi = (MethodInvocation) invocation;
+//      MessageProperties props = (MessageProperties)methodMap.get(new Long(mi.getMethodHash()));
+//      if (props != null)
+//      {
+//         int del = (props.delivery() == DeliveryMode.PERSISTENT) ? javax.jms.DeliveryMode.PERSISTENT : javax.jms.DeliveryMode.NON_PERSISTENT;
+         msgProducer.send(msg, this.deliveryMode, this.priority, this.timeToLive);
+//      }
+//      else
+//      {
+//         msgProducer.send(msg);
+//      }
       return null;
    }
 }
