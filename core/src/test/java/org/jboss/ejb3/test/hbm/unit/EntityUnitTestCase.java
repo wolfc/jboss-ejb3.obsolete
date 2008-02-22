@@ -64,7 +64,7 @@ extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(EntityUnitTestCase.class, "hbm2-test.par, hbm-test.jar");
+      return getDeploySetup(EntityUnitTestCase.class, "hbm2-test.jar, hbm-test.jar");
    }
 
 }
