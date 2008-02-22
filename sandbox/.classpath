@@ -4,6 +4,5 @@
 	<classpathentry kind="src" output="eclipse-target/tests-classes" path="src/test/java"/>
 	<classpathentry excluding="**/*.java" kind="src" output="eclipse-target/tests-classes" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="output" path="eclipse-target/classes"/>
 </classpath>
