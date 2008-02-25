@@ -25,7 +25,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javassist.CtClass;
 import javassist.CtConstructor;
@@ -63,8 +65,12 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository
    /** The log */
    private static final Logger log = Logger.getLogger(AnnotationRepositoryToMetaData.class);
    
+   private static final String CLASS_ANNOTATION = "CLASS";
+   
    /** The metadata */
    private MetaData metaData;
+   
+   protected ConcurrentHashMap<Object, Object> disabledAnnotations = new ConcurrentHashMap<Object, Object>();;
    
    /** The mutable metadata */
    private MemoryMetaDataLoader mutableMetaData;
@@ -219,12 +225,26 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository
 
    public void disableAnnotation(Member m, String annotation)
    {
-      log.warn("Not implemented: disableAnnotation(" + m + ", " + annotation + ")");
+      ConcurrentHashMap<String, String> disabledClassAnnotations = (ConcurrentHashMap<String, String>)disabledAnnotations.get(m);
+      if (disabledClassAnnotations == null)
+      {
+         disabledClassAnnotations = new ConcurrentHashMap<String, String>();
+         disabledAnnotations.put(m, disabledClassAnnotations);
+      }
+      
+      disabledClassAnnotations.put(annotation, annotation);
    }
 
    public void disableAnnotation(String annotation)
    {
-      log.warn("Not implemented: disableAnnotation(" + annotation + ")");
+      ConcurrentHashMap<String, String> disabledClassAnnotations = (ConcurrentHashMap<String, String>)disabledAnnotations.get(CLASS_ANNOTATION);
+      if (disabledClassAnnotations == null)
+      {
+         disabledClassAnnotations = new ConcurrentHashMap<String, String>();
+         disabledAnnotations.put(CLASS_ANNOTATION, disabledClassAnnotations);
+      }
+      
+      disabledClassAnnotations.put(annotation, annotation);
    }
 
    public void enableAnnotation(String annotation)
@@ -290,16 +310,34 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository
 
    public boolean isDisabled(Class annotation)
    {
+      ConcurrentHashMap<String, String> disabledClassAnnotations = (ConcurrentHashMap<String, String>)disabledAnnotations.get(CLASS_ANNOTATION);
+      if (disabledClassAnnotations != null)
+      {
+         return disabledClassAnnotations.get(annotation.getName()) != null;
+      }
+      
       return false;
    }
 
    public boolean isDisabled(Member m, Class annotation)
    {
+      ConcurrentHashMap<String, String> disabledClassAnnotations = (ConcurrentHashMap<String, String>)disabledAnnotations.get(CLASS_ANNOTATION);
+      if (disabledClassAnnotations != null)
+      {
+         return disabledClassAnnotations.get(annotation.getName()) != null;
+      }
+      
       return false;
    }
 
    public boolean isDisabled(Member m, String annotation)
    {
+      ConcurrentHashMap<String, String> disabledClassAnnotations = (ConcurrentHashMap<String, String>)disabledAnnotations.get(CLASS_ANNOTATION);
+      if (disabledClassAnnotations != null)
+      {
+         return disabledClassAnnotations.get(annotation) != null;
+      }
+      
       return false;
    }
 
