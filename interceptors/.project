@@ -2,7 +2,9 @@
   <name>jboss-ejb3-interceptors</name>
   <comment>The JBoss EJB 3 Interceptors component implements all functionality
     specified in Chapter 12 (Interceptors) of the EJB 3 specification.</comment>
-  <projects/>
+  <projects>
+    <project>jboss-ejb3-metadata</project>
+  </projects>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>

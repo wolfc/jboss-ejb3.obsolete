@@ -1,6 +1,6 @@
 <projectDescription>
   <name>jboss-ejb3-locator</name>
-  <comment>JBoss EJB 3 Client-Side Service Locator</comment>
+  <comment>JBoss EJB 3.0 Client-Side Service Locator</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
