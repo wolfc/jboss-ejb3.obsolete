@@ -24,8 +24,7 @@ package org.jboss.ejb3;
 import javax.security.jacc.PolicyConfiguration;
 
 import org.jboss.deployment.DeploymentInfo;
-import org.jboss.ejb3.javaee.JavaEEComponent;
-import org.jboss.ejb3.security.JaccHelper;
+import org.jboss.ejb3.javaee.JavaEEComponent; 
 import org.jboss.logging.Logger;
 
 /**
@@ -53,21 +52,12 @@ public class Ejb3JmxDeployment extends Ejb3Deployment
 
    protected PolicyConfiguration createPolicyConfiguration() throws Exception
    {
-      return JaccHelper.initialiseJacc(getJaccContextId());
-
+	   throw new IllegalStateException("This method should not be called"); 	   
    }
 
    protected void putJaccInService(PolicyConfiguration pc, DeploymentUnit unit)
    {
-      try
-      {
-         JaccHelper.putJaccInService(pc, deploymentInfo);
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-
+	   throw new IllegalStateException("This method should not be called"); 
    }
 
    public DependencyPolicy createDependencyPolicy(JavaEEComponent component)

@@ -119,9 +119,6 @@ public abstract class Ejb3Deployment implements JavaEEModule
 
    protected MessageDestinationResolver messageDestinationResolver;
 
-   //The JACC PolicyConfiguration
-   PolicyConfiguration pc;
-
    public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData,
          Ejb3Deployer deployer)
    {
@@ -373,7 +370,7 @@ public abstract class Ejb3Deployment implements JavaEEModule
       {
          long start = System.currentTimeMillis();
 
-         pc = createPolicyConfiguration();
+         //pc = createPolicyConfiguration();
 
          deploy();
 
@@ -413,7 +410,7 @@ public abstract class Ejb3Deployment implements JavaEEModule
             registerEJBContainer(con);
          }
 
-         putJaccInService(pc, unit);
+         //putJaccInService(pc, unit);
       }
       catch (Exception ex)
       {

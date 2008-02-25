@@ -77,8 +77,7 @@ import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
-import org.jboss.ejb3.pool.PoolFactoryRegistry;
-import org.jboss.ejb3.security.JaccHelper;
+import org.jboss.ejb3.pool.PoolFactoryRegistry; 
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
@@ -765,8 +764,6 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       if (pool != null) pool.setInjectors(injectors2);
 
       createCallbackHandler();
-
-      JaccHelper.configureContainer(jaccContextId, this);
       
       // If we're clustered, find our partition name
       findPartitionName();
