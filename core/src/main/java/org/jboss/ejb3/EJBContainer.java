@@ -351,6 +351,11 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return businessInterfaces;
    }
       
+   public String getDeploymentQualifiedName()
+   {
+      return objectName.getCanonicalName();
+   }
+   
    /**
     * Returns a String identifier for this bean that is qualified by the
     * deployment, and hence should be unique across deployments. Name is of the 
@@ -358,9 +363,9 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
     * returned by {@link #getEjbName()}. The "ear=foo.ear" portion is ommitted 
     * if the bean is not packaged in an ear.
     */
-   public String getDeploymentQualifiedName()
+   public String getDeploymentPropertyListString()
    {
-      return objectName.getCanonicalName();
+      return objectName.getCanonicalKeyPropertyListString();
    }
    
    public DeploymentUnit getDeploymentUnit()
