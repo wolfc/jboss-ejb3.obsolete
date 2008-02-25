@@ -328,7 +328,7 @@
    <property name="build.ejb3.lib" value="${module.output}/lib"/>
    <property name="build.api" value="${module.output}/api"/>
    <property name="build.etc" value="${module.output}/etc"/>
-   <property name="build.stylesheets" value="${module.output}/stylesheets"/>
+   <property name="build.stylesheets" value="${location.dependencies.unpacked.jboss-test:jboss.test}/stylesheets"/>
    <!-- build.resources is needed for the test-configs directory used by the create-config macro -->
    <property name="build.resources" value="${module.source}/test/resources"/>
 
