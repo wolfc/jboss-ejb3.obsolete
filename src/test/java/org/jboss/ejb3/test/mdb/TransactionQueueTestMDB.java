@@ -25,6 +25,8 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.jboss.ejb3.annotation.Pool;
 import org.jboss.ejb3.annotation.TransactionTimeout;
@@ -38,11 +40,10 @@ import org.jboss.logging.Logger;
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Queue"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="queue/transactionmdbtest"),
         @ActivationConfigProperty(propertyName="maxSession", propertyValue="1"),
-        @ActivationConfigProperty(propertyName="DLQMaxResent", propertyValue="1")
+        @ActivationConfigProperty(propertyName="DLQMaxResent", propertyValue="1"),
+        @ActivationConfigProperty(propertyName="transactionTimeout", propertyValue="1")
         })
-@TransactionTimeout(1)
-// Not allowed on a MDB
-//@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) // if we specify a tx timeout, we must start the tx
+@TransactionAttribute(TransactionAttributeType.REQUIRED) 
 @Pool(value="StrictMaxPool", maxSize=1, timeout=10000)
 public class TransactionQueueTestMDB implements MessageListener
 {
@@ -54,8 +55,7 @@ public class TransactionQueueTestMDB implements MessageListener
       
       try
       {
-    	  //Thread.sleep(1000 * 60 * 6);
-         Thread.sleep(1000 * 10);
+         Thread.sleep(1000 * 3);
       } 
       catch (InterruptedException e)
       {
