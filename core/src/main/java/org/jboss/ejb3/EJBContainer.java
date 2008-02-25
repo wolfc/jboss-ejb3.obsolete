@@ -1128,6 +1128,9 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    @SuppressWarnings("unchecked")
    public <T extends Annotation> T getAnnotation(Class<T> annotationType)
    {
+      if (this.getAnnotations().isDisabled(annotationType))
+         return null;
+      
       return (T) resolveAnnotation(annotationType);
    }
    
@@ -1151,6 +1154,9 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Method method)
    {
+      if (this.getAnnotations().isDisabled(method, annotationType))
+         return null;
+      
       return (T) resolveAnnotation(method, annotationType);
    }
 

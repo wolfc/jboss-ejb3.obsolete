@@ -62,8 +62,8 @@ public class StatefulInstanceInterceptor implements Interceptor
       StatefulContainer container = (StatefulContainer) ejb.getAdvisor();
       StatefulBeanContext target = container.getCache().get(id);
 
-      boolean block = container.resolveAnnotation(SerializedConcurrentAccess.class) != null;
-
+      boolean block = container.getAnnotation(SerializedConcurrentAccess.class) != null;
+      
       if (block)
       {
          target.getLock().lockInterruptibly();
