@@ -30,8 +30,7 @@ import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.MCKernelAbstraction;
 import org.jboss.ejb3.javaee.JavaEEComponent;
-import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
-import org.jboss.ejb3.security.JaccHelper;
+import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData; 
 import org.jboss.kernel.Kernel;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -61,19 +60,12 @@ public class Ejb3JBoss5Deployment extends Ejb3Deployment
 
    protected PolicyConfiguration createPolicyConfiguration() throws Exception
    {
-      return JaccHelper.initialiseJacc(getJaccContextId());
+	   throw new IllegalStateException("This method should not be called"); 
    }
 
    protected void putJaccInService(PolicyConfiguration pc, DeploymentUnit ejb3Unit)
    {
-      try
-      {
-         JaccHelper.putJaccInService(pc, jbossUnit);
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+	   throw new IllegalStateException("This method should not be called"); 
    }
 
    public DependencyPolicy createDependencyPolicy(JavaEEComponent component)
