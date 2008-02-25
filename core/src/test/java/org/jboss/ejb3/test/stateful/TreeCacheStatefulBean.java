@@ -63,7 +63,7 @@ import org.jboss.serial.io.JBossObjectOutputStream;
 @Cache("StatefulTreeCache")
 public class TreeCacheStatefulBean implements org.jboss.ejb3.test.stateful.Stateful
 {
-   private static final Logger log = Logger.getLogger(StatefulBean.class);
+   private static final Logger log = Logger.getLogger(TreeCacheStatefulBean.class);
 
    @Resource
    private SessionContext sessionContext;
