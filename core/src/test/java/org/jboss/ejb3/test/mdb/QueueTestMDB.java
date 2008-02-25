@@ -52,7 +52,7 @@ import org.jboss.logging.Logger;
         })
 @Pool(value="StrictMaxPool", maxSize=1, timeout=10000)
 @RunAs("TestRole")
-@SecurityDomain(value="other",unauthenticatedPrincipal="nobody")
+@SecurityDomain(value="other",unauthenticatedPrincipal="user")
 public class QueueTestMDB implements MessageListener
 {
    private static final Logger log = Logger.getLogger(QueueTestMDB.class);

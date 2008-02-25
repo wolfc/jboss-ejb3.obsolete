@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
+import javax.jms.MessageConsumer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
@@ -382,7 +383,7 @@ public class MDBUnitTestCase extends JBossTestCase
       
       sender.send(message, DeliveryMode.NON_PERSISTENT, 4, 1);
 
-      Thread.sleep(2000);
+      Thread.sleep(1000 * 5);
 
       assertSize(session, queue, 0);
       
@@ -417,6 +418,7 @@ public class MDBUnitTestCase extends JBossTestCase
       QueueConnectionFactory factory = getQueueConnectionFactory();
       connection = factory.createQueueConnection();
       connection.start();
+      
       session = connection.createQueueSession(false,
             QueueSession.AUTO_ACKNOWLEDGE);
 
@@ -426,6 +428,7 @@ public class MDBUnitTestCase extends JBossTestCase
       Queue dlq = (Queue) getInitialContext().lookup("queue/DLQ");
 
       removeAllMessagesFromDLQ();
+      assertSize(session, dlq, 0);
 
       TextMessage message = session.createTextMessage();
       message.setStringProperty("foo", "bar");
@@ -435,13 +438,13 @@ public class MDBUnitTestCase extends JBossTestCase
 
       sender.send(message);
 
-      Thread.sleep(1000);
+      Thread.sleep(1000 * 10);
 
       assertSize(session, queue, 0);
       assertSize(session, dlq, 1);
 
-      QueueReceiver receiver = session.createReceiver(dlq);
-      message = (TextMessage) receiver.receiveNoWait();
+      MessageConsumer receiver = session.createConsumer(dlq);
+      message = (TextMessage) receiver.receive(1000); //.receiveNoWait();
       assertNotNull(message);
       // AS 4.x
 //      assertEquals("QUEUE.dlqtest", message
@@ -537,11 +540,11 @@ public class MDBUnitTestCase extends JBossTestCase
 
       assertSize(session, queue, 0);
       
-      /* TODO: await implementation of JBMESSAGING-126
+      /* TODO: await implementation of JBMESSAGING-126 
       assertSize(session, dlq, 1);
 
       QueueReceiver receiver = session.createReceiver(dlq);
-      message = (TextMessage) receiver.receiveNoWait();
+      TextMessage message = (TextMessage) receiver.receiveNoWait();
       assertNotNull(message);
       assertEquals("QUEUE.expirytest", message
             .getStringProperty("JBOSS_ORIG_DESTINATION"));
@@ -551,8 +554,8 @@ public class MDBUnitTestCase extends JBossTestCase
       assertEquals("bar", message.getStringProperty("foo"));
       assertNull(message.getStringProperty("null"));
       
-      receiver.close();
-       */
+      receiver.close();*/
+       
       sender.close();
       
       session.close();
@@ -560,6 +563,7 @@ public class MDBUnitTestCase extends JBossTestCase
       
       // the second message should never have arrived, so the bean ran once
       assertEquals(1, status.expirationQueueRan());
+    
    }
 
    public void testCMTTxNotSupported() throws Exception
@@ -585,6 +589,7 @@ public class MDBUnitTestCase extends JBossTestCase
 
       Thread.sleep(2000);
       assertEquals(1, status.queueFired());
+      
    }
    
    public void testTransactionTimeout() throws Exception
@@ -608,17 +613,17 @@ public class MDBUnitTestCase extends JBossTestCase
       
       sender.send(msg);
       session.commit();
-
-      Thread.sleep(1000 * 60 * 7);
-      assertEquals(1, status.transactionQueueRan());
       
+      Thread.sleep(1000 * 20);
+      assertEquals(2, status.transactionQueueRan());
+        
       msg = session.createTextMessage("Hello World II");
       sender.send(msg);
       session.commit();
-      
-      Thread.sleep(1000 * 60 * 7);
-      assertEquals(2, status.transactionQueueRan());
-      
+       
+      Thread.sleep(1000 * 20);
+      assertEquals(4, status.transactionQueueRan());
+       
       session.close();
       cnn.close();
    }
@@ -631,7 +636,7 @@ public class MDBUnitTestCase extends JBossTestCase
       List messages = CollectionsUtil.list(e);
 
       browser.close();
-
+      
       return messages;
    }
 
