@@ -114,7 +114,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-server/5.0.0-SNAPSHOT/jboss-as-server-5.0.0-SNAPSHOT.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-security/5.0.0.Beta4/jboss-as-security-5.0.0.Beta4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/security/identity-impl/2.0.2.Beta4/identity-impl-2.0.2.Beta4.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-naming/5.0.0.Beta4/jboss-as-naming-5.0.0.Beta4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-jms-api/1.1.0.Beta3Update1/jboss-jms-api-1.1.0.Beta3Update1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jboss/jbossws/jboss-saaj/1.0.4.GA/jboss-saaj-1.0.4.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jpl-util/jpl-util/1.0/jpl-util-1.0.jar"/>
@@ -127,5 +126,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jboss-corba-ots-spi/5.0.0.Beta4/jboss-corba-ots-spi-5.0.0.Beta4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jacorb/jacorb/2.3.0jboss.patch4-brew/jacorb-2.3.0jboss.patch4-brew.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-server/5.0.0-SNAPSHOT/jboss-as-server-5.0.0-SNAPSHOT-client.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/jnpserver/5.0.0.Beta4/jnpserver-5.0.0.Beta4.jar" sourcepath="/M2_REPO/org/jboss/jnpserver/5.0.0.Beta4/jnpserver-5.0.0.Beta4-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

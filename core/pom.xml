@@ -252,6 +252,10 @@
       <version>2.0.0.Beta8</version>
     </dependency>
     <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jnpserver</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop</artifactId>
     </dependency>
@@ -323,10 +327,6 @@
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-iiop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-naming</artifactId>
     </dependency>
     <dependency>
        <groupId>org.jboss.jbossas</groupId>
