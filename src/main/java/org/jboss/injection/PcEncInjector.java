@@ -29,7 +29,7 @@ import org.jboss.ejb3.entity.TransactionScopedEntityManager;
 import org.jboss.ejb3.entity.hibernate.ExtendedSessionInvocationHandler;
 import org.jboss.ejb3.entity.hibernate.TransactionScopedSessionInvocationHandler;
 import org.jboss.ejb3.stateful.StatefulContainer;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 import org.hibernate.Session;
 
 import javax.persistence.PersistenceContextType;

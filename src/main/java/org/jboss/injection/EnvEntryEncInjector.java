@@ -22,7 +22,7 @@
 package org.jboss.injection;
 
 import org.jboss.logging.Logger;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * Comment

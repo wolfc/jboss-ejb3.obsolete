@@ -49,7 +49,7 @@ import org.jboss.ha.framework.interfaces.DistributedReplicantManager;
 import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 import org.jboss.remoting.InvokerLocator;
 
 

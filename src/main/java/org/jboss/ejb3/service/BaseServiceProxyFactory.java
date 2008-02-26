@@ -28,7 +28,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.ProxyFactory;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>

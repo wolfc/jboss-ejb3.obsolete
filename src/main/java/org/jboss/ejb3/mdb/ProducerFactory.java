@@ -44,7 +44,7 @@ import org.jboss.ejb3.annotation.Producers;
 import org.jboss.ejb3.annotation.impl.MessagePropertiesImpl;
 import org.jboss.ejb3.annotation.impl.ProducerImpl;
 import org.jboss.logging.Logger;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * comment

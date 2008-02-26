@@ -32,7 +32,7 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * A utility class that allows one to bind a non-serializable object into a

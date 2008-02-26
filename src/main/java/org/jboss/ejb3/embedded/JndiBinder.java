@@ -27,7 +27,7 @@ import javax.naming.NamingException;
 
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.NonSerializableFactory;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * Comment

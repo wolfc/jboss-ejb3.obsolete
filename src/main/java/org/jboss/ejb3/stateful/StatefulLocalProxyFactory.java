@@ -40,7 +40,7 @@ import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.session.SessionContainer;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 
 /**

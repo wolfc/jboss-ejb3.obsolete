@@ -44,7 +44,7 @@ import org.jboss.ejb3.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.logging.Logger;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 import org.jboss.remoting.InvokerLocator;
 
 /**
