@@ -42,7 +42,7 @@ import org.jboss.ejb3.MCKernelAbstraction;
 import org.jboss.ejb3.clientmodule.ClientENCInjectionContainer;
 import org.jboss.kernel.Kernel;
 import org.jboss.metadata.client.jboss.JBossClientMetaData;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 import org.jboss.virtual.VFSUtils;
 import org.jboss.virtual.VirtualFile;
 

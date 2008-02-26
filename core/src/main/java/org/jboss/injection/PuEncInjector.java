@@ -21,7 +21,7 @@
  */
 package org.jboss.injection;
 
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 import javax.naming.NameNotFoundException;
 

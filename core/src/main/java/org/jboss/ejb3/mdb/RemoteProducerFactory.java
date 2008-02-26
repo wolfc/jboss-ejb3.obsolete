@@ -35,7 +35,7 @@ import org.jboss.ejb3.Container;
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.annotation.MessageProperties;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 
 /**
  * comment

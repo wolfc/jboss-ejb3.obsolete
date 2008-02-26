@@ -99,7 +99,7 @@ import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
 import org.jboss.metadata.javaee.spec.ServiceReferenceMetaData;
-import org.jboss.naming.Util;
+import org.jboss.util.naming.Util;
 import org.jboss.util.StringPropertyReplacer;
 import org.jboss.virtual.VirtualFile;
 
