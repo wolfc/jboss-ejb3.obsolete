@@ -131,7 +131,6 @@
     <version.org.jboss.jbossas_jboss-as-aspects>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-aspects>
     <version.org.jboss.jbossas_jboss-as-connector>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-connector>
     <version.org.jboss.jbossas_jboss-as-iiop>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-iiop>
-    <version.org.jboss.jbossas_jboss-as-naming>5.0.0.Beta4</version.org.jboss.jbossas_jboss-as-naming>
     <version.org.jboss_jnpserver>5.0.0.Beta4</version.org.jboss_jnpserver>
     <version.org.jboss.microcontainer_jboss-container>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-container>
     <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-deployers-core-spi>
@@ -514,13 +513,6 @@
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-deployers-vfs-spi</artifactId>
         <version>${version.org.jboss.microcontainer_jboss-deployers-vfs-spi}</version>
-      </dependency>
-
-      <!-- JBoss Naming -->
-      <dependency>
-        <groupId>org.jboss.jbossas</groupId>
-        <artifactId>jboss-as-naming</artifactId>
-        <version>${version.org.jboss.jbossas_jboss-as-naming}</version>
       </dependency>
 
       <!-- JBoss Security SPI -->
