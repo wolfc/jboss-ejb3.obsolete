@@ -4,12 +4,9 @@ import junit.framework.Test;
 import org.jboss.ejb3.test.regression.ejbthree440.model.MyResource;
 import org.jboss.ejb3.test.regression.ejbthree440.session.i.IInheritanceDemo;
 import org.jboss.test.JBossTestCase;
-import org.jnp.interfaces.NamingContextFactory;
 
 import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
-import java.util.Properties;
 import org.jboss.serial.io.MarshalledObject;
 
 
