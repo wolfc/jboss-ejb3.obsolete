@@ -142,7 +142,6 @@ public class JndiDemandMetaData extends JBossObject
          catch(NameNotFoundException e)
          {
             // ignore
-            System.out.println("ALR");
          }
          catch(Throwable ignored)
          {
@@ -154,7 +153,6 @@ public class JndiDemandMetaData extends JBossObject
             Thread.currentThread().setContextClassLoader(tcl);            
          }
          setResolved(false);
-         System.out.println("RESOLVED");
          return isResolved();
       }
       
