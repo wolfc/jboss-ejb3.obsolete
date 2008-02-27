@@ -22,14 +22,14 @@
 package org.jboss.ejb3.test.service;
 
 
+import java.util.ArrayList;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.system.ServiceMBeanSupport;
-
-import javax.naming.InitialContext;
-
-import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Comment
@@ -39,8 +39,8 @@ import java.util.ArrayList;
  */
 public class Tester extends ServiceMBeanSupport implements TesterMBean
 {
-   public static ArrayList creates = new ArrayList();
-   public static ArrayList starts = new ArrayList();
+   public static ArrayList<String> creates = new ArrayList<String>();
+   public static ArrayList<String> starts = new ArrayList<String>();
    
    public void testLocalServiceWithInterfaceAnnotation() throws Exception
    {
@@ -102,7 +102,8 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
       
       SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
       SecurityAssociation.setCredential("password".toCharArray());
-      final InitialContext ctx = new InitialContext();
+      final Context ctx = new InitialContext();
+      
       ServiceOneLocal test = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
       test.setLocalMethodCalls(0);
 
@@ -117,12 +118,12 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
                   {
                      try
                      {
-                        ServiceOneLocal test = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
+                        ServiceOneLocal test1 = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
                         for (int j = 0 ; j < count ; j++)
                         {
                            String s = outer + "_" + j;
                            //System.out.println(s);
-                           test.localMethod(s);
+                           test1.localMethod(s);
                         }
                      }
                      catch(Exception e)
@@ -173,14 +174,14 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
       if (!test.getCalled()) throw new RuntimeException("Called should be true, not " + test.getCalled());
    }
 
-   public ArrayList getCreates()
+   public ArrayList<String> getCreates()
    {
-      return creates;
+      return Tester.creates;
    }
 
-   public ArrayList getStarts()
+   public ArrayList<String> getStarts()
    {
-      return starts;
+      return Tester.starts;
    }
 
 }

@@ -35,6 +35,6 @@ public interface TesterMBean extends ServiceMBean
    void testServiceWithLocalBinding() throws Exception;
    void testDeploymentDescriptorServiceWithLocalBinding() throws Exception;
    void testLocalServiceWithInterfaceAnnotation() throws Exception;
-   ArrayList getCreates();
-   ArrayList getStarts();
+   ArrayList<String> getCreates();
+   ArrayList<String> getStarts();
 }
