@@ -111,6 +111,8 @@ extends JBossTestCase
                   {
                      try
                      {
+                        SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
+                        SecurityAssociation.setCredential("password".toCharArray());
                         ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
                         for (int j = 0 ; j < count ; j++)
                         {
