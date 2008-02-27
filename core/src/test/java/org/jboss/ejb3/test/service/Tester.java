@@ -29,6 +29,8 @@ import javax.naming.InitialContext;
 
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.system.ServiceMBeanSupport;
 
 /**
@@ -100,9 +102,11 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
    {
       final int count = 15;
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
-      final Context ctx = new InitialContext();
+      SecurityClient sc= SecurityClientFactory.getSecurityClient();
+      sc.setSimple("somebody", "password");
+      sc.login();
+      
+      Context ctx = new InitialContext();
       
       ServiceOneLocal test = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
       test.setLocalMethodCalls(0);
@@ -118,7 +122,13 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
                   {
                      try
                      {
-                        ServiceOneLocal test1 = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
+                        
+                        SecurityClient sc= SecurityClientFactory.getSecurityClient();
+                        sc.setSimple("somebody", "password");
+                        sc.login();
+                        
+                        Context ctxThread = new InitialContext();
+                        ServiceOneLocal test1 = (ServiceOneLocal) ctxThread.lookup("ServiceOne/local");
                         for (int j = 0 ; j < count ; j++)
                         {
                            String s = outer + "_" + j;
