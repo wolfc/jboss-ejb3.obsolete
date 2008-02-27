@@ -23,10 +23,14 @@ package org.jboss.ejb3.test.service.unit;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.naming.Context;
+
+import junit.framework.Test;
 
 import org.jboss.ejb3.test.service.ServiceOneRemote;
 import org.jboss.ejb3.test.service.ServiceSevenRemote;
@@ -37,7 +41,6 @@ import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Sample client for the jboss container.
