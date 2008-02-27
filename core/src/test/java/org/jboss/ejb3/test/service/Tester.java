@@ -22,6 +22,8 @@
 package org.jboss.ejb3.test.service;
 
 
+import org.jboss.security.SecurityAssociation;
+import org.jboss.security.SimplePrincipal;
 import org.jboss.system.ServiceMBeanSupport;
 
 import javax.naming.InitialContext;
@@ -97,6 +99,9 @@ public class Tester extends ServiceMBeanSupport implements TesterMBean
    public void testServiceWithDefaultLocalJNDIName() throws Exception
    {
       final int count = 15;
+      
+      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
+      SecurityAssociation.setCredential("password".toCharArray());
       final InitialContext ctx = new InitialContext();
       ServiceOneLocal test = (ServiceOneLocal) ctx.lookup("ServiceOne/local");
       test.setLocalMethodCalls(0);
