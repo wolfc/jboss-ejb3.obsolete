@@ -40,6 +40,7 @@ import org.jboss.beans.metadata.spi.DemandMetaData;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.spi.registry.KernelRegistryEntry;
 
+import org.jboss.ejb3.dependency.JndiDemandMetaData;
 import org.jboss.ejb3.embedded.resource.RARDeployment;
 
 import org.jboss.logging.Logger;
@@ -122,7 +123,8 @@ public class MCKernelAbstraction
       bean.setDepends(policy.getDependencies());
       bean.setDemands(policy.getDemands());
       bean.setSupplies(policy.getSupplies());
-      log.info("installing bean: " + name + " with dependencies:");
+      log.info("installing bean: " + name);
+      log.info("  with dependencies:");
       for (Object obj : policy.getDependencies())
       {
          Object msgObject = obj;
@@ -135,7 +137,14 @@ public class MCKernelAbstraction
       log.info("  and demands:");
       for(DemandMetaData dmd : policy.getDemands())
       {
-         log.info("\t" + dmd.getDemand());
+         if (dmd instanceof JndiDemandMetaData)
+         {
+            log.info("\tJNDI: " + ((JndiDemandMetaData) dmd).getJndiName());
+         }
+         else
+         {
+            log.info("\t" + dmd.getDemand());
+         }
       }
       log.info("  and supplies:");
       for(SupplyMetaData smd : policy.getSupplies())
