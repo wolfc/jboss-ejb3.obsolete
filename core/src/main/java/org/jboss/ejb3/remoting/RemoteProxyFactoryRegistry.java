@@ -70,7 +70,7 @@ public class RemoteProxyFactoryRegistry
     */
    public Class<? extends RemoteProxyFactory> getProxyFactoryClass(String name) throws ProxyFactoryNotRegisteredException
    {
-      // Obtain cache factory
+      // Obtain proxy factory
       Class<? extends RemoteProxyFactory> proxyFactory = this.factories.get(name);
 
       // Ensure registered
@@ -87,7 +87,7 @@ public class RemoteProxyFactoryRegistry
    
    public Class<LoadBalancePolicy> getLoadBalancePolicy(String name) throws LoadBalancePolicyNotRegisteredException
    {
-      // Obtain cache factory
+      // Obtain Load Balance Policy
       Class<LoadBalancePolicy> loadBalancePolicy = this.loadBalancePolicies.get(name);
 
       // Ensure registered
