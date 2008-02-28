@@ -121,6 +121,12 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if(mappedName != null && mappedName.length() == 0) mappedName = null;
       if (refClass != null && (refClass.equals(Object.class) || refClass.equals(void.class))) refClass = null;
       
+      if(mappedName != null)
+      {
+         addJNDIDependency(container, mappedName);
+         return;
+      }
+      
       if (refClass != null)
       {
          if (link != null && !link.trim().equals(""))
@@ -132,11 +138,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
             addDependency(container, refClass);
          }
       }
-      else if(mappedName != null)
-      {
-         addJNDIDependency(container, mappedName);
-         return;
-      }
+      
       else
       {
          String msg = "IGNORING DEPENDENCY: unable to resolve dependency of EJB, there is too little information";
