@@ -476,20 +476,18 @@ public class Installer
     */
    private void mkdirAndParents(File directory)
    {
-      // If parent doesn't exist
-      if (!directory.getParentFile().exists())
+      try
       {
-         // Create the parent
-         this.mkdirAndParents(directory.getParentFile());
+         if (!directory.mkdirs())
+         {
+            throw new IOException("Could not make directory " + directory.toString());
+         }
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException(e);
       }
 
-      // If this directory doesn't exist
-      if (!directory.exists())
-      {
-         // Make the directory
-         directory.mkdir();
-         this.getPrintStream().println("Created Directory " + directory.getAbsolutePath());
-      }
    }
 
    /**
@@ -525,7 +523,7 @@ public class Installer
          // Uncomment to log for debugging
          //this.getPrintStream().println(file.getAbsolutePath() + " Removed.");
       }
-      else if(removed)
+      else if (removed)
       {
          // Removed a file, do nothing (too verbose to log here)
       }
