@@ -221,8 +221,8 @@ public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
       this.state=state;
    }
    
+   // @Remove from xml
    public void removeBean()
    {
-      
    }
 }

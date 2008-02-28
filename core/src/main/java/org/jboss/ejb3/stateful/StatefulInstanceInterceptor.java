@@ -29,6 +29,7 @@ import javax.ejb.EJBException;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SerializedConcurrentAccess;
 import org.jboss.logging.Logger;
@@ -87,7 +88,7 @@ public class StatefulInstanceInterceptor implements Interceptor
       }
       catch (Exception ex)
       {
-         if (isApplicationException(ex.getClass(), container)) throw ex;
+         if (StatefulRemoveInterceptor.isApplicationException(ex, (MethodInvocation)invocation)) throw ex;
          if (ex instanceof RuntimeException
                  || ex instanceof RemoteException)
          {
@@ -109,28 +110,5 @@ public class StatefulInstanceInterceptor implements Interceptor
             if (block) target.getLock().unlock();
          }
       }
-   }
-   
-   public static boolean isApplicationException(Class<?> exceptionClass, EJBContainer container)
-   {
-      if (exceptionClass.isAnnotationPresent(ApplicationException.class))
-         return true;
-      
-      // FIXME: use annotation only. Duplicate of TxUtil.getApplicationException, must move to EJBContainer.
-      JBossAssemblyDescriptorMetaData assembly = container.getAssemblyDescriptor();
-      if (assembly != null)
-      {
-         ApplicationExceptionsMetaData exceptions = assembly.getApplicationExceptions();
-         if (exceptions != null && exceptions.size() > 0)
-         {
-            for(ApplicationExceptionMetaData exception : exceptions)
-            {
-               if (exception.getExceptionClass().equals(exceptionClass.getName()))
-                  return true;
-            }
-         }
-         
-      }
-      return false;
    }
 }

@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +51,10 @@ import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.LinkRef;
+import javax.naming.Name;
+import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
+import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
@@ -95,6 +99,7 @@ import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.injection.ResourceHandler;
 import org.jboss.injection.WebServiceRefHandler;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.MetaData;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
@@ -169,6 +174,8 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    
    private ThreadLocalStack<BeanContext<?>> currentBean = new ThreadLocalStack<BeanContext<?>>();
    
+   protected boolean reinitialize = false;
+   
    /**
     * @param name                  Advisor name
     * @param manager               Domain to get interceptor bindings from
@@ -205,6 +212,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       }
       this.ejbName = ejbName;
       String on = createObjectName(ejbName);
+     
       try
       {
          objectName = new ObjectName(on);
@@ -732,10 +740,18 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       }
 
    }
+   
+   protected void reinitialize()
+   {          
+      super.initializeMethodChain();
+      bindEJBContext();
+      reinitialize = false;
+   }
 
    public void create() throws Exception
    {
-      initializeClassContainer();
+      super.initializeClassContainer();
+      
       for (int i = 0; i < constructors.length; i++)
       {
          if (constructors[i].getParameterTypes().length == 0)
@@ -749,13 +765,16 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    // Everything must be done in start to make sure all dependencies have been satisfied
    public void start() throws Exception
    {
+      if (reinitialize)
+         reinitialize();
+      
       initializePool();
 
       for (EncInjector injector : encInjectors.values())
       {
          injector.inject(this);   
       }
-
+      
       // creating of injector array should come after injection into ENC as an ENC injector
       // may add additional injectors into the injector list.  An example is an extended persistence
       // context which mush be created and added to the SFSB bean context.
@@ -773,7 +792,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    public void stop() throws Exception
    {
-      encFactory.cleanupEnc(this);
+      reinitialize = true;
       
       if (pool != null)
       {
@@ -781,11 +800,19 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
          pool = null;
       }
       
+      injectors = new ArrayList<Injector>();
+      encInjectors = new HashMap<String, EncInjector>();
+      
+      InitialContextFactory.close(enc, this.initialContextProperties);
+      enc = null; 
+      
       log.info("STOPPED EJB: " + clazz.getName() + " ejbName: " + ejbName);
    }
 
    public void destroy() throws Exception
    {
+      encFactory.cleanupEnc(this);
+      
       super.cleanup();
    }
 
@@ -947,7 +974,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    
    protected void findPartitionName()
    {
-      Clustered clustered = (Clustered) resolveAnnotation(Clustered.class);
+      Clustered clustered = (Clustered) getAnnotation(Clustered.class);
       if (clustered == null)
       {
          partitionName = null;

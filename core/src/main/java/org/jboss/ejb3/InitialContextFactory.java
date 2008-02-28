@@ -50,6 +50,14 @@ private static final Logger log = Logger.getLogger(InitialContextFactory.class);
    private static Context haContext = null;
    private static Integer haJndiPort = null;
    
+   public static void close(Context context, Hashtable properties) throws NamingException
+   {
+      if (properties == null)
+         baseInitialContext = null;
+      
+      context.close();
+   }
+   
    public static InitialContext getInitialContext() throws NamingException
    {
       InitialContext jndiContext;

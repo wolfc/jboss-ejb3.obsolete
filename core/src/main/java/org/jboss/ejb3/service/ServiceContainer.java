@@ -76,13 +76,12 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 {
    ServiceMBeanDelegate delegate;
    Object singleton;
-   boolean injected;
    BeanContext beanContext;
    MBeanServer mbeanServer;
    ObjectName delegateObjectName;
    private TimerService timerService;
    private Object mbean = new ServiceDelegateWrapper(this);
-
+   
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
 
@@ -190,6 +189,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       return interfaces;
    }
    
+   protected void reinitialize()
+   {
+      super.reinitialize();
+      
+      singleton = super.construct();
+ 
+      invokeOptionalMethod("create");
+   }
+   
    public void start() throws Exception
    {
       super.start();
@@ -229,8 +237,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       // TODO: EJBTHREE-655: shouldn't happen here, but in destroy
       unregisterManagementInterface();
-
-      injected = false;
+      
+      singleton = null;
+      beanContext = null;
       
       super.stop();
    }
@@ -478,7 +487,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
             popEnc();
          }
       }
-      injected = true;
    }
 
    // Dynamic MBean implementation --------------------------------------------------
