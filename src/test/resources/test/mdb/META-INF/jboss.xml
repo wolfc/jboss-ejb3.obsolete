@@ -8,10 +8,6 @@
 
    <enterprise-beans>
       <message-driven>
-         <ejb-name>OverrideTestMDB</ejb-name>
-         <destination-jndi-name>queue/overridequeuetest</destination-jndi-name>
-      </message-driven>
-      <message-driven>
          <ejb-name>OverrideDefaultedQueueTestMDB</ejb-name>
          <activation-config>
             <activation-config-property>
