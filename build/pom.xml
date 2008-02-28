@@ -117,7 +117,7 @@
     <version.org.jboss_jboss-common-core>2.2.1.GA</version.org.jboss_jboss-common-core>
     <version.org.jboss_jboss-metadata>1.0.0.Beta4</version.org.jboss_jboss-metadata>
     <version.org.jboss_jboss-transaction-spi>5.0.0.Beta4</version.org.jboss_jboss-transaction-spi>
-    <version.org.jboss_jboss-test>1.0.5-SNAPSHOT</version.org.jboss_jboss-test>
+    <version.org.jboss_jboss-test>1.0.5.GA</version.org.jboss_jboss-test>
     <version.org.jboss.aop_jboss-aop>2.0.0.CR7</version.org.jboss.aop_jboss-aop>
     <version.org.jboss.aop_jboss-aop-aspects>2.0.0.CR7</version.org.jboss.aop_jboss-aop-aspects>
     <version.org.jboss.cluster_jboss-ha-client>1.0.0.GA</version.org.jboss.cluster_jboss-ha-client>
