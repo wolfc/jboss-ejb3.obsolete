@@ -39,11 +39,14 @@
 
   <!-- Dependencies -->
   <dependencies>
+  
+    <!-- Ant Contrib -->
     <dependency>
       <groupId>ant-contrib</groupId>
       <artifactId>ant-contrib</artifactId>
       <version>${version.ant-contrib:ant-contrib}</version>
     </dependency>
+    
   </dependencies>
 
 </project>
