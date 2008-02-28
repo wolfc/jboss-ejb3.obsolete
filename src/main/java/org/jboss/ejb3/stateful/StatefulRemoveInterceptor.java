@@ -21,11 +21,13 @@
  */
 package org.jboss.ejb3.stateful;
 
+import java.lang.reflect.Method;
 import javax.transaction.Synchronization;
 import javax.transaction.Transaction;
 import javax.transaction.SystemException;
 import javax.transaction.RollbackException;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.ejb3.BeanContext;
@@ -58,11 +60,11 @@ public class StatefulRemoveInterceptor implements Interceptor
       private StatefulContainer container;
       private Object id;
 
-      public RemoveSynchronization(StatefulContainer container, Object id, boolean removeOnException)
+      public RemoveSynchronization(StatefulContainer container, Object id, boolean retainIfException)
       {
          this.container = container;
          this.id = id;
-         this.retainIfException = removeOnException;
+         this.retainIfException = retainIfException;
       }
 
 
@@ -98,8 +100,8 @@ public class StatefulRemoveInterceptor implements Interceptor
       }
       catch (Throwable t)
       {
-         // don't remove if we're an applicationexception and retain is true
-         if (TxUtil.getApplicationException(t.getClass(), invocation) != null && retainIfException) throw t;
+         // don't remove if we're an application exception and retain is true
+         if (retainIfException(retainIfException, t, (MethodInvocation)invocation)) throw t;
 
          // otherwise, just remove it.
          removeSession(invocation, true);
@@ -108,6 +110,31 @@ public class StatefulRemoveInterceptor implements Interceptor
       removeSession(invocation, false);
       return rtn;
    }
+   
+   protected static boolean retainIfException(boolean retainIfException, Throwable t, MethodInvocation invocation)
+   {
+      if (retainIfException && isApplicationException(t, invocation))
+         return true;
+      
+      return false;
+   }
+   
+   // application exception is @ApplicationException or checked exception extended from Exception or RuntimeException
+   public static boolean isApplicationException(Throwable t, MethodInvocation invocation)
+   {
+      if (TxUtil.getApplicationException(t.getClass(), invocation) != null)
+         return true;
+      
+      Method method = invocation.getMethod();
+      Class[] exceptionTypes = method.getExceptionTypes();
+      for (Class exceptionClass : exceptionTypes)
+      {
+         if (exceptionClass.isAssignableFrom(t.getClass()))
+            return true;
+      }
+      
+      return false;
+   }
 
    protected void removeSession(Invocation invocation, boolean exceptionThrown) throws Throwable
    {
@@ -115,7 +142,6 @@ public class StatefulRemoveInterceptor implements Interceptor
       StatefulBeanContext ctx = (StatefulBeanContext)ejb.getBeanContext();
       if (ctx == null || ctx.isDiscarded() || ctx.isRemoved()) return;
       Object id = ejb.getId();
-
 
       StatefulContainer container = (StatefulContainer) ejb.getAdvisor();
       Transaction tx = null;

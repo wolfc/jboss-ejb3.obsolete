@@ -50,13 +50,20 @@ public class EntityFacadeBean implements EntityFacade
    EntityManager manager;
    
    private static final Logger log = Logger.getLogger(EntityFacadeBean.class);
-
+  
+   private static REMOVE_EXCEPTION_TYPE throwRemoveException = REMOVE_EXCEPTION_TYPE.NONE;
+   
    public Entity createEntity(String name) {
       log.info("********* createEntity " + name);
       Entity entity = new Entity();
       entity.setName(name);
 	   manager.persist(entity);
 	   return entity;
+   }
+   
+   public void setThrowRemoveException(REMOVE_EXCEPTION_TYPE throwRemoveException)
+   {
+      this.throwRemoveException = throwRemoveException;
    }
    
    public Entity loadEntity(Long id) {
@@ -79,24 +86,38 @@ public class EntityFacadeBean implements EntityFacade
    
    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
    @Remove(retainIfException=true)
-   public void remove()
+   public void remove() throws CheckedApplicationException
    {
+      log.info("************ removing no tx");
       
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.APPLICATION)
+         throw new AnnotatedAppException("From @Remove");
+      
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.CHECKED)
+         throw new CheckedApplicationException("From @Remove");
+      
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.RUNTIME)
+         throw new RuntimeException("From @Remove");
    }
    
    @Remove(retainIfException=true)
    public void removeWithTx()
    {
+      log.info("************ removing with tx");
       
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.APPLICATION)
+         throw new AnnotatedAppException("From @Remove");
+      
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.CHECKED)
+         throw new CheckedApplicationException("From @Remove");
+      
+      if (throwRemoveException == REMOVE_EXCEPTION_TYPE.RUNTIME)
+         throw new RuntimeException("From @Remove");
    }
    
    @PreDestroy
    public void destroy()
    {
-      log.info("************ destroying");  
-      // throw RuntimeException
-//      Object o = null;
-//      o.getClass();
-      throw new RuntimeException("From destroy");
+      log.info("************ destroying "); 
    }
 }

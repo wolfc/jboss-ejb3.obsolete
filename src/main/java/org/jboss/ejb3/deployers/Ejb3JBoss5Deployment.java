@@ -42,7 +42,7 @@ import org.jboss.metadata.ejb.jboss.JBossMetaData;
  * @author adrian@jboss.org
  * @version $Revision: 56592 $
  */
-public class Ejb3JBoss5Deployment extends Ejb3Deployment
+public class Ejb3JBoss5Deployment extends Ejb3Deployment 
 {
    private static final Logger log = Logger.getLogger(Ejb3JBoss5Deployment.class);
 
@@ -51,6 +51,7 @@ public class Ejb3JBoss5Deployment extends Ejb3Deployment
    public Ejb3JBoss5Deployment(DeploymentUnit ejb3Unit, Kernel kernel, MBeanServer mbeanServer, org.jboss.deployers.structure.spi.DeploymentUnit jbossUnit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData, Ejb3Deployer deployer)
    {
       super(ejb3Unit, deploymentScope, metaData, persistenceUnitsMetaData, deployer);
+        
       this.jbossUnit = jbossUnit;
       kernelAbstraction = new MCKernelAbstraction(kernel, mbeanServer);
 

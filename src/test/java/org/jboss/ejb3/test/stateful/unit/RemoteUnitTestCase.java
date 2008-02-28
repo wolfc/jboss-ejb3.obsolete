@@ -33,6 +33,8 @@ import junit.framework.Test;
 
 import org.jboss.ejb3.ClientKernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
+import org.jboss.ejb3.test.stateful.AnnotatedAppException;
+import org.jboss.ejb3.test.stateful.CheckedApplicationException;
 import org.jboss.ejb3.test.stateful.ClusteredStateful;
 import org.jboss.ejb3.test.stateful.ConcurrentStateful;
 import org.jboss.ejb3.test.stateful.Entity;
@@ -169,6 +171,29 @@ extends JBossTestCase
             }
          }
       }
+   }
+   
+   // Keep this test first so we test everything after a deployment restart
+   public void testJmxName() throws Exception
+   {
+      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
+      SecurityAssociation.setCredential("password".toCharArray());
+      
+      Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
+      assertNotNull(stateful);
+      stateful.setState("state");
+      stateful.removeBean();
+      
+      ObjectName deployment = new ObjectName("test.ejb3:name=Bill,service=EJB3");
+
+      ClientKernelAbstraction kernel = KernelAbstractionFactory.getClientInstance();
+      kernel.invoke(deployment, "stop", new Object[0], new String[0]);
+      kernel.invoke(deployment, "start", new Object[0], new String[0]);
+      
+      stateful = (Stateful)getInitialContext().lookup("Stateful");
+      assertNotNull(stateful);
+      stateful.setState("state");
+      stateful.removeBean();
    }
    
    public void testSmallCache() throws Exception
@@ -704,19 +729,11 @@ extends JBossTestCase
       assertTrue(wasConcurrentException);
    }
    
-   public void testJmxName() throws Exception
-   {
-      ObjectName deployment = new ObjectName("test.ejb3:name=Bill,service=EJB3");
-
-      ClientKernelAbstraction kernel = KernelAbstractionFactory.getClientInstance();
-      kernel.invoke(deployment, "stop", new Object[0], new String[0]);
-      kernel.invoke(deployment, "start", new Object[0], new String[0]);
-   }
-   
    public void testDestroyException() throws Exception
    {
       EntityFacade stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
       assertNotNull(stateful);
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.RUNTIME);
       stateful.createEntity("Kalin");
       
       try
@@ -726,7 +743,7 @@ extends JBossTestCase
       }
       catch (RuntimeException e)
       {
-         assertEquals("java.lang.RuntimeException: From destroy", e.getMessage());
+         System.out.println("*** caught " + e.getMessage());
       }
       
       try
@@ -736,10 +753,26 @@ extends JBossTestCase
       }
       catch(NoSuchEJBException e)
       {
-         // okay
+         // ok
       }
       
-      /* Wolf: the stateful is discarded
+      stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
+      assertNotNull(stateful);
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.CHECKED);
+      stateful.createEntity("Napa");
+      
+      try
+      {
+         stateful.remove();
+         fail("should catch RuntimeException");
+      }
+      catch (CheckedApplicationException e)
+      {
+         System.out.println("*** caught " + e.getMessage());
+      }
+      
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.APPLICATION);
+      
       stateful.createEntity("Cabernet");
       
       try
@@ -747,17 +780,23 @@ extends JBossTestCase
          stateful.removeWithTx();
          fail("should catch RuntimeException");
       }
-      catch (RuntimeException e)
+      catch (AnnotatedAppException e)
       {
+         System.out.println("*** caught " + e.getMessage());
       }
       
       stateful.createEntity("Bailey");
-      */
+      
+      stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
+      assertNotNull(stateful);
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.NONE);
+      
    }
       
    public void testDestroyExceptionWithTx() throws Exception
    {
       EntityFacade stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.RUNTIME);
       assertNotNull(stateful);
       stateful.createEntity("Cabernet");
       
@@ -768,7 +807,7 @@ extends JBossTestCase
       }
       catch (RuntimeException e)
       {
-         assertEquals("java.lang.RuntimeException: From destroy", e.getMessage());
+         System.out.println("*** caught " + e.getMessage());
       }
       
       try
@@ -778,8 +817,11 @@ extends JBossTestCase
       }
       catch(NoSuchEJBException e)
       {
-         // okay
-      }      
+         // ok
+      }     
+      
+      stateful = (EntityFacade)getInitialContext().lookup("EntityFacadeBean/remote");
+      stateful.setThrowRemoveException(EntityFacade.REMOVE_EXCEPTION_TYPE.NONE);
    }
 
    public static Test suite() throws Exception

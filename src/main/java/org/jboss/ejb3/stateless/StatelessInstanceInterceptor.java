@@ -23,9 +23,10 @@ package org.jboss.ejb3.stateless;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.*;
 import org.jboss.ejb3.pool.Pool;
-import org.jboss.ejb3.stateful.StatefulInstanceInterceptor;
+import org.jboss.ejb3.stateful.StatefulRemoveInterceptor;
 import org.jboss.ejb3.tx.Ejb3TxPolicy;
 import org.jboss.logging.Logger;
 
@@ -66,7 +67,7 @@ public class StatelessInstanceInterceptor implements Interceptor
       catch (Exception ex)
       {
          discard = (ex instanceof EJBException) ||
-                 ((ex instanceof RuntimeException || ex instanceof RemoteException) && !StatefulInstanceInterceptor.isApplicationException(ex.getClass(), container));
+                 ((ex instanceof RuntimeException || ex instanceof RemoteException) && !StatefulRemoveInterceptor.isApplicationException(ex, (MethodInvocation)invocation));
          throw ex;
       }
       finally

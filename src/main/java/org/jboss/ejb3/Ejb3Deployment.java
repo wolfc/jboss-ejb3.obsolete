@@ -61,6 +61,7 @@ import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
+import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
 
 /**
@@ -70,7 +71,7 @@ import org.jboss.virtual.VirtualFile;
  * @author adrian@jboss.org
  * @version $Revision$
  */
-public abstract class Ejb3Deployment implements JavaEEModule
+public abstract class Ejb3Deployment extends ServiceMBeanSupport implements JavaEEModule, Ejb3DeploymentMBean
 {
    private static final Logger log = Logger.getLogger(Ejb3Deployment.class);
 
@@ -92,7 +93,7 @@ public abstract class Ejb3Deployment implements JavaEEModule
 
    protected List<String> explicitEntityClasses = new ArrayList<String>();
 
-   protected List<PersistenceUnitDeployment> persistenceUnitDeployments = new ArrayList<PersistenceUnitDeployment>();;
+   protected List<PersistenceUnitDeployment> persistenceUnitDeployments = new ArrayList<PersistenceUnitDeployment>();
 
    protected String defaultSLSBDomain = "Stateless Bean";
 
@@ -118,13 +119,17 @@ public abstract class Ejb3Deployment implements JavaEEModule
    protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
 
    protected MessageDestinationResolver messageDestinationResolver;
+   
+   protected ObjectName objectName;
+   
+   protected boolean reinitialize = false;
 
    public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData,
          Ejb3Deployer deployer)
    {
       assert unit != null : "unit is null";
       assert deployer != null : "deployer is null";
-
+      
       this.unit = unit;
       this.deployer = deployer;
       this.deploymentScope = deploymentScope;
@@ -339,6 +344,33 @@ public abstract class Ejb3Deployment implements JavaEEModule
       ejbContainers.put(on, container);
       container.processMetadata();
    }
+   
+   protected void registerDeployment() throws Exception
+   {
+      String on = "jboss.j2ee:jar=" + this.getName() + ",service=EJB3";
+      if (metaData != null && metaData.getEnterpriseBeans() != null && metaData.getEnterpriseBeans().getEjbJarMetaData() != null)
+      {
+         String jmxName = metaData.getEnterpriseBeans().getEjbJarMetaData().getJmxName();
+         if (jmxName != null && jmxName.trim().length() > 0)
+            on = jmxName;
+      } 
+     
+      objectName = new ObjectName(on);
+      
+      mbeanServer.registerMBean(this, objectName);
+   }
+   
+   protected void unregisterDeployment()
+   {
+      try
+      {
+         mbeanServer.unregisterMBean(objectName);
+      }
+      catch (Exception e)
+      {
+         log.debug("error trying to stop ejb deployment", e);
+      }
+   }
 
    protected void registerEJBContainer(Container container) throws Exception
    {
@@ -375,6 +407,8 @@ public abstract class Ejb3Deployment implements JavaEEModule
          deploy();
 
          initializePersistenceUnits();
+         
+         registerDeployment();
 
          log.debug("EJB3 deployment time took: " + (System.currentTimeMillis() - start));
       }
@@ -391,11 +425,20 @@ public abstract class Ejb3Deployment implements JavaEEModule
          throw e;
       }
    }
+   
+   protected void reinitialize() throws Exception
+   {
+      initializePersistenceUnits();
+      reinitialize = false;
+   }
 
    public void start() throws Exception
    {
       try
       {
+         if (reinitialize)
+            reinitialize();
+         
          startPersistenceUnits();
 
          for (Object o : ejbContainers.values())
@@ -424,6 +467,25 @@ public abstract class Ejb3Deployment implements JavaEEModule
          }
          throw ex;
       }
+   }
+   
+   public void stop() //throws Exception
+   {
+      for (ObjectName on : ejbContainers.keySet())
+      {
+         try
+         {
+            mbeanServer.unregisterMBean(on);
+            kernelAbstraction.uninstall(on.getCanonicalName());
+         }
+         catch (Exception e)
+         {
+            log.debug("error trying to stop ejb container", e);
+         }
+      }
+      stopPersistenceUnits();
+      
+      reinitialize = true;
    }
 
    protected void deploy() throws Exception
@@ -625,33 +687,25 @@ public abstract class Ejb3Deployment implements JavaEEModule
             log.debug("error trying to shut down persistence unit", e);
          }
       }
+      
+      persistenceUnitDeployments = new ArrayList<PersistenceUnitDeployment>();
 
    }
 
-   public void stop() throws Exception
+   
+
+   public void destroy() //throws Exception
    {
-      for (ObjectName on : ejbContainers.keySet())
+      try
       {
-         try
-         {
-            mbeanServer.unregisterMBean(on);
-            kernelAbstraction.uninstall(on.getCanonicalName());
-         }
-         catch (Exception e)
-         {
-            log.debug("error trying to shut down ejb container", e);
-         }
+         undeploy();
+         
+         unregisterDeployment();
+      } 
+      catch (Exception e)
+      {
+         log.debug("error trying to destroy ejb deployment", e);
       }
-      stopPersistenceUnits();
-   }
-
-   public void destroy() throws Exception
-   {
-      undeploy();
-
-      PolicyConfigurationFactory pcFactory = PolicyConfigurationFactory.getPolicyConfigurationFactory();
-      PolicyConfiguration pc = pcFactory.getPolicyConfiguration(getJaccContextId(), true);
-      pc.delete();
    }
 
    private void undeploy()

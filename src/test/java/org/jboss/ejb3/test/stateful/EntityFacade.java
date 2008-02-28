@@ -26,6 +26,11 @@ package org.jboss.ejb3.test.stateful;
  */
 public interface EntityFacade
 {
+   public static enum REMOVE_EXCEPTION_TYPE
+   {
+      NONE, CHECKED, APPLICATION, RUNTIME,
+   }
+   
    Entity createEntity(String name);
    
    Entity loadEntity(Long id);
@@ -33,4 +38,6 @@ public interface EntityFacade
    void remove();
    
    void removeWithTx();
+   
+   void setThrowRemoveException(REMOVE_EXCEPTION_TYPE throwDestroyException);
 }
