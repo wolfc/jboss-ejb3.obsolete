@@ -34,7 +34,6 @@ import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.NoPassivationCacheFactory;
 import org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory;
 import org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory;
-import org.jboss.ejb3.deployers.Ejb3Deployer;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.pool.PoolFactory;
@@ -52,20 +51,20 @@ public class MockEjb3Deployment extends Ejb3Deployment
 {
    public MockEjb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope)
    {
-      super(unit, deploymentScope, null, null, new Ejb3Deployer());
+      super(unit, deploymentScope, null, null);
       PoolFactoryRegistry poolRegistry = new PoolFactoryRegistry();
       HashMap<String, Class<? extends PoolFactory>> poolFactories = new HashMap<String, Class<? extends PoolFactory>>();
       poolFactories.put("ThreadlocalPool", ThreadlocalPoolFactory.class);
       poolFactories.put("StrictMaxPool", StrictMaxPoolFactory.class);
       poolRegistry.setFactories(poolFactories);
-      deployer.setPoolFactoryRegistry(poolRegistry);
+      setPoolFactoryRegistry(poolRegistry);
       CacheFactoryRegistry cacheRegistry = new CacheFactoryRegistry();
       HashMap<String, Class<? extends Ejb3CacheFactory>> cacheFactories = new HashMap<String, Class<? extends Ejb3CacheFactory>>();
       cacheFactories.put("NoPassivationCache", NoPassivationCacheFactory.class);
       cacheFactories.put("SimpleStatefulCache", SimpleStatefulCacheFactory.class);
       cacheFactories.put("StatefulTreeCache", StatefulTreeCacheFactory.class);
       cacheRegistry.setFactories(cacheFactories);
-      deployer.setCacheFactoryRegistry(cacheRegistry);
+      setCacheFactoryRegistry(cacheRegistry);
    }
 
    @Override

@@ -42,7 +42,7 @@ public class Ejb3JmxDeployment extends Ejb3Deployment
 
    public Ejb3JmxDeployment(DeploymentInfo di, DeploymentScope deploymentScope)
    {
-      super(new JmxDeploymentUnit(di), deploymentScope, null, null, null);
+      super(new JmxDeploymentUnit(di), deploymentScope, null, null);
       this.deploymentInfo = di;
       kernelAbstraction = new JmxKernelAbstraction(di);
 

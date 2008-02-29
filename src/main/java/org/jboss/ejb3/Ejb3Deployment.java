@@ -46,7 +46,6 @@ import org.hibernate.ejb.packaging.PersistenceMetadata;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
-import org.jboss.ejb3.deployers.Ejb3Deployer;
 import org.jboss.ejb3.enc.EjbModuleEjbResolver;
 import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
 import org.jboss.ejb3.enc.MessageDestinationResolver;
@@ -57,6 +56,7 @@ import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
+import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -84,8 +84,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
    private PersistenceUnitsMetaData persistenceUnitsMetaData;
 
    protected DeploymentUnit unit;
-
-   protected Ejb3Deployer deployer;
 
    protected LinkedHashMap<ObjectName, Container> ejbContainers = new LinkedHashMap<ObjectName, Container>();
 
@@ -119,19 +117,20 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
    protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
 
    protected MessageDestinationResolver messageDestinationResolver;
+   protected CacheFactoryRegistry cacheFactoryRegistry;
+   protected RemoteProxyFactoryRegistry remoteProxyFactoryRegistry;
+   protected PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry;
+   protected PoolFactoryRegistry poolFactoryRegistry;
    
    protected ObjectName objectName;
    
    protected boolean reinitialize = false;
 
-   public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData,
-         Ejb3Deployer deployer)
+   public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData)
    {
       assert unit != null : "unit is null";
-      assert deployer != null : "deployer is null";
       
       this.unit = unit;
-      this.deployer = deployer;
       this.deploymentScope = deploymentScope;
       this.metaData = metaData;
       this.persistenceUnitsMetaData = persistenceUnitsMetaData;
@@ -187,26 +186,42 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
       return defaultSLSBDomain;
    }
 
-   public Ejb3Deployer getDeployer()
-   {
-      return this.deployer;
-   }
-
    public CacheFactoryRegistry getCacheFactoryRegistry()
    {
-      return this.getDeployer().getCacheFactoryRegistry();
+      return cacheFactoryRegistry;
    }
-   
+   public void setCacheFactoryRegistry(CacheFactoryRegistry registry)
+   {
+      this.cacheFactoryRegistry = registry;
+   }
+
    public RemoteProxyFactoryRegistry getRemoteProxyFactoryRegistry()
    {
-      return this.getDeployer().getRemoteProxyFactoryRegistry();
+      return remoteProxyFactoryRegistry;
+   }
+   public void setRemoteProxyFactoryRegistry(RemoteProxyFactoryRegistry registry)
+   {
+      this.remoteProxyFactoryRegistry = registry;
    }
 
    public PersistenceManagerFactoryRegistry getPersistenceManagerFactoryRegistry()
    {
-      return this.getDeployer().getPersistenceManagerFactoryRegistry();
+      return persistenceManagerFactoryRegistry;
+   }
+   public void setPersistenceManagerFactoryRegistry(PersistenceManagerFactoryRegistry registry)
+   {
+      this.persistenceManagerFactoryRegistry = registry;
    }
    
+   public PoolFactoryRegistry getPoolFactoryRegistry()
+   {
+      return poolFactoryRegistry;
+   }
+   public void setPoolFactoryRegistry(PoolFactoryRegistry poolFactoryRegistry)
+   {
+      this.poolFactoryRegistry = poolFactoryRegistry;
+   }
+
    /**
     * Returns a partial MBean attribute name of the form
     * ",ear=foo.ear,jar=foo.jar"
