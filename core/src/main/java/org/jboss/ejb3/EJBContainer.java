@@ -65,6 +65,8 @@ import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationElement;
 import org.jboss.aop.joinpoint.ConstructorInvocation;
+import org.jboss.aop.metadata.SimpleClassMetaDataBinding;
+import org.jboss.aop.metadata.SimpleClassMetaDataLoader;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -82,6 +84,7 @@ import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
 import org.jboss.ejb3.pool.PoolFactoryRegistry; 
+import org.jboss.ejb3.security.JaccAuthorizationInterceptor;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
@@ -742,9 +745,15 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    }
    
    protected void reinitialize()
-   {          
-      super.initializeMethodChain();
+   {         
+      initClassMetaDataBindingsList();
+      adviceBindings.clear();
+      doesHaveAspects = false;
+      constructorInfos = null;
+      rebuildInterceptors();
+      
       bindEJBContext();
+      
       reinitialize = false;
    }
 
@@ -767,7 +776,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    {
       if (reinitialize)
          reinitialize();
-      
+       
       initializePool();
 
       for (EncInjector injector : encInjectors.values())
@@ -793,6 +802,8 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    public void stop() throws Exception
    {
       reinitialize = true;
+      
+      //encFactory.cleanupEnc(this);
       
       if (pool != null)
       {
