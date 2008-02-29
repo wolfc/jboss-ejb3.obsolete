@@ -45,7 +45,7 @@ public class EJB3StandaloneDeployment extends Ejb3Deployment
 {
    public EJB3StandaloneDeployment(DeploymentUnit di, Kernel kernel, MBeanServer mbeanServer)
    {
-      super(di, null, null, null, null);
+      super(di, null, null, null);
    
       defaultSFSBDomain = "Embedded Stateful Bean";
       kernelAbstraction = new MCKernelAbstraction(kernel, mbeanServer);

@@ -22,8 +22,12 @@
 package org.jboss.ejb3.embedded;
 
 import java.util.Hashtable;
+
+import javax.naming.Context;
 import javax.naming.InitialContext;
-import org.jboss.ejb3.EJB3Deployer;
+import javax.naming.LinkRef;
+import javax.naming.NamingException;
+
 import org.jboss.ejb3.InitialContextFactory;
 
 /**
@@ -36,6 +40,12 @@ public class JavaCompInitializer
 {
    private Hashtable jndiProperties;
 
+   public static void initializeJavaComp(InitialContext iniCtx)
+      throws NamingException
+   {
+      Context ctx = (Context) iniCtx.lookup("java:");
+      ctx.rebind("comp.ejb3", new LinkRef("java:comp"));
+   }
 
    public Hashtable getJndiProperties()
    {
@@ -50,6 +60,6 @@ public class JavaCompInitializer
    public void start() throws Exception
    {
       InitialContext ctx = InitialContextFactory.getInitialContext(jndiProperties);
-      EJB3Deployer.initializeJavaComp(ctx);
+      initializeJavaComp(ctx);
    }
 }

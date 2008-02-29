@@ -71,7 +71,6 @@ import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
-import org.jboss.ejb3.deployers.Ejb3Deployer;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
@@ -860,8 +859,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       }
       int maxSize = poolAnnotation.maxSize();
       long timeout = poolAnnotation.timeout();
-      Ejb3Deployer deployer = deployment.getDeployer();
-      PoolFactoryRegistry registry = deployer.getPoolFactoryRegistry();
+      PoolFactoryRegistry registry = deployment.getPoolFactoryRegistry();
       PoolFactory factory = registry.getPoolFactory(registeredPoolName);
       pool = factory.createPool();
       pool.initialize(this, maxSize, timeout);
