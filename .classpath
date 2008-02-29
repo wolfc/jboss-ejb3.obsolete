@@ -13,7 +13,7 @@
 	<classpathentry kind="var" path="M2_REPO/hsqldb/hsqldb/1.8.0.7/hsqldb-1.8.0.7.jar"/>
 	<classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/hibernate/ejb3-persistence/3.3.2.Beta1/ejb3-persistence-3.3.2.Beta1.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/jboss/jboss-metadata/1.0.0.Beta4/jboss-metadata-1.0.0.Beta4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/jboss-metadata/1.0.0.Beta4/jboss-metadata-1.0.0.Beta4.jar" sourcepath="/M2_REPO/org/jboss/jboss-metadata/1.0.0.Beta4/jboss-metadata-1.0.0.Beta4-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jboss-vfs/2.0.0.Beta8/jboss-vfs-2.0.0.Beta8.jar"/>
 	<classpathentry kind="var" path="M2_REPO/jboss/jboss-common-core/2.0.2.GA/jboss-common-core-2.0.2.GA.jar"/>
 	<classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.7.1/xml-apis-2.7.1.jar"/>
