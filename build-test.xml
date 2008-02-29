@@ -258,6 +258,7 @@
       <path refid="jboss.metadata.classpath"/>
       <path refid="jboss.jboss.ha.client.classpath"/>
       <path refid="jboss.jboss.ha.server.api.classpath"/>
+      <path refid="jboss.cache.jbosscache.core.classpath"/>
       <path refid="sun.jaxb.classpath"/>
    </path>
 
@@ -289,7 +290,7 @@
       <path refid="jboss.common.logging.spi.classpath"/>
       <path refid="jboss.common.logging.log4j.classpath"/>
       <path refid="jboss.common.logging.jdk.classpath"/>
-      <path refid="jboss.cache.classpath"/>
+      <path refid="jboss.cache.jbosscache.core.classpath"/>
       <path refid="jboss.cluster.classpath"/>
       <path refid="jboss.main.classpath"/>
       <path refid="jboss.system.classpath"/>
