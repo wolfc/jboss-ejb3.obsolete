@@ -26,8 +26,10 @@ import javax.ejb.EJBException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aspects.tx.TxPolicy;
+import org.jboss.logging.Logger;
 
 /**
  * Ensure the correct exceptions are thrown based on both caller
@@ -42,6 +44,8 @@ import org.jboss.aspects.tx.TxPolicy;
  */
 public class TxInterceptor extends org.jboss.aspects.tx.TxInterceptor
 {
+   private static final Logger log = Logger.getLogger(TxInterceptor.class);
+   
    public static class Never extends org.jboss.aspects.tx.TxInterceptor.Never
    {
       public Never(TransactionManager tm, TxPolicy policy)
@@ -110,5 +114,35 @@ public class TxInterceptor extends org.jboss.aspects.tx.TxInterceptor
             return policy.invokeInNoTx(invocation);
          }
       }
+   }
+
+   public static class Mandatory extends org.jboss.aspects.tx.TxInterceptor.Mandatory
+   {
+      public Mandatory(TransactionManager tm, TxPolicy policy)
+      {
+         this(tm, policy, -1);
+      }
+
+      public Mandatory(TransactionManager tm, TxPolicy policy, int timeout)
+      {
+         super(tm, policy, timeout);
+      }
+
+      public String getName()
+      {
+         return this.getClass().getName();
+      }
+
+      public Object invoke(Invocation invocation) throws Throwable
+      {
+         Transaction tx = tm.getTransaction();
+         log.info("!!!!!!!!! invoke " + ((MethodInvocation)invocation).getMethod() + " " + tx);
+         if (tx == null)
+         {
+            policy.throwMandatory(invocation);
+         }
+         return policy.invokeInCallerTx(invocation, tx);
+      }
+
    }
 }
