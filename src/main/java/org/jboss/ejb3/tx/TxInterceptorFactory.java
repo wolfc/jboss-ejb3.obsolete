@@ -44,16 +44,8 @@ public class TxInterceptorFactory extends org.jboss.aspects.tx.TxInterceptorFact
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(TxInterceptorFactory.class);
-   
-   private static final String TX_TYPE_REQUIRED = "REQUIRED";
-   
-   private static final String TX_TYPE_NOT_SUPPORTED = "NOTSUPPORTED";
-   
-   private static final String TX_TYPE_REQUIRES_NEW = "REQUIRESNEW";
-   
-   private static final String TX_TYPE_NEVER = "NEVER";
 
-   protected String resolveTxType(Advisor advisor, Joinpoint jp)
+   protected TransactionAttributeType getTxType(Advisor advisor, Joinpoint jp)
    {
       Method method = ((MethodJoinpoint) jp).getMethod();
       TransactionAttribute tx = (TransactionAttribute) advisor.resolveAnnotation(method, TransactionAttribute.class);
@@ -61,27 +53,10 @@ public class TxInterceptorFactory extends org.jboss.aspects.tx.TxInterceptorFact
       if (tx == null)
          tx = (TransactionAttribute) advisor.resolveAnnotation(TransactionAttribute.class);
 
-      String value = TxInterceptorFactory.TX_TYPE_REQUIRED;
-      if (tx != null)
+      TransactionAttributeType value = TransactionAttributeType.REQUIRED;
+      if (tx != null && tx.value() != null)
       {
-         TransactionAttributeType type = tx.value();
-
-         if (type == null)
-         {
-            value = TxInterceptorFactory.TX_TYPE_REQUIRED;
-         }
-         else if (type == TransactionAttributeType.NOT_SUPPORTED)
-         {
-            value = TxInterceptorFactory.TX_TYPE_NOT_SUPPORTED;
-         }
-         else if (type == TransactionAttributeType.REQUIRES_NEW)
-         {
-            value = TxInterceptorFactory.TX_TYPE_REQUIRES_NEW;
-         }
-         else
-         {
-            value = type.name();
-         }
+         value = tx.value();
       }
 
       return value;
@@ -120,23 +95,28 @@ public class TxInterceptorFactory extends org.jboss.aspects.tx.TxInterceptorFact
       if (policy == null);
          super.initialize();
 
-      String txType = resolveTxType(advisor, jp).toUpperCase();
-      if (txType.equals(TxInterceptorFactory.TX_TYPE_NEVER))
+      TransactionAttributeType txType = getTxType(advisor, jp);
+      log.info("!!! createPerJoinpoint " + txType + " " + jp);
+      if (txType.equals(TransactionAttributeType.NEVER))
       {
          // make sure we use the EJB3 interceptor, not the AOP one. 
          return new TxInterceptor.Never(TxUtil.getTransactionManager(), policy);
       }
-      else if (txType.equals(TxInterceptorFactory.TX_TYPE_REQUIRED))
+      else if (txType.equals(TransactionAttributeType.REQUIRED))
       {
          return new TxInterceptor.Required(TxUtil.getTransactionManager(), policy, timeout);
       }
-      else if (txType.equals(TxInterceptorFactory.TX_TYPE_REQUIRES_NEW))
+      else if (txType.equals(TransactionAttributeType.REQUIRES_NEW))
       {
          return new TxInterceptor.RequiresNew(TxUtil.getTransactionManager(), policy, timeout);
       }
-      else if(txType.equals(TxInterceptorFactory.TX_TYPE_NOT_SUPPORTED))
+      else if(txType.equals(TransactionAttributeType.NOT_SUPPORTED))
       {
          return new TxInterceptor.NotSupported(TxUtil.getTransactionManager(), policy, timeout);
+      }
+      else if(txType.equals(TransactionAttributeType.MANDATORY))
+      {
+         return new TxInterceptor.Mandatory(TxUtil.getTransactionManager(), policy, timeout);
       }
       else
       {
