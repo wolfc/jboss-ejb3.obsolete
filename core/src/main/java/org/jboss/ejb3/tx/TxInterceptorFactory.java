@@ -96,7 +96,7 @@ public class TxInterceptorFactory extends org.jboss.aspects.tx.TxInterceptorFact
          super.initialize();
 
       TransactionAttributeType txType = getTxType(advisor, jp);
-      log.info("!!! createPerJoinpoint " + txType + " " + jp);
+     
       if (txType.equals(TransactionAttributeType.NEVER))
       {
          // make sure we use the EJB3 interceptor, not the AOP one. 
