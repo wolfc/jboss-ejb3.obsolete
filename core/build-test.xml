@@ -95,6 +95,7 @@
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
   <property name="location.dependencies.lib.hsqldb:hsqldb" value="${location.dependencies.lib}/hsqldb.jar"/>
+  <property name="location.dependencies.lib.apache-httpclient:commons-httpclient" value="${location.dependencies.lib}/commons-httpclient.jar"/>
   <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
     
@@ -213,6 +214,9 @@
 
     <!-- HSQL DB -->
     <pathelement path="${location.dependencies.lib.hsqldb:hsqldb}" />
+    
+    <!-- Apache HttpClient -->
+    <pathelement path="${location.dependencies.lib.apache-httpclient:commons-httpclient}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
