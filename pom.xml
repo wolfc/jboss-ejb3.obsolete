@@ -149,18 +149,36 @@
             </configuration>
           </execution>
 
-          <!-- Copy all dependencies -->
+          <!-- Copy dependencies necessary of Test Clients -->
           <execution>
             <id>copy-core-dependencies</id>
             <phase>process-resources</phase>
             <goals>
-              <goal>copy-dependencies</goal>
+              <goal>copy</goal>
             </goals>
             <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss</groupId>
+                  <artifactId>jboss-test</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>hsqldb</groupId>
+                  <artifactId>hsqldb</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>junit</groupId>
+                  <artifactId>junit</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>apache-httpclient</groupId>
+                  <artifactId>commons-httpclient</artifactId>
+                </artifactItem>
+              </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
               <stripVersion>true</stripVersion>
-              <excludeTransitive>true</excludeTransitive>
+              <!-- <excludeTransitive>true</excludeTransitive>  -->
             </configuration>
           </execution>
 
