@@ -55,7 +55,8 @@ private static final Logger log = Logger.getLogger(InitialContextFactory.class);
       if (properties == null)
          baseInitialContext = null;
       
-      context.close();
+      if (context != null)
+         context.close();
    }
    
    public static InitialContext getInitialContext() throws NamingException
