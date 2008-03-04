@@ -5,7 +5,6 @@
 
     <module>
     <web>
-        <description>The testsuite war</description>
         <web-uri>jsp-test.war</web-uri>
         <context-root>/jsp-test</context-root>
     </web>
