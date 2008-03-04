@@ -100,6 +100,7 @@
   <property name="location.dependencies.lib.apache-codec:commons-codec" value="${location.dependencies.lib}/commons-codec.jar"/>
   <property name="location.dependencies.lib.org.jboss.cache:jbosscache-core" value="${location.dependencies.lib}/jbosscache-core.jar"/>
   <property name="location.client.lib" value="${jboss.dist}/client"/>
+  <property name="location.client.lib.commons-logging" value="${location.client.lib}/commons-logging.jar"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
   <property name="location.client.lib.jbossxb" value="${location.client.lib}/jboss-xml-binding.jar"/>
   <property name="location.client.lib.jbossws-spi" value="${location.client.lib}/jbossws-spi.jar"/>
@@ -178,9 +179,10 @@
   <path id="client.classpath">
 
     <!-- JBoss Client Binaries -->
+    <pathelement path="${location.client.lib.commons-logging}" />
     <pathelement path="${location.client.lib.jbossall}" />
-	  <pathelement path="${location.client.lib.jbossxb}" />
-	  <pathelement path="${location.client.lib.jbossws-spi}" />
+    <pathelement path="${location.client.lib.jbossxb}" />
+    <pathelement path="${location.client.lib.jbossws-spi}" />
     <pathelement path="${location.client.lib.jboss-metadata}" />
     <pathelement path="${location.client.lib.jboss-jaxws}" />
     
