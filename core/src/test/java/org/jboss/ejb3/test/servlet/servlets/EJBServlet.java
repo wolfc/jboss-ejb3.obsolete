@@ -31,7 +31,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.ejb3.test.servlet.Session30;
+import org.jboss.ejb3.test.servlet.Session30Local;
+import org.jboss.ejb3.test.servlet.Session30Remote;
 import org.jboss.ejb3.test.servlet.Session30LocalHome;
 import org.jboss.ejb3.test.servlet.Session30Home;
 import org.jboss.ejb3.test.servlet.StatelessLocal;
@@ -52,7 +53,7 @@ public class EJBServlet extends HttpServlet
    private static final Logger log = Logger.getLogger(EJBServlet.class);
    
    @EJB
-   Session30 injectedSession;
+   Session30Remote injectedSession;
    
    @EJB
    StatelessLocal injectedStateful;
@@ -73,37 +74,37 @@ public class EJBServlet extends HttpServlet
            
          InitialContext ctx = new InitialContext();
         
-         Session30 session = (Session30)ctx.lookup("ejb/Session30");
+         Session30Remote remote = (Session30Remote)ctx.lookup("ejb/Session30");
          
-         session.hello();
-         session.goodbye();
+         remote.hello();
+         remote.goodbye();
          
          TestObject o = new TestObject();
-         session.access(o);
-         o = session.createTestObject();
+         remote.access(o);
+         o = remote.createTestObject();
          
-         session = (Session30)ctx.lookup("ejb/Session30Local");
+         Session30Local local = (Session30Local)ctx.lookup("ejb/Session30Local");
          o = new TestObject();
-         session.access(o);
-         o = session.createTestObject();
+         local.access(o);
+         o = local.createTestObject();
          
-         WarTestObject warObject = (WarTestObject)session.getWarTestObject();
+         WarTestObject warObject = (WarTestObject)local.getWarTestObject();
          
          Session30Home home = (Session30Home)ctx.lookup("Session30/home");
-         session = home.create();
-         session.access(o);
+         remote = home.create();
+         remote.access(o);
          
          Session30LocalHome localHome = (Session30LocalHome)ctx.lookup("Session30/localHome");
-         session = localHome.create();
-         session.access(o);
+         local = localHome.create();
+         local.access(o);
          
          home = (Session30Home)ctx.lookup("java:comp/env/ejb/remote/Session30");
-         session = home.create();
-         session.access(o);
+         remote = home.create();
+         remote.access(o);
          
          localHome = (Session30LocalHome)ctx.lookup("java:comp/env/ejb/local/Session30");
-         session = localHome.create();
-         session.access(o);
+         local = localHome.create();
+         local.access(o);
       }
       catch (Exception e)
       {

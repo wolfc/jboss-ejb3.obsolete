@@ -29,6 +29,6 @@ import javax.ejb.*;
  */
 public interface Session30LocalHome extends EJBLocalHome
 {
-  public Session30 create() throws javax.ejb.CreateException;
+  public Session30Local create() throws javax.ejb.CreateException;
 } 
 

@@ -21,14 +21,23 @@
  */
 package org.jboss.ejb3.test.servlet;
 
-import javax.ejb.*;
+import javax.ejb.EJBLocalObject;
 
 /**
- * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface Session30Home extends EJBHome
+public interface Session30Local extends EJBLocalObject
 {
-  public Session30Remote create() throws javax.ejb.CreateException;
-} 
+   void hello();
+   
+   void goodbye();
+   
+   String access(TestObject o);
+   
+   TestObject createTestObject();
+   
+   boolean checkEqPointer(TestObject to);
+   
+   WarTestObject getWarTestObject();
+}
 
