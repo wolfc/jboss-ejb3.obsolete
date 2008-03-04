@@ -173,7 +173,7 @@
                 <artifactItem>
                   <groupId>apache-httpclient</groupId>
                   <artifactId>commons-httpclient</artifactId>
-                  <version>2.0.2</version> <!-- Used only here -->
+                  <version>3.0.1</version> <!-- Used only here -->
                 </artifactItem>
                 <artifactItem>
                   <groupId>apache-codec</groupId>
