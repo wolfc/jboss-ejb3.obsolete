@@ -159,6 +159,10 @@
             <configuration>
               <artifactItems>
                 <artifactItem>
+                  <groupId>org.jboss.cache</groupId>
+                  <artifactId>jbosscache-core</artifactId>
+                </artifactItem>
+                <artifactItem>
                   <groupId>org.jboss.ejb3</groupId>
                   <artifactId>jboss-ejb3-core</artifactId>
                 </artifactItem>
