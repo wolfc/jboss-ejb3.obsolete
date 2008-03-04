@@ -101,6 +101,7 @@
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
   <property name="location.client.lib.jbossxb" value="${location.client.lib}/jboss-xml-binding.jar"/>
   <property name="location.client.lib.jbossws-spi" value="${location.client.lib}/jbossws-spi.jar"/>
+  <property name="location.client.lib.jboss-metadata" value="${location.client.lib}/jboss-metadata.jar"/>
     
   <!-- EJB3 Internal Artifacts -->
   <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
@@ -173,12 +174,12 @@
   -->
   <path id="client.classpath">
 
-    <!-- JBoss Client Binaries -->
-    <pathelement path="${location.client.lib.jbossall}" />
+  <!-- JBoss Client Binaries -->
+  <pathelement path="${location.client.lib.jbossall}" />
 	<pathelement path="${location.client.lib.jbossxb}" />
 	<pathelement path="${location.client.lib.jbossws-spi}" />
-	
-
+  <pathelement path="${location.client.lib.jboss-metadata}" />
+    
   </path>
   
   <!--
@@ -224,8 +225,8 @@
     <!-- Apache HttpClient -->
     <pathelement path="${location.dependencies.lib.apache-httpclient:commons-httpclient}" />
 	
-	<!-- Apache Codec -->
-	<pathelement path="${location.dependencies.lib.apache-codec:commons-codec}" />
+	  <!-- Apache Codec -->
+    <pathelement path="${location.dependencies.lib.apache-codec:commons-codec}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
