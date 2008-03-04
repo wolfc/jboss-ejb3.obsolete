@@ -188,6 +188,10 @@
                   <artifactId>commons-codec</artifactId>
                   <version>1.2</version> <!-- Used only here -->
                 </artifactItem>
+                <artifactItem>
+                  <groupId>hibernate</groupId>
+                  <artifactId>hibernate3</artifactId>
+                </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
