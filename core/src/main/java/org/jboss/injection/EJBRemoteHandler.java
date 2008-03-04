@@ -77,10 +77,15 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          return;
 
       String mappedName = ref.getMappedName();
+     
       if (mappedName != null && mappedName.equals("")) mappedName = null;
 
       String link = ref.getLink();
       if (link != null && link.trim().equals("")) link = null;
+      
+      // AbstractEJBReferenceMetaData reports mappedName = link when there is no mappedName
+      if (mappedName != null && link != null && mappedName.equals(link))
+         mappedName = null;
 
       Class<?> refClass = null;
 
@@ -152,7 +157,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if (mappedName != null && mappedName.trim().equals("")) mappedName = null;
 
       EncInjector injector = null;
-
+      
       if (mappedName == null)
       {
          injector = new EjbEncInjector(encName, refClass, link, errorType);
