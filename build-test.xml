@@ -96,6 +96,7 @@
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
   <property name="location.dependencies.lib.hsqldb:hsqldb" value="${location.dependencies.lib}/hsqldb.jar"/>
   <property name="location.dependencies.lib.apache-httpclient:commons-httpclient" value="${location.dependencies.lib}/commons-httpclient.jar"/>
+  <property name="location.dependencies.lib.apache-codec:commons-codec" value="${location.dependencies.lib}/commons-codec.jar"/>
   <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
     
@@ -217,6 +218,9 @@
     
     <!-- Apache HttpClient -->
     <pathelement path="${location.dependencies.lib.apache-httpclient:commons-httpclient}" />
+	
+	<!-- Apache Codec -->
+	<pathelement path="${location.dependencies.lib.apache-codec:commons-codec}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
