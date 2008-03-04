@@ -34,9 +34,6 @@
             <interceptor-stack>TellerClientInterceptors</interceptor-stack>
             <!--proxy-factory>org.jboss.ejb3.test.bank.TellerRemoteProxyFactory</proxy-factory-->
          </remote-binding>
-         <security-identity>
-            <run-as-principal>teller</run-as-principal>
-         </security-identity> 
          <security-domain>java:/jaas/bank</security-domain>
          <method-attributes>
             <method>
