@@ -76,7 +76,6 @@ public abstract class AbstractHandler<X extends RemoteEnvironment> implements In
       // Do not depend on myself
       if(container.hasJNDIBinding(jndiName))
          return;
-      ClassLoader loader = container.getClassloader();
-      ((JBoss5DependencyPolicy) container.getDependencyPolicy()).addJNDIName(jndiName, loader);
+      ((JBoss5DependencyPolicy) container.getDependencyPolicy()).addJNDIName(jndiName);
    }
 }

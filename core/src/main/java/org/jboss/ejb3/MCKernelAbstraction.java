@@ -33,16 +33,13 @@ import javax.management.ReflectionException;
 
 import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
 import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
-import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.plugins.AbstractDemandMetaData;
-import org.jboss.beans.metadata.spi.SupplyMetaData;
+import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.spi.DemandMetaData;
+import org.jboss.beans.metadata.spi.SupplyMetaData;
+import org.jboss.ejb3.embedded.resource.RARDeployment;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.spi.registry.KernelRegistryEntry;
-
-import org.jboss.ejb3.dependency.JndiDemandMetaData;
-import org.jboss.ejb3.embedded.resource.RARDeployment;
-
 import org.jboss.logging.Logger;
 
 /**
@@ -137,14 +134,7 @@ public class MCKernelAbstraction
       log.info("  and demands:");
       for(DemandMetaData dmd : policy.getDemands())
       {
-         if (dmd instanceof JndiDemandMetaData)
-         {
-            log.info("\tJNDI: " + ((JndiDemandMetaData) dmd).getJndiName());
-         }
-         else
-         {
-            log.info("\t" + dmd.getDemand());
-         }
+         log.info("\t" + dmd.getDemand());
       }
       log.info("  and supplies:");
       for(SupplyMetaData smd : policy.getSupplies())
