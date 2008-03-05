@@ -40,7 +40,6 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.persistence.Entity;
 import javax.security.jacc.PolicyConfiguration;
-import javax.security.jacc.PolicyConfigurationFactory;
 
 import org.hibernate.ejb.packaging.PersistenceMetadata;
 import org.jboss.deployers.spi.DeploymentException;
@@ -54,6 +53,7 @@ import org.jboss.ejb3.entity.SecondLevelCacheUtil;
 import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEModule;
+import org.jboss.ejb3.lang.ClassHelper;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
@@ -810,7 +810,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
    {
       if(metaData == null)
          return null;
-      return enterpriseBeanMetaDataClass.cast(metaData.getEnterpriseBean(ejbName));
+      return ClassHelper.cast(enterpriseBeanMetaDataClass, metaData.getEnterpriseBean(ejbName));
    }
    
    /**
