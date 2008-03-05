@@ -82,10 +82,6 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
 
       String link = ref.getLink();
       if (link != null && link.trim().equals("")) link = null;
-      
-      // AbstractEJBReferenceMetaData reports mappedName = link when there is no mappedName
-      if (mappedName != null && link != null && mappedName.equals(link))
-         mappedName = null;
 
       Class<?> refClass = null;
 
