@@ -42,6 +42,7 @@ import javax.ejb.TimerService;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.MethodInfo;
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
@@ -352,6 +353,12 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
             }
             else
             {
+               if (unadvisedMethod.isBridge())
+               {
+                  unadvisedMethod = this.getNonBridgeMethod(unadvisedMethod);
+                  info = super.getMethodInfo(MethodHashing.calculateHash(unadvisedMethod));
+               }
+               
                if (si.getId() == null)
                {
                   StatefulBeanContext ctx = getCache().create(null, null);
@@ -367,7 +374,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
                newSi.setAdvisor(this);
    
                Object rtn = null;
-               
+                 
                invokedMethod.push(new InvokedMethod(false, unadvisedMethod));
                rtn = newSi.invokeNext();
 
