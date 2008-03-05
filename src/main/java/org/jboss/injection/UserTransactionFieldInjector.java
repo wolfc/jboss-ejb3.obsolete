@@ -22,9 +22,10 @@
 package org.jboss.injection;
 
 import java.lang.reflect.Field;
+
 import javax.ejb.TransactionManagementType;
 import javax.transaction.UserTransaction;
-import org.jboss.aop.Advisor;
+
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.tx.TxUtil;
@@ -45,7 +46,7 @@ public class UserTransactionFieldInjector implements Injector
    {
       if (container instanceof Container)
       {
-         TransactionManagementType type = TxUtil.getTransactionManagementType(((Advisor) container));
+         TransactionManagementType type = TxUtil.getTransactionManagementType((Container) container);
          if (type != TransactionManagementType.BEAN)
             throw new IllegalStateException("Container " + ((Container) container).getEjbName() + ": it is illegal to inject UserTransaction into a CMT bean");
       }

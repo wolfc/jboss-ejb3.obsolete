@@ -31,9 +31,11 @@ import javax.transaction.TransactionManager;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.annotation.impl.ApplicationExceptionImpl;
+import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.spec.ApplicationExceptionMetaData;
 import org.jboss.metadata.ejb.spec.ApplicationExceptionsMetaData;
@@ -62,9 +64,20 @@ public class TxUtil
       }
    }
 
-   public static TransactionManagementType getTransactionManagementType(Advisor c)
+   public static TransactionManagementType getTransactionManagementType(Advisor advisor)
    {
-      TransactionManagement transactionManagement = (TransactionManagement) c.resolveAnnotation(TransactionManagement.class);
+      return getTransactionManagementType(EJBContainer.getEJBContainer(advisor));
+   }
+   
+   @Deprecated
+   public static TransactionManagementType getTransactionManagementType(Container container)
+   {
+      return getTransactionManagementType((EJBContainer) container);
+   }
+   
+   public static TransactionManagementType getTransactionManagementType(EJBContainer container)
+   {
+      TransactionManagement transactionManagement = (TransactionManagement) container.getAnnotation(TransactionManagement.class);
       if (transactionManagement == null) return TransactionManagementType.CONTAINER;
       return transactionManagement.value();
    }
@@ -72,7 +85,7 @@ public class TxUtil
    public static ApplicationException getApplicationException(Class<?> exceptionClass, Invocation invocation)
    {
       MethodInvocation ejb = (MethodInvocation) invocation;
-      EJBContainer container = (EJBContainer) ejb.getAdvisor();
+      EJBContainer container = AbstractInterceptor.getEJBContainer(invocation);
 
       // TODO: Wolf: refactor onto a unified metadata view
       

@@ -28,7 +28,6 @@ import javax.naming.NamingException;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.AspectFactory;
-import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.security.AuthenticationManager;
@@ -48,7 +47,8 @@ implements AspectFactory
    public Object createPerClass(Advisor advisor)
    {
       Object domain = null;
-      Container container = (Container)advisor;
+      // Must be a separate line (EJBContainer cannot be dereferenced)
+      EJBContainer container = EJBContainer.getEJBContainer(advisor);
       try
       {
          InitialContext ctx = container.getInitialContext();
@@ -69,7 +69,7 @@ implements AspectFactory
       if (manager == null) throw new RuntimeException("Unable to find Security Domain");
       //return new RoleBasedAuthorizationInterceptor(manager, mapping, container);
       CodeSource ejbCS = advisor.getClazz().getProtectionDomain().getCodeSource();
-      String ejbName = ((EJBContainer)advisor).getEjbName(); 
+      String ejbName = container.getEjbName(); 
       return new RoleBasedAuthorizationInterceptorv2(container, ejbCS, ejbName);
    } 
 }

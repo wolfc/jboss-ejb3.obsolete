@@ -303,7 +303,7 @@ public class JaccHelper
       jaccCtx.addDefaultMetaData(JaccAuthorizationInterceptor.JACC,
                                  JaccAuthorizationInterceptor.CTX, jaccContextId);
 
-      container.addClassMetaData(jaccCtx);
+      container.getAdvisor().addClassMetaData(jaccCtx);
    }
 
    public static void checkPermission(CodeSource ejbCS, EJBMethodPermission methodPerm,

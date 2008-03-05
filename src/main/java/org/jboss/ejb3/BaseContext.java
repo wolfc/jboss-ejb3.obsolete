@@ -22,11 +22,9 @@
 package org.jboss.ejb3;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
-import org.jboss.ejb3.interceptor.InterceptorInjector;
 import org.jboss.logging.Logger;
 import org.jboss.security.RealmMapping;
 
@@ -91,8 +89,10 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
       return metadata;
    }
 
+   @Deprecated
    public void initialiseInterceptorInstances()
    {
+      /*
       HashSet<InterceptorInfo> interceptors = ((EJBContainer)container).getApplicableInterceptors();
       if (interceptors != null && interceptors.size() > 0 && interceptorInstances == null)
       {
@@ -112,8 +112,11 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
             }
          }
       }
+      */
+      log.warn("FIXME: don't call BaseContext.initialiseInterceptorInstances (EJBTHREE-1174)");
    }
 
+   @Deprecated
    public Object[] getInterceptorInstances(InterceptorInfo[] interceptorInfos)
    {
       Object[] interceptors = new Object[interceptorInfos.length];

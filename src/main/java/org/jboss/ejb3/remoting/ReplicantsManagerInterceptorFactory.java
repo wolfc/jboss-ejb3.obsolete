@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.remoting;
 
+import java.util.Map;
+
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.advice.AspectFactory;
@@ -43,8 +45,10 @@ public class ReplicantsManagerInterceptorFactory implements AspectFactory
 
    public Object createPerClass(Advisor advisor)
    {
-      SessionContainer container = (SessionContainer) advisor;
-      return new ReplicantsManagerInterceptor(container.getClusterFamilies());
+      SessionContainer container = SessionContainer.getEJBContainer(advisor);
+      Map<?, ?> families = container.getClusterFamilies();
+      assert families != null : "families is null";
+      return new ReplicantsManagerInterceptor(families);
    }
 
    public Object createPerInstance(Advisor advisor, InstanceAdvisor instanceAdvisor)

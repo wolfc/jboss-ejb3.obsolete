@@ -25,11 +25,11 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
@@ -40,8 +40,11 @@ import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.TimerService;
 
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
+import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
@@ -58,11 +61,13 @@ import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
+import org.jboss.ejb3.aop.LifeCycleInvocation;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
+import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
+import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.proxy.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.handle.HomeHandleImpl;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
@@ -70,6 +75,7 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * Comment
@@ -84,11 +90,10 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
    protected StatefulCache cache;
    private StatefulDelegateWrapper mbean = new StatefulDelegateWrapper(this);
 
-   public StatefulContainer(ClassLoader cl, String beanClassName, String ejbName, AspectManager manager,
-                            Hashtable ctxProperties, InterceptorInfoRepository interceptorRepository,
-                            Ejb3Deployment deployment)
+   public StatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
+                            Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(cl, beanClassName, ejbName, manager, ctxProperties, interceptorRepository, deployment);
+      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
    }
 
    public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues)
@@ -197,7 +202,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = super.getMethodInfo(hash);
+         MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(
@@ -228,7 +233,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = super.getMethodInfo(hash);
+         MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(
@@ -253,7 +258,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
             }
             
             StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
-            nextInvocation.setAdvisor(this);
+            nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
             
             ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
@@ -329,10 +334,10 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       {
          Thread.currentThread().setContextClassLoader(classloader);
          StatefulRemoteInvocation si = (StatefulRemoteInvocation) invocation;
-         MethodInfo info = super.getMethodInfo(si.getMethodHash());
+         MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
          if (info == null)
          {
-            throw new RuntimeException("Could not resolve beanClass method from proxy call");
+            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
          }
 
          InvocationResponse response = null;
@@ -356,7 +361,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
                if (unadvisedMethod.isBridge())
                {
                   unadvisedMethod = this.getNonBridgeMethod(unadvisedMethod);
-                  info = super.getMethodInfo(MethodHashing.calculateHash(unadvisedMethod));
+                  info = super.getMethodInfo(unadvisedMethod);
                }
                
                if (si.getId() == null)
@@ -371,7 +376,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
                newSi = new StatefulContainerInvocation(info, newId);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(this);
+               newSi.setAdvisor(getAdvisor());
    
                Object rtn = null;
                  
@@ -450,15 +455,44 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
             }
          }
       }
-      callbackHandler.postActivate(beanContext);
+      // FIXME: this is just a hack, use an interceptor stack
+      try
+      {
+         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), PostActivate.class));
+         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+         
+         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
+         invocation.setAdvisor(getAdvisor());
+         invocation.setTargetObject(beanContext.getInstance());
+         invocation.invokeNext();
+      }
+      catch(Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
    }
 
    @Override
    public void invokePrePassivate(BeanContext beanContext)
    {
-      callbackHandler.prePassivate(beanContext);
+      // FIXME: this is just a hack, use an interceptor stack
+      try
+      {
+         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), PrePassivate.class));
+         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+         
+         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
+         invocation.setAdvisor(getAdvisor());
+         invocation.setTargetObject(beanContext.getInstance());
+         invocation.invokeNext();
+      }
+      catch(Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
    }
 
+   /*
    @Override
    protected Class[] getHandledCallbacks()
    {
@@ -466,6 +500,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
               {PostConstruct.class, PreDestroy.class, PostActivate.class,
                       PrePassivate.class};
    }
+   */
 
    public void invokeInit(Object bean, Class[] initParameterTypes,
                           Object[] initParameterValues)
@@ -695,7 +730,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
    
    public boolean isClustered()
    {
-      return hasAnnotation(getBeanClass(), Clustered.class.getName());
+      return isAnnotationPresent(Clustered.class);
    }
 
    protected InvocationResponse invokeHomeMethod(MethodInfo info,
@@ -873,7 +908,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
       newStatefulInvocation.setArguments(statefulInvocation.getArguments());
       newStatefulInvocation.setMetaData(statefulInvocation.getMetaData());
-      newStatefulInvocation.setAdvisor(this);
+      newStatefulInvocation.setAdvisor(getAdvisor());
 
       return newStatefulInvocation;
    }
@@ -896,7 +931,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
       newStatefulInvocation.setArguments(statefulInvocation.getArguments());
       newStatefulInvocation.setMetaData(statefulInvocation.getMetaData());
-      newStatefulInvocation.setAdvisor(this);
+      newStatefulInvocation.setAdvisor(getAdvisor());
 
       return newStatefulInvocation;
    }

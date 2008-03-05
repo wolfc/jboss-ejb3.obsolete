@@ -24,14 +24,13 @@ package org.jboss.ejb3.remoting;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.jboss.aop.Dispatcher;
-import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.logging.Logger;
-import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Registry;
+import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.logging.Logger;
+import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 
 /**
  * Routes the call to the local container, bypassing further client-side
@@ -78,7 +77,7 @@ public class IsLocalInterceptor implements Interceptor, Serializable
    {
       Invocation copy = (Invocation) new MarshalledObjectForLocalCalls(invocation).get();
       copy.getMetaData().addMetaData(IS_LOCAL, IS_LOCAL, Boolean.TRUE);
-      org.jboss.aop.joinpoint.InvocationResponse response = ((Advisor) container).dynamicInvoke(null, copy);
+      org.jboss.aop.joinpoint.InvocationResponse response = ((SessionContainer) container).dynamicInvoke(null, copy);
       Map contextInfo = response.getContextInfo();
       if (contextInfo != null)
       {

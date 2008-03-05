@@ -23,6 +23,8 @@ package org.jboss.ejb3;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+
+import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.metadata.SimpleMetaData;
@@ -44,8 +46,8 @@ public class EJBContainerInvocationWrapper<A extends EJBContainer, T extends Bea
 
    public EJBContainerInvocationWrapper(EJBContainerInvocation<A, T> wrapped, Interceptor[] interceptors)
    {
+      super(interceptors, wrapped.getMethodHash(), wrapped.getMethod(), wrapped.getActualMethod(), wrapped.getAdvisor());
       this.wrapped = wrapped;
-      this.interceptors = interceptors;
    }
 
    public Object invokeNext() throws Throwable
@@ -167,7 +169,7 @@ public class EJBContainerInvocationWrapper<A extends EJBContainer, T extends Bea
       return wrapped.invokeNext(newInterceptors);
    }
 
-   public A getAdvisor()
+   public Advisor getAdvisor()
    {
       return wrapped.getAdvisor();
    }

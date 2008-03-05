@@ -32,7 +32,7 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.naming.NamingException;
 
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
@@ -51,12 +51,13 @@ import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
 import org.jboss.proxy.ejb.handle.StatelessHandleImpl;
 
@@ -72,13 +73,15 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
    private static final Logger log = Logger.getLogger(StatelessContainer.class);
 
    protected TimerService timerService;
+   private Method timeout;
    private StatelessDelegateWrapper mbean = new StatelessDelegateWrapper(this);
 
-   public StatelessContainer(ClassLoader cl, String beanClassName, String ejbName, AspectManager manager,
-                             Hashtable ctxProperties, InterceptorInfoRepository interceptorRepository,
-                             Ejb3Deployment deployment)
+   public StatelessContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
+                             Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(cl, beanClassName, ejbName, manager, ctxProperties, interceptorRepository, deployment);
+      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
+      
+      initializeTimeout();
    }
 
    @Override
@@ -115,6 +118,15 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
    public Object getMBean()
    {
       return mbean;
+   }
+   
+   private void initializeTimeout()
+   {
+      JBossSessionBeanMetaData metaData = getMetaData();
+      NamedMethodMetaData timeoutMethodMetaData = null;
+      if(metaData != null)
+         timeoutMethodMetaData = metaData.getTimeoutMethod();
+      this.timeout = getTimeoutCallback(timeoutMethodMetaData, getBeanClass());
    }
    
    public void start() throws Exception
@@ -165,7 +177,6 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
    
    public void callTimeout(Timer timer) throws Exception
    {
-      Method timeout = callbackHandler.getTimeoutCallback();
       if (timeout == null) throw new EJBException("No method has been annotated with @Timeout");
       Object[] args = {timer};
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
@@ -174,9 +185,9 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
          AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsFlags.IN_EJB_TIMEOUT);
          try
          {
-            MethodInfo info = super.getMethodInfo(callbackHandler.getTimeoutCalllbackHash());
+            MethodInfo info = super.getMethodInfo(timeout);
             EJBContainerInvocation nextInvocation = new EJBContainerInvocation(info);
-            nextInvocation.setAdvisor(this);
+            nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
             nextInvocation.invokeNext();
          }
@@ -241,7 +252,7 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
             }
 
             EJBContainerInvocation<StatelessContainer, StatelessBeanContext> nextInvocation = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
-            nextInvocation.setAdvisor(this);
+            nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
             nextInvocation.setContextCallback(callback);
 
@@ -277,10 +288,10 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
       {
          Thread.currentThread().setContextClassLoader(classloader);
          MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = super.getMethodInfo(si.getMethodHash());
+         MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
          if (info == null)
          {
-            throw new RuntimeException("Could not resolve beanClass method from proxy call");
+            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
          }
 
          Method unadvisedMethod = info.getUnadvisedMethod();
@@ -307,7 +318,7 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
                newSi = new EJBContainerInvocation(info);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(this);
+               newSi.setAdvisor(getAdvisor());
                try
                {
                   rtn = newSi.invokeNext();
@@ -341,7 +352,6 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
       {
          Thread.currentThread().setContextClassLoader(oldLoader);
       }
-
    }
 
 

@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.ejb3.JBossProxy;
@@ -89,7 +88,7 @@ public class ServiceRemoteProxyFactory extends BaseServiceProxyFactory implement
             stackName = binding.interceptorStack();
          }
          AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-         Object[] args = {new ServiceRemoteProxy(container, stack.createInterceptors((Advisor) container, null), locator)};
+         Object[] args = {new ServiceRemoteProxy(container, stack.createInterceptors(container.getAdvisor(), null), locator)};
          return proxyConstructor.newInstance(args);
       }
       catch (InstantiationException e)

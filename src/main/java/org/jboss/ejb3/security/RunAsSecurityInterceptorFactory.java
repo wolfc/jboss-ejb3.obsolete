@@ -73,7 +73,7 @@ implements AspectFactory
 
    public Object createPerClass(Advisor advisor)
    {
-      EJBContainer container = (EJBContainer)advisor;
+      EJBContainer container = EJBContainer.getEJBContainer(advisor);
       RunAsIdentity runAsIdentity = getRunAsIdentity(container);
       /*if (runAsIdentity == null)
       {

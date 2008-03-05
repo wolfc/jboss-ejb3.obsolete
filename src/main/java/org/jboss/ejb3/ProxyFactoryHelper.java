@@ -41,7 +41,6 @@ import javax.jws.WebService;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
-import org.jboss.aop.Advisor;
 import org.jboss.ejb3.annotation.JndiBindingPolicy;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.LocalHomeBinding;
@@ -687,7 +686,7 @@ public class ProxyFactoryHelper
          Class<?>[] remotesArray = remoteAndRemoteBusinessInterfaces
                .toArray(new Class[remoteAndRemoteBusinessInterfaces.size()]);
          remoteAnnotation = new RemoteImpl(remotesArray);
-         ((Advisor) container).getAnnotations().addClassAnnotation(Remote.class, remoteAnnotation);
+         ((EJBContainer) container).getAnnotations().addClassAnnotation(Remote.class, remoteAnnotation);
          return remoteAnnotation.value();
       }
       // No remotes were found
@@ -835,13 +834,12 @@ public class ProxyFactoryHelper
       return clientBindUrl;
    }
 
-   public static String getHomeJndiName(Container container)
+   public static String getHomeJndiName(EJBContainer container)
    {
       // Initialize
-      Advisor advisor = (Advisor) container;
 
       // Use explicitly-specified binding, if defined
-      RemoteHomeBinding binding = (RemoteHomeBinding) advisor.resolveAnnotation(RemoteHomeBinding.class);
+      RemoteHomeBinding binding = (RemoteHomeBinding) container.resolveAnnotation(RemoteHomeBinding.class);
       if (binding != null)
          return binding.jndiBinding();
 
@@ -850,13 +848,12 @@ public class ProxyFactoryHelper
             ProxyFactoryHelper.getDeploymentSummaryFromContainer(container));
    }
 
-   public static String getLocalHomeJndiName(Container container)
+   public static String getLocalHomeJndiName(EJBContainer container)
    {
       // Initialize
-      Advisor advisor = (Advisor) container;
 
       // Use explicitly-specified binding, if defined
-      LocalHomeBinding binding = (LocalHomeBinding) advisor.resolveAnnotation(LocalHomeBinding.class);
+      LocalHomeBinding binding = (LocalHomeBinding) container.resolveAnnotation(LocalHomeBinding.class);
       if (binding != null)
          return binding.jndiBinding();
 
@@ -865,18 +862,17 @@ public class ProxyFactoryHelper
             ProxyFactoryHelper.getDeploymentSummaryFromContainer(container));
    }
 
-   public static String getLocalJndiName(Container container)
+   public static String getLocalJndiName(EJBContainer container)
    {
       return getLocalJndiName(container, true);
    }
 
-   private static String getLocalJndiName(Container container, boolean conflictCheck)
+   private static String getLocalJndiName(EJBContainer container, boolean conflictCheck)
    {
       // Initialize
-      Advisor advisor = (Advisor) container;
 
       // See if local binding is explicitly-defined
-      LocalBinding localBinding = (LocalBinding) advisor.resolveAnnotation(LocalBinding.class);
+      LocalBinding localBinding = (LocalBinding) container.resolveAnnotation(LocalBinding.class);
 
       // If none specified
       if (localBinding == null)
@@ -897,22 +893,21 @@ public class ProxyFactoryHelper
       }
    }
 
-   public static String getRemoteJndiName(Container container)
+   public static String getRemoteJndiName(EJBContainer container)
    {
       return getRemoteJndiName(container, true);
    }
 
-   public static String getRemoteJndiName(Container container, boolean check)
+   public static String getRemoteJndiName(EJBContainer container, boolean check)
    {
-      Advisor advisor = (Advisor) container;
-      RemoteBinding binding = (RemoteBinding) advisor.resolveAnnotation(RemoteBinding.class);
+      RemoteBinding binding = (RemoteBinding) container.resolveAnnotation(RemoteBinding.class);
 
       return getRemoteJndiName(container, binding);
    }
 
-   private static void checkForJndiNamingConflict(Container container)
+   private static void checkForJndiNamingConflict(EJBContainer container)
    {
-      if (((Advisor) container).resolveAnnotation(Local.class) != null)
+      if (container.resolveAnnotation(Local.class) != null)
       {
          Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
          String localJndiName = ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultLocalJndiName(summary);
@@ -927,12 +922,12 @@ public class ProxyFactoryHelper
       }
    }
 
-   private static String getRemoteJndiName(Container container, RemoteBinding binding)
+   private static String getRemoteJndiName(EJBContainer container, RemoteBinding binding)
    {
       return getRemoteJndiName(container, binding, true);
    }
 
-   public static String getRemoteJndiName(Container container, RemoteBinding binding, boolean conflictCheck)
+   public static String getRemoteJndiName(EJBContainer container, RemoteBinding binding, boolean conflictCheck)
    {
       String jndiName = null;
       if (binding == null || binding.jndiBinding() == null || binding.jndiBinding().equals(""))
@@ -950,7 +945,7 @@ public class ProxyFactoryHelper
       return jndiName;
    }
 
-   public static String getDefaultRemoteJndiName(Container container)
+   public static String getDefaultRemoteJndiName(EJBContainer container)
    {
       return ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultRemoteJndiName(
             ProxyFactoryHelper.getDeploymentSummaryFromContainer(container));

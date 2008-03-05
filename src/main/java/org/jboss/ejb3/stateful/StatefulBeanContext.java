@@ -84,7 +84,10 @@ public class StatefulBeanContext extends SessionBeanContext implements Identifia
           
          if (isClustered && container == null)
             container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
-        
+         
+         if(container == null)
+            throw new IllegalStateException("Can't find container " + containerGuid);
+         
          StatefulBeanContext context = new StatefulBeanContext(container, beanMO);
          context.id = this.id;
          context.metadata = this.metadata;

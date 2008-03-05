@@ -24,18 +24,16 @@ package org.jboss.ejb3.stateful;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.rmi.dgc.VMID;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import java.rmi.dgc.VMID;
-
 import javax.ejb.LocalHome;
 import javax.naming.NamingException;
 
-import org.jboss.aop.Advisor;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.LocalBinding;
@@ -164,7 +162,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    protected StatefulHandleImpl getHandle()
    {
       StatefulHandleImpl handle = new StatefulHandleImpl();
-      LocalBinding remoteBinding = (LocalBinding) ((Advisor)getContainer()).resolveAnnotation(LocalBinding.class);
+      LocalBinding remoteBinding = (LocalBinding) getContainer().resolveAnnotation(LocalBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding();
 

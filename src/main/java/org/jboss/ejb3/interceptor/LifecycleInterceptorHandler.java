@@ -42,7 +42,9 @@ import org.jboss.logging.Logger;
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision$
+ * @deprecated EJBTHREE-1174
  */
+@Deprecated
 public class LifecycleInterceptorHandler
 {
    private static final Logger log = Logger.getLogger(LifecycleInterceptorHandler.class);
@@ -61,6 +63,7 @@ public class LifecycleInterceptorHandler
 
    public LifecycleInterceptorHandler(EJBContainer container, Class[] handledCallbacks)
    {
+      /*
       this.container = container;
       InterceptorInfoRepository repostitory = container.getInterceptorRepository();
       for (Class clazz : handledCallbacks)
@@ -90,6 +93,8 @@ public class LifecycleInterceptorHandler
             resolveTimeoutCallback();
          }
       }
+      */
+      throw new RuntimeException("no longer supported (EJBTHREE-1174)");
    }
 
    public long getTimeoutCalllbackHash()

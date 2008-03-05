@@ -19,13 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.cachepassivation;
+package org.jboss.ejb3.aop;
 
-import java.util.Hashtable;
-
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.InvocationBase;
 
 /**
  * Comment
@@ -33,20 +31,40 @@ import org.jboss.ejb3.stateful.StatefulContainer;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class MockStatefulContainer extends StatefulContainer
+public class LifeCycleInvocation extends InvocationBase
 {
+   private static final long serialVersionUID = 1L;
 
-   @SuppressWarnings("unchecked")
-   public MockStatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
-         Hashtable ctxProperties, Ejb3Deployment deployment) throws ClassNotFoundException
+   public LifeCycleInvocation(Interceptor interceptors[])
    {
-      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, null);
+      super(interceptors);
+   }
+   
+   public Invocation copy()
+   {
+      return new LifeCycleInvocation(interceptors);
+   }
+
+   public Invocation getWrapper(Interceptor[] newchain)
+   {
+      return new LifeCycleInvocation(newchain);
    }
    
    @Override
-   public Object createSession()
+   public Object invokeNext() throws Throwable
    {
-      // TODO Auto-generated method stub
-      return super.createSession();
+      if (interceptors != null && currentInterceptor < interceptors.length)
+      {
+         try
+         {
+            return interceptors[currentInterceptor++].invoke(this);
+         }
+         finally
+         {
+            // so that interceptors like clustering can reinvoke down the chain
+            currentInterceptor--;
+         }
+      }
+      return null;
    }
 }

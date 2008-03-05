@@ -37,7 +37,7 @@ import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.deployment.DeploymentException;
 import org.jboss.ejb3.BeanContext;
@@ -47,14 +47,15 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Module;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.ResourceAdapter;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.jms.JMSDestinationFactory;
 import org.jboss.ejb3.mdb.inflow.JBossMessageEndpointFactory;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.jms.jndi.JMSProviderAdapter;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.spec.ActivationConfigPropertyMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -65,6 +66,7 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
    private static final Logger log = Logger.getLogger(MessagingContainer.class);
    
    protected TimerService timerService;
+   private Method timeout;
    protected ActivationSpec activationSpec = new ActivationSpec();
    protected JBossMessageEndpointFactory messageEndpointFactory;
    private MessagingDelegateWrapper mbean = new MessagingDelegateWrapper(this);
@@ -76,13 +78,15 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
     */
    protected final static String DEFAULT_DESTINATION_TYPE = "javax.jms.Topic";
 
-   public MessagingContainer(String ejbName, AspectManager manager, ClassLoader cl, String beanClassName, Hashtable ctxProperties,
-              InterceptorInfoRepository interceptorRepository, Ejb3Deployment deployment)
+   public MessagingContainer(String ejbName, Domain domain, ClassLoader cl, String beanClassName, Hashtable ctxProperties,
+              Ejb3Deployment deployment, JBossEnterpriseBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(Ejb3Module.BASE_EJB3_JMX_NAME + ",name=" + ejbName, manager, cl, beanClassName, ejbName, ctxProperties, interceptorRepository, deployment);
+      super(Ejb3Module.BASE_EJB3_JMX_NAME + ",name=" + ejbName, domain, cl, beanClassName, ejbName, ctxProperties, deployment, beanMetaData);
       
       messageEndpointFactory = new JBossMessageEndpointFactory();
       messageEndpointFactory.setContainer(this);
+      
+      initializeTimeout();
    }
    
    @Override
@@ -96,14 +100,31 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
       return mbean;
    }
    
+   protected JBossEnterpriseBeanMetaData getMetaData()
+   {
+      // TODO: resolve this cast using generics on EJBContainer
+      return (JBossEnterpriseBeanMetaData) getXml();
+   }
+   
+   abstract protected NamedMethodMetaData getTimeoutMethodMetaData();
+   
    public abstract Class getMessagingType();
    
    public abstract Map<String, ActivationConfigPropertyMetaData> getActivationConfigProperties();
    
    protected abstract void populateActivationSpec();
    
-   public abstract MethodInfo getMethodInfo(Method method);
+   @Deprecated
+   public MethodInfo getMethodInfo(Method method)
+   {
+      return super.getMethodInfo(method);
+   }
 
+   private void initializeTimeout()
+   {
+      this.timeout = getTimeoutCallback(getTimeoutMethodMetaData(), getBeanClass());
+   }
+   
    public void setMessageEndpointFactory(JBossMessageEndpointFactory messageEndpointFactory)
    {
       this.messageEndpointFactory = messageEndpointFactory;
@@ -231,17 +252,16 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
          throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
       }
       return localInvoke(info, args);
-
    }
 
    public Object localInvoke(MethodInfo info, Object[] args) throws Throwable
-   {     
+   {
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       pushEnc();
       try
       {
          EJBContainerInvocation nextInvocation = new EJBContainerInvocation(info);
-         nextInvocation.setAdvisor(this);
+         nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
          return nextInvocation.invokeNext();
       }
@@ -265,7 +285,6 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
    
    public void callTimeout(Timer timer) throws Exception
    {
-      Method timeout = callbackHandler.getTimeoutCallback();
       if (timeout == null) throw new EJBException("No method has been annotated with @Timeout");
       Object[] args = {timer};
       try

@@ -22,9 +22,10 @@
 package org.jboss.ejb3;
 
 import java.net.URL;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Hashtable;
+
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.virtual.VirtualFile;
 import org.jboss.virtual.VirtualFileFilter;

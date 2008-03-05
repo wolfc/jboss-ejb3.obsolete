@@ -21,14 +21,12 @@
  */ 
 package org.jboss.ejb3.interceptor;
 
-import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.Container;
-import org.jboss.ejb3.EJBContainer;
-import org.jboss.injection.Injector;
-import org.jboss.injection.PojoInjector;
-import org.jboss.metadata.ejb.spec.InterceptorMetaData;
 import java.lang.reflect.AccessibleObject;
 import java.util.Map;
+
+import org.jboss.ejb3.BeanContext;
+import org.jboss.injection.Injector;
+import org.jboss.injection.PojoInjector;
 
 /**
  * 
@@ -37,33 +35,13 @@ import java.util.Map;
  */
 public class InterceptorInjector
 {
-   EJBContainer container;
-   InterceptorInfo info;
-   PojoInjector[] injectors;
-   protected Map<AccessibleObject, Injector> encInjections;
+   private PojoInjector[] injectors;
    
-   public InterceptorInjector(Container container, InterceptorInfo info, Map<AccessibleObject, Injector> injections)
+   public InterceptorInjector(Map<AccessibleObject, Injector> injections)
    {
-      this.container = (EJBContainer)container;
-      this.info = info;
       injectors = injections.values().toArray(new PojoInjector[injections.size()]);
    }
 
-   public InterceptorMetaData getXml()
-   {
-      return info.getXml();
-   }
-   
-   public Class<?> getClazz()
-   {
-      return info.getClazz();
-   }
-   
-   public Container getContainer()
-   {
-      return container;
-   }
-   
    public void inject(BeanContext ctx, Object instance)
    {
       for (PojoInjector injector : injectors)
