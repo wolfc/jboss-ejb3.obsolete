@@ -21,8 +21,8 @@
  */
 package org.jboss.ejb3;
 
-import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.ejb3.aop.AbstractInterceptor;
 
 /**
  * This interceptor is needed so that the ENC is propagated in asynchronous calls.
@@ -30,16 +30,11 @@ import org.jboss.aop.joinpoint.Invocation;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class ENCPropagationInterceptor implements Interceptor
+public class ENCPropagationInterceptor extends AbstractInterceptor
 {
-   public String getName()
-   {
-      return this.getClass().getName();
-   }
-
    public Object invoke(Invocation invocation) throws Throwable
    {
-      EJBContainer container = (EJBContainer) invocation.getAdvisor();
+      EJBContainer container = getEJBContainer(invocation);
       try
       {
          container.pushEnc();

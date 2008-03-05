@@ -24,6 +24,7 @@ package org.jboss.ejb3.security;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.AspectFactory;
 import org.jboss.ejb3.Container;
+import org.jboss.ejb3.EJBContainer;
 import org.jboss.logging.Logger;
 import org.jboss.security.AuthenticationManager;
 
@@ -39,7 +40,7 @@ implements AspectFactory
    
    public Object createPerClass(Advisor advisor)
    {
-      Container container = (Container)advisor;
+      Container container = EJBContainer.getEJBContainer(advisor);
       AuthenticationManager manager = container.getSecurityManager(AuthenticationManager.class);
       log.debug("Creating interceptor with authentication manager '" + manager + "'" + (manager != null ? " (security domain '" + manager.getSecurityDomain() + "')" : ""));
       //return new Ejb3AuthenticationInterceptor(manager, container);

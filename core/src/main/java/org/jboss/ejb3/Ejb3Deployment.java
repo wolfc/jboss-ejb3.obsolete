@@ -59,6 +59,7 @@ import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.system.ServiceMBeanSupport;
@@ -797,6 +798,21 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
       return messageDestinationResolver;
    }
 
+   /**
+    * Do not call, for use in Ejb3Handler.
+    * 
+    * @param <B>
+    * @param ejbName
+    * @param enterpriseBeanMetaDataClass
+    * @return
+    */
+   protected <B extends JBossEnterpriseBeanMetaData> B getEnterpriseBeanMetaData(String ejbName, Class<B> enterpriseBeanMetaDataClass)
+   {
+      if(metaData == null)
+         return null;
+      return enterpriseBeanMetaDataClass.cast(metaData.getEnterpriseBean(ejbName));
+   }
+   
    /**
     * Get the meta data associated with this deployment or null if none.
     * 

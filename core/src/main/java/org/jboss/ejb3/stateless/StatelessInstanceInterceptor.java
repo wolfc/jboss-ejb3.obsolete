@@ -21,17 +21,19 @@
  */
 package org.jboss.ejb3.stateless;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.ejb3.*;
-import org.jboss.ejb3.pool.Pool;
-import org.jboss.ejb3.stateful.StatefulRemoveInterceptor;
-import org.jboss.ejb3.tx.Ejb3TxPolicy;
-import org.jboss.logging.Logger;
+import java.rmi.RemoteException;
 
 import javax.ejb.EJBException;
-import java.rmi.RemoteException;
+
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.BeanContext;
+import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.EJBContainerInvocation;
+import org.jboss.ejb3.aop.AbstractInterceptor;
+import org.jboss.ejb3.pool.Pool;
+import org.jboss.ejb3.stateful.StatefulRemoveInterceptor;
+import org.jboss.logging.Logger;
 
 /**
  * Comment
@@ -39,7 +41,7 @@ import java.rmi.RemoteException;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatelessInstanceInterceptor implements Interceptor
+public class StatelessInstanceInterceptor extends AbstractInterceptor
 {
    private static final Logger log = Logger.getLogger(StatelessInstanceInterceptor.class);
 
@@ -51,7 +53,7 @@ public class StatelessInstanceInterceptor implements Interceptor
    public Object invoke(Invocation invocation) throws Throwable
    {
       EJBContainerInvocation ejb = (EJBContainerInvocation) invocation;
-      EJBContainer container = (EJBContainer)ejb.getAdvisor();
+      EJBContainer container = getEJBContainer(invocation);
       Pool pool = container.getPool();
       BeanContext<?> ctx = pool.get();
       ejb.setTargetObject(ctx.getInstance());

@@ -87,7 +87,7 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       this.isClustered = container.isClustered();
    }
    
-   protected Container getContainer()
+   protected EJBContainer getContainer()
    {
       if (container == null)
       {

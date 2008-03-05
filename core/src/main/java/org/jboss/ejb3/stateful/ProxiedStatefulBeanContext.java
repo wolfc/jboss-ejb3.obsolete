@@ -28,10 +28,11 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
+
 import javax.ejb.EJBContext;
 import javax.persistence.EntityManager;
+
 import org.jboss.aop.metadata.SimpleMetaData;
-import org.jboss.ejb3.Container;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
 import org.jboss.ejb3.session.SessionContainer;
 
@@ -308,11 +309,13 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
       getDelegate().extractBeanAndInterceptors();
    }
 
+   /*
    @Override
    public void initialiseInterceptorInstances()
    {
       getDelegate().initialiseInterceptorInstances();
    }
+   */
 
    @Override
    public EJBContext getEJBContext()

@@ -19,13 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.cachepassivation;
+package org.jboss.ejb3.aop;
 
-import java.util.Hashtable;
-
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.ejb3.EJBContainer;
 
 /**
  * Comment
@@ -33,20 +31,18 @@ import org.jboss.ejb3.stateful.StatefulContainer;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class MockStatefulContainer extends StatefulContainer
+public abstract class AbstractInterceptor implements Interceptor
 {
-
    @SuppressWarnings("unchecked")
-   public MockStatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
-         Hashtable ctxProperties, Ejb3Deployment deployment) throws ClassNotFoundException
+   public static <C extends EJBContainer> C getEJBContainer(Invocation invocation)
    {
-      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, null);
+      // Because of Sun JDK we must cast it to something, or else there will be
+      // no upper bound.
+      return (C) EJBContainer.getEJBContainer(invocation.getAdvisor());
    }
    
-   @Override
-   public Object createSession()
+   public String getName()
    {
-      // TODO Auto-generated method stub
-      return super.createSession();
+      return getClass().getName();
    }
 }

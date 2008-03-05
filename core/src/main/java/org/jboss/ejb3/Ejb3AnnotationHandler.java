@@ -34,14 +34,21 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.ejb3.mdb.ConsumerContainer;
 import org.jboss.ejb3.mdb.MDB;
-import org.jboss.ejb3.metamodel.EnterpriseBean;
 import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossConsumerBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -100,6 +107,56 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
       visible = (AnnotationsAttribute) cf.getAttribute(AnnotationsAttribute.visibleTag);
    }
 
+   /**
+    * The link from an enterprise bean to it's interceptors is via the EJB Jar meta data.
+    * So we try to recreate that link it's not already established.
+    * 
+    * Because of a bug in jboss-metadata an annotated bean will not always
+    * get some meta data, so we create some for it.
+    * 
+    * TODO: JBMETA-4
+    * 
+    * @param <M>
+    * @param deployment
+    * @param ejbName
+    * @param enterpriseBeanMetaDataClass
+    * @return
+    */
+   private <M extends JBossEnterpriseBeanMetaData> M getEnterpriseBeanMetaData(Ejb3Deployment deployment, String ejbName, Class<M> enterpriseBeanMetaDataClass)
+   {
+      JBossMetaData ejbJarMetaData = deployment.getMetaData();
+      // If there is no meta data at all, don't establish the link.
+      if(ejbJarMetaData == null)
+         return null;
+      
+      M beanMetaData = deployment.getEnterpriseBeanMetaData(ejbName, enterpriseBeanMetaDataClass);
+      if(beanMetaData == null)
+      {
+         log.warn("JBMETA-4: did not find any bean meta data for annotation bean " + ejbName + ", will create some");
+         try
+         {
+            beanMetaData = enterpriseBeanMetaDataClass.newInstance();
+         }
+         catch (InstantiationException e)
+         {
+            throw new RuntimeException();
+         }
+         catch (IllegalAccessException e)
+         {
+            throw new RuntimeException();
+         }
+         beanMetaData.setEjbName(ejbName);
+         JBossEnterpriseBeansMetaData enterpriseBeans = ejbJarMetaData.getEnterpriseBeans();
+         if(enterpriseBeans == null)
+         {
+            enterpriseBeans = new JBossEnterpriseBeansMetaData();
+            ejbJarMetaData.setEnterpriseBeans(enterpriseBeans);
+         }
+         enterpriseBeans.add(beanMetaData);
+      }
+      return beanMetaData;
+   }
+   
    public void setCtxProperties(Hashtable ctxProperties)
    {
       this.ctxProperties = ctxProperties;
@@ -131,41 +188,44 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
 
    public List getContainers(ClassFile cf, Ejb3Deployment deployment) throws Exception
    {
-      List containers = new ArrayList();
+      List<EJBContainer> containers = new ArrayList<EJBContainer>();
 
       populateBaseInfo();
 
+      // TODO: because Ejb3Deployment.deploy will first do annotation deployments
+      // and then meta data deployments, bean meta data will never be attached to
+      // the container. So we do it here.
       for (int ejbIndex = 0; ejbIndex < ejbNames.size(); ++ejbIndex)
       {
          String ejbName = ejbNames.get(ejbIndex);
          if (ejbType == EJB_TYPE.STATELESS)
          {
-            EJBContainer container = getStatelessContainer(ejbIndex);
+            EJBContainer container = getStatelessContainer(ejbIndex, getEnterpriseBeanMetaData(deployment, ejbName, JBossSessionBeanMetaData.class));
             container.setJaccContextId(getJaccContextId());
             containers.add(container);
          }
          else if (ejbType == EJB_TYPE.STATEFUL)
          {
-            StatefulContainer container = getStatefulContainer(ejbIndex);
+            StatefulContainer container = getStatefulContainer(ejbIndex, getEnterpriseBeanMetaData(deployment, ejbName, JBossSessionBeanMetaData.class));
             container.setJaccContextId(getJaccContextId());
             containers.add(container);
          }
          else if (ejbType == EJB_TYPE.MESSAGE_DRIVEN)
          {
-            MDB container = getMDB(ejbIndex);
+            MDB container = getMDB(ejbIndex, getEnterpriseBeanMetaData(deployment, ejbName, JBossMessageDrivenBeanMetaData.class));
             validateMDBTransactionAttribute(container);
             container.setJaccContextId(getJaccContextId());
             containers.add(container);
          }
          else if (ejbType == EJB_TYPE.SERVICE)
          {
-            ServiceContainer container = getServiceContainer(ejbIndex);
+            ServiceContainer container = getServiceContainer(ejbIndex, getEnterpriseBeanMetaData(deployment, ejbName, JBossServiceBeanMetaData.class));
             container.setJaccContextId(getJaccContextId());
             containers.add(container);
          }
          else if (ejbType == EJB_TYPE.CONSUMER)
          {
-            ConsumerContainer container = getConsumerContainer(ejbIndex);
+            ConsumerContainer container = getConsumerContainer(ejbIndex, getEnterpriseBeanMetaData(deployment, ejbName, JBossConsumerBeanMetaData.class));
             container.setJaccContextId(getJaccContextId());
             containers.add(container);
          }
@@ -192,7 +252,7 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
       return EJB3Util.getAspectDomain(visible, defaultDomain);
    }
 
-   protected ServiceContainer getServiceContainer(int ejbIndex) throws Exception
+   protected ServiceContainer getServiceContainer(int ejbIndex, JBossServiceBeanMetaData beanMetaData) throws Exception
    {
       String containerName = getAspectDomain(ejbIndex, defaultServiceDomain);
       DomainDefinition domain = AspectManager.instance().getContainer(containerName);
@@ -202,12 +262,12 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
                  + containerName + "''");
 
       return new ServiceContainer(deployment.getMbeanServer(), di.getClassLoader(), className,
-              ejbNames.get(ejbIndex), (AspectManager) domain.getManager(), ctxProperties,
-              di.getInterceptorInfoRepository(), deployment);
+              ejbNames.get(ejbIndex), (Domain) domain.getManager(), ctxProperties,
+              deployment, beanMetaData);
 
    }
 
-   protected ConsumerContainer getConsumerContainer(int ejbIndex) throws Exception
+   protected ConsumerContainer getConsumerContainer(int ejbIndex, JBossConsumerBeanMetaData beanMetaData) throws Exception
    {
       String containerName = getAspectDomain(ejbIndex, defaultConsumerDomain);
       DomainDefinition domain = AspectManager.instance().getContainer(containerName);
@@ -216,13 +276,13 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
          throw new RuntimeException("No container configured with name '"
                  + containerName + "''");
 
-      return new ConsumerContainer(ejbNames.get(ejbIndex), (AspectManager) domain.getManager(),
+      return new ConsumerContainer(ejbNames.get(ejbIndex), (Domain) domain.getManager(),
               di.getClassLoader(), className, ctxProperties,
-              di.getInterceptorInfoRepository(), deployment);
+              deployment, beanMetaData);
 
    }
 
-   protected StatefulContainer getStatefulContainer(int ejbIndex) throws Exception
+   protected StatefulContainer getStatefulContainer(int ejbIndex, JBossSessionBeanMetaData beanMetaData) throws Exception
    {
       String containerName = getAspectDomain(ejbIndex, defaultSFSBDomain);
       DomainDefinition domain = AspectManager.instance().getContainer(containerName);
@@ -232,12 +292,12 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
                  + containerName + "''");
 
       return new StatefulContainer(di.getClassLoader(), className,
-              ejbNames.get(ejbIndex), (AspectManager) domain.getManager(), ctxProperties,
-              di.getInterceptorInfoRepository(), deployment);
+              ejbNames.get(ejbIndex), (Domain) domain.getManager(), ctxProperties,
+              deployment, beanMetaData);
 
    }
 
-   protected EJBContainer getStatelessContainer(int ejbIndex) throws Exception
+   protected EJBContainer getStatelessContainer(int ejbIndex, JBossSessionBeanMetaData beanMetaData) throws Exception
    {
       String containerName = getAspectDomain(ejbIndex, defaultSLSBDomain);
       
@@ -248,9 +308,8 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
                  + containerName + "''");
 
       return new StatelessContainer(di.getClassLoader(), className,
-              ejbNames.get(ejbIndex), (AspectManager) domain.getManager(),
-              ctxProperties, di.getInterceptorInfoRepository(),
-              deployment);
+              ejbNames.get(ejbIndex), (Domain) domain.getManager(),
+              ctxProperties, deployment, beanMetaData);
    }
 
    protected String getMDBDomainName(int ejbIndex)
@@ -263,12 +322,7 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
 
    }
 
-   protected MDB getMDB(int ejbIndex) throws Exception
-   {
-      return getMDB(ejbIndex, null);
-   }
-
-   protected MDB getMDB(int ejbIndex, EnterpriseBean xml) throws Exception
+   protected MDB getMDB(int ejbIndex, JBossMessageDrivenBeanMetaData beanMetaData) throws Exception
    {
       String domainName = getMDBDomainName(ejbIndex);
       
@@ -279,8 +333,8 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
          throw new RuntimeException("No container configured with name '"
                  + containerName + "''");
 
-      MDB container = new MDB(ejbNames.get(ejbIndex), (AspectManager) domain.getManager(), di.getClassLoader(), className,
-              ctxProperties, di.getInterceptorInfoRepository(), deployment);
+      MDB container = new MDB(ejbNames.get(ejbIndex), (Domain) domain.getManager(), di.getClassLoader(), className,
+              ctxProperties, deployment, beanMetaData);
 
       return container;
    }

@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
-import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.ejb3.EJBContainer;
@@ -153,7 +152,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
    protected StatelessHandleImpl getHandle()
    {
       StatelessHandleImpl handle = new StatelessHandleImpl();
-      RemoteBinding remoteBinding = (RemoteBinding) ((Advisor)getContainer()).resolveAnnotation(RemoteBinding.class);
+      RemoteBinding remoteBinding = (RemoteBinding) getContainer().resolveAnnotation(RemoteBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding() ;
 
@@ -171,7 +170,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
          }
          AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
          StatelessRemoteProxy proxy = new StatelessRemoteProxy(getContainer(),
-               stack.createInterceptors((Advisor) getContainer(), null), locator);
+               stack.createInterceptors(getContainer().getAdvisor(), null), locator);
          setEjb21Objects(proxy);
          Class[] interfaces = {homeInterface};
          return java.lang.reflect.Proxy.newProxyInstance(getContainer().getBeanClass().getClassLoader(), interfaces, proxy);
@@ -184,41 +183,16 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
 
    public Object createProxy()
    {
-//      try
+      String stackName = "StatelessSessionClientInterceptors";
+      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
       {
-         String stackName = "StatelessSessionClientInterceptors";
-         if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
-         {
-            stackName = binding.interceptorStack();
-         }
-         AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-         StatelessRemoteProxy proxy = new StatelessRemoteProxy(getContainer(),
-               stack.createInterceptors((Advisor) getContainer(), null), locator);
-         setEjb21Objects(proxy);
-         /*
-         Object[] args = {proxy};
-         return proxyConstructor.newInstance(args);
-         */
-         return constructProxy(proxy);
+         stackName = binding.interceptorStack();
       }
-      /*
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new RuntimeException(e.getTargetException());  //To change body of catch statement use Options | File Templates.
-      }
-      */
+      AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
+      StatelessRemoteProxy proxy = new StatelessRemoteProxy(getContainer(),
+            stack.createInterceptors(getContainer().getAdvisor(), null), locator);
+      setEjb21Objects(proxy);
+      return constructProxy(proxy);
    }
 
 }

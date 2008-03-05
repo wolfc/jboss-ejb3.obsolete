@@ -27,7 +27,6 @@ import java.util.Set;
 
 import javax.ejb.LocalHome;
 
-import org.jboss.aop.Advisor;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
@@ -157,7 +156,7 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    protected StatelessHandleImpl getHandle()
    {
       StatelessHandleImpl handle = new StatelessHandleImpl();
-      LocalBinding remoteBinding = (LocalBinding) ((Advisor)getContainer()).resolveAnnotation(LocalBinding.class);
+      LocalBinding remoteBinding = (LocalBinding) getContainer().resolveAnnotation(LocalBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding();
 

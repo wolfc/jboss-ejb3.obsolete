@@ -55,7 +55,6 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.AroundInvoke;
-import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
 
@@ -65,7 +64,6 @@ import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.Consumer;
 import org.jboss.ejb3.annotation.CurrentMessage;
 import org.jboss.ejb3.annotation.DefaultActivationSpecs;
-import org.jboss.ejb3.annotation.DefaultInterceptorMarker;
 import org.jboss.ejb3.annotation.DeliveryMode;
 import org.jboss.ejb3.annotation.Depends;
 import org.jboss.ejb3.annotation.IgnoreDependency;
@@ -93,10 +91,8 @@ import org.jboss.ejb3.annotation.impl.ConsumerImpl;
 import org.jboss.ejb3.annotation.impl.CurrentMessageImpl;
 import org.jboss.ejb3.annotation.impl.DeclareRolesImpl;
 import org.jboss.ejb3.annotation.impl.DefaultActivationSpecsImpl;
-import org.jboss.ejb3.annotation.impl.DefaultInterceptorMarkerImpl;
 import org.jboss.ejb3.annotation.impl.DenyAllImpl;
 import org.jboss.ejb3.annotation.impl.DependsImpl;
-import org.jboss.ejb3.annotation.impl.ExcludeClassInterceptorsImpl;
 import org.jboss.ejb3.annotation.impl.ExcludeDefaultInterceptorsImpl;
 import org.jboss.ejb3.annotation.impl.IgnoreDependencyImpl;
 import org.jboss.ejb3.annotation.impl.InitImpl;
@@ -153,6 +149,7 @@ import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.LocalProducerMetaData;
 import org.jboss.metadata.ejb.jboss.MessagePropertiesMetaData;
 import org.jboss.metadata.ejb.jboss.MethodAttributeMetaData;
 import org.jboss.metadata.ejb.jboss.MethodAttributesMetaData;
@@ -408,31 +405,31 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
             ejbClass = di.getClassLoader().loadClass(className);
             if (ejbType == EJB_TYPE.STATELESS)
             {
-               EJBContainer container = getStatelessContainer(ejbIndex);
+               EJBContainer container = getStatelessContainer(ejbIndex, (JBossSessionBeanMetaData) enterpriseBean);
                container.setJaccContextId(getJaccContextId());
                containers.add(container);
             }
             else if (ejbType == EJB_TYPE.STATEFUL)
             {
-               StatefulContainer container = getStatefulContainer(ejbIndex);
+               StatefulContainer container = getStatefulContainer(ejbIndex, (JBossSessionBeanMetaData) enterpriseBean);
                container.setJaccContextId(getJaccContextId());
                containers.add(container);
             }
             else if (ejbType == EJB_TYPE.MESSAGE_DRIVEN)
             {
-               MDB container = getMDB(ejbIndex);
+               MDB container = getMDB(ejbIndex, (JBossMessageDrivenBeanMetaData) enterpriseBean);
                container.setJaccContextId(getJaccContextId());
                containers.add(container);
             }
             else if (ejbType == EJB_TYPE.SERVICE)
             {
-               ServiceContainer container = getServiceContainer(ejbIndex);
+               ServiceContainer container = getServiceContainer(ejbIndex, (JBossServiceBeanMetaData) enterpriseBean);
                container.setJaccContextId(getJaccContextId());
                containers.add(container);
             }
             else if (ejbType == EJB_TYPE.CONSUMER)
             {
-               ConsumerContainer container = getConsumerContainer(ejbIndex);
+               ConsumerContainer container = getConsumerContainer(ejbIndex, (JBossConsumerBeanMetaData) enterpriseBean);
                container.setJaccContextId(getJaccContextId());
                containers.add(container);
             }
@@ -443,14 +440,13 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       return containers;
    }
 
-   protected StatefulContainer getStatefulContainer(int ejbIndex)
+   @Override
+   protected StatefulContainer getStatefulContainer(int ejbIndex, JBossSessionBeanMetaData enterpriseBean)
          throws Exception
    {
       String ejbName = ejbNames.get(ejbIndex);
 
-      JBossEnterpriseBeanMetaData enterpriseBean = ejbs.get(ejbIndex);
-
-      StatefulContainer container = super.getStatefulContainer(ejbIndex);
+      StatefulContainer container = super.getStatefulContainer(ejbIndex, enterpriseBean);
 
       container.setAssemblyDescriptor(dd.getAssemblyDescriptor());
 
@@ -482,14 +478,13 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       }
    }
 
-   protected EJBContainer getStatelessContainer(int ejbIndex)
+   @Override
+   protected EJBContainer getStatelessContainer(int ejbIndex, JBossSessionBeanMetaData enterpriseBean)
          throws Exception
    {
       String ejbName = ejbNames.get(ejbIndex);
 
-      JBossEnterpriseBeanMetaData enterpriseBean = ejbs.get(ejbIndex);
-
-      EJBContainer container = super.getStatelessContainer(ejbIndex);
+      EJBContainer container = super.getStatelessContainer(ejbIndex, enterpriseBean);
 
       container.setAssemblyDescriptor(dd.getAssemblyDescriptor());
 
@@ -509,14 +504,13 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       return container;
    }
 
-   protected ServiceContainer getServiceContainer(int ejbIndex)
+   @Override
+   protected ServiceContainer getServiceContainer(int ejbIndex, JBossServiceBeanMetaData service)
          throws Exception
    {
       String ejbName = ejbNames.get(ejbIndex);
 
-      JBossServiceBeanMetaData service = (JBossServiceBeanMetaData) ejbs.get(ejbIndex);
-
-      ServiceContainer container = super.getServiceContainer(ejbIndex);
+      ServiceContainer container = super.getServiceContainer(ejbIndex, service);
       ServiceImpl annotation = new ServiceImpl((Service) container
             .resolveAnnotation(Service.class));
 
@@ -542,14 +536,13 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       return container;
    }
 
-   protected ConsumerContainer getConsumerContainer(int ejbIndex)
+   @Override
+   protected ConsumerContainer getConsumerContainer(int ejbIndex, JBossConsumerBeanMetaData consumer)
          throws Exception
    {
       String ejbName = ejbNames.get(ejbIndex);
 
-      JBossConsumerBeanMetaData consumer = (JBossConsumerBeanMetaData) ejbs.get(ejbIndex);
-
-      ConsumerContainer container = super.getConsumerContainer(ejbIndex);
+      ConsumerContainer container = super.getConsumerContainer(ejbIndex, consumer);
       ConsumerImpl annotation = new ConsumerImpl((Consumer) container
             .resolveAnnotation(Consumer.class));
 
@@ -589,18 +582,18 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       return defaultMDBDomain;
    }
 
-   protected MDB getMDB(int ejbIndex) throws Exception
+   @Override
+   protected MDB getMDB(int ejbIndex, JBossMessageDrivenBeanMetaData enterpriseBean) throws Exception
    {
       String ejbName = ejbNames.get(ejbIndex);
 
-      JBossEnterpriseBeanMetaData enterpriseBean = ejbs.get(ejbIndex);
-
-      MDB container = super.getMDB(ejbIndex);
+      MDB container = super.getMDB(ejbIndex, enterpriseBean);
 
       container.setAssemblyDescriptor(dd.getAssemblyDescriptor());
 
       if(enterpriseBean instanceof JBossMessageDrivenBeanMetaData)
          addMDBAnnotations(container, ejbName, (JBossMessageDrivenBeanMetaData) enterpriseBean);
+      /*
       else if(enterpriseBean instanceof JBossGenericBeanMetaData)
       {
          // EJBTHREE-936: TODO: unsupported wickedness starts here
@@ -609,6 +602,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          
          addMDBAnnotations(container, ejbName, mdb);
       }
+      */
 
       // An MDB doesn't have business interfaces, or does it?
       //addInterfaces(container, enterpriseBean);
@@ -907,8 +901,6 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          }
       }
       
-      container.setXml(enterpriseBean);
-
       addTransactionAnnotations(container, enterpriseBean, ejbName);
 
       addAssemblyAnnotations(container, enterpriseBean, ejbName);
@@ -991,7 +983,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       {
          addExcludeAnnotations(container, assembly.getExcludeList(), ejbName);
 
-         addInterceptorBindingAnnotations(container, enterpriseBean, ejbName);
+//         addInterceptorBindingAnnotations(container, enterpriseBean, ejbName);
       }
 
       if (enterpriseBean instanceof JBossSessionBeanMetaData)
@@ -1219,12 +1211,14 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          }
       }
 
+      /*
       if (!definesInterceptors
             && di.getInterceptorInfoRepository().hasDefaultInterceptors())
       {
          addClassAnnotation(container, DefaultInterceptorMarker.class,
                new DefaultInterceptorMarkerImpl());
       }
+      */
    }
 
    /**
@@ -1264,6 +1258,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          EJBContainer container, InterceptorBindingMetaData binding)
          throws ClassNotFoundException
    {
+      /*
       boolean addedAnnotations = false;
       for (java.lang.reflect.Method method : container.getBeanClass()
             .getMethods())
@@ -1343,6 +1338,8 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       }
 
       return addedAnnotations;
+      */
+      return false;
    }
 
    private void addEjbAnnotations(EJBContainer container,
@@ -1558,6 +1555,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
    private void addClusterAnnotations(EJBContainer container,
          JBossSessionBeanMetaData enterpriseBean) throws Exception
    {
+      /* FIXME: Why disable the annotation?
       if (!enterpriseBean.isClustered())
       {
          // ask directly, not the container (metadata setup in progress)
@@ -1566,6 +1564,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
             container.getAnnotations().disableAnnotation(Clustered.class.getName());
          return;
       }
+      */
 
       ClusterConfigMetaData config = enterpriseBean.getClusterConfig();
       if (config != null)
@@ -1646,28 +1645,36 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       if (consumer == null)
          return;
 
-      if (consumer.getProducers().size() > 0
-            || consumer.getLocalProducers().size() > 0)
+      List<ProducerMetaData> producers = consumer.getProducers();
+      List<LocalProducerMetaData> localProducers = consumer.getLocalProducers();
+      if ((producers != null && producers.size() > 0) || (localProducers != null && localProducers.size() > 0))
       {
          ProducersImpl producersAnnotation = new ProducersImpl();
 
-         for(ProducerMetaData producer : consumer.getProducers())
+         if(producers != null)
          {
-            ProducerImpl annotation = new ProducerImpl(di.getClassLoader()
-                  .loadClass(producer.getClassName()));
-            if (producer.getConnectionFactory() != null)
-               annotation.setConnectionFactory(producer.getConnectionFactory());
-            producersAnnotation.addProducer(annotation);
+            for(ProducerMetaData producer : producers)
+            {
+               ProducerImpl annotation = new ProducerImpl(di.getClassLoader()
+                     .loadClass(producer.getClassName()));
+               if (producer.getConnectionFactory() != null)
+                  annotation.setConnectionFactory(producer.getConnectionFactory());
+               producersAnnotation.addProducer(annotation);
+            }
          }
 
-         for(ProducerMetaData producer : consumer.getLocalProducers())
+         if(localProducers != null)
          {
-            ProducerImpl annotation = new ProducerImpl(di.getClassLoader()
-                  .loadClass(producer.getClassName()));
-            if (producer.getConnectionFactory() != null)
-               annotation.setConnectionFactory(producer.getConnectionFactory());
-            producersAnnotation.addProducer(annotation);
+            for(ProducerMetaData producer : localProducers)
+            {
+               ProducerImpl annotation = new ProducerImpl(di.getClassLoader()
+                     .loadClass(producer.getClassName()));
+               if (producer.getConnectionFactory() != null)
+                  annotation.setConnectionFactory(producer.getConnectionFactory());
+               producersAnnotation.addProducer(annotation);
+            }
          }
+         
          addClassAnnotation(container, Producers.class, producersAnnotation);
       }
 
@@ -2016,9 +2023,16 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       }
    }
 
+   /*
+    * This method in non-deterministic. It should expect to be called
+    * in random order, so at the end there is no guarenteed security
+    * annotation configuration.
+    */
+   @Deprecated
    protected void overrideAnnotations(EJBContainer container, Member m,
          String annotation, Object value)
    {
+      /*
       AnnotationRepository annotations = container.getAnnotations();
 
       if (value instanceof javax.annotation.security.DenyAll)
@@ -2040,6 +2054,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
          annotations.disableAnnotation(m,
                javax.annotation.security.DenyAll.class.getName());
       }
+      */
    }
 
    private void addClassAnnotation(EJBContainer container, Class<? extends Annotation> annotationClass, Annotation annotation)

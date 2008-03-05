@@ -22,15 +22,15 @@
 package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Method;
-import javax.transaction.Synchronization;
-import javax.transaction.Transaction;
-import javax.transaction.SystemException;
 import javax.transaction.RollbackException;
-import org.jboss.aop.advice.Interceptor;
+import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.ejb3.tx.TxUtil;
-import org.jboss.ejb3.BeanContext;
 import org.jboss.logging.Logger;
 import org.jboss.tm.TxUtils;
 
@@ -39,7 +39,7 @@ import org.jboss.tm.TxUtils;
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-public class StatefulRemoveInterceptor implements Interceptor
+public class StatefulRemoveInterceptor extends AbstractInterceptor
 {
    private static final Logger log = Logger.getLogger(StatefulRemoveInterceptor.class);
    protected boolean retainIfException;
@@ -143,7 +143,7 @@ public class StatefulRemoveInterceptor implements Interceptor
       if (ctx == null || ctx.isDiscarded() || ctx.isRemoved()) return;
       Object id = ejb.getId();
 
-      StatefulContainer container = (StatefulContainer) ejb.getAdvisor();
+      StatefulContainer container = getEJBContainer(invocation);
       Transaction tx = null;
       try
       {

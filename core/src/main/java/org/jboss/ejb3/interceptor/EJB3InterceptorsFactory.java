@@ -22,15 +22,12 @@
 package org.jboss.ejb3.interceptor;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import javax.jms.MessageListener;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.joinpoint.Joinpoint;
-import org.jboss.aop.joinpoint.MethodJoinpoint;
-import org.jboss.ejb3.EJBContainer;
 import org.jboss.logging.Logger;
 import org.jboss.util.MethodHashing;
 
@@ -80,9 +77,10 @@ public class EJB3InterceptorsFactory implements org.jboss.aop.advice.AspectFacto
 
    public Object createPerJoinpoint(Advisor advisor, Joinpoint jp)
    {
+      /*
       if (jp instanceof MethodJoinpoint)
       {
-         EJBContainer container = (EJBContainer) advisor;
+         EJBContainer container = EJBContainer.getEJBContainer(advisor);
          Class beanClass = container.getBeanClass();
 
          try
@@ -105,6 +103,8 @@ public class EJB3InterceptorsFactory implements org.jboss.aop.advice.AspectFacto
          }
       }
       return new EJB3InterceptorsInterceptor(new InterceptorInfo[0], null);
+      */
+      throw new RuntimeException("no longer supported (EJBTHREE-1174)");
    }
 
    public Object createPerClass(Advisor advisor)

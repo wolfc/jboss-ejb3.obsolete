@@ -32,9 +32,10 @@ import javax.ejb.ActivationConfigProperty;
 import javax.ejb.Local;
 import javax.jms.Destination;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
@@ -48,9 +49,10 @@ import org.jboss.ejb3.annotation.MessageProperties;
 import org.jboss.ejb3.annotation.Producer;
 import org.jboss.ejb3.annotation.Producers;
 import org.jboss.ejb3.annotation.impl.MessagePropertiesImpl;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossConsumerBeanMetaData;
 import org.jboss.metadata.ejb.spec.ActivationConfigPropertyMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 
 /**
  * Comment
@@ -82,11 +84,10 @@ public class ConsumerContainer extends MessagingContainer
    public static final String CONSUMER_MESSAGE = "CONSUMER_MESSAGE";
 
 
-   public ConsumerContainer(String ejbName, AspectManager manager, ClassLoader cl, String beanClassName,
-                            Hashtable ctxProperties, InterceptorInfoRepository interceptorRepository,
-                            Ejb3Deployment deployment)
+   public ConsumerContainer(String ejbName, Domain domain, ClassLoader cl, String beanClassName,
+                            Hashtable ctxProperties, Ejb3Deployment deployment, JBossConsumerBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(ejbName, manager, cl, beanClassName, ctxProperties, interceptorRepository, deployment);
+      super(ejbName, domain, cl, beanClassName, ctxProperties, deployment, beanMetaData);
    }
    
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
@@ -98,7 +99,7 @@ public class ConsumerContainer extends MessagingContainer
       {
          Thread.currentThread().setContextClassLoader(classloader);
          MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = super.getMethodInfo(si.getMethodHash());
+         MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");
@@ -107,7 +108,7 @@ public class ConsumerContainer extends MessagingContainer
          newSi = new EJBContainerInvocation(info);
          newSi.setArguments(si.getArguments());
          newSi.setMetaData(si.getMetaData());
-         newSi.setAdvisor(this);
+         newSi.setAdvisor(getAdvisor());
 
          InvocationResponse response = new InvocationResponse(newSi.invokeNext());
          response.setContextInfo(newSi.getResponseContextInfo());
@@ -139,6 +140,13 @@ public class ConsumerContainer extends MessagingContainer
       return ON_MESSAGE;
    }
    
+   @Override
+   protected NamedMethodMetaData getTimeoutMethodMetaData()
+   {
+      // TODO: add timeout method meta data to JBossConsumerBeanMetaData
+      return null;
+   }
+   
    public Object localInvoke(MethodInfo info, Object[] args) throws Throwable
    {     
       if (info.getMethod().equals(getOnMessage()))
@@ -163,7 +171,7 @@ public class ConsumerContainer extends MessagingContainer
          return super.localInvoke(info, args);
    }
    
-   public Class getMessagingType()
+   public Class<MessageListener> getMessagingType()
    {
       return javax.jms.MessageListener.class;
    }
@@ -171,7 +179,7 @@ public class ConsumerContainer extends MessagingContainer
    public MethodInfo getMethodInfo(Method method)
    {
       MethodInfo info = new MethodInfo();
-      info.setAdvisor(this);
+      info.setAdvisor(getAdvisor());
       info.setAdvisedMethod(method);
       info.setUnadvisedMethod(method);
     

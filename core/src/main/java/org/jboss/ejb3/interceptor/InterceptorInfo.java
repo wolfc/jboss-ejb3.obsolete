@@ -36,6 +36,7 @@ import org.jboss.metadata.ejb.spec.InterceptorMetaData;
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision$
  */
+@Deprecated
 public class InterceptorInfo
 {
    Class<?> clazz;

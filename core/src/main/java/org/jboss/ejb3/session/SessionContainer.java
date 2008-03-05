@@ -34,8 +34,8 @@ import javax.ejb.Handle;
 import javax.ejb.LocalHome;
 import javax.ejb.RemoteHome;
 
-import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
+import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
@@ -52,11 +52,12 @@ import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
+import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 
 /**
@@ -71,7 +72,7 @@ public abstract class SessionContainer extends EJBContainer
    private static final Logger log = Logger.getLogger(SessionContainer.class);
 
    protected ProxyDeployer proxyDeployer;
-   protected Map clusterFamilies = new HashMap();
+   private Map<String, HATarget> clusterFamilies;
 
    public class InvokedMethod
    {
@@ -137,11 +138,10 @@ public abstract class SessionContainer extends EJBContainer
 
    protected ThreadLocalStack<InvokedMethod> invokedMethod = new ThreadLocalStack<InvokedMethod>();
 
-   public SessionContainer(ClassLoader cl, String beanClassName, String ejbName, AspectManager manager,
-                           Hashtable ctxProperties, InterceptorInfoRepository interceptorRepository,
-                           Ejb3Deployment deployment)
+   public SessionContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
+                           Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(Ejb3Module.BASE_EJB3_JMX_NAME + ",name=" + ejbName, manager, cl, beanClassName, ejbName, ctxProperties, interceptorRepository, deployment);
+      super(Ejb3Module.BASE_EJB3_JMX_NAME + ",name=" + ejbName, domain, cl, beanClassName, ejbName, ctxProperties, deployment, beanMetaData);
       proxyDeployer = new ProxyDeployer(this);
    }
 
@@ -160,6 +160,8 @@ public abstract class SessionContainer extends EJBContainer
     * @return
     */
    protected abstract RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding);
+   
+   public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
    
    public Class<?> getInvokedBusinessInterface()
    {
@@ -183,6 +185,12 @@ public abstract class SessionContainer extends EJBContainer
       throw new IllegalStateException("Unable to find geInvokedBusinessInterface()");
    }
 
+   protected JBossSessionBeanMetaData getMetaData()
+   {
+      // TODO: resolve this cast using generics on EJBContainer
+      return (JBossSessionBeanMetaData) getXml();
+   }
+   
    @Override
    public void instantiated()
    {
@@ -206,12 +214,27 @@ public abstract class SessionContainer extends EJBContainer
    {
       super.start();
       // So that Remoting layer can reference this container easily.
-      Dispatcher.singleton.registerTarget(getObjectName().getCanonicalName(), this);
+      Dispatcher.singleton.registerTarget(getObjectName().getCanonicalName(), new ClassProxyHack(this));
       proxyDeployer.start();
    }
 
-   public Map getClusterFamilies()
+   /**
+    * This gets called by replicants manager interceptor factory
+    * during the initialization of the bean container (during construction of EJBContainer).
+    * So we have detached construction here.
+    * 
+    * @return the cluster families, never null
+    */
+   public Map<String, HATarget> getClusterFamilies()
    {
+      if(clusterFamilies != null)
+         return clusterFamilies;
+      
+      synchronized (this)
+      {
+         if(clusterFamilies == null)
+            clusterFamilies = new HashMap<String, HATarget>();
+      }
       return clusterFamilies;
    }
 
@@ -236,6 +259,45 @@ public abstract class SessionContainer extends EJBContainer
       super.stop();
    }
 
+   @Override
+   public List<Method> getVirtualMethods()
+   {
+      List<Method> virtualMethods = new ArrayList<Method>();
+      try
+      {
+         RemoteHome home = getAnnotation(RemoteHome.class);
+         if (home != null)
+         {
+            Method[] declaredMethods = home.value().getMethods();
+            for(Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+
+            declaredMethods = javax.ejb.EJBObject.class.getMethods();
+            for(Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+         }
+
+         LocalHome localHome = getAnnotation(LocalHome.class);
+         if (localHome != null)
+         {
+            Method[] declaredMethods = localHome.value().getMethods();
+            for(Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+
+            declaredMethods = javax.ejb.EJBLocalObject.class.getMethods();
+            for(Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+         }
+      }
+      catch (SecurityException e)
+      {
+         // TODO: privileged?
+         throw new RuntimeException(e);
+      }
+      return virtualMethods;
+   }
+   
+   /*
    protected void createMethodMap()
    {
       super.createMethodMap();
@@ -282,6 +344,7 @@ public abstract class SessionContainer extends EJBContainer
          throw new RuntimeException(e);
       }
    }
+   */
 
    protected boolean isHomeMethod(Method method)
    {
@@ -357,7 +420,7 @@ public abstract class SessionContainer extends EJBContainer
       try
       {
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = super.getMethodInfo(hash);
+         MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException(
@@ -378,7 +441,7 @@ public abstract class SessionContainer extends EJBContainer
 
          // FIXME: Ahem, stateful container invocation works on all.... (violating contract though)
          EJBContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
-         nextInvocation.setAdvisor(this);
+         nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
          
          // allow a container to supplement information into an invocation

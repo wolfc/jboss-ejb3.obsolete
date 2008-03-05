@@ -26,11 +26,12 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
-import org.jboss.aop.advice.Interceptor;
+
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainerInvocation;
+import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.logging.Logger;
 import org.jboss.tm.TxUtils;
@@ -42,7 +43,7 @@ import org.jboss.tm.TxUtils;
  *  @author <a href="mailto:osh@sparre.dk">Ole Husgaard</a>
  * @version $Revision$
  */
-public class BMTInterceptor implements Interceptor
+public class BMTInterceptor extends AbstractInterceptor
 {
    private TransactionManager tm;
    private boolean isStateless;
@@ -64,7 +65,7 @@ public class BMTInterceptor implements Interceptor
 
    public Object handleStateless(Invocation invocation) throws Throwable
    {
-      Container container = (Container)invocation.getAdvisor();
+      Container container = getEJBContainer(invocation);
       boolean exceptionThrown = false;
       try
       {
@@ -92,7 +93,7 @@ public class BMTInterceptor implements Interceptor
    public Object handleStateful(Invocation invocation) throws Throwable
    {
       EJBContainerInvocation ejb = (EJBContainerInvocation)invocation;
-      Container container = (Container)invocation.getAdvisor();
+      Container container = getEJBContainer(invocation);
 
       StatefulBeanContext ctx = (StatefulBeanContext)ejb.getBeanContext();
       Transaction tx = (Transaction)ctx.getMetaData().getMetaData("TX", "TX");

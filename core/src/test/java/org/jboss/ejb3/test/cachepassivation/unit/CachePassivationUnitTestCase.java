@@ -28,10 +28,10 @@ import javax.naming.InitialContext;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.cache.transaction.DummyTransactionManager;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.ejb3.test.cachepassivation.MockBean;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
@@ -67,10 +67,9 @@ public class CachePassivationUnitTestCase extends TestCase
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       String beanClassName = MockBean.class.getName();
       String ejbName = "MockBean";
-      AspectManager aspectManager = new AspectManager();
-      InterceptorInfoRepository interceptorRepository = new InterceptorInfoRepository(cl);
+      Domain domain = new Domain(new AspectManager(), "Test", false);
       Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
-      MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, aspectManager, ctxProperties, interceptorRepository, deployment);
+      MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties, deployment);
       container.instantiated();
       container.processMetadata();
       System.out.println("injectors = " + container.getInjectors());

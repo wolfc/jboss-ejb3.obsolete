@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.ejb.EJBException;
 import javax.ejb.Handle;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -41,7 +40,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
@@ -49,8 +48,6 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.asynch.FutureHolder;
-import org.jboss.ejb.AllowedOperationsAssociation;
-import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
@@ -60,13 +57,13 @@ import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -86,15 +83,16 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
 
    public ServiceContainer(MBeanServer server, ClassLoader cl, String beanClassName, String ejbName,
-                           AspectManager manager, Hashtable ctxProperties, InterceptorInfoRepository interceptorRepository,
-                           Ejb3Deployment deployment)
+                           Domain domain, Hashtable ctxProperties,
+                           Ejb3Deployment deployment, JBossServiceBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(cl, beanClassName, ejbName, manager, ctxProperties, interceptorRepository, deployment);
+      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
       this.mbeanServer = server;
    }
 
    public void callTimeout(Timer timer) throws Exception
    {
+      /*
       Method timeout = callbackHandler.getTimeoutCallback();
       if (timeout == null) throw new EJBException("No method has been annotated with @Timeout");
       Object[] args = {timer};
@@ -113,6 +111,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       {
          AllowedOperationsAssociation.popInMethodFlag();
       }
+      */
+      // FIXME: interceptors
+      throw new RuntimeException("NYI");
    }
 
    @Override
@@ -354,13 +355,13 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          
          Thread.currentThread().setContextClassLoader(classloader);
          long hash = MethodHashing.calculateHash(method);
-         MethodInfo info = super.getMethodInfo(hash);
+         MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
          }
          EJBContainerInvocation nextInvocation = new EJBContainerInvocation(info);
-         nextInvocation.setAdvisor(this);
+         nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
 
          nextInvocation = populateInvocation(nextInvocation);
@@ -395,7 +396,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       EJBContainerInvocation newSi = null;
       
       MethodInvocation si = (MethodInvocation) invocation;
-      MethodInfo info = super.getMethodInfo(si.getMethodHash());
+      MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
       Method method = info.getUnadvisedMethod();
       try
       {
@@ -410,7 +411,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          newSi = new EJBContainerInvocation(info);
          newSi.setArguments(si.getArguments());
          newSi.setMetaData(si.getMetaData());
-         newSi.setAdvisor(this);
+         newSi.setAdvisor(getAdvisor());
 
          newSi = populateInvocation(newSi);
 

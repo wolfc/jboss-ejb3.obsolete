@@ -24,7 +24,6 @@ package org.jboss.ejb3.stateless;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
@@ -137,43 +136,22 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
 
    public Object createProxy()
    {
-//      try
+      Object containerId = getContainer().getObjectName().getCanonicalName();
+      String stackName = "ClusteredStatelessSessionClientInterceptors";
+      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
       {
-         Object containerId = getContainer().getObjectName().getCanonicalName();
-         String stackName = "ClusteredStatelessSessionClientInterceptors";
-         if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
-         {
-            stackName = binding.interceptorStack();
-         }
-         AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-         /*
-         Object[] args = {new StatelessClusteredProxy(containerId, stack.createInterceptors((Advisor) container, null), wrapper, lbPolicy)};
-         return proxyConstructor.newInstance(args);
-         */
-         String partitionName = ((StatelessContainer) getContainer()).getPartitionName();
-         
-         proxy = constructProxy(new StatelessClusteredProxy(getContainer(), stack.createInterceptors((Advisor) getContainer(), null), 
-               wrapper, lbPolicy, partitionName));
-         return proxy;
+         stackName = binding.interceptorStack();
       }
+      AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
       /*
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new RuntimeException(e.getTargetException());  //To change body of catch statement use Options | File Templates.
-      }
+      Object[] args = {new StatelessClusteredProxy(containerId, stack.createInterceptors((Advisor) container, null), wrapper, lbPolicy)};
+      return proxyConstructor.newInstance(args);
       */
+      String partitionName = ((StatelessContainer) getContainer()).getPartitionName();
+      
+      proxy = constructProxy(new StatelessClusteredProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), 
+            wrapper, lbPolicy, partitionName));
+      return proxy;
    }
 
    protected StatelessHandleImpl getHandle()

@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.mdb;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -34,13 +33,12 @@ import javax.ejb.MessageDriven;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.jboss.aop.AspectManager;
-import org.jboss.aop.MethodInfo;
-import org.jboss.aop.util.MethodHashing;
+import org.jboss.aop.Domain;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.DefaultActivationSpecs;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 
 /**
  * Comment
@@ -59,10 +57,10 @@ public class MDB extends MessagingContainer
    
    protected Class<?> messagingType = null;
    
-   public MDB(String ejbName, AspectManager manager, ClassLoader cl, String beanClassName, Hashtable ctxProperties,
-              InterceptorInfoRepository interceptorRepository, Ejb3Deployment deployment)
+   public MDB(String ejbName, Domain domain, ClassLoader cl, String beanClassName, Hashtable ctxProperties,
+              Ejb3Deployment deployment, JBossMessageDrivenBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(ejbName, manager, cl, beanClassName, ctxProperties, interceptorRepository, deployment);
+      super(ejbName, domain, cl, beanClassName, ctxProperties, deployment, beanMetaData);
    }
    
    public Class<?> getMessagingType()
@@ -73,7 +71,7 @@ public class MDB extends MessagingContainer
          messagingType = annotation.messageListenerInterface();
          if (messagingType.getName().equals(Object.class.getName()))
          {
-            Set<Class<?>> businessInterfaces = ProxyFactoryHelper.getBusinessInterfaces(clazz,false);
+            Set<Class<?>> businessInterfaces = ProxyFactoryHelper.getBusinessInterfaces(getBeanClass(), false);
             if (businessInterfaces.size() > 1 || businessInterfaces.size() == 0) 
                throw new RuntimeException("Unable to choose messagingType interface for MDB " + getEjbName() + " from " + businessInterfaces);
             messagingType = businessInterfaces.iterator().next();
@@ -83,12 +81,14 @@ public class MDB extends MessagingContainer
       return messagingType;
    }
    
+   /*
    public MethodInfo getMethodInfo(Method method)
    {
       long hash = MethodHashing.calculateHash(method);
       MethodInfo info = super.getMethodInfo(hash);
       return info;
    }
+   */
 
    public Map getActivationConfigProperties()
    {
@@ -109,6 +109,21 @@ public class MDB extends MessagingContainer
       }
       
       return result;
+   }
+   
+   protected JBossMessageDrivenBeanMetaData getMetaData()
+   {
+      // TODO: use generics
+      return (JBossMessageDrivenBeanMetaData) super.getMetaData();
+   }
+   
+   @Override
+   protected NamedMethodMetaData getTimeoutMethodMetaData()
+   {
+      JBossMessageDrivenBeanMetaData metaData = getMetaData();
+      if(metaData != null)
+         return metaData.getTimeoutMethod();
+      return null;
    }
    
    protected List<Class<?>> resolveBusinessInterfaces()

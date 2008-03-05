@@ -47,7 +47,9 @@ implements AspectFactory
           
          CodeSource ejbCS = advisor.getClazz().getProtectionDomain().getCodeSource();
          
-         String ejbName = ((EJBContainer)advisor).getEjbName(); 
+         // Must be a separate line (EJBContainer cannot be dereferenced)
+         EJBContainer container = EJBContainer.getEJBContainer(advisor);
+         String ejbName = container.getEjbName(); 
          JaccAuthorizationInterceptor jai = new JaccAuthorizationInterceptor(ejbName, ejbCS);
          jai.setRealmMapping(getSecurityManager(advisor)); 
          return jai;

@@ -25,17 +25,13 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -45,45 +41,47 @@ import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
 import javax.ejb.Local;
 import javax.ejb.Remote;
+import javax.ejb.TimedObject;
 import javax.ejb.Timeout;
+import javax.ejb.Timer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.LinkRef;
-import javax.naming.Name;
-import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.aop.AspectManager;
-import org.jboss.aop.ClassContainer;
+import org.jboss.aop.Advisor;
+import org.jboss.aop.Domain;
+import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.annotation.AnnotationElement;
-import org.jboss.aop.joinpoint.ConstructorInvocation;
-import org.jboss.aop.metadata.SimpleClassMetaDataBinding;
-import org.jboss.aop.metadata.SimpleClassMetaDataLoader;
+import org.jboss.aop.advice.PerVmAdvice;
+import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
+import org.jboss.ejb3.aop.BeanContainer;
+import org.jboss.ejb3.aop.LifeCycleInvocation;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
-import org.jboss.ejb3.interceptor.InterceptorInfo;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.interceptor.InterceptorInjector;
-import org.jboss.ejb3.interceptor.LifecycleInterceptorHandler;
+import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
+import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
+import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.interceptors.direct.IndirectContainer;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
-import org.jboss.ejb3.pool.PoolFactoryRegistry; 
-import org.jboss.ejb3.security.JaccAuthorizationInterceptor;
+import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
@@ -101,13 +99,16 @@ import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.injection.ResourceHandler;
 import org.jboss.injection.WebServiceRefHandler;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.MetaData;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorMetaData;
+import org.jboss.metadata.ejb.spec.InterceptorsMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
 import org.jboss.metadata.javaee.spec.ServiceReferenceMetaData;
-import org.jboss.util.naming.Util;
 import org.jboss.util.StringPropertyReplacer;
+import org.jboss.util.naming.Util;
 import org.jboss.virtual.VirtualFile;
 
 /**
@@ -116,11 +117,16 @@ import org.jboss.virtual.VirtualFile;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class EJBContainer extends ClassContainer implements Container, InjectionContainer, JavaEEComponent
+public abstract class EJBContainer implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, InjectionContainer, JavaEEComponent
 {
-
    private static final Logger log = Logger.getLogger(EJBContainer.class);
 
+   private String name;
+   
+   private BeanContainer beanContainer;
+   
+   private DirectContainer<EJBContainer> directContainer;
+   
    protected EjbEncFactory encFactory = new DefaultEjbEncFactory();
 
    protected Pool pool;
@@ -132,6 +138,8 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    protected int defaultConstructorIndex;
 
    protected String beanClassName;
+   
+   private Class<?> beanClass;
 
    protected ClassLoader classloader;
 
@@ -140,8 +148,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    protected Context enc;
 
-   //protected SessionCallbackHandler callbackHandler;
-   protected LifecycleInterceptorHandler callbackHandler;
+//   protected LifecycleInterceptorHandler callbackHandler;
 
    protected Hashtable initialContextProperties;
 
@@ -152,13 +159,11 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    protected Map<String, Map<AccessibleObject, Injector>> encInjections = new HashMap<String, Map<AccessibleObject, Injector>>();
 
-   protected InterceptorInfoRepository interceptorRepository;
+//   protected List<InterceptorInfo> classInterceptors = new ArrayList<InterceptorInfo>();
+//
+//   protected LinkedHashSet<InterceptorInfo> applicableInterceptors;
 
-   protected List<InterceptorInfo> classInterceptors = new ArrayList<InterceptorInfo>();
-
-   protected LinkedHashSet<InterceptorInfo> applicableInterceptors;
-
-   private HashMap<Class, InterceptorInjector> interceptorInjectors = new HashMap<Class, InterceptorInjector>();
+   private HashMap<Class<?>, InterceptorInjector> interceptorInjectors = new HashMap<Class<?>, InterceptorInjector>();
 
    private Ejb3Deployment deployment;
 
@@ -187,31 +192,31 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
     * @param ctxProperties
     * @param interceptorRepository
     * @param deployment
+    * @param beanMetaData           the meta data for this bean or null
     */
 
-   public EJBContainer(String name, AspectManager manager, ClassLoader cl,
+   public EJBContainer(String name, Domain domain, ClassLoader cl,
                        String beanClassName, String ejbName, Hashtable ctxProperties,
-                       InterceptorInfoRepository interceptorRepository, Ejb3Deployment deployment)
+                       Ejb3Deployment deployment, JBossEnterpriseBeanMetaData beanMetaData) throws ClassNotFoundException
    {
-      super(name, manager);
-      
-      assert interceptorRepository != null : "interceptorRepository is null";
+      assert name != null : "name is null";
       assert deployment != null : "deployment is null";
       
+      this.name = name;
       this.deployment = deployment;
       this.beanClassName = beanClassName;
       this.classloader = cl;
+      this.xml = beanMetaData;
          
-      super.setChainOverridingForInheritedMethods( true );
+      this.beanClass = classloader.loadClass(beanClassName);
       
-      try
-      {
-         clazz = classloader.loadClass(beanClassName);
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new RuntimeException(e);
-      }
+      // We can't type cast the direct container, because we just loaded the beanClass
+      // so assuming we have an object is a safe bet.
+      this.beanContainer = new BeanContainer(this);
+      // Because interceptors will query back the EJBContainer for annotations
+      // we must have set beanContainer first and then do the advisor. 
+      beanContainer.initialize(ejbName, domain, beanClass, beanMetaData, cl);
+      
       this.ejbName = ejbName;
       String on = createObjectName(ejbName);
      
@@ -224,7 +229,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
          throw new RuntimeException("failed to create object name for: " + on, e);
       }
       
-      annotations = new AnnotationRepositoryToMetaData(this);
+      //annotations = new AnnotationRepositoryToMetaData(this);
       
       initialContextProperties = ctxProperties;
       try
@@ -235,8 +240,6 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       {
          throw new RuntimeException(e);
       }
-      this.interceptorRepository = interceptorRepository;
-      this.interceptorRepository.addBeanClass(clazz.getName());
       bindORB();
       bindEJBContext();
       
@@ -278,9 +281,72 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return JavaEEComponentHelper.createObjectName(deployment, ejbName);
    }
    
+   /**
+    * Do not call, for BeanContainer.
+    * @throws IllegalAccessException 
+    * @throws InstantiationException 
+    */
+   public Object createInterceptor(Class<?> interceptorClass) throws InstantiationException, IllegalAccessException
+   {
+      Object instance = interceptorClass.newInstance();
+      InterceptorInjector interceptorInjector = interceptorInjectors.get(interceptorClass);
+      assert interceptorInjector != null : "interceptorInjector not found for " + interceptorClass;
+      interceptorInjector.inject(null, instance);
+      return instance;
+   }
+   
    public String createObjectName(String unitName, String ejbName)
    {
       return JavaEEComponentHelper.createObjectName(deployment, unitName, ejbName);
+   }
+   
+   // TODO: re-evaluate this exposure
+   @Deprecated
+   public Advisor getAdvisor()
+   {
+      return beanContainer._getAdvisor();
+   }
+
+   /*
+    * TODO: re-evalute this exposure
+    */
+   @Deprecated
+   public AnnotationRepository getAnnotations()
+   {
+      return beanContainer.getAnnotationRepository();
+   }
+
+   protected BeanContainer getBeanContainer()
+   {
+      return beanContainer;
+   }
+   
+   /**
+    * 
+    * @return   the bean class of this container
+    * @deprecated   use getBeanClass
+    */
+   public Class<?> getClazz()
+   {
+      return getBeanClass();
+   }
+   
+   @SuppressWarnings("unchecked")
+   public static <C extends EJBContainer> C getEJBContainer(Advisor advisor)
+   {
+      try
+      {
+         return (C) ((ManagedObjectAdvisor<Object, BeanContainer>) advisor).getContainer().getEJBContainer();
+      }
+      catch(ClassCastException e)
+      {
+         throw new ClassCastException(e.getMessage() + " using " + advisor);
+      }
+   }
+   
+   public String getName()
+   {
+      return name;
    }
    
    public void pushContext(BeanContext<?> beanContext)
@@ -337,6 +403,15 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return jaccContextId;
    }
 
+   /**
+    * Do not call, used by BeanContainer.
+    * @return
+    */
+   public List<Method> getVirtualMethods()
+   {
+      return null;
+   }
+   
    public void setJaccContextId(String jaccContextId)
    {
       this.jaccContextId = jaccContextId;
@@ -392,6 +467,11 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return dependencyPolicy;
    }
 
+   public boolean isAnnotationPresent(Class<? extends Annotation> annotationType)
+   {
+      return beanContainer.isAnnotationPresent(annotationType);
+   }
+   
    /**
     * Is the method a business method of this container.
     * 
@@ -473,19 +553,25 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
          Map<AccessibleObject, Injector> tmp = InjectionUtil.processAnnotations(this, handlers, getBeanClass());
          injectors.addAll(tmp.values());
 
+         /*
          initialiseInterceptors();
-         for (InterceptorInfo interceptorInfo : applicableInterceptors)
+         */
+         for (Class<?> interceptorClass : beanContainer.getInterceptorClasses())
          {
+            InterceptorMetaData interceptorMetaData = findInterceptor(interceptorClass);
+            if(interceptorMetaData == null)
+               continue;
+            
             for (InjectionHandler<Environment> handler : handlers)
             {
-               handler.loadXml(interceptorInfo.getXml(), this);
+               handler.loadXml(interceptorMetaData, this);
             }
          }
-         for (InterceptorInfo interceptorInfo : applicableInterceptors)
+         for (Class<?> interceptorClass : beanContainer.getInterceptorClasses())
          {
-            Map<AccessibleObject, Injector> tmpInterceptor = InjectionUtil.processAnnotations(this, handlers, interceptorInfo.getClazz());
-            InterceptorInjector injector = new InterceptorInjector(this, interceptorInfo, tmpInterceptor);
-            interceptorInjectors.put(interceptorInfo.getClazz(), injector);
+            Map<AccessibleObject, Injector> injections = InjectionUtil.processAnnotations(this, handlers, interceptorClass);
+            InterceptorInjector injector = new InterceptorInjector(injections);
+            interceptorInjectors.put(interceptorClass, injector);
          }
 
          // When @WebServiceRef is not used service-ref won't be processed
@@ -583,16 +669,13 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return xml;
    }
 
-   public void setXml(JBossEnterpriseBeanMetaData xml)
-   {
-      this.xml = xml;
-   }
-
    public JBossAssemblyDescriptorMetaData getAssemblyDescriptor()
    {
       return assembly;
    }
 
+   // FIXME: remove
+   @Deprecated
    public void setAssemblyDescriptor(JBossAssemblyDescriptorMetaData assembly)
    {
       this.assembly = assembly;
@@ -602,28 +685,9 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
    
    public InterceptorInfoRepository getInterceptorRepository()
    {
-      return interceptorRepository;
+      throw new RuntimeException("invalid");
    }
-
-   public List<InterceptorInfo> getClassInterceptors()
-   {
-      initialiseInterceptors();
-      return classInterceptors;
-   }
-
-   public HashSet<InterceptorInfo> getApplicableInterceptors()
-   {
-      initialiseInterceptors();
-      return applicableInterceptors;
-   }
-
-   public HashMap<Class, InterceptorInjector> getInterceptorInjectors()
-   {
-      initialiseInterceptors();
-      return interceptorInjectors;
-   }
-
-
+   
    public Map<String, EncInjector> getEncInjectors()
    {
       return encInjectors;
@@ -682,7 +746,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    public Class<?> getBeanClass()
    {
-      return clazz;
+      return beanClass;
    }
 
    public Pool getPool()
@@ -707,6 +771,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    protected Object construct()
    {
+      /*
       Interceptor[] cInterceptors = constructorInterceptors[defaultConstructorIndex];
       if (cInterceptors == null)
       {
@@ -740,16 +805,33 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       {
          throw new RuntimeException(throwable);
       }
-
+      */
+      try
+      {
+         return beanContainer.construct();
+      }
+      catch (SecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
    
    protected void reinitialize()
-   {         
+   {
+      // FIXME: is this correct?
+      beanContainer.reinitializeAdvisor();
+      
+      /*
       initClassMetaDataBindingsList();
       adviceBindings.clear();
       doesHaveAspects = false;
       constructorInfos = null;
       rebuildInterceptors();
+      */
       
       bindEJBContext();
       
@@ -758,8 +840,8 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
 
    public void create() throws Exception
    {
-      super.initializeClassContainer();
-      
+      /*
+      initializeClassContainer();
       for (int i = 0; i < constructors.length; i++)
       {
          if (constructors[i].getParameterTypes().length == 0)
@@ -768,6 +850,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
             break;
          }
       }
+      */
    }
 
    // Everything must be done in start to make sure all dependencies have been satisfied
@@ -790,12 +873,12 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       Injector[] injectors2 = injectors.toArray(new Injector[injectors.size()]);
       if (pool != null) pool.setInjectors(injectors2);
 
-      createCallbackHandler();
+//      createCallbackHandler();
       
       // If we're clustered, find our partition name
       findPartitionName();
       
-      log.info("STARTED EJB: " + clazz.getName() + " ejbName: " + ejbName);
+      log.info("STARTED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
    }
 
    public void stop() throws Exception
@@ -816,14 +899,15 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       InitialContextFactory.close(enc, this.initialContextProperties);
       enc = null; 
       
-      log.info("STOPPED EJB: " + clazz.getName() + " ejbName: " + ejbName);
+      log.info("STOPPED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
    }
 
    public void destroy() throws Exception
    {
       encFactory.cleanupEnc(this);
       
-      super.cleanup();
+      // TODO: clean up BeanContainer?
+      //super.cleanup();
    }
 
    @SuppressWarnings("unchecked")
@@ -843,6 +927,74 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       {
          throw new RuntimeException(e);
       }
+   }
+   
+   protected Method getTimeoutCallback(NamedMethodMetaData timeoutMethodMetaData, Class<?> beanClass)
+   {
+      JBossEnterpriseBeanMetaData metaData = xml;
+      if(metaData != null)
+      {
+         if(timeoutMethodMetaData != null)
+         {
+            String methodName = timeoutMethodMetaData.getMethodName();
+            try
+            {
+               return beanClass.getMethod(methodName, Timer.class);
+            }
+            catch (SecurityException e)
+            {
+               throw new RuntimeException(e);
+            }
+            catch (NoSuchMethodException e)
+            {
+               throw new RuntimeException("No method " + methodName + "(javax.ejb.Timer timer) found on bean " + ejbName, e);
+            }
+         }
+      }
+      
+      if(TimedObject.class.isAssignableFrom(beanClass))
+      {
+         try
+         {
+            return TimedObject.class.getMethod("ejbTimeout", Timer.class);
+         }
+         catch (SecurityException e)
+         {
+            throw new RuntimeException(e);
+         }
+         catch (NoSuchMethodException e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+      
+      if(metaData != null)
+      {  
+         // TODO: cross cutting concern
+         if(metaData.getEjbJarMetaData().isMetadataComplete())
+            return null;
+      }
+      
+      for (Method method : beanClass.getMethods())
+      {
+         if (getAnnotation(Timeout.class, method) != null)
+         {
+            if (Modifier.isPublic(method.getModifiers()) &&
+                  method.getReturnType().equals(Void.TYPE) &&
+                  method.getParameterTypes().length == 1 &&
+                  method.getParameterTypes()[0].equals(Timer.class))
+            {
+               // TODO: check for multiples
+               return method;
+            }
+            else
+            {
+               throw new RuntimeException("@Timeout method " + method + " must have signature: void <METHOD>(javax.ejb.Timer timer) (EJB3 18.2.2)");
+            }
+         }
+      }
+      
+      return null;
    }
    
    protected void initializePool() throws Exception
@@ -868,14 +1020,46 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       pool.setInjectors(injectors.toArray(new Injector[injectors.size()]));
    }
 
+   /**
+    * Note that this method is a WIP.
+    * 
+    * @param beanContext
+    * @param callbackAnnotationClass    on of PostConstruct, PreDestroy, PostActivate or PrePassivate
+    */
+   protected void invokeCallback(BeanContext<?> beanContext, Class<? extends Annotation> callbackAnnotationClass)
+   {
+      try
+      {
+         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), callbackAnnotationClass));
+         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+         
+         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
+         invocation.setAdvisor(getAdvisor());
+         invocation.setTargetObject(beanContext.getInstance());
+         invocation.invokeNext();
+      }
+      catch(Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
+   }
+   
+   public void invokePostConstruct(BeanContext<?> beanContext)
+   {
+      invokeCallback(beanContext, PostConstruct.class);
+   }
+
+   @Deprecated
    public void invokePostConstruct(BeanContext beanContext, Object[] params)
    {
-      callbackHandler.postConstruct(beanContext, params);
+      invokePostConstruct(beanContext);
    }
 
    public void invokePreDestroy(BeanContext beanContext)
    {
-      callbackHandler.preDestroy(beanContext);
+      // This is the correct way to destroy an instance, do
+      // not call invokeCallback here.
+      beanContainer.destroy(beanContext.getInstance());
    }
 
    public void invokePostActivate(BeanContext beanContext)
@@ -932,6 +1116,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       }
    }
 
+   /*
    protected void createCallbackHandler()
    {
       try
@@ -945,6 +1130,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
                  + beanClassName, e);
       }
    }
+   */
 
    protected Class[] getHandledCallbacks()
    {
@@ -952,33 +1138,23 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
               {PostConstruct.class, PreDestroy.class, Timeout.class};
    }
 
-   private void initialiseInterceptors()
+   // TODO: once injection is finalized this method will disappear
+   private InterceptorMetaData findInterceptor(Class<?> interceptorClass)
    {
-      if (applicableInterceptors == null)
+      if(xml == null)
+         return null;
+      JBossMetaData ejbJarMetaData = xml.getEjbJarMetaData();
+      if(ejbJarMetaData == null)
+         return null;
+      InterceptorsMetaData interceptors = ejbJarMetaData.getInterceptors();
+      if(interceptors == null)
+         return null;
+      for(InterceptorMetaData interceptorMetaData : interceptors)
       {
-         log.debug("Initialising interceptors for " + getEjbName() + "...");
-         HashSet<InterceptorInfo> defaultInterceptors = interceptorRepository.getDefaultInterceptors();
-         log.debug("Default interceptors: " + defaultInterceptors);
-
-         classInterceptors = interceptorRepository.getClassInterceptors(this);
-         log.debug("Class interceptors: " + classInterceptors);
-
-         applicableInterceptors = new LinkedHashSet<InterceptorInfo>();
-         if (defaultInterceptors != null) applicableInterceptors.addAll(defaultInterceptors);
-         if (classInterceptors != null) applicableInterceptors.addAll(classInterceptors);
-
-         Method[] methods = clazz.getMethods();
-         for (int i = 0; i < methods.length; i++)
-         {
-            List methodIcptrs = interceptorRepository.getMethodInterceptors(this, methods[i]);
-            if (methodIcptrs != null && methodIcptrs.size() > 0)
-            {
-               log.debug("Method interceptors for  " + methods[i] + ": " + methodIcptrs);
-               applicableInterceptors.addAll(methodIcptrs);
-            }
-         }
-         log.debug("All applicable interceptor classes: " + applicableInterceptors);
+         if(interceptorMetaData.getInterceptorClass().equals(interceptorClass.getName()))
+            return interceptorMetaData;
       }
+      return null;
    }
    
    protected void findPartitionName()
@@ -1073,6 +1249,7 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return null;
    }
 
+   /*
    @Override
    public boolean hasAnnotation(Class tgt, String annotation)
    {
@@ -1142,7 +1319,8 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
          throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
       }
    }
-
+   */
+   
    public Container resolveEjbContainer(String link, Class businessIntf)
    {
       return deployment.getEjbContainer(link, businessIntf);
@@ -1158,31 +1336,22 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return deployment.resolveMessageDestination(link);
    }
    
-   @SuppressWarnings("unchecked")
    public <T extends Annotation> T getAnnotation(Class<T> annotationType)
    {
       if (this.getAnnotations().isDisabled(annotationType))
          return null;
       
-      return (T) resolveAnnotation(annotationType);
+      return beanContainer.getAnnotation(annotationType);
    }
    
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Class<?> clazz)
    {
-      if (clazz == this.getBeanClass())
-      {
-         return (T) resolveAnnotation(annotationType);
-      }
-      return clazz.getAnnotation(annotationType);
+      return beanContainer.getAnnotation(clazz, annotationType);
    }
 
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Class<?> clazz, Method method)
    {
-      if (clazz == this.getBeanClass())
-      {
-         return (T) resolveAnnotation(method, annotationType);
-      }
-      return method.getAnnotation(annotationType);
+      return beanContainer.getAnnotation(annotationType, clazz, method);
    }
    
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Method method)
@@ -1190,63 +1359,50 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       if (this.getAnnotations().isDisabled(method, annotationType))
          return null;
       
-      return (T) resolveAnnotation(method, annotationType);
+      return beanContainer.getAnnotation(annotationType, method);
    }
 
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Class<?> clazz, Field field)
    {
-      if (clazz == this.getBeanClass())
-      {
-         return (T) resolveAnnotation(field, annotationType);
-      }
-      return field.getAnnotation(annotationType);
+      return beanContainer.getAnnotation(annotationType, clazz, field);
    }
    
    public <T extends Annotation> T getAnnotation(Class<T> annotationType, Field field)
    {
-      return (T) resolveAnnotation(field, annotationType);
+      return beanContainer.getAnnotation(annotationType, field);
    }
    
-   @Override
-   public Object resolveAnnotation(Method m, Class annotation)
+   /**
+    * @deprecated use getAnnotation
+    */
+   @SuppressWarnings("unchecked")
+   public Object resolveAnnotation(Class annotationType)
    {
-      Object value = super.resolveAnnotation(m, annotation);
-      if (value == null && m.isBridge()) value = getBridgedAnnotation(m, annotation);
-      return value;
+      return getAnnotation(annotationType);
    }
    
-   protected Object getBridgedAnnotation(Method bridgeMethod, Class annotation)
+   /**
+    * @deprecated use getAnnotation
+    */
+   @SuppressWarnings("unchecked")
+   public Object resolveAnnotation(Field field, Class annotationType)
    {
-      Method[] methods = bridgeMethod.getDeclaringClass().getMethods();
-      int i = 0;
-      boolean found = false;
-      Class[] bridgeParams = bridgeMethod.getParameterTypes();
-      while (i < methods.length && !found)
-      {
-         if (!methods[i].isBridge() && methods[i].getName().equals(bridgeMethod.getName()))
-         {
-            Class[] params = methods[i].getParameterTypes();
-            if (params.length == bridgeParams.length)
-            {
-               int j = 0;
-               boolean matches = true;
-               while (j < params.length && matches)
-               {
-                  if (!bridgeParams[j].isAssignableFrom(params[j]))
-                     matches = false;
-                  ++j;
-               }
-               
-               if (matches)
-                  return resolveAnnotation(methods[i], annotation);
-            }
-         }
-         ++i;
-      }
- 
-      return null;
+      return getAnnotation(annotationType, field);
    }
    
+   /**
+    * @deprecated use getAnnotation
+    */
+   @SuppressWarnings("unchecked")
+   public Object resolveAnnotation(Method method, Class annotationType)
+   {
+      return getAnnotation(annotationType, method);
+   }
+   
+   /**
+    * @deprecated this is going to be gone soon
+    */
+   @SuppressWarnings("unchecked")
    public Object resolveAnnotation(Method m, Class[] annotationChoices)
    {
       Object value = null;
@@ -1288,11 +1444,11 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       return invokeStats;
    }
 
-
-   public MethodInfo getMethodInfo(Method method)
+   @Deprecated
+   protected MethodInfo getMethodInfo(Method method)
    {
       long hash = MethodHashing.calculateHash(method);
-      MethodInfo info = super.getMethodInfo(hash);
+      MethodInfo info = getAdvisor().getMethodInfo(hash);
       if (info == null)
       {
          throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
@@ -1321,7 +1477,14 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       this.businessInterfaces = resolveBusinessInterfaces();
       
       // Before we start to process annotations, make sure we also have the ones from interceptors-aop.
-      initializeClassContainer();
+      // FIXME: because of the flaked life cycle of an EJBContainer (we add annotations after it's been
+      // constructed), we must reinitialize the whole thing. 
+      beanContainer.reinitializeAdvisor();
+   }
+   
+   public void setDirectContainer(DirectContainer<EJBContainer> container)
+   {
+      this.directContainer = container;
    }
    
    protected Method getNonBridgeMethod(Method bridgeMethod)

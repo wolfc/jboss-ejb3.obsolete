@@ -30,6 +30,7 @@ import javax.ejb.TransactionManagementType;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.joinpoint.MethodJoinpoint;
+import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.TransactionTimeout;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;
@@ -87,7 +88,11 @@ public class TxInterceptorFactory extends org.jboss.aspects.tx.TxInterceptorFact
       // We have to do this until AOP supports matching based on annotation attributes
       TransactionManagementType type = TxUtil.getTransactionManagementType(advisor);
       if (type == TransactionManagementType.BEAN)
-         return new BMTInterceptor(TxUtil.getTransactionManager(), !(advisor instanceof StatefulContainer));
+      {
+         // Must be a separate line (EJBContainer cannot be dereferenced)
+         EJBContainer container = EJBContainer.getEJBContainer(advisor);
+         return new BMTInterceptor(TxUtil.getTransactionManager(), !(container instanceof StatefulContainer));
+      }
 
       Method method = ((MethodJoinpoint) jp).getMethod();
       int timeout = resolveTransactionTimeout(advisor, method);

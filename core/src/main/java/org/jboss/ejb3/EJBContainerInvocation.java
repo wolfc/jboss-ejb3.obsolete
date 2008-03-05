@@ -56,11 +56,13 @@ public class EJBContainerInvocation<A extends EJBContainer, T extends BeanContex
       super(null, null);
    }
 
+   /*
    @SuppressWarnings("unchecked")
    public A getAdvisor()
    {
       return (A) super.getAdvisor();
    }
+   */
    
    public T getBeanContext()
    {

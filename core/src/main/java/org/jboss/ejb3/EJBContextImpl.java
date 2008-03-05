@@ -41,7 +41,6 @@ import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
-import org.jboss.aop.Advisor;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.ejb3.tx.UserTransactionImpl;
@@ -302,7 +301,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
 
    public UserTransaction getUserTransaction() throws IllegalStateException
    {
-      TransactionManagementType type = TxUtil.getTransactionManagementType(((Advisor) getContainer()));
+      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
       if (type != TransactionManagementType.BEAN) throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to inject UserTransaction into a CMT bean");
 
       return new UserTransactionImpl();
@@ -326,7 +325,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    public void setRollbackOnly() throws IllegalStateException
    {
       // EJB1.1 11.6.1: Must throw IllegalStateException if BMT
-      TransactionManagementType type = TxUtil.getTransactionManagementType(((Advisor) getContainer()));
+      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
       if (type != TransactionManagementType.CONTAINER) throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to call setRollbackOnly from BMT: " + type);
 
       try
@@ -349,7 +348,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    public boolean getRollbackOnly() throws IllegalStateException
    {
       // EJB1.1 11.6.1: Must throw IllegalStateException if BMT
-      TransactionManagementType type = TxUtil.getTransactionManagementType(((Advisor) getContainer()));
+      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
       if (type != TransactionManagementType.CONTAINER)
          throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to call getRollbackOnly from BMT: " + type);
 

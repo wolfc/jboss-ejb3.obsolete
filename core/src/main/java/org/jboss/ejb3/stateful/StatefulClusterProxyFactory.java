@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.AdviceStack;
@@ -159,7 +158,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       }
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
       String partitionName = ((SessionContainer) getContainer()).getPartitionName();
-      return constructProxy(new StatefulClusteredProxy(getContainer(), stack.createInterceptors((Advisor) getContainer(), null), 
+      return constructProxy(new StatefulClusteredProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), 
             wrapper, lbPolicy, partitionName));
    }
 
@@ -181,7 +180,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
    protected StatefulHandleImpl getHandle()
    {
       StatefulHandleImpl handle = new StatefulHandleImpl();
-      RemoteBinding remoteBinding = (RemoteBinding)((Advisor)getContainer()).resolveAnnotation(RemoteBinding.class);
+      RemoteBinding remoteBinding = (RemoteBinding) getContainer().resolveAnnotation(RemoteBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding();
  

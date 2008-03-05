@@ -27,11 +27,11 @@ import javax.ejb.ApplicationException;
 import javax.ejb.ConcurrentAccessException;
 import javax.ejb.EJBException;
 
-import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SerializedConcurrentAccess;
+import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.spec.ApplicationExceptionMetaData;
@@ -43,7 +43,7 @@ import org.jboss.metadata.ejb.spec.ApplicationExceptionsMetaData;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatefulInstanceInterceptor implements Interceptor
+public class StatefulInstanceInterceptor extends AbstractInterceptor
 {
    private static final Logger log = Logger.getLogger(StatefulInstanceInterceptor.class);
    
@@ -60,7 +60,7 @@ public class StatefulInstanceInterceptor implements Interceptor
    {
       StatefulContainerInvocation ejb = (StatefulContainerInvocation) invocation;
       Object id = ejb.getId();
-      StatefulContainer container = (StatefulContainer) ejb.getAdvisor();
+      StatefulContainer container = getEJBContainer(invocation);
       StatefulBeanContext target = container.getCache().get(id);
 
       boolean block = container.getAnnotation(SerializedConcurrentAccess.class) != null;

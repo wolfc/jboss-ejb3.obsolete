@@ -37,14 +37,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.CreateException;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
-import javax.interceptor.ExcludeClassInterceptors;
-import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.InvocationContext;
 
 import org.jboss.ejb3.EJBContainer;
@@ -73,7 +72,9 @@ import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision$
+ * @deprecated  use the new interceptors component
  */
+@Deprecated
 public class InterceptorInfoRepository
 {
    private static Logger log = Logger.getLogger(InterceptorInfoRepository.class);
@@ -135,6 +136,7 @@ public class InterceptorInfoRepository
       return defaultInterceptors.size() > 0;
    }
 
+   /*
    public ArrayList<InterceptorInfo> getClassInterceptors(EJBContainer container)
    {
       javax.interceptor.Interceptors interceptors = (javax.interceptor.Interceptors) container
@@ -143,7 +145,8 @@ public class InterceptorInfoRepository
 
       return infos;
    }
-
+   */
+   
    public ArrayList<InterceptorInfo> getMethodInterceptors(EJBContainer container, Method m)
    {
       javax.interceptor.Interceptors interceptors = (javax.interceptor.Interceptors) container.resolveAnnotation(m,
@@ -184,6 +187,7 @@ public class InterceptorInfoRepository
       return getMethodsForEvent(info, type);
    }
 
+   /*
    public InterceptorInfo[] getBusinessInterceptors(EJBContainer container, Method method)
    {
       return getInterceptors(container, AroundInvoke.class, method);
@@ -208,7 +212,9 @@ public class InterceptorInfoRepository
    {
       return getInterceptors(container, PreDestroy.class, null);
    }
-
+   */
+   
+   /*
    private InterceptorInfo[] getInterceptors(EJBContainer container, Class type, Method method)
    {
       ArrayList<InterceptorInfo> interceptors = new ArrayList<InterceptorInfo>();
@@ -252,7 +258,9 @@ public class InterceptorInfoRepository
       InterceptorInfo[] ints = interceptors.toArray(new InterceptorInfo[interceptors.size()]);
       return ints;
    }
-
+   */
+   
+   /*
    private List<InterceptorInfo> getMethodOnlyInterceptorsForLifecycle(EJBContainer container, Class type, List<InterceptorInfo> infos)
    {
       HashSet<InterceptorInfo> methodLevelInterceptors = (HashSet<InterceptorInfo>)container.getApplicableInterceptors().clone();
@@ -279,10 +287,12 @@ public class InterceptorInfoRepository
       List<InterceptorInfo> trimmedInfos = trimUnwanted(methodLevelInterceptors, type); 
       return trimmedInfos;
    }
+   */
    
+   /*
    private boolean hasAnnotation(EJBContainer container, Class annotation, Method method)
    {
-      if (container.resolveAnnotation(annotation) != null)
+      if (container.getAnnotation(annotation) != null)
       {
          return true;
       }
@@ -294,7 +304,8 @@ public class InterceptorInfoRepository
 
       return false;
    }
-
+   */
+   
    private List<InterceptorInfo> trimUnwanted(Collection<InterceptorInfo> interceptors, Class type)
    {
       ArrayList<InterceptorInfo> ints = new ArrayList<InterceptorInfo>(interceptors.size());

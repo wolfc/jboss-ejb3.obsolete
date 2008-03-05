@@ -19,34 +19,52 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.cachepassivation;
+package org.jboss.ejb3.session;
 
-import java.util.Hashtable;
-
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.aop.InstanceAdvisor;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.InvocationResponse;
+import org.jboss.aop.proxy.ClassProxy;
+import org.jboss.aop.proxy.ProxyMixin;
 
 /**
- * Comment
+ * Don't ask. Try observing a volcano eruption from 1 mile or outrun
+ * a lightning bolt. It's safer.
  *
+ * org.jboss.aop.Dispatcher can handle only certain types.
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class MockStatefulContainer extends StatefulContainer
+class ClassProxyHack implements ClassProxy
 {
-
-   @SuppressWarnings("unchecked")
-   public MockStatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
-         Hashtable ctxProperties, Ejb3Deployment deployment) throws ClassNotFoundException
+   private SessionContainer container;
+   
+   ClassProxyHack(SessionContainer container)
    {
-      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, null);
+      assert container != null : "container is null";
+      
+      this.container = container;
    }
    
-   @Override
-   public Object createSession()
+   public InvocationResponse _dynamicInvoke(Invocation invocation) throws Throwable
    {
-      // TODO Auto-generated method stub
-      return super.createSession();
+      return container.dynamicInvoke(null, invocation);
    }
+
+   public void setMixins(ProxyMixin[] mixins)
+   {
+      throw new RuntimeException("Go away, stop bothering me");
+   }
+
+   public InstanceAdvisor _getInstanceAdvisor()
+   {
+      throw new RuntimeException("Go away, stop bothering me");
+   }
+
+   public void _setInstanceAdvisor(InstanceAdvisor newAdvisor)
+   {
+      throw new RuntimeException("Go away, stop bothering me");
+   }
+
 }
