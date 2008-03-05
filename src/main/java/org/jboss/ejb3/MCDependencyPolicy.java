@@ -127,7 +127,7 @@ public class MCDependencyPolicy implements DependencyPolicy
          addDependency(new EjbLinkDemandMetaData(component, ejbLink));
    }
    
-   public void addJNDIName(String name, ClassLoader loader)
+   public void addJNDIName(String name)
    {
       assert name != null : "name is null";
       assert name.length() > 0 : "name is empty";

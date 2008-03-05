@@ -22,7 +22,6 @@
 package org.jboss.ejb3.deployers;
 
 import org.jboss.ejb3.MCDependencyPolicy;
-import org.jboss.ejb3.dependency.JndiDemandMetaData;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 
 /**
@@ -36,13 +35,6 @@ public class JBoss5DependencyPolicy extends MCDependencyPolicy
    public JBoss5DependencyPolicy(JavaEEComponent component)
    {
       super(component);
-   }
-
-   
-   @Override
-   public void addJNDIName(String name, ClassLoader loader)
-   {
-      this.addDependency(new JndiDemandMetaData(name, loader));
    }
 
    public void addDatasource(String jndiName)
