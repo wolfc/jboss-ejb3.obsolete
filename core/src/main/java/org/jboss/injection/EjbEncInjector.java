@@ -40,7 +40,7 @@ public class EjbEncInjector implements EncInjector
    private static final Logger log = Logger.getLogger(EjbEncInjector.class);
    
    private String ejbLink;
-   private Class refClass;
+   private Class<?> refClass;
    private String jndiName;
    private String error;
    private String encName;
@@ -52,7 +52,7 @@ public class EjbEncInjector implements EncInjector
       this.encName = name;
    }
 
-   public EjbEncInjector(String name, Class refClass, String ejbLink, String error)
+   public EjbEncInjector(String name, Class<?> refClass, String ejbLink, String error)
    {
       this.refClass = refClass;
       this.ejbLink = ejbLink;
