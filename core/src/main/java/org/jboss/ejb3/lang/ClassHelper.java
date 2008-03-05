@@ -35,6 +35,31 @@ import java.util.List;
 public class ClassHelper
 {
    /**
+    * Casts an object to the class or interface represented
+    * by the targetClass <tt>Class</tt> object.
+    * The ClassCastException thrown is more descriptive than
+    * the original.
+    *
+    * @param obj the object to be cast
+    * @return the object after casting, or null if obj is null
+    *
+    * @throws ClassCastException if the object is not
+    * null and is not assignable to the type T.
+    */
+   public static <T> T cast(Class<T> targetClass, Object obj)
+   {
+      try
+      {
+         return targetClass.cast(obj);
+      }
+      catch(ClassCastException e)
+      {
+         assert obj != null : "a null can always be cast, it should never throw a ClassCastException";
+         throw new ClassCastException("Unable to cast " + obj.getClass() + " to " + targetClass);
+      }
+   }
+   
+   /**
     * @see Class#argumentTypesToString
     */
    private static String argumentTypesToString(Class<?>[] argTypes)
