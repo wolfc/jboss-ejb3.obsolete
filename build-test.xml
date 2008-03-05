@@ -98,6 +98,7 @@
   <property name="location.dependencies.lib.hsqldb:hsqldb" value="${location.dependencies.lib}/hsqldb.jar"/>
   <property name="location.dependencies.lib.apache-httpclient:commons-httpclient" value="${location.dependencies.lib}/commons-httpclient.jar"/>
   <property name="location.dependencies.lib.apache-codec:commons-codec" value="${location.dependencies.lib}/commons-codec.jar"/>
+  <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate3.jar"/>
   <property name="location.dependencies.lib.org.jboss.cache:jbosscache-core" value="${location.dependencies.lib}/jbosscache-core.jar"/>
   <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.commons-logging" value="${location.client.lib}/commons-logging.jar"/>
@@ -221,6 +222,9 @@
 
     <!-- JBoss Test Project -->
     <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+	
+	<!-- Hibernate -->
+	<pathelement path="${location.dependencies.lib.hibernate:hibernate3}" />
     
     <!-- JBoss Cache Core -->
     <pathelement path="${location.dependencies.lib.org.jboss.cache:jbosscache-core}" />

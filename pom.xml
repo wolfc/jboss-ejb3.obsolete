@@ -175,6 +175,10 @@
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
                 <artifactItem>
+                  <groupId>hibernate</groupId>
+                  <artifactId>hibernate3</artifactId>
+                </artifactItem>
+                <artifactItem>
                   <groupId>hsqldb</groupId>
                   <artifactId>hsqldb</artifactId>
                 </artifactItem>
