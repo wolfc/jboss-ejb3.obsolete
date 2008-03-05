@@ -136,7 +136,6 @@ public class TxInterceptor extends org.jboss.aspects.tx.TxInterceptor
       public Object invoke(Invocation invocation) throws Throwable
       {
          Transaction tx = tm.getTransaction();
-         log.info("!!!!!!!!! invoke " + ((MethodInvocation)invocation).getMethod() + " " + tx);
          if (tx == null)
          {
             policy.throwMandatory(invocation);

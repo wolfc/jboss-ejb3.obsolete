@@ -1324,6 +1324,21 @@ public abstract class EJBContainer extends ClassContainer implements Container, 
       initializeClassContainer();
    }
    
+   protected Method getNonBridgeMethod(Method bridgeMethod)
+   {
+      Class clazz = bridgeMethod.getDeclaringClass();
+      Method[] methods = clazz.getMethods();
+      for (Method method : methods)
+      {
+         if (!method.isBridge() && method.getParameterTypes().length == bridgeMethod.getParameterTypes().length)
+         {
+            return method;
+         }
+      }
+      
+      return bridgeMethod;
+   }
+   
    public String toString()
    {
       return getObjectName().getCanonicalName();
