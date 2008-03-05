@@ -42,7 +42,7 @@ public abstract class AbstractHandler<X extends RemoteEnvironment> implements In
 //         container.getDependencyPolicy().addDependency(refcon.getObjectName().getCanonicalName());
 //   }
    
-   protected void addDependency(InjectionContainer container, Class businessIntf)
+   protected void addDependency(InjectionContainer container, Class<?> businessIntf)
    {
       EJBContainer refCon = null;
       try
