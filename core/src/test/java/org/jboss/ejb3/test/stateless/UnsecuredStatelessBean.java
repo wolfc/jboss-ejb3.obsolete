@@ -24,7 +24,12 @@ package org.jboss.ejb3.test.stateless;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.Remote;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.naming.NamingException;
+import javax.transaction.TransactionManager;
+
+import org.jboss.ejb3.annotation.JndiInject;
 import org.jboss.logging.Logger;
 
 /**
@@ -33,14 +38,25 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 @Remote(UnsecuredStateless.class)
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED) 
 public class UnsecuredStatelessBean implements UnsecuredStateless
 {
    private static final Logger log = Logger.getLogger(UnsecuredStatelessBean.class);
+   
+   @JndiInject(jndiName="java:/TransactionManager") private TransactionManager tm;
    
    @EJB CheckedStateless stateless;
    
    public int method(int i) throws NamingException
    {
       return stateless.method(i);
+   }
+   
+   @TransactionAttribute(value = TransactionAttributeType.MANDATORY)
+   public String testMandatoryTx(String string) throws javax.transaction.SystemException
+   {
+      log.info("**** Should never get here testMandatoryTx " + tm.getTransaction());
+      new Exception().printStackTrace();
+      return string;
    }
 }

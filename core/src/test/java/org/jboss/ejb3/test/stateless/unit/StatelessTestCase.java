@@ -171,6 +171,21 @@ public class StatelessTestCase extends JBossTestCase
          // okay
       }
    }
+   
+   public void testTemplateInterfaceTx() throws Exception
+   {
+      UnsecuredStateless stateful = (UnsecuredStateless)getInitialContext().lookup("UnsecuredStatelessBean/remote");
+      assertNotNull(stateful);
+      
+      try
+      {
+         stateful.testMandatoryTx("123");
+         fail("should have caught exception");
+      }
+      catch (javax.ejb.EJBTransactionRequiredException e)
+      {
+      }
+   }
 
    public static Test suite() throws Exception
    {
