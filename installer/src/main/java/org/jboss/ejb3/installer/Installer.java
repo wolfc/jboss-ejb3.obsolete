@@ -103,7 +103,7 @@ public class Installer
    /*
     * Extension to append to Windows-based systems
     */
-   private static final String COMMAND_EXTENSION_WINDOWS = ".bat";
+   private static final String COMMAND_EXTENSION_BATCH = ".bat";
 
    /*
     * Switch to set buildfile for Ant
@@ -333,17 +333,18 @@ public class Installer
       }
       this.getPrintStream().println("Using ANT_HOME: " + antHome);
 
-      // Construct "ant" command
-      String antCommand = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
+      // Construct "ant" command path
+      String antCommandPath = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
 
-      // Windows Hack
-      if (System.getProperty(Installer.SYSTEM_PROPERTY_OS).trim().toLowerCase().contains("windows"))
+      // If "ant" doesn't exist
+      if (!new File(antCommandPath).exists())
       {
-         antCommand = antCommand + Installer.COMMAND_EXTENSION_WINDOWS;
+         // Add batch extension
+         antCommandPath = antCommandPath + Installer.COMMAND_EXTENSION_BATCH;
       }
 
       // Construct the Process
-      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommand, Installer.SWITCH_ANT_BUILDFILE, buildfile);
+      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommandPath, Installer.SWITCH_ANT_BUILDFILE, buildfile);
       antProcessBuilder.redirectErrorStream(true);
       antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
             this.getJbossAsInstallationDirectory().getAbsolutePath());
@@ -354,7 +355,7 @@ public class Installer
       {
          // Start the Process
          this.getPrintStream().println(
-               "Starting Ant> " + antCommand + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
+               "Starting Ant> " + antCommandPath + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
          antProcess = antProcessBuilder.start();
 
          // Capture the output
