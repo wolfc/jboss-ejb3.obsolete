@@ -128,4 +128,6 @@
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-server/5.0.0-SNAPSHOT/jboss-as-server-5.0.0-SNAPSHOT-client.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/jboss/jnpserver/5.0.0.Beta4/jnpserver-5.0.0.Beta4.jar" sourcepath="/M2_REPO/org/jboss/jnpserver/5.0.0.Beta4/jnpserver-5.0.0.Beta4-sources.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
+	<classpathentry kind="src" path="/jboss-ejb3-interceptors"/>
+	<classpathentry kind="src" path="/jboss-ejb3-metadata"/>
 </classpath>
