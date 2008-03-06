@@ -21,13 +21,10 @@
  */
 package org.jboss.ejb3.test.stateless;
 
-import javax.naming.NamingException;
-
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version $Revision$
  */
-public interface UnsecuredStateless extends TemplatedStateless<String>
+public interface TemplatedStateless<T>
 {
-   int method(int i) throws NamingException;
+   T testMandatoryTx(T t) throws javax.transaction.SystemException;
 }
