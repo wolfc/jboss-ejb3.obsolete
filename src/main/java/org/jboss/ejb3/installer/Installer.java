@@ -61,11 +61,6 @@ public class Installer
    private static final String SYSTEM_PROPERTY_CLASS_PATH = "java.class.path";
 
    /*
-    * System Property Key for OS 
-    */
-   private static final String SYSTEM_PROPERTY_OS = "os.name";
-
-   /*
     * Environment Property key for JBOSS_HOME
     */
    private static final String ENV_PROPERTY_JBOSS_HOME = "JBOSS_HOME";
