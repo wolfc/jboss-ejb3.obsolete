@@ -54,13 +54,16 @@ import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.lang.ClassHelper;
+import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
@@ -810,7 +813,24 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
    {
       if(metaData == null)
          return null;
-      return ClassHelper.cast(enterpriseBeanMetaDataClass, metaData.getEnterpriseBean(ejbName));
+      
+      JBossEnterpriseBeanMetaData result = metaData.getEnterpriseBean(ejbName);
+      
+      // TODO: temporary workaround for JBCTS-756
+      // see also org.jboss.ejb3.metadata.JBossSessionGenericWrapper
+      if(result instanceof JBossGenericBeanMetaData)
+      {
+         if(enterpriseBeanMetaDataClass.equals(JBossSessionBeanMetaData.class))
+         {
+            result = new JBossSessionGenericWrapper((JBossGenericBeanMetaData) result);
+         }
+         else
+         {
+            throw new IllegalStateException("Can't find a generic bean meta data wrapper for " + enterpriseBeanMetaDataClass);
+         }
+      }
+      
+      return ClassHelper.cast(enterpriseBeanMetaDataClass, result);
    }
    
    /**
