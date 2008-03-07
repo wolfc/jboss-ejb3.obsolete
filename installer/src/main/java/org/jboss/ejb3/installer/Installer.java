@@ -69,6 +69,10 @@ public class Installer
     * Environment Property key for ANT_HOME 
     */
    private static final String ENV_PROPERTY_ANT_HOME = "ANT_HOME";
+   /*
+    * Environment Property key for ANT_CMD 
+    */
+   private static final String ENV_PROPERTY_ANT_CMD = "ANT_CMD";
 
    /*
     * Environment Property key for the Installation location
@@ -320,20 +324,26 @@ public class Installer
       Process antProcess = null;
       String buildfile = this.getInstallationDirectory() + File.separator + Installer.FILENAME_BUILDFILE;
 
-      // Obtain ANT_HOME and ensure specified
-      String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
-      if (antHome == null || "".equals(antHome))
+      // Try
+      String antCommandPath = System.getenv(Installer.ENV_PROPERTY_ANT_CMD);
+      if(antCommandPath == null)
       {
-         throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME + "' must be specified.");
+         // Obtain ANT_HOME and ensure specified
+         String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
+         if (antHome == null || "".equals(antHome))
+         {
+            throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME + "' must be specified.");
+         }
+         this.getPrintStream().println("Using ANT_HOME: " + antHome);
+   
+         // Construct "ant" command path
+         antCommandPath = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
       }
-      this.getPrintStream().println("Using ANT_HOME: " + antHome);
-
-      // Construct "ant" command path
-      String antCommandPath = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
 
       // If "ant" doesn't exist
       if (!new File(antCommandPath).exists())
       {
+         this.getPrintStream().println(antCommandPath+" does not existing, trying .bat extension");
          // Add batch extension
          antCommandPath = antCommandPath + Installer.COMMAND_EXTENSION_BATCH;
       }
