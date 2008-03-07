@@ -125,13 +125,19 @@
       </bind>
       -->
       
-      <!-- this is the usual way, now we move it into the other domains 
+      <!-- this is the usual way, now we move it into the other domains, because the
+           invocation of EJB interceptors must be the last in the chain 
       <bind pointcut="execution(* @org.jboss.ejb3.interceptors.ManagedObject->*(..)) AND !beanLifecycleCallbackMethods">
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
          <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
       </bind>
       -->
+      <stack name="EJBInterceptors">
+         <advice name="setup" aspect="InvocationContextInterceptor"/>
+         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
+         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+      </stack>
    </domain>
    
    
@@ -158,9 +164,7 @@
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
@@ -192,9 +196,7 @@
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
@@ -242,9 +244,7 @@
 
       <bind pointcut="execution(public * *->*(..))">
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
 
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
@@ -307,9 +307,7 @@
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.ExtendedPersistenceContextPropagationInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
 
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.Clustered->*(..)) AND !execution(public * *->@javax.ejb.Remove(..))">
@@ -365,9 +363,7 @@
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
@@ -392,9 +388,7 @@
       </bind>
       <bind pointcut="execution(public * *->*(..))">
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
@@ -426,9 +420,7 @@
       </bind>
       <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start())">
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
          @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy.class)
@@ -457,9 +449,7 @@
       </bind>
       <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start())">
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
-         <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
-         <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
+         <stack-ref name="EJBInterceptors"/>
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
          @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy.class)
