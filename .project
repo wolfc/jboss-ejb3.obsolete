@@ -2,10 +2,7 @@
   <name>jboss-ejb3-metadata</name>
   <comment>The JBoss EJB 3 Meta Data component implements the meta data retrieval
     bridge between jboss-metadata and annotations.</comment>
-  <projects>
-    <project>jboss-ejb3-ext-api</project>
-    <project>jboss-ejb3-ext-api-impl</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
