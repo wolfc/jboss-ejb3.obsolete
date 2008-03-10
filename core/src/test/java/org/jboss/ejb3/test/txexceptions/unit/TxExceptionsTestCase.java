@@ -30,6 +30,7 @@ import org.jboss.ejb3.test.txexceptions.DeploymentDescriptorCheckedRollbackExcep
 import org.jboss.ejb3.test.txexceptions.Dao;
 import org.jboss.ejb3.test.txexceptions.NoRollbackRemoteException;
 import org.jboss.ejb3.test.txexceptions.NoRollbackRuntimeException;
+import org.jboss.ejb3.test.txexceptions.RollbackError;
 import org.jboss.ejb3.test.txexceptions.RollbackRemoteException;
 import org.jboss.ejb3.test.txexceptions.RollbackRuntimeException;
 import org.jboss.ejb3.test.txexceptions.SimpleEntity;
@@ -222,6 +223,31 @@ public class TxExceptionsTestCase extends JBossTestCase
       catch (EJBException e)
       {
          assertTrue(e.getCausedByException() instanceof RollbackRuntimeException);
+      }
+     
+      SimpleEntity entity = dao.get(1);
+      
+      if (entity != null)
+         dao.remove(1);
+      
+      assertNull(entity);
+   }
+
+   public void testRollbackError() throws Exception
+   {
+      Dao dao = (Dao) getInitialContext().lookup("DaoBean/remote");
+
+      try
+      {
+         dao.createThrowRollbackError(1);
+         fail();
+      }
+      catch (EJBException e)
+      {
+         // AFAIK, the spec doesn't define how the causing error should be delivered
+         // so, this is based on the current impl
+         assertTrue(e.getCausedByException() instanceof RuntimeException);
+         assertTrue(((RuntimeException)e.getCausedByException()).getCause() instanceof RollbackError);
       }
      
       SimpleEntity entity = dao.get(1);
