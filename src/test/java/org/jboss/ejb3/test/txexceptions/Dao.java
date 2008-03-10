@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.test.txexceptions;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 
 /**
  * Comment
@@ -52,6 +50,8 @@ public interface Dao
 
    void createThrowRollbackRuntimeException(int id) throws RollbackRuntimeException;
 
+   void createThrowRollbackError(int id) throws RollbackError;
+   
    void remove(int id);
 
    void testRequiresNewWithLookedUpEntityManager() throws Exception;

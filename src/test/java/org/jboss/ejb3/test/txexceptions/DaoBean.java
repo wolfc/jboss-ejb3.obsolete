@@ -124,4 +124,10 @@ public class DaoBean implements Dao
       persist(id);
       throw new RollbackRuntimeException();
    }
+
+   public void createThrowRollbackError(int id) throws RollbackError
+   {
+      persist(id);
+      throw new RollbackError();
+   }
 }
