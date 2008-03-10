@@ -36,6 +36,8 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.tx.NullInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.spec.SecurityIdentityMetaData;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.RealmMapping;
 import org.jboss.security.RunAsIdentity;
@@ -53,12 +55,22 @@ implements AspectFactory
    private static final Logger log = Logger.getLogger(RunAsSecurityInterceptorFactory.class);
   
    protected RunAsIdentity getRunAsIdentity(EJBContainer container)
-   {
+   {      
       RunAs runAs = (RunAs) container.resolveAnnotation(RunAs.class);
       if (runAs == null)
          return null;
       
       String runAsPrincipal = runAs.value(); 
+      
+      JBossEnterpriseBeanMetaData jbEnterpriseBeanMetaData = container.getXml();
+      if(jbEnterpriseBeanMetaData != null)
+      {
+         SecurityIdentityMetaData securityIdentity = jbEnterpriseBeanMetaData.getSecurityIdentity();
+         if(securityIdentity.isUseCallerId())
+            return null; //Overriden in xml 
+         runAsPrincipal = securityIdentity.getRunAsPrincipal(); 
+      }
+      
       Set<String> extraRoles = new HashSet<String>();
       
       JBossAssemblyDescriptorMetaData ad = container.getAssemblyDescriptor();
@@ -68,17 +80,13 @@ implements AspectFactory
       }
       
       return new RunAsIdentity(runAs.value(), runAsPrincipal, extraRoles);
+
    }
 
 
    public Object createPerClass(Advisor advisor)
    {
       EJBContainer container = EJBContainer.getEJBContainer(advisor);
-      RunAsIdentity runAsIdentity = getRunAsIdentity(container);
-      /*if (runAsIdentity == null)
-      {
-         return new NullInterceptor();
-      }*/
 
       Object domain = null;
       try
@@ -99,10 +107,6 @@ implements AspectFactory
       Interceptor interceptor = new NullInterceptor();
       if (domain != null)
       {
-         AuthenticationManager manager = (AuthenticationManager) domain;
-         RealmMapping mapping = (RealmMapping) domain;
-         //interceptor = new RunAsSecurityInterceptor(manager, mapping, getRunAsIdentity(container));
-         
          interceptor = new RunAsSecurityInterceptorv2(container, getRunAsIdentity(container));
       }
       return interceptor;
