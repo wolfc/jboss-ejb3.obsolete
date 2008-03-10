@@ -136,8 +136,8 @@
     <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-deployers-core-spi>
     <version.org.jboss.microcontainer_jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer_jboss-deployers-vfs-spi>
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-kernel>
-    <version.org.jboss.security_jboss-security-spi-bare>2.0.2.Beta1</version.org.jboss.security_jboss-security-spi-bare>
-    <version.org.jboss.security_jbosssx-client>2.0.2.Beta4</version.org.jboss.security_jbosssx-client>
+    <version.org.jboss.security_jboss-security-spi-bare>2.0.2.Beta5</version.org.jboss.security_jboss-security-spi-bare>
+    <version.org.jboss.security_jbosssx-client>2.0.2.Beta5</version.org.jboss.security_jbosssx-client>
     <version.trove_trove>1.0.2</version.trove_trove>
     <version.quartz_quartz>1.6.0</version.quartz_quartz>
    
