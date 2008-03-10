@@ -147,7 +147,7 @@
             <available file="server.log">
                <filepath>
                   <fileset dir="${jboss.dist}/server/@{conf}/log/" includes="server.log">
-                     <contains text="[org.jboss.bootstrap.microcontainer.ServerImpl] Shutdown complete"/>
+                     <contains text="[org.jboss.bootstrap.microcontainer.ServerImpl] (JBoss Shutdown Hook) Shutdown complete"/>
                   </fileset>
                </filepath>
             </available>
