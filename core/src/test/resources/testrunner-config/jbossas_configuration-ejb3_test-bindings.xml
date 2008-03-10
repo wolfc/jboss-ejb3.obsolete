@@ -4,28 +4,20 @@
   
   This file defines bindings between EJB3 Integration Tests
   and the AS Server Configurations in which they must run, 
-  representing a N:N relationship
+  representing a N:N relationship.
   
   The grammar takes form:
   
-  <configurations>
-  
-    <configuration name="uniqueNameMappingToServerName">
-  
-      <test name="example1" />
-      <test name="example1" />
-      <test name="example1" />
-  
-    </configuration>
-    
-  </configurations>
+  <bindings>
+    <configurations>
+      <configuration name="uniqueName">
+        <tests>
+          <test name="example1" />
+          <test name="example1" />
+          <test name="example1" />
+        </tests>
+      </configuration>
+    </configurations>
+  </bindings>
   
 -->
-
-<configurations>
-
-  <configuration name="">
-
-  </configuration>
-
-</configurations>
