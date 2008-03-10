@@ -110,6 +110,7 @@
     
   <!-- EJB3 Internal Artifacts -->
   <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
+  <property name="artifact.ejb3.interceptors" value="${location.dependencies.lib}/jboss-ejb3-interceptors.jar"/>
   <property name="artifact.ejb3.extapi" value="${location.dependencies.lib}/jboss-ejb3-ext-api.jar"/>
   <property name="artifact.ejb3.extapiimpl" value="${location.dependencies.lib}/jboss-ejb3-ext-api-impl.jar"/>
   <property name="artifact.ejb3.core" value="${location.target}/jboss-ejb3-core.jar"/>
@@ -201,6 +202,15 @@
      
     <!-- EJB3 Core -->
     <pathelement path="${artifact.ejb3.core}" />
+  	
+  	<!-- EJB3 Interceptors -->
+  	<pathelement path="${artifact.ejb3.interceptors}" />
+	
+	<!-- EJB3 Interceptors -->
+	<pathelement path="${artifact.ejb3.extapi}" />
+	
+	<!-- EJB3 Interceptors -->
+	<pathelement path="${artifact.ejb3.extapiimpl}" />
     
   </path>
     
