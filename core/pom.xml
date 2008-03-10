@@ -171,6 +171,18 @@
                   <artifactId>jboss-ejb3-cache</artifactId>
                 </artifactItem>
                 <artifactItem>
+                  <groupId>org.jboss.ejb3</groupId>
+                  <artifactId>jboss-ejb3-interceptors</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jboss.ejb3</groupId>
+                  <artifactId>jboss-ejb3-ext-api</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jboss.ejb3</groupId>
+                  <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+                </artifactItem>
+                <artifactItem>
                   <groupId>org.jboss</groupId>
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
