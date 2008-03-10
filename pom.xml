@@ -38,14 +38,14 @@
 
       <!-- EJB3 TestRunner Configuration -->
       <plugin>
-        <groupId>org.jboss.ejb3</groupId>
+        <groupId>org.jboss.maven.plugins</groupId>
         <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
         <version>0.1.0-SNAPSHOT</version>
         <executions>
           <execution>
             <id>run-ejb3-tests</id>
             <goals>
-              <goal>run-tests</goal>
+              <goal>run-testsuite</goal>
             </goals>
             <!-- <phase>integration-test</phase>  -->
             <phase>validate</phase>
@@ -53,7 +53,7 @@
               <jvmArgs>
                 <jvmArg>-Xmx512M</jvmArg>
               </jvmArgs>
-              <config>all</config>
+              <configurationsToTestsConfigPath>src/test/resources/testrunner-config/jbossas_configuration-ejb3_test-bindings.xml</configurationsToTestsConfigPath>
             </configuration>
           </execution>
         </executions>
