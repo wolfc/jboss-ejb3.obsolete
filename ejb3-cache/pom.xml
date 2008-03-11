@@ -25,7 +25,24 @@
   <name>JBoss EJB 3.0 Cache</name>
   <url>http://labs.jboss.com/jbossejb3/</url>
   <description>The Java EJB 3.0 Cache classes</description>
-
+  
+  <project>
+    <build>
+      <plugins>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-jar-plugin</artifactId>
+         <executions>
+           <execution>
+             <goals>
+               <goal>test-jar</goal>
+             </goals>
+           </execution>
+         </executions>
+       </plugin>
+      </plugins>
+    </build>
+  </project>
 
   <dependencies>
 
