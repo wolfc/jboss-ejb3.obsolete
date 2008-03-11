@@ -31,10 +31,9 @@ import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.ObjectStore;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
-import org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner;
 import org.jboss.logging.Logger;
 
 /**
@@ -46,7 +45,7 @@ import org.jboss.logging.Logger;
  * @version $Revision$
  */
 public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>>
-      implements PassivatingIntegratedObjectStore<C, T>
+      extends AbstractPassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(SimplePassivatingIntegratedObjectStore.class);
    
@@ -55,36 +54,19 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    private Map<Object, Long> passivatedEntries;
    
    /**
-    * Support callbacks when our SessionTimeoutThread decides to
-    * evict an entry.
-    */
-   private PassivatingBackingCache<C, T> owningCache;   
-   private int interval;
-   private int maxSize;
-   private long idleTimeSeconds;
-   private long expirationTimeSeconds;   
-   private PassivationExpirationRunner sessionTimeoutRunner;
-   private String name;
-   private boolean stopped = true;
-   
-   /**
     * Create a new SimpleIntegratedObjectStore.
     */
    public SimplePassivatingIntegratedObjectStore(ObjectStore<T> store, 
                                                  CacheConfig config,
                                                  String name)
    {
+      super(config, name);
+      
       assert store != null : "store is null";
-      assert config != null : "config is null";
-      assert name != null : "name is null";
       
       this.store = store;
       this.cache = new HashMap<Object, T>();
       this.passivatedEntries = new HashMap<Object, Long>();
-      this.idleTimeSeconds = config.idleTimeoutSeconds();
-      this.expirationTimeSeconds = config.removalTimeoutSeconds();
-      this.maxSize = config.maxSize();
-      this.name = name;
    }
    
    public boolean isClustered()
@@ -165,92 +147,25 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    {
       store.start();
       
-      if (interval > 0)
-      {
-         if (sessionTimeoutRunner == null)
-         {
-            assert name != null : "name has not been set";
-            assert owningCache != null;
-            String timerName = "PassivationExpirationTimer-" + name;
-            sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
-         }
-         sessionTimeoutRunner.start();
-      }     
-      
-      stopped = false;
-      
-      log.debug("Started " + name);
+      super.start();
    }
 
    public void stop()
    {      
       store.stop();
       
-      if (sessionTimeoutRunner != null)
-      {
-         sessionTimeoutRunner.stop();
-      }      
-      
-      stopped = true;
-      
-      log.debug("Stopped " + name);
+      super.stop();
    }
 
-   // ---------------------------------------  PassivatingIntegratedObjectStore
+   // -------------------------------  AbstractPassivatingIntegratedObjectStore
 
-
-   public void setPassivatingCache(PassivatingBackingCache<C, T> cache)
+   @Override
+   protected void runExpiration()
    {
-      this.owningCache = cache;      
-   }
-   
-   public int getInterval()
-   {
-      return interval;
-   }
-
-   public void setInterval(int seconds)
-   {
-      this.interval = seconds;      
-   }
-   
-   public void processPassivationExpiration()
-   {
-      if (!stopped)
-      {
-         try
-         {
-            runPassivation();               
-         }
-         catch (Exception e)
-         {
-            log.error("Caught exception processing passivations", e);
-         }
-      }
-      if (!stopped)
-      {
-         try
-         {
-            runExpiration();               
-         }
-         catch (Exception e)
-         {
-            log.error("Caught exception processing expirations", e);
-         }               
-      }
-   }
-   
-   public boolean isPassivationExpirationSelfManaged()
-   {
-      return interval > 0;
-   }
-   
-   private void runExpiration()
-   {
-      if (expirationTimeSeconds > 0)
+      if (getExpirationTimeSeconds() > 0)
       {
          long now = System.currentTimeMillis();
-         long minRemovalUse = now - (expirationTimeSeconds * 1000);                     
+         long minRemovalUse = now - (getExpirationTimeSeconds() * 1000);                     
          for (CacheableTimestamp ts : getPassivatedEntries())
          {
             try
@@ -269,16 +184,17 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       }      
    }
 
-   private void runPassivation()
+   @Override
+   protected void runPassivation()
    {
-      if (idleTimeSeconds > 0)
+      if (getIdleTimeSeconds() > 0)
       {
          long now = System.currentTimeMillis();
-         long minPassUse = now - (idleTimeSeconds * 1000);
+         long minPassUse = now - (getIdleTimeSeconds() * 1000);
          
          // Scan the in-memory entries for passivation or removal
          SortedSet<CacheableTimestamp> timestamps = getInMemoryEntries();
-         int overCount = timestamps.size() - maxSize;
+         int overCount = timestamps.size() - getMaxSize();
          for (CacheableTimestamp ts : timestamps)
          {
             try
@@ -292,7 +208,7 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
                      if (entry == null || entry.isInUse())
                         continue;
                   }
-                  owningCache.passivate(ts.getId());
+                  getPassivatingCache().passivate(ts.getId());
                   overCount--;
                }
             }
@@ -304,32 +220,7 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
          }
       }
       
-   }   
-   
-   public int getMaxSize()
-   {
-      return maxSize;
    }
-   
-   public long getIdleTimeSeconds()
-   {
-      return idleTimeSeconds;
-   }
-
-   public void setIdleTimeSeconds(long idleTimeSeconds)
-   {
-      this.idleTimeSeconds = idleTimeSeconds;
-   }
-
-   public long getExpirationTimeSeconds()
-   {
-      return expirationTimeSeconds;
-   }
-   
-   public void setExpirationTimeSeconds(long timeout)
-   {
-      this.expirationTimeSeconds = timeout;
-   } 
 
    private SortedSet<CacheableTimestamp> getInMemoryEntries()
    {      
