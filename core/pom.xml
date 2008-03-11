@@ -164,10 +164,6 @@
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jboss.ejb3</groupId>
-                  <artifactId>jboss-ejb3-core</artifactId>
-                </artifactItem>
-                <artifactItem>
-                  <groupId>org.jboss.ejb3</groupId>
                   <artifactId>jboss-ejb3-cache</artifactId>
                 </artifactItem>
                 <artifactItem>
