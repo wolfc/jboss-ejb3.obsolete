@@ -19,36 +19,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache;
+package org.jboss.ejb3.cache.spi;
+
+import org.jboss.ejb3.cache.CacheItem;
+
 
 /**
- * Creates and destroys stateful objects.
+ * Stores an indentifiable object in a persistent store. Note that the object store
+ * does NOT call any callbacks.
  * 
- * The object returned by create has dependencies injected. The PostConstruct
- * callback, if defined, has been called and the Init callback, if defined,
- * has been called.
+ * It is assumed the key represents something meaning full to the object store.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface StatefulObjectFactory<T extends CacheItem>
+public interface ObjectStore<T extends CacheItem>
 {
    /**
-    * Creates a new stateful object by calling it's empty constructor,
-    * do injection, calling post-construct and finally calling the
-    * appropriate init method.
+    * Load the object from storage.
     * 
-    * @param initTypes  the argument types for the init method
-    * @param initValues the arguments for the init method
-    * @return
+    * @param key    the object identifier
+    * @return       the object or null if not found
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   T load(Object key);
    
    /**
-    * Perform any cleanup actions on the object, such as
-    * calling the pre-destroy callback.
+    * Store the object into storage.
     * 
     * @param obj    the object
     */
-   void destroy(T obj);
+   void store(T obj);
+   
+   /**
+    * Perform any initialization work.
+    */
+   void start();
+   
+   /**
+    * Perform any shutdown work.
+    */
+   void stop();
 }

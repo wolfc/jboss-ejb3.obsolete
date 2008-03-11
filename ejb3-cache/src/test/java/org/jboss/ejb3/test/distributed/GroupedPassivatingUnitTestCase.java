@@ -21,17 +21,14 @@
  */
 package org.jboss.ejb3.test.distributed;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 import junit.framework.TestCase;
 
-import org.jboss.ejb3.cache.PassivationManager;
-import org.jboss.ejb3.cache.StatefulObjectFactory;
-import org.jboss.ejb3.cache.grouped.SerializationGroup;
-import org.jboss.ejb3.cache.impl.SerializationGroupContainer;
-import org.jboss.ejb3.cache.impl.SimplePassivatingCache2;
+import org.jboss.ejb3.test.cache.mock.CacheType;
+import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
+import org.jboss.ejb3.test.cache.mock.MockBeanContext;
+import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
+import org.jboss.ejb3.test.cache.mock.MockPassivationManager;
+import org.jboss.ejb3.test.cache.mock.MockXPC;
 import org.jboss.logging.Logger;
 
 /**
@@ -56,76 +53,72 @@ public class GroupedPassivatingUnitTestCase extends TestCase
       }
    }
    
-   public void test1()
+   public void testSimpleGroupPassivation() throws Exception
    {      
-      Map<Object, Object> localJBC = new HashMap<Object, Object>();
-      Map<Object, Object> remoteJBC = new HashMap<Object, Object>();
-      SerializationGroupContainer container = new SerializationGroupContainer();
-      StatefulObjectFactory<SerializationGroup> factory = container;
-      PassivationManager<SerializationGroup> passivationManager = container;
-      MockJBCIntegratedObjectStore<SerializationGroup> store = new MockJBCIntegratedObjectStore<SerializationGroup>(localJBC, remoteJBC);
-      SimplePassivatingCache2<SerializationGroup> groupCache = new SimplePassivatingCache2<SerializationGroup>(factory, passivationManager, store);
-      MockBeanContainer container1 = new MockBeanContainer("MockBeanContainer1", 1, groupCache, localJBC, remoteJBC);
-      MockBeanContainer container2 = new MockBeanContainer("MockBeanContainer2", 10, groupCache, localJBC, remoteJBC);
+      MockCluster cluster = new MockCluster(false);
+      MockClusterMember node0 = cluster.getNode0();
+      MockCacheConfig cacheConfig = new MockCacheConfig();
+      cacheConfig.setIdleTimeoutSeconds(1);
+      MockXPC sharedXPC = new MockXPC();
+      MockBeanContainer container1 = node0.deployBeanContainer("MockBeanContainer1", null, CacheType.DISTRIBUTED, cacheConfig, sharedXPC);
+      MockBeanContainer container2 = node0.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.DISTRIBUTED, cacheConfig, sharedXPC);
       
+      cluster.getNode0().setTCCL();
       try
       {
-         groupCache.start();
-         container1.start();
-         container2.start();
-         
-         Object shared = new SharedObject();
+         Object key1 = container1.getCache().create(null, null).getId();
          MockBeanContext firstCtx1;
-         MockBeanContext ctx1 = firstCtx1 = container1.getCache().create(null, null);
-         Object key1 = ctx1.getId();
-         // We assign the shared object here as if it were an XPC injected 
-         // during SFSB creation
-         ctx1.shared = shared;
-         MockBeanContext ctx2 = container2.getCache().create(null, null);
-         Object key2 = ctx2.getId();
-         ctx2.shared = shared;
+         MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
          
-         // TODO: how will passivation groups be created?
-         SerializationGroup group = groupCache.create(null, null);
-         container1.getCache().setGroup(ctx1, group);
-         container2.getCache().setGroup(ctx2, group);
-         // TODO: currently we need to release the group
-         // BES -- not any more
-   //      groupCache.release(group);
+         Object key2 = ctx1.getChild(container2.getName());
+         MockBeanContext ctx2 = container2.getCache().get(key2);
          
-         container1.getCache().release(ctx1);
-         container2.getCache().release(ctx2);
+         assertNotNull(ctx1.getXPC());
+         assertEquals(ctx1.getXPC(), ctx2.getXPC());
          
-         sleep(4000);
+         container2.getCache().finished(ctx2);
+         container1.getCache().finished(ctx1);
          
-         assertEquals("ctx1 should have been passivated", 1, container1.passivations);
-         assertEquals("ctx2 should have been passivated", 1, container2.passivations);
+         sleep(2100);
+         
+         MockPassivationManager pass1 = (MockPassivationManager) container1.getPassivationManager();
+         MockPassivationManager pass2 = (MockPassivationManager) container2.getPassivationManager();
+         
+         assertEquals("ctx1 should have been passivated", 1, pass1.getPrePassivateCount());
+         assertEquals("ctx2 should have been passivated", 1, pass2.getPrePassivateCount());
          
          ctx2 = container2.getCache().get(key2);
          
          log.info("ctx2 = " + ctx2);
          assertNotNull(ctx2);
          
-         assertEquals("ctx2 should have been postReplicated", 1, container2.postReplications);        
-         assertEquals("ctx2 should have been activated", 1, container2.activations);
+         assertEquals("ctx2 should not have been postReplicated", 0, pass2.getPostReplicateCount());        
+         assertEquals("ctx2 should have been activated", 1, pass2.getPostActivateCount());
          
          ctx1 = container1.getCache().get(key1);
          
          log.info("ctx1 = " + ctx1);
          assertNotNull(ctx1);
          
-         assertEquals("ctx1 should have been postReplicated", 1, container1.postReplications);        
-         assertEquals("ctx1 should have been activated", 1, container1.activations);
+         assertEquals("ctx1 should not have been postReplicated", 0, pass1.getPostReplicateCount());        
+         assertEquals("ctx1 should have been activated", 1, pass1.getPostActivateCount());
          
          assertTrue("ctx1 must be different than firstCtx1 (else no passivation has taken place)", ctx1 != firstCtx1);
          
-         assertEquals(ctx1.shared, ctx2.shared);
+         assertNotNull(ctx1.getXPC());
+         assertEquals(ctx1.getXPC(), ctx2.getXPC());
       }
       finally
       {
-         container1.stop();
-         container2.stop();
-         groupCache.stop();
+         try
+         {
+            container1.stop();
+            container2.stop();
+         }
+         finally
+         {
+            cluster.getNode0().restoreTCCL();
+         }
       }
    }
 }

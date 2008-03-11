@@ -1,0 +1,167 @@
+/*
+ * JBoss, Home of Professional Open Source
+ * Copyright 2007, Red Hat Middleware LLC, and individual contributors as indicated
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.jboss.ejb3.test.cache.integrated;
+
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.test.cache.mock.CacheType;
+import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
+import org.jboss.ejb3.test.cache.mock.MockBeanContext;
+import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
+import org.jboss.ejb3.test.cache.mock.MockEjb3System;
+import org.jboss.ejb3.test.cache.mock.MockPassivationManager;
+import org.jboss.ejb3.test.cache.mock.MockXPC;
+import org.jboss.logging.Logger;
+
+/**
+ * Comment
+ *
+ * @author Brian Stansberry
+ * @version $Revision: 65920 $
+ */
+public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCacheUnitTestCase
+{
+   private static final Logger log = Logger.getLogger(GroupAwareTransactionalCacheUnitTestCase.class);
+   
+   @Override
+   protected Cache<MockBeanContext> createCache() throws Exception
+   {
+      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockBeanContainer ejb = system.deployBeanContainer("test", null, CacheType.SIMPLE);
+      return ejb.getCache();
+   }
+   
+   public void testNonGroupedPassivation() throws Exception
+   {
+      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockXPC sharedXPC = new MockXPC();
+      MockCacheConfig config = new MockCacheConfig();
+      config.setIdleTimeoutSeconds(4);
+      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      Cache<MockBeanContext> cache = container.getCache();
+      
+      Object key = cache.create(null, null).getId();
+      MockBeanContext obj = cache.get(key);
+      
+      cache.finished(obj);
+      obj = null;
+      
+      wait(container);
+      
+      MockPassivationManager pass = (MockPassivationManager) container.getPassivationManager();
+      
+      assertEquals("MockBeanContext should have been passivated", 1, pass.getPrePassivateCount());
+      
+      obj = cache.get(key);
+      assertNotNull(obj);
+      
+      assertEquals("MockBeanContext should have been activated", 1, pass.getPostActivateCount());
+      
+      sleep(3000);
+      
+      assertEquals("MockBeanContext should not have been passivated", 1, pass.getPrePassivateCount());
+      
+      cache.finished(obj);
+      obj = null;
+      
+      wait(container);
+      
+      assertEquals("MockBeanContext should have been passivated", 2, pass.getPrePassivateCount());
+   }
+
+
+
+   public void testSimpleGroupPassivation() throws Exception
+   {    
+      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockXPC sharedXPC = new MockXPC();
+      MockCacheConfig config = new MockCacheConfig();
+      config.setIdleTimeoutSeconds(1);
+      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC);
+      
+      log.info("Containers deployed");
+      
+      assertTrue(container1.hasChild(container2));
+      
+      try
+      {
+         Object key1 = container1.getCache().create(null, null).getId();
+         MockBeanContext firstCtx1;
+         MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
+         
+         assertEquals(sharedXPC, ctx1.getXPC());
+         Object key2 = ctx1.getChild(container2.getName());
+         MockBeanContext ctx2 = container2.getCache().get(key2);
+         assertNotNull(ctx2);
+         assertEquals(sharedXPC, ctx2.getXPC());
+
+         container2.getCache().finished(ctx2);
+         container1.getCache().finished(ctx1);
+         
+         log.info("Finished with contexts");
+         
+         sleep(2100);
+         
+         MockPassivationManager pass1 = (MockPassivationManager) container1.getPassivationManager();
+         MockPassivationManager pass2 = (MockPassivationManager) container2.getPassivationManager();
+         
+         
+         assertEquals("ctx1 should have been passivated", 1, pass1.getPrePassivateCount());
+         assertEquals("ctx2 should have been passivated", 1, pass2.getPrePassivateCount());
+         
+         log.info("Restoring ctx2");
+         
+         ctx2 = container2.getCache().get(key2);
+         
+         log.info("ctx2 = " + ctx2);
+         assertNotNull(ctx2);
+         
+         log.info("Restoring ctx1");
+         
+         ctx1 = container1.getCache().get(key1);
+         
+         log.info("ctx1 = " + ctx1);
+         
+         assertTrue("ctx1 must be different than firstCtx1 (else no passivation has taken place)", ctx1 != firstCtx1);
+         
+         assertNotNull(ctx1.getXPC());
+         assertEquals(ctx1.getXPC(), ctx2.getXPC());
+         
+         container1.getCache().finished(ctx1);         
+         container2.getCache().finished(ctx2);
+         
+      }
+      finally
+      {
+         container1.stop();
+         container2.stop();
+      }
+   }
+   
+   /**
+    * Test call to bean1 that calls into bean2 that calls back into bean1
+    */
+   public void testRecursiveCalls()
+   {
+      // FIXME implement testRecursiveCalls() -- which will fail :(
+   }
+}

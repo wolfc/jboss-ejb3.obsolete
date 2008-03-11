@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
-  *
+ *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,36 +19,45 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache;
+
+package org.jboss.ejb3.cache.spi;
+
+import org.jboss.ejb3.cache.CacheItem;
+
 
 /**
- * Creates and destroys stateful objects.
+ * An object that can be managed by a {@link BackingCache}.
  * 
- * The object returned by create has dependencies injected. The PostConstruct
- * callback, if defined, has been called and the Init callback, if defined,
- * has been called.
- *
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @author Brian Stansberry
+ * @version $Revision$
  */
-public interface StatefulObjectFactory<T extends CacheItem>
-{
+public interface BackingCacheEntry<T extends CacheItem> 
+   extends CacheItem
+{  
    /**
-    * Creates a new stateful object by calling it's empty constructor,
-    * do injection, calling post-construct and finally calling the
-    * appropriate init method.
+    * Gets the underlying object that should be serialized as part of 
+    * serialization of the group.
     * 
-    * @param initTypes  the argument types for the init method
-    * @param initValues the arguments for the init method
     * @return
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   T getUnderlyingItem();
    
    /**
-    * Perform any cleanup actions on the object, such as
-    * calling the pre-destroy callback.
-    * 
-    * @param obj    the object
+    * Gets whether this object is in use by a caller.
     */
-   void destroy(T obj);
+   boolean isInUse();
+   
+   /**
+    * Sets whether this object is in use by a caller.
+    * 
+    * @param inUse
+    */
+   void setInUse(boolean inUse);
+   
+   /**
+    * Gets the timestamp of the last time this object was in use.
+    * 
+    * @return
+    */
+   long getLastUsed();
 }

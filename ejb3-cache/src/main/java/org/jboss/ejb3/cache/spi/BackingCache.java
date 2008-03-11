@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
-  *
+ *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,29 +19,36 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache;
+
+package org.jboss.ejb3.cache.spi;
 
 import javax.ejb.NoSuchEJBException;
 
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.CacheItem;
 
 /**
- * Cache a stateful object and make sure any life cycle callbacks are
- * called at the appropriate time.
+ * An internal cache to which an external-facing {@link Cache} delegates, either
+ * directly or indirectly.
+ * <p>
+ * The key distinction between a BackingCache and the external-facing Cache is
+ * that a Cache directly handles external classes that implement the
+ * limited {@link CacheItem} interface. CacheItem is deliberately limited to
+ * avoid placing a implementation burden on external classes. A BackingCache 
+ * works with instances of the more expressive internal interface 
+ * {@link BackingCacheEntry}, and thus can directly implement more complex 
+ * functionality.
+ * </p>
  * 
- * A cache is linked to an object factory. How the link is established is left beyond
- * scope.
- *
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author Brian Stansberry
- * 
- * @version $Revision: $
+ * @version $Revision$
  */
-public interface Cache<T extends CacheItem>
+public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C>> 
 {
    /**
     * Creates and caches a new instance of <code>T</code>. The new
     * <code>T</code> *is* returned, but is not regarded as being "in use".
-    * Callers *must not* attempt to use the new <code>T</code> without
+    * Callers *must not* attempt to use the underlying <code>C</code> without
     * first calling {@link #get(Object)}. 
     * 
     * @param initTypes   the types of any <code>initValues</code>. 
@@ -60,25 +67,26 @@ public interface Cache<T extends CacheItem>
     * @param key    the identifier of the object
     * @return       the object
     * @throws NoSuchEJBException    if the object does not exist
-    * @throws IllegalStateException if the object is already in use by another
-    *                               transaction or if {@link #finished(CacheItem)}
-    *                               has not been invoked since the last time
-    *                               the object was gotten.
     */
    T get(Object key) throws NoSuchEJBException;
    
    /**
-    * Signal the finish of the current operation on the object.
-    * If the object was {@link #get(Object) gotten from the cache} in the 
-    * course of an ongoing transaction, the object will still be regarded as in 
-    * use, but <code>get()</code> can safely be invoked again by that same 
-    * transaction. If there was no transaction in effect when the object was 
-    * gotten from the cache, invoking this method marks the object as no
-    * longer being in use.
+    * Peek at an object which might be in use.
     * 
-    * @param obj object previously gotten via {@link #get(Object)}
+    * @param key    the identifier of the object
+    * @return       the object
+    * @throws NoSuchEJBException    if the object does not exist
     */
-   void finished(T obj);
+   T peek(Object key) throws NoSuchEJBException;
+   
+   /**
+    * Release the object from use.
+    * 
+    * @param key  the identifier of the object
+    * 
+    * @return the entry that was released
+    */
+   T release(Object key);
 
    /**
     * Remove the specified object from cache.
@@ -86,23 +94,6 @@ public interface Cache<T extends CacheItem>
     * @param key    the identifier of the object
     */
    void remove(Object key);
-   
-   /**
-    * Gets whether this cache supports {@link SerializationGroup} management.
-    * 
-    * @return <code>true</code> if group management is supported;
-    *         <code>false</code> otherwise
-    */
-   boolean isGroupAware();
-
-   /**
-    * Gets the group to which the given object belongs.
-    * 
-    * @param obj the object
-    * @return the group, or <code>null</code> if the object is not a member
-    *         of a group
-    */
-   SerializationGroup<T> getGroup(T obj);
 
    /**
     * Start the cache.
@@ -113,4 +104,12 @@ public interface Cache<T extends CacheItem>
     * Stop the cache.
     */
    void stop();
+   
+   /**
+    * Gets whether this cache supports clustering functionality.
+    * 
+    * @return <code>true</code> if clustering is supported, <code>false</code>
+    *         otherwise
+    */
+   boolean isClustered();
 }

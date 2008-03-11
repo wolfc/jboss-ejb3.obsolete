@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
-  *
+ *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -21,34 +21,29 @@
  */
 package org.jboss.ejb3.cache;
 
+import java.util.Iterator;
+
 /**
- * Creates and destroys stateful objects.
- * 
- * The object returned by create has dependencies injected. The PostConstruct
- * callback, if defined, has been called and the Init callback, if defined,
- * has been called.
+ * Defines a group of cache items which must always be serialized in one 
+ * unit of work.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author Brian Stansberry
  * @version $Revision: $
  */
-public interface StatefulObjectFactory<T extends CacheItem>
-{
+public interface SerializationGroup<T extends CacheItem> 
+  extends CacheItem
+{   
    /**
-    * Creates a new stateful object by calling it's empty constructor,
-    * do injection, calling post-construct and finally calling the
-    * appropriate init method.
-    * 
-    * @param initTypes  the argument types for the init method
-    * @param initValues the arguments for the init method
-    * @return
+    * Gets the number of group members.
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   int size();
    
    /**
-    * Perform any cleanup actions on the object, such as
-    * calling the pre-destroy callback.
+    * Returns an iterator over the group members. The iterator does not
+    * support the {@link Iterator#remove()} operation.
     * 
-    * @param obj    the object
+    * @return the iterator
     */
-   void destroy(T obj);
+   Iterator<T> iterator();   
 }

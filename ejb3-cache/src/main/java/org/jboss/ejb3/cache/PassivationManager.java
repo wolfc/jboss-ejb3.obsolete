@@ -23,13 +23,15 @@ package org.jboss.ejb3.cache;
 
 import java.io.Serializable;
 
+import org.jboss.ejb3.cache.SerializationGroup;
+
 /**
- * Manage passivation and replication lifecycle callbacks on an object.
+ * Manages passivation and replication lifecycle callbacks on an object.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision$
  */
-public interface PassivationManager<T extends Serializable>
+public interface PassivationManager<T extends CacheItem & Serializable>
 {
    /**
     * This method is called after an object has been retrieved
@@ -55,21 +57,10 @@ public interface PassivationManager<T extends Serializable>
    void prePassivate(T obj);
    
    /**
-    * Gets whether this PassivationManager supports clustering functionality.
-    * 
-    * @return <code>true</code> if clustering is supported, <code>false</code>
-    *         otherwise
-    */
-   boolean isClustered();
-   
-   /**
     * This method is called after a previously replicated object has been 
     * retrieved from a clustered cache.
     * 
-    * @param obj    the object. 
-    * 
-    * @throws UnsupportedOperationException if {@link #isClustered()} returns
-    *                                       <code>false</code>
+    * @param obj    the object.
     */
    void postReplicate(T obj);
    
@@ -80,14 +71,11 @@ public interface PassivationManager<T extends Serializable>
     * @param obj    the object
     * 
     * @throws IllegalStateException if <code>obj</code>, or another object in the 
-    *                            same {@link SerializationGroup} as 
+    *                            same {@link SerializationGroupImpl} as 
     *                            <code>obj</code>, is in use. Checking if
     *                            an object is in use and throwing this
     *                            exception is not required, so callers should
     *                            not assume it will be thrown.
-    *                             
-    * @throws UnsupportedOperationException if {@link #isClustered()} returns
-    *                                       <code>false</code>
     */
    void preReplicate(T obj);
 }

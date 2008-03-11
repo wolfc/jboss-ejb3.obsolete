@@ -22,12 +22,9 @@
 
 package org.jboss.ejb3.test.distributed;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,12 +33,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jboss.ejb3.cache.Cacheable;
-import org.jboss.ejb3.cache.IntegratedObjectStore;
-import org.jboss.ejb3.cache.ItemInUseException;
-import org.jboss.ejb3.cache.PassivatingCache;
-import org.jboss.ejb3.cache.PassivatingIntegratedObjectStore;
-import org.jboss.ejb3.cache.impl.CacheableTimestamp;
+import org.jboss.ejb3.annotation.CacheConfig;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
+import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
+import org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner;
 import org.jboss.logging.Logger;
 
 /**
@@ -51,54 +50,69 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable> 
-     implements PassivatingIntegratedObjectStore<T>
+public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>> 
+     implements PassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(MockJBCIntegratedObjectStore.class);
 
+   /**
+    * Qualifier used to scope our keys in the maps
+    */
+   private final Object keyBase;
+   
    /** 
     * Our in-VM "JBoss Cache" instance.
     */
-   private Map<Object, Object> localJBC;
+   private final UnmarshallingMap localJBC;
    /** 
     * A remote "JBoss Cache" instance. We only store byte[] values,
     * mocking the effect of replication.
     */
-   private Map<Object, Object> remoteJBC;
+   private final UnmarshallingMap remoteJBC;
    
    /**
     * Those keys in the mockJBC map that haven't been "passivated"
     */
-   private Set<Object> inMemory;
+   private final Set<Object> inMemory;
    
    /**
     * Those keys that have been updated locally but not copied to remoteJBC.
     */
    private Set<Object> dirty;
    
-   private Map<Object, Long> timestamps;
+   private final Map<Object, Long> timestamps;
 
    /** A mock transaction manager */
-   private ThreadLocal<Boolean> tm = new ThreadLocal<Boolean>();
+   private final ThreadLocal<Boolean> tm = new ThreadLocal<Boolean>();
    
    /**
     * Support callbacks when our MockEvictionRunner decides to
     * evict an entry.
     */
-   private PassivatingCache<T> owningCache;   
+   private PassivatingBackingCache<C, T> owningCache;   
    private int interval;
-   private int idleTimeSeconds;
-   private int expirationTimeSeconds;
+   private long idleTimeSeconds;
+   private long expirationTimeSeconds;
+   private int maxSize;
+   private PassivationExpirationRunner sessionTimeoutRunner;
+   private final String name;
+   private boolean stopped = true;
    
-   private SessionTimeoutRunner sessionTimeoutRunner;
-   
-   public MockJBCIntegratedObjectStore(Map<Object, Object> localCache, 
-                                       Map<Object, Object> remoteCache)
+   public MockJBCIntegratedObjectStore(UnmarshallingMap localCache, 
+                                       UnmarshallingMap remoteCache,
+                                       CacheConfig cacheConfig,
+                                       Object keyBase,
+                                       String name)
    {      
       this.localJBC = localCache;
       this.remoteJBC = remoteCache;
+      this.keyBase = keyBase;
       inMemory = new HashSet<Object>();
       timestamps = new HashMap<Object, Long>();
+      this.idleTimeSeconds = cacheConfig.idleTimeoutSeconds();
+      this.expirationTimeSeconds = cacheConfig.removalTimeoutSeconds();
+      this.maxSize = cacheConfig.maxSize();
+      this.name = name;
    }
 
    // --------------------------------------------------  IntegratedObjectStore
@@ -109,9 +123,10 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    }
    
    public T get(Object key)
-   {
-      T entry = unmarshall(key, localJBC.get(key));
-      timestamps.put(key, new Long(System.currentTimeMillis()));
+   {      
+      T entry = unmarshall(key, localJBC.get(getScopedKey(key)));
+      if (entry != null)
+         timestamps.put(key, new Long(System.currentTimeMillis()));
       return entry;
    }
 
@@ -122,7 +137,10 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    
    public void update(T entry)
    {
-      putInCache(entry.getId(), entry);
+      if (entry.isModified())
+      {
+         putInCache(entry.getId(), entry);
+      }
    }
 
    @SuppressWarnings("unchecked")
@@ -132,7 +150,8 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
       if (inMemory.contains(key))
       {
          log.trace("converting " + key + " to passivated state");
-         localJBC.put(key, marshall((T) localJBC.get(key)));
+         ScopedKey skey = getScopedKey(key);
+         localJBC.put(skey, marshall((T) localJBC.get(skey)));
          inMemory.remove(key);
       }
    }
@@ -159,7 +178,7 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
          for (Iterator<Object> iter = dirty.iterator(); iter.hasNext();)
          {
             Object key = iter.next();
-            replicate(key, unmarshall(key, localJBC.get(key)));
+            replicate(key, unmarshall(key, localJBC.get(getScopedKey(key))));
             iter.remove();
          }
       }
@@ -172,39 +191,30 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    @SuppressWarnings("unchecked")
    private T unmarshall(Object key, Object obj)
    {
-      if (obj == null)
-         return null;
-      else if (!(obj instanceof byte[]))
+      if (!(obj instanceof byte[]))
          return (T) obj;
       
       log.trace("unmarshalling " + key);
-      ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) obj);
-      try
-      {
-         ObjectInputStream ois = new ObjectInputStream(bais);
-         T entry = (T) ois.readObject();
-         localJBC.put(key, entry);
-         inMemory.add(key);
-         return entry;
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+      ScopedKey skey = getScopedKey(key);
+      T entry = (T) localJBC.unmarshall(skey);
+      localJBC.put(skey, entry);
+      inMemory.add(key);
+      return entry;
    }
    
    private Object putInCache(Object key, T value)
    {
+      ScopedKey skey = getScopedKey(key);
       Object existing = null;
       if (value != null)
       {
-         existing = localJBC.put(key, value);
+         existing = localJBC.put(skey, value);
          inMemory.add(key);
          timestamps.put(key, new Long(System.currentTimeMillis()));
       }
       else
       {
-         existing = localJBC.remove(key);
+         existing = localJBC.remove(skey);
          inMemory.remove(key);
          timestamps.remove(key);
       }
@@ -223,10 +233,11 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
    
    private void replicate(Object key, T value)
    {
+      ScopedKey skey = getScopedKey(key);
       if (value != null)
-         remoteJBC.put(key, marshall(value));
+         remoteJBC.put(skey, marshall(value));
       else
-         remoteJBC.remove(key);
+         remoteJBC.remove(skey);
    }
    
    private byte[] marshall(T value)
@@ -273,9 +284,10 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
                   remove(ts.getId());
                }
             }
-            catch (ItemInUseException ignored)
+            catch (IllegalStateException ise)
             {
-               log.trace("skipping in-use entry " + ts.getId());
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }    
       }      
@@ -288,27 +300,31 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
          long now = System.currentTimeMillis();
          long minPassUse = now - (idleTimeSeconds * 1000);
          
-         // Scan the in-memory entries for passivation or removal
-         for (CacheableTimestamp ts : getInMemoryEntries())
+         SortedSet<CacheableTimestamp> timestamps = getInMemoryEntries();
+         int overCount = timestamps.size() - maxSize;
+         for (CacheableTimestamp ts : timestamps)
          {
             try
             {
                long lastUsed = ts.getLastUsed();
-               if (minPassUse >= lastUsed)
+               if (overCount > 0 || minPassUse >= lastUsed)
                {
+                  log.trace("attempting to passivate " + ts.getId());
                   owningCache.passivate(ts.getId());
+                  overCount--;
                }
             }
-            catch (ItemInUseException ignored)
+            catch (IllegalStateException ise)
             {
-               log.trace("skipping in-use entry " + ts.getId());
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }
       }
       
    }
 
-   public void setPassivatingCache(PassivatingCache<T> cache)
+   public void setPassivatingCache(PassivatingBackingCache<C, T> cache)
    {
       this.owningCache = cache;      
    }
@@ -319,10 +335,17 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
       {
          if (sessionTimeoutRunner == null)
          {
-            sessionTimeoutRunner = new SessionTimeoutRunner();
+            assert name != null : "name has not been set";
+            assert owningCache != null;
+            String timerName = "PassivationExpirationTimer-" + name;
+            sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
          }
          sessionTimeoutRunner.start();
-      }
+      }      
+      
+      stopped = false;
+      
+      log.debug("Started " + name);
    }
 
    public void stop()
@@ -330,25 +353,29 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
       if (sessionTimeoutRunner != null)
       {
          sessionTimeoutRunner.stop();
-      }      
+      }          
+      
+      stopped = true;
+      
+      log.debug("Stopped " + name);
    }
    
-   public int getIdleTimeSeconds()
+   public long getIdleTimeSeconds()
    {
       return idleTimeSeconds;
    }
 
-   public void setIdleTimeSeconds(int idleTimeSeconds)
+   public void setIdleTimeSeconds(long idleTimeSeconds)
    {
       this.idleTimeSeconds = idleTimeSeconds;
    }
 
-   public int getExpirationTimeSeconds()
+   public long getExpirationTimeSeconds()
    {
       return expirationTimeSeconds;
    }
    
-   public void setExpirationTimeSeconds(int timeout)
+   public void setExpirationTimeSeconds(long timeout)
    {
       this.expirationTimeSeconds = timeout;
    } 
@@ -376,77 +403,73 @@ public class MockJBCIntegratedObjectStore<T extends Cacheable & Serializable>
       return set;
       
    }
-
-   private class SessionTimeoutRunner implements Runnable
+   
+   public boolean isPassivationExpirationSelfManaged()
    {
-      private boolean stopped = true;
-      private Thread thread;
-      
-      public void run()
+      return interval > 0;
+   }
+   
+   public void processPassivationExpiration()
+   {
+      try
       {
-         while (!stopped)
-         {
-            try
-            {
-               runPassivation();               
-            }
-            catch (Exception e)
-            {
-               log.error("Caught exception processing passivations", e);
-            }
-            
-            if (!stopped)
-            {
-               try
-               {
-                  runExpiration();               
-               }
-               catch (Exception e)
-               {
-                  log.error("Caught exception processing expirations", e);
-               }               
-            }
-            
-            if (!stopped)
-            {
-               try
-               {
-                  Thread.sleep(interval * 1000);
-               }
-               catch (InterruptedException ignored) {}
-            }
-         }
+         runPassivation();               
+      }
+      catch (Exception e)
+      {
+         log.error("Caught exception processing passivations", e);
       }
       
-      void start()
+      if (!stopped)
       {
-         if (stopped)
+         try
          {
-            thread = new Thread(this, "MockEvictionThread");
-            thread.setDaemon(true);
-            stopped = false;
-            thread.start();
+            runExpiration();               
          }
+         catch (Exception e)
+         {
+            log.error("Caught exception processing expirations", e);
+         }               
+      }
+   }
+   
+   private ScopedKey getScopedKey(Object unscoped)
+   {
+      return new ScopedKey(unscoped, keyBase);
+   }
+   
+   private static class ScopedKey
+   {
+      private Object unscoped;
+      private Object keyBase;
+      ScopedKey(Object unscoped, Object keyBase)
+      {
+         this.unscoped = unscoped;
+         this.keyBase = keyBase;
       }
       
-      void stop()
+      @Override
+      public int hashCode()
       {
-         stopped = true;
-         if (thread != null && thread.isAlive())
-         {
-            try
-            {
-               thread.join(1000);
-            }
-            catch (InterruptedException ignored) {}
-            
-            if (thread.isAlive())
-            {
-               thread.interrupt();
-            }
-            
-         }
+         int result = 17;
+         result += 31 * unscoped.hashCode();
+         result += 31 * keyBase.hashCode();
+         return result;
       }
-      
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         
+         if (obj instanceof ScopedKey)
+         {
+            ScopedKey other = (ScopedKey) obj;
+            return (this.unscoped.equals(other.unscoped) 
+                      && keyBase.equals(other.keyBase));
+         }
+         return false;
+      }
    }
 }
