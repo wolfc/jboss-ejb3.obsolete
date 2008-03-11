@@ -120,42 +120,86 @@
      <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}"/>
   </path>
 
-   <!-- Import the jboss server run targets -->
-   <import file="${location.dependencies.unpacked.jboss-test:jboss.test}/server-config.xml" />
+  <!-- Import the jboss server run targets -->
+  <import file="${location.dependencies.unpacked.jboss-test:jboss.test}/server-config.xml" /> 
 
-   <property name="ejb3.jboss.jvmargs" value="-Xmx512m -Djava.net.preferIPv4Stack=true"/>
+  <!-- Define common JVM Arguments for all EJB3 JBossAS Runtimes -->
+  <property name="ejb3.jboss.jvmargs" value="-Xmx512m -Djava.net.preferIPv4Stack=true"/>
+  
+  <!-- Define JVM Arguments for specific EJB3 JBossAS Runtimes -->
+  <property name="ssl-args" value="-Djavax.net.ssl.keyStore=${jboss.dist}/server/ejb3-ssl/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource"/>
+  
+  <!-- 
+  
+  Define Server Configurations for EJB3 Integration Tests 
+  
+  -->
+  <server:config javaHome="${env.JAVA_HOME}" jbossHome="${jboss.dist}" udpGroup="${udpGroup}">
+     
+    <!-- ejb3-ssl -->
+    <server name="ejb3-ssl" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="${ssl-args}" />
+    </server>
+    
+    <!-- ejb3-ssl-advanced -->
+    <server name="ejb3-ssl-advanced" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server> 
+    
+    <!-- invoker -->
+    <server name="invoker" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- ejb3-jacc -->
+    <server name="ejb3-jacc" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- statelesscreation -->
+    <server name="statelesscreation" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- removedislocal -->
+    <server name="removedislocal" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- localfromremote1 -->
+    <server name="localfromremote1" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+  
+    <!-- localfromremote2 -->
+    <server name="localfromremote2" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- clusteredjms -->
+    <server name="clusteredjms" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
+    </server>
+    
+    <!-- clusteredjms2 -->
+    <server name="clusteredjms2" host="${node1}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
+    </server>
+    
+    <!-- libdeployment -->
+    <server name="libdeployment" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+    
+    <!-- statefulproxyfactoryoverride -->
+    <server name="statefulproxyfactoryoverride" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
 
-   <macrodef name="wait-on-host">
-      <attribute name="seconds" default="180"/>
-      <attribute name="host" default="${node0}"/>
-      <sequential>
-         <echo>Waiting for @{host} to start (max wait @{seconds} seconds)...</echo>
-         <waitfor maxwait="@{seconds}" maxwaitunit="second"
-            checkevery="5" checkeveryunit="second" timeoutproperty="startup.timeout">
-            <http url="http://@{host}:8080/"/>
-         </waitfor>
-         <fail message="Timeout waiting for nodes to start" if="startup.timeout"/>
-      </sequential>
-   </macrodef>
-
-   <macrodef name="wait-on-shutdown">
-      <attribute name="seconds" default="180"/>
-      <attribute name="conf"/>
-      <sequential>
-         <echo message="Waiting for '@{conf}' server to stop..."/>
-         <waitfor maxwait="@{seconds}" maxwaitunit="second"
-            checkevery="5" checkeveryunit="second" timeoutproperty="shutdown.timeout">
-            <available file="server.log">
-               <filepath>
-                  <fileset dir="${jboss.dist}/server/@{conf}/log/" includes="server.log">
-                     <contains text="[org.jboss.bootstrap.microcontainer.ServerImpl] (JBoss Shutdown Hook) Shutdown complete"/>
-                  </fileset>
-               </filepath>
-            </available>
-         </waitfor>
-         <fail message="Timeout waiting for '@{conf}' server to shutdown." if="shutdown.timeout"/>
-      </sequential>
-   </macrodef>
+  </server:config>
 
    <!-- =================== -->
    <!-- Basic Configuration -->
@@ -206,11 +250,11 @@
   	<!-- EJB3 Interceptors -->
   	<pathelement path="${artifact.ejb3.interceptors}" />
 	
-	<!-- EJB3 Interceptors -->
-	<pathelement path="${artifact.ejb3.extapi}" />
+	  <!-- EJB3 Interceptors -->
+	  <pathelement path="${artifact.ejb3.extapi}" />
 	
-	<!-- EJB3 Interceptors -->
-	<pathelement path="${artifact.ejb3.extapiimpl}" />
+	  <!-- EJB3 Interceptors -->
+	  <pathelement path="${artifact.ejb3.extapiimpl}" />
     
   </path>
     
@@ -5283,15 +5327,13 @@
          </patternset>
       </create-config>
 
-      <start-jboss conf="libdeployment" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+      <server:start name="libdeployment" />
 
       <antcall target="test" inheritRefs="true">
          <param name="test" value="libdeployment"/>
       </antcall>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="libdeployment"/>
+      <server:stop name="libdeployment" />
    </target>
 	
    <target name="statefulproxyfactoryoverride-test" depends="init">
@@ -5304,15 +5346,13 @@
          </patternset>
       </create-config>
 
-      <start-jboss conf="statefulproxyfactoryoverride" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+      <server:start name="statefulproxyfactoryoverride" />
 
       <antcall target="test" inheritRefs="true">
          <param name="test" value="statefulproxyfactoryoverride"/>
       </antcall>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="statefulproxyfactoryoverride"/>
+      <server:stop name="statefulproxyfactoryoverride" />
    </target>
 
    <target name="ssl-simple-test" depends="init">
@@ -5323,14 +5363,8 @@
             <include name="lib/**"/>
          </patternset>
       </create-config>
-
-      <!--
-         We are using the simplest remoting sslsocket configuration possible, we
-         need to tell JBoss to use the supplied keystore via system properties
-      -->
-      <property name="ssl-args" value="${ejb3.jboss.jvmargs} -Djavax.net.ssl.keyStore=${jboss.dist}/server/ejb3-ssl/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource"/>
-      <start-jboss conf="ejb3-ssl" host="${node0}" jvmargs="${ssl-args}"/>
-      <wait-on-host/>
+     
+     <server:start name="ejb3-ssl"/>
 
       <!-- Tell client to use the supplied truststore -->
       <property name="jvmargs" value="-Djavax.net.ssl.trustStore=${resources}/test/ssl/localhost.truststore -Djavax.net.ssl.trustStorePassword=opensource"/>
@@ -5340,8 +5374,7 @@
          <param name="jvmargs" value="${jvmargs}"/>
       </antcall>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="ejb3-ssl"/>
+      <server:stop name="ejb3-ssl"/>
    </target>
 
    <target name="ssl-advanced-test" depends="init">
@@ -5352,12 +5385,8 @@
             <include name="lib/**"/>
          </patternset>
       </create-config>
-
-      <!--
-         "Advanced" remoting sslsocket configuration contains keystore info
-      -->
-      <start-jboss conf="ejb3-ssl-advanced" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+     
+     <server:start name="ejb3-ssl-advanced"/>
 
       <!-- Tell client to use the supplied truststore -->
       <property name="jvmargs" value="-Djavax.net.ssl.trustStore=${resources}/test/ssl/localhost.truststore -Djavax.net.ssl.trustStorePassword=opensource"/>
@@ -5367,8 +5396,7 @@
          <param name="jvmargs" value="${jvmargs}"/>
       </antcall>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="ejb3-ssl-advanced"/>
+     <server:stop name="ejb3-ssl-advanced"/>
    </target>
 
    <target name="invoker-test" depends="init">
@@ -5379,23 +5407,16 @@
             <include name="lib/**"/>
          </patternset>
       </create-config>
-
-      <start-jboss conf="invoker" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+     
+      <server:start name="invoker" />
 
       <property name="jvmargs" value=""/>
-
-      <!--antcall target="test-with-jvmargs" inheritRefs="true">
-         <param name="test" value="invoker"/>
-         <param name="jvmargs" value="${jvmargs}"/>
-      </antcall-->
 
       <antcall target="test" inheritRefs="true">
          <param name="test" value="invoker"/>
       </antcall>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="invoker"/>
+      <server:stop name="invoker" />
    </target>
 
    <target name="jacc-test" depends="init">
@@ -5406,13 +5427,14 @@
             <include name="lib/**"/>
          </patternset>
       </create-config>
-      <start-jboss conf="ejb3-jacc" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+     
+      <server:start name="ejb3-jacc"/>
+     
       <antcall target="test" inheritRefs="true">
          <param name="test" value="jacc"/>
       </antcall>
-      <stop-jboss/>
-      <wait-on-shutdown conf="ejb3-jacc"/>
+      
+      <server:stop name="ejb3-jacc"/>
    </target>
 
    <!-- ================================================================== -->
@@ -5464,16 +5486,14 @@
          </patternset>
       </create-config>
        
-      <start-jboss conf="statelesscreation" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+      <server:start name="statelesscreation" />
 	
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="statelesscreation"/>
          <param name="jvmargs" value=""/>
       </antcall>
       
-      <stop-jboss url="${node0.jndi.url}"/>
-      <wait-on-shutdown conf="statelesscreation"/>
+      <server:stop name="statelesscreation" />
    </target>
 	
    <target name="removedislocal-test">
@@ -5485,16 +5505,14 @@
          </patternset>
       </create-config>
        
-      <start-jboss conf="removedislocal" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+      <server:start name="removedislocal" />
 	
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="removedislocal"/>
          <param name="jvmargs" value=""/>
       </antcall>
       
-      <stop-jboss url="${node0.jndi.url}"/>
-      <wait-on-shutdown conf="removedislocal"/>
+      <server:stop name="removedislocal" />
    </target>
 
    <target name="multi-instance-localfromremote-test">
@@ -5512,19 +5530,19 @@
 	        <include name="lib/**"/>
          </patternset>
       </create-config>
+     
+     <server:start name="localfromremote1" />
+     <server:start name="localfromremote2" />
 
-      <start-jboss conf="localfromremote1" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-	  <start-jboss conf="localfromremote2" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
+	   <antcall target="tests-multi-instance-wait"/>
 
-	  <antcall target="tests-multi-instance-wait"/>
+	   <antcall target="test-with-jvmargs" inheritRefs="true">
+       <param name="test" value="localfromremote"/>
+       <param name="jvmargs" value=""/>
+     </antcall>
 
-	  <antcall target="test-with-jvmargs" inheritRefs="true">
-         <param name="test" value="localfromremote"/>
-         <param name="jvmargs" value=""/>
-      </antcall>
-
-      <stop-jboss url="${node0.jndi.url}"/>
-      <stop-jboss url="${node0.jndi.port1.url}"/>
+     <server:stop name="localfromremote1" />
+     <server:stop name="localfromremote2" />
 
    </target>
 
@@ -5544,9 +5562,9 @@
             <exclude name="deploy/mdbtest-service.xml"/>
          </patternset>
       </create-config>
-
-      <start-jboss conf="clusteredjms" host="${node0}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node1.jgroups.bind_addr}"/>
-	  <start-jboss conf="clusteredjms2" host="${node1}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node0.jgroups.bind_addr}"/>
+     
+      <server:start name="clusteredjms" />
+      <server:start name="clusteredjms2" />
 
 	  <antcall target="tests-clustering-wait"/>
 
@@ -5555,11 +5573,8 @@
          <param name="jvmargs" value=""/>
       </antcall>
 
-      <stop-jboss url="${node0.jndi.url}"/>
-      <stop-jboss url="${node1.jndi.url}"/>
-
-      <wait-on-shutdown conf="clusteredjms"/>
-      <wait-on-shutdown conf="clusteredjms2"/>
+     <server:stop name="clusteredjms" />
+     <server:stop name="clusteredjms2" />
    </target>
 
    <!-- A macro for turning off buddy replication in a node -->
@@ -5744,13 +5759,11 @@
 
    <target name="iiop-tests" depends="init" description="Execute all tests">
 
-      <start-jboss conf="all" host="${node0}" jvmargs="${ejb3.jboss.jvmargs}"/>
-      <wait-on-host/>
+      <server:start name="all" />
 
       <antcall target="no-start-jboss-iiop-tests" inheritRefs="true"/>
 
-      <stop-jboss/>
-      <wait-on-shutdown conf="all"/>
+      <server:stop name="all" />
    </target>
 
    <target name="no-start-jboss-iiop-tests" depends="init" description="Execute all iiop tests">
