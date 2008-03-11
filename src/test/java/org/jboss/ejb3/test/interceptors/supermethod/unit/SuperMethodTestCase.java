@@ -32,7 +32,10 @@ import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeIF;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
+ * EJBTHREE-1214: Pointcut expression which applies to sub-classes is not applied to super-methods
+ * 
+ * AroundInvokeBean implements SessionSynchronization, thus all methods including
+ * the afterBegintTest defined in AroundInvokeBase must contain SessionSynchronizationInterceptor.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
