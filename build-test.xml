@@ -198,6 +198,30 @@
     <server name="statefulproxyfactoryoverride" host="${node0}">
       <jvmarg value="${ejb3.jboss.jvmargs}" />
     </server>
+    
+    <!-- node0 -->
+    <server name="node0" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
+    </server>
+    
+    <!-- node1 -->
+    <server name="node1" host="${node1}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
+    </server>
+    
+    <!-- clustered-ejb3-noBR-0 -->
+    <server name="clustered-ejb3-noBR-0" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
+    </server>
+    
+    <!-- clustered-ejb3-noBR-1 -->
+    <server name="clustered-ejb3-noBR-1" host="${node1}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
+    </server>
 
   </server:config>
 
@@ -5264,8 +5288,12 @@
    </target>
 
    <target name="clustered-test" depends="init">
-      <antcall target="tests-clustering-startup"/>
-      <antcall target="tests-clustering-wait"/>
+     
+     <create-cluster-node conf="node0"/>
+     <create-cluster-node conf="node1"/>
+          
+     <server:start name="node0" />
+     <server:start name="node1" />
 
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="jvmargs" value=""/>
@@ -5275,14 +5303,18 @@
          -->
       </antcall>
 
-      <antcall target="tests-clustering-shutdown"/>
+      <server:stop name="node0"/>
+      <server:stop name="node1"/>
+       
    </target>
 
    <target name="clustered-one-test" depends="init, clusteredsession, clusteredentity">
-<!--
--->
-      <antcall target="tests-clustering-startup"/>
-      <antcall target="tests-clustering-wait"/>
+
+     <create-cluster-node conf="node0"/>
+     <create-cluster-node conf="node1"/>
+          
+     <server:start name="node0" />
+     <server:start name="node1" />
 
       <antcall target="one-test-with-jvmargs" inheritRefs="true">
          <!--param name="test" value="clusteredsession"/-->
@@ -5300,21 +5332,27 @@
       -->
 <!--
 -->
-      <antcall target="tests-clustering-shutdown"/>
+       <server:stop name="node0"/>
+       <server:stop name="node1"/>
 
    </target>
 
    <target name="clustered-tests" depends="init, clusteredsession, clusteredentity, ejbthree921">
-      <antcall target="tests-clustering-startup"/>
-      <antcall target="tests-clustering-wait"/>
+     
+     <create-cluster-node conf="node0"/>
+     <create-cluster-node conf="node1"/>
+          
+     <server:start name="node0" />
+     <server:start name="node1" />
 
-      <antcall target="test-clustered-entity"/>
-      <antcall target="test-cluster-session"/>
+     <antcall target="test-clustered-entity"/>
+     <antcall target="test-cluster-session"/>
 
-      <antcall target="tests-clustering-shutdown"/>
+     <server:stop name="node0"/>
+     <server:stop name="node1"/>
    
-      <!-- Rerun the tests with buddy replication turned off -->  
-      <antcall target="clustered-no-buddyrepl-test"/>
+     <!-- Rerun the tests with buddy replication turned off -->  
+     <antcall target="clustered-no-buddyrepl-test"/>
 
    </target>
 
@@ -5566,8 +5604,6 @@
       <server:start name="clusteredjms" />
       <server:start name="clusteredjms2" />
 
-	  <antcall target="tests-clustering-wait"/>
-
 	  <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="clusteredjms"/>
          <param name="jvmargs" value=""/>
@@ -5590,39 +5626,23 @@
    </macrodef>
 
    <target name="clustered-no-buddyrepl-test">
+     
       <create-cluster-node conf="clustered-ejb3-noBR-0"/>
       <create-cluster-node conf="clustered-ejb3-noBR-1"/>
 
       <buddy-repl-config-change conf="clustered-ejb3-noBR-0"/>
       <buddy-repl-config-change conf="clustered-ejb3-noBR-1"/>
-
-      <start-jboss conf="clustered-ejb3-noBR-0" host="${node0}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node0.jgroups.bind_addr}"/>
-      <start-jboss conf="clustered-ejb3-noBR-1" host="${node1}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node1.jgroups.bind_addr}"/>
-
-      <antcall target="tests-clustering-wait"/>
+     
+      <server:start name="clustered-ejb3-noBR-0" />
+      <server:start name="clustered-ejb3-noBR-1" />
 
       <antcall target="test-cluster-session" inheritRefs="true">
          <param name="buddy-replication-extension" value="BR-disabled"/>
       </antcall>
 
-      <stop-jboss url="${node0.jndi.url}"/>
-      <stop-jboss url="${node1.jndi.url}"/>
+     <server:stop name="clustered-ejb3-noBR-0" />
+     <server:stop name="clustered-ejb3-noBR-1" />
 
-	  <wait-on-shutdown conf="clustered-ejb3-noBR-0"/>
-	  <wait-on-shutdown conf="clustered-ejb3-noBR-1"/>
-   </target>
-
-   <target name="tests-clustering-wait" unless="${tests.clustering.skip.startup}">
-      <echo message="Waiting for nodes to start..."/>
-      <waitfor maxwait="240" maxwaitunit="second"
-         checkevery="5" checkeveryunit="second" timeoutproperty="cluster.timeout">
-         <and>
-            <http url="${node0.http.url}"/>
-            <http url="${node1.http.url}"/>
-         </and>
-      </waitfor>
-      <fail message="Timeout waiting for nodes to start" if="cluster.timeout"/>
-      <echo message="Nodes have started, waiting for cluster to stablize..."/>
    </target>
 
    <target name="tests-multi-instance-wait" unless="${tests.clustering.skip.startup}">
@@ -5636,25 +5656,6 @@
       </waitfor>
       <fail message="Timeout waiting for nodes to start" if="cluster.timeout"/>
       <echo message="Nodes have started, waiting for cluster to stablize..."/>
-   </target>
-
-   <target name="tests-clustering-startup" unless="${tests.clustering.skip.startup}">
- 
-      <!-- Caller can pass in the node names; if not these are the defaults -->  
-      <property name="first-node" value="node0"/>  
-      <property name="second-node" value="node1"/> 
-   
-      <create-cluster-node conf="node0"/>
-      <start-jboss  conf="${first-node}" host="${node0}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node0.jgroups.bind_addr}"/>
-      <create-cluster-node conf="${second-node}"/>
-      <start-jboss  conf="${second-node}" host="${node1}" jvmargs="${ejb3.jboss.jvmargs} -Djgroups.bind_addr=${node1.jgroups.bind_addr}"/>
-   </target>
-
-   <target name="tests-clustering-shutdown" unless="${tests.clustering.skip.startup}">
-      <stop-jboss url="${node0.jndi.url}"/>
-      <stop-jboss url="${node1.jndi.url}"/>
-      <wait-on-shutdown conf="node0"/>
-      <wait-on-shutdown conf="node1"/>
    </target>
 
    <!-- ================================================================== -->
