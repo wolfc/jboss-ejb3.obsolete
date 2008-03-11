@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.distributed;
+package org.jboss.ejb3.test.cache.distributed;
 
 import junit.framework.TestCase;
 

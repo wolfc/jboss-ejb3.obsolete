@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.ejb3.test.distributed;
+package org.jboss.ejb3.test.cache.distributed;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
