@@ -343,7 +343,7 @@ public class Installer
       // If "ant" doesn't exist
       if (!new File(antCommandPath).exists())
       {
-         this.getPrintStream().println(antCommandPath+" does not existing, trying .bat extension");
+         this.getPrintStream().println(antCommandPath+" does not exist, trying .bat extension");
          // Add batch extension
          antCommandPath = antCommandPath + Installer.COMMAND_EXTENSION_BATCH;
       }
