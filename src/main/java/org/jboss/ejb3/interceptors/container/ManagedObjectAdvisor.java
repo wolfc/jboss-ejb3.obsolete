@@ -95,6 +95,18 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       annotations.addClassAnnotation(ManagedObject.class, annotation);
    }
    
+   /*
+    * To match point cut expressions on super methods which apply only 
+    * to the sub class, this value must be set to true.
+    * 
+    * @see org.jboss.aop.Advisor#chainOverridingForInheritedMethods()
+    */
+   @Override
+   public boolean chainOverridingForInheritedMethods()
+   {
+      return true;
+   }
+   
    @Override
    protected void createInterceptorChain(InterceptorFactory[] factories, ArrayList newinterceptors, Joinpoint joinpoint)
    {
