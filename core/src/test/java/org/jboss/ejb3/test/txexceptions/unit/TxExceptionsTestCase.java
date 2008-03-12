@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.txexceptions.unit;
 
 import javax.ejb.EJBException;
+
 import org.jboss.ejb3.test.txexceptions.AnnotatedAppException;
 import org.jboss.ejb3.test.txexceptions.DeploymentDescriptorAppException;
 import org.jboss.ejb3.test.txexceptions.AppException;
@@ -30,7 +31,6 @@ import org.jboss.ejb3.test.txexceptions.DeploymentDescriptorCheckedRollbackExcep
 import org.jboss.ejb3.test.txexceptions.Dao;
 import org.jboss.ejb3.test.txexceptions.NoRollbackRemoteException;
 import org.jboss.ejb3.test.txexceptions.NoRollbackRuntimeException;
-import org.jboss.ejb3.test.txexceptions.RollbackError;
 import org.jboss.ejb3.test.txexceptions.RollbackRemoteException;
 import org.jboss.ejb3.test.txexceptions.RollbackRuntimeException;
 import org.jboss.ejb3.test.txexceptions.SimpleEntity;
@@ -245,11 +245,11 @@ public class TxExceptionsTestCase extends JBossTestCase
       catch (EJBException e)
       {
          // AFAIK, the spec doesn't define how the causing error should be delivered
-         // so, this is based on the current impl
-         assertTrue(e.getCausedByException() instanceof RuntimeException);
-         assertTrue(((RuntimeException)e.getCausedByException()).getCause() instanceof RollbackError);
+         // Currently, it's done the same way our EJB2 containers handle errors,
+         // i.e. the msg is formatted including the stacktrace of the error
+         // and re-thrown as the EJBException
       }
-     
+      
       SimpleEntity entity = dao.get(1);
       
       if (entity != null)
@@ -258,6 +258,12 @@ public class TxExceptionsTestCase extends JBossTestCase
       assertNull(entity);
    }
 
+   public void testRollbackErrorInCallerTx() throws Exception
+   {
+      Dao dao = (Dao) getInitialContext().lookup("DaoBean/remote");
+      dao.testRollbackErrorFromCallerTx();
+   }
+   
    public static Test suite() throws Exception
    {
       return getDeploySetup(TxExceptionsTestCase.class, "txexceptions-test.jar");

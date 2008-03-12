@@ -53,15 +53,27 @@ public class Ejb3TxPolicy extends org.jboss.aspects.tx.TxPolicy
          if (ae.rollback()) setRollbackOnly(tx);
          throw t;
       }
-      if (!(t instanceof RuntimeException || t instanceof RemoteException))
+
+      // if it's neither EJBException nor RemoteException
+      if(!(t instanceof EJBException || t instanceof RemoteException))
       {
-         throw t;
+         // errors and unchecked are wrapped into EJBException
+         if(t instanceof Error)
+         {
+            t = new EJBException(formatException("Unexpected Error", t));
+         }
+         else if (t instanceof RuntimeException)
+         {
+            t = new EJBException((Exception)t);
+         }
+         else
+         {
+            // an application exception
+            throw t;
+         }
       }
+
       setRollbackOnly(tx);
-      if (t instanceof RuntimeException && !(t instanceof EJBException))
-      {
-         throw new EJBException((Exception) t);
-      }
       throw t;
    }
 
@@ -74,24 +86,39 @@ public class Ejb3TxPolicy extends org.jboss.aspects.tx.TxPolicy
          if (ae.rollback()) setRollbackOnly(tx);
          throw t;
       }
-      if (!(t instanceof RuntimeException || t instanceof RemoteException))
-      {
-         throw t;
-      }
-      setRollbackOnly(tx);
-      // its either a RuntimeException or RemoteException
       
-      if (t instanceof EJBTransactionRolledbackException)
+      // if it's not EJBTransactionRolledbackException
+      if(!(t instanceof EJBTransactionRolledbackException))
       {
-         log.error(t);
-         throw t;
+         if(t instanceof Error)
+         {
+            t = new EJBTransactionRolledbackException(formatException("Unexpected Error", t));
+         }
+         else if(t instanceof RuntimeException || t instanceof RemoteException)
+         {
+            t = new EJBTransactionRolledbackException(t.getMessage(), (Exception) t);
+         }
+         else // application exception
+         {
+            throw t;
+         }
       }
-      else
-      {
-         Throwable ejbtre = new EJBTransactionRolledbackException(t.getMessage(), (Exception) t);
-         log.error(ejbtre);
-         throw ejbtre;
-      }
+      
+      setRollbackOnly(tx);
+      log.error(t);
+      throw t;
    }
 
+   private String formatException(String msg, Throwable t)
+   {
+      java.io.StringWriter sw = new java.io.StringWriter();
+      java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+      if (msg != null)
+         pw.println(msg);
+      if (t != null)
+      {
+         t.printStackTrace(pw);
+      } // end of if ()
+      return sw.toString();
+   }
 }
