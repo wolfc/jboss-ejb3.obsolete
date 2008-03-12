@@ -22,9 +22,11 @@
 package org.jboss.ejb3.test.interceptors.supermethod.unit;
 
 import java.net.URL;
+import java.util.LinkedHashMap;
 
 import junit.framework.TestCase;
 
+import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
 import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeBean;
@@ -47,6 +49,15 @@ public class SuperMethodTestCase extends TestCase
    public void test1() throws Throwable
    {
       //AspectManager.verbose = true;
+      
+      // TODO: During inventory surefire boots up BasicTestSuite
+      LinkedHashMap pointcuts = AspectManager.instance().getPointcuts();
+      if(!pointcuts.isEmpty())
+      {
+         //System.err.println("AspectManager still contains: " + pointcuts);
+         URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
+         AspectXmlLoader.undeployXML(url);
+      }
       
       // Bootstrap AOP
       URL url = Thread.currentThread().getContextClassLoader().getResource("supermethod/jboss-aop.xml");
