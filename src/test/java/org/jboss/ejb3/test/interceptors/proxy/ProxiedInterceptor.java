@@ -52,7 +52,6 @@ public class ProxiedInterceptor
    public void postConstruct(InvocationContext ctx) throws Exception
    {
       log.debug("postConstruct " + ctx);
-      try { ctx.getMethod(); throw new Exception("should not come here"); } catch(IllegalStateException e) { }
       postConstructs++;
       ctx.proceed();
    }

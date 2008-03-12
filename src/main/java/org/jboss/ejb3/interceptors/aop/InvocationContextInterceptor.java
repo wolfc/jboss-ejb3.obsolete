@@ -116,8 +116,6 @@ public class InvocationContextInterceptor
 
       public Method getMethod()
       {
-         if(method == null)
-            throw new IllegalStateException("Get method is not allowed on lifecycle callbacks (EJB 3 12)");
          return method;
       }
 

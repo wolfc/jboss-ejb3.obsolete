@@ -54,7 +54,6 @@ public class DirectInterceptor
       log.debug("postConstruct " + ctx);
       if(ctx.getTarget() == null)
          throw new IllegalStateException("target is null");
-      try { ctx.getMethod(); throw new Exception("should not come here"); } catch(IllegalStateException e) { }
       postConstructs++;
       ctx.proceed();
    }
