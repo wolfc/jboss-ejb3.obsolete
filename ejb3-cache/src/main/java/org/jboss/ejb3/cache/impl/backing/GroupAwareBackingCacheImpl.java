@@ -26,7 +26,6 @@ import javax.ejb.NoSuchEJBException;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
-import org.jboss.ejb3.cache.spi.GroupIncompatibilityException;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
@@ -67,7 +66,7 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       return groupCache.create(null, null);
    }
 
-   public void setGroup(C obj, SerializationGroup<C> group) throws GroupIncompatibilityException
+   public void setGroup(C obj, SerializationGroup<C> group)
    {     
       Object key = obj.getId();
       SerializationGroupMember<C> entry = peek(key);
@@ -77,7 +76,7 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       // Validate we share a common groupCache with the group
       SerializationGroupImpl<C> groupImpl = (SerializationGroupImpl<C>) group;
       if (groupCache != groupImpl.getGroupCache())
-         throw new GroupIncompatibilityException(obj + " and " + groupImpl + " use different group caches");
+         throw new IllegalStateException(obj + " and " + groupImpl + " use different group caches");
       
       entry.setGroup(groupImpl);
       entry.getGroup().addMember(entry);
@@ -89,7 +88,24 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       try
       {
          SerializationGroupMember<C> entry = peek(key);
-         return entry.getGroup();
+         synchronized (entry)
+         {
+            SerializationGroup<C> group = entry.getGroup();
+            if (group == null && entry.getGroupId() != null)
+            {
+               // Need to use get() to postActivate it
+               entry = get(key);
+               try
+               {
+                  group = entry.getGroup();
+               }
+               finally
+               {
+                  release(key);
+               }
+            }
+            return group;
+         }
       }
       catch (NoSuchEJBException nsee)
       {

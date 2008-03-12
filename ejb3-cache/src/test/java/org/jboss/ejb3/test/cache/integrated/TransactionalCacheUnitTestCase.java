@@ -28,6 +28,7 @@ import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockEjb3System;
+import org.jboss.logging.Logger;
 
 /**
  * Comment
@@ -38,6 +39,8 @@ import org.jboss.ejb3.test.cache.mock.MockEjb3System;
  */
 public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
 {   
+   private static final Logger log = Logger.getLogger(TransactionalCacheUnitTestCase.class);
+   
    protected Cache<MockBeanContext> createCache() throws Exception
    {
       MockEjb3System system = new MockEjb3System(false, CacheType.NON_PASSIVATING);
@@ -47,6 +50,8 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
    
    public void testNonExistingGet() throws Exception
    {      
+      log.info("testNonExistingGet()");
+      
       Cache<MockBeanContext> cache = createCache();
       
       try
@@ -62,9 +67,11 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
    
    public void testSimpleLifeCycle() throws Exception
    {
+      log.info("testSimpleLifeCycle()");
+      
       Cache<MockBeanContext> cache = createCache();
       
-      Object key = cache.create(null, null).getId();
+      Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
       
       assertNotNull(object);
@@ -86,30 +93,28 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
    {
       Cache<MockBeanContext> cache = createCache();
       
-      Object key = cache.create(null, null).getId();
+      Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
       
       assertNotNull(object);
       
-      try
-      {
-         cache.get(key);
-         fail("Two sequential get calls should throw ISE");
-      }
-      catch(IllegalStateException e)
-      {
-         // good
-      }
-      finally {
-         cache.remove(key);
-      }
+      MockBeanContext object2 = cache.get(key);
+      
+      assertSame(object, object2);
+      
+      cache.finished(object2);
+      cache.finished(object);
+      
+      cache.remove(key);
    }
    
-   public void testSequentialFinishedCalls() throws Exception
-   {
+   public void testExcessFinishedCalls() throws Exception
+   {    
+      log.info("testExcessFinishedCalls()");
+      
       Cache<MockBeanContext> cache = createCache();
       
-      Object key = cache.create(null, null).getId();
+      Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
       
       assertNotNull(object);

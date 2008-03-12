@@ -21,10 +21,9 @@
  */
 package org.jboss.ejb3.cache.impl;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.ejb.NoSuchEJBException;
 import javax.transaction.RollbackException;
@@ -64,23 +63,21 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    private final BackingCache<C, T> delegate;
    
    /** Cache of items that are in use by a tx or non-transactional invocation */
-   private final Map<Object, Entry> inUseCache;
+   private final ConcurrentMap<Object, Entry> inUseCache;
    /** Map of Synchronizations to release items in use by a tx*/
    private final ConcurrentMap<Object, CacheReleaseSynchronization<C, T>> synchronizations;
    /** Our transaction manager */
    private final TransactionManager tm;
    
-   private enum State { INITIALIZED, IN_USE, FINISHED };
    private class Entry
    {
-      long lastUsed;
       C obj;
-      State state;
+      ReentrantLock lock;
+      int getCount;
       
       Entry()
       {
-         this.lastUsed = System.currentTimeMillis();
-         this.state = State.INITIALIZED;
+         this.lock = new ReentrantLock();
       }
    }
    
@@ -130,80 +127,108 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       this.delegate = delegate;
       this.tm = tm;
       
-      this.inUseCache = new HashMap<Object, Entry>();
+      this.inUseCache = new ConcurrentHashMap<Object, Entry>();
       this.synchronizations = new ConcurrentHashMap<Object, CacheReleaseSynchronization<C, T>>();
    }
 
-   public C create(Class<?>[] initTypes, Object[] initValues)
+   public Object create(Class<?>[] initTypes, Object[] initValues)
    {
-      T backingEntry = delegate.create(initTypes, initValues);
-      C obj = backingEntry.getUnderlyingItem();
-      synchronized (inUseCache)
-      {
-         // Create an entry, but do not store a ref to obj in the entry.
-         // This will ensure get() goes to the backingCache to get the
-         // missing obj, giving the backingCache an opportunity to mark
-         // the BackingCacheEntry as being in use
-         registerEntry(obj, false);
-      }
-      return obj;
+     return createInternal(initTypes, initValues).getId();
    }
-
-   private Entry registerEntry(C obj, boolean storeRef)
+   
+   protected C createInternal(Class<?>[] initTypes, Object[] initValues)
    {
       Entry entry = new Entry(); 
-      if (storeRef)
-         entry.obj = obj;
-      inUseCache.put(obj.getId(), entry);      
-      registerSynchronization(obj);
-      return entry;
+      entry.lock.lock();
+      try
+      {
+         T backingEntry = delegate.create(initTypes, initValues);
+         C obj = backingEntry.getUnderlyingItem();
+         
+         // Note we deliberately don't assign obj to entry -- we want
+         // a call to get() to get it from delegate so delegate can lock it
+         
+         Entry old = inUseCache.putIfAbsent(obj.getId(), entry);
+         if (old != null)
+            throw new IllegalStateException("entry for " + obj.getId() + " already exists");
+         registerSynchronization(obj);
+         return obj;
+      }
+      finally
+      {
+         entry.lock.unlock();
+      }
    }
    
    public C get(Object key) throws NoSuchEJBException
    {
-      Entry entry = null;
-      
-      // Yuck. This is a bottleneck
-      synchronized (inUseCache)
+      Entry entry = inUseCache.get(key);
+      if (entry == null)
       {
-         entry = inUseCache.get(key);
-         if(entry == null)
+         entry = new Entry(); 
+         entry.lock.lock();
+         Entry old = inUseCache.putIfAbsent(key, entry);
+         if (old != null)
          {
-            T backingEntry = delegate.get(key);
-            C obj = backingEntry.getUnderlyingItem();
-            entry = registerEntry(obj, true); 
+            // We've got a race for this key.  See if we won
+            if (old.lock.tryLock())
+            {
+               // We won. Just use "old"; let the one we just created get gc'd
+               entry = old;
+            }
+            else
+               throw new IllegalStateException(key + " is already in use");
          }
       }
-      
-      if (entry.obj == null)
-         entry.obj = delegate.get(key).getUnderlyingItem();
-      
-      validateTransaction(entry.obj);
-      if(entry.state == State.IN_USE)
-         throw new IllegalStateException("entry " + key + " is already in use");
-      entry.state = State.IN_USE;
-      entry.lastUsed = System.currentTimeMillis();
-      return entry.obj;
+      else
+      {
+         if (!entry.lock.tryLock())
+            throw new IllegalStateException(key + " is already in use");
+      }
+         
+      try
+      {
+         if (entry.obj == null)
+            entry.obj = delegate.get(key).getUnderlyingItem();
+         
+         validateTransaction(entry.obj);
+         entry.getCount++;
+         return entry.obj;
+      }
+      catch (RuntimeException e)
+      {
+         entry.lock.unlock();
+         throw e;
+      }
    }
    
    public void finished(C obj)
    {
-      Entry entry = null;
-      synchronized (inUseCache)
-      {
-         entry = inUseCache.get(obj.getId());
-      }
+      Entry entry = inUseCache.get(obj.getId());
       if (entry == null)
          throw new IllegalStateException("No entry for " + obj.getId());
-      if(entry.state != State.IN_USE)
-         throw new IllegalStateException("entry " + obj.getId() + " is not in operation");
-      entry.state = State.FINISHED;
-      entry.lastUsed = System.currentTimeMillis();
       
-      // If there is no tx associated with this object, we can release it
-      if (synchronizations.get(obj.getId()) == null)
+      if(!entry.lock.isHeldByCurrentThread())
       {
-         release(obj);
+         throw new IllegalStateException("entry " + obj.getId() + 
+               " lock is not held by " + Thread.currentThread().getName());
+      }
+      
+      try
+      {
+         if (entry.getCount < 1)
+            throw new IllegalStateException("Unmatched calls to finished");         
+         entry.getCount--;
+         
+         // If there is no tx associated with this object, we can release it
+         if (entry.getCount == 0 && synchronizations.get(obj.getId()) == null)
+         {
+            release(obj);
+         }
+      }
+      finally
+      {
+         entry.lock.unlock();
       }
       
    }
@@ -248,19 +273,34 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    private void release(C obj)
    {
       Object key = obj.getId();
-      synchronized (inUseCache)
+      Entry entry = inUseCache.get(key);
+      if (entry == null)
       {
-         Entry entry = inUseCache.get(key);
-         if (entry == null)
-         {
-            // FIXME is this correct?
-            return;
-         }
-         if(entry.state == State.IN_USE)
-            throw new IllegalStateException("entry " + key + " is not finished");
+         // TODO is this correct?
+         return;
+      }
+      
+      // We either came here from finished(), and we thus hold the lock,
+      // or we came from our synchronization's beforeCompletion(), and
+      // validateTransaction() will promptly force any other thread
+      // that got the lock to give it up. So, we acquire the lock and are
+      // willing to wait for it
+      try
+      {
+         entry.lock.lockInterruptibly();
+         // For sure we now control this key -- tell delegate to release
+         delegate.release(obj.getId());
+         
+         // Now remove the entry
          inUseCache.remove(key);
       }
-      delegate.release(obj.getId());
+      catch (InterruptedException ie)
+      {
+         throw new RuntimeException("Interrupted waiting to lock " + key);
+      }
+
+      // Note we don't release the lock!  If anyone has a ref to entry,
+      // it's now stale and they should fail to acquire the lock
    }
    
    private void registerSynchronization(C cacheItem)
@@ -319,6 +359,10 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
             }
          }
                
+      }
+      else
+      {
+         registerSynchronization(cacheItem);
       }
    }   
 }

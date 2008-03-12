@@ -32,6 +32,7 @@ import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
 import org.jboss.ejb3.test.cache.mock.MockEjb3System;
 import org.jboss.ejb3.test.cache.mock.MockXPC;
+import org.jboss.logging.Logger;
 
 /**
  * Comment
@@ -40,18 +41,21 @@ import org.jboss.ejb3.test.cache.mock.MockXPC;
  * @version $Revision: 65339 $
  */
 public class PassivatingBackingCacheImplUnitTestCase extends TestCase
-{
+{   
+   private static final Logger log = Logger.getLogger(PassivatingBackingCacheImplUnitTestCase.class);
    
    /**
-    * Peek of an active object should not change it state.
+    * Peek of an active object should not prevent its passivation.
     */
    @SuppressWarnings("unchecked")
-   public void testPeekActive() throws Exception
+   public void testPassivatePeeked() throws Exception
    {
+      log.info("testPassivatePeeked()");
+      
       MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
-      config.setIdleTimeoutSeconds(4);
+      config.setIdleTimeoutSeconds(100);
       MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
       TransactionalCache cache = (TransactionalCache) container.getCache();
       PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>>) cache.getBackingCache();
@@ -62,18 +66,51 @@ public class PassivatingBackingCacheImplUnitTestCase extends TestCase
       
       try
       {
-         backingCache.release(key);
-         fail("Should not be able to release entry that has not been gotten");
+         backingCache.passivate(key);
       }
-      catch (IllegalStateException good)
+      catch (IllegalStateException bad)
       {
-         backingCache.get(key);
-         backingCache.release(key);      
+         fail("Should be able to passivate entry that has been peeked");
       }
       finally
       {
          backingCache.remove(key);
+      }         
+   }  
+   
+   /**
+    * Get of an active object should prevent its passivation.
+    */
+   @SuppressWarnings("unchecked")
+   public void testPassivateActive() throws Exception
+   {
+      log.info("testPassivateActive()");
+      
+      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockXPC sharedXPC = new MockXPC();
+      MockCacheConfig config = new MockCacheConfig();
+      config.setIdleTimeoutSeconds(100);
+      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      TransactionalCache cache = (TransactionalCache) container.getCache();
+      PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>>) cache.getBackingCache();
+      SerializationGroupMember<MockBeanContext> obj = backingCache.create(null, null);
+      Object key = obj.getId();
+      
+      backingCache.get(key);
+      
+      try
+      {
+         backingCache.passivate(key);
+         fail("Should not be able to passivate entry that is active");
       }
-         
+      catch (IllegalStateException bad)
+      {
+         backingCache.release(key);
+         backingCache.passivate(key);
+      }
+      finally
+      {
+         backingCache.remove(key);
+      }         
    }
 }

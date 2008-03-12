@@ -50,7 +50,7 @@ public class MockStatefulObjectFactory
       // Here we mock creating nested beans
       for (MockBeanContainer childContainer : container.getChildren())
       {
-         ctx.addChild(childContainer.getCache().create(null, null));
+         ctx.addChild(childContainer.getName(), childContainer.getCache().create(null, null));
       }
       
       creationCount++;

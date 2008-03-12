@@ -31,13 +31,26 @@ import org.jboss.ejb3.cache.CacheItem;
  * An internal cache to which an external-facing {@link Cache} delegates, either
  * directly or indirectly.
  * <p>
- * The key distinction between a BackingCache and the external-facing Cache is
- * that a Cache directly handles external classes that implement the
+ * There are two key distinctions between a BackingCache and the external-facing 
+ * Cache:
+ * <ol>
+ * <li>
+ * A Cache directly handles external classes that implement the
  * limited {@link CacheItem} interface. CacheItem is deliberately limited to
  * avoid placing a implementation burden on external classes. A BackingCache 
  * works with instances of the more expressive internal interface 
  * {@link BackingCacheEntry}, and thus can directly implement more complex 
  * functionality.
+ * </li>
+ * <li>
+ * A BackingCache does not attempt to control concurrent access to its
+ * cached {@link BackingCacheEntry} instances, beyond the simple act of
+ * {@link BackingCacheEntry#setInUse(boolean) marking the entries as being
+ * in or out of use}.  It assumes the external-facing Cache is preventing
+ * concurrent access to a given entry and is properly coordinating calls
+ * to the backing cache.
+ * </li>
+ * </ol>
  * </p>
  * 
  * @author Brian Stansberry
@@ -53,7 +66,7 @@ public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C
     * 
     * @param initTypes   the types of any <code>initValues</code>. 
     *                    May be <code>null</code>.
-    * @param initValues  any paramaters to pass to <code>T</code>'s constructor.
+    * @param initValues  any parameters to pass to <code>T</code>'s constructor.
     *                    May be null, in which case a default constructor will
     *                    be used.
     * @return the new <code>T</code> 
@@ -71,7 +84,8 @@ public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C
    T get(Object key) throws NoSuchEJBException;
    
    /**
-    * Peek at an object which might be in use.
+    * Peek at an object which might be in use. Does not change the status
+    * of the item in terms of whether it is in use.
     * 
     * @param key    the identifier of the object
     * @return       the object

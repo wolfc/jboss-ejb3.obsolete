@@ -55,6 +55,8 @@ public class GroupedPassivatingUnitTestCase extends TestCase
    
    public void testSimpleGroupPassivation() throws Exception
    {      
+      log.info("testSimpleGroupPassivation()");
+      
       MockCluster cluster = new MockCluster(false);
       MockClusterMember node0 = cluster.getNode0();
       MockCacheConfig cacheConfig = new MockCacheConfig();
@@ -66,7 +68,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
       cluster.getNode0().setTCCL();
       try
       {
-         Object key1 = container1.getCache().create(null, null).getId();
+         Object key1 = container1.getCache().create(null, null);
          MockBeanContext firstCtx1;
          MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
          

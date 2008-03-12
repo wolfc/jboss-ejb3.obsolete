@@ -32,7 +32,8 @@ import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
-import org.jboss.ejb3.cache.spi.GroupIncompatibilityException;
+import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
+import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
 
 /**
  * {@link Cache#isGroupAware Group-aware} version of {@link TransactionalCache}.
@@ -42,9 +43,6 @@ import org.jboss.ejb3.cache.spi.GroupIncompatibilityException;
 public class GroupAwareTransactionalCache<C extends CacheItem, T extends BackingCacheEntry<C>> 
    extends TransactionalCache<C, T>
 {
-   @SuppressWarnings("unchecked")
-   private static final ThreadLocal groupCreationContext = new ThreadLocal();
-   
    /** 
     * Another ref to super.delegate. Just saves having to do casts all the time. 
     */
@@ -65,68 +63,51 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Backing
 
    @Override
    @SuppressWarnings("unchecked")
-   public C create(Class<?>[] initTypes, Object[] initValues)
+   public Object create(Class<?>[] initTypes, Object[] initValues)
    {
       boolean outer = false;
-      List<ItemCachePair> contextPairs = (List<ItemCachePair>) groupCreationContext.get();
+      List<ItemCachePair> contextPairs = GroupCreationContext.getGroupCreationContext();
       if (contextPairs == null)
       {
          contextPairs = new ArrayList<ItemCachePair>();
-         groupCreationContext.set(contextPairs);
+         GroupCreationContext.setGroupCreationContext(contextPairs);
          outer = true;
       }
       
-      C cacheItem = super.create(initTypes, initValues);
+      C cacheItem = super.createInternal(initTypes, initValues);
       
-      contextPairs.add(new ItemCachePair(cacheItem, this));
+      contextPairs.add(new ItemCachePair(cacheItem, groupedCache));
             
       if (outer)
       {
-         groupCreationContext.set(null);
+         GroupCreationContext.setGroupCreationContext(null);
          if (contextPairs.size() > 1)
          {
             SerializationGroup<C> group = null;
             try
             {
-               boolean skipped = false;
-               boolean added = false;
                for (ItemCachePair pair : contextPairs)
                {
-                  if (pair.cache.isGroupAware())
+                  if (group == null)
                   {
-                     if (skipped)
-                        throw new GroupIncompatibilityException("Some caches in nested bean hierarchy are group-aware, some are not");
-                     
-                     if (group == null)
-                     {
-                        group = pair.cache.createGroup();
-                     }
-                     pair.cache.setGroup(pair.item, group);
-                     added = true;
+                     group = pair.getCache().createGroup();
                   }
-                  else if (added)
-                  {
-                     throw new GroupIncompatibilityException("Some caches in nested bean hierarchy are group-aware, some are not");
-                  }
-                  else 
-                  {
-                     skipped = true;
-                  }
+                  pair.getCache().setGroup(pair.getItem(), group);
                }
             }
-            catch (GroupIncompatibilityException e)
+            catch (IllegalStateException e)
             {
                // Clean up
                for (ItemCachePair pair : contextPairs)
                {
-                  pair.cache.remove(pair.item.getId());
+                  pair.getCache().remove(pair.getItem().getId());
                }
-               throw new RuntimeException("Failed to create SerializationGroup for nested bean hierarchy", e);
+               throw e;
             }
          }
       }
       
-      return cacheItem;
+      return cacheItem.getId();
    }
 
    @Override
@@ -135,32 +116,10 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Backing
       return true;
    }
 
-   private void setGroup(C obj, SerializationGroup<C> group) throws GroupIncompatibilityException
-   {
-      groupedCache.setGroup(obj, group);
-   }
-   
-   private SerializationGroup<C> createGroup() throws GroupIncompatibilityException
-   {
-      return groupedCache.createGroup();
-   }
-
    @Override
    public SerializationGroup<C> getGroup(C obj)
    {
       return groupedCache.getGroup(obj);
-   }
-   
-   private class ItemCachePair
-   {
-      private final C item;
-      private final GroupAwareTransactionalCache<C, T> cache;
-      
-      ItemCachePair(C item, GroupAwareTransactionalCache<C, T> cache)
-      {
-         this.item = item;
-         this.cache = cache;
-      }
    }
 
 }

@@ -58,15 +58,19 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
     */
    public SimplePassivatingIntegratedObjectStore(ObjectStore<T> store, 
                                                  CacheConfig config,
-                                                 String name)
+                                                 String name,
+                                                 boolean forGroups)
    {
-      super(config, name);
+      super(config, name, forGroups);
       
       assert store != null : "store is null";
       
       this.store = store;
       this.cache = new HashMap<Object, T>();
-      this.passivatedEntries = new HashMap<Object, Long>();
+      if (!forGroups)
+      {
+         this.passivatedEntries = new HashMap<Object, Long>();
+      }
    }
    
    public boolean isClustered()
@@ -85,7 +89,10 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
             if(entry != null)
             {
                cache.put(key, entry);
-               passivatedEntries.remove(key);
+               if (!isForGroups())
+               {
+                  passivatedEntries.remove(key);
+               }
             }
          }
          return entry;
@@ -97,7 +104,8 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       Object key = entry.getId();
       synchronized (cache)
       {
-         if (cache.containsKey(key) || passivatedEntries.containsKey(key))
+         if (cache.containsKey(key) 
+               || (!isForGroups() && passivatedEntries.containsKey(key)))
          {
             throw new IllegalStateException(key + " is already in store");
          }
@@ -110,7 +118,8 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       Object key = entry.getId();
       synchronized (cache)
       {
-         if (!cache.containsKey(key) && !passivatedEntries.containsKey(key))
+         if (!cache.containsKey(key) && 
+               (isForGroups() || !passivatedEntries.containsKey(key)))
          {
             throw new IllegalStateException(key + " is not managed by this store");
          }
@@ -125,7 +134,10 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       {
          Object key = entry.getId();
          store.store(entry);  
-         passivatedEntries.put(key, new Long(entry.getLastUsed()));
+         if (!isForGroups())
+         {
+            passivatedEntries.put(key, new Long(entry.getLastUsed()));
+         }
          cache.remove(key);
       }
    }
@@ -162,11 +174,11 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    @Override
    protected void runExpiration()
    {
-      if (getExpirationTimeSeconds() > 0)
+      if (!isForGroups() && getExpirationTimeSeconds() > 0)
       {
          long now = System.currentTimeMillis();
          long minRemovalUse = now - (getExpirationTimeSeconds() * 1000);                     
-         for (CacheableTimestamp ts : getPassivatedEntries())
+         for (CacheableTimestamp ts : getAllEntries())
          {
             try
             {
@@ -187,29 +199,27 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    @Override
    protected void runPassivation()
    {
-      if (getIdleTimeSeconds() > 0)
+      if (!isForGroups() 
+            && (getMaxSize() > 0 || getIdleTimeSeconds() > 0))
       {
          long now = System.currentTimeMillis();
-         long minPassUse = now - (getIdleTimeSeconds() * 1000);
+         long minPassUse = (getIdleTimeSeconds() > 0 ? now - (getIdleTimeSeconds() * 1000) : 0);
          
-         // Scan the in-memory entries for passivation or removal
          SortedSet<CacheableTimestamp> timestamps = getInMemoryEntries();
-         int overCount = timestamps.size() - getMaxSize();
+         int overCount = (getMaxSize() > 0 ? timestamps.size() - getMaxSize() : 0);
          for (CacheableTimestamp ts : timestamps)
          {
             try
             {
-               long lastUsed = ts.getLastUsed();
-               if (overCount > 0 || minPassUse >= lastUsed)
+               if (overCount > 0 || minPassUse >= ts.getLastUsed())
                {
-                  synchronized (cache)               
-                  {
-                     T entry = cache.get(ts.getId());
-                     if (entry == null || entry.isInUse())
-                        continue;
-                  }
+                  log.trace("attempting to passivate " + ts.getId());
                   getPassivatingCache().passivate(ts.getId());
                   overCount--;
+               }
+               else
+               {
+                  break;
                }
             }
             catch (IllegalStateException ise)
@@ -218,8 +228,7 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
                log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }
-      }
-      
+      }      
    }
 
    private SortedSet<CacheableTimestamp> getInMemoryEntries()
@@ -235,9 +244,25 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    private SortedSet<CacheableTimestamp> getPassivatedEntries()
    {
       SortedSet<CacheableTimestamp> set = new TreeSet<CacheableTimestamp>();
-      for (Map.Entry<Object, Long> entry : passivatedEntries.entrySet())
+      if (!isForGroups())
       {
-         set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
+         for (Map.Entry<Object, Long> entry : passivatedEntries.entrySet())
+         {
+            set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
+         } 
+      }
+      return set;
+   }
+   
+   private SortedSet<CacheableTimestamp> getAllEntries()
+   {
+      SortedSet<CacheableTimestamp> set = getInMemoryEntries();
+      if (!isForGroups())
+      {
+         for (Map.Entry<Object, Long> entry : passivatedEntries.entrySet())
+         {
+            set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
+         } 
       }
       return set;
    }

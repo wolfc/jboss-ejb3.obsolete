@@ -74,7 +74,7 @@ public class SerializationGroupMember<T extends CacheItem>
    private boolean prePassivated;
    
    /** The cache that's handling us */
-   private transient PassivatingBackingCache<T, SerializationGroupMember<T>> cache;
+//   private transient PassivatingBackingCache<T, SerializationGroupMember<T>> cache;
    
    public SerializationGroupMember(T obj, PassivatingBackingCache<T, SerializationGroupMember<T>> cache)
    {
@@ -83,7 +83,7 @@ public class SerializationGroupMember<T extends CacheItem>
       
       this.obj = transientObj = obj;
       this.id = obj.getId();
-      this.cache = cache;
+//      this.cache = cache;
       this.clustered = cache.isClustered();
    }
    
@@ -131,7 +131,16 @@ public class SerializationGroupMember<T extends CacheItem>
     */
    public SerializationGroupImpl<T> getGroup()
    {
-      return (group == null || group.isInvalid()) ? null : group;
+      SerializationGroupImpl<T> result = group;
+      if (result != null)
+      {
+         synchronized (result)
+         {
+            if (result.isInvalid())
+               result = null;
+         }
+      }
+      return result;
    }
 
    /**
@@ -142,7 +151,7 @@ public class SerializationGroupMember<T extends CacheItem>
    public void setGroup(SerializationGroupImpl<T> group)
    {
       this.group = group;
-      if (group != null)
+      if (this.groupId == null && group != null)
          this.groupId = group.getId();
    }
 
@@ -157,13 +166,11 @@ public class SerializationGroupMember<T extends CacheItem>
    }
 
    /**
-    * Prepare the group member for passivation. Ensure any @PrePassivate 
-    * callback is invoked on the underlying object.  If we are a member of a 
-    * group, ensure any reference to the 
-    * {@link #getUnderlyingItem() underlying object} or to the 
+    * Prepares the group member for group passivation by ensuring any 
+    * reference to the {@link #getUnderlyingItem() underlying object} or to the 
     * {@link #getGroup()} is nulled.
     */
-   public void prePassivate()
+   public void releaseReferences()
    {
       // make sure we don't passivate the group twice
       group = null;
@@ -174,7 +181,7 @@ public class SerializationGroupMember<T extends CacheItem>
       // for passivation callbacks
       obj = null;
       
-      cache.passivate(this.id);
+//      cache.passivate(this.id);
    }
    
    public boolean isPrePassivated()
@@ -193,29 +200,6 @@ public class SerializationGroupMember<T extends CacheItem>
    public void postActivate()
    {
       // no-op
-   }
-   
-   /**
-    * Prepare the group member for replication. Ensure any required callback
-    * (e.g. @PreReplicaate) is invoked on the underlying object. If we are a 
-    * member of a group, ensure any reference to the 
-    * {@link #getUnderlyingItem() underlying object} or to the 
-    * {@link #getGroup()} is nulled.
-    * 
-    * @throws UnsupportedOperationException if {@link #isClustered()} returns
-    *                                       <code>false</code>
-    */
-   public void preReplicate()
-   {
-      // make sure we don't replicate the group twice
-      group = null;
-      // null out obj so when delegate serializes this entry
-      // we don't serialize it. It serializes with the PassivationGroup only
-      obj = null;
-      
-      // FIXME -- what does this do for us?
-      // Nothing -- it will fail
-//      cache.release(this);
    }
    
    public boolean isPreReplicated()
@@ -244,10 +228,13 @@ public class SerializationGroupMember<T extends CacheItem>
       // Tell our group about it
       if (group != null)
       {
-         if (inUse)
-            group.addActive(this);
-         else
-            group.removeActive(id);
+         synchronized (group)
+         {
+            if (inUse)
+               group.addActive(this);
+            else
+               group.removeActive(id);
+         }
       }         
    }
    
@@ -259,9 +246,9 @@ public class SerializationGroupMember<T extends CacheItem>
     */
    public void setPassivatingCache(PassivatingBackingCache<T, SerializationGroupMember<T>> delegate)
    {
-      assert delegate != null : "delegate is null";
-      
-      this.cache = delegate;
+//      assert delegate != null : "delegate is null";
+//      
+//      this.cache = delegate;
    }
 
    @Override

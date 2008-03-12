@@ -51,7 +51,7 @@ public interface Cache<T extends CacheItem>
     *                    be used.
     * @return the new <code>T</code> 
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   Object create(Class<?> initTypes[], Object initValues[]);
 
    /**
     * Get the specified object from cache. This will mark

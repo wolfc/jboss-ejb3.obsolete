@@ -20,26 +20,32 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.ejb3.cache.spi;
+package org.jboss.ejb3.cache.spi.impl;
+
+import java.util.List;
+
 
 /**
  * @author Brian Stansberry
  *
  */
-public class GroupIncompatibilityException extends Exception
+public class GroupCreationContext
 {
-
-    /** The serialVersionUID */
-   private static final long serialVersionUID = 8202720497027287887L;
-
+   @SuppressWarnings("unchecked")
+   private static final ThreadLocal<List<ItemCachePair>> groupCreationContext = new ThreadLocal<List<ItemCachePair>>();
+   
    /**
-    * Create a new IncompatibleGroupException.
-    * 
-    * @param message
+    * Prevent instantiation. 
     */
-   public GroupIncompatibilityException(String message)
-   {
-      super(message);
-   }
+   private GroupCreationContext() {}
 
+   public static List<ItemCachePair> getGroupCreationContext()
+   {
+      return groupCreationContext.get();
+   }
+   
+   public static void setGroupCreationContext(List<ItemCachePair> context)
+   {
+      groupCreationContext.set(context);
+   }
 }

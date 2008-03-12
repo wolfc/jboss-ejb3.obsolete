@@ -51,10 +51,10 @@ public interface GroupAwareBackingCache<C extends CacheItem, T extends BackingCa
     * @param obj
     * @param group
     * 
-    * @throws GroupIncompatibilityException if the group's cache is incompatible
+    * @throws IllegalStateException if the group's cache is incompatible
     *                                       with ourself.
     */
-   void setGroup(C obj, SerializationGroup<C> group) throws GroupIncompatibilityException;
+   void setGroup(C obj, SerializationGroup<C> group);
 
    /**
     * Gets the group the given object is a member of

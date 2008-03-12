@@ -275,7 +275,7 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Backing
       {
          long now = System.currentTimeMillis();
          long minRemovalUse = now - (expirationTimeSeconds * 1000);                     
-         for (CacheableTimestamp ts : getPassivatedEntries())
+         for (CacheableTimestamp ts : getAllEntries())
          {
             try
             {
@@ -295,23 +295,26 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Backing
 
    public void runPassivation()
    {
-      if (idleTimeSeconds > 0)
+      if (maxSize > 0 || idleTimeSeconds > 0)
       {
          long now = System.currentTimeMillis();
-         long minPassUse = now - (idleTimeSeconds * 1000);
+         long minPassUse = (idleTimeSeconds > 0 ? now - (idleTimeSeconds * 1000) : 0);
          
          SortedSet<CacheableTimestamp> timestamps = getInMemoryEntries();
-         int overCount = timestamps.size() - maxSize;
+         int overCount = (maxSize > 0 ? timestamps.size() - maxSize : 0);
          for (CacheableTimestamp ts : timestamps)
          {
             try
             {
-               long lastUsed = ts.getLastUsed();
-               if (overCount > 0 || minPassUse >= lastUsed)
+               if (overCount > 0 || minPassUse >= ts.getLastUsed())
                {
                   log.trace("attempting to passivate " + ts.getId());
                   owningCache.passivate(ts.getId());
                   overCount--;
+               }
+               else
+               {
+                  break;
                }
             }
             catch (IllegalStateException ise)
@@ -390,12 +393,17 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Backing
       return getTimestampSet(true);
    }
    
-   private SortedSet<CacheableTimestamp> getTimestampSet(boolean passivated)
+   private SortedSet<CacheableTimestamp> getAllEntries()
+   {
+      return getTimestampSet(null);
+   }
+   
+   private SortedSet<CacheableTimestamp> getTimestampSet(Boolean passivated)
    {      
       SortedSet<CacheableTimestamp> set = new TreeSet<CacheableTimestamp>();
       for (Map.Entry<Object, Long> entry : timestamps.entrySet())
       {
-         if (passivated != inMemory.contains(entry.getKey()))
+         if (passivated == null || passivated.booleanValue() != inMemory.contains(entry.getKey()))
          {
             set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
          }

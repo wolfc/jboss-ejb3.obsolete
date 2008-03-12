@@ -69,27 +69,19 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
    public T create(Class<?>[] initTypes, Object[] initValues)
    {
       T obj = factory.create(initTypes, initValues);
-//      obj.setInUse(true);
-      synchronized (store)
-      {
-         store.insert(obj);
-      }
+      store.insert(obj);
       return obj;
    }
 
    public T get(Object key) throws NoSuchEJBException
    {
-      synchronized (store)
+      T entry = store.get(key);
+      
+      if(entry == null)
+         throw new NoSuchEJBException(String.valueOf(key));
+      
+      synchronized (entry)
       {
-         T entry = store.get(key);
-         if(entry == null)
-            throw new NoSuchEJBException(String.valueOf(key));
-         
-         if(entry.isInUse())
-         {
-            throw new IllegalStateException("entry " + entry + " is in use");
-         }
-         
          if (isClustered())
          {
             passivationManager.postReplicate(entry);
@@ -105,13 +97,14 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
    public void passivate(Object key)
    {
       log.trace("passivate " + key);
-      synchronized (store)
+      
+      T entry = store.get(key);
+      
+      if(entry == null)
+         throw new IllegalArgumentException("entry " + key + " not found in cache " + this);
+         
+      synchronized (entry)
       {
-         T entry = store.get(key);
-         
-         if(entry == null)
-            throw new IllegalArgumentException("entry " + key + " not found in cache " + this);
-         
          if(entry.isInUse())
          {
             throw new IllegalStateException("entry " + entry + " is in use");
@@ -125,24 +118,20 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
    
    public T peek(Object key) throws NoSuchEJBException
    {
-      synchronized (store)
-      {
-         T entry = store.get(key);
-         if(entry == null)
-            throw new NoSuchEJBException(String.valueOf(key));         
-         return entry;
-      }
+      T entry = store.get(key);
+      if(entry == null)
+         throw new NoSuchEJBException(String.valueOf(key));         
+      return entry;
    }
 
    public T release(Object key)
    {      
-      synchronized (store)
+      T entry = store.get(key);
+      if(entry == null)
+         throw new IllegalStateException("object " + key + " not from this cache");
+      
+      synchronized (entry)
       {
-         T entry = store.get(key);
-         if(entry == null)
-            throw new IllegalStateException("object " + key + " not from this cache");
-         if(!entry.isInUse())
-            throw new IllegalStateException("entry " + entry + " is not in use");
          entry.setInUse(false);
          
          if (entry.isModified())
@@ -160,15 +149,17 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
    
    public void remove(Object key)
    {
-      T entry;
-      synchronized (store)
+      T entry = store.remove(key);
+      if (entry != null)
       {
-         entry = store.remove(key);
-         if(entry != null && entry.isInUse())
-            entry.setInUse(false);
+         synchronized (entry)
+         {
+            if(entry.isInUse())
+               entry.setInUse(false);
+            factory.destroy(entry);
+         }
       }
-      if(entry != null)
-         factory.destroy(entry);
+         
    }
    
    public void start()

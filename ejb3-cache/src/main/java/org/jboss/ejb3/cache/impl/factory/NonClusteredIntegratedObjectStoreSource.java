@@ -68,9 +68,10 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
       objectStore.setStorageDirectory(getFullGroupDirectoryName(containerName));
       objectStore.setSubdirectoryCount(subdirectoryCount);
       
-      String storeName = "StdGroupStore-"+cacheConfig.name();
+      String storeNameSuffix = (cacheConfig.name().length() == 0) ? "" : "-" + cacheConfig;
+      String storeName = "StdGroupStore" + storeNameSuffix;
       SimplePassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> store = 
-         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>>(objectStore, cacheConfig, storeName);
+         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>>(objectStore, cacheConfig, storeName, true);
       
       return store;
    }
@@ -83,7 +84,7 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
       objectStore.setSubdirectoryCount(subdirectoryCount);
       
       SimplePassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> store = 
-         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>(objectStore, cacheConfig, containerName);
+         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>(objectStore, cacheConfig, containerName, false);
       
       return store;
    }

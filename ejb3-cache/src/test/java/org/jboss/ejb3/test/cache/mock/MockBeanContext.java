@@ -61,13 +61,13 @@ public class MockBeanContext extends MockCacheItem
       return (MockBeanContainer) MockRegistry.get(containerName);
    }
    
-   public void addChild(MockBeanContext child)
+   public void addChild(String childContainerName, Object childId)
    {
       // Just store the id; tests get the id from getChild() and
       // then call get(id) on the child container's cache.
       // This simulates how an internal call via a nested bean's 
       // proxy would work
-      children.put(child.containerName, child.getId());
+      children.put(childContainerName, childId);
    }
    
    public Object getChild(String containerName)

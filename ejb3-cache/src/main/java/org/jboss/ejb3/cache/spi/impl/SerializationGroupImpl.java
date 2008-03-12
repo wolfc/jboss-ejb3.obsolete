@@ -182,7 +182,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    {
       for(SerializationGroupMember<T> member : active.values())
       {
-         member.prePassivate();
+         member.releaseReferences();
       }
       active.clear();
    }
@@ -202,7 +202,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    {
       for(SerializationGroupMember<T> member : active.values())
       {
-         member.preReplicate();
+         member.releaseReferences();
       }
       active.clear();
    }

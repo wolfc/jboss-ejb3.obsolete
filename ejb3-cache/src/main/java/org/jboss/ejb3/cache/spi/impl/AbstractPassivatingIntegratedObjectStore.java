@@ -46,6 +46,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
     * evict an entry.
     */
    private PassivatingBackingCache<C, T> owningCache;   
+   private boolean forGroups;
    private int interval;
    private int maxSize;
    private long idleTimeSeconds;
@@ -58,7 +59,8 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
     * Create a new AbstractPassivatingIntegratedObjectStore.
     */
    protected AbstractPassivatingIntegratedObjectStore(CacheConfig config,
-                                                   String name)
+                                                      String name,
+                                                      boolean forGroups)
    {
       assert config != null : "config is null";
       assert name != null : "name is null";
@@ -67,6 +69,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
       this.expirationTimeSeconds = config.removalTimeoutSeconds();
       this.maxSize = config.maxSize();
       this.name = name;
+      this.forGroups = forGroups;
    }
 
    // ---------------------------------------------------------------- Abstract
@@ -79,7 +82,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
 
    public void start()
    {
-      if (interval > 0)
+      if (!forGroups && interval > 0)
       {
          if (sessionTimeoutRunner == null)
          {
@@ -133,6 +136,10 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
    
    public void processPassivationExpiration()
    {
+      // Group passivation/expiration is a function of its members
+      if (forGroups)
+         return;
+      
       if (!stopped)
       {
          try
@@ -187,5 +194,27 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
    {
       this.expirationTimeSeconds = timeout;
    }
+
+   public boolean isForGroups()
+   {
+      return forGroups;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   public boolean isStopped()
+   {
+      return stopped;
+   }
+
+   public void setMaxSize(int maxSize)
+   {
+      this.maxSize = maxSize;
+   }
+   
+   
 
 }

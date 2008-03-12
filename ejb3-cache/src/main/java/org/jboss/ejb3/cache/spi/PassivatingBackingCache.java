@@ -22,29 +22,33 @@
 package org.jboss.ejb3.cache.spi;
 
 import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
+import org.jboss.ejb3.cache.SerializationGroup;
 
 
 /**
  * A {@link BackingCache} which passivates unused objects.
- * 
- * A PassivatingCache is linked to an ObjectStore to store the
- * passivated object and a PassivationManager to manage lifecycle
+ * <p>
+ * A PassivatingBackingCache is linked to an ObjectStore to store the
+ * passivated object and to a PassivationManager to manage lifecycle
  * callbacks on the object.
- *
+ * </p>
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author Brian Stansberry
+ * 
  * @version $Revision: 65977 $
  */
 public interface PassivatingBackingCache<C extends CacheItem, T extends BackingCacheEntry<C>>
    extends BackingCache<C, T>
 {
    /**
-    * Force passivation of an object. The object must not be in use.
+    * Force passivation of an object. The object must not be 
+    * {@link BackingCacheEntry#isInUse() in use}.
     * 
     * @param key    the identifier of the object
     * 
     * @throws IllegalStateException if the object, or another object in the 
-    *                            same {@link SerializationGroupImpl} as the object, 
+    *                            same {@link SerializationGroup} as the object, 
     *                            is in use. 
     */
    void passivate(Object key);

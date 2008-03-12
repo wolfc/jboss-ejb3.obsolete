@@ -95,24 +95,40 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    {
       log.trace("post activate " + entry);
       
-      // Restore the entry's ref to the group and object
-      SerializationGroupImpl<C> group = entry.getGroup();
-      if(group == null && entry.getGroupId() != null)
+      boolean groupOK = false;
+      while (!groupOK)
       {
-         // TODO: peek or get?
-         // BES 2007/10/06 I think peek is better; no
-         // sense marking the group as in-use and then having
-         // to release it or something
-         group = groupCache.peek(entry.getGroupId());
-         entry.setGroup(group);
-      }
-      
-      if(group != null)
-      {
-         entry.setUnderlyingItem(group.getMemberObject(entry.getId()));
+         // Restore the entry's ref to the group and object
+         SerializationGroupImpl<C> group = entry.getGroup();
+         if(group == null && entry.getGroupId() != null)
+         {
+            // TODO: peek or get?
+            // BES 2007/10/06 I think peek is better; no
+            // sense marking the group as in-use and then having
+            // to release it or something
+//            group = groupCache.peek(entry.getGroupId());
+            group = groupCache.get(entry.getGroupId());
+         }
          
-         // Notify the group that this entry is active
-         group.addActive(entry);
+         if(group != null)
+         {
+            synchronized (group)
+            {
+               if (!group.isInvalid())
+               {
+                  entry.setGroup(group);
+                  entry.setUnderlyingItem(group.getMemberObject(entry.getId()));                  
+                  // Notify the group that this entry is active
+                  group.addActive(entry);
+                  groupOK = true;
+               }
+               // else groupOK == false and we loop again
+            }
+         }
+         else
+         {
+            groupOK = true;
+         }
       }
       
       // Invoke callbacks on the underlying object
@@ -158,6 +174,9 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                {
                   // Go ahead and do the real passivation.
                   groupCache.passivate(group.getId());
+                  // Mark the group as invalid so if another thread is
+                  // blocking on the above sync lock, when they enter
+                  // we realize they have a ref to an out-of-date group
                   group.setInvalid(true);
                }         
                // else {
@@ -169,7 +188,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                
                // This call didn't come through entry.prePassivate() (which nulls
                // group and obj) so we have to do it ourselves. Otherwise
-               // when this call returns, delegate will serialize the entry
+               // when this call returns, delegate may serialize the entry
                // with a ref to group and obj.            
                entry.setGroup(null);
                entry.setUnderlyingItem(null);
@@ -194,28 +213,30 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       SerializationGroupImpl<C> group = entry.getGroup();
       if(group != null)
       {
-         // Remove ourself from group's active list so we don't get
-         // called again via entry.prePassivate()            
-         group.removeActive(entry.getId());
-         
-         try
+         synchronized (group)
          {
-            if (group.getInUseCount() == 0)
+            // Remove ourself from group's active list so we don't get
+            // called again via entry.prePassivate()            
+            group.removeActive(entry.getId());
+            
+            try
             {
-//               group.preReplicate();
-               groupCache.release(group);
+               if (group.getInUseCount() == 0)
+               {
+                  groupCache.release(group);
+               }
             }
-         }
-         finally
-         {
-            // Here we differ from prePassivate!!
-            // Restore the entry as "active" so it can get
-            // passivation callbacks
-            group.addActive(entry);
-         }
+            finally
+            {
+               // Here we differ from prePassivate!!
+               // Restore the entry as "active" so it can get
+               // passivation callbacks
+               group.addActive(entry);
+            }
          
-//         entry.setGroup(null);
-//         entry.setUnderlyingItem(null);
+//            entry.setGroup(null);
+//            entry.setUnderlyingItem(null);
+         }
       }
    }
    
@@ -223,24 +244,41 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    {
       log.trace("postreplicate " + entry);
       
-      // Restore the entry's ref to the group and object
-      SerializationGroupImpl<C> group = entry.getGroup();
-      if(group == null && entry.getGroupId() != null)
+      boolean groupOK = false;
+      while (!groupOK)
       {
-         // TODO: peek or get?
-         // BES 2007/10/06 peek is better; you'll get multiple calls to
-         // this as different members are accessed, and the cache
-         // will throw an ISE if we use get() since we're already in use
-         group = groupCache.peek(entry.getGroupId());
-         entry.setGroup(group);
-      }
-      
-      if(group != null)
-      {
-         entry.setUnderlyingItem(group.getMemberObject(entry.getId()));
+         // Restore the entry's ref to the group and object
+         SerializationGroupImpl<C> group = entry.getGroup();
+         if(group == null && entry.getGroupId() != null)
+         {
+            // TODO: peek or get?
+            // BES 2007/10/06 peek is better; you'll get multiple calls to
+            // this as different members are accessed, and the cache
+            // will throw an ISE if we use get() since we're already in use
+//            group = groupCache.peek(entry.getGroupId());
+            group = groupCache.get(entry.getGroupId());
+         }
          
-         // Notify the group that this entry is active
-         group.addActive(entry);
+         if(group != null)
+         {
+            synchronized (group)
+            {
+               if (!group.isInvalid())
+               {
+                  entry.setGroup(group);
+                  entry.setUnderlyingItem(group.getMemberObject(entry.getId()));
+            
+                  // Notify the group that this entry is active
+                  group.addActive(entry);
+                  groupOK = true;
+               }
+               // else groupOK == false and we loop again
+            }
+         }
+         else
+         {
+            groupOK = true;
+         }
       }
       
       // Invoke callbacks on the underlying object

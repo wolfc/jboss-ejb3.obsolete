@@ -50,7 +50,9 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
    }
    
    public void testNonGroupedPassivation() throws Exception
-   {
+   {    
+      log.info("testNonGroupedPassivation()");
+      
       MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
@@ -58,7 +60,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
       Cache<MockBeanContext> cache = container.getCache();
       
-      Object key = cache.create(null, null).getId();
+      Object key = cache.create(null, null);
       MockBeanContext obj = cache.get(key);
       
       cache.finished(obj);
@@ -91,6 +93,8 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
 
    public void testSimpleGroupPassivation() throws Exception
    {    
+      log.info("testSimpleGroupPassivation()");
+      
       MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
@@ -104,7 +108,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       
       try
       {
-         Object key1 = container1.getCache().create(null, null).getId();
+         Object key1 = container1.getCache().create(null, null);
          MockBeanContext firstCtx1;
          MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
          
@@ -160,8 +164,47 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
    /**
     * Test call to bean1 that calls into bean2 that calls back into bean1
     */
-   public void testRecursiveCalls()
-   {
-      // FIXME implement testRecursiveCalls() -- which will fail :(
+   public void testRecursiveCalls() throws Exception
+   {    
+      log.info("testRecursiveCalls()");
+      
+      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockXPC sharedXPC = new MockXPC();
+      MockCacheConfig config = new MockCacheConfig();
+      config.setIdleTimeoutSeconds(1);
+      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC);
+      
+      log.info("Containers deployed");
+      
+      assertTrue(container1.hasChild(container2));
+      
+      try
+      {
+         Object key1 = container1.getCache().create(null, null);
+         MockBeanContext firstCtx1;
+         MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
+         
+         assertEquals(sharedXPC, ctx1.getXPC());
+         Object key2 = ctx1.getChild(container2.getName());
+         MockBeanContext ctx2 = container2.getCache().get(key2);
+         assertNotNull(ctx2);
+         assertSame(sharedXPC, ctx2.getXPC());
+         
+         MockBeanContext secondCtx1 = container1.getCache().get(key1);
+         assertSame(firstCtx1, secondCtx1);
+         assertSame(sharedXPC, secondCtx1.getXPC());
+
+         container1.getCache().finished(secondCtx1);
+         container2.getCache().finished(ctx2);
+         container1.getCache().finished(firstCtx1);
+         
+      }
+      finally
+      {
+         container1.stop();
+         container2.stop();
+      }
+      
    }
 }
