@@ -163,7 +163,7 @@ public class FileObjectStore<T extends CacheItem>
       File base = null;
       if (storageDirectories != null)
       {
-         int hash = Math.abs(key.hashCode()) % storageDirectories.length;
+         int hash = (key.hashCode()& 0x7FFFFFFF) % storageDirectories.length;
          base = storageDirectories[hash];
       }
       else
