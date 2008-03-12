@@ -38,6 +38,7 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
+import javax.ejb.RemoveException;
 import javax.ejb.TimerService;
 
 import org.jboss.aop.Domain;
@@ -690,9 +691,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
       else if (unadvisedMethod.getName().equals("remove"))
       {
-         StatefulHandleImpl handle = (StatefulHandleImpl) args[0];
-
-         destroySession(handle.id);
+         remove(args[0]);
 
          return null;
       }
@@ -777,10 +776,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
       else if (unadvisedMethod.getName().equals("remove"))
       {
-         StatefulHandleImpl handle = (StatefulHandleImpl) statefulInvocation
-                 .getArguments()[0];
-
-         destroySession(handle.id);
+         remove(statefulInvocation.getArguments()[0]);
 
          InvocationResponse response = new InvocationResponse(null);
          response.setContextInfo(statefulInvocation.getResponseContextInfo());
@@ -987,6 +983,23 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");
    }
 
+   /**
+    * Remove the given object. Called when remove on Home is invoked.
+    * 
+    * @param target             either a Handle or a primaryKey
+    * @throws RemoveException   if it's not allowed to be removed
+    */
+   private void remove(Object target) throws RemoveException
+   {
+      // EJBTHREE-1217: EJBHome.remove(Object primaryKey) must throw RemoveException
+      if(!(target instanceof Handle))
+         throw new RemoveException("EJB 3 3.6.2.2: Session beans do not have a primary key");
+      
+      StatefulHandleImpl handle = (StatefulHandleImpl) target;
+
+      destroySession(handle.id);   
+   }
+   
    protected void removeHandle(Handle arg) throws Exception
    {
       /*
