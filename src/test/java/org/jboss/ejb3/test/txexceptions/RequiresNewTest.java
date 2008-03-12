@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.txexceptions;
 import org.jboss.ejb3.tx.TxUtil;
 
 import javax.persistence.EntityManager;
+import javax.ejb.EJBException;
 import javax.naming.InitialContext;
 import javax.transaction.TransactionManager;
 import javax.transaction.Transaction;
@@ -55,5 +56,39 @@ public class RequiresNewTest
       tm.commit();
       tm.resume(tx);
       tm.commit();
+   }
+
+   public static void daoCreateThrowRollbackError() throws Exception
+   {
+      TransactionManager tm = TxUtil.getTransactionManager();
+      tm.begin();
+
+      InitialContext ctx = new InitialContext();
+      Dao dao = (Dao) ctx.lookup("DaoBean/remote");
+
+      try
+      {
+         dao.createThrowRollbackError(1);
+         throw new RuntimeException("Expected error not thrown");
+      }
+      catch (EJBException e)
+      {
+         // AFAIK, the spec doesn't define how the causing error should be delivered
+         // Currently, it's done the same way our EJB2 containers handle errors,
+         // i.e. the msg is formatted including the stacktrace of the error
+         // and re-thrown as the EJBException
+      }
+      finally
+      {
+         tm.rollback();
+      }
+      
+      SimpleEntity entity = dao.get(1);
+      
+      if (entity != null)
+         dao.remove(1);
+      
+      if(entity != null)
+         throw new RuntimeException("Entity is there");
    }
 }

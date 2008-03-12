@@ -55,4 +55,6 @@ public interface Dao
    void remove(int id);
 
    void testRequiresNewWithLookedUpEntityManager() throws Exception;
+
+   void testRollbackErrorFromCallerTx() throws Exception;
 }

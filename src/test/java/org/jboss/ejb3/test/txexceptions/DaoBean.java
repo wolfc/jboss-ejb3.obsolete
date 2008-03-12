@@ -40,8 +40,7 @@ import org.jboss.logging.Logger;
 @Remote(Dao.class)
 public class DaoBean implements Dao
 {
-   private static final Logger log = Logger
-   .getLogger(DaoBean.class);
+   private static final Logger log = Logger.getLogger(DaoBean.class);
    
    @PersistenceContext EntityManager manager;
 
@@ -49,6 +48,12 @@ public class DaoBean implements Dao
    public void testRequiresNewWithLookedUpEntityManager() throws Exception
    {
       RequiresNewTest.doit();
+   }
+
+   @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+   public void testRollbackErrorFromCallerTx() throws Exception
+   {
+      RequiresNewTest.daoCreateThrowRollbackError();
    }
 
    public SimpleEntity get(int id)
