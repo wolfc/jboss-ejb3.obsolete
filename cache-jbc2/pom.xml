@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Define Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>0.13.0-SNAPSHOT</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- Maven POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-cache-jbc2</artifactId>
+  <version>0.14.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>JBoss EJB 3.0 JBoss Cache Integration</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>The Java EJB 3.0 JBoss Cache Integration classes</description>
+
+  <properties>
+    <version.org.jboss.cache_jbosscache-core>2.1.0-SNAPSHOT</version.org.jboss.cache_jbosscache-core>
+  </properties>
+
+  <dependencies>
+
+    <!-- EJB3 Cache -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-cache</artifactId>
+      <version>0.14.0-SNAPSHOT</version>
+    </dependency>
+
+    <!-- JBoss Cache -->
+    <dependency>
+      <groupId>org.jboss.cache</groupId>
+      <artifactId>jbosscache-core</artifactId>
+      <version>${version.org.jboss.cache_jbosscache-core}</version>
+    </dependency>
+
+    <!-- JUnit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>
