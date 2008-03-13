@@ -138,6 +138,7 @@
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-kernel>
     <version.org.jboss.security_jboss-security-spi-bare>2.0.2.Beta5</version.org.jboss.security_jboss-security-spi-bare>
     <version.org.jboss.security_jbosssx-client>2.0.2.Beta5</version.org.jboss.security_jbosssx-client>
+    <version.org.jboss.ws_jbossws-spi>snapshot</version.org.jboss.ws_jbossws-spi>
     <version.trove_trove>1.0.2</version.trove_trove>
     <version.quartz_quartz>1.6.0</version.quartz_quartz>
    
@@ -548,6 +549,13 @@
         <groupId>org.jboss</groupId>
         <artifactId>jboss-transaction-spi</artifactId>
         <version>${version.org.jboss_jboss-transaction-spi}</version>
+      </dependency>
+
+      <!-- JBoss WS SPI -->
+      <dependency>
+        <groupId>org.jboss.ws</groupId>
+        <artifactId>jbossws-spi</artifactId>
+        <version>${version.org.jboss.ws_jbossws-spi}</version>
       </dependency>
 
       <!-- JUnit -->

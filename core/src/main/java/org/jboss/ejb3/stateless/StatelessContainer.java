@@ -44,6 +44,7 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.BeanContextLifecycleCallback;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
+
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.ProxyUtils;
@@ -60,7 +61,16 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
 import org.jboss.proxy.ejb.handle.StatelessHandleImpl;
+import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
+import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
+import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
+import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
+import org.jboss.wsf.spi.invocation.InvocationType;
+import org.jboss.wsf.spi.SPIProvider;
+import org.jboss.wsf.spi.SPIProviderResolver;
+import org.jboss.injection.lang.reflect.BeanProperty;
 
+import javax.ejb.EJBContext;
 
 /**
  * Comment
@@ -68,7 +78,8 @@ import org.jboss.proxy.ejb.handle.StatelessHandleImpl;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatelessContainer extends SessionContainer implements TimedObjectInvoker
+public class StatelessContainer extends SessionContainer
+  implements TimedObjectInvoker, ServiceEndpointContainer
 {
    private static final Logger log = Logger.getLogger(StatelessContainer.class);
 
@@ -488,5 +499,55 @@ public class StatelessContainer extends SessionContainer implements TimedObjectI
    protected void removeHandle(Handle handle)
    {
       throw new RuntimeException("NYI");
+   }
+
+
+   public Class getServiceImplementationClass()
+   {
+      return this.getBeanClass();
+   }
+
+   public Object invokeEndpoint(Method method, Object[] args, InvocationContextCallback callback) throws Throwable
+   {
+      WebServiceCallbackImpl lifecyleCallback = new WebServiceCallbackImpl(callback);
+      return this.localInvoke(method, args, null, lifecyleCallback);
+   }
+
+   static class WebServiceCallbackImpl implements BeanContextLifecycleCallback
+   {
+      private javax.xml.ws.handler.MessageContext jaxwsMessageContext;
+      private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
+
+      public WebServiceCallbackImpl(InvocationContextCallback epInv)
+      {
+         jaxrpcMessageContext = epInv.get( javax.xml.rpc.handler.MessageContext.class );
+         jaxwsMessageContext = epInv.get( javax.xml.ws.handler.MessageContext.class );
+      }
+
+      public void attached(BeanContext beanCtx)
+      {
+         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
+         sbc.setMessageContextJAXRPC(jaxrpcMessageContext);
+
+         BeanProperty beanProp = sbc.getWebServiceContextProperty();
+         if (beanProp != null)
+         {
+            EJBContext ejbCtx = beanCtx.getEJBContext();
+            SPIProvider spiProvider = SPIProviderResolver.getInstance().getProvider();
+            ExtensibleWebServiceContext wsContext = spiProvider.getSPI(WebServiceContextFactory.class).newWebServiceContext(InvocationType.JAXWS_EJB3, jaxwsMessageContext);
+            wsContext.addAttachment(EJBContext.class, ejbCtx);
+            beanProp.set(beanCtx.getInstance(), wsContext);
+         }
+      }
+
+      public void released(BeanContext beanCtx)
+      {
+         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
+         sbc.setMessageContextJAXRPC(null);
+
+         BeanProperty beanProp = sbc.getWebServiceContextProperty();
+         if (beanProp != null)
+            beanProp.set(beanCtx.getInstance(), null);
+      }
    }
 }

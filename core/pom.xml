@@ -181,7 +181,7 @@
                 <artifactItem>
                   <groupId>org.jboss</groupId>
                   <artifactId>jboss-test</artifactId>
-                </artifactItem>
+                </artifactItem>                 
                 <artifactItem>
                   <groupId>hibernate</groupId>
                   <artifactId>hibernate3</artifactId>
@@ -394,6 +394,10 @@
        <artifactId>jboss-as-server</artifactId>
        <version>5.0.0-SNAPSHOT</version> <!-- Only used here -->
        <classifier>client</classifier>
+    </dependency>
+     <dependency>
+       <groupId>org.jboss.ws</groupId>
+       <artifactId>jbossws-spi</artifactId>       
     </dependency>
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
