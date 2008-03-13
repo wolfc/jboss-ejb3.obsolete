@@ -3209,20 +3209,6 @@
       </jar>
    </target>
 
-   <!--target name="concurrent"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/concurrent-test.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/concurrent/**/*.class"/>
-            <include name="org/jboss/ejb3/test/concurrent/unit/*.class"/>
-         </fileset>
-      </jar>
-   </target-->
-
    <target name="descriptortypo"
       description="Builds all jar files."
       >
@@ -4147,6 +4133,7 @@
    </target>
    
    <target name="jars" depends="statefulproxyfactoryoverride, mdbsessionpoolclear, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
+      concurrent,
       circulardependency, jsp, timerdependency, servicedependency, servlet, stateless14, webservices, ear, ejbthree440,
       ejbthree454, ejbthree471, 
    	  ejbthree653, ejbthree670, ejbthree712, ejbthree724, ejbthree751,
@@ -4917,9 +4904,9 @@
       <antcall target="test" inheritRefs="true">
          <param name="test" value="descriptortypo"/>
       </antcall>
-      <!--antcall target="test" inheritRefs="true">
+      <antcall target="test" inheritRefs="true">
          <param name="test" value="concurrent"/>
-      </antcall-->
+      </antcall>
       <!--antcall target="test" inheritRefs="true">
          <param name="test" value="seam"/>
       </antcall-->

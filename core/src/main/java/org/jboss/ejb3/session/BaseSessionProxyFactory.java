@@ -37,9 +37,8 @@ import javax.ejb.HomeHandle;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 
-import org.jboss.ejb3.Container;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -58,7 +57,7 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(BaseSessionProxyFactory.class);
    
-   private EJBContainer container;
+   private SessionContainer container;
    protected String containerGuid;
    protected String containerClusterUid;
    protected boolean isClustered = false;
@@ -79,22 +78,22 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       throw new RuntimeException("NYI");
    }
    
-   protected void setContainer(Container container)
+   protected void setContainer(SessionContainer container)
    {
-      this.container = (EJBContainer)container;
+      this.container = container;
       this.containerGuid = Ejb3Registry.guid(container);
       this.containerClusterUid = Ejb3Registry.clusterUid(container);
       this.isClustered = container.isClustered();
    }
    
-   protected EJBContainer getContainer()
+   protected SessionContainer getContainer()
    {
       if (container == null)
       {
-         container = (EJBContainer)Ejb3Registry.findContainer(containerGuid);
+         container = (SessionContainer)Ejb3Registry.findContainer(containerGuid);
          
          if (container == null && isClustered)
-            container = (EJBContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
+            container = (SessionContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
       }
       
       return container;
