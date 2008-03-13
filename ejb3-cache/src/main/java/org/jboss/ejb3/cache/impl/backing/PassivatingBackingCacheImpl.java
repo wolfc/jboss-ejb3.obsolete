@@ -89,6 +89,8 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
          
          passivationManager.postActivate(entry);
          
+         entry.setPrePassivated(false);
+         
          entry.setInUse(true);
          return entry;
       }
@@ -111,6 +113,8 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
          }
 
          passivationManager.prePassivate(entry);
+         
+         entry.setPrePassivated(true);
          
          store.passivate(entry);
       }

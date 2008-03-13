@@ -150,7 +150,6 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       if (!entry.isPrePassivated())
       {
          passivationManager.prePassivate(entry.getUnderlyingItem());
-         entry.setPrePassivated(true);
       }
       
       // If this call is coming via PassivatingBackingCache.passivate(), 

@@ -39,6 +39,7 @@ public abstract class AbstractBackingCacheEntry<T extends CacheItem>
    
    private long lastUsed;
    private transient boolean inUse;
+   private boolean prePassivated;
 
    public long getLastUsed()
    {
@@ -60,5 +61,17 @@ public abstract class AbstractBackingCacheEntry<T extends CacheItem>
    {
       this.lastUsed = lastUsed;
    }
+
+   public boolean isPrePassivated()
+   {
+      return prePassivated;
+   }
+
+   public void setPrePassivated(boolean prePassivated)
+   {
+      this.prePassivated = prePassivated;
+   }
+   
+   
 
 }

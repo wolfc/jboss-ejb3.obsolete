@@ -60,4 +60,16 @@ public interface BackingCacheEntry<T extends CacheItem>
     * @return
     */
    long getLastUsed();
+   
+   /**
+    * Gets whether the entry can be passivated without invoking
+    * any callbacks on the underlying item.
+    */
+   boolean isPrePassivated();
+   
+   /**
+    * Sets whether the entry can be passivated without invoking 
+    * any callbacks on the underlying item.
+    */
+   void setPrePassivated(boolean prePassivated);
 }

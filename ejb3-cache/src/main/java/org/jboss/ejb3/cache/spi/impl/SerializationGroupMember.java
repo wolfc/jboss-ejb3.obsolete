@@ -71,7 +71,6 @@ public class SerializationGroupMember<T extends CacheItem>
    private boolean clustered;
    
    private boolean preReplicated;
-   private boolean prePassivated;
    
    /** The cache that's handling us */
 //   private transient PassivatingBackingCache<T, SerializationGroupMember<T>> cache;
@@ -182,16 +181,6 @@ public class SerializationGroupMember<T extends CacheItem>
       obj = null;
       
 //      cache.passivate(this.id);
-   }
-   
-   public boolean isPrePassivated()
-   {
-      return prePassivated;
-   }
-   
-   public void setPrePassivated(boolean prePassivated)
-   {
-      this.prePassivated = prePassivated;
    }
    
    /**
