@@ -23,9 +23,11 @@ package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+
 import javax.ejb.EJBMetaData;
 import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
+
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.util.MethodHashing;
@@ -34,7 +36,6 @@ import org.jboss.aspects.asynch.AsynchMixin;
 import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ProxyUtils;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
@@ -60,12 +61,6 @@ public class StatefulRemoteProxy extends org.jboss.ejb3.session.BaseSessionRemot
    private Handle handle;
    private HomeHandle homeHandle;
    private EJBMetaData ejbMetaData;
-
-   public StatefulRemoteProxy(Container container, Interceptor[] interceptors, InvokerLocator uri)
-   {
-      super(container, interceptors);
-      this.uri = uri;
-   }
 
    public StatefulRemoteProxy(Container container, Interceptor[] interceptors, InvokerLocator uri, Object id)
    {

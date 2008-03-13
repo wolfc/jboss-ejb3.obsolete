@@ -302,7 +302,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          Thread.currentThread().setContextClassLoader(classloader);
          StatefulBeanContext ctx = getCache().create(initTypes, initValues);
          // Since we return the key here, the context is not in use.
-         ctx.setInUse(false);
+         getCache().release(ctx);
          return ctx.getId();
       }
       finally

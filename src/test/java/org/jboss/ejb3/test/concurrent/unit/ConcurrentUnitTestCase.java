@@ -126,7 +126,7 @@ public class ConcurrentUnitTestCase
   
       Throwable t = eh.getUncaughtException();
       assertNotNull("No exception occured during a concurrent call", t);
-      fail("never comes here");
+      assertTrue("Expected a javax.ejb.ConcurrentAccessException", t instanceof ConcurrentAccessException);
    }
    
    public static Test suite() throws Exception

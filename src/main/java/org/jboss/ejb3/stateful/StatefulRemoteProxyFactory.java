@@ -189,17 +189,8 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
    
    public Object createProxy()
    {
-      String stackName = "StatefulSessionClientInterceptors";
-      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
-      {
-         stackName = binding.interceptorStack();
-      }
-      AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-      if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
-      StatefulRemoteProxy proxy = new StatefulRemoteProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), locator);
-
-      setEjb21Objects(proxy);
-      return constructProxy(proxy);
+      Object id = getContainer().createSession();
+      return createProxy(id);
    }
 
    protected StatefulHandleImpl getHandle()
@@ -218,6 +209,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
          stackName = binding.interceptorStack();
       }
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
+      if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
       StatefulRemoteProxy proxy = new StatefulRemoteProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), locator, id);
       
       setEjb21Objects(proxy);
