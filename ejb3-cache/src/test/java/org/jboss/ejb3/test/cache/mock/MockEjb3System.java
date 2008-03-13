@@ -158,6 +158,7 @@ public class MockEjb3System
       factory.setPassivationExpirationCoordinator(coordinator);
       // Process passivation/expiration as quickly as possible so tests run fast
       factory.setDefaultPassivationExpirationInterval(1);
+      factory.start();
       
       return factory;
    }

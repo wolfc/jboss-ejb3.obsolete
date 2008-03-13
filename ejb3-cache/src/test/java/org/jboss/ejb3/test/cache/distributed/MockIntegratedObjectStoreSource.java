@@ -28,6 +28,7 @@ import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 
@@ -48,14 +49,14 @@ public class MockIntegratedObjectStoreSource<T extends CacheItem>
    }
    
    public PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>>  createGroupIntegratedObjectStore(String containerName,
-         String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager)
+         String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       String keyBase = "GroupCache-" + containerName;
       return new MockJBCIntegratedObjectStore<T, SerializationGroupImpl<T>>(localMap, remoteMap, cacheConfig, keyBase, keyBase);
    }
 
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
-         CacheConfig cacheConfig, TransactionManager transactionManager)
+         CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       return new MockJBCIntegratedObjectStore<T, SerializationGroupMember<T>>(localMap, remoteMap, cacheConfig, containerName, containerName);
    }

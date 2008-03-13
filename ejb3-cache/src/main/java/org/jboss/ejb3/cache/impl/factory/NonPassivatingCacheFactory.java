@@ -64,7 +64,7 @@ public class NonPassivatingCacheFactory<T extends CacheItem>
          backingCache.setInterval(getDefaultPassivationExpirationInterval());
       }
       
-      return new TransactionalCache<T, NonPassivatingBackingCacheEntry<T>>(backingCache, getTransactionManager());
+      return new TransactionalCache<T, NonPassivatingBackingCacheEntry<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator());
    }
 
 }

@@ -32,6 +32,7 @@ import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
+import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
 
@@ -55,9 +56,10 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Backing
     * @param tm       the transaction manager
     */
    public GroupAwareTransactionalCache(GroupAwareBackingCache<C, T> delegate, 
-                                       TransactionManager tm)
+                                       TransactionManager tm,
+                                       SynchronizationCoordinator syncCoordinator)
    {
-      super(delegate, tm);
+      super(delegate, tm, syncCoordinator);
       this.groupedCache = delegate;
    }
 

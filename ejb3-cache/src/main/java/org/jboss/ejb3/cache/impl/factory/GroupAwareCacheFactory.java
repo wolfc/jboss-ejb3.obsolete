@@ -87,7 +87,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       }
       
       PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> store = 
-         storeSource.createIntegratedObjectStore(containerName, configName, cacheConfig, getTransactionManager());
+         storeSource.createIntegratedObjectStore(containerName, configName, cacheConfig, getTransactionManager(), getSynchronizationCoordinator());
       
       // Make sure passivation/expiration occurs periodically
       if (store.getInterval() < 1)
@@ -111,7 +111,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       GroupAwareBackingCache<T, SerializationGroupMember<T>> backingCache =
          new GroupAwareBackingCacheImpl<T>(memberContainer, groupCache);
       
-      return new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager());
+      return new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator());
    }
 
    private PassivatingBackingCache<T, SerializationGroupImpl<T>> createGroupCache(String name, String configName, CacheConfig cacheConfig)
@@ -120,7 +120,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       StatefulObjectFactory<SerializationGroupImpl<T>> factory = container;
       PassivationManager<SerializationGroupImpl<T>> passivationManager = container;
       PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> store = 
-         storeSource.createGroupIntegratedObjectStore(name, configName, cacheConfig, getTransactionManager());
+         storeSource.createGroupIntegratedObjectStore(name, configName, cacheConfig, getTransactionManager(), getSynchronizationCoordinator());
     
       // The group cache store should not passivate/expire -- that's a 
       // function of the caches for the members

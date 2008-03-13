@@ -30,6 +30,7 @@ import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.StatefulCacheFactory;
 import org.jboss.ejb3.cache.spi.PassivationExpirationCoordinator;
+import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 
 /**
  * Abstract superclass of {@link StatefulCacheFactory} implementations.
@@ -42,6 +43,7 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
    public static final int DEFAULT_PASSIVATION_EXPIRATION_INTERVAL = 10;
    
    private TransactionManager transactionManager;
+   private SynchronizationCoordinator synchronizationCoordinator;
    private PassivationExpirationCoordinator passivationExpirationCoordinator;
    private int defaultPassivationExpirationInterval = DEFAULT_PASSIVATION_EXPIRATION_INTERVAL;
    private String defaultCacheConfigName;
@@ -66,6 +68,22 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
       this.transactionManager = transactionManager;
    }
    
+   /**
+    * Gets the {@link SynchronizationCoordinator} used by this factory.
+    */   
+   public SynchronizationCoordinator getSynchronizationCoordinator()
+   {
+      return synchronizationCoordinator;
+   }
+
+   /**
+    * Sets the {@link SynchronizationCoordinator} used by this factory.
+    */   
+   public void setSynchronizationCoordinator(SynchronizationCoordinator synchronizationCoordinator)
+   {
+      this.synchronizationCoordinator = synchronizationCoordinator;
+   }
+
    /**
     * Gets the coordinator of passivation/expiration processes. If 
     * <code>null</code>, each cache will manager passivation/expiration
@@ -166,6 +184,17 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
       }
       
       return substitute == null ? name : substitute;
+   }
+   
+   public void start()
+   {
+      if (getSynchronizationCoordinator() == null)
+         setSynchronizationCoordinator(new SynchronizationCoordinatorImpl());
+   }
+   
+   public void stop()
+   {
+      // no-op
    }
 
 }

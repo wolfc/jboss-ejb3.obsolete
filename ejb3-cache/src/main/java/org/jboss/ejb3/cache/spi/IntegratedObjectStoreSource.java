@@ -50,13 +50,17 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
     * @param config configuration details of the cache
     * @param transactionManager TransactionManager the store should use if
     *                           it needs to monitor transactions
+    * @param synchronizationCoordinator SynchronizationCoordinator the store
+    *                                   should use if it needs to add
+    *                                   tranaction synchronizations
     * @return the store
     */
    PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> 
          createGroupIntegratedObjectStore(String containerName, 
                                           String cacheConfigName, 
                                           CacheConfig config, 
-                                          TransactionManager transactionManager);
+                                          TransactionManager transactionManager, 
+                                          SynchronizationCoordinator synchronizationCoordinator);
    
    /**
     * Provide a {@link PassivatingIntegratedObjectStore} for storage
@@ -66,11 +70,16 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
     * @param cacheConfigName TODO
     * @param transactionManager TransactionManager the store should use if
     *                           it needs to monitor transactions
+    * @param synchronizationCoordinator SynchronizationCoordinator the store
+    *                                   should use if it needs to add
+    *                                   tranaction synchronizations
     * @param config configuration details of the cache
     * @return the store
     */
    PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> 
          createIntegratedObjectStore(String containerName, 
                                      String cacheConfigName, 
-                                     CacheConfig cacheConfig, TransactionManager transactionManager);
+                                     CacheConfig cacheConfig, 
+                                     TransactionManager transactionManager, 
+                                     SynchronizationCoordinator synchronizationCoordinator);
 }

@@ -31,6 +31,7 @@ import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.impl.backing.SimplePassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.FileObjectStore;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
 import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
@@ -62,7 +63,7 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
    private int subdirectoryCount = DEFAULT_SUBDIRECTORY_COUNT;
    
    public PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> createGroupIntegratedObjectStore(String containerName, String cacheConfigName,
-         CacheConfig cacheConfig, TransactionManager transactionManager)
+         CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       FileObjectStore<SerializationGroupImpl<T>> objectStore = new FileObjectStore<SerializationGroupImpl<T>>();
       objectStore.setStorageDirectory(getFullGroupDirectoryName(containerName));
@@ -77,7 +78,7 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
    }
 
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> createIntegratedObjectStore(String containerName, String cacheConfigName,
-         CacheConfig cacheConfig, TransactionManager transactionManager)
+         CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       FileObjectStore<SerializationGroupMember<T>> objectStore = new FileObjectStore<SerializationGroupMember<T>>();
       objectStore.setStorageDirectory(getFullSessionDirectoryName(containerName));

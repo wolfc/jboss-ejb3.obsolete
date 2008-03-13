@@ -38,6 +38,7 @@ import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 
 /**
  * {@link Cache#isGroupAware() Non-group-aware} <code>Cache</code> implementation 
@@ -68,6 +69,11 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    private final ConcurrentMap<Object, CacheReleaseSynchronization<C, T>> synchronizations;
    /** Our transaction manager */
    private final TransactionManager tm;
+   /** 
+    * Helper to allow coordination Transaction Synchronization execution
+    * between ourself and other elements of the caching subsystem.
+    */
+   private final SynchronizationCoordinator synchronizationCoordinator;
    
    private class Entry
    {
@@ -119,13 +125,17 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       }      
    }
    
-   public TransactionalCache(BackingCache<C, T> delegate, TransactionManager tm)
+   public TransactionalCache(BackingCache<C, T> delegate, 
+                             TransactionManager tm,
+                             SynchronizationCoordinator syncCoordinator)
    {
       assert delegate != null : "delegate is null";
       assert tm != null : "tm is null";
+      assert syncCoordinator != null : "syncCoordinator is null";
       
       this.delegate = delegate;
       this.tm = tm;
+      this.synchronizationCoordinator = syncCoordinator;
       
       this.inUseCache = new ConcurrentHashMap<Object, Entry>();
       this.synchronizations = new ConcurrentHashMap<Object, CacheReleaseSynchronization<C, T>>();
@@ -311,7 +321,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
          CacheReleaseSynchronization<C, T> sync = new CacheReleaseSynchronization<C, T>(this, cacheItem, tx);
          try
          {
-            tx.registerSynchronization(sync);
+            synchronizationCoordinator.addSynchronizationFirst(tx, sync);
          }
          catch (RollbackException e)
          {
