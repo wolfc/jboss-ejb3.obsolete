@@ -1932,6 +1932,10 @@
       </ear>
    </target>
 
+   <target name="ejbthree471" >
+      <build-simple-jar name="ejbthree471"/>
+   </target>
+
    <target name="ejbthree485"
       description="Builds all jar files."
       >
@@ -4144,7 +4148,8 @@
    
    <target name="jars" depends="statefulproxyfactoryoverride, mdbsessionpoolclear, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       circulardependency, jsp, timerdependency, servicedependency, servlet, stateless14, webservices, ear, ejbthree440,
-      ejbthree454, ejbthree653, ejbthree670, ejbthree712, ejbthree724, ejbthree751,
+      ejbthree454, ejbthree471, 
+   	  ejbthree653, ejbthree670, ejbthree712, ejbthree724, ejbthree751,
       ejbthree785, 
       ejbthree786, 
       ejbthree832, ejbthree921, ejbthree936,
@@ -5067,6 +5072,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="microbench"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree471"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree712"/>
