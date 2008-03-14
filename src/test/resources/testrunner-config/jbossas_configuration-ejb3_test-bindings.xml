@@ -21,3 +21,36 @@
   </bindings>
   
 -->
+
+<bindings>
+  <configurations>
+    <configuration name="minimal">
+      <tests>
+        <test name="TEST1" />
+        <test name="TEST2" />
+        <test name="TEST5" />
+        <test name="TEST8" />
+        <test name="TEST10" />
+      </tests>
+    </configuration>
+    <configuration name="default">
+      <tests>
+        <test name="TEST2" />
+        <test name="TEST8" />
+        <test name="TEST5" />
+      </tests>
+    </configuration>
+    <configuration name="all">
+      <tests>
+        <test name="TEST5" />
+      </tests>
+    </configuration>
+    <configuration name="myNewTestConfig">
+      <tests>
+        <test name="TEST4" />
+        <test name="TEST8" />
+        <test name="TEST13" />
+      </tests>
+    </configuration>
+  </configurations>
+</bindings>
