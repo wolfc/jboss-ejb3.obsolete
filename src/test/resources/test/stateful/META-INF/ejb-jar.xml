@@ -14,7 +14,7 @@
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulBean</ejb-class>
          <remove-method>
             <bean-method>
-               <method-name>removeBean</method-name>
+               <method-name>remove</method-name>
             </bean-method>
             <retain-if-exception>false</retain-if-exception>
          </remove-method>
