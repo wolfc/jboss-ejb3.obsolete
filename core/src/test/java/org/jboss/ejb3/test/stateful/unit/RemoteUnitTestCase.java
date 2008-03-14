@@ -45,6 +45,7 @@ import org.jboss.ejb3.test.stateful.ServiceRemote;
 import org.jboss.ejb3.test.stateful.SmallCacheStateful;
 import org.jboss.ejb3.test.stateful.State;
 import org.jboss.ejb3.test.stateful.Stateful;
+import org.jboss.ejb3.test.stateful.Stateful21;
 import org.jboss.ejb3.test.stateful.StatefulHome;
 import org.jboss.ejb3.test.stateful.StatefulInvoker;
 import org.jboss.ejb3.test.stateful.StatefulLocal;
@@ -182,7 +183,7 @@ extends JBossTestCase
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
       stateful.setState("state");
-      stateful.removeBean();
+      stateful.remove();
       
       ObjectName deployment = new ObjectName("test.ejb3:name=Bill,service=EJB3");
 
@@ -193,7 +194,7 @@ extends JBossTestCase
       stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
       stateful.setState("state");
-      stateful.removeBean();
+      stateful.remove();
    }
    
    public void testSmallCache() throws Exception
@@ -631,9 +632,36 @@ extends JBossTestCase
       System.out.println("testPassivation");
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
- //     stateful.setState("state");
       
-      stateful.removeBean();
+      stateful.remove(); 
+      try
+      {
+         stateful.getState();
+         fail("Bean should have been removed");
+      } catch (NoSuchEJBException e)
+      {
+         
+      }
+      
+      stateful = (Stateful)getInitialContext().lookup("Stateful");
+      assertNotNull(stateful);
+      stateful.setState("InMyTimeOfDying");
+      
+      stateful.remove(); 
+      try
+      {
+         stateful.getState();
+         fail("Bean should have been removed");
+      } catch (NoSuchEJBException e)
+      {
+         
+      }
+      
+      StatefulHome home = (StatefulHome)getInitialContext().lookup("StatefulBean/home");
+      assertNotNull(home);
+      Stateful21 stateful21 = (Stateful21)home.create(); 
+      assertNotNull(stateful21);
+      stateful21.remove();
       
       try
       {
@@ -643,6 +671,10 @@ extends JBossTestCase
       {
          
       }
+      
+      stateful = (Stateful)getInitialContext().lookup("Stateful");
+      int beansRemoved = stateful.beansRemoved();
+      assertEquals(3, beansRemoved);
    }
 
    public void testRemoveWithRollback() throws Exception

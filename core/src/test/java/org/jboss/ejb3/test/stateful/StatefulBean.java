@@ -66,6 +66,8 @@ public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
 {
    private static final Logger log = Logger.getLogger(StatefulBean.class);
    
+   private static int beansRemoved = 0;
+   
    @Resource
    private SessionContext sessionContext;
    
@@ -221,8 +223,14 @@ public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
       this.state=state;
    }
    
-   // @Remove from xml
-   public void removeBean()
+   public int beansRemoved()
    {
+      return beansRemoved;
+   }
+   
+   // @Remove from xml
+   public void remove()
+   {
+      ++beansRemoved;
    }
 }

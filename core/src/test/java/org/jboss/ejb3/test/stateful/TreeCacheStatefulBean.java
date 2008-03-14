@@ -64,6 +64,8 @@ import org.jboss.serial.io.JBossObjectOutputStream;
 public class TreeCacheStatefulBean implements org.jboss.ejb3.test.stateful.Stateful
 {
    private static final Logger log = Logger.getLogger(TreeCacheStatefulBean.class);
+   
+   private static int beansRemoved = 0;
 
    @Resource
    private SessionContext sessionContext;
@@ -208,9 +210,14 @@ public class TreeCacheStatefulBean implements org.jboss.ejb3.test.stateful.State
    }
 
    @Remove
-   public void removeBean()
+   public void remove()
    {
-
+      ++beansRemoved;
+   }
+   
+   public int beansRemoved()
+   {
+      return beansRemoved;
    }
 
    public void lookupStateful() throws Exception
