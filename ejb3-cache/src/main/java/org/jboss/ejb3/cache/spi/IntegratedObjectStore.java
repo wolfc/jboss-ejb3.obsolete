@@ -22,8 +22,8 @@
 
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.Identifiable;
+import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.api.Identifiable;
 
 /**
  * An in-memory store for identifiable objects that integrates a persistent store. 

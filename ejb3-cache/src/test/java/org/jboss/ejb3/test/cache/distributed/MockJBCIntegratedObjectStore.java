@@ -34,7 +34,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;

@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.test.cache.integrated;
 
-import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;

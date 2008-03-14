@@ -1,6 +1,6 @@
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.CacheItem;
 
 public interface SerializationGroupMember<T extends CacheItem>
   extends BackingCacheEntry<T>

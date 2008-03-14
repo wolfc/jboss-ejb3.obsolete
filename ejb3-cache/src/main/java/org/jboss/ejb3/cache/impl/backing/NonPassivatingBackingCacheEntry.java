@@ -23,7 +23,7 @@ package org.jboss.ejb3.cache.impl.backing;
 
 import java.io.Serializable;
 
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntry;
 

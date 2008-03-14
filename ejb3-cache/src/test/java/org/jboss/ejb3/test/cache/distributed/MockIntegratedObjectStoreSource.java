@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.cache.distributed;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;

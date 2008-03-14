@@ -27,8 +27,8 @@ import java.util.Map;
 
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.StatefulCacheFactory;
-import org.jboss.ejb3.cache.StatefulCacheFactoryRegistry;
+import org.jboss.ejb3.cache.api.StatefulCacheFactory;
+import org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry;
 import org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory;
 import org.jboss.ejb3.cache.impl.factory.NonClusteredIntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.impl.factory.NonPassivatingCacheFactory;

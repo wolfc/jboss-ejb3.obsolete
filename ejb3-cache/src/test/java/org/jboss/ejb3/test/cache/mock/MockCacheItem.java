@@ -22,7 +22,7 @@
 
 package org.jboss.ejb3.test.cache.mock;
 
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.CacheItem;
 
 /**
  * @author Brian Stansberry

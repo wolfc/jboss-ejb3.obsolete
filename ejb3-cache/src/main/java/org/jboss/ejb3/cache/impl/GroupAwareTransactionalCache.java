@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.Cache;
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.Cache;
+import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroup;

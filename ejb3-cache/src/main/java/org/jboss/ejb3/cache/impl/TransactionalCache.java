@@ -33,8 +33,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.Cache;
-import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.api.Cache;
+import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;

@@ -25,9 +25,9 @@ import java.util.Map;
 
 import javax.ejb.NoSuchEJBException;
 
-import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.PassivationManager;
-import org.jboss.ejb3.cache.StatefulObjectFactory;
+import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.api.PassivationManager;
+import org.jboss.ejb3.cache.api.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
