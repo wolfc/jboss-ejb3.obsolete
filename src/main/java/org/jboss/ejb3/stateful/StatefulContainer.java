@@ -25,6 +25,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.rmi.NoSuchObjectException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -34,6 +35,8 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.Init;
+import javax.ejb.NoSuchEJBException;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
@@ -633,7 +636,14 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("remove"))
       {
-         destroySession(id);
+         try
+         {
+            destroySession(id);
+         }
+         catch(NoSuchEJBException e)
+         {
+            throw new NoSuchObjectLocalException(e.getMessage(), e);
+         }
 
          return null;
       }
@@ -844,7 +854,16 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
       else if (unadvisedMethod.getName().equals("remove"))
       {
-         destroySession(statefulInvocation.getId());
+         try
+         {
+            destroySession(statefulInvocation.getId());
+         }
+         catch(NoSuchEJBException e)
+         {
+            if(log.isTraceEnabled())
+               log.trace("Throwing NoSuchObjectException", e);
+            throw new NoSuchObjectException(e.getMessage());
+         }
 
          InvocationResponse response = new InvocationResponse(null);
          return response;
