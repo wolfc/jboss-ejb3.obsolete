@@ -22,7 +22,9 @@
 
 package org.jboss.ejb3.cache.spi.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -32,20 +34,59 @@ import java.util.List;
 public class GroupCreationContext
 {
    @SuppressWarnings("unchecked")
-   private static final ThreadLocal<List<ItemCachePair>> groupCreationContext = new ThreadLocal<List<ItemCachePair>>();
+   private static final ThreadLocal<GroupCreationContext> groupCreationContext = new ThreadLocal<GroupCreationContext>();
+   
+   private final List<ItemCachePair> pairs;
+   private Map<Object, Object> sharedState;
+   private final boolean strict;
    
    /**
-    * Prevent instantiation. 
+    * Prevent external instantiation. 
     */
-   private GroupCreationContext() {}
+   private GroupCreationContext(boolean strict) 
+   {
+      this.pairs = new ArrayList<ItemCachePair>();
+      this.strict = strict;
+   }
 
-   public static List<ItemCachePair> getGroupCreationContext()
+   public List<ItemCachePair> getPairs()
+   {
+      return pairs;
+   }
+
+   public Map<Object, Object> getSharedState()
+   {
+      return sharedState;
+   }  
+   
+   public void setSharedState(Map<Object, Object> sharedState)
+   {
+      if (this.sharedState != null)
+         throw new IllegalStateException("Shared state already set");
+      this.sharedState = sharedState;
+   }
+   
+   public boolean isStrict()
+   {
+      return strict;
+   }
+
+   public static GroupCreationContext getGroupCreationContext()
    {
       return groupCreationContext.get();
    }
    
-   public static void setGroupCreationContext(List<ItemCachePair> context)
+   public static GroupCreationContext startGroupCreationContext(boolean strict)
    {
-      groupCreationContext.set(context);
+      if (groupCreationContext.get() != null)
+         throw new IllegalStateException("GroupCreationContext already exists");
+      GroupCreationContext started = new GroupCreationContext(strict);
+      groupCreationContext.set(started);
+      return started;
+   }
+   
+   public static void clearGroupCreationContext()
+   {
+      groupCreationContext.set(null);
    }
 }

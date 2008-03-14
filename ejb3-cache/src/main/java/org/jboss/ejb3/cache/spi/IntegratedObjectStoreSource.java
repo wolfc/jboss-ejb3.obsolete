@@ -27,8 +27,6 @@ import javax.transaction.TransactionManager;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.StatefulCacheFactory;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 
 /**
  * Provides {@link PassivatingIntegratedObjectStore} instances to a 
@@ -55,7 +53,7 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
     *                                   tranaction synchronizations
     * @return the store
     */
-   PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> 
+   PassivatingIntegratedObjectStore<T, SerializationGroup<T>> 
          createGroupIntegratedObjectStore(String containerName, 
                                           String cacheConfigName, 
                                           CacheConfig config, 

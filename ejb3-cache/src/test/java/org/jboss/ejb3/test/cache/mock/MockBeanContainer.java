@@ -47,7 +47,7 @@ public class MockBeanContainer
    private Cache<MockBeanContext> cache;
    private Set<MockBeanContainer> children;
    
-   private MockXPC xpc;
+   private String xpcName;
    
    public MockBeanContainer(String containerName, String cacheFactoryName,
          StatefulCacheFactoryRegistry<MockBeanContext> cacheFactoryRegistry,
@@ -102,17 +102,17 @@ public class MockBeanContainer
    {
       return children.contains(child);
    }
+
+   public String getXPCName()
+   {
+      return xpcName;
+   }
    
-   public MockXPC getXPC()
+   public void setXPCName(String name)
    {
-      return xpc;
+      this.xpcName = name;
    }
-
-   public void setXPC(MockXPC xpc)
-   {
-      this.xpc = xpc;
-   }
-
+   
    public StatefulObjectFactory<MockBeanContext> getStatefulObjectFactory()
    {
       return objectFactory;

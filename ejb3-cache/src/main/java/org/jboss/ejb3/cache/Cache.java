@@ -86,23 +86,6 @@ public interface Cache<T extends CacheItem>
     * @param key    the identifier of the object
     */
    void remove(Object key);
-   
-   /**
-    * Gets whether this cache supports {@link SerializationGroup} management.
-    * 
-    * @return <code>true</code> if group management is supported;
-    *         <code>false</code> otherwise
-    */
-   boolean isGroupAware();
-
-   /**
-    * Gets the group to which the given object belongs.
-    * 
-    * @param obj the object
-    * @return the group, or <code>null</code> if the object is not a member
-    *         of a group
-    */
-   SerializationGroup<T> getGroup(T obj);
 
    /**
     * Start the cache.

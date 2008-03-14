@@ -115,7 +115,7 @@ public class MockEjb3System
                                                 String parentContainerName,
                                                 CacheType cacheType,
                                                 MockCacheConfig cacheConfig,
-                                                MockXPC xpc) throws Exception
+                                                String xpc) throws Exception
    {
       return deployBeanContainer(containerName, parentContainerName, cacheType, cacheConfig, xpc, true);
    }
@@ -124,12 +124,12 @@ public class MockEjb3System
                                                 String parentContainerName,
                                                 CacheType cacheType,
                                                 MockCacheConfig cacheConfig,
-                                                MockXPC xpc,
+                                                String xpc,
                                                 boolean start) throws Exception
    {
       MockBeanContainer parent = (parentContainerName == null) ? null : getMockBeanContainer(parentContainerName);
       MockBeanContainer container = new MockBeanContainer(containerName, cacheType.mapKey(), cacheFactoryRegistry, cacheConfig);
-      container.setXPC(xpc);
+      container.setXPCName(xpc);
       if (parent != null)
          parent.addChild(container);
       if (start)

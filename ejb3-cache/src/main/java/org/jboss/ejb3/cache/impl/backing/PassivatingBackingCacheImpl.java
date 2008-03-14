@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.cache.impl.backing;
 
+import java.util.Map;
+
 import javax.ejb.NoSuchEJBException;
 
 import org.jboss.ejb3.cache.CacheItem;
@@ -66,9 +68,9 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
       return store.isClustered();
    }
    
-   public T create(Class<?>[] initTypes, Object[] initValues)
+   public T create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
-      T obj = factory.create(initTypes, initValues);
+      T obj = factory.create(initTypes, initValues, sharedState);
       store.insert(obj);
       return obj;
    }

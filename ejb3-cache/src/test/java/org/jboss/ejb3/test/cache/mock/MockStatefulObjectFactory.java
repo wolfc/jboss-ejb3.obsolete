@@ -22,6 +22,8 @@
 
 package org.jboss.ejb3.test.cache.mock;
 
+import java.util.Map;
+
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 
 
@@ -42,10 +44,23 @@ public class MockStatefulObjectFactory
       this.container = container;
    }
    
-   public MockBeanContext create(Class[] initTypes, Object[] initValues)
+   public MockBeanContext create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
-      MockBeanContext ctx = new MockBeanContext(container.getName());
-      ctx.setXPC(container.getXPC());
+      MockBeanContext ctx = new MockBeanContext(container.getName(), sharedState);
+      if (container.getXPCName() != null)
+      {
+         MockXPC xpc = ctx.getExtendedPersistenceContext(container.getXPCName());
+         if (xpc == null)
+         {
+            xpc = (MockXPC) MockRegistry.get(container.getXPCName());
+         }
+         if (xpc == null)
+         {
+            xpc = new MockXPC(container.getXPCName());
+         }
+         ctx.addExtendedPersistenceContext(container.getXPCName(), xpc);
+      }
+      
       
       // Here we mock creating nested beans
       for (MockBeanContainer childContainer : container.getChildren())

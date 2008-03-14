@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.cache.impl;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,14 +35,14 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.cache.Cache;
 import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
+import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 
 /**
- * {@link Cache#isGroupAware() Non-group-aware} <code>Cache</code> implementation 
+ * Non-group-aware <code>Cache</code> implementation 
  * that applies transactional access and release semantics. Specifically: 
  * <ol>
  * <li>monitors the transactional status of threads that invoke create() and get()</li>
@@ -70,10 +71,15 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    /** Our transaction manager */
    private final TransactionManager tm;
    /** 
-    * Helper to allow coordination Transaction Synchronization execution
+    * Helper to allow coordinated Transaction Synchronization execution
     * between ourself and other elements of the caching subsystem.
     */
-   private final SynchronizationCoordinator synchronizationCoordinator;
+   private final SynchronizationCoordinator synchronizationCoordinator;   
+   /** 
+    * Whether we are strict about enforcing that all items associated with
+    * a {@link GroupCreationContext} are consistently group-aware
+    */
+   private boolean strictGroups;
    
    private class Entry
    {
@@ -127,7 +133,8 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    
    public TransactionalCache(BackingCache<C, T> delegate, 
                              TransactionManager tm,
-                             SynchronizationCoordinator syncCoordinator)
+                             SynchronizationCoordinator syncCoordinator,
+                             boolean strictGroups)
    {
       assert delegate != null : "delegate is null";
       assert tm != null : "tm is null";
@@ -136,23 +143,61 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       this.delegate = delegate;
       this.tm = tm;
       this.synchronizationCoordinator = syncCoordinator;
+      this.strictGroups = strictGroups;
       
       this.inUseCache = new ConcurrentHashMap<Object, Entry>();
       this.synchronizations = new ConcurrentHashMap<Object, CacheReleaseSynchronization<C, T>>();
    }
+   
+   public boolean getStrictGroups()
+   {
+      return strictGroups;
+   }
 
    public Object create(Class<?>[] initTypes, Object[] initValues)
    {
-     return createInternal(initTypes, initValues).getId();
+      boolean outer = false;
+      GroupCreationContext groupContext = GroupCreationContext.getGroupCreationContext();
+      if (groupContext != null)
+      {
+         // There's a nested hierarchy being formed, but we can't participate
+         // in a serialization group. If we're configured to object or the
+         // group itself is configured to object, we throw an ISE
+         if (groupContext.isStrict() 
+               || (getStrictGroups() &&  groupContext.getPairs().size() > 0))
+         {
+            throw new IllegalStateException("Incompatible cache implementations in nested hierarchy");
+         }
+      }
+      else
+      {
+         GroupCreationContext.startGroupCreationContext(getStrictGroups());
+         outer = true;
+      }
+      
+      try
+      {
+         // We don't participate in a group, so our "sharedState" isn't really shared
+         Map<Object, Object> unsharedState = new ConcurrentHashMap<Object, Object>();
+         return createInternal(initTypes, initValues, unsharedState).getId();
+      }
+      finally
+      {
+         if (outer)
+            GroupCreationContext.clearGroupCreationContext();
+      }
    }
    
-   protected C createInternal(Class<?>[] initTypes, Object[] initValues)
+   /**
+    * Does the actual item creation.
+    */
+   protected C createInternal(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
       Entry entry = new Entry(); 
       entry.lock.lock();
       try
       {
-         T backingEntry = delegate.create(initTypes, initValues);
+         T backingEntry = delegate.create(initTypes, initValues, sharedState);
          C obj = backingEntry.getUnderlyingItem();
          
          // Note we deliberately don't assign obj to entry -- we want
@@ -259,16 +304,6 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    public void stop()
    {
       delegate.stop();
-   }
-
-   public boolean isGroupAware()
-   {
-      return false;
-   }
-
-   public SerializationGroup<C> getGroup(C obj)
-   {
-      return null;
    }
    
    public BackingCache<C, T> getBackingCache()

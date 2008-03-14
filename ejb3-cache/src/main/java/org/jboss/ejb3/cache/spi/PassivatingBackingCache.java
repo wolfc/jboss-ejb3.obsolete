@@ -22,7 +22,7 @@
 package org.jboss.ejb3.cache.spi;
 
 import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.SerializationGroup;
+import org.jboss.ejb3.cache.impl.backing.SerializationGroupImpl;
 
 
 /**
@@ -48,7 +48,7 @@ public interface PassivatingBackingCache<C extends CacheItem, T extends BackingC
     * @param key    the identifier of the object
     * 
     * @throws IllegalStateException if the object, or another object in the 
-    *                            same {@link SerializationGroup} as the object, 
+    *                            same {@link SerializationGroupImpl} as the object, 
     *                            is in use. 
     */
    void passivate(Object key);

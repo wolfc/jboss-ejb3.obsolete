@@ -22,6 +22,8 @@
 
 package org.jboss.ejb3.cache.spi;
 
+import java.util.Map;
+
 import javax.ejb.NoSuchEJBException;
 
 import org.jboss.ejb3.cache.Cache;
@@ -69,9 +71,12 @@ public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C
     * @param initValues  any parameters to pass to <code>T</code>'s constructor.
     *                    May be null, in which case a default constructor will
     *                    be used.
+    * @param sharedState map into which any objects meant to be shared with
+    *                    other members of the new items group should be
+    *                    stored. 
     * @return the new <code>T</code> 
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   T create(Class<?> initTypes[], Object initValues[], Map<Object, Object> sharedState);
 
    /**
     * Get the specified object from cache. This will mark

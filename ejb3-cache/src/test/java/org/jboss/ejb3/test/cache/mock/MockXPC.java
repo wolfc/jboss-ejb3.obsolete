@@ -30,12 +30,26 @@ import java.io.Serializable;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class MockXPC implements Serializable
+public class MockXPC implements Serializable, XPC
 {
+   public static final String DEFAULT_XPC_NAME = "xpc";
+
    private static final long serialVersionUID = 1L;
    
    private boolean closed = false;
    private MockEntity entity;
+   private final String name;
+
+   public MockXPC()
+   {
+      this(DEFAULT_XPC_NAME);
+   }
+   
+   public MockXPC(String name)
+   {
+      this.name = name;
+      MockRegistry.put(name, this);
+   }
    
    public MockEntity createEntity()
    {
@@ -67,4 +81,11 @@ public class MockXPC implements Serializable
       closed = true;
       entity = null;
    }
+
+   public String getName()
+   {
+      return name;
+   }
+   
+   
 }

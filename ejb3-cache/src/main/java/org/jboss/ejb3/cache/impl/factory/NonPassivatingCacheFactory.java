@@ -35,8 +35,7 @@ import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
 
 /**
  * {@link StatefulCacheFactory} implementation that will return a 
- * {@link Cache#isGroupAware() non-group-aware} cache that doesn't support
- * passivation.
+ * non-group-aware cache that doesn't support passivation.
  * 
  * @author Brian Stansberry
  */
@@ -64,7 +63,7 @@ public class NonPassivatingCacheFactory<T extends CacheItem>
          backingCache.setInterval(getDefaultPassivationExpirationInterval());
       }
       
-      return new TransactionalCache<T, NonPassivatingBackingCacheEntry<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator());
+      return new TransactionalCache<T, NonPassivatingBackingCacheEntry<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator(), getStrictGroups());
    }
 
 }

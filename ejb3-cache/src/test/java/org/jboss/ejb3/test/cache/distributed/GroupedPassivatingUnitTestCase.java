@@ -61,9 +61,9 @@ public class GroupedPassivatingUnitTestCase extends TestCase
       MockClusterMember node0 = cluster.getNode0();
       MockCacheConfig cacheConfig = new MockCacheConfig();
       cacheConfig.setIdleTimeoutSeconds(1);
-      MockXPC sharedXPC = new MockXPC();
-      MockBeanContainer container1 = node0.deployBeanContainer("MockBeanContainer1", null, CacheType.DISTRIBUTED, cacheConfig, sharedXPC);
-      MockBeanContainer container2 = node0.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.DISTRIBUTED, cacheConfig, sharedXPC);
+      MockXPC sharedXPC = new MockXPC("XPCA");
+      MockBeanContainer container1 = node0.deployBeanContainer("MockBeanContainer1", null, CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName());
+      MockBeanContainer container2 = node0.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName());
       
       cluster.getNode0().setTCCL();
       try

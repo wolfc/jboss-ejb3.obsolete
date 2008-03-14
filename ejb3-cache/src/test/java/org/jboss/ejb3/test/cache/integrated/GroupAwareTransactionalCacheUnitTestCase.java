@@ -57,7 +57,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(4);
-      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
       Cache<MockBeanContext> cache = container.getCache();
       
       Object key = cache.create(null, null);
@@ -99,8 +99,8 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(1);
-      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
-      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
+      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC.getName());
       
       log.info("Containers deployed");
       
@@ -172,8 +172,8 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(1);
-      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
-      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container1 = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
+      MockBeanContainer container2 = system.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.SIMPLE, config, sharedXPC.getName());
       
       log.info("Containers deployed");
       

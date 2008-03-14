@@ -31,10 +31,10 @@ import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.impl.backing.SimplePassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.FileObjectStore;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 
 /**
  * {@link IntegratedObjectStoreSource} for a non-clustered cache. Uses
@@ -62,17 +62,17 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
    private String baseDirectoryName;
    private int subdirectoryCount = DEFAULT_SUBDIRECTORY_COUNT;
    
-   public PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> createGroupIntegratedObjectStore(String containerName, String cacheConfigName,
+   public PassivatingIntegratedObjectStore<T, SerializationGroup<T>> createGroupIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      FileObjectStore<SerializationGroupImpl<T>> objectStore = new FileObjectStore<SerializationGroupImpl<T>>();
+      FileObjectStore<SerializationGroup<T>> objectStore = new FileObjectStore<SerializationGroup<T>>();
       objectStore.setStorageDirectory(getFullGroupDirectoryName(containerName));
       objectStore.setSubdirectoryCount(subdirectoryCount);
       
       String storeNameSuffix = (cacheConfig.name().length() == 0) ? "" : "-" + cacheConfig;
       String storeName = "StdGroupStore" + storeNameSuffix;
-      SimplePassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> store = 
-         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>>(objectStore, cacheConfig, storeName, true);
+      SimplePassivatingIntegratedObjectStore<T, SerializationGroup<T>> store = 
+         new SimplePassivatingIntegratedObjectStore<T, SerializationGroup<T>>(objectStore, cacheConfig, storeName, true);
       
       return store;
    }

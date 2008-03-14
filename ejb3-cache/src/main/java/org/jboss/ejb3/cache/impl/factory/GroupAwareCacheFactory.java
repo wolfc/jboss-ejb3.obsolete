@@ -40,9 +40,9 @@ import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 
 /**
  * {@link StatefulCacheFactory} implementation that can return a group-aware 
@@ -56,7 +56,7 @@ import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 public class GroupAwareCacheFactory<T extends CacheItem> 
    extends AbstractStatefulCacheFactory<T>
 {
-   private final Map<String, PassivatingBackingCache<T, SerializationGroupImpl<T>>> groupCaches;
+   private final Map<String, PassivatingBackingCache<T, SerializationGroup<T>>> groupCaches;
    private final IntegratedObjectStoreSource<T> storeSource;
    
    /**
@@ -68,7 +68,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       assert storeSource != null : "storeSource is null";
       
       this.storeSource = storeSource;
-      this.groupCaches = new HashMap<String, PassivatingBackingCache<T, SerializationGroupImpl<T>>>();
+      this.groupCaches = new HashMap<String, PassivatingBackingCache<T, SerializationGroup<T>>>();
    }
 
    // --------------------------------------------------- StatefulCacheFactory
@@ -79,7 +79,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
    {
       String configName = getCacheConfigName(cacheConfig);
       
-      PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache = groupCaches.get(configName);
+      PassivatingBackingCache<T, SerializationGroup<T>> groupCache = groupCaches.get(configName);
       if (groupCache == null)
       {
          groupCache = createGroupCache(containerName, configName, cacheConfig);
@@ -111,23 +111,23 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       GroupAwareBackingCache<T, SerializationGroupMember<T>> backingCache =
          new GroupAwareBackingCacheImpl<T>(memberContainer, groupCache);
       
-      return new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator());
+      return new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator(), getStrictGroups());
    }
 
-   private PassivatingBackingCache<T, SerializationGroupImpl<T>> createGroupCache(String name, String configName, CacheConfig cacheConfig)
+   private PassivatingBackingCache<T, SerializationGroup<T>> createGroupCache(String name, String configName, CacheConfig cacheConfig)
    {
       SerializationGroupContainer<T> container = new SerializationGroupContainer<T>();
-      StatefulObjectFactory<SerializationGroupImpl<T>> factory = container;
-      PassivationManager<SerializationGroupImpl<T>> passivationManager = container;
-      PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>> store = 
+      StatefulObjectFactory<SerializationGroup<T>> factory = container;
+      PassivationManager<SerializationGroup<T>> passivationManager = container;
+      PassivatingIntegratedObjectStore<T, SerializationGroup<T>> store = 
          storeSource.createGroupIntegratedObjectStore(name, configName, cacheConfig, getTransactionManager(), getSynchronizationCoordinator());
     
       // The group cache store should not passivate/expire -- that's a 
       // function of the caches for the members
       store.setInterval(0);
       
-      PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache =
-         new PassivatingBackingCacheImpl<T, SerializationGroupImpl<T>>(factory, passivationManager, store);
+      PassivatingBackingCache<T, SerializationGroup<T>> groupCache =
+         new PassivatingBackingCacheImpl<T, SerializationGroup<T>>(factory, passivationManager, store);
       
       container.setGroupCache(groupCache);
       

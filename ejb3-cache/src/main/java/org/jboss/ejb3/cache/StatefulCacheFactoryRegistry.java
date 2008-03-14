@@ -27,7 +27,7 @@ import java.util.Map;
  * Registry for all configured Stateful Cache Factory implementations
  * 
  * TODO Does this belong in ejb3-core? That would allow all of the
- * StatefulCacheFactory<? extends CacheItem> usage to be replaced with
+ * StatefulCacheFactory<T extends CacheItem> usage to be replaced with
  * StatefulCacheFactory<StatefulBeanContext> without leaking the
  * StatefulBeanContext class to ejb3-cache.
  * 

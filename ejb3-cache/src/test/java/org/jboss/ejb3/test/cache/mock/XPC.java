@@ -19,31 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache;
 
-import java.util.Iterator;
+package org.jboss.ejb3.test.cache.mock;
 
-/**
- * Defines a group of cache items which must always be serialized in one 
- * unit of work.
- *
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @author Brian Stansberry
- * @version $Revision: $
- */
-public interface SerializationGroup<T extends CacheItem> 
-  extends CacheItem
-{   
-   /**
-    * Gets the number of group members.
-    */
-   int size();
-   
-   /**
-    * Returns an iterator over the group members. The iterator does not
-    * support the {@link Iterator#remove()} operation.
-    * 
-    * @return the iterator
-    */
-   Iterator<T> iterator();   
+import java.io.Serializable;
+
+public interface XPC extends Serializable
+{
+   MockEntity createEntity();
+
+   MockEntity getEntity();
+
+   void removeEntity();
+
+   boolean isClosed();
+
+   void close();
 }

@@ -21,11 +21,13 @@
  */
 package org.jboss.ejb3.cache.impl.backing;
 
+import java.util.Map;
+
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.logging.Logger;
 
 /**
@@ -40,11 +42,11 @@ import org.jboss.logging.Logger;
  * @version $Revision: $
  */
 public class SerializationGroupContainer<T extends CacheItem> 
-   implements StatefulObjectFactory<SerializationGroupImpl<T>>, PassivationManager<SerializationGroupImpl<T>>
+   implements StatefulObjectFactory<SerializationGroup<T>>, PassivationManager<SerializationGroup<T>>
 {
    private static final Logger log = Logger.getLogger(SerializationGroupContainer.class);
    
-   private PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache;
+   private PassivatingBackingCache<T, SerializationGroup<T>> groupCache;
    
    private boolean clustered;
    
@@ -58,7 +60,7 @@ public class SerializationGroupContainer<T extends CacheItem>
       this.clustered = clustered;
    }
 
-   public SerializationGroupImpl<T> create(Class<?>[] initTypes, Object[] initValues)
+   public SerializationGroup<T> create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
       SerializationGroupImpl<T> group = new SerializationGroupImpl<T>();
       group.setClustered(clustered);
@@ -66,12 +68,12 @@ public class SerializationGroupContainer<T extends CacheItem>
       return group;
    }
 
-   public void destroy(SerializationGroupImpl<T> group)
+   public void destroy(SerializationGroup<T> group)
    {
       // TODO: nothing?
    }
 
-   public void postActivate(SerializationGroupImpl<T> group)
+   public void postActivate(SerializationGroup<T> group)
    {
       log.trace("post activate " + group);
       // Restore ref to the groupCache in case it was lost during serialization
@@ -79,13 +81,13 @@ public class SerializationGroupContainer<T extends CacheItem>
       group.postActivate();
    }
 
-   public void prePassivate(SerializationGroupImpl<T> group)
+   public void prePassivate(SerializationGroup<T> group)
    {
       log.trace("pre passivate " + group);
       group.prePassivate();
    }
 
-   public void postReplicate(SerializationGroupImpl<T> group)
+   public void postReplicate(SerializationGroup<T> group)
    {
       log.trace("post replicate " + group);
       // Restore ref to the groupCache in case it was lost during serialization
@@ -93,18 +95,18 @@ public class SerializationGroupContainer<T extends CacheItem>
       group.postReplicate();
    }
 
-   public void preReplicate(SerializationGroupImpl<T> group)
+   public void preReplicate(SerializationGroup<T> group)
    {
       log.trace("pre replicate " + group);
       group.preReplicate();
    }
 
-   public PassivatingBackingCache<T, SerializationGroupImpl<T>> getGroupCache()
+   public PassivatingBackingCache<T, SerializationGroup<T>> getGroupCache()
    {
       return groupCache;
    }
 
-   public void setGroupCache(PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache)
+   public void setGroupCache(PassivatingBackingCache<T, SerializationGroup<T>> groupCache)
    {
       this.groupCache = groupCache;
    }

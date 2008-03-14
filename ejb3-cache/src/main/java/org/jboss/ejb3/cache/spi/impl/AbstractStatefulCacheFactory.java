@@ -48,6 +48,7 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
    private int defaultPassivationExpirationInterval = DEFAULT_PASSIVATION_EXPIRATION_INTERVAL;
    private String defaultCacheConfigName;
    private Map<String, String> cacheConfigAliases;
+   private boolean strictGroups = true;
    
    // -------------------------------------------------------------  Properties
    
@@ -168,8 +169,19 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
       this.cacheConfigAliases = cacheConfigAliases;
    }
    
-   // -----------------------------------------------------------------  Public
+   public boolean getStrictGroups()
+   {
+      return strictGroups;
+   }
+
+   public void setStrictGroups(boolean strictGroups)
+   {
+      this.strictGroups = strictGroups;
+   }
    
+   
+   // -----------------------------------------------------------------  Public
+
    public String getCacheConfigName(CacheConfig cacheConfig)
    {
       String name = cacheConfig.name();

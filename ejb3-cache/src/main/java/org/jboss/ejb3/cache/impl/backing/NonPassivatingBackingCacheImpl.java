@@ -66,9 +66,9 @@ public class NonPassivatingBackingCacheImpl<C extends CacheItem>
       this.cache = new ConcurrentHashMap<Object, NonPassivatingBackingCacheEntry<C>>();
    }
    
-   public NonPassivatingBackingCacheEntry<C> create(Class<?>[] initTypes, Object[] initValues)
+   public NonPassivatingBackingCacheEntry<C> create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
-      C obj = factory.create(initTypes, initValues);
+      C obj = factory.create(initTypes, initValues, sharedState);
       NonPassivatingBackingCacheEntry<C> entry = new NonPassivatingBackingCacheEntry<C>(obj);
       cache.put(obj.getId(), entry);      
       return entry;

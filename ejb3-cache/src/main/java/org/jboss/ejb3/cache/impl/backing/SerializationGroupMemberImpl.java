@@ -20,12 +20,16 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.ejb3.cache.spi.impl;
+package org.jboss.ejb3.cache.impl.backing;
 
 import java.io.IOException;
 
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntry;
+import org.jboss.serial.io.MarshalledObject;
 
 /**
  * A member of a {@link SerializationGroupImpl}.
@@ -33,8 +37,8 @@ import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class SerializationGroupMember<T extends CacheItem> 
-   extends AbstractBackingCacheEntry<T>
+public class SerializationGroupMemberImpl<T extends CacheItem> 
+   extends AbstractBackingCacheEntry<T> implements SerializationGroupMember<T>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = 7268142730501106252L;
@@ -46,21 +50,22 @@ public class SerializationGroupMember<T extends CacheItem>
    
    /**
     * The underlying object (e.g. bean context).
-    * Preferably, this field would be transient. It isn't now because it is 
-    * possible this entry will never be assigned to a PassivationGroup,
-    * in which case we need to serialize obj.
     */
-   private T obj;
+   private transient T obj;
+   
+   private transient MarshalledObject marshalledObj;
    
    /**
     * Hack. We hold two refs to our object; one we clear in prePassivate,
     * one we keep, but it's transient.  getUnderlyingItem() returns
     * whichever is available, making it available for passivation callbacks.
+    * 
+    * FIXME WTF???
     */
    private transient T transientObj;
    
    /** The group. Never serialize the group; only the groupCache does that */
-   private transient SerializationGroupImpl<T> group;
+   private transient SerializationGroup<T> group;
    
    /**
     * Id for our group; serialize this so we can find our group again
@@ -75,7 +80,7 @@ public class SerializationGroupMember<T extends CacheItem>
    /** The cache that's handling us */
 //   private transient PassivatingBackingCache<T, SerializationGroupMember<T>> cache;
    
-   public SerializationGroupMember(T obj, PassivatingBackingCache<T, SerializationGroupMember<T>> cache)
+   public SerializationGroupMemberImpl(T obj, PassivatingBackingCache<T, SerializationGroupMember<T>> cache)
    {
       assert obj != null : "obj is null";
       assert cache != null : "cache is null";
@@ -93,7 +98,8 @@ public class SerializationGroupMember<T extends CacheItem>
    
    public boolean isModified()
    {
-      return (obj != null && obj.isModified());
+      T unmarshalled = getObj();
+      return (unmarshalled != null && unmarshalled.isModified());
    }
    
    /**
@@ -110,7 +116,8 @@ public class SerializationGroupMember<T extends CacheItem>
    @SuppressWarnings("unchecked")
    public T getUnderlyingItem()
    {      
-      return obj == null ? transientObj : obj;
+      T unmarshalled = getObj();
+      return unmarshalled == null ? transientObj : unmarshalled;
    }
    
    /**
@@ -128,9 +135,9 @@ public class SerializationGroupMember<T extends CacheItem>
     * 
     * @return the group. May return <code>null</code>
     */
-   public SerializationGroupImpl<T> getGroup()
+   public SerializationGroup<T> getGroup()
    {
-      SerializationGroupImpl<T> result = group;
+      SerializationGroup<T> result = group;
       if (result != null)
       {
          synchronized (result)
@@ -147,7 +154,7 @@ public class SerializationGroupMember<T extends CacheItem>
     * 
     * @param the group. May be <code>null</code>
     */
-   public void setGroup(SerializationGroupImpl<T> group)
+   public void setGroup(SerializationGroup<T> group)
    {
       this.group = group;
       if (this.groupId == null && group != null)
@@ -243,7 +250,38 @@ public class SerializationGroupMember<T extends CacheItem>
    @Override
    public String toString()
    {
-      return super.toString() + "{id=" + id + ",obj=" + obj + ",groupId=" + groupId + ",group=" + group + "}";
+      return super.toString() + "{id=" + id + ",obj=" + getObj() + ",groupId=" + groupId + ",group=" + group + "}";
+   }
+   
+   @SuppressWarnings("unchecked")
+   private T getObj()
+   {
+      synchronized (id)
+      {
+         if (obj == null && marshalledObj != null)
+         {
+            try
+            {
+               obj = (T) marshalledObj.get();
+               marshalledObj = null;
+            }
+            catch (Exception e)
+            {
+               throw new RuntimeException("Cannot unmarshall item " + id, e);
+            }
+         }
+         return obj;
+      }
+   }
+
+   private void readObject(java.io.ObjectInputStream in)
+         throws IOException, ClassNotFoundException
+   {
+      in.defaultReadObject();
+      if (groupId == null)
+      {
+         marshalledObj = (MarshalledObject) in.readObject();
+      }
    }
    
    private void writeObject(java.io.ObjectOutputStream out) throws IOException
@@ -254,5 +292,10 @@ public class SerializationGroupMember<T extends CacheItem>
          obj = null;
       }
       out.defaultWriteObject();
+      if (groupId == null)
+      {
+         MarshalledObject toWrite = marshalledObj == null ? new MarshalledObject(obj) : marshalledObj;
+         out.writeObject(toWrite);
+      }
    }
 }

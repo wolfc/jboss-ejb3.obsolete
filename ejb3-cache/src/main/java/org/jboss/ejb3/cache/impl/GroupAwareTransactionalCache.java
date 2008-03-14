@@ -22,19 +22,21 @@
 
 package org.jboss.ejb3.cache.impl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.cache.Cache;
 import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
+import org.jboss.logging.Logger;
 
 /**
  * {@link Cache#isGroupAware Group-aware} version of {@link TransactionalCache}.
@@ -44,6 +46,8 @@ import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
 public class GroupAwareTransactionalCache<C extends CacheItem, T extends BackingCacheEntry<C>> 
    extends TransactionalCache<C, T>
 {
+   private static final Logger log = Logger.getLogger(GroupAwareTransactionalCache.class);
+   
    /** 
     * Another ref to super.delegate. Just saves having to do casts all the time. 
     */
@@ -57,9 +61,10 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Backing
     */
    public GroupAwareTransactionalCache(GroupAwareBackingCache<C, T> delegate, 
                                        TransactionManager tm,
-                                       SynchronizationCoordinator syncCoordinator)
+                                       SynchronizationCoordinator syncCoordinator,
+                                       boolean strictGroups)
    {
-      super(delegate, tm, syncCoordinator);
+      super(delegate, tm, syncCoordinator, strictGroups);
       this.groupedCache = delegate;
    }
 
@@ -68,60 +73,84 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Backing
    public Object create(Class<?>[] initTypes, Object[] initValues)
    {
       boolean outer = false;
-      List<ItemCachePair> contextPairs = GroupCreationContext.getGroupCreationContext();
-      if (contextPairs == null)
-      {
-         contextPairs = new ArrayList<ItemCachePair>();
-         GroupCreationContext.setGroupCreationContext(contextPairs);
+      List<ItemCachePair> contextPairs = null;
+      Map<Object, Object> sharedState = null;
+      
+      GroupCreationContext groupContext = GroupCreationContext.getGroupCreationContext();
+      if (groupContext == null)
+      {         
+         groupContext = GroupCreationContext.startGroupCreationContext(getStrictGroups());
+         sharedState = new ConcurrentHashMap<Object, Object>();
+         groupContext.setSharedState(sharedState);
+         contextPairs = groupContext.getPairs();
          outer = true;
       }
-      
-      C cacheItem = super.createInternal(initTypes, initValues);
-      
-      contextPairs.add(new ItemCachePair(cacheItem, groupedCache));
-            
-      if (outer)
+      else
       {
-         GroupCreationContext.setGroupCreationContext(null);
-         if (contextPairs.size() > 1)
+         sharedState = groupContext.getSharedState();
+         if (sharedState == null)
          {
-            SerializationGroup<C> group = null;
-            try
+            // We're in a nested hierarchy, but so far no other cache is group-aware
+            // Check if we're configured to object
+            if (getStrictGroups())
             {
+               throw new IllegalStateException("Incompatible cache implementations in nested hierarchy");
+            }
+            
+            // It's OK; just set up the shared state for any other
+            // later group participants to share with us.            
+            sharedState = new ConcurrentHashMap<Object, Object>();
+            groupContext.setSharedState(sharedState);
+         }
+         
+         contextPairs = groupContext.getPairs();         
+      }
+      
+      try
+      {
+         // Create our item. This may lead to nested calls to other caches
+         C cacheItem = createInternal(initTypes, initValues, sharedState);
+         
+         contextPairs.add(new ItemCachePair(cacheItem, groupedCache));
+               
+         if (outer)
+         {
+            // If there is more than one item in the context, we need a group
+            if (contextPairs.size() > 1)
+            {            
+               SerializationGroup<C> group = groupedCache.createGroup();
                for (ItemCachePair pair : contextPairs)
                {
-                  if (group == null)
-                  {
-                     group = pair.getCache().createGroup();
-                  }
                   pair.getCache().setGroup(pair.getItem(), group);
                }
             }
-            catch (IllegalStateException e)
+         }
+         return cacheItem.getId();
+      }
+      catch (RuntimeException e)
+      {
+         if (outer)
+         {
+            // Clean up
+            for (ItemCachePair pair : contextPairs)
             {
-               // Clean up
-               for (ItemCachePair pair : contextPairs)
+               try
                {
                   pair.getCache().remove(pair.getItem().getId());
                }
-               throw e;
+               catch (Exception toLog)
+               {
+                  log.error("Caught exception removing " + pair.getItem());
+               }
             }
          }
+         throw e;
       }
-      
-      return cacheItem.getId();
-   }
-
-   @Override
-   public boolean isGroupAware()
-   {
-      return true;
-   }
-
-   @Override
-   public SerializationGroup<C> getGroup(C obj)
-   {
-      return groupedCache.getGroup(obj);
+      finally
+      {
+         if (outer)
+            GroupCreationContext.clearGroupCreationContext();
+      }      
    }
 
 }

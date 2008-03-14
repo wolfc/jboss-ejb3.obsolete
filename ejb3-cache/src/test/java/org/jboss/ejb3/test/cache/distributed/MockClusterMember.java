@@ -30,7 +30,6 @@ import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
 import org.jboss.ejb3.test.cache.mock.MockEjb3System;
-import org.jboss.ejb3.test.cache.mock.MockXPC;
 
 /**
  * @author Brian Stansberry
@@ -117,7 +116,7 @@ public class MockClusterMember extends MockEjb3System
 
    @Override
    public MockBeanContainer deployBeanContainer(String containerName, String parentContainerName,
-         CacheType cacheType, MockCacheConfig cacheConfig, MockXPC xpc) throws Exception
+         CacheType cacheType, MockCacheConfig cacheConfig, String xpc) throws Exception
    {
       boolean tcclSet = setTCCL();
       try

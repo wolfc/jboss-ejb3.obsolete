@@ -27,7 +27,6 @@ import javax.transaction.TransactionManager;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
-import org.jboss.ejb3.test.cache.mock.MockXPC;
 import org.jboss.ejb3.test.cache.mock.tm.MockTransactionManager;
 
 /**
@@ -100,13 +99,11 @@ public class MockCluster
    public MockBeanContainer[] deployBeanContainer(String containerName, String parentContainerName,
          CacheType cacheType, MockCacheConfig cacheConfig, boolean useXPC) throws Exception
    {
-      MockXPC xpc0 = useXPC ? new MockXPC() : null;
-      MockXPC xpc1 = useXPC ? new MockXPC() : null;
-      return deployBeanContainer(containerName, parentContainerName, cacheType, cacheConfig, xpc0, xpc1);
+      return deployBeanContainer(containerName, parentContainerName, cacheType, cacheConfig, "xpc0", "xpc1");
    }
    
    public MockBeanContainer[] deployBeanContainer(String containerName, String parentContainerName,
-         CacheType cacheType, MockCacheConfig cacheConfig, MockXPC xpc0, MockXPC xpc1) throws Exception
+         CacheType cacheType, MockCacheConfig cacheConfig, String xpc0, String xpc1) throws Exception
    {
       MockBeanContainer[] result = new MockBeanContainer[2];
       result[0] = node0.deployBeanContainer(containerName, parentContainerName, cacheType, cacheConfig, xpc0);

@@ -24,11 +24,10 @@ package org.jboss.ejb3.cache.impl.backing;
 import javax.ejb.NoSuchEJBException;
 
 import org.jboss.ejb3.cache.CacheItem;
-import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 
 /**
  * Group-aware  version of {@link PassivatingBackingCacheImpl}.
@@ -43,7 +42,7 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
    /**
     * Cache that's managing the SerializationGroup
     */
-   private PassivatingBackingCache<C, SerializationGroupImpl<C>> groupCache;
+   private PassivatingBackingCache<C, SerializationGroup<C>> groupCache;
    
    /**
     * Creates a new GroupAwareCacheImpl.
@@ -52,7 +51,7 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
     * @param groupCache  cache for the group
     */
    public GroupAwareBackingCacheImpl(SerializationGroupMemberContainer<C> memberContainer, 
-                                     PassivatingBackingCache<C, SerializationGroupImpl<C>> groupCache)
+                                     PassivatingBackingCache<C, SerializationGroup<C>> groupCache)
    {
       super(memberContainer, memberContainer, memberContainer);
       assert groupCache != null : "groupCache is null";
@@ -61,9 +60,9 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       this.groupCache = groupCache;
    }
    
-   public SerializationGroupImpl<C> createGroup()
+   public SerializationGroup<C> createGroup()
    {
-      return groupCache.create(null, null);
+      return groupCache.create(null, null, null);
    }
 
    public void setGroup(C obj, SerializationGroup<C> group)
@@ -74,11 +73,10 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
          throw new IllegalStateException("object " + key + " is already associated with passivation group " + entry.getGroup());
       
       // Validate we share a common groupCache with the group
-      SerializationGroupImpl<C> groupImpl = (SerializationGroupImpl<C>) group;
-      if (groupCache != groupImpl.getGroupCache())
-         throw new IllegalStateException(obj + " and " + groupImpl + " use different group caches");
+      if (groupCache != group.getGroupCache())
+         throw new IllegalStateException(obj + " and " + group + " use different group caches");
       
-      entry.setGroup(groupImpl);
+      entry.setGroup(group);
       entry.getGroup().addMember(entry);
    }
 

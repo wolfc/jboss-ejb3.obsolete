@@ -22,13 +22,15 @@
 
 package org.jboss.ejb3.cache.impl.backing;
 
+import java.util.Map;
+
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.PassivationManager;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.logging.Logger;
 
 /**
@@ -50,13 +52,13 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    /**
     * Cache that's managing the PassivationGroup
     */
-   private PassivatingBackingCache<C, SerializationGroupImpl<C>> groupCache;
+   private PassivatingBackingCache<C, SerializationGroup<C>> groupCache;
    
    
    public SerializationGroupMemberContainer(StatefulObjectFactory<C> factory, 
                                             PassivationManager<C> passivationManager, 
                                             PassivatingIntegratedObjectStore<C, SerializationGroupMember<C>> store,
-                                            PassivatingBackingCache<C, SerializationGroupImpl<C>> groupCache)
+                                            PassivatingBackingCache<C, SerializationGroup<C>> groupCache)
    {
       assert factory != null : "factory is null";
       assert passivationManager != null : "passivationManager is null";
@@ -69,10 +71,10 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       this.groupCache = groupCache;
    }
    
-   public SerializationGroupMember<C> create(Class<?>[] initTypes, Object[] initValues)
+   public SerializationGroupMember<C> create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
-      SerializationGroupMember<C> member = 
-         new SerializationGroupMember<C>(factory.create(initTypes, initValues), 
+      SerializationGroupMemberImpl<C> member = 
+         new SerializationGroupMemberImpl<C>(factory.create(initTypes, initValues, sharedState), 
                                          delegate);
       return member;
    }
@@ -80,7 +82,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    public void destroy(SerializationGroupMember<C> entry)
    {
       factory.destroy(entry.getUnderlyingItem());
-      SerializationGroupImpl<C> group = entry.getGroup();
+      SerializationGroup<C> group = entry.getGroup();
       if (group != null) 
       {
          group.removeMember(entry.getId());
@@ -99,7 +101,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       while (!groupOK)
       {
          // Restore the entry's ref to the group and object
-         SerializationGroupImpl<C> group = entry.getGroup();
+         SerializationGroup<C> group = entry.getGroup();
          if(group == null && entry.getGroupId() != null)
          {
             // TODO: peek or get?
@@ -157,7 +159,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       // for the group passivation. If the call is coming via entry.prePassivate(), 
       // entry.group *will* be null. In that case we are not the controller 
       // of the passivation and can just return.
-      SerializationGroupImpl<C> group = entry.getGroup();
+      SerializationGroup<C> group = entry.getGroup();
       if(group != null)
       {
          synchronized (group)
@@ -209,7 +211,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
          entry.setPreReplicated(true);
       }
       
-      SerializationGroupImpl<C> group = entry.getGroup();
+      SerializationGroup<C> group = entry.getGroup();
       if(group != null)
       {
          synchronized (group)
@@ -247,7 +249,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       while (!groupOK)
       {
          // Restore the entry's ref to the group and object
-         SerializationGroupImpl<C> group = entry.getGroup();
+         SerializationGroup<C> group = entry.getGroup();
          if(group == null && entry.getGroupId() != null)
          {
             // TODO: peek or get?

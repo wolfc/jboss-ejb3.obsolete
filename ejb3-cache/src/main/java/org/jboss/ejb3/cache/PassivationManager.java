@@ -23,8 +23,6 @@ package org.jboss.ejb3.cache;
 
 import java.io.Serializable;
 
-import org.jboss.ejb3.cache.SerializationGroup;
-
 /**
  * Manages passivation and replication lifecycle callbacks on an object.
  *
@@ -48,11 +46,10 @@ public interface PassivationManager<T extends CacheItem & Serializable>
     * @param obj    the object
     * 
     * @throws IllegalStateException if <code>obj</code>, or another object in the 
-    *                            same {@link SerializationGroup} as 
-    *                            <code>obj</code>, is in use. Checking if
-    *                            an object is in use and throwing this
-    *                            exception is not required, so callers should
-    *                            not assume it will be thrown.
+    *                            same serialization group as <code>obj</code>, 
+    *                            is in use. Checking if an object is in use and 
+    *                            throwing this exception is not required, so 
+    *                            callers should not assume it will be thrown.
     */
    void prePassivate(T obj);
    
@@ -69,13 +66,12 @@ public interface PassivationManager<T extends CacheItem & Serializable>
     * cache.
     * 
     * @param obj    the object
-    * 
+    *
     * @throws IllegalStateException if <code>obj</code>, or another object in the 
-    *                            same {@link SerializationGroupImpl} as 
-    *                            <code>obj</code>, is in use. Checking if
-    *                            an object is in use and throwing this
-    *                            exception is not required, so callers should
-    *                            not assume it will be thrown.
+    *                            same serialization group as <code>obj</code>, 
+    *                            is in use. Checking if an object is in use and 
+    *                            throwing this exception is not required, so 
+    *                            callers should not assume it will be thrown.
     */
    void preReplicate(T obj);
 }

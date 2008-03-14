@@ -19,23 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache.spi.impl;
+package org.jboss.ejb3.cache.impl.backing;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.Identifiable;
-import org.jboss.ejb3.cache.SerializationGroup;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntry;
 import org.jboss.logging.Logger;
+import org.jboss.serial.io.MarshalledObject;
 import org.jboss.util.id.GUID;
 
 /**
@@ -48,21 +49,27 @@ import org.jboss.util.id.GUID;
  */
 public class SerializationGroupImpl<T extends CacheItem>  
    extends AbstractBackingCacheEntry<T>
-   implements SerializationGroup<T>, BackingCacheEntry<T>
+   implements BackingCacheEntry<T>, SerializationGroup<T>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -6181048392582344057L;
 
    private static final Logger log = Logger.getLogger(SerializationGroupImpl.class);
 
-   private Object id = new GUID();
+   private final Object id = new GUID();
    
    /** 
     * The actual underlying objects passed in via addMember(). We store them 
     * here so they aren't lost when they are cleared from the values
     * stored in the "members" map.
     */
-   private Map<Object, T> memberObjects = new ConcurrentHashMap<Object, T>();
+   private transient Map<Object, T> memberObjects = new ConcurrentHashMap<Object, T>();
+   
+   /**
+    * Marshalled version of memberObjects map. This is what is stored
+    * after deserialization.  Transient so we can control serialization.
+    */
+   private transient MarshalledObject marshalledMembers;
    
    /** 
     * The active group members.  We don't serialize these. Rather, it is
@@ -78,7 +85,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    private transient Set<Object> inUseKeys = new HashSet<Object>();
    
    /** Transient ref to our group cache; used to validate compatibility */
-   private transient PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache;
+   private transient PassivatingBackingCache<T, SerializationGroup<T>> groupCache;
    
    /** Is this object used in a clustered cache? */
    private boolean clustered;
@@ -129,10 +136,11 @@ public class SerializationGroupImpl<T extends CacheItem>
    public void addMember(SerializationGroupMember<T> member)
    {
       Object key = member.getId();
-      if (memberObjects.containsKey(key))
+      Map<Object, T> membObjs = getMemberObjects();
+      if (membObjs.containsKey(key))
          throw new IllegalStateException(member + " is already a member");
       log.trace("add member " + key + ", " + member);
-      memberObjects.put(key, member.getUnderlyingItem());
+      membObjs.put(key, member.getUnderlyingItem());
       active.put(key, member);
    }
    
@@ -144,7 +152,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    public void removeMember(Object key)
    {
       removeActive(key);
-      memberObjects.remove(key);
+      getMemberObjects().remove(key);
    }
    
    /**
@@ -152,7 +160,7 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public int size()
    {
-      return memberObjects.size();
+      return getMemberObjects().size();
    }
    
    /**
@@ -167,12 +175,7 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public T getMemberObject(Object key)
    {
-      return memberObjects.get(key);
-   }
-   
-   public Iterator<T> iterator()
-   {
-      return new UnmodifiableIterator<T>(memberObjects.values().iterator());
+      return getMemberObjects().get(key);
    }
    
    /**
@@ -183,6 +186,8 @@ public class SerializationGroupImpl<T extends CacheItem>
       for(SerializationGroupMember<T> member : active.values())
       {
          member.releaseReferences();
+         if(true)
+            throw new IllegalStateException("this doesn't invoke prePassivate callbacks!");
       }
       active.clear();
    }
@@ -203,6 +208,8 @@ public class SerializationGroupImpl<T extends CacheItem>
       for(SerializationGroupMember<T> member : active.values())
       {
          member.releaseReferences();
+         if(true)
+            throw new IllegalStateException("this doesn't invoke preReplicate callbacks!");
       }
       active.clear();
    }
@@ -229,8 +236,6 @@ public class SerializationGroupImpl<T extends CacheItem>
    public void addActive(SerializationGroupMember<T> member)
    {
       Object key = member.getId();
-      if (!memberObjects.containsKey(key))
-         throw new IllegalStateException(member + " is not a member of " + this);
       active.put(key, member);
    }
    
@@ -261,8 +266,6 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public void addInUse(Object key)
    {
-      if (!memberObjects.containsKey(key))
-         throw new IllegalStateException(key + " is not a member of " + this);
       inUseKeys.add(key);
       setInUse(true);
    }
@@ -283,7 +286,7 @@ public class SerializationGroupImpl<T extends CacheItem>
       {
          setLastUsed(System.currentTimeMillis());
       }
-      else if (!memberObjects.containsKey(key))
+      else if (!getMemberObjects().containsKey(key))
       {
             throw new IllegalStateException(key + " is not a member of " + this);
       }      
@@ -329,7 +332,7 @@ public class SerializationGroupImpl<T extends CacheItem>
       return null;
    }
 
-   public PassivatingBackingCache<T, SerializationGroupImpl<T>> getGroupCache()
+   public PassivatingBackingCache<T, SerializationGroup<T>> getGroupCache()
    {
       return groupCache;
    }
@@ -340,45 +343,48 @@ public class SerializationGroupImpl<T extends CacheItem>
       return super.toString() + "{id=" + id + "}";
    }
 
-   public void setGroupCache(PassivatingBackingCache<T, SerializationGroupImpl<T>> groupCache)
+   public void setGroupCache(PassivatingBackingCache<T, SerializationGroup<T>> groupCache)
    {
       this.groupCache = groupCache;
+   }
+   
+   @SuppressWarnings("unchecked")
+   private Map<Object, T> getMemberObjects()
+   {
+      // Use our id as a lock object 
+      synchronized (id)
+      {
+         if (memberObjects == null && marshalledMembers != null)
+         {
+            try
+            {
+               memberObjects = (Map<Object, T>) marshalledMembers.get();
+               marshalledMembers = null;
+            }
+            catch (Exception e)
+            {
+               throw new RuntimeException("Cannot unmarshalled members of group " + id, e);
+            }
+         }
+         return memberObjects;
+      }
    }
 
    private void readObject(java.io.ObjectInputStream in)
          throws IOException, ClassNotFoundException
    {
       in.defaultReadObject();
+      marshalledMembers= (MarshalledObject) in.readObject();
       active = new HashMap<Object, SerializationGroupMember<T>>();
       inUseKeys = new HashSet<Object>();
    }   
    
-   private class UnmodifiableIterator<C extends CacheItem & Serializable> implements Iterator<C>
+   private void writeObject(java.io.ObjectOutputStream out)
+      throws IOException
    {
-      private Iterator<C> backingIterator;
-      
-      public UnmodifiableIterator(Iterator<C> backingIterator)
-      {
-         assert backingIterator != null : "backingIterator is null";
-         
-         this.backingIterator = backingIterator;
-      }
-
-      public boolean hasNext()
-      {
-         return backingIterator.hasNext();
-      }
-
-      public C next()
-      {
-         return backingIterator.next();
-      }
-
-      public void remove()
-      {
-         throw new UnsupportedOperationException("remove is not supported");         
-      }
+      out.defaultWriteObject();
+      MarshalledObject toWrite = marshalledMembers == null ? new MarshalledObject(memberObjects) 
+                                                           : marshalledMembers;
+      out.writeObject(toWrite);
    }
-   
-   
 }

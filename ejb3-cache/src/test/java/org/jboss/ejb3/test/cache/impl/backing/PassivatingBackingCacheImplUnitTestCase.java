@@ -21,11 +21,13 @@
  */
 package org.jboss.ejb3.test.cache.impl.backing;
 
+import java.util.HashMap;
+
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.cache.impl.TransactionalCache;
 import org.jboss.ejb3.cache.impl.backing.PassivatingBackingCacheImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
+import org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberImpl;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -56,10 +58,10 @@ public class PassivatingBackingCacheImplUnitTestCase extends TestCase
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(100);
-      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
       TransactionalCache cache = (TransactionalCache) container.getCache();
-      PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>>) cache.getBackingCache();
-      SerializationGroupMember<MockBeanContext> obj = backingCache.create(null, null);
+      PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMemberImpl<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMemberImpl<MockBeanContext>>) cache.getBackingCache();
+      SerializationGroupMemberImpl<MockBeanContext> obj = backingCache.create(null, null, new HashMap<Object, Object>());
       Object key = obj.getId();
       
       backingCache.peek(key);
@@ -90,10 +92,10 @@ public class PassivatingBackingCacheImplUnitTestCase extends TestCase
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(100);
-      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC);
+      MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
       TransactionalCache cache = (TransactionalCache) container.getCache();
-      PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMember<MockBeanContext>>) cache.getBackingCache();
-      SerializationGroupMember<MockBeanContext> obj = backingCache.create(null, null);
+      PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMemberImpl<MockBeanContext>> backingCache = (PassivatingBackingCacheImpl<MockBeanContext, SerializationGroupMemberImpl<MockBeanContext>>) cache.getBackingCache();
+      SerializationGroupMemberImpl<MockBeanContext> obj = backingCache.create(null, null, new HashMap<Object, Object>());
       Object key = obj.getId();
       
       backingCache.get(key);

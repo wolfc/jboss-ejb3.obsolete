@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.cache;
 
+import java.util.Map;
+
 /**
  * Creates and destroys stateful objects.
  * 
@@ -40,9 +42,13 @@ public interface StatefulObjectFactory<T extends CacheItem>
     * 
     * @param initTypes  the argument types for the init method
     * @param initValues the arguments for the init method
-    * @return
+    * @param sharedState map into which any objects meant to be shared with
+    *                    other members of the new items group should be
+    *                    stored. 
+    * 
+    * @return the new item
     */
-   T create(Class<?> initTypes[], Object initValues[]);
+   T create(Class<?> initTypes[], Object initValues[], Map<Object, Object> sharedState);
    
    /**
     * Perform any cleanup actions on the object, such as

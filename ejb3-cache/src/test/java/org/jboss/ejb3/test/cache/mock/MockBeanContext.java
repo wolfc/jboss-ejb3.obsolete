@@ -23,11 +23,7 @@
 package org.jboss.ejb3.test.cache.mock;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
-import org.jboss.ejb3.cache.Cache;
-import org.jboss.ejb3.cache.SerializationGroup;
 
 /**
  * @author Brian Stansberry
@@ -48,12 +44,14 @@ public class MockBeanContext extends MockCacheItem
    private int postReplicateCount;
    private int postActivateCount;
    private Map<String, Object> children;
+   private final Map<Object, Object> sharedState;
    
-   public MockBeanContext(String containerName)
+   public MockBeanContext(String containerName, Map<Object, Object> sharedState)
    {
       super(createId());
       this.containerName = containerName;
       this.children = new HashMap<String, Object>();
+      this.sharedState = sharedState;
    }
    
    public MockBeanContainer getContainer()
@@ -79,30 +77,9 @@ public class MockBeanContext extends MockCacheItem
    {
       if (xpc != null)
       {
-         boolean closeIt = true;
-         Cache<MockBeanContext> cache = getContainer().getCache();
-         if (cache.isGroupAware())
-         {
-            SerializationGroup<MockBeanContext> group = cache.getGroup(this);
-            if (group != null)
-            {
-               for(Iterator<MockBeanContext> it = group.iterator(); it.hasNext();)
-               {
-                  MockBeanContext ctx = it.next();
-                  if (ctx != this)
-                  {
-                     if (xpc.equals(ctx.getXPC()))
-                     {
-                        closeIt = false;
-                        break;
-                     }
-                  }
-               }
-            }
-            
-            if (closeIt)
-               xpc.close();
-         }
+         SharedXPC shared = (SharedXPC) sharedState.get(xpc.getName());
+         if (shared.removeSharedUser() == 0 && !xpc.isClosed())
+            xpc.close();
       }
    }
    
@@ -122,15 +99,32 @@ public class MockBeanContext extends MockCacheItem
    {
       return postActivateCount;
    }
-
-   public MockXPC getXPC()
-   {
-      return xpc;
+   
+   public MockXPC getExtendedPersistenceContext(String id)
+   {      
+      SharedXPC shared = (SharedXPC) sharedState.get(id);
+      return (shared == null ? null : shared.getXPC());
    }
 
-   public void setXPC(MockXPC sharedObject)
+   public void addExtendedPersistenceContext(String id, MockXPC pc)
    {
-      this.xpc = sharedObject;
+      if (xpc != null)
+         throw new IllegalStateException("XPC already configured");
+      
+      SharedXPC shared = (SharedXPC) sharedState.get(id);
+      if (shared == null)
+      {
+         shared = new SharedXPC(pc);
+         sharedState.put(id, shared);
+      }
+      
+      shared.addSharedUser();
+      xpc = pc;
+   }
+   
+   public XPC getXPC()
+   {
+      return xpc;
    }
    
    public void preReplicate()
