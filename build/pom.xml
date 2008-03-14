@@ -134,7 +134,6 @@
     <version.org.jboss_jnpserver>5.0.0.Beta4</version.org.jboss_jnpserver>
     <version.org.jboss.microcontainer_jboss-container>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-container>
     <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-deployers-core-spi>
-    <version.org.jboss.microcontainer_jboss-deployers-vfs-spi>2.0.0-SNAPSHOT</version.org.jboss.microcontainer_jboss-deployers-vfs-spi>
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-kernel>
     <version.org.jboss.security_jboss-security-spi-bare>2.0.2.Beta5</version.org.jboss.security_jboss-security-spi-bare>
     <version.org.jboss.security_jbosssx-client>2.0.2.Beta5</version.org.jboss.security_jbosssx-client>
@@ -508,11 +507,6 @@
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-deployers-core-spi</artifactId>
         <version>${version.org.jboss.microcontainer_jboss-deployers-core-spi}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.microcontainer</groupId>
-        <artifactId>jboss-deployers-vfs-spi</artifactId>
-        <version>${version.org.jboss.microcontainer_jboss-deployers-vfs-spi}</version>
       </dependency>
 
       <!-- JBoss Security SPI -->
