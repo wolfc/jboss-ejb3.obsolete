@@ -30,9 +30,9 @@ import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupImpl;
-import org.jboss.ejb3.cache.spi.impl.SerializationGroupMember;
 
 /**
  * {@link IntegratedObjectStoreSource} that provides instances of
@@ -45,14 +45,14 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
 {
    private CacheManager cacheManager;
    
-   public PassivatingIntegratedObjectStore<T, SerializationGroupImpl<T>>  createGroupIntegratedObjectStore(String containerName,
+   public PassivatingIntegratedObjectStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       Cache<Object, Object> jbc = getJBossCache(cacheConfigName);
       
       String keyBaseSuffix = (containerName == null || containerName.length() == 0) ? "" : "-" + containerName;
       String keyBase = "GroupCache" + keyBaseSuffix;
-      return new JBCIntegratedObjectStore<T, SerializationGroupImpl<T>>(jbc, cacheConfig, keyBase, keyBase, true);
+      return new JBCIntegratedObjectStore<T, SerializationGroup<T>>(jbc, cacheConfig, keyBase, keyBase, true);
    }
 
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
