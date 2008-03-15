@@ -161,6 +161,8 @@
           <showDeprecation>false</showDeprecation>
           <showWarnings>true</showWarnings>
           <optimize>true</optimize>
+          <compilerVersion>1.5</compilerVersion>
+          <fork>true</fork>
         </configuration>
       </plugin>
 
