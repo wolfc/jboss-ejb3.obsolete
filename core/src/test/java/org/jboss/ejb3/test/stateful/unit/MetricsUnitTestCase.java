@@ -111,14 +111,14 @@ extends JBossTestCase
       size = (Integer)server.getAttribute(testerName, "RemoveCount");
       assertEquals(0, size);
       
-      another.removeBean();
+      another.remove();
       size = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(1, size);
       
       size = (Integer)server.getAttribute(testerName, "RemoveCount");
       assertEquals(1, size);
       
-      stateful.removeBean();
+      stateful.remove();
       size = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(0, size);
       
