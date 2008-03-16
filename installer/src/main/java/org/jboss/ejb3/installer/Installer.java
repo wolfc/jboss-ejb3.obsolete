@@ -69,6 +69,7 @@ public class Installer
     * Environment Property key for ANT_HOME 
     */
    private static final String ENV_PROPERTY_ANT_HOME = "ANT_HOME";
+
    /*
     * Environment Property key for ANT_CMD 
     */
@@ -320,48 +321,11 @@ public class Installer
     */
    private void runAnt()
    {
-      // Initialize
-      Process antProcess = null;
-      String buildfile = this.getInstallationDirectory() + File.separator + Installer.FILENAME_BUILDFILE;
-
-      // Try
-      String antCommandPath = System.getenv(Installer.ENV_PROPERTY_ANT_CMD);
-      if(antCommandPath == null)
-      {
-         // Obtain ANT_HOME and ensure specified
-         String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
-         if (antHome == null || "".equals(antHome))
-         {
-            throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME + "' must be specified.");
-         }
-         this.getPrintStream().println("Using ANT_HOME: " + antHome);
-   
-         // Construct "ant" command path
-         antCommandPath = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
-      }
-
-      // If "ant" doesn't exist
-      if (!new File(antCommandPath).exists())
-      {
-         this.getPrintStream().println(antCommandPath+" does not exist, trying .bat extension");
-         // Add batch extension
-         antCommandPath = antCommandPath + Installer.COMMAND_EXTENSION_BATCH;
-      }
-
-      // Construct the Process
-      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommandPath, Installer.SWITCH_ANT_BUILDFILE, buildfile);
-      antProcessBuilder.redirectErrorStream(true);
-      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
-            this.getJbossAsInstallationDirectory().getAbsolutePath());
-      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_INSTALL_LOCATION,
-            this.getInstallationDirectory().getAbsolutePath());
 
       try
       {
-         // Start the Process
-         this.getPrintStream().println(
-               "Starting Ant> " + antCommandPath + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
-         antProcess = antProcessBuilder.start();
+         // Get the Process
+         Process antProcess = this.getAntProcess();
 
          // Capture the output
          Thread captureProcess = new CaptureProcess(antProcess);
@@ -380,13 +344,6 @@ public class Installer
       }
       catch (IOException ioe)
       {
-         // The command could not be found
-         if (antProcess == null)
-         {
-            throw new RuntimeException(
-                  "Ensure Apache Ant is properly installed and Environment Variable ANT_HOME is set", ioe);
-         }
-
          // Other I/O Error
          throw new RuntimeException(ioe);
       }
@@ -395,6 +352,95 @@ public class Installer
          throw new RuntimeException(ie);
       }
 
+   }
+
+   /**
+    * Obtains the Ant Process
+    * 
+    * @return
+    * @throws IOException
+    */
+   private Process getAntProcess() throws IOException
+   {
+      return this.getAntProcess(false);
+   }
+
+   /**
+    * Obtains the Ant Process.  If "useBatchExtension" is false, no extension will 
+    * be added on first attempt, but the batch extension will be tried if the first 
+    * try without it fails.
+    * 
+    * @param useBatchExtension
+    * @return
+    * @throws IOException
+    */
+   private Process getAntProcess(boolean useBatchExtension) throws IOException
+   {
+      // Initialize
+      Process antProcess = null;
+      String buildfile = this.getInstallationDirectory() + File.separator + Installer.FILENAME_BUILDFILE;
+
+      // Try
+      String antCommandPath = System.getenv(Installer.ENV_PROPERTY_ANT_CMD);
+      if (antCommandPath == null)
+      {
+         // Obtain ANT_HOME and ensure specified
+         String antHome = System.getenv(Installer.ENV_PROPERTY_ANT_HOME);
+         if (antHome == null || "".equals(antHome))
+         {
+            throw new RuntimeException("Environment Variable '" + Installer.ENV_PROPERTY_ANT_HOME
+                  + "' must be specified.");
+         }
+         this.getPrintStream().println("Using ANT_HOME: " + antHome);
+
+         // Construct "ant" command path
+         antCommandPath = antHome + File.separator + "bin" + File.separator + Installer.COMMAND_ANT;
+      }
+
+      // If we should use the batch extension
+      if (useBatchExtension)
+      {
+         // Add batch extension
+         antCommandPath = antCommandPath + Installer.COMMAND_EXTENSION_BATCH;
+      }
+
+      // Construct the Process
+      ProcessBuilder antProcessBuilder = new ProcessBuilder(antCommandPath, Installer.SWITCH_ANT_BUILDFILE, buildfile);
+      antProcessBuilder.redirectErrorStream(true);
+      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_JBOSS_HOME,
+            this.getJbossAsInstallationDirectory().getAbsolutePath());
+      antProcessBuilder.environment().put(Installer.ENV_PROPERTY_INSTALL_LOCATION,
+            this.getInstallationDirectory().getAbsolutePath());
+
+      try
+      {
+         // Start the Process
+         this.getPrintStream().println(
+               "Starting Ant> " + antCommandPath + " " + Installer.SWITCH_ANT_BUILDFILE + " " + buildfile);
+         antProcess = antProcessBuilder.start();
+      }
+      catch (IOException ioe)
+      {
+         // The command could not be found, and we've tried the batch extension
+         if (antProcess == null && useBatchExtension)
+         {
+            throw new RuntimeException(
+                  "Ensure Apache Ant is properly installed and Environment Variable ANT_HOME is set", ioe);
+         }
+         // The command could not be found, but we haven't yet tried the batch extension
+         else if (antProcess == null && !useBatchExtension)
+         {
+            return this.getAntProcess(true);
+         }
+         // Miscellaneous IOException
+         else
+         {
+            throw ioe;
+         }
+      }
+
+      // Return
+      return antProcess;
    }
 
    /**
