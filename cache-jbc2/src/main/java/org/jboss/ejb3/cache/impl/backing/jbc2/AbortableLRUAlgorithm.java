@@ -51,6 +51,7 @@ public class AbortableLRUAlgorithm extends LRUAlgorithm
     * @param fqn node corresponds to this fqn
     * @return True if successful
     */
+   @SuppressWarnings("unchecked")
    protected boolean evictCacheNode(Fqn fqn)
    {
       if (log.isTraceEnabled())

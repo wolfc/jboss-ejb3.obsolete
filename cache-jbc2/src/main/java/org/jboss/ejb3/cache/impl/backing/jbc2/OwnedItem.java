@@ -42,7 +42,7 @@ public class OwnedItem
    
    private final String owner;
    private final Object id;
-   private final Fqn region;
+   private final Fqn<Object> region;
    
    /**
     * Generates an OwnedItem from the given Fqn if the Fqn is a logical
@@ -86,7 +86,7 @@ public class OwnedItem
       return (key == null ? null : new OwnedItem(owner, key, region));
    }
    
-   public OwnedItem(String owner, Object id, Fqn region)
+   public OwnedItem(String owner, Object id, Fqn<Object> region)
    {
       assert id != null : "id is null";
       assert region != null : "region is null";
@@ -120,22 +120,22 @@ public class OwnedItem
    /**
     * Gets the base Fqn for the region where the item is cached.
     */
-   public Fqn getRegion()
+   public Fqn<Object> getRegion()
    {
       return region;
    }
    
-   public Fqn getFullFqn()
+   public Fqn<Object> getFullFqn()
    {
       if (owner != null)
       {
-         Fqn ownerFqn = new Fqn(BuddyManager.BUDDY_BACKUP_SUBTREE_FQN, owner);
-         Fqn base = new Fqn(ownerFqn, region);
-         return new Fqn(base, id);
+         Fqn<Object> ownerFqn = new Fqn<Object>(BuddyManager.BUDDY_BACKUP_SUBTREE_FQN, owner);
+         Fqn<Object> base = new Fqn<Object>(ownerFqn, region);
+         return new Fqn<Object>(base, id);
       }
       else
       {
-         return new Fqn(region, id);
+         return new Fqn<Object>(region, id);
       }
    }
 

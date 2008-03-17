@@ -58,7 +58,7 @@ public class ClusteredCacheListener
       void nodePassivated(OwnedItem ownedItem, NodePassivatedEvent event);
    }
    
-   private final Map<Fqn, RegionHandler> handlers = new ConcurrentHashMap<Fqn, RegionHandler>();
+   private final Map<Fqn<Object>, RegionHandler> handlers = new ConcurrentHashMap<Fqn<Object>, RegionHandler>();
    private final boolean checkBuddy;
    
    public ClusteredCacheListener(boolean checkBuddy)
@@ -66,12 +66,12 @@ public class ClusteredCacheListener
       this.checkBuddy= checkBuddy;
    }
    
-   public void addRegionHandler(Fqn region, RegionHandler handler)
+   public void addRegionHandler(Fqn<Object> region, RegionHandler handler)
    {
       handlers.put(region, handler);
    }
    
-   public boolean removeRegionHandler(Fqn region)
+   public boolean removeRegionHandler(Fqn<Object> region)
    {
       handlers.remove(region);
       return handlers.size() > 0;
