@@ -65,6 +65,12 @@ public class NonPassivatingBackingCacheEntry<T extends CacheItem> extends Abstra
       return wrapped.isModified();
    }
 
+   /**
+    * {@inheritDoc}
+    * 
+    * @return the id of the {@link BackingCacheEntry#getUnderlyingItem() underlying item}.
+    *         Cannot be <code>null</code>.
+    */
    public Object getId()
    {
       return wrapped.getId();

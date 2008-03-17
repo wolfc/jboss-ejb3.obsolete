@@ -35,9 +35,9 @@ import java.util.TreeSet;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
 import org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner;
@@ -50,7 +50,7 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>> 
+public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>> 
      implements PassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(MockJBCIntegratedObjectStore.class);
@@ -135,11 +135,16 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Backing
       putInCache(entry.getId(), entry);
    }
    
-   public void update(T entry)
+   public void update(T entry, boolean modified)
    {
-      if (entry.isModified())
+      log.trace("updating " + entry.getId());
+      if (modified)
       {
          putInCache(entry.getId(), entry);
+      }
+      else
+      {
+         timestamps.put(entry.getId(), new Long(entry.getLastUsed()));
       }
    }
 

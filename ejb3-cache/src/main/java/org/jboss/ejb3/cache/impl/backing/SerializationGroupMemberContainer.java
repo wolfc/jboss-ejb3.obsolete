@@ -27,6 +27,7 @@ import java.util.Map;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
@@ -47,7 +48,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    private StatefulObjectFactory<C> factory;
    private PassivationManager<C> passivationManager;
    private PassivatingIntegratedObjectStore<C, SerializationGroupMember<C>> store;
-   private PassivatingBackingCache<C, SerializationGroupMember<C>> delegate;
+   private GroupAwareBackingCache<C, SerializationGroupMember<C>> delegate;
    
    /**
     * Cache that's managing the PassivationGroup
@@ -95,7 +96,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    
    public void postActivate(SerializationGroupMember<C> entry)
    {
-      log.trace("post activate " + entry);
+      log.trace("postActivate(): " + entry);
       
       boolean groupOK = false;
       while (!groupOK)
@@ -114,7 +115,8 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
          
          if(group != null)
          {
-            synchronized (group)
+            group.lock();
+            try
             {
                if (!group.isInvalid())
                {
@@ -125,6 +127,10 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                   groupOK = true;
                }
                // else groupOK == false and we loop again
+            }
+            finally
+            {
+               group.unlock();
             }
          }
          else
@@ -162,7 +168,9 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       SerializationGroup<C> group = entry.getGroup();
       if(group != null)
       {
-         synchronized (group)
+         if (!group.tryLock())
+            throw new IllegalStateException("Cannot obtain lock on " + group.getId() +  " to passivate " + entry);
+         try
          {
             if (!group.isInvalid())
             {
@@ -180,12 +188,18 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                   // we realize they have a ref to an out-of-date group
                   group.setInvalid(true);
                }         
-               // else {
-               // this turns into a pretty meaningless exercise of just
-               // passivating an empty entry. TODO consider throwing 
-               // ItemInUseException here, thus aborting everything.  Need to
-               // be sure that doesn't lead to problems as the exception propagates
-               // }
+               else {
+                  // this turns into a pretty meaningless exercise of just
+                  // passivating an empty entry. TODO consider throwing 
+                  // ItemInUseException here, thus aborting everything.  Need to
+                  // be sure that doesn't lead to problems as the exception propagates
+                  if (log.isTraceEnabled())
+                  {
+                     log.trace("Group " + group.getId() + " has " + 
+                                group.getInUseCount() + " in-use members; " + 
+                                "not passivating group for " + entry.getId());
+                  }
+               }
                
                // This call didn't come through entry.prePassivate() (which nulls
                // group and obj) so we have to do it ourselves. Otherwise
@@ -194,6 +208,10 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                entry.setGroup(null);
                entry.setUnderlyingItem(null);
             }
+         }
+         finally
+         {
+            group.unlock();
          }
       }
    }
@@ -214,7 +232,8 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       SerializationGroup<C> group = entry.getGroup();
       if(group != null)
       {
-         synchronized (group)
+         group.lock();
+         try
          {
             // Remove ourself from group's active list so we don't get
             // called again via entry.prePassivate()            
@@ -224,7 +243,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
             {
                if (group.getInUseCount() == 0)
                {
-                  groupCache.release(group);
+                  group.getGroupCache().release(group.getId());
                }
             }
             finally
@@ -238,12 +257,16 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
 //            entry.setGroup(null);
 //            entry.setUnderlyingItem(null);
          }
+         finally
+         {
+            group.unlock();
+         }
       }
    }
    
    public void postReplicate(SerializationGroupMember<C> entry)
    {
-      log.trace("postreplicate " + entry);
+      log.trace("postReplicate(): " + entry);
       
       boolean groupOK = false;
       while (!groupOK)
@@ -262,7 +285,8 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
          
          if(group != null)
          {
-            synchronized (group)
+            group.lock();
+            try
             {
                if (!group.isInvalid())
                {
@@ -274,6 +298,10 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                   groupOK = true;
                }
                // else groupOK == false and we loop again
+            }
+            finally
+            {
+               group.unlock();
             }
          }
          else
@@ -290,9 +318,9 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
       }
    }
 
-   public void update(SerializationGroupMember<C> entry)
+   public void update(SerializationGroupMember<C> entry, boolean modified)
    {
-      store.update(entry);
+      store.update(entry, modified);
    }
 
    public boolean isClustered()
@@ -346,7 +374,12 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
 
    public void setPassivatingCache(PassivatingBackingCache<C, SerializationGroupMember<C>> cache)
    {
-      this.delegate= cache;
+      if (! (cache instanceof GroupAwareBackingCache))
+      {
+         throw new IllegalArgumentException("cache must implement GroupAwareBackingCache");
+      }
+      
+      this.delegate= (GroupAwareBackingCache<C, SerializationGroupMember<C>>) cache;
       this.store.setPassivatingCache(delegate);
    }
 

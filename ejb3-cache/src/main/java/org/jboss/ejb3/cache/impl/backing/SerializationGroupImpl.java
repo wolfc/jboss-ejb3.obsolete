@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.Identifiable;
@@ -91,6 +92,8 @@ public class SerializationGroupImpl<T extends CacheItem>
    private boolean clustered;
 
    private transient boolean invalid;
+   
+   private transient ReentrantLock lock = new ReentrantLock();
    
    public Object getId()
    {
@@ -185,9 +188,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    {
       for(SerializationGroupMember<T> member : active.values())
       {
-         member.releaseReferences();
-         if(true)
-            throw new IllegalStateException("this doesn't invoke prePassivate callbacks!");
+         member.prePassivate();
       }
       active.clear();
    }
@@ -207,9 +208,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    {
       for(SerializationGroupMember<T> member : active.values())
       {
-         member.releaseReferences();
-         if(true)
-            throw new IllegalStateException("this doesn't invoke preReplicate callbacks!");
+         member.preReplicate();
       }
       active.clear();
    }
@@ -283,8 +282,11 @@ public class SerializationGroupImpl<T extends CacheItem>
    public void removeInUse(Object key)
    {
       if (inUseKeys.remove(key))
-      {
-         setLastUsed(System.currentTimeMillis());
+      {         
+         if (inUseKeys.size() == 0)
+            setInUse(false);
+         else
+            setLastUsed(System.currentTimeMillis());
       }
       else if (!getMemberObjects().containsKey(key))
       {
@@ -336,6 +338,31 @@ public class SerializationGroupImpl<T extends CacheItem>
    {
       return groupCache;
    }
+     
+
+   public void lock()
+   { 
+      try
+      {
+         lock.lockInterruptibly();
+      }
+      catch (InterruptedException ie)
+      {
+         throw new RuntimeException("interrupted waiting for lock");
+      }
+   }
+
+   public boolean tryLock()
+   {
+     return lock.tryLock();
+   }
+
+   public void unlock()
+   {
+      if (lock.isHeldByCurrentThread())
+         lock.unlock();
+      
+   }
 
    @Override
    public String toString()
@@ -374,6 +401,7 @@ public class SerializationGroupImpl<T extends CacheItem>
          throws IOException, ClassNotFoundException
    {
       in.defaultReadObject();
+      lock = new ReentrantLock();
       marshalledMembers= (MarshalledObject) in.readObject();
       active = new HashMap<Object, SerializationGroupMember<T>>();
       inUseKeys = new HashSet<Object>();

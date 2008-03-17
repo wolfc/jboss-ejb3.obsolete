@@ -37,7 +37,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * 
  * @version $Revision: 65977 $
  */
-public interface PassivatingBackingCache<C extends CacheItem, T extends BackingCacheEntry<C>>
+public interface PassivatingBackingCache<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
    extends BackingCache<C, T>
 {
    /**

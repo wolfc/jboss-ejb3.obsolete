@@ -31,7 +31,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public interface GroupAwareBackingCache<C extends CacheItem, T extends BackingCacheEntry<C>>
+public interface GroupAwareBackingCache<C extends CacheItem, T extends SerializationGroupMember<C>>
    extends PassivatingBackingCache<C, T>
 {
    /**
@@ -54,13 +54,26 @@ public interface GroupAwareBackingCache<C extends CacheItem, T extends BackingCa
     *                                       with ourself.
     */
    void setGroup(C obj, SerializationGroup<C> group);
-
+   
    /**
-    * Gets the group the given object is a member of
+    * Callback from the group informing the cache it needs to invoke
+    * pre-passivation callbacks on the member.
     * 
-    * @param obj the object
-    * @return the group, or <code>null</code> if the object is not a member
-    *         of a group
+    * @param member the group member
+    * 
+    * @throws IllegalStateException if the member is 
+    *                               {@link BackingCacheEntry#isInUse() in-use}.
     */
-   SerializationGroup<C> getGroup(C obj);
+//   void prePassivate(T member);
+   
+   /**
+    * Callback from the group informing the cache it needs to invoke
+    * pre-replication callbacks on the member.
+    * 
+    * @param member the group member
+    * 
+    * @throws IllegalStateException if the member is 
+    *                               {@link BackingCacheEntry#isInUse() in-use}.
+    */
+   void notifyPreReplicate(T member);
 }

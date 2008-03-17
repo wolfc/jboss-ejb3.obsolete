@@ -33,7 +33,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public interface PassivatingIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+public interface PassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
    extends IntegratedObjectStore<T>, PassivationExpirationProcessor
 {
    /**

@@ -23,12 +23,16 @@
 package org.jboss.ejb3.cache.impl.backing;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntry;
+import org.jboss.logging.Logger;
 import org.jboss.serial.io.MarshalledObject;
 
 /**
@@ -43,6 +47,8 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    /** The serialVersionUID */
    private static final long serialVersionUID = 7268142730501106252L;
 
+   private static final Logger log = Logger.getLogger(SerializationGroupMemberImpl.class);
+   
    /**
     * Identifier for our underlying object
     */
@@ -77,17 +83,20 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    
    private boolean preReplicated;
    
-   /** The cache that's handling us */
-//   private transient PassivatingBackingCache<T, SerializationGroupMember<T>> cache;
+   private transient ReentrantLock lock = new ReentrantLock();
+   private transient boolean groupLockHeld;
    
-   public SerializationGroupMemberImpl(T obj, PassivatingBackingCache<T, SerializationGroupMember<T>> cache)
+   /** The cache that's handling us */
+   private transient GroupAwareBackingCache<T, SerializationGroupMember<T>> cache;
+   
+   public SerializationGroupMemberImpl(T obj, GroupAwareBackingCache<T, SerializationGroupMember<T>> cache)
    {
       assert obj != null : "obj is null";
       assert cache != null : "cache is null";
       
       this.obj = transientObj = obj;
       this.id = obj.getId();
-//      this.cache = cache;
+      this.cache = cache;
       this.clustered = cache.isClustered();
    }
    
@@ -140,10 +149,24 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
       SerializationGroup<T> result = group;
       if (result != null)
       {
-         synchronized (result)
+         boolean localGroupLock = false;
+         if (!groupLockHeld)
+         {
+            group.lock();
+            localGroupLock = groupLockHeld = true;
+         }
+         try
          {
             if (result.isInvalid())
                result = null;
+         }
+         finally
+         {
+            if (localGroupLock)
+            {
+               group.unlock();
+               groupLockHeld = false;
+            }            
          }
       }
       return result;
@@ -156,9 +179,26 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     */
    public void setGroup(SerializationGroup<T> group)
    {
-      this.group = group;
-      if (this.groupId == null && group != null)
-         this.groupId = group.getId();
+      if (this.group != group)
+      {
+         // Remove any lock held on existing group
+         if (group == null && groupLockHeld)
+         {
+            this.group.unlock();
+            groupLockHeld = false;
+         }
+         
+         this.group = group;
+         
+         if (this.groupId == null && group != null)
+            this.groupId = group.getId();
+         
+         if (group != null && lock.isHeldByCurrentThread())
+         {
+            group.lock();
+            groupLockHeld = true;
+         }
+      }         
    }
 
    /**
@@ -170,24 +210,77 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    {
       return groupId;
    }
-
-   /**
-    * Prepares the group member for group passivation by ensuring any 
-    * reference to the {@link #getUnderlyingItem() underlying object} or to the 
-    * {@link #getGroup()} is nulled.
-    */
-   public void releaseReferences()
+   
+   public void prePassivate()
    {
-      // make sure we don't passivate the group twice
-      group = null;
+      // By the time we get here this thread has already locked the
+      // group. It's possible another thread has locked this member
+      // but not yet the group.  We're willing to wait 2ms for that
+      // other thread to see it can't lock the group and release this 
+      // member's lock, which it will only do if it is another 
+      // passivation thread.  A request thread will hold the lock and 
+      // we'll fail (as intended)
+      if (tryLock(2))
+      {
+         try
+         {
+            // make sure we don't passivate the group twice
+            // use the setter to clear any group lock
+            setGroup(null);
+            
+            // null out obj so when delegate passivates this entry
+            // we don't serialize it. It serializes with the PassivationGroup only  
+            // We still have a ref to transientObj, so it can be retrieved
+            // for passivation callbacks
+            obj = null;
+            
+            cache.passivate(this.id);
+         }
+         finally
+         {
+            unlock();
+         }
+      }
+      else
+      {
+         throw new IllegalStateException(id + " is in use");
+      }
       
-      // null out obj so when delegate passivates this entry
-      // we don't serialize it. It serializes with the PassivationGroup only  
-      // We still have a ref to transientObj, so it can be retrieved
-      // for passivation callbacks
-      obj = null;
-      
-//      cache.passivate(this.id);
+   }
+   
+   public void preReplicate()
+   {
+      // By the time we get here this thread has already locked the
+      // group. It's possible another thread has locked this member
+      // but not yet the group.  We're willing to wait 2ms for that
+      // other thread to see it can't lock the group and release this 
+      // member's lock, which it will only do if it is a passivation thread 
+      // A request thread will hold the lock and we'll fail (as intended)
+      if (tryLock(2))
+      {
+         try
+         {
+            // make sure we don't passivate the group twice
+            // use the setter to clear any group lock
+            setGroup(null);
+            
+            // null out obj so when delegate passivates this entry
+            // we don't serialize it. It serializes with the PassivationGroup only  
+            // We still have a ref to transientObj, so it can be retrieved
+            // for passivation callbacks
+            obj = null;
+            
+            cache.notifyPreReplicate(this); 
+         }
+         finally
+         {
+            unlock();
+         }
+      }
+      else
+      {
+         throw new IllegalStateException(id + " is in use");
+      }           
    }
    
    /**
@@ -224,12 +317,26 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
       // Tell our group about it
       if (group != null)
       {
-         synchronized (group)
+         boolean localGroupLock = false;
+         if (!groupLockHeld)
+         {
+            group.lock();
+            localGroupLock = groupLockHeld = true;
+         }
+         try
          {
             if (inUse)
-               group.addActive(this);
+               group.addInUse(id);
             else
-               group.removeActive(id);
+               group.removeInUse(id);
+         }
+         finally
+         {
+            if (localGroupLock)
+            {
+               group.unlock();
+               groupLockHeld = false;
+            }     
          }
       }         
    }
@@ -240,11 +347,105 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     * 
     * @param delegate
     */
-   public void setPassivatingCache(PassivatingBackingCache<T, SerializationGroupMember<T>> delegate)
+   public void setPassivatingCache(GroupAwareBackingCache<T, SerializationGroupMember<T>> delegate)
    {
-//      assert delegate != null : "delegate is null";
-//      
-//      this.cache = delegate;
+      assert delegate != null : "delegate is null";
+      
+      this.cache = delegate;
+   }  
+   
+   public void lock()
+   {
+      try
+      {
+         lock.lockInterruptibly();
+      }
+      catch (InterruptedException ie)
+      {
+         throw new RuntimeException("interrupted waiting for lock");
+      }
+      
+      if (!groupLockHeld && group != null)
+      {
+         try
+         {
+            group.lock();
+            groupLockHeld = true;
+         }
+         finally
+         {
+            if (!groupLockHeld)
+               lock.unlock();
+         }
+      }
+   }
+
+   public boolean tryLock()
+   {
+      boolean success = lock.tryLock();
+      if (success)
+      {
+         success = (groupLockHeld || group == null);
+         if (!success)
+         {
+            try
+            {
+               success = groupLockHeld = group.tryLock();
+               if (!success && log.isTraceEnabled())
+                  log.trace("Member " + id + " cannot lock group " + groupId);               
+            }
+            finally
+            {
+               if (!success)
+                  lock.unlock();
+            }
+         }
+      }
+      return success;
+   }
+   
+   private boolean tryLock(long wait)
+   {
+      boolean success = false;
+      try
+      {
+         success = lock.tryLock(wait, TimeUnit.MILLISECONDS);
+      }
+      catch (InterruptedException ie)
+      {
+         // success remains false
+      }
+      if (success)
+      {
+         success = (groupLockHeld || group == null);
+         if (!success)
+         {
+            try
+            {
+               success = groupLockHeld = group.tryLock();
+               if (!success && log.isTraceEnabled())
+                  log.trace("Member " + id + " cannot lock group " + groupId);               
+            }
+            finally
+            {
+               if (!success)
+                  lock.unlock();
+            }
+         }
+      }
+      return success;
+      
+   }
+
+   public void unlock()
+   {
+      if (groupLockHeld && lock.getHoldCount() == 1)
+      {
+         // time to release our group lock
+         group.unlock();
+         groupLockHeld = false;
+      }
+      lock.unlock();
    }
 
    @Override
@@ -278,6 +479,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
          throws IOException, ClassNotFoundException
    {
       in.defaultReadObject();
+      lock = new ReentrantLock();
       if (groupId == null)
       {
          marshalledObj = (MarshalledObject) in.readObject();
@@ -288,7 +490,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    {
       if (groupId != null)
       {
-         group = null;
+         setGroup(null);
          obj = null;
       }
       out.defaultWriteObject();

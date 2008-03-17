@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.cache.impl.backing;
 
-import javax.ejb.NoSuchEJBException;
-
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
@@ -43,6 +41,8 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
     * Cache that's managing the SerializationGroup
     */
    private PassivatingBackingCache<C, SerializationGroup<C>> groupCache;
+   
+   private SerializationGroupMemberContainer<C> memberContainer;
    
    /**
     * Creates a new GroupAwareCacheImpl.
@@ -69,47 +69,53 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
    {     
       Object key = obj.getId();
       SerializationGroupMember<C> entry = peek(key);
-      if(entry.getGroup() != null)
-         throw new IllegalStateException("object " + key + " is already associated with passivation group " + entry.getGroup());
-      
-      // Validate we share a common groupCache with the group
-      if (groupCache != group.getGroupCache())
-         throw new IllegalStateException(obj + " and " + group + " use different group caches");
-      
-      entry.setGroup(group);
-      entry.getGroup().addMember(entry);
-   }
-
-   public SerializationGroup<C> getGroup(C obj)
-   {
-      Object key = obj.getId();
+      entry.lock();
       try
       {
-         SerializationGroupMember<C> entry = peek(key);
-         synchronized (entry)
+         if(entry.getGroup() != null)
+            throw new IllegalStateException("object " + key + " is already associated with passivation group " + entry.getGroup());
+         
+         // Validate we share a common groupCache with the group
+         if (groupCache != group.getGroupCache())
+            throw new IllegalStateException(obj + " and " + group + " use different group caches");
+         
+         
+         entry.setGroup(group);
+         entry.getGroup().addMember(entry);
+      }
+      finally
+      {
+         entry.unlock();
+      }
+   }
+
+   public void notifyPreReplicate(SerializationGroupMember<C> entry)
+   {
+      log.trace("notifyPreReplicate " + entry);
+      
+      if (!entry.isPreReplicated())
+      {
+         // We just *try* to lock; a preReplication is low priority.
+         if (!entry.tryLock())
+            throw new IllegalStateException("entry " + entry + " is in use");
+         
+         try
          {
-            SerializationGroup<C> group = entry.getGroup();
-            if (group == null && entry.getGroupId() != null)
+            if(entry.isInUse())
             {
-               // Need to use get() to postActivate it
-               entry = get(key);
-               try
-               {
-                  group = entry.getGroup();
-               }
-               finally
-               {
-                  release(key);
-               }
+               throw new IllegalStateException("entry " + entry + " is in use");
             }
-            return group;
+   
+            memberContainer.preReplicate(entry);
+            
+            entry.setPreReplicated(true);
+         }
+         finally
+         {
+            entry.unlock();
          }
       }
-      catch (NoSuchEJBException nsee)
-      {
-         return null;
-      }
-   }  
+   }
    
    
    

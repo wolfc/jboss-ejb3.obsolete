@@ -24,8 +24,9 @@ package org.jboss.ejb3.test.cache.mock;
 
 import java.io.Serializable;
 
+
 /**
- * A SharedObject.
+ * A mock entity.  We subclass MockIdentifiable just to pick up its code.
  * 
  * @author Brian Stansberry
  * @version $Revision$
@@ -33,4 +34,41 @@ import java.io.Serializable;
 public class MockEntity implements Serializable
 {
    private static final long serialVersionUID = 1L;
+   
+   private int id;
+   
+   public MockEntity(int id)
+   {
+      this.id = id;
+   }
+   
+   public Object getId()
+   {
+      return id;
+   }   
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj instanceof MockEntity)
+      {
+         MockEntity other = (MockEntity) obj;
+         return this.id == other.id;
+      }
+      return false;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return id;
+   }
+
+   @Override
+   public String toString()
+   {
+      return super.toString() + "{id=" + id + "}";
+   }
 }

@@ -30,24 +30,21 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
-import org.jboss.logging.Logger;
 
 /**
  * {@link Cache#isGroupAware Group-aware} version of {@link TransactionalCache}.
  * 
  * @author Brian Stansberry
  */
-public class GroupAwareTransactionalCache<C extends CacheItem, T extends BackingCacheEntry<C>> 
+public class GroupAwareTransactionalCache<C extends CacheItem, T extends SerializationGroupMember<C>> 
    extends TransactionalCache<C, T>
 {
-   private static final Logger log = Logger.getLogger(GroupAwareTransactionalCache.class);
-   
    /** 
     * Another ref to super.delegate. Just saves having to do casts all the time. 
     */

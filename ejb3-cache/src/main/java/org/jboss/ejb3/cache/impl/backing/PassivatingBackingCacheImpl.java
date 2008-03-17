@@ -28,8 +28,8 @@ import javax.ejb.NoSuchEJBException;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.logging.Logger;
 
@@ -40,10 +40,10 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision: 65339 $
  */
-public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingCacheEntry<C>>
+public class PassivatingBackingCacheImpl<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
    implements PassivatingBackingCache<C, T>
 {
-   private static final Logger log = Logger.getLogger(PassivatingBackingCacheImpl.class);
+   protected final Logger log = Logger.getLogger(getClass().getName());
    
    private StatefulObjectFactory<T> factory;
    private PassivationManager<T> passivationManager;
@@ -77,12 +77,16 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
 
    public T get(Object key) throws NoSuchEJBException
    {
+      if (log.isTraceEnabled())
+         log.trace("get(): " + key);
+      
       T entry = store.get(key);
       
       if(entry == null)
          throw new NoSuchEJBException(String.valueOf(key));
       
-      synchronized (entry)
+      entry.lock();
+      try
       {
          if (isClustered())
          {
@@ -96,18 +100,26 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
          entry.setInUse(true);
          return entry;
       }
+      finally
+      {
+         entry.unlock();
+      }
    }
 
    public void passivate(Object key)
    {
-      log.trace("passivate " + key);
+      log.trace("passivate(): " + key);
       
       T entry = store.get(key);
       
       if(entry == null)
          throw new IllegalArgumentException("entry " + key + " not found in cache " + this);
-         
-      synchronized (entry)
+      
+      // We just *try* to lock; a passivation is low priority.
+      if (!entry.tryLock())
+         throw new IllegalStateException("entry " + entry + " is in use");
+      
+      try
       {
          if(entry.isInUse())
          {
@@ -120,10 +132,17 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
          
          store.passivate(entry);
       }
+      finally
+      {
+         entry.unlock();
+      }
    }
    
    public T peek(Object key) throws NoSuchEJBException
    {
+      if (log.isTraceEnabled())
+         log.trace("peek(): " + key);
+      
       T entry = store.get(key);
       if(entry == null)
          throw new NoSuchEJBException(String.valueOf(key));         
@@ -132,40 +151,57 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
 
    public T release(Object key)
    {      
+      if (log.isTraceEnabled())
+         log.trace("release(): " + key);
+      
       T entry = store.get(key);
       if(entry == null)
          throw new IllegalStateException("object " + key + " not from this cache");
       
-      synchronized (entry)
+      entry.lock();
+      try
       {
          entry.setInUse(false);
          
-         if (entry.isModified())
+         boolean modified = entry.isModified();
+         if (modified)
          {
             if (isClustered())
             {
                passivationManager.preReplicate(entry);
             }
-            store.update(entry);
          }
-         
+
+         store.update(entry, modified);
          return entry;
+      }
+      finally
+      {
+         entry.unlock();
       }
    }
    
    public void remove(Object key)
    {
+      if (log.isTraceEnabled())
+         log.trace("remove(): " + key);
+      
       T entry = store.remove(key);
-      if (entry != null)
+      
+      if(entry == null)
+         throw new NoSuchEJBException(String.valueOf(key));
+      
+      entry.lock();
+      try
       {
-         synchronized (entry)
-         {
-            if(entry.isInUse())
-               entry.setInUse(false);
-            factory.destroy(entry);
-         }
+         if(entry.isInUse())
+            entry.setInUse(false);
+         factory.destroy(entry);
+      }  
+      finally
+      {
+         entry.unlock();
       }
-         
    }
    
    public void start()

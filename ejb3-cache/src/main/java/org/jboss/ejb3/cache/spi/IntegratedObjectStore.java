@@ -63,6 +63,7 @@ public interface IntegratedObjectStore<T extends CacheItem>
     * Update an already cached item.
     * 
     * @param  entry the entry to update
+    * @param modified was the entry modified since {@link #get(Object)} was called?
     * 
     * @throws IllegalStateException if the store isn't already managing an entry
     *                               with the same {@link Identifiable#getId() id}.
@@ -72,7 +73,7 @@ public interface IntegratedObjectStore<T extends CacheItem>
     *                               callers to ensure {@link #insert(Cacheable)}
     *                               is invoked before the first replication.
     */
-   void update(T entry);
+   void update(T entry, boolean modified);
    
    /**
     * Remove the object with the given key from the store.

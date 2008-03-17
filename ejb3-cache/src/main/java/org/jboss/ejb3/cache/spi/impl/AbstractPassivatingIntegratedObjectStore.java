@@ -24,8 +24,8 @@ package org.jboss.ejb3.cache.spi.impl;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.logging.Logger;
 
@@ -36,7 +36,7 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
       implements PassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(AbstractPassivatingIntegratedObjectStore.class);

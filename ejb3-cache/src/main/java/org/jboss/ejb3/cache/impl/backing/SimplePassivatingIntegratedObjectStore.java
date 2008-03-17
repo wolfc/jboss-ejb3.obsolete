@@ -26,11 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.ObjectStore;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
@@ -44,7 +45,7 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
       extends AbstractPassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(SimplePassivatingIntegratedObjectStore.class);
@@ -66,7 +67,7 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       assert store != null : "store is null";
       
       this.store = store;
-      this.cache = new HashMap<Object, T>();
+      this.cache = new ConcurrentHashMap<Object, T>();
       if (!forGroups)
       {
          this.passivatedEntries = new HashMap<Object, Long>();
@@ -80,57 +81,48 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
 
    public T get(Object key)
    {
-      synchronized (cache)
+      T entry = cache.get(key);
+      if(entry == null)
       {
-         T entry = cache.get(key);
-         if(entry == null)
+         entry = store.load(key);
+         if(entry != null)
          {
-            entry = store.load(key);
-            if(entry != null)
+            cache.put(key, entry);
+            if (!isForGroups())
             {
-               cache.put(key, entry);
-               if (!isForGroups())
-               {
-                  passivatedEntries.remove(key);
-               }
+               passivatedEntries.remove(key);
             }
          }
-         return entry;
       }
+      return entry;
    }
 
    public void insert(T entry)
    {
       Object key = entry.getId();
-      synchronized (cache)
+      if (cache.containsKey(key) 
+            || (!isForGroups() && passivatedEntries.containsKey(key)))
       {
-         if (cache.containsKey(key) 
-               || (!isForGroups() && passivatedEntries.containsKey(key)))
-         {
-            throw new IllegalStateException(key + " is already in store");
-         }
-         cache.put(key, entry);
+         throw new IllegalStateException(key + " is already in store");
       }
+      cache.put(key, entry);
    }
    
-   public void update(T entry)
+   public void update(T entry, boolean modified)
    {
       Object key = entry.getId();
-      synchronized (cache)
+      if (!cache.containsKey(key) && 
+            (isForGroups() || !passivatedEntries.containsKey(key)))
       {
-         if (!cache.containsKey(key) && 
-               (isForGroups() || !passivatedEntries.containsKey(key)))
-         {
-            throw new IllegalStateException(key + " is not managed by this store");
-         }
-         
-         // Otherwise we do nothing; we already have a ref to the entry
+         throw new IllegalStateException(key + " is not managed by this store");
       }
+         
+      // Otherwise we do nothing; we already have a ref to the entry
    }
 
    public void passivate(T entry)
    {
-      synchronized (cache)
+      synchronized (entry)
       {
          Object key = entry.getId();
          store.store(entry);  
@@ -144,15 +136,12 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
 
    public T remove(Object id)
    {
-      synchronized (cache)
+      T entry = get(id);
+      if (entry != null)
       {
-         T entry = get(id);
-         if (entry != null)
-         {
-            cache.remove(id);
-         }
-         return entry;
+         cache.remove(id);
       }
+      return entry;
    } 
 
    public void start()

@@ -55,7 +55,7 @@ public class MockXPC implements Serializable, XPC
    {
       if (entity != null)
          throw new IllegalStateException("entity already created");
-      entity = new MockEntity();
+      entity = new MockEntity(MockIdentifiable.createId());
       return entity;
    }
    

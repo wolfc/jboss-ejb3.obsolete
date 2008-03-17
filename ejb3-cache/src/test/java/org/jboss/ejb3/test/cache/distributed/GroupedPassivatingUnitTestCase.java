@@ -27,6 +27,7 @@ import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
+import org.jboss.ejb3.test.cache.mock.MockEntity;
 import org.jboss.ejb3.test.cache.mock.MockPassivationManager;
 import org.jboss.ejb3.test.cache.mock.MockXPC;
 import org.jboss.logging.Logger;
@@ -55,7 +56,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
    
    public void testSimpleGroupPassivation() throws Exception
    {      
-      log.info("testSimpleGroupPassivation()");
+      log.info("====== testSimpleGroupPassivation() ======");
       
       MockCluster cluster = new MockCluster(false);
       MockClusterMember node0 = cluster.getNode0();
@@ -108,7 +109,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
          assertTrue("ctx1 must be different than firstCtx1 (else no passivation has taken place)", ctx1 != firstCtx1);
          
          assertNotNull(ctx1.getXPC());
-         assertEquals(ctx1.getXPC(), ctx2.getXPC());
+         assertSame(ctx1.getXPC(), ctx2.getXPC());
       }
       finally
       {
@@ -121,6 +122,112 @@ public class GroupedPassivatingUnitTestCase extends TestCase
          {
             cluster.getNode0().restoreTCCL();
          }
+      }
+   }
+   
+   public void testSimpleGroupReplication() throws Exception
+   {      
+      log.info("====== testSimpleGroupReplication() ======");
+      
+      MockCluster cluster = new MockCluster(false);
+      MockCacheConfig cacheConfig = new MockCacheConfig();
+      cacheConfig.setIdleTimeoutSeconds(1);
+      MockXPC sharedXPC = new MockXPC("XPCA");
+      MockBeanContainer[] firstSet = cluster.deployBeanContainer("MockBeanContainer1", null, CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName(), sharedXPC.getName());
+      MockBeanContainer[] secondSet = cluster.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName(), sharedXPC.getName());
+      MockBeanContainer container1A = firstSet[0];
+      MockBeanContainer container1B = firstSet[1];
+      MockBeanContainer container2A = secondSet[0];
+      MockBeanContainer container2B = secondSet[1];
+      
+      Object key1 = null;
+      Object key2 = null;
+      MockEntity entityA = null;
+      
+      cluster.getNode0().setTCCL();
+      try
+      {
+         key1 = container1A.getCache().create(null, null);
+         MockBeanContext ctx1A = container1A.getCache().get(key1);
+         
+         key2 = ctx1A.getChild(container2A.getName());
+         MockBeanContext ctx2A = container2A.getCache().get(key2);
+         
+         assertNotNull(ctx1A.getXPC());
+         assertSame(ctx1A.getXPC(), ctx2A.getXPC());
+         
+         entityA = ctx2A.createEntity();
+         assertSame(entityA, ctx1A.getEntity());
+         
+         container2A.getCache().finished(ctx2A);
+         container1A.getCache().finished(ctx1A);
+         
+         MockPassivationManager pass1A = (MockPassivationManager) container1A.getPassivationManager();
+         MockPassivationManager pass2A = (MockPassivationManager) container2A.getPassivationManager();
+         
+         assertEquals("ctx1 should have been replicated", 1, pass1A.getPreReplicateCount());
+         assertEquals("ctx2 should have been passivated", 1, pass2A.getPreReplicateCount());
+         
+         ctx2A = container2A.getCache().get(key2);
+         
+         log.info("ctx2 = " + ctx2A);
+         assertNotNull(ctx2A);
+         
+         assertEquals("ctx2 should have been postReplicated", 1, pass2A.getPostReplicateCount());        
+         assertEquals("ctx2 should not have been activated", 0, pass2A.getPostActivateCount());
+         
+         ctx1A = container1A.getCache().get(key1);
+         
+         log.info("ctx1 = " + ctx1A);
+         assertNotNull(ctx1A);
+         
+         assertEquals("ctx1 should have been postReplicated", 1, pass1A.getPostReplicateCount());        
+         assertEquals("ctx1 should not have been activated", 0, pass1A.getPostActivateCount());
+         
+         assertNotNull(ctx1A.getXPC());
+         assertSame(ctx1A.getXPC(), ctx2A.getXPC());
+         
+         MockEntity entity1x = ctx1A.getEntity();
+         assertEquals(entityA, entity1x);
+         
+         container1A.getCache().finished(ctx1A);         
+         container2A.getCache().finished(ctx2A);
+      }
+      catch (Exception e)
+      {
+         container1A.stop();
+         container2A.stop();
+         throw e;
+      }
+      finally
+      {
+         cluster.getNode0().restoreTCCL();         
+      }
+      
+      // Switch to second node
+      cluster.getNode1().setTCCL();
+      try
+      {
+         MockBeanContext ctx1B = container1B.getCache().get(key1);         
+         MockBeanContext ctx2B = container2B.getCache().get(key2);
+         
+         MockEntity entityB = ctx2B.getEntity();
+         assertSame(entityB, ctx1B.getEntity());
+         assertEquals(entityA, entityB);
+         assertNotSame(entityA, entityB);
+         
+         container2B.getCache().finished(ctx2B);         
+         container1B.getCache().finished(ctx1B);
+      }
+      catch (Exception e)
+      {
+         container1B.stop();
+         container2B.stop();
+         throw e;
+      }
+      finally
+      {
+         cluster.getNode1().restoreTCCL();         
       }
    }
 }

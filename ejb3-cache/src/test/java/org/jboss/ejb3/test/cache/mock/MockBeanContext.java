@@ -165,14 +165,17 @@ public class MockBeanContext extends MockCacheItem
    
    // -- Underlying bean operations
    
-   public void createEntity()
+   public MockEntity createEntity()
    {
       entity = xpc.createEntity();
       setModified(true);
+      log.trace(getId() + ": createEntity()");
+      return entity;
    }
    
    public MockEntity getEntity()
    {
+      log.trace(getId() + ": getEntity()");
       MockEntity was = entity;
       entity = xpc.getEntity();
       if (was != entity)
@@ -182,6 +185,7 @@ public class MockBeanContext extends MockCacheItem
    
    public void removeEntity()
    {
+      log.trace(getId() + ": removeEntity()");
       xpc.removeEntity();
       if (entity != null)
       {
@@ -192,11 +196,12 @@ public class MockBeanContext extends MockCacheItem
    
    public void invokeNonModifying()
    {
-      // no-op
+      log.trace(getId() + ": invokeNonModifying()");
    }
    
    public void invokeModifying()
    {
-       setModified(true);
+      log.trace(getId() + ": invokeModifying()");
+      setModified(true);
    }
 }

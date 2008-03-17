@@ -40,6 +40,7 @@ import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
+import org.jboss.logging.Logger;
 
 /**
  * Non-group-aware <code>Cache</code> implementation 
@@ -61,6 +62,8 @@ import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
  */
 public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry<C>> implements Cache<C>
 {
+   protected final Logger log = Logger.getLogger(getClass().getName());
+   
    /** BackingCache that handles passivation, groups, etc */
    private final BackingCache<C, T> delegate;
    
@@ -322,6 +325,8 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       if (entry == null)
       {
          // TODO is this correct?
+         if (log.isTraceEnabled())
+            log.trace("Item " + key + " is not in use; cannot release");
          return;
       }
       

@@ -25,8 +25,9 @@ package org.jboss.ejb3.test.cache.mock;
 import org.jboss.ejb3.cache.api.CacheItem;
 
 /**
+ * Mock implementation of a CacheItem.
+ * 
  * @author Brian Stansberry
- *
  */
 public class MockCacheItem 
    extends MockIdentifiable
@@ -37,7 +38,7 @@ public class MockCacheItem
    
    private boolean modified;
 
-   public MockCacheItem(long id)
+   public MockCacheItem(int id)
    {
       super(id);
    }
