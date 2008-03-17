@@ -48,7 +48,8 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
    public PassivatingIntegratedObjectStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      Cache<Object, Object> jbc = getJBossCache(cacheConfigName);
+      @SuppressWarnings("unchecked")
+      Cache<Object, SerializationGroup<T>> jbc = getJBossCache(cacheConfigName);
       
       String keyBaseSuffix = (containerName == null || containerName.length() == 0) ? "" : "-" + containerName;
       String keyBase = "GroupCache" + keyBaseSuffix;
@@ -58,7 +59,8 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      Cache<Object, Object> jbc = getJBossCache(cacheConfigName);
+      @SuppressWarnings("unchecked")
+      Cache<Object, SerializationGroupMember<T>> jbc = getJBossCache(cacheConfigName);
       
       return new JBCIntegratedObjectStore<T, SerializationGroupMember<T>>(jbc, cacheConfig, containerName, containerName, false);
    }
@@ -73,7 +75,8 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
       this.cacheManager = cacheManager;
    }
    
-   private Cache<Object, Object> getJBossCache(String cacheConfigName)
+   @SuppressWarnings("unchecked")
+   private Cache getJBossCache(String cacheConfigName)
    {
       if (cacheManager == null)
          throw new IllegalStateException("CacheManager not installed");
