@@ -41,7 +41,7 @@ import org.jboss.cache.notifications.event.NodeRemovedEvent;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.BackingCacheEntry;
+import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
 import org.jboss.logging.Logger;
@@ -52,13 +52,14 @@ import org.jboss.util.id.GUID;
  * 
  * @author Brian Stansberry
  */
-public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+public class JBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
    extends AbstractPassivatingIntegratedObjectStore<C, T>
 {
    public static final String FQN_BASE = "sfsb";
    
    private static final String KEY = "item";
    
+   @SuppressWarnings("unchecked")
    private static final ThreadLocal removedItem = new ThreadLocal();
    
    /** Depth of fqn element where we store the id. */ 
@@ -100,7 +101,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
    private final ConcurrentMap<OwnedItem, Long> inMemoryItems;
    private final ConcurrentMap<OwnedItem, Long> passivatedItems;
    
-   public JBCIntegratedObjectStore(Cache jbc, 
+   public JBCIntegratedObjectStore(Cache<Object, T> jbc, 
                                    CacheConfig cacheConfig, 
                                    Object keyBase,
                                    String name,
@@ -190,6 +191,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
       jbc.evict(id);
    }
 
+   @SuppressWarnings("unchecked")
    public T remove(Object key)
    {
       Fqn<Object> id = getFqn(key, false);
@@ -223,16 +225,24 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
       }
    }
 
-   public void update(T entry)
+   public void update(T entry, boolean modified)
    {
-      try
+      if (modified)
       {
-         putInCache(entry);
+         try
+         {
+            putInCache(entry);
+         }
+         catch (CacheException e)
+         {
+            RuntimeException re = convertToRuntimeException(e);
+            throw re;
+         }
       }
-      catch (CacheException e)
+      else
       {
-         RuntimeException re = convertToRuntimeException(e);
-         throw re;
+         OwnedItem oi = new OwnedItem(null, entry.getId(), cacheNode);
+         inMemoryItems.put(oi, new Long(entry.getLastUsed()));
       }
    }
 
@@ -519,6 +529,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
       
       public void nodeModified(OwnedItem oi, NodeModifiedEvent event)
       {
+         @SuppressWarnings("unchecked")
          T entry = (T) event.getData().get(KEY);
          if (entry != null)
          {
@@ -528,6 +539,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
          }       
       }
       
+      @SuppressWarnings("unchecked")
       public void nodeRemoved(OwnedItem oi, NodeRemovedEvent event)
       {
          inMemoryItems.remove(oi);
@@ -540,6 +552,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
       
       public void nodeActivated(OwnedItem oi, NodeActivatedEvent event)
       {
+         @SuppressWarnings("unchecked")
          T entry = (T) event.getData().get(KEY);
          if (entry != null)
          {
@@ -552,6 +565,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends BackingCach
 
       public void nodePassivated(OwnedItem oi, NodePassivatedEvent event)
       {
+         @SuppressWarnings("unchecked")
          T entry = (T) event.getData().get(KEY);
          if (entry != null)
          {
