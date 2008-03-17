@@ -10,10 +10,19 @@
   
   <bindings>
     <configurations>
-      <configuration name="uniqueName">
+      <configuration name="uniqueNameMappingToServerName" serverConfigBase="all">
+        <jvmargs>
+          <jvmarg>-Xmx512M</jvmarg>
+          <jvmarg>-Xms128M</jvmarg>
+        </jvmargs>
         <tests>
           <test name="example1" />
-          <test name="example1" />
+          <test name="example2" />
+          <test name="example3" />
+        </tests>
+      </configuration>
+      <configuration name="all">
+        <tests>
           <test name="example1" />
         </tests>
       </configuration>
@@ -24,16 +33,11 @@
 
 <bindings>
   <configurations>
-    <configuration name="minimal">
-      <tests>
-        <test name="TEST1" />
-        <test name="TEST2" />
-        <test name="TEST5" />
-        <test name="TEST8" />
-        <test name="TEST10" />
-      </tests>
-    </configuration>
     <configuration name="default">
+      <jvmargs>
+        <jvmarg>-Xmx512M</jvmarg>
+        <jvmarg>-Xms128M</jvmarg>
+      </jvmargs>
       <tests>
         <test name="TEST2" />
         <test name="TEST8" />
@@ -41,11 +45,19 @@
       </tests>
     </configuration>
     <configuration name="all">
+      <jvmargs>
+        <jvmarg>-Xmx512M</jvmarg>
+        <jvmarg>-Xms128M</jvmarg>
+      </jvmargs>
       <tests>
         <test name="TEST5" />
       </tests>
     </configuration>
-    <configuration name="myNewTestConfig">
+    <configuration name="ejb3-ssl" serverConfigBase="all">
+      <jvmargs>
+        <jvmarg>-Xmx512M</jvmarg>
+        <jvmarg>-Xms128M</jvmarg>
+      </jvmargs>
       <tests>
         <test name="TEST4" />
         <test name="TEST8" />
