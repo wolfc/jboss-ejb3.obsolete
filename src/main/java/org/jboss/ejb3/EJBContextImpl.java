@@ -35,6 +35,7 @@ import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.TimerService;
 import javax.ejb.TransactionManagementType;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
@@ -90,8 +91,13 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
       return rm;
    }
 
+   /**
+    * 
+    */
    public Object lookup(String name)
    {
+      if(name == null)
+         throw new IllegalArgumentException("name is null");
       String newName;
       if (name.startsWith("/"))
       {
@@ -105,18 +111,25 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
       {
          return getContainer().getEnc().lookup(newName);
       }
-      catch (NamingException ignored)
+      catch (NameNotFoundException ignored)
       {
          try 
          {
             return getContainer().getInitialContext().lookup(name);
          } 
-         catch (NamingException ignored2)
+         catch (NameNotFoundException ignored2)
          {
-            
+            throw new IllegalArgumentException("Unable to find an entry in java:comp/env (or global JNDI) for '" + name + "'");
+         }
+         catch(NamingException e)
+         {
+            throw new RuntimeException(e);
          }
       }
-      return null;
+      catch(NamingException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
    @SuppressWarnings("deprecation")
