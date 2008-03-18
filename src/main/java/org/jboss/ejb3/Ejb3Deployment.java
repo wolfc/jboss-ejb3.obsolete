@@ -54,6 +54,7 @@ import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.lang.ClassHelper;
+import org.jboss.ejb3.metadata.JBossMessageDrivenBeanGenericWrapper;
 import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
@@ -62,6 +63,7 @@ import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
@@ -816,13 +818,18 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
       
       JBossEnterpriseBeanMetaData result = metaData.getEnterpriseBean(ejbName);
       
-      // TODO: temporary workaround for JBCTS-756
+      // FIXME: EJBTHREE-1227: temporary workaround for JBCTS-756
       // see also org.jboss.ejb3.metadata.JBossSessionGenericWrapper
       if(result instanceof JBossGenericBeanMetaData)
       {
+         log.warn("FIXME: EJBTHREE-1227: JBossGenericBeanMetaData found for '" + ejbName + "' instead of " + enterpriseBeanMetaDataClass);
          if(enterpriseBeanMetaDataClass.equals(JBossSessionBeanMetaData.class))
          {
             result = new JBossSessionGenericWrapper((JBossGenericBeanMetaData) result);
+         }
+         else if(enterpriseBeanMetaDataClass.equals(JBossMessageDrivenBeanMetaData.class))
+         {
+            result = new JBossMessageDrivenBeanGenericWrapper((JBossGenericBeanMetaData) result);
          }
          else
          {
