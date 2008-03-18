@@ -103,7 +103,11 @@ public class MessageInflowLocalProxy implements InvocationHandler
 
    public Object invoke(Object proxy, Method method, Object[] args)
            throws Throwable
-   {   
+   {
+      // EJBTHREE-1209: if a proxy is used in debug statements return something useful
+      if(method.getName().equals("toString") && method.getParameterTypes().length == 0)
+         return container.toString();
+      
       // Are we still useable?
       if (released.get())
          throw new IllegalStateException("This message endpoint + " + getProxyString(proxy) + " has been released");
