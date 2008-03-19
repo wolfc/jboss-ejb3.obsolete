@@ -36,29 +36,6 @@
 
     <plugins>
 
-      <!-- EJB3 TestRunner Configuration -->
-      <plugin>
-        <groupId>org.jboss.maven.plugins</groupId>
-        <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
-        <executions>
-          <execution>
-            <id>run-ejb3-tests</id>
-            <goals>
-              <goal>run-testsuite</goal>
-            </goals>
-            <phase>integration-test</phase>
-            <!-- <phase>validate</phase>  For testing only-->
-            <configuration>
-              <jvmArgs>
-                <jvmArg>-Xmx512M</jvmArg>
-              </jvmArgs>
-              <configurationsToTestsConfigPath>src/test/resources/testrunner-config/jbossas_configuration-ejb3_test-bindings.xml</configurationsToTestsConfigPath>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Integration Tests via Ant -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -77,6 +54,29 @@
                 <ant antfile="build-test.xml" target="main" />
 
               </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <!-- EJB3 TestRunner Configuration -->
+      <plugin>
+        <groupId>org.jboss.maven.plugins</groupId>
+        <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>run-ejb3-tests</id>
+            <goals>
+              <goal>run-testsuite</goal>
+            </goals>
+            <phase>integration-test</phase>
+            <!-- <phase>validate</phase>  For testing only-->
+            <configuration>
+              <jvmArgs>
+                <jvmArg>-Xmx512M</jvmArg>
+              </jvmArgs>
+              <configurationsToTestsConfigPath>src/test/resources/testrunner-config/jbossas_configuration-ejb3_test-bindings.xml</configurationsToTestsConfigPath>
             </configuration>
           </execution>
         </executions>
