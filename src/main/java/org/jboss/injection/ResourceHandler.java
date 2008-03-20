@@ -304,11 +304,15 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          {
             mappedName = "java:comp/ORB";
          }
-      }
-      if (mappedName == null || mappedName.equals(""))
-      {
-         throw new RuntimeException("You did not specify a @Resource.mappedName() for name: "
-               +ref.name()+", class: " + clazz.getName() + " and there is no binding for that enc name in XML");
+         else if(UserTransaction.class.isAssignableFrom(ref.type()))
+         {
+            mappedName = "java:comp/UserTransaction";
+         }
+         else
+         {
+            throw new RuntimeException("You did not specify a @Resource.mappedName() for name: "
+                  +ref.name()+", class: " + clazz.getName() + " and there is no binding for that enc name in XML");
+         }
       }
 
       if (ref.type() == URL.class)
