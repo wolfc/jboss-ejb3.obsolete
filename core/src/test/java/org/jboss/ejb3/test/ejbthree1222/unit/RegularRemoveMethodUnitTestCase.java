@@ -58,7 +58,7 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
     * Tests that a call to an unannotated "void remove()"
     * method is a traditional call
     */
-   public void testHasBeenIntercepted() throws Exception
+   public void testNormalMethodNamedRemove() throws Exception
    {
       // Lookup Bean
       TestStatefulWithRemoveMethodRemote bean = (TestStatefulWithRemoveMethodRemote) this.getInitialContext().lookup(
@@ -86,7 +86,7 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
       catch (NoSuchEJBException nsee)
       {
          // "void remove()" should not have been handled as EJB2.1 call
-         TestCase.fail(nsee.getMessage());
+         TestCase.fail("Bean should not have been removed: " + nsee.getMessage());
       }
 
    }
