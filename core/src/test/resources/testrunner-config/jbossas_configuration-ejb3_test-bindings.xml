@@ -153,6 +153,7 @@
         <test name="ejbthree1154" />
         <test name="ejbthree1155" />
         <test name="ejbthree1157" />
+        <test name="ejbthree1222" />
         <test name="statelesscreation" />
         <test name="jbas4489" />
         <test name="changexml" />
