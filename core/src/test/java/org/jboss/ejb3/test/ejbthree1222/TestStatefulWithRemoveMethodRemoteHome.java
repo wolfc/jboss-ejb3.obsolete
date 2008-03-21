@@ -21,51 +21,20 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
-import javax.ejb.EJBObject;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.Stateful;
+import java.rmi.RemoteException;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
+import javax.ejb.CreateException;
+import javax.ejb.EJBHome;
 
 /**
- * TestStatefulWithRemoveMethodBean
- * 
- * A SFSB with remote view that defines a "void remove()" method
- * that is not annotated with @Remove, and should therefore act like
- * any plain method.
+ * TestStatefulWithRemoveMethodRemoteHome
  *  
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateful
-@Remote(
-{TestStatefulWithRemoveMethodRemote.class, EJBObject.class})
-@RemoteHome(TestStatefulWithRemoveMethodRemoteHome.class)
-@RemoteBinding(jndiBinding = TestStatefulWithRemoveMethodRemote.JNDI_NAME)
-public class TestStatefulWithRemoveMethodBean implements TestStatefulWithRemoveMethodRemote
+public interface TestStatefulWithRemoveMethodRemoteHome extends EJBHome
 {
-   // Class Members
-
-   public static int CALLS = 0;
-
-   // Required Implementations
-
-   /**
-    * Increments the number of calls
-    */
-   public void remove()
-   {
-      TestStatefulWithRemoveMethodBean.CALLS++;
-   }
-
-   public void reset()
-   {
-      TestStatefulWithRemoveMethodBean.CALLS = 0;
-   }
-
-   public int getCalls()
-   {
-      return TestStatefulWithRemoveMethodBean.CALLS;
-   }
+   String JNDI_NAME = "TestStatefulWithRemoveMethodBean/home";
+   
+   TestStatefulWithRemoveMethodRemote create() throws RemoteException, CreateException;
 }
