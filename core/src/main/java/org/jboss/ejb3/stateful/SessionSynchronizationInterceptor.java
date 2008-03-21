@@ -22,6 +22,7 @@
 package org.jboss.ejb3.stateful;
 
 import java.rmi.RemoteException;
+
 import javax.ejb.EJBException;
 import javax.ejb.SessionSynchronization;
 import javax.transaction.RollbackException;
@@ -30,9 +31,11 @@ import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.ejb3.tx.TxUtil;
+import org.jboss.logging.Logger;
 
 /**
  * Comment
@@ -42,6 +45,8 @@ import org.jboss.ejb3.tx.TxUtil;
  */
 public class SessionSynchronizationInterceptor implements Interceptor
 {
+   private static final Logger log = Logger.getLogger(SessionSynchronizationInterceptor.class);
+   
    private TransactionManager tm;
 
    public SessionSynchronizationInterceptor()
@@ -102,33 +107,28 @@ public class SessionSynchronizationInterceptor implements Interceptor
       }
    }
 
-   protected void registerSessionSynchronization(StatefulBeanContext ctx) throws SystemException
+   protected void registerSessionSynchronization(StatefulBeanContext ctx) throws RemoteException, SystemException
    {
       if (ctx.isTxSynchronized()) return;
       Transaction tx = tm.getTransaction();
       if (tx == null) return;
+      // tx.registerSynchronization will throw RollbackException, so no go
       if (tx.getStatus() == Status.STATUS_MARKED_ROLLBACK) return;
       SFSBSessionSynchronization synch = new SFSBSessionSynchronization(ctx);
-      SessionSynchronization bean = (SessionSynchronization) ctx.getInstance();
-      try
-      {
-         bean.afterBegin();
-      }
-      catch (EJBException e)
-      {
-         throw e;
-      }
-      catch (RemoteException e)
-      {
-         throw new EJBException(e);
-      }
       try
       {
          tx.registerSynchronization(synch);
       }
-      catch (RollbackException ignore)
+      catch(RollbackException e)
       {
+         log.warn("Unexpected RollbackException from tx " + tx + " with status " + tx.getStatus());
+         throw new EJBException(e);
       }
+      // Notify StatefulInstanceInterceptor that the synch will take care of the release.
+      ctx.setTxSynchronized(true);
+      SessionSynchronization bean = (SessionSynchronization) ctx.getInstance();
+      // EJB 3 4.3.7 paragraph 2
+      bean.afterBegin();
    }
 
    public Object invoke(Invocation invocation) throws Throwable
