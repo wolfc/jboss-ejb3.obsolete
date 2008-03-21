@@ -30,7 +30,7 @@ package org.jboss.ejb3.test.ejbthree1222;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestStatefulWithRemoveMethodRemote
+public interface TestStatefulWithRemoveMethodRemoteBusiness
 {
    String JNDI_NAME="TestStatefulWithRemoveMethod/remote";
    

@@ -35,6 +35,6 @@ import javax.ejb.EJBHome;
 public interface TestStatefulWithRemoveMethodRemoteHome extends EJBHome
 {
    String JNDI_NAME = "TestStatefulWithRemoveMethodBean/home";
-   
+
    TestStatefulWithRemoveMethodRemote create() throws RemoteException, CreateException;
 }
