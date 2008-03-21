@@ -29,6 +29,8 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.ejb3.test.ejbthree1222.TestStatefulWithRemoveMethodRemote;
+import org.jboss.ejb3.test.ejbthree1222.TestStatefulWithRemoveMethodRemoteBusiness;
+import org.jboss.ejb3.test.ejbthree1222.TestStatefulWithRemoveMethodRemoteHome;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -61,8 +63,8 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
    public void testNormalMethodNamedRemove() throws Exception
    {
       // Lookup Bean
-      TestStatefulWithRemoveMethodRemote bean = (TestStatefulWithRemoveMethodRemote) this.getInitialContext().lookup(
-            TestStatefulWithRemoveMethodRemote.JNDI_NAME);
+      TestStatefulWithRemoveMethodRemoteBusiness bean = (TestStatefulWithRemoveMethodRemoteBusiness) this
+            .getInitialContext().lookup(TestStatefulWithRemoveMethodRemoteBusiness.JNDI_NAME);
 
       // Reset the number of calls, if any
       bean.reset();
@@ -88,6 +90,49 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
          // "void remove()" should not have been handled as EJB2.1 call
          TestCase.fail("Bean should not have been removed: " + nsee.getMessage());
       }
+
+   }
+
+   /**
+    * Tests that a call to EJBObject's "void remove()"
+    * results in proper bean removal
+    */
+   public void testEjbObjectRemove() throws Exception
+   {
+      // Lookup Home
+      TestStatefulWithRemoveMethodRemoteHome home = (TestStatefulWithRemoveMethodRemoteHome) this.getInitialContext()
+            .lookup(TestStatefulWithRemoveMethodRemoteHome.JNDI_NAME);
+
+      // Create
+      TestStatefulWithRemoveMethodRemote bean = home.create();
+
+      // Reset the number of calls, if any
+      bean.reset();
+
+      // Remove the instance (EJB2.1 Call)
+      try
+      {
+         bean.remove();
+      }
+      catch (Exception e)
+      {
+         logger.error(e.getMessage(), e);
+         TestCase.fail(e.getMessage());
+      }
+
+      try
+      {
+         // Ensure the instance was removed by making another call
+         bean.getCalls();
+      }
+      catch (NoSuchEJBException nsee)
+      {
+         // Expected
+         return;
+      }
+
+      // NSEE should have been thrown
+      TestCase.fail(NoSuchEJBException.class.getName() + " should have been thrown.");
 
    }
 

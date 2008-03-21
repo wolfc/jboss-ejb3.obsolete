@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
-import javax.ejb.EJBObject;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
@@ -40,14 +39,14 @@ import org.jboss.ejb3.annotation.RemoteBinding;
  */
 @Stateful
 @Remote(
-{TestStatefulWithRemoveMethodRemote.class, EJBObject.class})
+{TestStatefulWithRemoveMethodRemoteBusiness.class, TestStatefulWithRemoveMethodRemote.class})
 @RemoteHome(TestStatefulWithRemoveMethodRemoteHome.class)
-@RemoteBinding(jndiBinding = TestStatefulWithRemoveMethodRemote.JNDI_NAME)
-public class TestStatefulWithRemoveMethodBean implements TestStatefulWithRemoveMethodRemote
+@RemoteBinding(jndiBinding = TestStatefulWithRemoveMethodRemoteBusiness.JNDI_NAME)
+public class TestStatefulWithRemoveMethodBean implements TestStatefulWithRemoveMethodRemoteBusiness
 {
-   // Class Members
+   // Instance Members
 
-   public static int CALLS = 0;
+   private int calls;
 
    // Required Implementations
 
@@ -56,16 +55,21 @@ public class TestStatefulWithRemoveMethodBean implements TestStatefulWithRemoveM
     */
    public void remove()
    {
-      TestStatefulWithRemoveMethodBean.CALLS++;
+      this.setCalls(this.getCalls() + 1);
    }
 
    public void reset()
    {
-      TestStatefulWithRemoveMethodBean.CALLS = 0;
+      this.setCalls(0);
    }
 
    public int getCalls()
    {
-      return TestStatefulWithRemoveMethodBean.CALLS;
+      return calls;
+   }
+
+   private void setCalls(int calls)
+   {
+      this.calls = calls;
    }
 }
