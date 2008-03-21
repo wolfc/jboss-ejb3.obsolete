@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.ejbthree1222.unit;
 
+import javax.ejb.NoSuchEJBException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 
@@ -76,8 +78,17 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
          TestCase.fail(e.getMessage());
       }
 
-      // Ensure the call was received and the bean instance is still available
-      TestCase.assertEquals(1, bean.getCalls());
+      try
+      {
+         // Ensure the call was received and the bean instance is still available
+         TestCase.assertEquals(1, bean.getCalls());
+      }
+      catch (NoSuchEJBException nsee)
+      {
+         // "void remove()" should not have been handled as EJB2.1 call
+         TestCase.fail(nsee.getMessage());
+      }
+
    }
 
    // Suite
