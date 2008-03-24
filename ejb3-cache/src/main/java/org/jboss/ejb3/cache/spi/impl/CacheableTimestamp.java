@@ -41,13 +41,13 @@ import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class CacheableTimestamp 
-   implements Identifiable, Comparable<CacheableTimestamp>
+public class CacheableTimestamp<K> 
+   implements Identifiable, Comparable<CacheableTimestamp<K>>
 {
-   private Object id;
+   private K id;
    private long lastUsed;
    
-   public CacheableTimestamp(Object id, long lastUsed)
+   public CacheableTimestamp(K id, long lastUsed)
    {
       assert id != null : "id cannot be null";
       assert lastUsed > 0 : "lastUsed must be positive";
@@ -56,7 +56,7 @@ public class CacheableTimestamp
       this.lastUsed = lastUsed;
    }
    
-   public Object getId()
+   public K getId()
    {
       return id;
    }
@@ -70,16 +70,17 @@ public class CacheableTimestamp
     * Compares based on {@link #getLastUsed() last used}, returning
     * -1 for earlier timestamps.
     */
-   public int compareTo(CacheableTimestamp o)
-   {
+   public int compareTo(CacheableTimestamp<K> o)
+   {      
       if (this.lastUsed < o.lastUsed)
          return -1;
       else if (this.lastUsed > o.lastUsed)
          return 1;
-      return 0;
+      return 0; 
    }
 
    @Override
+   @SuppressWarnings("unchecked")
    public boolean equals(Object obj)
    {
       if (this == obj)
@@ -87,7 +88,7 @@ public class CacheableTimestamp
       
       if (obj instanceof CacheableTimestamp)
       {
-         return this.id.equals(((CacheableTimestamp) obj).id);
+         return this.id.equals(((CacheableTimestamp<K>) obj).id);
       }
       return false;
    }

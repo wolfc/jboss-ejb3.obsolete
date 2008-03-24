@@ -36,7 +36,7 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision$
  */
-public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
+public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>, K>
       implements PassivatingIntegratedObjectStore<C, T>
 {
    private static final Logger log = Logger.getLogger(AbstractPassivatingIntegratedObjectStore.class);
@@ -74,9 +74,46 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
 
    // ---------------------------------------------------------------- Abstract
    
-   protected abstract void runExpiration();
+   /**
+    * Invoked by {@link #processPassivationExpiration()} to indicate the
+    * item associated with the given key needs to be passivated.
+    */
+   protected abstract void processPassivation(K key);
+   /**
+    * Invoked by {@link #processPassivationExpiration()} to indicate the
+    * item associated with the given key needs to be expired.
+    */
+   protected abstract void processExpiration(K key);
 
-   protected abstract void runPassivation();
+   /**
+    * Get a set of {@link CacheableTimestamp} representing the items currently
+    * in memory.
+    * 
+    * @return array of {@link CacheableTimestamp}, sorted by 
+    *         {@link CacheableTimestamp#getLastUsed() last use}, with least
+    *         recently used items first.
+    */
+   protected abstract CacheableTimestamp<K>[] getInMemoryEntries();
+   
+   /**
+    * Get a set of {@link CacheableTimestamp} representing all items, both
+    * those in memory and those passivated.
+    * 
+    * @return array of {@link CacheableTimestamp}, sorted by 
+    *         {@link CacheableTimestamp#getLastUsed() last use}, with least
+    *         recently used items first.
+    */
+   protected abstract CacheableTimestamp<K>[] getAllEntries();
+   
+   /**
+    * Get the number of items in memory.
+    */
+   public abstract int getInMemoryCount();
+   
+   /**
+    * Get the number of passivated items.
+    */
+   public abstract int getPassivatedCount();
 
    // --------------------------------------------------  IntegratedObjectStore
 
@@ -215,6 +252,71 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
       this.maxSize = maxSize;
    }
    
+   // --------------------------------------------------------------  Protected
    
+   
+   
+   // ----------------------------------------------------------------  Private
 
+   private void runExpiration()
+   {
+      if (!isForGroups() && getExpirationTimeSeconds() > 0)
+      {
+         long now = System.currentTimeMillis();
+         long minRemovalUse = now - (getExpirationTimeSeconds() * 1000);                     
+         for (CacheableTimestamp<K> ts : getAllEntries())
+         {
+            try
+            {
+               if (minRemovalUse >= ts.getLastUsed())
+               {
+                  processExpiration(ts.getId());
+               }
+               else
+               {
+                  break;
+               }
+            }
+            catch (IllegalStateException ise)
+            {
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
+            }
+         }    
+      }      
+   }
+
+   private void runPassivation()
+   {
+      if (!isForGroups() 
+            && (getMaxSize() > 0 || getIdleTimeSeconds() > 0))
+      {
+         long now = System.currentTimeMillis();
+         long minPassUse = (getIdleTimeSeconds() > 0 ? now - (getIdleTimeSeconds() * 1000) : 0);
+         
+         CacheableTimestamp<K>[] timestamps = getInMemoryEntries();
+         int overCount = (getMaxSize() > 0 ? timestamps.length - getMaxSize() : 0);
+         for (CacheableTimestamp<K> ts : timestamps)
+         {
+            try
+            {
+               if (overCount > 0 || minPassUse >= ts.getLastUsed())
+               {
+                  log.trace("attempting to passivate " + ts.getId());
+                  processPassivation(ts.getId());
+                  overCount--;
+               }
+               else
+               {
+                  break;
+               }
+            }
+            catch (IllegalStateException ise)
+            {
+               // Not so great; we're assuming it's 'cause item's in use
+               log.trace("skipping in-use entry " + ts.getId(), ise);
+            }
+         }
+      }      
+   }
 }
