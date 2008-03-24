@@ -22,6 +22,9 @@
 
 package org.jboss.ejb3.cache.impl.backing.jbc2;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -44,6 +47,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
 import org.jboss.logging.Logger;
 import org.jboss.util.id.GUID;
 
@@ -53,19 +57,26 @@ import org.jboss.util.id.GUID;
  * @author Brian Stansberry
  */
 public class JBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
-   extends AbstractPassivatingIntegratedObjectStore<C, T>
+   extends AbstractPassivatingIntegratedObjectStore<C, T, OwnedItem>
 {
-   public static final String FQN_BASE = "sfsb";
-   
+   /** First element in EJB3 SFSB Fqns */
+   private static final String FQN_BASE = "sfsb";
+   /** Key under which items are stored in cache nodes */
    private static final String KEY = "item";
    
+   /** Hack used to avoid having to make 2 calls to remove an entry */
    @SuppressWarnings("unchecked")
    private static final ThreadLocal removedItem = new ThreadLocal();
    
-   /** Depth of fqn element where we store the id. */ 
-   static final int FQN_SIZE = 4; // depth of fqn that we store the session in.
+   /** Depth of fqn element where we store the entry. */ 
+   static final int FQN_SIZE = 4;
+   /**  
+    * Number of "buckets" under the region root -- used to increase
+    * the number of items FileCacheLoader can store w/o hitting
+    * filesystem limits.
+    */
    private static final int DEFAULT_BUCKET_COUNT = 100;
-
+   /** The names of the aforementioned buckets */
    private static final String[] DEFAULT_HASH_BUCKETS = new String[DEFAULT_BUCKET_COUNT];
 
    static
@@ -82,23 +93,25 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    /** Qualifier used to scope our Fqns */
    private final Object keyBase;
 
-   private Fqn<Object> cacheNode;
+   /** Fqn of region where we store items */
+   private Fqn<Object> regionRootFqn;
+   /** The region where we store items */
    private Region region;
+   /** Listener for cache event notifications */
    private ClusteredCacheListener listener;
+   /** Handler for listener events related to our region */
    private RegionHandlerImpl regionHandler;
-
-   public static long MarkInUseWaitTime = 15000;
-
-   private final ThreadLocal<Boolean> localActivity = new ThreadLocal<Boolean>();
+   /** Our logger */
    private final Logger log;
+   /** Our "buckets". See above */
    private String[] hashBuckets = DEFAULT_HASH_BUCKETS;
-   private int createCount = 0;
-   private int passivatedCount = 0;
-   private int removeCount = 0;
+   /** Whether our cache is using buddy replication */
    private boolean usingBuddyRepl;
+   /** Whether our RegionHandlerImpl should track visits */
    private boolean trackVisits;
-   
+   /** Last-use timestamps of in-memory items.  Used for passivation and expiration*/
    private final ConcurrentMap<OwnedItem, Long> inMemoryItems;
+   /** Last-use timestamps of passivated items.  Used for expiration*/
    private final ConcurrentMap<OwnedItem, Long> passivatedItems;
    
    public JBCIntegratedObjectStore(Cache<Object, T> jbc, 
@@ -116,7 +129,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       this.keyBase = keyBase;
 
       this.log = Logger.getLogger(getClass().getName() + "." + name);
-      this.cacheNode = new Fqn<Object>(new Object[] { FQN_BASE, this.keyBase });
+      this.regionRootFqn = new Fqn<Object>(new Object[] { FQN_BASE, this.keyBase });
       BuddyReplicationConfig brc = jbc.getConfiguration().getBuddyReplicationConfig();
       this.usingBuddyRepl = brc != null && brc.isEnabled();
       
@@ -143,10 +156,8 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    {
       T entry = null;
       Fqn<Object> id = getFqn(key, false);
-      Boolean active = localActivity.get();
       try
       {
-         localActivity.set(Boolean.TRUE);
          // If need be, gravitate
          if (usingBuddyRepl)
          {
@@ -158,10 +169,6 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       {
          RuntimeException re = convertToRuntimeException(e);
          throw re;
-      }
-      finally
-      {
-         localActivity.set(active);
       }
 
       if(log.isTraceEnabled())
@@ -176,7 +183,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    {
       try
       {
-         putInCache(entry);
+         jbc.put(getFqn(entry.getId(), false), KEY, entry);
       }
       catch (CacheException e)
       {
@@ -214,8 +221,6 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
          T removed = (T) removedItem.get();
          removedItem.set(null);
          
-         ++removeCount;
-         
          return removed;
       }
       catch (CacheException e)
@@ -231,7 +236,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       {
          try
          {
-            putInCache(entry);
+            jbc.put(getFqn(entry.getId(), false), KEY, entry);
          }
          catch (CacheException e)
          {
@@ -241,14 +246,14 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       }
       else
       {
-         OwnedItem oi = new OwnedItem(null, entry.getId(), cacheNode);
+         OwnedItem oi = new OwnedItem(null, entry.getId(), regionRootFqn);
          inMemoryItems.put(oi, new Long(entry.getLastUsed()));
       }
    }
 
    public void start()
    {      
-      region = jbc.getRegion(cacheNode, true);
+      region = jbc.getRegion(regionRootFqn, true);
       // Try to create an eviction region per ejb
       // BES 2008/03/12 No, let's handle passivation ourselves
       // since JBC doesn't properly track the buddy-backup region
@@ -279,7 +284,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       }
       
       regionHandler = new RegionHandlerImpl();
-      listener.addRegionHandler(cacheNode, regionHandler);
+      listener.addRegionHandler(regionRootFqn, regionHandler);
       
       initializeTrackingMaps();
       
@@ -289,7 +294,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    private void initializeTrackingMaps()
    {      
       // First the main tree
-      Node<Object, T> parent = jbc.getNode(cacheNode);
+      Node<Object, T> parent = jbc.getNode(regionRootFqn);
       analyzeRegionContent(parent);
      
       // Now any buddy regions
@@ -300,7 +305,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
          {
             for (Node<Object, T> bbRegion : bbRoot.getChildren())
             {
-               Node<Object, T> ourPart = bbRegion.getChild(cacheNode);
+               Node<Object, T> ourPart = bbRegion.getChild(regionRootFqn);
                if (ourPart != null)
                {
                   analyzeRegionContent(ourPart);
@@ -353,7 +358,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       if (jbc != null)
       {
          // Remove the listener
-         if (listener != null && regionHandler != null && listener.removeRegionHandler(cacheNode))
+         if (listener != null && regionHandler != null && listener.removeRegionHandler(regionRootFqn))
             jbc.removeCacheListener(listener);
 
          // Remove locally. We do this to clean up the persistent store,
@@ -364,7 +369,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
             // Remove locally. We do this to clean up the persistent store,
             // which is not affected by the region.deactivate call below.
             jbc.getInvocationContext().getOptionOverrides().setCacheModeLocal(true);
-            jbc.removeNode(cacheNode);
+            jbc.removeNode(regionRootFqn);
          }
          catch (CacheException e)
          {
@@ -389,39 +394,9 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       super.stop();
    }
 
-   public int getCacheSize()
+   public int getInMemoryCount()
    {
-      int count = 0;
-      try
-      {
-         Set<Object> children = null;
-         for (int i = 0; i < hashBuckets.length; i++)
-         {
-            Node<Object, T> node = jbc.getRoot().getChild(new Fqn<Object>(cacheNode, hashBuckets[i]));
-            if (node != null)
-            {
-               children = node.getChildrenNames();
-               count += (children == null ? 0 : children.size());
-            }
-         }
-         count = count - passivatedCount;
-      }
-      catch (CacheException e)
-      {
-         log.error("Caught exception calculating cache size", e);
-         count = -1;
-      }
-      return count;
-   }
-
-   public int getTotalSize()
-   {
-      return inMemoryItems.size() + passivatedItems.size();
-   }
-
-   public int getCreateCount()
-   {
-       return createCount;
+      return inMemoryItems.size();
    }
 
    public int getPassivatedCount()
@@ -429,31 +404,58 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
        return passivatedItems.size();
    }
 
-   public int getRemoveCount()
-   {
-      return removeCount;
-   }
-
-   public int getAvailableCount()
-   {
-      return -1;
-   }
-
-   public int getCurrentSize()
-   {
-      return inMemoryItems.size();
-   }
-
    @Override
-   protected void runExpiration()
+   protected void processExpiration(OwnedItem item)
    {
       throw new UnsupportedOperationException("implement me");
    }
 
    @Override
-   protected void runPassivation()
+   protected void processPassivation(OwnedItem item)
    {
       throw new UnsupportedOperationException("implement me");      
+   }
+
+   @Override
+   @SuppressWarnings("unchecked")
+   protected CacheableTimestamp<OwnedItem>[] getInMemoryEntries()
+   {     
+      Set<CacheableTimestamp<OwnedItem>> set = new HashSet<CacheableTimestamp<OwnedItem>>();
+      for (Map.Entry<OwnedItem, Long> entry : inMemoryItems.entrySet())
+      {
+         set.add(new CacheableTimestamp<OwnedItem>(entry.getKey(), entry.getValue()));
+      }
+      CacheableTimestamp<OwnedItem>[] array = new CacheableTimestamp[set.size()];
+      array = set.toArray(array);
+      Arrays.sort(array);
+      return array;
+   }
+
+   @Override
+   @SuppressWarnings("unchecked")
+   protected CacheableTimestamp<OwnedItem>[] getAllEntries()
+   {     
+      Set<CacheableTimestamp<OwnedItem>> set = new HashSet<CacheableTimestamp<OwnedItem>>();
+      for (Map.Entry<OwnedItem, Long> entry : inMemoryItems.entrySet())
+      {
+         set.add(new CacheableTimestamp<OwnedItem>(entry.getKey(), entry.getValue()));
+      }
+      CacheableTimestamp<Object>[] inMemory = new CacheableTimestamp[set.size()];
+      inMemory = set.toArray(inMemory);   
+      
+      set = new HashSet<CacheableTimestamp<OwnedItem>>();
+      for (Map.Entry<OwnedItem, Long> entry : passivatedItems.entrySet())
+      {
+         set.add(new CacheableTimestamp<OwnedItem>(entry.getKey(), entry.getValue()));
+      }
+      CacheableTimestamp<OwnedItem>[] passivated = new CacheableTimestamp[set.size()];
+      passivated = set.toArray(passivated);
+
+      CacheableTimestamp<OwnedItem>[] all = new CacheableTimestamp[passivated.length + inMemory.length];
+      System.arraycopy(passivated, 0, all, 0, passivated.length);
+      System.arraycopy(inMemory, 0, all, passivated.length, inMemory.length);
+      Arrays.sort(all);
+      return all;
    }
 
    private Fqn<Object> getFqn(Object id, boolean regionRelative)
@@ -472,7 +474,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       if (regionRelative)
          return new Fqn<Object>( new Object[] {hashBuckets[index], beanId} );
       else
-         return new Fqn<Object>(cacheNode, hashBuckets[index], beanId);
+         return new Fqn<Object>(regionRootFqn, hashBuckets[index], beanId);
    }
 
    /**
@@ -493,25 +495,11 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
       try {
          // Remove locally.
          jbc.getInvocationContext().getOptionOverrides().setCacheModeLocal(true);
-         jbc.removeNode(cacheNode);
+         jbc.removeNode(regionRootFqn);
       }
       catch (CacheException e)
       {
-         log.error("Can't clean region " + cacheNode + " in the underlying distributed cache", e);
-      }
-   }
-
-   private void putInCache(T entry)
-   {
-      Boolean active = localActivity.get();
-      try
-      {
-         localActivity.set(Boolean.TRUE);
-         jbc.put(getFqn(entry.getId(), false), KEY, entry);
-      }
-      finally
-      {
-         localActivity.set(active);
+         log.error("Can't clean region " + regionRootFqn + " in the underlying distributed cache", e);
       }
    }
 
