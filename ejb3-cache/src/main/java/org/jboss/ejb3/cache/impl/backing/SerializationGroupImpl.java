@@ -24,6 +24,7 @@ package org.jboss.ejb3.cache.impl.backing;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -91,7 +92,7 @@ public class SerializationGroupImpl<T extends CacheItem>
    /** Is this object used in a clustered cache? */
    private boolean clustered;
 
-   private transient boolean invalid;
+   private transient boolean groupModified;
    
    private transient ReentrantLock lock = new ReentrantLock();
    
@@ -186,11 +187,12 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public void prePassivate()
    {
-      for(SerializationGroupMember<T> member : active.values())
+      for(Iterator<SerializationGroupMember<T>> it = active.values().iterator(); it.hasNext();)
       {
+         SerializationGroupMember<T> member = it.next();
          member.prePassivate();
+         it.remove();
       }
-      active.clear();
    }
    
    /**
@@ -198,7 +200,6 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public void postActivate()
    {
-      invalid = false;
    }
    
    /**
@@ -206,11 +207,12 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public void preReplicate()
    {
-      for(SerializationGroupMember<T> member : active.values())
+      for(Iterator<SerializationGroupMember<T>> it = active.values().iterator(); it.hasNext();)
       {
+         SerializationGroupMember<T> member = it.next();
          member.preReplicate();
+         it.remove();
       }
-      active.clear();
    }
    
    /**
@@ -219,7 +221,6 @@ public class SerializationGroupImpl<T extends CacheItem>
     */
    public void postReplicate()
    {
-      invalid = false;
    }
    
    /**
@@ -302,28 +303,21 @@ public class SerializationGroupImpl<T extends CacheItem>
       return inUseKeys.size();
    }
    
-   /**
-    * Always returns <code>true</code>.
-    */
    public boolean isModified()
    {
-      return true;
+      boolean result = this.groupModified;
+      setGroupModified(false);
+      return result;
    }
    
-   /**
-    * Returns true if this object has been passivated (meaning whoever
-    * holds a ref to it is holding an out-of-date object)
-    * 
-    * @return
-    */
-   public boolean isInvalid()
+   public boolean isGroupModified()
    {
-      return invalid;
+      return this.groupModified;
    }
    
-   public void setInvalid(boolean invalid)
+   public void setGroupModified(boolean modified)
    {
-      this.invalid = invalid;
+      this.groupModified = modified;
    }
    
    /**

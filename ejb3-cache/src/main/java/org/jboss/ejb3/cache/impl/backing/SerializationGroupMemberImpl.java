@@ -61,15 +61,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    
    private transient MarshalledObject marshalledObj;
    
-   /**
-    * Hack. We hold two refs to our object; one we clear in prePassivate,
-    * one we keep, but it's transient.  getUnderlyingItem() returns
-    * whichever is available, making it available for passivation callbacks.
-    * 
-    * FIXME WTF???
-    */
-   private transient T transientObj;
-   
    /** The group. Never serialize the group; only the groupCache does that */
    private transient SerializationGroup<T> group;
    
@@ -89,12 +80,14 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    /** The cache that's handling us */
    private transient GroupAwareBackingCache<T, SerializationGroupMember<T>> cache;
    
+   private transient Object lockObject = new Object();
+   
    public SerializationGroupMemberImpl(T obj, GroupAwareBackingCache<T, SerializationGroupMember<T>> cache)
    {
       assert obj != null : "obj is null";
       assert cache != null : "cache is null";
       
-      this.obj = transientObj = obj;
+      this.obj = obj;
       this.id = obj.getId();
       this.cache = cache;
       this.clustered = cache.isClustered();
@@ -108,7 +101,10 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    public boolean isModified()
    {
       T unmarshalled = getObj();
-      return (unmarshalled != null && unmarshalled.isModified());
+      boolean localModified = (unmarshalled != null && unmarshalled.isModified());
+      if (localModified && group != null)
+         group.setGroupModified(true);
+      return (group == null ? localModified : group.isGroupModified());
    }
    
    /**
@@ -125,8 +121,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    @SuppressWarnings("unchecked")
    public T getUnderlyingItem()
    {      
-      T unmarshalled = getObj();
-      return unmarshalled == null ? transientObj : unmarshalled;
+      return getObj();
    }
    
    /**
@@ -136,7 +131,9 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     */
    public void setUnderlyingItem(T obj)
    {
-      this.obj = transientObj = obj;
+      assert obj != null : "obj is null";
+      
+      this.obj = obj;
    }
    
    /**
@@ -146,30 +143,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     */
    public SerializationGroup<T> getGroup()
    {
-      SerializationGroup<T> result = group;
-      if (result != null)
-      {
-         boolean localGroupLock = false;
-         if (!groupLockHeld)
-         {
-            group.lock();
-            localGroupLock = groupLockHeld = true;
-         }
-         try
-         {
-            if (result.isInvalid())
-               result = null;
-         }
-         finally
-         {
-            if (localGroupLock)
-            {
-               group.unlock();
-               groupLockHeld = false;
-            }            
-         }
-      }
-      return result;
+      return group;
    }
 
    /**
@@ -228,12 +202,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
             // use the setter to clear any group lock
             setGroup(null);
             
-            // null out obj so when delegate passivates this entry
-            // we don't serialize it. It serializes with the PassivationGroup only  
-            // We still have a ref to transientObj, so it can be retrieved
-            // for passivation callbacks
-            obj = null;
-            
             cache.passivate(this.id);
          }
          finally
@@ -264,12 +232,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
             // use the setter to clear any group lock
             setGroup(null);
             
-            // null out obj so when delegate passivates this entry
-            // we don't serialize it. It serializes with the PassivationGroup only  
-            // We still have a ref to transientObj, so it can be retrieved
-            // for passivation callbacks
-            obj = null;
-            
             cache.notifyPreReplicate(this); 
          }
          finally
@@ -288,7 +250,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     */
    public void postActivate()
    {
-      // no-op
    }
    
    public boolean isPreReplicated()
@@ -307,7 +268,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
     */
    public void postReplicate()
    {
-      // no-op
    }
 
    public void setInUse(boolean inUse)
@@ -457,7 +417,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    @SuppressWarnings("unchecked")
    private T getObj()
    {
-      synchronized (id)
+      synchronized (lockObject)
       {
          if (obj == null && marshalledObj != null)
          {
@@ -480,6 +440,7 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
    {
       in.defaultReadObject();
       lock = new ReentrantLock();
+      lockObject = new Object();
       if (groupId == null)
       {
          marshalledObj = (MarshalledObject) in.readObject();
@@ -491,7 +452,6 @@ public class SerializationGroupMemberImpl<T extends CacheItem>
       if (groupId != null)
       {
          setGroup(null);
-         obj = null;
       }
       out.defaultWriteObject();
       if (groupId == null)

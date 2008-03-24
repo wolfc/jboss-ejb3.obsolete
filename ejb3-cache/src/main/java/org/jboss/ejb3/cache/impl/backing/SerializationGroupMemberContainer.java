@@ -98,44 +98,26 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    {
       log.trace("postActivate(): " + entry);
       
-      boolean groupOK = false;
-      while (!groupOK)
+      // Restore the entry's ref to the group and object
+      SerializationGroup<C> group = entry.getGroup();
+      if(group == null && entry.getGroupId() != null)
       {
-         // Restore the entry's ref to the group and object
-         SerializationGroup<C> group = entry.getGroup();
-         if(group == null && entry.getGroupId() != null)
+         group = groupCache.get(entry.getGroupId());
+      }
+      
+      if(group != null)
+      {
+         group.lock();
+         try
          {
-            // TODO: peek or get?
-            // BES 2007/10/06 I think peek is better; no
-            // sense marking the group as in-use and then having
-            // to release it or something
-//            group = groupCache.peek(entry.getGroupId());
-            group = groupCache.get(entry.getGroupId());
+            entry.setGroup(group);
+            entry.setUnderlyingItem(group.getMemberObject(entry.getId()));                  
+            // Notify the group that this entry is active
+            group.addActive(entry);
          }
-         
-         if(group != null)
+         finally
          {
-            group.lock();
-            try
-            {
-               if (!group.isInvalid())
-               {
-                  entry.setGroup(group);
-                  entry.setUnderlyingItem(group.getMemberObject(entry.getId()));                  
-                  // Notify the group that this entry is active
-                  group.addActive(entry);
-                  groupOK = true;
-               }
-               // else groupOK == false and we loop again
-            }
-            finally
-            {
-               group.unlock();
-            }
-         }
-         else
-         {
-            groupOK = true;
+            group.unlock();
          }
       }
       
@@ -172,42 +154,34 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
             throw new IllegalStateException("Cannot obtain lock on " + group.getId() +  " to passivate " + entry);
          try
          {
-            if (!group.isInvalid())
+            // Remove ourself from group's active list so we don't get
+            // called again via entry.prePassivate()            
+            group.removeActive(entry.getId());
+            
+            // Only tell the group to passivate if no members are in use
+            if (group.getInUseCount() == 0)
             {
-               // Remove ourself from group's active list so we don't get
-               // called again via entry.prePassivate()            
-               group.removeActive(entry.getId());
-               
-               // Only tell the group to passivate if no members are in use
-               if (group.getInUseCount() == 0)
+               // Go ahead and do the real passivation.
+               groupCache.passivate(group.getId());
+            }         
+            else {
+               // this turns into a pretty meaningless exercise of just
+               // passivating an empty entry. TODO consider throwing 
+               // ItemInUseException here, thus aborting everything.  Need to
+               // be sure that doesn't lead to problems as the exception propagates
+               if (log.isTraceEnabled())
                {
-                  // Go ahead and do the real passivation.
-                  groupCache.passivate(group.getId());
-                  // Mark the group as invalid so if another thread is
-                  // blocking on the above sync lock, when they enter
-                  // we realize they have a ref to an out-of-date group
-                  group.setInvalid(true);
-               }         
-               else {
-                  // this turns into a pretty meaningless exercise of just
-                  // passivating an empty entry. TODO consider throwing 
-                  // ItemInUseException here, thus aborting everything.  Need to
-                  // be sure that doesn't lead to problems as the exception propagates
-                  if (log.isTraceEnabled())
-                  {
-                     log.trace("Group " + group.getId() + " has " + 
-                                group.getInUseCount() + " in-use members; " + 
-                                "not passivating group for " + entry.getId());
-                  }
+                  log.trace("Group " + group.getId() + " has " + 
+                             group.getInUseCount() + " in-use members; " + 
+                             "not passivating group for " + entry.getId());
                }
-               
-               // This call didn't come through entry.prePassivate() (which nulls
-               // group and obj) so we have to do it ourselves. Otherwise
-               // when this call returns, delegate may serialize the entry
-               // with a ref to group and obj.            
-               entry.setGroup(null);
-               entry.setUnderlyingItem(null);
             }
+            
+            // This call didn't come through entry.prePassivate() (which nulls
+            // group) so we have to do it ourselves. Otherwise
+            // when this call returns, delegate may serialize the entry
+            // with a ref to group and obj.            
+            entry.setGroup(null);
          }
          finally
          {
@@ -236,7 +210,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
          try
          {
             // Remove ourself from group's active list so we don't get
-            // called again via entry.prePassivate()            
+            // called again via entry.preReplicate()            
             group.removeActive(entry.getId());
             
             try
@@ -244,6 +218,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                if (group.getInUseCount() == 0)
                {
                   group.getGroupCache().release(group.getId());
+                  group.setGroupModified(false);
                }
             }
             finally
@@ -254,8 +229,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
                group.addActive(entry);
             }
          
-//            entry.setGroup(null);
-//            entry.setUnderlyingItem(null);
+            entry.setGroup(null);
          }
          finally
          {
@@ -268,45 +242,27 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    {
       log.trace("postReplicate(): " + entry);
       
-      boolean groupOK = false;
-      while (!groupOK)
+      // Restore the entry's ref to the group and object
+      SerializationGroup<C> group = entry.getGroup();
+      if(group == null && entry.getGroupId() != null)
       {
-         // Restore the entry's ref to the group and object
-         SerializationGroup<C> group = entry.getGroup();
-         if(group == null && entry.getGroupId() != null)
+         group = groupCache.get(entry.getGroupId());
+      }
+      
+      if(group != null)
+      {
+         group.lock();
+         try
          {
-            // TODO: peek or get?
-            // BES 2007/10/06 peek is better; you'll get multiple calls to
-            // this as different members are accessed, and the cache
-            // will throw an ISE if we use get() since we're already in use
-//            group = groupCache.peek(entry.getGroupId());
-            group = groupCache.get(entry.getGroupId());
+            entry.setGroup(group);
+            entry.setUnderlyingItem(group.getMemberObject(entry.getId()));
+      
+            // Notify the group that this entry is active
+            group.addActive(entry);
          }
-         
-         if(group != null)
+         finally
          {
-            group.lock();
-            try
-            {
-               if (!group.isInvalid())
-               {
-                  entry.setGroup(group);
-                  entry.setUnderlyingItem(group.getMemberObject(entry.getId()));
-            
-                  // Notify the group that this entry is active
-                  group.addActive(entry);
-                  groupOK = true;
-               }
-               // else groupOK == false and we loop again
-            }
-            finally
-            {
-               group.unlock();
-            }
-         }
-         else
-         {
-            groupOK = true;
+            group.unlock();
          }
       }
       

@@ -61,20 +61,6 @@ public interface SerializationGroup<T extends CacheItem>
    int size();
    
    /**
-    * Gets whether the group should be considered invalid. A reference
-    * to an invalid group should be replaced with a fresh reference gotten
-    * from the group's cache.
-    *  
-    * @return
-    */
-   boolean isInvalid();
-   
-   /**
-    * Marks the group as invalid (or once again as valid).
-    */
-   void setInvalid(boolean invalid);
-   
-   /**
     * Gets the {@link BackingCacheEntry#getUnderlyingItem() underlying item}
     * whose {@link SerializationGroupMember#getId() id} matches <code>key</code>.
     * 
@@ -124,8 +110,8 @@ public interface SerializationGroup<T extends CacheItem>
    /**
     * Gets the cache used to manage the group.
     * 
-    * @return the cache.  Will not return <code>null</code> if the group is
-    *         {@link #isInvalid() valid}.
+    * @return the cache.  May return <code>null</code> if the group has
+    *                     been serialized and not yet activated.
     */
    PassivatingBackingCache<T, SerializationGroup<T>> getGroupCache();
    
@@ -135,6 +121,23 @@ public interface SerializationGroup<T extends CacheItem>
     * @param groupCache the cache. Cannot be <code>null</code>.
     */
    void setGroupCache(PassivatingBackingCache<T, SerializationGroup<T>> groupCache);
+   
+   /**
+    * Returns whether the group has been modified.  Differs from 
+    * {@link CacheItem#isModified()} in that invoking this method does not
+    * clear the modified state.
+    * 
+    * {@inheritDoc}
+    */
+   boolean isGroupModified();
+   
+   /**
+    * Sets the modified state.
+    * 
+    * @param modified <code>true</code> if the group should be considered 
+    *                 to have been modified, <code>false</code> if not
+    */
+   void setGroupModified(boolean modified);
    
    /**
     * Callback that must be invoked before the group is replicated.
