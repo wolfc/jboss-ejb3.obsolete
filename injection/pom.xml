@@ -87,6 +87,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    
+    <!-- Logging SPI -->
+    <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
 
   </dependencies>
 
