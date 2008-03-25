@@ -33,12 +33,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- external -->
-    <dependency>
-      <groupId>jboss</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>jboss</groupId>
       <artifactId>jboss-logging-spi</artifactId>
