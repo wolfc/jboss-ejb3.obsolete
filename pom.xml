@@ -39,18 +39,13 @@
   </build>
 
   <dependencies>
-    <!-- internal -->
+    <!-- Internal -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
     </dependency>
 
-    <!-- external -->
-    <dependency>
-      <groupId>jboss</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-      <scope>test</scope>
-    </dependency>
+    <!-- External -->
     <dependency>
       <groupId>jboss</groupId>
       <artifactId>jboss-logging-spi</artifactId>
@@ -60,13 +55,6 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <!--
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jnpserver</artifactId>
-      <scope>test</scope>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-metadata</artifactId>
