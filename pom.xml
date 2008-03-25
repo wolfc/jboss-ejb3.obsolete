@@ -251,16 +251,6 @@
   <dependencies>
 
     <dependency>
-      <groupId>ant</groupId>
-      <artifactId>ant</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>ant</groupId>
-      <artifactId>ant-launcher</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version> <!-- Only used here, for Unit Tests -->
@@ -275,15 +265,11 @@
       <artifactId>ejb3-persistence</artifactId>
     </dependency>
     <dependency>
-      <groupId>hibernate</groupId>
-      <artifactId>hibernate3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>hibernate-annotations</groupId>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
     </dependency>
     <dependency>
-      <groupId>hibernate-entitymanager</groupId>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
     </dependency>
     <dependency>
@@ -375,7 +361,7 @@
           <artifactId>jboss-as-cluster</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
+    </dependency> 
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-connector</artifactId>
