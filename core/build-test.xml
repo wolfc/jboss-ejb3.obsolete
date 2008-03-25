@@ -100,6 +100,7 @@
   <property name="location.dependencies.lib.apache-codec:commons-codec" value="${location.dependencies.lib}/commons-codec.jar"/>
   <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate3.jar"/>
   <property name="location.dependencies.lib.org.jboss.cache:jbosscache-core" value="${location.dependencies.lib}/jbosscache-core.jar"/>
+  <property name="location.dependencies.lib.org.jboss.jboss-deployers-core-spi" value="${location.dependencies.lib}/jboss-deployers-core-spi.jar"/>
   <property name="location.client.lib" value="${jboss.dist}/client"/>
   <property name="location.client.lib.commons-logging" value="${location.client.lib}/commons-logging.jar"/>
   <property name="location.client.lib.jbossall" value="${location.client.lib}/jbossall-client.jar"/>
@@ -301,8 +302,11 @@
     <!-- JBoss Test Project -->
     <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
 	
-	<!-- Hibernate -->
-	<pathelement path="${location.dependencies.lib.hibernate:hibernate3}" />
+	  <!-- Hibernate -->
+	  <pathelement path="${location.dependencies.lib.hibernate:hibernate3}" />
+    
+    <!-- JBoss Deployers SPI -->
+	  <pathelement path="${location.dependencies.lib.org.jboss.jboss-deployers-core-spi}" />
     
     <!-- JBoss Cache Core -->
     <pathelement path="${location.dependencies.lib.org.jboss.cache:jbosscache-core}" />
@@ -321,9 +325,6 @@
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
-    
-    <!-- Hibernate -->
-    <pathelement location="${location.dependencies.lib.hibernate:hibernate3}" />
     
   </path>
   

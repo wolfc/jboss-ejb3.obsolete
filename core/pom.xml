@@ -197,16 +197,24 @@
                 <artifactItem>
                   <groupId>apache-httpclient</groupId>
                   <artifactId>commons-httpclient</artifactId>
-                  <version>3.0.1</version> <!-- Used only here -->
+                  <version>3.0.1</version><!-- Used only here -->
                 </artifactItem>
                 <artifactItem>
                   <groupId>apache-codec</groupId>
                   <artifactId>commons-codec</artifactId>
-                  <version>1.2</version> <!-- Used only here -->
+                  <version>1.2</version><!-- Used only here -->
                 </artifactItem>
                 <artifactItem>
                   <groupId>hibernate</groupId>
                   <artifactId>hibernate3</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jboss.microcontainer</groupId>
+                  <artifactId>jboss-deployers-core-spi</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jboss</groupId>
+                  <artifactId>jboss-metadata</artifactId>
                 </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
