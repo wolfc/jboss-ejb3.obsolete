@@ -39,6 +39,7 @@
       <jvmargs>
         <jvmarg>-Xmx512M</jvmarg>
         <jvmarg>-Xms128M</jvmarg>
+        <jvmarg>-ea</jvmarg>
       </jvmargs>
       <tests>
         <test name="ejbthree1090" />
