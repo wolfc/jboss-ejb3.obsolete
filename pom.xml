@@ -299,6 +299,13 @@
         <artifactId>commons-validator</artifactId>
         <version>${version.commons-validator_commons-validator}</version>
       </dependency>
+      
+      <!-- JBoss AOP -->
+      <dependency>
+        <groupId>org.jboss.aop</groupId>
+        <artifactId>jboss-aop</artifactId>
+        <version>${version.org.jboss.aop_jboss-aop}</version>
+      </dependency>
 
       <!-- JBoss AOP Aspects -->
       <dependency>
