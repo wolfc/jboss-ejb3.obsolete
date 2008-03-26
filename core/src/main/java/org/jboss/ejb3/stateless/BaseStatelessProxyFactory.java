@@ -177,7 +177,7 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
    {
       initializeJndiName();
       Class<?>[] interfaces = getInterfaces();
-      
+      this.ensureEjb21ViewComplete();
       
       
       /* plain jdk */

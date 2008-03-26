@@ -103,7 +103,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
       // Obtain Container
       EJBContainer container = this.getContainer();
 
-      // Obtaine @RemoteHome
+      // Obtain @RemoteHome
       RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
 
       // Ensure that if EJB 2.1 Components are defined, they're complete

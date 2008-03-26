@@ -200,4 +200,6 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       }
 
    }
+   
+   protected abstract void ensureEjb21ViewComplete();
 }

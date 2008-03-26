@@ -304,8 +304,6 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
     * @return
     */
    protected abstract ProxyAccessType getProxyAccessType();
-   
-   protected abstract void ensureEjb21ViewComplete();
 
    protected final void initializeJndiName() {};
    
