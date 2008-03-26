@@ -21,20 +21,19 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.CreateException;
-import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalObject;
 
 /**
- * TestStatefulWithRemoveMethodRemoteHome
+ * TestStatefulWithRemoveMethodRemote
+ * 
+ * Defines a local interface for a Session Bean
  *  
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestStatefulWithRemoveMethodRemoteHome extends EJBHome
+public interface TestStatefulWithRemoveMethodLocal extends EJBLocalObject
 {
-   String JNDI_NAME = "TestStatefulWithRemoveMethod/home";
+   void reset();
 
-   TestStatefulWithRemoveMethodRemote create() throws RemoteException, CreateException;
+   int getCalls();
 }

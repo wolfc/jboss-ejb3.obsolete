@@ -22,7 +22,7 @@
 package org.jboss.ejb3.test.ejbthree1222;
 
 /**
- * TestStatefulWithRemoveMethodRemote
+ * TestStatefulWithRemoveMethodRemoteBusiness
  * 
  * Defines a remote business interface for a Session Bean 
  * with a "void remove()" method
