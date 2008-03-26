@@ -21,20 +21,29 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
-import java.rmi.RemoteException;
-
-import javax.ejb.CreateException;
-import javax.ejb.EJBHome;
+import javax.ejb.RemoveException;
 
 /**
- * TestStatefulWithRemoveMethodRemoteHome
- *  
+ * AccessLocalSfsbRemoteBusiness
+ * 
+ * Used to get access to the local views of the Test Bean
+ * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestStatefulWithRemoveMethodRemoteHome extends EJBHome
+public interface AccessLocalSfsbRemoteBusiness
 {
-   String JNDI_NAME = "TestStatefulWithRemoveMethod/home";
+   String JNDI_NAME = "AccessLocalSfsb/remote";
 
-   TestStatefulWithRemoveMethodRemote create() throws RemoteException, CreateException;
+   void resetOnLocalBusiness();
+
+   void removeOnLocalBusiness();
+
+   int getCallsOnLocalBusiness();
+
+   void resetOnLocal();
+
+   void removeOnLocal() throws RemoveException;
+
+   int getCallsOnLocal();
 }

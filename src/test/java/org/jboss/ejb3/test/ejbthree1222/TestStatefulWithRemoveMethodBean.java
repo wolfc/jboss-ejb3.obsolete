@@ -21,11 +21,16 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
+import javax.ejb.Local;
+import javax.ejb.LocalHome;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 
+import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 
 /**
  * TestStatefulWithRemoveMethodBean
@@ -38,10 +43,16 @@ import org.jboss.ejb3.annotation.RemoteBinding;
  * @version $Revision: $
  */
 @Stateful
+@Local(
+{TestStatefulWithRemoveMethodLocal.class, TestStatefulWithRemoveMethodLocalBusiness.class})
 @Remote(
 {TestStatefulWithRemoveMethodRemoteBusiness.class, TestStatefulWithRemoveMethodRemote.class})
+@LocalHome(TestStatefulWithRemoveMethodLocalHome.class)
 @RemoteHome(TestStatefulWithRemoveMethodRemoteHome.class)
+@LocalBinding(jndiBinding = TestStatefulWithRemoveMethodLocalBusiness.JNDI_NAME)
 @RemoteBinding(jndiBinding = TestStatefulWithRemoveMethodRemoteBusiness.JNDI_NAME)
+@LocalHomeBinding(jndiBinding = TestStatefulWithRemoveMethodLocalHome.JNDI_NAME)
+@RemoteHomeBinding(jndiBinding = TestStatefulWithRemoveMethodRemoteHome.JNDI_NAME)
 public class TestStatefulWithRemoveMethodBean implements TestStatefulWithRemoveMethodRemoteBusiness
 {
    // Instance Members
