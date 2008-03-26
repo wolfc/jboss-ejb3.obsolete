@@ -2295,6 +2295,10 @@
       <build-simple-jar name="ejbthree1057"/>
    </target>
    
+   <target name="ejbthree1059" >
+      <build-simple-jar name="ejbthree1059"/>
+   </target>
+  
    <target name="ejbthree1060" >
       <build-simple-jar name="ejbthree1060"/>
    </target>
@@ -4148,7 +4152,7 @@
       ejbthree939,
       ejbthree953, ejbthree957, ejbthree959, ejbthree963, ejbthree967, ejbthree971, ejbthree973, ejbthree985, ejbthree986,
       ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025, ejbthree1040,
-      ejbthree1057, ejbthree1060,
+      ejbthree1057, ejbthree1059, ejbthree1060,
       ejbthree1062,
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
@@ -4376,6 +4380,7 @@
 
 
          <jvmarg line="${jvmargs}" />
+         <!-- <jvmarg line="${jvmargs} -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y" />  -->
          <classpath>
            
            <path refid="test.classpath" />
@@ -5139,6 +5144,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1057"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1059"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1060"/>
