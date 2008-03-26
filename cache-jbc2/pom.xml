@@ -27,7 +27,7 @@
   <description>The Java EJB 3.0 JBoss Cache Integration classes</description>
 
   <properties>
-    <version.org.jboss.cache_jbosscache-core>2.1.0-SNAPSHOT</version.org.jboss.cache_jbosscache-core>
+    <version.org.jboss.cache_jbosscache-core>2.1.0.GA</version.org.jboss.cache_jbosscache-core>
   </properties>
 
   <dependencies>
@@ -37,6 +37,14 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-cache</artifactId>
       <version>0.14.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-cache</artifactId>
+      <version>0.14.0-SNAPSHOT</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
     </dependency>
 
     <!-- JBoss Cache -->
