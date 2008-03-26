@@ -51,6 +51,11 @@
       <artifactId>jboss-logging-spi</artifactId>
     </dependency>
     <dependency>
+      <groupId>jboss</groupId>
+      <artifactId>jboss-common-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
