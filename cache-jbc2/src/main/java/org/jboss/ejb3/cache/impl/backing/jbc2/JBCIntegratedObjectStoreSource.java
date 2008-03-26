@@ -24,7 +24,6 @@ package org.jboss.ejb3.cache.impl.backing.jbc2;
 
 import javax.transaction.TransactionManager;
 
-import org.jboss.cache.Cache;
 import org.jboss.cache.CacheManager;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
@@ -48,21 +47,15 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
    public PassivatingIntegratedObjectStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      @SuppressWarnings("unchecked")
-      Cache<Object, SerializationGroup<T>> jbc = getJBossCache(cacheConfigName);
-      
-      String keyBaseSuffix = (containerName == null || containerName.length() == 0) ? "" : "-" + containerName;
-      String keyBase = "GroupCache" + keyBaseSuffix;
-      return new JBCIntegratedObjectStore<T, SerializationGroup<T>>(jbc, cacheConfig, keyBase, keyBase, true);
+      String nameSuffix = (containerName == null || containerName.length() == 0) ? "" : "-" + containerName;
+      String name = "GroupCache" + nameSuffix;
+      return new JBCIntegratedObjectStore<T, SerializationGroup<T>>(cacheManager, cacheConfigName, cacheConfig, name, true);
    }
 
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      @SuppressWarnings("unchecked")
-      Cache<Object, SerializationGroupMember<T>> jbc = getJBossCache(cacheConfigName);
-      
-      return new JBCIntegratedObjectStore<T, SerializationGroupMember<T>>(jbc, cacheConfig, containerName, containerName, false);
+      return new JBCIntegratedObjectStore<T, SerializationGroupMember<T>>(cacheManager, cacheConfigName, cacheConfig, containerName, false);
    }
 
    public CacheManager getCacheManager()
@@ -73,26 +66,6 @@ public class JBCIntegratedObjectStoreSource<T extends CacheItem>
    public void setCacheManager(CacheManager cacheManager)
    {
       this.cacheManager = cacheManager;
-   }
-   
-   @SuppressWarnings("unchecked")
-   private Cache getJBossCache(String cacheConfigName)
-   {
-      if (cacheManager == null)
-         throw new IllegalStateException("CacheManager not installed");
-      
-      try
-      {
-         return cacheManager.getCache(cacheConfigName, true);
-      }
-      catch (RuntimeException re)
-      {
-         throw re;
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Unable to get cache " + cacheConfigName, e);
-      }
    }
 
 }
