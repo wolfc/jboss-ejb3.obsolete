@@ -70,7 +70,7 @@ public interface IntegratedObjectStore<T extends CacheItem>
     *                               It is not a requirement that the store throw
     *                               this exception in this case, but it is
     *                               permissible. This basically puts the onus on
-    *                               callers to ensure {@link #insert(Cacheable)}
+    *                               callers to ensure {@link #insert(T)}
     *                               is invoked before the first replication.
     */
    void update(T entry, boolean modified);

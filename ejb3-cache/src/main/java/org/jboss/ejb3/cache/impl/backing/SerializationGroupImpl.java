@@ -133,9 +133,6 @@ public class SerializationGroupImpl<T extends CacheItem>
     * 
     * @throws IllegalStateException if <code>member</code> was previously
     *                               added to the group
-    * @throws IllegalArgumentException if the 
-    *   {@link SerializationGroupMember#isClustered() member's support for clustering}
-    *   does not match {@link #isClustered() our own}.
     */
    public void addMember(SerializationGroupMember<T> member)
    {

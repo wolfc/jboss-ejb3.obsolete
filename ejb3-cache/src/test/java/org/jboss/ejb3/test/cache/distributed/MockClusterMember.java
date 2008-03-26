@@ -62,8 +62,8 @@ public class MockClusterMember extends MockEjb3System
       ClassLoader tccl = Thread.currentThread().getContextClassLoader();
       localClassLoader = new ClassLoader(tccl) {};
       
-      // Kluge. Rebuild the distributed factory, as the superclass
-      // didn't have the maps available when it did it
+      // Kluge. Build the distributed factory, as the superclass
+      // didn't have the maps available when it tried
       for (CacheType type : availableTypes)
       {
          if (type == CacheType.DISTRIBUTED)
@@ -110,8 +110,13 @@ public class MockClusterMember extends MockEjb3System
    @Override
    protected IntegratedObjectStoreSource<MockBeanContext> getDistributedStoreSource()
    {
-      return new MockIntegratedObjectStoreSource<MockBeanContext>(localDistributedCacheMember, 
-                                                                  remoteDistributedCacheMember);
+      if (localDistributedCacheMember != null && remoteDistributedCacheMember != null)
+      {
+         return new MockIntegratedObjectStoreSource<MockBeanContext>(localDistributedCacheMember, 
+                                                                     remoteDistributedCacheMember);
+      }
+      else
+         return null;
    }
 
    @Override

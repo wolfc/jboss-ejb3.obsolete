@@ -51,4 +51,11 @@ public interface PassivatingBackingCache<C extends CacheItem, T extends Passivat
     *                            is in use. 
     */
    void passivate(Object key);
+   
+   /**
+    * Gets any {@link GroupCompatibilityChecker} this cache is using.
+    * 
+    * @return the checker, or <code>null</code> if this cache is not using one.
+    */
+   GroupCompatibilityChecker getCompatibilityChecker();
 }

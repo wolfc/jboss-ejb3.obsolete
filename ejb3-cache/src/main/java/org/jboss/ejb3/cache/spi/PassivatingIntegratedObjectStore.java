@@ -34,7 +34,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * @version $Revision$
  */
 public interface PassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
-   extends IntegratedObjectStore<T>, PassivationExpirationProcessor
+   extends IntegratedObjectStore<T>, PassivationExpirationProcessor, GroupCompatibilityChecker
 {
    /**
     * Gets how often, in seconds, this object should process 
@@ -68,12 +68,4 @@ public interface PassivatingIntegratedObjectStore<C extends CacheItem, T extends
     * @param cache
     */
    void setPassivatingCache(PassivatingBackingCache<C, T> cache);
-   
-   // TODO determine what the standard configurations are
-   
-//   int getPassivationTimeout();
-//   void setPassivationTimeout(int timeout);
-//   
-//   int getRemovalTimeout();   
-//   void setRemovalTimeout(int timeout);
 }

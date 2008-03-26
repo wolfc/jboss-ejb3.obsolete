@@ -48,9 +48,9 @@ public class NonPassivatingCacheFactory<T extends CacheItem>
                                PassivationManager<T> passivationManager,
                                CacheConfig config)
    {
-      NonPassivatingBackingCacheImpl<T> backingCache = new NonPassivatingBackingCacheImpl<T>(factory);
-      backingCache.setName(containerName);
-      
+      NonPassivatingBackingCacheImpl<T> backingCache = 
+         new NonPassivatingBackingCacheImpl<T>(factory, containerName);
+     
       // Make sure passivation/expiration occurs periodically
       if (getPassivationExpirationCoordinator() != null)
       {

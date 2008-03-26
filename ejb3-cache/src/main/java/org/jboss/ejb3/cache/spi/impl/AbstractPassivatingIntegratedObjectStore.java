@@ -118,6 +118,15 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
    // --------------------------------------------------  IntegratedObjectStore
 
    public void start()
+   {    
+      internalStart();
+      
+      stopped = false;
+      
+      log.debug("Started " + name);
+   }
+   
+   protected void internalStart()
    {
       if (!forGroups && interval > 0)
       {
@@ -129,23 +138,24 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
             sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
          }
          sessionTimeoutRunner.start();
-      }     
-      
-      stopped = false;
-      
-      log.debug("Started " + name);
+      }
    }
 
    public void stop()
-   {      
-      if (sessionTimeoutRunner != null)
-      {
-         sessionTimeoutRunner.stop();
-      }      
+   {     
+      internalStop();
       
       stopped = true;
       
       log.debug("Stopped " + name);
+   }
+   
+   protected void internalStop()
+   {     
+      if (sessionTimeoutRunner != null)
+      {
+         sessionTimeoutRunner.stop();
+      }
    }
 
    // ---------------------------------------  PassivatingIntegratedObjectStore

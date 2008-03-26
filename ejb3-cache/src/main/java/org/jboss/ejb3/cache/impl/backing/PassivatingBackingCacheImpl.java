@@ -28,9 +28,12 @@ import javax.ejb.NoSuchEJBException;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener.LifecycleState;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCache;
 import org.jboss.logging.Logger;
 
 /**
@@ -41,6 +44,7 @@ import org.jboss.logging.Logger;
  * @version $Revision: 65339 $
  */
 public class PassivatingBackingCacheImpl<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
+   extends AbstractBackingCache<C>  
    implements PassivatingBackingCache<C, T>
 {
    protected final Logger log = Logger.getLogger(getClass().getName());
@@ -206,11 +210,39 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends Passivat
    
    public void start()
    {
-      store.start();
+      notifyLifecycleListeners(LifecycleState.STARTING);
+      try
+      {
+         store.start();
+         
+         notifyLifecycleListeners(LifecycleState.STARTED);
+      }
+      catch (RuntimeException e)
+      {
+         notifyLifecycleListeners(LifecycleState.FAILED);
+         throw e;
+      }
    }
 
    public void stop()
    {
-      store.stop();
+      notifyLifecycleListeners(LifecycleState.STOPPING);
+      try
+      {
+         store.stop();
+         
+         notifyLifecycleListeners(LifecycleState.STOPPED);
+      }
+      catch (RuntimeException e)
+      {
+         notifyLifecycleListeners(LifecycleState.FAILED);
+         throw e;
+      }
    }
+
+   public GroupCompatibilityChecker getCompatibilityChecker()
+   {
+      return store;
+   }
+   
 }

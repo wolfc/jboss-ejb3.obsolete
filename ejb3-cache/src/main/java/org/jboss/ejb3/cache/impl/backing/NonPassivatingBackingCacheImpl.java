@@ -32,8 +32,9 @@ import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.PassivationExpirationProcessor;
+import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener.LifecycleState;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCache;
 import org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner;
-import org.jboss.logging.Logger;
 
 /**
  * Simple {@link BackingCache} that doesn't handle passivation (although
@@ -46,23 +47,25 @@ import org.jboss.logging.Logger;
  * @version $Revision: $
  */
 public class NonPassivatingBackingCacheImpl<C extends CacheItem> 
+   extends AbstractBackingCache<C> 
    implements BackingCache<C, NonPassivatingBackingCacheEntry<C>>, PassivationExpirationProcessor
 {
-   private static final Logger log = Logger.getLogger(NonPassivatingBackingCacheImpl.class);
-   
-   private StatefulObjectFactory<C> factory;
-   private Map<Object, NonPassivatingBackingCacheEntry<C>> cache;
-   private String name;
+   private final StatefulObjectFactory<C> factory;
+   private final Map<Object, NonPassivatingBackingCacheEntry<C>> cache;
+   private final String name;
    private long interval;
    private int expirationTimeSeconds;   
    private PassivationExpirationRunner sessionTimeoutRunner;
    private boolean stopped = true;
    
-   public NonPassivatingBackingCacheImpl(StatefulObjectFactory<C> factory)
+   public NonPassivatingBackingCacheImpl(StatefulObjectFactory<C> factory, String name)
    {
-      assert factory != null;
+      assert factory != null : "factory is null";
+      assert name != null : "name is null";
       
       this.factory = factory;
+      this.name = name;
+      
       this.cache = new ConcurrentHashMap<Object, NonPassivatingBackingCacheEntry<C>>();
    }
    
@@ -120,34 +123,56 @@ public class NonPassivatingBackingCacheImpl<C extends CacheItem>
 
    public void start()
    {
-      if (interval > 0)
+      notifyLifecycleListeners(LifecycleState.STARTING);
+      try
       {
-         if (sessionTimeoutRunner == null)
+         if (interval > 0)
          {
-            assert name != null : "name has not been set";
-            String timerName = "PassivationExpirationTimer-" + name;
-            sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
-         }
-         sessionTimeoutRunner.start();
-      }     
-      
-      stopped = false;
-      
-      log.debug("Started " + name);
+            if (sessionTimeoutRunner == null)
+            {
+               assert name != null : "name has not been set";
+               String timerName = "PassivationExpirationTimer-" + name;
+               sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
+            }
+            sessionTimeoutRunner.start();
+         }     
+         
+         stopped = false;
+         
+         notifyLifecycleListeners(LifecycleState.STARTED);
+         
+         log.debug("Started " + name);
+      }
+      catch (RuntimeException e)
+      {
+         notifyLifecycleListeners(LifecycleState.FAILED);
+         throw e;
+      }
    }
 
    public void stop()
    {
-      if (sessionTimeoutRunner != null)
+      notifyLifecycleListeners(LifecycleState.STOPPING);
+      try
       {
-         sessionTimeoutRunner.stop();
-      }      
-      
-      stopped = true;
-      
-      log.debug("Stopped " + name);
-   }
-
+         if (sessionTimeoutRunner != null)
+         {
+            sessionTimeoutRunner.stop();
+         }      
+         
+         stopped = true;
+         
+         notifyLifecycleListeners(LifecycleState.STOPPED);
+         
+         log.debug("Stopped " + name);
+      }
+      catch (RuntimeException e)
+      {
+         notifyLifecycleListeners(LifecycleState.FAILED);
+         throw e;
+      }
+   }  
+   
    public long getInterval()
    {
       return interval;
@@ -161,11 +186,6 @@ public class NonPassivatingBackingCacheImpl<C extends CacheItem>
    public String getName()
    {
       return name;
-   }
-
-   public void setName(String name)
-   {
-      this.name = name;
    }
 
    public int getExpirationTimeSeconds()
@@ -210,6 +230,5 @@ public class NonPassivatingBackingCacheImpl<C extends CacheItem>
          }    
       }      
    }
-   
    
 }

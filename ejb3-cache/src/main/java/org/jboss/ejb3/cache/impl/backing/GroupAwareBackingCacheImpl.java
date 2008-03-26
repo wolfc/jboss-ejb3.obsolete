@@ -40,9 +40,12 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
    /**
     * Cache that's managing the SerializationGroup
     */
-   private PassivatingBackingCache<C, SerializationGroup<C>> groupCache;
+   private final PassivatingBackingCache<C, SerializationGroup<C>> groupCache;
    
-   private SerializationGroupMemberContainer<C> memberContainer;
+   /**
+    * Container for the group members.
+    */
+   private final SerializationGroupMemberContainer<C> memberContainer;
    
    /**
     * Creates a new GroupAwareCacheImpl.
@@ -54,10 +57,12 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
                                      PassivatingBackingCache<C, SerializationGroup<C>> groupCache)
    {
       super(memberContainer, memberContainer, memberContainer);
+
       assert groupCache != null : "groupCache is null";
       assert groupCache.isClustered() == memberContainer.isClustered(): "incompatible clustering support between groupCache and passivationManager";
-
+      
       this.groupCache = groupCache;
+      this.memberContainer = memberContainer;
    }
    
    public SerializationGroup<C> createGroup()
@@ -76,9 +81,8 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
             throw new IllegalStateException("object " + key + " is already associated with passivation group " + entry.getGroup());
          
          // Validate we share a common groupCache with the group
-         if (groupCache != group.getGroupCache())
-            throw new IllegalStateException(obj + " and " + group + " use different group caches");
-         
+         if (!memberContainer.isCompatibleWith(group))
+            throw new IllegalStateException(obj + " and " + group + " are incompatible");         
          
          entry.setGroup(group);
          entry.getGroup().addMember(entry);
@@ -116,7 +120,5 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
          }
       }
    }
-   
-   
    
 }

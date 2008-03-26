@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -20,17 +20,24 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.jboss.ejb3.test.cache.distributed;
-
-import java.io.Serializable;
+package org.jboss.ejb3.cache.spi;
 
 /**
- * A SharedObject.
+ * An object that can check whether it can work compatibly with another
+ * in the management of {@link SerializationGroup}s.
  * 
  * @author Brian Stansberry
- * @version $Revision$
  */
-public class SharedObject implements Serializable
+public interface GroupCompatibilityChecker
 {
-   private static final long serialVersionUID = 1L;
+   /**
+    * Gets whether this object can work compatibly with another
+    * in the management of {@link SerializationGroup}s.
+    * 
+    * @param other the other checker. May be <code>null</code>.
+    * 
+    * @return <code>true</code> if this object is compatible with 
+    *         <code>other</code>, <code>false</code> otherwise
+    */
+   boolean isCompatibleWith(GroupCompatibilityChecker other);
 }

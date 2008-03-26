@@ -23,11 +23,10 @@ package org.jboss.ejb3.test.cache.impl.backing;
 
 import java.util.HashMap;
 
-import junit.framework.TestCase;
-
 import org.jboss.ejb3.cache.impl.TransactionalCache;
 import org.jboss.ejb3.cache.impl.backing.PassivatingBackingCacheImpl;
 import org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberImpl;
+import org.jboss.ejb3.test.cache.integrated.Ejb3CacheTestCaseBase;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -40,9 +39,11 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author Brian Stansberry
+ * 
  * @version $Revision: 65339 $
  */
-public class PassivatingBackingCacheImplUnitTestCase extends TestCase
+public class PassivatingBackingCacheImplUnitTestCase extends Ejb3CacheTestCaseBase
 {   
    private static final Logger log = Logger.getLogger(PassivatingBackingCacheImplUnitTestCase.class);
    

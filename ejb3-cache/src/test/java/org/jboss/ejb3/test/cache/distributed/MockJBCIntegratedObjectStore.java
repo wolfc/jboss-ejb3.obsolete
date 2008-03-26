@@ -25,22 +25,20 @@ package org.jboss.ejb3.test.cache.distributed;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
-import org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner;
 import org.jboss.logging.Logger;
 
 /**
@@ -51,7 +49,8 @@ import org.jboss.logging.Logger;
  * @version $Revision$
  */
 public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>> 
-     implements PassivatingIntegratedObjectStore<C, T>
+     extends AbstractPassivatingIntegratedObjectStore<C, T, Object>
+
 {
    private static final Logger log = Logger.getLogger(MockJBCIntegratedObjectStore.class);
 
@@ -85,34 +84,20 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
    /** A mock transaction manager */
    private final ThreadLocal<Boolean> tm = new ThreadLocal<Boolean>();
    
-   /**
-    * Support callbacks when our MockEvictionRunner decides to
-    * evict an entry.
-    */
-   private PassivatingBackingCache<C, T> owningCache;   
-   private int interval;
-   private long idleTimeSeconds;
-   private long expirationTimeSeconds;
-   private int maxSize;
-   private PassivationExpirationRunner sessionTimeoutRunner;
-   private final String name;
-   private boolean stopped = true;
-   
    public MockJBCIntegratedObjectStore(UnmarshallingMap localCache, 
                                        UnmarshallingMap remoteCache,
                                        CacheConfig cacheConfig,
                                        Object keyBase,
-                                       String name)
+                                       String name,
+                                       boolean forGroups)
    {      
+      super(cacheConfig, name, forGroups);
+      
       this.localJBC = localCache;
       this.remoteJBC = remoteCache;
       this.keyBase = keyBase;
       inMemory = new HashSet<Object>();
       timestamps = new HashMap<Object, Long>();
-      this.idleTimeSeconds = cacheConfig.idleTimeoutSeconds();
-      this.expirationTimeSeconds = cacheConfig.removalTimeoutSeconds();
-      this.maxSize = cacheConfig.maxSize();
-      this.name = name;
    }
 
    // --------------------------------------------------  IntegratedObjectStore
@@ -166,9 +151,21 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
       return unmarshall(key, putInCache(key, null));
    }
    
+   @SuppressWarnings("unchecked")
+   public boolean isCompatibleWith(GroupCompatibilityChecker other)
+   {
+      if (other instanceof MockJBCIntegratedObjectStore)
+      {
+         MockJBCIntegratedObjectStore jbc2 = (MockJBCIntegratedObjectStore) other;
+         return this.localJBC == jbc2.localJBC
+                 && this.remoteJBC == jbc2.remoteJBC;
+      }
+      return false;
+   }
+   
    
    // ------------------------------------------------------------ Transaction
-   
+
    public void startTransaction()
    {
       if (tm.get() != null)
@@ -264,186 +261,116 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
 
    // ---------------------------------------  PassivatingIntegratedObjectStore
    
-   public int getInterval()
+     
+//   public void runExpiration()
+//   {
+//      if (expirationTimeSeconds > 0)
+//      {
+//         long now = System.currentTimeMillis();
+//         long minRemovalUse = now - (expirationTimeSeconds * 1000);                     
+//         for (CacheableTimestamp<Object> ts : getAllEntries())
+//         {
+//            try
+//            {
+//               if (minRemovalUse >= ts.getLastUsed())
+//               {
+//                  remove(ts.getId());
+//               }
+//            }
+//            catch (IllegalStateException ise)
+//            {
+//               // Not so great; we're assuming it's 'cause item's in use
+//               log.trace("skipping in-use entry " + ts.getId(), ise);
+//            }
+//         }    
+//      }      
+//   }
+
+//   public void runPassivation()
+//   {
+//      if (maxSize > 0 || idleTimeSeconds > 0)
+//      {
+//         long now = System.currentTimeMillis();
+//         long minPassUse = (idleTimeSeconds > 0 ? now - (idleTimeSeconds * 1000) : 0);
+//         
+//         SortedSet<CacheableTimestamp<Object>> timestamps = getInMemoryEntries();
+//         int overCount = (maxSize > 0 ? timestamps.size() - maxSize : 0);
+//         for (CacheableTimestamp<Object> ts : timestamps)
+//         {
+//            try
+//            {
+//               if (overCount > 0 || minPassUse >= ts.getLastUsed())
+//               {
+//                  log.trace("attempting to passivate " + ts.getId());
+//                  owningCache.passivate(ts.getId());
+//                  overCount--;
+//               }
+//               else
+//               {
+//                  break;
+//               }
+//            }
+//            catch (IllegalStateException ise)
+//            {
+//               // Not so great; we're assuming it's 'cause item's in use
+//               log.trace("skipping in-use entry " + ts.getId(), ise);
+//            }
+//         }
+//      }
+//      
+//   }
+
+   @Override
+   public int getInMemoryCount()
    {
-      return interval;
+      return inMemory.size();
    }
 
-   public void setInterval(int seconds)
+   @Override
+   public int getPassivatedCount()
    {
-      this.interval = seconds;      
-   }
-   
-   public void runExpiration()
-   {
-      if (expirationTimeSeconds > 0)
-      {
-         long now = System.currentTimeMillis();
-         long minRemovalUse = now - (expirationTimeSeconds * 1000);                     
-         for (CacheableTimestamp ts : getAllEntries())
-         {
-            try
-            {
-               if (minRemovalUse >= ts.getLastUsed())
-               {
-                  remove(ts.getId());
-               }
-            }
-            catch (IllegalStateException ise)
-            {
-               // Not so great; we're assuming it's 'cause item's in use
-               log.trace("skipping in-use entry " + ts.getId(), ise);
-            }
-         }    
-      }      
+      return timestamps.size() - getInMemoryCount();
    }
 
-   public void runPassivation()
+   @Override
+   protected void processExpiration(Object key)
    {
-      if (maxSize > 0 || idleTimeSeconds > 0)
-      {
-         long now = System.currentTimeMillis();
-         long minPassUse = (idleTimeSeconds > 0 ? now - (idleTimeSeconds * 1000) : 0);
-         
-         SortedSet<CacheableTimestamp> timestamps = getInMemoryEntries();
-         int overCount = (maxSize > 0 ? timestamps.size() - maxSize : 0);
-         for (CacheableTimestamp ts : timestamps)
-         {
-            try
-            {
-               if (overCount > 0 || minPassUse >= ts.getLastUsed())
-               {
-                  log.trace("attempting to passivate " + ts.getId());
-                  owningCache.passivate(ts.getId());
-                  overCount--;
-               }
-               else
-               {
-                  break;
-               }
-            }
-            catch (IllegalStateException ise)
-            {
-               // Not so great; we're assuming it's 'cause item's in use
-               log.trace("skipping in-use entry " + ts.getId(), ise);
-            }
-         }
-      }
-      
+      remove(key);      
    }
 
-   public void setPassivatingCache(PassivatingBackingCache<C, T> cache)
+   @Override
+   protected void processPassivation(Object key)
    {
-      this.owningCache = cache;      
+      getPassivatingCache().passivate(key);      
    }
 
-   public void start()
-   {
-      if (interval > 0)
-      {
-         if (sessionTimeoutRunner == null)
-         {
-            assert name != null : "name has not been set";
-            assert owningCache != null;
-            String timerName = "PassivationExpirationTimer-" + name;
-            sessionTimeoutRunner = new PassivationExpirationRunner(this, timerName, interval);
-         }
-         sessionTimeoutRunner.start();
-      }      
-      
-      stopped = false;
-      
-      log.debug("Started " + name);
-   }
-
-   public void stop()
-   {
-      if (sessionTimeoutRunner != null)
-      {
-         sessionTimeoutRunner.stop();
-      }          
-      
-      stopped = true;
-      
-      log.debug("Stopped " + name);
-   }
-   
-   public long getIdleTimeSeconds()
-   {
-      return idleTimeSeconds;
-   }
-
-   public void setIdleTimeSeconds(long idleTimeSeconds)
-   {
-      this.idleTimeSeconds = idleTimeSeconds;
-   }
-
-   public long getExpirationTimeSeconds()
-   {
-      return expirationTimeSeconds;
-   }
-   
-   public void setExpirationTimeSeconds(long timeout)
-   {
-      this.expirationTimeSeconds = timeout;
-   } 
-
-   private SortedSet<CacheableTimestamp> getInMemoryEntries()
-   {      
-      return getTimestampSet(false);
-   }
-
-   private SortedSet<CacheableTimestamp> getPassivatedEntries()
+   @Override
+   protected CacheableTimestamp<Object>[] getInMemoryEntries()
    {     
-      return getTimestampSet(true);
+      return getTimestampArray(false);
    }
-   
-   private SortedSet<CacheableTimestamp> getAllEntries()
-   {
-      return getTimestampSet(null);
+
+   @Override
+   protected CacheableTimestamp<Object>[] getAllEntries()
+   {     
+      return getTimestampArray(null);
    }
-   
-   private SortedSet<CacheableTimestamp> getTimestampSet(Boolean passivated)
-   {      
-      SortedSet<CacheableTimestamp> set = new TreeSet<CacheableTimestamp>();
+
+   @SuppressWarnings("unchecked")
+   private CacheableTimestamp<Object>[] getTimestampArray(Boolean passivated)
+   {     
+      Set<CacheableTimestamp<Object>> set = new HashSet<CacheableTimestamp<Object>>();
       for (Map.Entry<Object, Long> entry : timestamps.entrySet())
       {
          if (passivated == null || passivated.booleanValue() != inMemory.contains(entry.getKey()))
          {
-            set.add(new CacheableTimestamp(entry.getKey(), entry.getValue().longValue()));
+            set.add(new CacheableTimestamp<Object>(entry.getKey(), entry.getValue()));
          }
       }
-      return set;
-      
-   }
-   
-   public boolean isPassivationExpirationSelfManaged()
-   {
-      return interval > 0;
-   }
-   
-   public void processPassivationExpiration()
-   {
-      try
-      {
-         runPassivation();               
-      }
-      catch (Exception e)
-      {
-         log.error("Caught exception processing passivations", e);
-      }
-      
-      if (!stopped)
-      {
-         try
-         {
-            runExpiration();               
-         }
-         catch (Exception e)
-         {
-            log.error("Caught exception processing expirations", e);
-         }               
-      }
+      CacheableTimestamp<Object>[] array = new CacheableTimestamp[set.size()];
+      array = set.toArray(array);
+      Arrays.sort(array);
+      return array;
    }
    
    private ScopedKey getScopedKey(Object unscoped)

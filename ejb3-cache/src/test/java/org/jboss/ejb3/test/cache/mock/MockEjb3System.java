@@ -75,7 +75,9 @@ public class MockEjb3System
             new HashMap<String, StatefulCacheFactory<MockBeanContext>>();
          for (CacheType type : availableTypes)
          {
-            factories.put(type.mapKey(), buildCacheFactory(type));
+            StatefulCacheFactory<MockBeanContext> factory = buildCacheFactory(type);
+            if (factory != null)
+               factories.put(type.mapKey(), factory);
          }
          cacheFactoryRegistry.setFactories(factories);
       }
@@ -154,12 +156,14 @@ public class MockEjb3System
             throw new IllegalArgumentException("Unknown type " + type);
       }
       
-      factory.setTransactionManager(tm);
-      factory.setPassivationExpirationCoordinator(coordinator);
-      // Process passivation/expiration as quickly as possible so tests run fast
-      factory.setDefaultPassivationExpirationInterval(1);
-      factory.start();
-      
+      if (factory != null)
+      {
+         factory.setTransactionManager(tm);
+         factory.setPassivationExpirationCoordinator(coordinator);
+         // Process passivation/expiration as quickly as possible so tests run fast
+         factory.setDefaultPassivationExpirationInterval(1);
+         factory.start();
+      }
       return factory;
    }
    
@@ -177,7 +181,8 @@ public class MockEjb3System
    
    private AbstractStatefulCacheFactory<MockBeanContext> buildDistributedCacheFactory()
    {
-     return new GroupAwareCacheFactory<MockBeanContext>(getDistributedStoreSource());
+     IntegratedObjectStoreSource<MockBeanContext> storeSource = getDistributedStoreSource();
+     return storeSource == null ? null : new GroupAwareCacheFactory<MockBeanContext>(storeSource);
    }
    
    protected IntegratedObjectStoreSource<MockBeanContext> getDistributedStoreSource()

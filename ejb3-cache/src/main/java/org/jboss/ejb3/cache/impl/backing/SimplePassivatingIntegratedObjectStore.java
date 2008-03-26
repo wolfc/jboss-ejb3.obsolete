@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.ObjectStore;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
@@ -130,18 +131,28 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
       return entry;
    } 
 
-   public void start()
+   protected void internalStart()
    {
       store.start();
       
-      super.start();
+      super.internalStart();
    }
 
-   public void stop()
+   protected void internalStop()
    {      
       store.stop();
       
-      super.stop();
+      super.internalStop();
+   }
+
+   @SuppressWarnings("unchecked")
+   public boolean isCompatibleWith(GroupCompatibilityChecker other)
+   {
+      if (other instanceof PassivatingIntegratedObjectStore)
+      {
+         return ((PassivatingIntegratedObjectStore) other).isClustered() == false;
+      }
+      return false;
    }
 
    // -------------------------------  AbstractPassivatingIntegratedObjectStore

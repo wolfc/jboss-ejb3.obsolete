@@ -57,17 +57,6 @@ public interface GroupAwareBackingCache<C extends CacheItem, T extends Serializa
    
    /**
     * Callback from the group informing the cache it needs to invoke
-    * pre-passivation callbacks on the member.
-    * 
-    * @param member the group member
-    * 
-    * @throws IllegalStateException if the member is 
-    *                               {@link BackingCacheEntry#isInUse() in-use}.
-    */
-//   void prePassivate(T member);
-   
-   /**
-    * Callback from the group informing the cache it needs to invoke
     * pre-replication callbacks on the member.
     * 
     * @param member the group member

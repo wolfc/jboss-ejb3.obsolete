@@ -131,4 +131,18 @@ public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C
     *         otherwise
     */
    boolean isClustered();
+   
+   /**
+    * Registers a listener for callbacks when the cache starts and stops.
+    * 
+    * @param listener the listener. Cannot be <code>null</code>.
+    */
+   void addLifecycleListener(BackingCacheLifecycleListener listener);
+   
+   /**
+    * Removes a registered lifecycle listener.
+    * 
+    * @param listener the listener. Cannot be <code>null</code>.
+    */
+   void removeLifecycleListener(BackingCacheLifecycleListener listener);
 }

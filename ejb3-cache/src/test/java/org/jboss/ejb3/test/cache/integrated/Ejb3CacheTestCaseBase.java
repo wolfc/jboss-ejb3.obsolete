@@ -35,12 +35,11 @@ public class Ejb3CacheTestCaseBase extends TestCase
 {
 
    /**
-    * Create a new Ejb3CacheTestCaseBase.
-    * 
+    * Create a new Ejb3CacheTestCaseBase. 
     */
    public Ejb3CacheTestCaseBase()
    {
-      // TODO Auto-generated constructor stub
+      super();
    }
 
    /**

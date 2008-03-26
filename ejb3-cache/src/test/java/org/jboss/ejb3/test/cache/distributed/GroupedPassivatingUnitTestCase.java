@@ -21,8 +21,7 @@
  */
 package org.jboss.ejb3.test.cache.distributed;
 
-import junit.framework.TestCase;
-
+import org.jboss.ejb3.test.cache.integrated.Ejb3CacheTestCaseBase;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -38,21 +37,9 @@ import org.jboss.logging.Logger;
  * @author Brian Stansberry
  * @version $Revision: 65920 $
  */
-public class GroupedPassivatingUnitTestCase extends TestCase
+public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
 {
    private static final Logger log = Logger.getLogger(GroupedPassivatingUnitTestCase.class);
-   
-   private static void sleep(long micros)
-   {
-      try
-      {
-         Thread.sleep(micros);
-      }
-      catch (InterruptedException e)
-      {
-         // ignore
-      }
-   }
    
    public void testSimpleGroupPassivation() throws Exception
    {      
@@ -66,7 +53,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
       MockBeanContainer container1 = node0.deployBeanContainer("MockBeanContainer1", null, CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName());
       MockBeanContainer container2 = node0.deployBeanContainer("MockBeanContainer2", "MockBeanContainer1", CacheType.DISTRIBUTED, cacheConfig, sharedXPC.getName());
       
-      cluster.getNode0().setTCCL();
+      node0.setTCCL();
       try
       {
          Object key1 = container1.getCache().create(null, null);
@@ -120,7 +107,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
          }
          finally
          {
-            cluster.getNode0().restoreTCCL();
+            node0.restoreTCCL();
          }
       }
    }
@@ -144,6 +131,7 @@ public class GroupedPassivatingUnitTestCase extends TestCase
       Object key2 = null;
       MockEntity entityA = null;
       
+      // Use the TCCL to focus on the 1st node
       cluster.getNode0().setTCCL();
       try
       {

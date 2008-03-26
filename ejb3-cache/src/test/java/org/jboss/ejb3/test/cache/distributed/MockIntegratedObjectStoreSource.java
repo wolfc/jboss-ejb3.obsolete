@@ -52,13 +52,13 @@ public class MockIntegratedObjectStoreSource<T extends CacheItem>
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       String keyBase = "GroupCache-" + containerName;
-      return new MockJBCIntegratedObjectStore<T, SerializationGroup<T>>(localMap, remoteMap, cacheConfig, keyBase, keyBase);
+      return new MockJBCIntegratedObjectStore<T, SerializationGroup<T>>(localMap, remoteMap, cacheConfig, keyBase, keyBase, true);
    }
 
    public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      return new MockJBCIntegratedObjectStore<T, SerializationGroupMember<T>>(localMap, remoteMap, cacheConfig, containerName, containerName);
+      return new MockJBCIntegratedObjectStore<T, SerializationGroupMember<T>>(localMap, remoteMap, cacheConfig, containerName, containerName, false);
    }
 
 }

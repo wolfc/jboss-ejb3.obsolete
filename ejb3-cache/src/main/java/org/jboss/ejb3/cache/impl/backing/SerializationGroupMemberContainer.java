@@ -28,6 +28,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
+import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
@@ -347,5 +348,21 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    public void processPassivationExpiration()
    {         
       store.processPassivationExpiration();
-   }      
+   }   
+   
+   public boolean isCompatibleWith(SerializationGroup<C> group)
+   {
+      PassivatingBackingCache<C, SerializationGroup<C>> otherCache = group.getGroupCache();
+      if (otherCache != null)
+         return store.isCompatibleWith(otherCache.getCompatibilityChecker());
+      else
+         return false;
+   }
+
+   public boolean isCompatibleWith(GroupCompatibilityChecker other)
+   {
+      return store.isCompatibleWith(other);
+   }
+   
+   
 }
