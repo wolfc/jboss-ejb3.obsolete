@@ -190,7 +190,7 @@ public class IORFactory
    
    private String getJndiName()
    {
-      return ProxyFactoryHelper.getDefaultRemoteJndiName(container);
+      return ProxyFactoryHelper.getDefaultRemoteBusinessJndiName(container);
    }
    
    private String getServantName()

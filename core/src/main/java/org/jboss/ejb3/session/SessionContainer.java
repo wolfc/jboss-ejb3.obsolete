@@ -29,6 +29,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.LocalHome;
@@ -355,10 +356,10 @@ public abstract class SessionContainer extends EJBContainer
 
    protected boolean isEJBObjectMethod(Method method)
    {
-      if (method.getDeclaringClass().getName().equals("javax.ejb.EJBObject"))
+      if (method.getDeclaringClass().getName().equals(EJBObject.class.getName()))
          return true;
 
-      if (method.getDeclaringClass().getName().equals("javax.ejb.EJBLocalObject"))
+      if (method.getDeclaringClass().getName().equals(EJBLocalObject.class.getName()))
          return true;
 
       return false;
@@ -366,7 +367,7 @@ public abstract class SessionContainer extends EJBContainer
 
    protected boolean isHandleMethod(Method method)
    {
-      if (method.getDeclaringClass().getName().equals("javax.ejb.Handle"))
+      if (method.getDeclaringClass().getName().equals(Handle.class.getName()))
          return true;
 
       return false;

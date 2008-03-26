@@ -22,9 +22,6 @@
 package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
@@ -35,16 +32,16 @@ import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
+import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.logging.Logger;
-import org.jboss.util.naming.Util;
 import org.jboss.remoting.InvokerLocator;
+import org.jboss.util.naming.Util;
 
 /**
  * Comment
@@ -60,6 +57,8 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
    
 //   public static final String FACTORY_ATTRIBUTE = ",element=ProxyFactory";
    
+   private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
+   
    private RemoteBinding binding;
    private InvokerLocator locator;
 
@@ -69,42 +68,34 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
       
       this.binding = binding;
    }
-
-   protected Class<?>[] getInterfaces()
-   {     
-      SessionContainer statefulContainer = (SessionContainer) getContainer();
-      RemoteHome remoteHome = (RemoteHome) statefulContainer.resolveAnnotation(RemoteHome.class);
-
-      boolean bindTogether = false;
-
-      if (remoteHome != null && bindHomeAndBusinessTogether(statefulContainer))
-         bindTogether = true;
-
-      // Obtain all remote interfaces
-      Set<Class<?>> remoteInterfaces = new HashSet<Class<?>>();
-      remoteInterfaces.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(getContainer())));
+   
+   /**
+    * Defines the access type for this Proxies created by this Factory
+    * 
+    * @return
+    */
+   @Override
+   protected ProxyAccessType getProxyAccessType(){
+      return ProxyAccessType.REMOTE;
+   }
+   
+   protected void ensureEjb21ViewComplete()
+   { 
+      // Obtain Container
+      SessionContainer container = this.getContainer();
+      
+      // Obtain @RemoteHome
+      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
 
       // Ensure that if EJB 2.1 Components are defined, they're complete
       this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
-            .getRemoteInterfaces(getContainer()));
+            .getRemoteInterfaces(container));
 
-      // Add JBossProxy
-      remoteInterfaces.add(JBossProxy.class);
-      
-      // If binding along w/ home, add home
-      if (bindTogether)
-      {
-         remoteInterfaces.add(remoteHome.value());
-      }
-
-      // Return
-      return remoteInterfaces.toArray(new Class<?>[]
-      {});
    }
    
    protected boolean bindHomeAndBusinessTogether(SessionContainer container)
    {
-      return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteJndiName(container));
+      return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteBusinessJndiName(container));
    }
 
    public void init() throws Exception
@@ -119,7 +110,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
       init();
 
       super.start();
-      Class[] interfaces = {ProxyFactory.class};
+      Class<?>[] interfaces = {ProxyFactory.class};
       String targetId = getTargetId();
       String clientBindUrl = ProxyFactoryHelper.getClientBindUrl(binding);
       Object factoryProxy = createPojiProxy(targetId, interfaces, clientBindUrl);
@@ -153,23 +144,23 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
       Dispatcher.singleton.unregisterTarget(getTargetId());
       
-      SessionContainer statefulContainer = (SessionContainer) getContainer();
-      RemoteHome remoteHome = (RemoteHome) statefulContainer.resolveAnnotation(RemoteHome.class);
+      SessionContainer statefulContainer = this.getContainer();
+      RemoteHome remoteHome = statefulContainer.getAnnotation(RemoteHome.class);
       if (remoteHome != null && !bindHomeAndBusinessTogether(statefulContainer))
       {
-         Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getHomeJndiName(getContainer()));
+         Util.unbind(this.getContainer().getInitialContext(), ProxyFactoryHelper.getHomeJndiName(getContainer()));
       }
       super.stop();
    }
 
 
-   public Object createHomeProxy(Class homeInterface)
+   public Object createHomeProxy(Class<?> homeInterface)
    {
       try
       {
          Object containerId = getContainer().getObjectName().getCanonicalName();
-         String stackName = "StatefulSessionClientInterceptors";
-         if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
+         String stackName = StatefulRemoteProxyFactory.STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
+         if (binding.interceptorStack() != null && !binding.interceptorStack().trim().equals(""))
          {
             stackName = binding.interceptorStack();
          }
@@ -178,19 +169,24 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
          StatefulHomeRemoteProxy proxy = new StatefulHomeRemoteProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), locator);
 
          setEjb21Objects(proxy);
-         Class[] intfs = {homeInterface};
+         Class<?>[] intfs = {homeInterface};
          return java.lang.reflect.Proxy.newProxyInstance(getContainer().getBeanClass().getClassLoader(), intfs, proxy);
       }
       catch (IllegalArgumentException e)
       {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
+         throw new RuntimeException(e);
       }
    }
    
    public Object createProxy()
    {
       Object id = getContainer().createSession();
-      return createProxy(id);
+      return this.createProxy(id);
+   }
+   public Object createEjb21Proxy()
+   {
+      Object id = getContainer().createSession();
+      return this.createEjb21Proxy(id);
    }
 
    protected StatefulHandleImpl getHandle()
@@ -203,17 +199,27 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
 
    public Object createProxy(Object id)
    {
-      String stackName = "StatefulSessionClientInterceptors";
-      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
+      return this.createProxy(id,SpecificationInterfaceType.EJB30_BUSINESS);
+   }
+   
+   public Object createEjb21Proxy(Object id)
+   {
+      return this.createProxy(id,SpecificationInterfaceType.EJB21);
+   }
+   
+   private Object createProxy(Object id,SpecificationInterfaceType type)
+   {
+      String stackName = StatefulRemoteProxyFactory.STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
+      if (binding.interceptorStack() != null && !binding.interceptorStack().trim().equals(""))
       {
          stackName = binding.interceptorStack();
       }
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
       if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
       StatefulRemoteProxy proxy = new StatefulRemoteProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), locator, id);
-      
-      setEjb21Objects(proxy);
-      return constructProxy(proxy);
+      this.setEjb21Objects(proxy);
+      return type.equals(SpecificationInterfaceType.EJB21) ? this.constructEjb21Proxy(proxy) : this
+            .constructBusinessProxy(proxy);
    }
    
    /**
@@ -225,7 +231,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulProxyFactory impleme
       return jndiName + PROXY_FACTORY_NAME;
    }
    
-   protected Object createPojiProxy(Object oid, Class[] interfaces, String uri) throws Exception
+   protected Object createPojiProxy(Object oid, Class<?>[] interfaces, String uri) throws Exception
    {
       InvokerLocator locator = new InvokerLocator(uri);
       Interceptor[] interceptors = {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};

@@ -22,7 +22,11 @@
 package org.jboss.ejb3.stateless;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.ejb.RemoteHome;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
@@ -77,13 +81,40 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       this.clustered = clustered;
    }
 
-   protected Class[] getInterfaces()
+   protected Class<?>[] getInterfaces()
    {
-      Class[] remoteInterfaces = ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(getContainer());
-      Class[] interfaces = new Class[remoteInterfaces.length + 1];
-      System.arraycopy(remoteInterfaces, 0, interfaces, 0, remoteInterfaces.length);
-      interfaces[remoteInterfaces.length] = JBossProxy.class;
-      return interfaces;
+      // Initialize
+      Set<Class<?>> interfaces = new HashSet<Class<?>>();
+      
+      // Obtain remote and business remote interfaces
+      Class<?>[] remoteAndBusinessRemoteInterfaces = ProxyFactoryHelper
+            .getRemoteAndBusinessRemoteInterfaces(getContainer());
+      
+      // Add all remote and business remotes
+      for(Class<?> interfaze : remoteAndBusinessRemoteInterfaces)
+      {
+         interfaces.add(interfaze);
+      }
+      
+      // Add JBossProxy
+      interfaces.add( JBossProxy.class);
+      
+      // Return
+      return interfaces.toArray(new Class[]{});
+   }
+   
+   protected void ensureEjb21ViewComplete()
+   { 
+      // Obtain Container
+      SessionContainer container = this.getContainer();
+      
+      // Obtain @RemoteHome
+      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
+
+      // Ensure that if EJB 2.1 Components are defined, they're complete
+      this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
+            .getRemoteInterfaces(container));
+
    }
 
    public void start() throws Exception

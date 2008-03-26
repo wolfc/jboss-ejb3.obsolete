@@ -53,8 +53,8 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
 
    protected Class<?>[] getInterfaces()
    {
-      EJBContainer statelessContainer = (EJBContainer)getContainer();
-      LocalHome localHome = (LocalHome)statelessContainer.resolveAnnotation(LocalHome.class);
+      EJBContainer statelessContainer = this.getContainer();
+      LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
 
       boolean bindTogether = false;
 
@@ -64,10 +64,6 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       // Obtain all local interfaces
       Set<Class<?>> localInterfaces = new HashSet<Class<?>>();
       localInterfaces.addAll(Arrays.asList(ProxyFactoryHelper.getLocalAndBusinessLocalInterfaces(getContainer())));
-      
-      // Ensure that if EJB 2.1 Components are defined, they're complete
-      this.ensureEjb21ViewComplete(localHome == null ? null : localHome.value(), ProxyFactoryHelper
-            .getLocalInterfaces(getContainer()));
 
       // Ensure local interfaces defined
       if (localInterfaces.size() > 0)
@@ -90,6 +86,17 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       // Return
       return localInterfaces.toArray(new Class<?>[]
       {});
+   }
+   
+   protected void ensureEjb21ViewComplete(){
+      
+      EJBContainer container = this.getContainer();
+      
+      LocalHome localHome = container.getAnnotation(LocalHome.class);
+      
+      // Ensure that if EJB 2.1 Components are defined, they're complete
+      this.ensureEjb21ViewComplete(localHome == null ? null : localHome.value(), ProxyFactoryHelper
+            .getLocalInterfaces(container));
    }
    
    protected boolean bindHomeAndBusinessTogether(EJBContainer container)

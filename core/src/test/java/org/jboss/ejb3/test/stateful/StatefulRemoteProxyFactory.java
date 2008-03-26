@@ -41,11 +41,12 @@ public class StatefulRemoteProxyFactory extends org.jboss.ejb3.stateful.Stateful
       super(container, binding);
    }
 
-   protected Class[] getInterfaces()
+   @Override
+   protected Class<?>[] getInterfacesForBusinessProxy()
    {
-      Class[] remoteInterfaces = super.getInterfaces();
+      Class<?>[] remoteInterfaces = super.getInterfacesForBusinessProxy();
 
-      Class[] interfaces = new Class[remoteInterfaces.length + 1];
+      Class<?>[] interfaces = new Class[remoteInterfaces.length + 1];
 
       System.arraycopy(remoteInterfaces, 0, interfaces, 0, remoteInterfaces.length);
       interfaces[remoteInterfaces.length] = org.jboss.ejb3.test.stateful.ProxyFactoryInterface.class;

@@ -689,12 +689,12 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
             initParameterValues = args;
          }
 
-         LocalBinding binding = (LocalBinding) resolveAnnotation(LocalBinding.class);
+         LocalBinding binding = this.getAnnotation(LocalBinding.class);
 
          StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
          factory.init();
 
-         Object proxy = factory.createProxy(initParameterTypes,
+         Object proxy = factory.createEjb21Proxy(initParameterTypes,
                  initParameterValues);
 
          return proxy;
@@ -748,7 +748,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().startsWith("create"))
       {
-         Class[] initParameterTypes =
+         Class<?>[] initParameterTypes =
                  {};
          Object[] initParameterValues =
                  {};
@@ -759,11 +759,11 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          }
 
          RemoteBinding binding = null;
-         RemoteBindings bindings = (RemoteBindings) resolveAnnotation(RemoteBindings.class);
+         RemoteBindings bindings = this.getAnnotation(RemoteBindings.class);
          if (bindings != null)
             binding = bindings.value()[0];
          else
-            binding = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+            binding = this.getAnnotation(RemoteBinding.class);
 
          StatefulContainerInvocation newStatefulInvocation = buildNewInvocation(
                  info, statefulInvocation, initParameterTypes,
@@ -774,9 +774,9 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
          Object proxy = null;
          if (newStatefulInvocation.getId() != null)
-            proxy = factory.createProxy(newStatefulInvocation.getId());
+            proxy = factory.createEjb21Proxy(newStatefulInvocation.getId());
          else
-            proxy = factory.createProxy();
+            proxy = factory.createEjb21Proxy();
 
          InvocationResponse response = marshallResponse(statefulInvocation, proxy, newStatefulInvocation.getResponseContextInfo());
          if (newStatefulInvocation.getId() != null)
@@ -794,18 +794,18 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
       else if (unadvisedMethod.getName().equals("getEJBMetaData"))
       {
-         Class remote = null;
-         Class home = null;
-         Class pkClass = Object.class;
+         Class<?> remote = null;
+         Class<?> home = null;
+         Class<?> pkClass = Object.class;
          HomeHandleImpl homeHandle = null;
 
-         Remote remoteAnnotation = (Remote) resolveAnnotation(Remote.class);
+         Remote remoteAnnotation = this.getAnnotation(Remote.class);
          if (remoteAnnotation != null)
             remote = remoteAnnotation.value()[0];
-         RemoteHome homeAnnotation = (RemoteHome) resolveAnnotation(RemoteHome.class);
+         RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
          if (homeAnnotation != null)
             home = homeAnnotation.value();
-         RemoteBinding remoteBindingAnnotation = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
          if (remoteBindingAnnotation != null)
             homeHandle = new HomeHandleImpl(remoteBindingAnnotation
                     .jndiBinding());
@@ -820,7 +820,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       {
          HomeHandleImpl homeHandle = null;
 
-         RemoteBinding remoteBindingAnnotation = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
          if (remoteBindingAnnotation != null)
             homeHandle = new HomeHandleImpl(remoteBindingAnnotation
                     .jndiBinding());
@@ -846,7 +846,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
          StatefulHandleImpl handle = new StatefulHandleImpl();
          handle.id = newStatefulInvocation.getId();
-         RemoteBinding remoteBinding = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBinding = this.getAnnotation(RemoteBinding.class);
          if (remoteBinding != null)
             handle.jndiName = remoteBinding.jndiBinding();
          InvocationResponse response = marshallResponse(statefulInvocation, handle, null);
@@ -861,7 +861,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          catch(NoSuchEJBException e)
          {
             if(log.isTraceEnabled())
-               log.trace("Throwing NoSuchObjectException", e);
+               log.trace("Throwing " + e.getClass().getName(), e);
             throw new NoSuchObjectException(e.getMessage());
          }
 
@@ -872,7 +872,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       {
          HomeHandleImpl homeHandle = null;
 
-         RemoteBinding remoteBindingAnnotation = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
          if (remoteBindingAnnotation != null)
             homeHandle = new HomeHandleImpl(ProxyFactoryHelper.getHomeJndiName(this));
 
