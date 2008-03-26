@@ -138,6 +138,7 @@
         <test name="ejbthree1025" />
         <test name="ejbthree1040" />
         <test name="ejbthree1057" />
+        <test name="ejbthree1059" />
         <test name="ejbthree1060" />
         <test name="ejbthree1062" />
         <test name="ejbthree1066" />
