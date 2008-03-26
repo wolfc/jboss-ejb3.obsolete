@@ -24,6 +24,7 @@ package org.jboss.ejb3.stateful;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
 import org.jboss.aop.AspectManager;
@@ -31,7 +32,6 @@ import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.Remoting;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.Clustered;
@@ -48,8 +48,8 @@ import org.jboss.ha.framework.interfaces.DistributedReplicantManager;
 import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
-import org.jboss.util.naming.Util;
 import org.jboss.remoting.InvokerLocator;
+import org.jboss.util.naming.Util;
 
 
 /**
@@ -85,14 +85,29 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       this.binding = binding;
       this.clustered = clustered;
    }
+   
+   /**
+    * Defines the access type for this Proxies created by this Factory
+    * 
+    * @return
+    */
+   @Override
+   protected ProxyAccessType getProxyAccessType(){
+      return ProxyAccessType.REMOTE;
+   }
+   
+   protected void ensureEjb21ViewComplete()
+   { 
+      // Obtain Container
+      SessionContainer container = this.getContainer();
+      
+      // Obtain @RemoteHome
+      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
 
-   protected Class[] getInterfaces()
-   {
-      Class[] remoteInterfaces = ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(getContainer());
-      Class[] interfaces = new Class[remoteInterfaces.length + 1];
-      System.arraycopy(remoteInterfaces, 0, interfaces, 0, remoteInterfaces.length);
-      interfaces[remoteInterfaces.length] = JBossProxy.class;
-      return interfaces;
+      // Ensure that if EJB 2.1 Components are defined, they're complete
+      this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
+            .getRemoteInterfaces(container));
+
    }
 
    public void start() throws Exception
@@ -132,7 +147,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       
       super.start();
       
-      Class[] interfaces = {ProxyFactory.class};
+      Class<?>[] interfaces = {ProxyFactory.class};
       String targetId = getTargetId();
       Object factoryProxy = Remoting.createPojiProxy(targetId, interfaces, ProxyFactoryHelper.getClientBindUrl(binding));
       try
@@ -158,8 +173,8 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       }
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
       String partitionName = ((SessionContainer) getContainer()).getPartitionName();
-      return constructProxy(new StatefulClusteredProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), 
-            wrapper, lbPolicy, partitionName));
+      return constructBusinessProxy(new StatefulClusteredProxy(getContainer(), stack.createInterceptors(this.getContainer()
+            .getAdvisor(), null), wrapper, lbPolicy, partitionName));
    }
 
    public Object createProxy(Object id)
@@ -180,7 +195,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
    protected StatefulHandleImpl getHandle()
    {
       StatefulHandleImpl handle = new StatefulHandleImpl();
-      RemoteBinding remoteBinding = (RemoteBinding) getContainer().resolveAnnotation(RemoteBinding.class);
+      RemoteBinding remoteBinding = this.getContainer().getAnnotation(RemoteBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding();
  

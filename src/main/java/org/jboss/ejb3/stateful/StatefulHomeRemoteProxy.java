@@ -22,8 +22,10 @@
 package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Method;
+
 import javax.ejb.EJBMetaData;
 import javax.ejb.HomeHandle;
+
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.util.MethodHashing;

@@ -114,7 +114,7 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       
       HomeHandleImpl homeHandle = null;
       
-      RemoteBinding remoteBindingAnnotation = (RemoteBinding)ejbContainer.resolveAnnotation(RemoteBinding.class);
+      RemoteBinding remoteBindingAnnotation = ejbContainer.getAnnotation(RemoteBinding.class);
       if (remoteBindingAnnotation != null)
          homeHandle = new HomeHandleImpl(ProxyFactoryHelper.getHomeJndiName(container));
       
@@ -123,20 +123,20 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
    
    protected EJBMetaData getEjbMetaData()
    {
-      Class remote = null;
-      Class home = null;
-      Class pkClass = Object.class;
+      Class<?> remote = null;
+      Class<?> home = null;
+      Class<?> pkClass = Object.class;
       HomeHandleImpl homeHandle = null;
       
       EJBContainer ejbContainer = (EJBContainer)container;
       
-      Remote remoteAnnotation = (Remote)ejbContainer.resolveAnnotation(Remote.class);
+      Remote remoteAnnotation = ejbContainer.getAnnotation(Remote.class);
       if (remoteAnnotation != null)
          remote = remoteAnnotation.value()[0];
-      RemoteHome homeAnnotation = (RemoteHome)ejbContainer.resolveAnnotation(RemoteHome.class);
+      RemoteHome homeAnnotation = ejbContainer.getAnnotation(RemoteHome.class);
       if (homeAnnotation != null)
          home = homeAnnotation.value();
-      RemoteBinding remoteBindingAnnotation = (RemoteBinding)ejbContainer.resolveAnnotation(RemoteBinding.class);
+      RemoteBinding remoteBindingAnnotation = ejbContainer.getAnnotation(RemoteBinding.class);
       if (remoteBindingAnnotation != null)
          homeHandle = new HomeHandleImpl(remoteBindingAnnotation.jndiBinding());
       

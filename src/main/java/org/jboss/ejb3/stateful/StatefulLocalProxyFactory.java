@@ -32,12 +32,13 @@ import java.util.Set;
 import javax.ejb.LocalHome;
 import javax.naming.NamingException;
 
-import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
+import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.BaseStatefulProxyFactory.ProxyAccessType;
 import org.jboss.util.naming.Util;
 
 
@@ -64,36 +65,27 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       super(container, binding.jndiBinding());
    }
 
-   protected Class<?>[] getInterfaces()
-   {      
-      SessionContainer statefulContainer = (SessionContainer) getContainer();
-      LocalHome localHome = (LocalHome) statefulContainer.resolveAnnotation(LocalHome.class);
-
-      boolean bindTogether = false;
-
-      if (localHome != null && bindHomeAndBusinessTogether(statefulContainer))
-         bindTogether = true;
-
-      // Obtain all local interfaces      
-      Set<Class<?>> localInterfaces = new HashSet<Class<?>>();
-      localInterfaces.addAll(Arrays.asList(ProxyFactoryHelper.getLocalAndBusinessLocalInterfaces(getContainer())));
+   /**
+    * Defines the access type for this Proxies created by this Factory
+    * 
+    * @return
+    */
+   @Override
+   protected ProxyAccessType getProxyAccessType(){
+      return ProxyAccessType.LOCAL;
+   }
+   
+   protected void ensureEjb21ViewComplete()
+   { 
+      // Obtain Container
+      SessionContainer container = this.getContainer();
       
+      // Obtain @LocalHome
+      LocalHome localHome = container.getAnnotation(LocalHome.class);
+
       // Ensure that if EJB 2.1 Components are defined, they're complete
       this.ensureEjb21ViewComplete(localHome == null ? null : localHome.value(), ProxyFactoryHelper
-            .getLocalInterfaces(getContainer()));
-
-      // Add JBossProxy
-      localInterfaces.add(JBossProxy.class);
-
-      // If binding along w/ home, add home
-      if (bindTogether)
-      {
-         localInterfaces.add(localHome.value());
-      }
-
-      // Return
-      return localInterfaces.toArray(new Class<?>[]
-      {});
+            .getLocalInterfaces(container));
 
    }
    
@@ -112,19 +104,23 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       }
       catch (NamingException e)
       {
-         NamingException namingException = new NamingException("Could not bind stateful local proxy with ejb name " + getContainer().getEjbName() + " into JNDI under jndiName: " + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName + PROXY_FACTORY_NAME);
+         NamingException namingException = new NamingException("Could not bind stateful local proxy with ejb name "
+               + getContainer().getEjbName() + " into JNDI under jndiName: "
+               + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName + PROXY_FACTORY_NAME);
          namingException.setRootCause(e);
          throw namingException;
       }
 
       SessionContainer statefulContainer = (SessionContainer) getContainer();
-      LocalHome localHome = (LocalHome) ((EJBContainer) getContainer()).resolveAnnotation(LocalHome.class);
+      LocalHome localHome = this.getContainer().getAnnotation(LocalHome.class);
       if (localHome != null && !bindHomeAndBusinessTogether(statefulContainer))
       {
-         Class[] interfaces = {localHome.value()};
+         Class<?>[] interfaces =
+         {localHome.value()};
          Object homeProxy = java.lang.reflect.Proxy.newProxyInstance(getContainer().getBeanClass().getClassLoader(),
-                                                                     interfaces, new StatefulLocalHomeProxy(getContainer()));
-         Util.rebind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()), homeProxy);
+               interfaces, new StatefulLocalHomeProxy(getContainer()));
+         Util.rebind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()),
+               homeProxy);
       }
    }
 
@@ -133,7 +129,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       super.stop();
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
       SessionContainer statefulContainer = (SessionContainer) getContainer();
-      LocalHome localHome = (LocalHome) ((EJBContainer) getContainer()).resolveAnnotation(LocalHome.class);
+      LocalHome localHome = this.getContainer().getAnnotation(LocalHome.class);
       if (localHome != null && !bindHomeAndBusinessTogether(statefulContainer))
       {
          Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()));
@@ -144,25 +140,49 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    {
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession();
-      return constructProxy(new StatefulLocalProxy(getContainer(), id, vmid));
+      return this.createProxy(id);
+   }
+
+   public Object createEjb21Proxy()
+   {
+      Object id = getContainer().createSession();
+      return this.createEjb21Proxy(id);
    }
 
    public Object createProxy(Object id)
    {
-      return constructProxy(new StatefulLocalProxy(getContainer(), id, vmid));
+      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
+   }
+
+   public Object createEjb21Proxy(Object id)
+   {
+      return this.createProxy(id, SpecificationInterfaceType.EJB21);
+   }
+
+   private Object createProxy(Object id, SpecificationInterfaceType type)
+   {
+      StatefulLocalProxy proxy = new StatefulLocalProxy(this.getContainer(), id, vmid);
+      return type.equals(SpecificationInterfaceType.EJB30_BUSINESS) ? this.constructBusinessProxy(proxy) : this
+            .constructEjb21Proxy(proxy);
    }
    
-   public Object createProxy(Class[] initTypes, Object[] initValues)
+   public Object createProxy(Class<?>[] initTypes, Object[] initValues)
    {
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession(initTypes, initValues);
-      return constructProxy(new StatefulLocalProxy(getContainer(), id, vmid));
+      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
+   }
+   
+   public Object createEjb21Proxy(Class<?>[] initTypes, Object[] initValues){
+      SessionContainer sfsb = (SessionContainer) getContainer();
+      Object id = sfsb.createSession(initTypes, initValues);
+      return this.createProxy(id, SpecificationInterfaceType.EJB21);
    }
 
    protected StatefulHandleImpl getHandle()
    {
       StatefulHandleImpl handle = new StatefulHandleImpl();
-      LocalBinding remoteBinding = (LocalBinding) getContainer().resolveAnnotation(LocalBinding.class);
+      LocalBinding remoteBinding = this.getContainer().getAnnotation(LocalBinding.class);
       if (remoteBinding != null)
          handle.jndiName = remoteBinding.jndiBinding();
 

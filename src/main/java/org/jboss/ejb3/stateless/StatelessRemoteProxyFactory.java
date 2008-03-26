@@ -63,21 +63,17 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
 
    protected Class<?>[] getInterfaces()
    {
-      StatelessContainer statelessContainer = (StatelessContainer) getContainer();
-      RemoteHome remoteHome = (RemoteHome) statelessContainer.resolveAnnotation(RemoteHome.class);
+      SessionContainer container = this.getContainer();
+      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
 
       boolean bindTogether = false;
 
-      if (remoteHome != null && bindHomeAndBusinessTogether(statelessContainer))
+      if (remoteHome != null && bindHomeAndBusinessTogether(container))
          bindTogether = true;
 
       // Obtain all remote interfaces
       Set<Class<?>> remoteInterfaces = new HashSet<Class<?>>();
       remoteInterfaces.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(getContainer())));
-      
-      // Ensure that if EJB 2.1 Components are defined, they're complete
-      this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
-            .getRemoteInterfaces(getContainer()));
 
       // Ensure remote interfaces defined
       if (remoteInterfaces.size() > 0)
@@ -102,9 +98,22 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
       {});
    }
    
+   protected void ensureEjb21ViewComplete()
+   {
+      // Obtain Container
+      EJBContainer container = this.getContainer();
+
+      // Obtaine @RemoteHome
+      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
+
+      // Ensure that if EJB 2.1 Components are defined, they're complete
+      this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
+            .getRemoteInterfaces(container));
+   }
+   
    protected boolean bindHomeAndBusinessTogether(EJBContainer container)
    {
-      return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteJndiName(container));
+      return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteBusinessJndiName(container));
    }
 
    public void init() throws Exception

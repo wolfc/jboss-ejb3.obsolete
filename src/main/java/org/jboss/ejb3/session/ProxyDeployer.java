@@ -133,7 +133,8 @@ public class ProxyDeployer
    {
       if(binding.jndiBinding().length() == 0)
       {
-         return new RemoteBindingImpl(ProxyFactoryHelper.getDefaultRemoteJndiName(container), binding.interceptorStack(), binding.clientBindUrl(), binding.factory());
+         return new RemoteBindingImpl(ProxyFactoryHelper.getDefaultRemoteBusinessJndiName(container), binding
+               .interceptorStack(), binding.clientBindUrl(), binding.factory());
       }
       return binding;
    }
@@ -150,7 +151,7 @@ public class ProxyDeployer
             if (ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(container).length > 0)
             {
                log.debug("there is remote interfaces for " + container.getEjbName());
-               String jndiName = ProxyFactoryHelper.getDefaultRemoteJndiName(container);
+               String jndiName = ProxyFactoryHelper.getDefaultRemoteBusinessJndiName(container);
                log.debug("default remote binding has jndiName of " + jndiName);
                String uri = ""; // use the default
                RemoteBinding[] list = {new RemoteBindingImpl(jndiName, "", uri, RemoteBindingDefaults.PROXY_FACTORY_DEFAULT)};

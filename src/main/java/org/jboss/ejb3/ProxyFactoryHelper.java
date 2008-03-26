@@ -401,7 +401,7 @@ public class ProxyFactoryHelper
     * @param businessInterface
     * @return
     */
-   public static String getJndiName(Container container, Class<?> businessInterface)
+   public static String getJndiName(EJBContainer container, Class<?> businessInterface)
    {
       assert container != null : "container is null";
       assert businessInterface != null : "businessInterface is null";
@@ -836,10 +836,8 @@ public class ProxyFactoryHelper
 
    public static String getHomeJndiName(EJBContainer container)
    {
-      // Initialize
-
       // Use explicitly-specified binding, if defined
-      RemoteHomeBinding binding = (RemoteHomeBinding) container.resolveAnnotation(RemoteHomeBinding.class);
+      RemoteHomeBinding binding = container.getAnnotation(RemoteHomeBinding.class);
       if (binding != null)
          return binding.jndiBinding();
 
@@ -850,10 +848,8 @@ public class ProxyFactoryHelper
 
    public static String getLocalHomeJndiName(EJBContainer container)
    {
-      // Initialize
-
       // Use explicitly-specified binding, if defined
-      LocalHomeBinding binding = (LocalHomeBinding) container.resolveAnnotation(LocalHomeBinding.class);
+      LocalHomeBinding binding = container.getAnnotation(LocalHomeBinding.class);
       if (binding != null)
          return binding.jndiBinding();
 
@@ -864,15 +860,13 @@ public class ProxyFactoryHelper
 
    public static String getLocalJndiName(EJBContainer container)
    {
-      return getLocalJndiName(container, true);
+      return ProxyFactoryHelper.getLocalJndiName(container, true);
    }
 
    private static String getLocalJndiName(EJBContainer container, boolean conflictCheck)
    {
-      // Initialize
-
       // See if local binding is explicitly-defined
-      LocalBinding localBinding = (LocalBinding) container.resolveAnnotation(LocalBinding.class);
+      LocalBinding localBinding = container.getAnnotation(LocalBinding.class);
 
       // If none specified
       if (localBinding == null)
@@ -881,9 +875,13 @@ public class ProxyFactoryHelper
          String name = ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultLocalJndiName(
                ProxyFactoryHelper.getDeploymentSummaryFromContainer(container));
 
-         if (conflictCheck)
-            checkForJndiNamingConflict(container);
+         // If we should check for naming conflict
+         if (conflictCheck){
+            // Check
+            ProxyFactoryHelper.checkForJndiNamingConflict(container);
+         }
 
+         // Return
          return name;
       }
       // Local Binding was explicitly-specified, use it
@@ -893,21 +891,21 @@ public class ProxyFactoryHelper
       }
    }
 
-   public static String getRemoteJndiName(EJBContainer container)
+   public static String getRemoteBusinessJndiName(EJBContainer container)
    {
-      return getRemoteJndiName(container, true);
+      return ProxyFactoryHelper.getRemoteBusinessJndiName(container, true);
    }
 
-   public static String getRemoteJndiName(EJBContainer container, boolean check)
+   public static String getRemoteBusinessJndiName(EJBContainer container, boolean check)
    {
-      RemoteBinding binding = (RemoteBinding) container.resolveAnnotation(RemoteBinding.class);
+      RemoteBinding binding = container.getAnnotation(RemoteBinding.class);
 
-      return getRemoteJndiName(container, binding);
+      return ProxyFactoryHelper.getRemoteBusinessJndiName(container, binding);
    }
 
    private static void checkForJndiNamingConflict(EJBContainer container)
    {
-      if (container.resolveAnnotation(Local.class) != null)
+      if (container.getAnnotation(Local.class) != null)
       {
          Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
          String localJndiName = ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultLocalJndiName(summary);
@@ -922,33 +920,51 @@ public class ProxyFactoryHelper
       }
    }
 
-   private static String getRemoteJndiName(EJBContainer container, RemoteBinding binding)
+   private static String getRemoteBusinessJndiName(EJBContainer container, RemoteBinding binding)
    {
-      return getRemoteJndiName(container, binding, true);
+      return ProxyFactoryHelper.getRemoteBusinessJndiName(container, binding, true);
    }
 
-   public static String getRemoteJndiName(EJBContainer container, RemoteBinding binding, boolean conflictCheck)
+   public static String getRemoteBusinessJndiName(EJBContainer container, RemoteBinding binding, boolean conflictCheck)
    {
+      // Initialize
       String jndiName = null;
-      if (binding == null || binding.jndiBinding() == null || binding.jndiBinding().equals(""))
-      {
-         jndiName = getDefaultRemoteJndiName(container);
 
+      // If binding is not defined
+      if (binding == null || binding.jndiBinding() == null || binding.jndiBinding().trim().equals(""))
+      {
+         // Use the default
+         jndiName = getDefaultRemoteBusinessJndiName(container);
+
+         // If we should check for a naming conflict
          if (conflictCheck)
-            checkForJndiNamingConflict(container);
+         {
+            // Check
+            ProxyFactoryHelper.checkForJndiNamingConflict(container);
+         }
+
       }
+      // Binding is explicitly-defined
       else
       {
+         // use it
          jndiName = binding.jndiBinding();
       }
 
+      // Return
       return jndiName;
    }
 
-   public static String getDefaultRemoteJndiName(EJBContainer container)
+   public static String getDefaultRemoteBusinessJndiName(EJBContainer container)
    {
-      return ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultRemoteJndiName(
-            ProxyFactoryHelper.getDeploymentSummaryFromContainer(container));
+      // Obtain JNDI Binding Policy
+      DefaultJndiBindingPolicy policy = ProxyFactoryHelper.getJndiBindingPolicy(container);
+
+      // Obtain Deployment Summary
+      Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
+
+      // Return the policy's default remote name for this summary
+      return policy.getDefaultRemoteJndiName(summary);
    }
 
    /**
@@ -958,23 +974,36 @@ public class ProxyFactoryHelper
     * @author ALR
     * @return
     */
-   private static DefaultJndiBindingPolicy getJndiBindingPolicy(Container container)
+   private static DefaultJndiBindingPolicy getJndiBindingPolicy(EJBContainer container)
    {
-      EJBContainer ejbContainer = (EJBContainer) container;
-      JndiBindingPolicy bindingPolicy = ejbContainer.getAnnotation(JndiBindingPolicy.class);
+      // Attempt to obtain the binding policy from annotation repo
+      JndiBindingPolicy bindingPolicy = container.getAnnotation(JndiBindingPolicy.class);
+
+      // Initialize
       Class<? extends DefaultJndiBindingPolicy> policy = null;
-      if (bindingPolicy != null)
+      
+      // If policy is defined
+      if (bindingPolicy != null){
+         // Use it
          policy = bindingPolicy.policy();
+      }
+      // No policy defined
       else
       {
+         // Use default policy
          Class<? extends DefaultJndiBindingPolicy> policyClass = PackagingBasedJndiBindingPolicy.class;
+         // Log warning
          log.warn("No default JNDI Binding Policy Defined (see ejb3-interceptors-aop.xml for example); defaulting to "
                + policyClass.getName());
          policy = policyClass;
       }
+      
+      // Log
       log.debug("Obtaining JNDI name from policy " + policy.getName());
+
       try
       {
+         // Instanciate the policy and return
          return policy.newInstance();
       }
       catch (InstantiationException e)
@@ -987,23 +1016,22 @@ public class ProxyFactoryHelper
       }
    }
 
-   private static Ejb3DeploymentSummary getDeploymentSummaryFromContainer(Container container)
+   private static Ejb3DeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
    {
       // Construct Deployment Summary
       Ejb3DeploymentSummary summary = new Ejb3DeploymentSummary();
       summary.setEjbName(container.getEjbName());
       summary.setService(container instanceof ServiceContainer);
       summary.setStateful(container instanceof StatefulContainer);
-      summary.setDeploymentName(((EJBContainer) container).getDeployment().getName());
+      summary.setDeploymentName(container.getDeployment().getName());
       summary.setBeanClass(container.getBeanClass());
-      if (container instanceof EJBContainer)
+      DeploymentScope scope = container.getDeployment().getEar();
+      if (scope != null)
       {
-         DeploymentScope scope = ((EJBContainer) container).getDeployment().getEar();
-         if (scope != null)
-         {
-            summary.setDeploymentScopeBaseName(scope.getBaseName());
-         }
+         summary.setDeploymentScopeBaseName(scope.getBaseName());
       }
+
+      // Return
       return summary;
    }
 }

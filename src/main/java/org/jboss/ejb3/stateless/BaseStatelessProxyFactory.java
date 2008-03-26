@@ -240,6 +240,8 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
    }
 
    protected abstract Class<?>[] getInterfaces();
+   
+   protected abstract void ensureEjb21ViewComplete();
 
    protected final void initializeJndiName() {};
 
