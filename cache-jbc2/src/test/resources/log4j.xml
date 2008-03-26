@@ -114,7 +114,11 @@
 
   <!-- Limit JBoss categories to INFO -->
   <category name="org.jboss">
-    <priority value="INFO" class="org.jboss.logging.XLevel"/>
+    <priority value="INFO"/>
+  </category>
+  
+  <category name="org.jgroups">
+    <priority value="INFO"/>
   </category>
 
   <!-- Increase the priority threshold for the DefaultDS category

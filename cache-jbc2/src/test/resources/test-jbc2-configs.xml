@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ - JBoss, Home of Professional Open Source.
+ - Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ - as indicated by the @author tags. See the copyright.txt file in the
+ - distribution for a full listing of individual contributors.
+ -
+ - This is free software; you can redistribute it and/or modify it
+ - under the terms of the GNU Lesser General Public License as
+ - published by the Free Software Foundation; either version 2.1 of
+ - the License, or (at your option) any later version.
+ -
+ - This software is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ - Lesser General Public License for more details.
+ -
+ - You should have received a copy of the GNU Lesser General Public
+ - License along with this software; if not, write to the Free
+ - Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ - 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ -->
+<cache-configs>
+
+    <!-- 
+     Various JBoss Cache configurations, representing different valid
+     configurations for session caching
+    -->    
+        
+    <!-- The default.  If you change this, change buddy-repl-session below
+         to match. -->
+    <cache-config name="standard-session">
+
+      <attribute name="MultiplexerStack">udp</attribute>
+      <attribute name="ClusterName">standard-session</attribute>
+      
+      <!--
+              Node locking level : SERIALIZABLE
+                                   REPEATABLE_READ (default)
+                                   READ_COMMITTED
+                                   READ_UNCOMMITTED
+                                   NONE
+      -->
+      <attribute name="IsolationLevel">REPEATABLE_READ</attribute>
+
+      <!--     Valid modes are LOCAL
+                               REPL_ASYNC
+                               REPL_SYNC
+      -->
+      <attribute name="CacheMode">REPL_ASYNC</attribute>
+
+      <!--    The max amount of time (in milliseconds) we wait until the
+            initial state (ie. the contents of the cache) are retrieved from
+            existing members. -->
+      <attribute name="StateRetrievalTimeout">60000</attribute>
+
+      <!--    Number of milliseconds to wait until all responses for a
+              synchronous call have been received.  -->
+      <attribute name="SyncReplTimeout">17500</attribute>
+
+      <!--  Max number of milliseconds to wait for a lock acquisition -->
+      <attribute name="LockAcquisitionTimeout">15000</attribute>
+
+      <attribute name="ExposeManagementStatistics">true</attribute>
+
+     <!-- We want to activate/inactivate regions as beans are deployed -->
+      <attribute name="UseRegionBasedMarshalling">true</attribute>
+      <!-- Must match the value of "useRegionBasedMarshalling" -->
+      <attribute name="InactiveOnStartup">true</attribute>    
+      
+      <!--  Eviction policy configurations. -->
+      <attribute name="EvictionPolicyConfig">
+         <config>
+            <!-- Don't evict automatically -->
+            <attribute name="policyClass">org.jboss.cache.eviction.NullEvictionPolicy</attribute>
+            <attribute name="wakeUpIntervalSeconds">5</attribute>
+            <!-- Set up the _default_region -->
+            <region name="/_default_"/>
+            <!-- EJB3 integration code will programatically create other
+                 regions as beans are deployed -->
+         </config>
+      </attribute>
+      
+      <attribute name="BuddyReplicationConfig">
+         <config>
+            <buddyReplicationEnabled>false</buddyReplicationEnabled>
+            
+            <!-- these are the default values anyway -->
+            <buddyLocatorClass>org.jboss.cache.buddyreplication.NextMemberBuddyLocator</buddyLocatorClass>            
+            <!-- numBuddies is the number of backup nodes each node maintains.  
+                 ignoreColocatedBuddies means that each node will *try* to 
+                 select a buddy on a different physical host.  If not able 
+                 to do so though, it will fall back to colocated nodes. -->
+            <buddyLocatorProperties>
+               numBuddies = 1
+               ignoreColocatedBuddies = true
+            </buddyLocatorProperties>
+
+            <!-- A way to specify a preferred replication group.  If specified, 
+                 we try and pick a buddy why shares the same pool name (falling 
+                 back to other buddies if not available).  This allows the 
+                 sysdmin to hint at backup buddies are picked, so for example, 
+                 nodes may be hinted topick buddies on a different physical rack
+                 or power supply for added fault tolerance.  -->
+            <buddyPoolName>default</buddyPoolName>
+            
+            <!-- Communication timeout for buddy repl related messages like 
+                 data gravitation and assigning to and removing from groups -->
+            <buddyCommunicationTimeout>17500</buddyCommunicationTimeout>
+
+            <!-- Do not modify the following elements -->
+            <autoDataGravitation>false</autoDataGravitation>
+            <dataGravitationRemoveOnFind>true</dataGravitationRemoveOnFind>
+            <dataGravitationSearchBackupTrees>true</dataGravitationSearchBackupTrees>
+
+         </config>
+      
+      </attribute>
+
+      <!-- Store passivated sessions to the file system -->
+      <attribute name="CacheLoaderConfig">
+          <config>              
+              <passivation>true</passivation>
+              <shared>false</shared>
+
+              <cacheloader>
+                  <class>org.jboss.cache.loader.FileCacheLoader</class>
+                  <!-- Passivate to the server data dir -->
+                  <properties>
+                       location=${jboss.server.data.dir}${/}sfsb 
+                  </properties>
+                  <async>false</async>
+                  <fetchPersistentState>true</fetchPersistentState>
+                  <ignoreModifications>false</ignoreModifications>
+                  <checkCharacterPortability>false</checkCharacterPortability>
+              </cacheloader>
+          </config>
+      </attribute>
+
+    </cache-config> 
+       
+    <!-- Identical to standard-session but with buddy replication enabled -->
+    <cache-config name="buddy-repl-session">
+
+      <attribute name="MultiplexerStack">udp</attribute>
+      <attribute name="ClusterName">buddy-repl-session</attribute>
+      
+      <!--
+              Node locking level : SERIALIZABLE
+                                   REPEATABLE_READ (default)
+                                   READ_COMMITTED
+                                   READ_UNCOMMITTED
+                                   NONE
+      -->
+      <attribute name="IsolationLevel">REPEATABLE_READ</attribute>
+
+      <!--     Valid modes are LOCAL
+                               REPL_ASYNC
+                               REPL_SYNC
+      -->
+      <attribute name="CacheMode">REPL_ASYNC</attribute>
+
+      <!--    The max amount of time (in milliseconds) we wait until the
+            initial state (ie. the contents of the cache) are retrieved from
+            existing members. -->
+      <attribute name="StateRetrievalTimeout">60000</attribute>
+
+      <!--    Number of milliseconds to wait until all responses for a
+              synchronous call have been received.  -->
+      <attribute name="SyncReplTimeout">17500</attribute>
+
+      <!--  Max number of milliseconds to wait for a lock acquisition -->
+      <attribute name="LockAcquisitionTimeout">15000</attribute>
+
+      <attribute name="ExposeManagementStatistics">true</attribute>
+
+     <!-- We want to activate/inactivate regions as beans are deployed -->
+      <attribute name="UseRegionBasedMarshalling">true</attribute>
+      <!-- Must match the value of "useRegionBasedMarshalling" -->
+      <attribute name="InactiveOnStartup">true</attribute>    
+      
+      <!--  Eviction policy configurations. -->
+      <attribute name="EvictionPolicyConfig">
+         <config>
+            <!-- Don't evict automatically -->
+            <attribute name="policyClass">org.jboss.cache.eviction.NullEvictionPolicy</attribute>
+            <attribute name="wakeUpIntervalSeconds">5</attribute>
+            <!-- Set up the _default_region -->
+            <region name="/_default_"/>
+            <!-- EJB3 integration code will programatically create other
+                 regions as beans are deployed -->
+         </config>
+      </attribute>
+      
+      <attribute name="BuddyReplicationConfig">
+         <config>
+            <buddyReplicationEnabled>false</buddyReplicationEnabled>
+            
+            <!-- these are the default values anyway -->
+            <buddyLocatorClass>org.jboss.cache.buddyreplication.NextMemberBuddyLocator</buddyLocatorClass>            
+            <!-- numBuddies is the number of backup nodes each node maintains.  
+                 ignoreColocatedBuddies means that each node will *try* to 
+                 select a buddy on a different physical host.  If not able 
+                 to do so though, it will fall back to colocated nodes. -->
+            <buddyLocatorProperties>
+               numBuddies = 1
+               ignoreColocatedBuddies = true
+            </buddyLocatorProperties>
+
+            <!-- A way to specify a preferred replication group.  If specified, 
+                 we try and pick a buddy why shares the same pool name (falling 
+                 back to other buddies if not available).  This allows the 
+                 sysdmin to hint at backup buddies are picked, so for example, 
+                 nodes may be hinted topick buddies on a different physical rack
+                 or power supply for added fault tolerance.  -->
+            <buddyPoolName>default</buddyPoolName>
+            
+            <!-- Communication timeout for buddy repl related messages like 
+                 data gravitation and assigning to and removing from groups -->
+            <buddyCommunicationTimeout>17500</buddyCommunicationTimeout>
+
+            <!-- Do not modify the following elements -->
+            <autoDataGravitation>false</autoDataGravitation>
+            <dataGravitationRemoveOnFind>true</dataGravitationRemoveOnFind>
+            <dataGravitationSearchBackupTrees>true</dataGravitationSearchBackupTrees>
+
+         </config>
+      
+      </attribute>
+
+      <!-- Store passivated sessions to the file system -->
+      <attribute name="CacheLoaderConfig">
+          <config>              
+              <passivation>true</passivation>
+              <shared>false</shared>
+
+              <cacheloader>
+                  <class>org.jboss.cache.loader.FileCacheLoader</class>
+                  <!-- Passivate to the server data dir -->
+                  <properties>
+                       location=${jboss.server.data.dir}${/}sfsb 
+                  </properties>
+                  <async>false</async>
+                  <fetchPersistentState>true</fetchPersistentState>
+                  <ignoreModifications>false</ignoreModifications>
+                  <checkCharacterPortability>false</checkCharacterPortability>
+              </cacheloader>
+          </config>
+      </attribute>
+
+    </cache-config> 
+</cache-configs>
