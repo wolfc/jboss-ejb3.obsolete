@@ -117,7 +117,7 @@ public class TestBean implements Test
    public void testDuplicateStatefulLocal() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      LocalHome home = (LocalHome)jndiContext.lookup("DuplicateStatefulLocal");
+      LocalHome home = (LocalHome)jndiContext.lookup("DuplicateStatefulLocalHome");
       LocalBusinessInterface local = home.create();
       local.testLocal();
       

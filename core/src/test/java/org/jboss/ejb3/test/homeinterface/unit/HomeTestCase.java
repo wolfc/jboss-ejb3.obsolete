@@ -131,12 +131,12 @@ public class HomeTestCase
    public void testDuplicateStateful() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Home home = (Home)jndiContext.lookup("DuplicateStateful");
-      RemoteBusinessInterface remote = home.create();
+      Home home = (Home)jndiContext.lookup("DuplicateStatefulHome");
+      RemoteInterface remote = home.create();
       remote.test();
       
-      remote = (RemoteBusinessInterface)jndiContext.lookup("DuplicateStateful");
-      remote.test();
+      RemoteBusinessInterface remoteBusiness = (RemoteBusinessInterface) jndiContext.lookup("DuplicateStateful");
+      remoteBusiness.test();
       
       Test test = (Test)jndiContext.lookup("TestBean/remote");
       test.testDuplicateStatefulLocal();
