@@ -233,8 +233,6 @@ extends JBossTestCase
       assertNotNull(home);
       javax.ejb.EJBObject stateful = (javax.ejb.EJBObject)home.create(); 
       assertNotNull(stateful);
-      stateful = (javax.ejb.EJBObject)getInitialContext().lookup("Stateful");
-      assertNotNull(stateful);
    }
    
    public void testStatefulTx() throws Exception
