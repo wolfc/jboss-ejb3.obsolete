@@ -21,16 +21,10 @@
  */
 package org.jboss.ejb3.test.webservices.unit;
 
-import org.jboss.test.JBossTestCase;
-import org.jboss.logging.Logger;
-import org.jboss.ejb3.test.stateful.unit.RemoteUnitTestCase;
-import org.jboss.ejb3.test.stateful.*;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
-
-import javax.ejb.NoSuchEJBException;
-
 import junit.framework.Test;
+
+import org.jboss.logging.Logger;
+import org.jboss.test.JBossTestCase;
 
 /**
  * Sample client for the jboss container.

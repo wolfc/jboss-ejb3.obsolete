@@ -21,17 +21,14 @@
  */
 package org.jboss.ejb3.test.webservices.jsr181;
 
-import javax.ejb.EJBException;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
 import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.xml.rpc.Service;
 import javax.xml.ws.WebServiceRef;
-import org.jboss.logging.Logger;
 
 import org.jboss.ejb3.Container;
+import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>

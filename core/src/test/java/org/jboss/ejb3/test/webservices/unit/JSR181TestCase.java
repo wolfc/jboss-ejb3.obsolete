@@ -21,21 +21,25 @@
  */
 package org.jboss.ejb3.test.webservices.unit;
 
+import java.util.Hashtable;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.rmi.PortableRemoteObject;
+import javax.xml.rpc.Service;
+
 import junit.framework.Test;
+
 import org.jboss.ejb3.test.webservices.jsr181.EJB3RemoteBusinessInterface;
+import org.jboss.ejb3.test.webservices.jsr181.EJB3RemoteInterface;
 import org.jboss.ejb3.test.webservices.jsr181.EndpointInterface;
 import org.jboss.ejb3.test.webservices.jsr181.NarrowableEJB3RemoteHomeInterface;
 import org.jboss.ejb3.test.webservices.jsr181.NarrowableEJB3RemoteInterface;
 import org.jboss.ejb3.test.webservices.jsr181.RemoteHomeInterface;
 import org.jboss.ejb3.test.webservices.jsr181.StatelessRemote;
 import org.jboss.test.JBossTestCase;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
-import javax.xml.rpc.Service;
-import java.util.Hashtable;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -62,7 +66,7 @@ public class JSR181TestCase extends JBossTestCase
    {
       InitialContext iniCtx = getInitialContext();
       RemoteHomeInterface home = (RemoteHomeInterface)iniCtx.lookup("EJB3Bean/home");
-      EJB3RemoteBusinessInterface ejb3Remote = home.create();
+      EJB3RemoteInterface ejb3Remote = home.create();
 
       String helloWorld = "Hello world!";
       Object retObj = ejb3Remote.echo(helloWorld);
@@ -90,7 +94,9 @@ public class JSR181TestCase extends JBossTestCase
    public void testWebService() throws Exception
    {
       InitialContext iniCtx = getInitialContext();
-      Service service = (Service)iniCtx.lookup("java:comp/env/service/TestService");
+      Object obj = iniCtx.lookup("java:comp/env/service/TestService");
+      Reference ref = (Reference)iniCtx.lookup("java:comp/env/service/TestService");
+      Service service = (Service)ref.get(0);
       EndpointInterface port = (EndpointInterface)service.getPort(EndpointInterface.class);
 
       String helloWorld = "Hello world!";
