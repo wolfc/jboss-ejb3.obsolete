@@ -2295,9 +2295,19 @@
       <build-simple-jar name="ejbthree1057"/>
    </target>
    
-   <target name="ejbthree1059" >
-      <build-simple-jar name="ejbthree1059"/>
-   </target>
+  <target name="ejbthree1059" >
+    <mkdir dir="${build.lib}"/>
+    <jar jarfile="${build.lib}/ejbthree1059-local.jar">
+      <fileset dir="${build.classes}">
+        <include name="org/jboss/ejb3/test/ejbthree1059/local/*.class"/>
+      </fileset>
+    </jar>
+    <jar jarfile="${build.lib}/ejbthree1059-remote.jar">
+      <fileset dir="${build.classes}">
+        <include name="org/jboss/ejb3/test/ejbthree1059/remote/*.class"/>
+      </fileset>
+    </jar>
+  </target>
   
    <target name="ejbthree1060" >
       <build-simple-jar name="ejbthree1060"/>
