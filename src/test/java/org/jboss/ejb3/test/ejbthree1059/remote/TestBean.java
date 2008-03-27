@@ -19,69 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.ejbthree1059;
+package org.jboss.ejb3.test.ejbthree1059.remote;
 
-import javax.ejb.CreateException;
-import javax.ejb.EJB;
-import javax.ejb.EJBLocalHome;
 import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.ejb.RemoteHome;
+import javax.ejb.Stateful;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 
 /**
- * AccessBean
+ * TestBean Remote
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateless
-@Remote(AccessRemoteBusiness.class)
-@RemoteBinding(jndiBinding = AccessRemoteBusiness.JNDI_NAME)
-public class AccessBean implements AccessRemoteBusiness
+@Stateful
+@Remote(
+{TestRemote.class, TestRemoteBusiness.class})
+@RemoteHome(TestRemoteHome.class)
+@RemoteBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
+@RemoteHomeBinding(jndiBinding = TestRemoteHome.JNDI_NAME)
+public class TestBean implements TestRemoteBusiness
 {
 
-   // Instance Members
-   @EJB
-   TestLocalHome localHome;
-
    // Required Implementations
-
-   public void testValid()
+   public void test()
    {
-      // Obtain local instance
-      TestLocal local = null;
-      try
-      {
-         local = this.localHome.createValid();
-      }
-      catch (CreateException ce)
-      {
-         throw new RuntimeException(ce);
-      }
-
-      // Invoke
-      local.test();
 
    }
-
-   public void testInvalid()
-   {
-      // Attempt to create business interface from EJB21 create
-      try
-      {
-         this.localHome.createInvalid();
-      }
-      catch (CreateException ce)
-      {
-         // Expected
-         return;
-      }
-
-      // Invoke
-      throw new RuntimeException("Business interface not have been created from " + EJBLocalHome.class.getName()
-            + ".create<METHOD>()");
-
-   }
-
 }

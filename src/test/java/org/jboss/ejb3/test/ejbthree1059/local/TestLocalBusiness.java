@@ -19,19 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.ejbthree1059;
+package org.jboss.ejb3.test.ejbthree1059.local;
 
 /**
- * AccessRemoteBusiness
+ * TestLocalBusiness
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface AccessRemoteBusiness
+public interface TestLocalBusiness
 {
-   String JNDI_NAME = "Access/remote";
-   
-   void testValid();
-   
-   void testInvalid();
+   String JNDI_NAME = "Test/local";
+
+   void test();
 }

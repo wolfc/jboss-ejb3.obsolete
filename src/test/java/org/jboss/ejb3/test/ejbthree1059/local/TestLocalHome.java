@@ -19,17 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.ejbthree1059;
+package org.jboss.ejb3.test.ejbthree1059.local;
 
-import javax.ejb.EJBLocalObject;
+import javax.ejb.CreateException;
+import javax.ejb.EJBLocalHome;
 
 /**
- * TestLocal
+ * TestLocalHome
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestLocal extends EJBLocalObject
+public interface TestLocalHome extends EJBLocalHome
 {
-   void test();
+   String JNDI_NAME = "Test/localHome";
+
+   TestLocal createValid() throws CreateException;
+
+   TestLocalBusiness createInvalid() throws CreateException;
 }

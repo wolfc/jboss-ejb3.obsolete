@@ -19,17 +19,33 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.ejbthree1059;
+package org.jboss.ejb3.test.ejbthree1059.local;
+
+import javax.ejb.Local;
+import javax.ejb.LocalHome;
+import javax.ejb.Stateful;
+
+import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.LocalHomeBinding;
 
 /**
- * TestRemoteBusiness
+ * TestBean Local
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestRemoteBusiness
+@Stateful
+@Local(
+{TestLocal.class, TestLocalBusiness.class})
+@LocalHome(TestLocalHome.class)
+@LocalBinding(jndiBinding = TestLocalBusiness.JNDI_NAME)
+@LocalHomeBinding(jndiBinding = TestLocalHome.JNDI_NAME)
+public class TestBean implements TestLocalBusiness
 {
-   String JNDI_NAME = "Test/remote";
 
-   void test();
+   // Required Implementations
+   public void test()
+   {
+
+   }
 }
