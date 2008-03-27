@@ -21,13 +21,12 @@
  */
 package org.jboss.ejb3.test.homeinterface;
 
-import javax.ejb.*;
+import javax.ejb.EJBLocalHome;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface LocalHome extends EJBHome {
-    
-  public LocalInterface create() throws javax.ejb.CreateException;
-} 
-
+public interface LocalHome extends EJBLocalHome
+{
+   public LocalInterface create() throws javax.ejb.CreateException;
+}
