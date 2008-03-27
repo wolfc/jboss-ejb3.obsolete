@@ -213,11 +213,19 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       // We can't type cast the direct container, because we just loaded the beanClass
       // so assuming we have an object is a safe bet.
       this.beanContainer = new BeanContainer(this);
-      // Because interceptors will query back the EJBContainer for annotations
-      // we must have set beanContainer first and then do the advisor. 
-      beanContainer.initialize(ejbName, domain, beanClass, beanMetaData, cl);
       
       this.ejbName = ejbName;
+      
+      // Because interceptors will query back the EJBContainer for annotations
+      // we must have set beanContainer first and then do the advisor. 
+      try
+      {
+         beanContainer.initialize(ejbName, domain, beanClass, beanMetaData, cl); 
+      }
+      catch(Exception e)
+      {
+         throw new RuntimeException("failed to initialize bean container ",e);
+      }
       String on = createObjectName(ejbName);
      
       try
