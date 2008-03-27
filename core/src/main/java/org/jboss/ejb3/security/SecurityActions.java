@@ -36,6 +36,7 @@ import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextFactory;
+import org.jboss.security.SubjectInfo;
 import org.jboss.security.plugins.SecurityContextAssociation;
 
 
@@ -246,9 +247,9 @@ class SecurityActions
    
    static Principal getCallerPrincipal()
    {
-      return (Principal)AccessController.doPrivileged(new PrivilegedAction(){
+      return (Principal)AccessController.doPrivileged(new PrivilegedAction<Principal>(){
 
-         public Object run()
+         public Principal run()
          { 
             return SecurityAssociation.getCallerPrincipal();
          }});
@@ -256,9 +257,9 @@ class SecurityActions
    
    static SecurityContext createSecurityContext(final String domainName) throws PrivilegedActionException
    {
-      return (SecurityContext)AccessController.doPrivileged(new PrivilegedExceptionAction(){
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>(){
 
-      public Object run() throws Exception
+      public SecurityContext run() throws Exception
       { 
         return SecurityContextFactory.createSecurityContext(domainName);
       }
@@ -268,9 +269,9 @@ class SecurityActions
    static SecurityContext createSecurityContext(final Principal p, final Object cred,
          final Subject s, final String domainName) throws PrivilegedActionException
    {
-      return (SecurityContext)AccessController.doPrivileged(new PrivilegedExceptionAction()
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()
       {
-         public Object run() throws Exception
+         public SecurityContext run() throws Exception
          { 
             return SecurityContextFactory.createSecurityContext(p, cred,s,domainName);
          }});
@@ -279,9 +280,9 @@ class SecurityActions
    
    static SecurityContext getSecurityContext()
    {
-      return (SecurityContext)AccessController.doPrivileged(new PrivilegedAction(){
+      return  AccessController.doPrivileged(new PrivilegedAction<SecurityContext>(){
 
-         public Object run()
+         public SecurityContext run()
          { 
             return SecurityContextAssociation.getSecurityContext();
          }});
@@ -289,7 +290,7 @@ class SecurityActions
    
    static void setSecurityContext(final SecurityContext sc)
    {
-      AccessController.doPrivileged(new PrivilegedAction(){
+      AccessController.doPrivileged(new PrivilegedAction<Object>(){
 
          public Object run()
          { 
@@ -300,7 +301,7 @@ class SecurityActions
    
    static void pushSubjectContext(final Principal p, final Object cred, final Subject s)
    {
-      AccessController.doPrivileged(new PrivilegedAction(){
+      AccessController.doPrivileged(new PrivilegedAction<Object>(){
 
          public Object run()
          {
@@ -313,9 +314,23 @@ class SecurityActions
       );
    } 
    
+   static RunAs peekRunAs()
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<RunAs>()
+      { 
+         public RunAs run()
+         {
+            SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+            if(sc == null)
+               throw new IllegalStateException("Security Context is null");
+            return sc.getIncomingRunAs(); 
+         } 
+      });
+      
+   }
    static void pushCallerRunAsIdentity(final RunAs ra)
    {
-      AccessController.doPrivileged(new PrivilegedAction(){ 
+      AccessController.doPrivileged(new PrivilegedAction<Object>(){ 
          public Object run()
          {
             SecurityContext sc = SecurityContextAssociation.getSecurityContext();
@@ -328,9 +343,9 @@ class SecurityActions
    }
    
 
-   public static void popCallerRunAsIdentity()
+   static void popCallerRunAsIdentity()
    {
-      AccessController.doPrivileged(new PrivilegedAction(){ 
+      AccessController.doPrivileged(new PrivilegedAction<Object>(){ 
          public Object run()
          {
             SecurityContext sc = SecurityContextAssociation.getSecurityContext();
@@ -341,4 +356,40 @@ class SecurityActions
          } 
       }); 
    }
+   
+   static void setIncomingRunAs(final SecurityContext sc, final RunAs incoming)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Object>()
+      { 
+         public Object run()
+         {
+            sc.setIncomingRunAs(incoming); 
+            return null;
+         } 
+      });
+   }
+   
+   static void setOutgoingRunAs(final SecurityContext sc, final RunAs outgoing)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Object>()
+      { 
+         public Object run()
+         {
+            sc.setOutgoingRunAs(outgoing); 
+            return null;
+         } 
+      });
+   }
+   
+   static void setSubjectInfo(final SecurityContext sc, final SubjectInfo info)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Object>()
+      { 
+         public Object run()
+         {
+            sc.setSubjectInfo(info);  
+            return null;
+         } 
+      });
+   } 
 }

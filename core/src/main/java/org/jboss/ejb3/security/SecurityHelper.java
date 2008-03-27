@@ -32,6 +32,8 @@ import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
+import org.jboss.remoting.InvokerLocator; 
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 
 //$Id$
 
@@ -50,7 +52,9 @@ public class SecurityHelper
     */
    public boolean isLocalCall(MethodInvocation mi)
    { 
-      return mi.getMetaData(IsLocalInterceptor.IS_LOCAL,IsLocalInterceptor.IS_LOCAL) != null;
+      InvokerLocator locator = (InvokerLocator) mi.getMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.INVOKER_LOCATOR);
+      return locator == null ||
+          mi.getMetaData(IsLocalInterceptor.IS_LOCAL,IsLocalInterceptor.IS_LOCAL) != null;
    }
    
    /**

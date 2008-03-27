@@ -22,7 +22,6 @@
 package org.jboss.ejb3.security;
 
 import java.lang.reflect.Method;
-import java.security.Principal;
 
 import javax.ejb.EJBAccessException;
 import javax.security.auth.Subject;
@@ -34,8 +33,8 @@ import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.logging.Logger;
+import org.jboss.security.RunAs;
 import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityIdentity;
 import org.jboss.security.SecurityUtil;
 import org.jboss.security.integration.JNDIBasedSecurityManagement;
 import org.jboss.security.integration.ejb.EJBAuthenticationHelper;
@@ -44,7 +43,7 @@ import org.jboss.security.integration.ejb.EJBAuthenticationHelper;
 
 /**
  *  Authentication Interceptor
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ *  @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  *  @author Anil.Saldhana@redhat.com
  *  @since  Aug 16, 2007 
  *  @version $Revision$
@@ -74,12 +73,11 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
             shelper.containsTimeoutAnnotation(container, method) ||
             shelper.isMDB(container)) 
          return invocation.invokeNext();
-      
-      SecurityIdentity si = null;
-      SecurityContext sc = SecurityActions.getSecurityContext();
+       
+      SecurityContext prevSC = SecurityActions.getSecurityContext();
       SecurityContext invSC = (SecurityContext) invocation.getMetaData("security","context"); 
       
-      SecurityDomain domain = (SecurityDomain)container.resolveAnnotation(SecurityDomain.class);
+      SecurityDomain domain = container.getAnnotation(SecurityDomain.class); 
       
       boolean domainExists = domain != null && domain.value() != null 
                     && domain.value().length() > 0;
@@ -89,45 +87,46 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
        * of a security domain, as per the configuration on the container
        */
       if(domainExists)
-      { 
-         Principal p = null;
-         Object cred = null;
+      {  
+         String domainValue = canonicalizeSecurityDomain(domain.value());
          
-         //There is no security context at all
-         if(sc == null && invSC == null)
-         {
-            sc = SecurityActions.createSecurityContext(domain.value());
-            SecurityActions.setSecurityContext(sc); 
-         }
+         /* Need to establish the security context. For local calls, we pick the outgoing runas
+          * of the existing sc. For remote calls, we create a new security context with the information
+          * from the invocation sc
+          */
+         SecurityContext sc = null; 
+
+         sc = SecurityActions.createSecurityContext(domainValue);
          
          if(shelper.isLocalCall(mi))
          {
-            if(sc == null)
-               throw new IllegalStateException("Security Context null on Local call");
-            si = sc.getUtil().getSecurityIdentity();
+            if(prevSC == null)
+               throw new IllegalStateException("Local Call: Security Context is null");
+            
+            /**
+             * If the local security context is the same as what we need,
+             * duplicate the sc, except the incoming and outgoing need to be dealt with
+             */
+            if(prevSC.getSecurityDomain().equals(domainValue)) 
+            { 
+               populateSecurityContext(sc, prevSC); 
+            }
+            else
+            {
+               SecurityActions.setIncomingRunAs(sc, prevSC.getOutgoingRunAs()); 
+            } 
          }
          else
-         {
-            if(invSC == null && sc == null)
-               throw new IllegalStateException("Security Context is not available");
-            
-            //If there was a SecurityContext over the invocation, that takes preference
-            if(invSC != null)
-            {
-               sc = invSC;
-               p = sc.getUtil().getUserPrincipal();
-               cred = sc.getUtil().getCredential();
-               String unprefixed = SecurityUtil.unprefixSecurityDomain(domain.value());
-               sc = SecurityActions.createSecurityContext(p, 
-                     cred, null, unprefixed); 
-               
-               //Set the security context
-               SecurityActions.setSecurityContext(sc);
-               sc.getUtil().setSecurityIdentity(invSC.getUtil().getSecurityIdentity());
-            }
+         { 
+           //Remote Invocation
+           if(invSC == null)
+             throw new IllegalStateException("Remote Call: Invocation Security Context is null");
+           
+           populateSecurityContext(sc, invSC); 
          }
          
-         sc = SecurityActions.getSecurityContext();
+         SecurityActions.setSecurityContext(sc);
+            
          //TODO: Need to get the SecurityManagement instance
          sc.setSecurityManagement(new JNDIBasedSecurityManagement());
            
@@ -160,15 +159,23 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          }
       }
       try
-      { 
-         if(sc != null)
-           SecurityActions.pushCallerRunAsIdentity(sc.getOutgoingRunAs());
+      {  
          return invocation.invokeNext();  
       }
       finally
-      {
-         if(shelper.isLocalCall(mi) && si != null)
-            SecurityActions.getSecurityContext().getUtil().setSecurityIdentity(si);
+      { 
+         SecurityActions.setSecurityContext(prevSC); 
       }
-   }  
+   }
+   
+   private String canonicalizeSecurityDomain(String securityDomain)
+   {
+	  return SecurityUtil.unprefixSecurityDomain(securityDomain); 
+   }
+   
+   private void populateSecurityContext(SecurityContext to, SecurityContext from)
+   {
+      SecurityActions.setSubjectInfo(to, from.getSubjectInfo());
+      SecurityActions.setIncomingRunAs(to, from.getOutgoingRunAs());
+   }
 }
