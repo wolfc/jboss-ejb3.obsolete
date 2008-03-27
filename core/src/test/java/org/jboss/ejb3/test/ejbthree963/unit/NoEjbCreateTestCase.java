@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.ejbthree963.unit;
 import junit.framework.Test;
 
 import org.jboss.ejb3.test.ejbthree963.MyStateful;
+import org.jboss.ejb3.test.ejbthree963.MyStatefulHome;
 import org.jboss.test.JBossTestCase;
 
 
@@ -43,7 +44,8 @@ public class NoEjbCreateTestCase extends JBossTestCase
 
    public void testCreateNoArgs() throws Exception
    {
-      MyStateful bean = (MyStateful) getInitialContext().lookup(MyStateful.JNDI_NAME);
+      MyStatefulHome home = (MyStatefulHome) getInitialContext().lookup(MyStatefulHome.JNDI_NAME);
+      MyStateful bean = home.create();
       bean.setName("testCreateNoArgs");
       String expected = "Hi testCreateNoArgs";
       String actual = bean.sayHi();
