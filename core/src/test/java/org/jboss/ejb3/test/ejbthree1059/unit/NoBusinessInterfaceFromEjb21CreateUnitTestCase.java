@@ -21,12 +21,13 @@
  */
 package org.jboss.ejb3.test.ejbthree1059.unit;
 
+import javax.naming.NameNotFoundException;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-import org.jboss.ejb3.test.ejbthree1059.AccessRemoteBusiness;
-import org.jboss.ejb3.test.ejbthree1059.TestRemoteBusiness;
-import org.jboss.ejb3.test.ejbthree1059.TestRemoteHome;
+import org.jboss.ejb3.test.ejbthree1059.local.AccessRemoteBusiness;
+import org.jboss.ejb3.test.ejbthree1059.remote.TestRemoteHome;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -45,36 +46,43 @@ public class NoBusinessInterfaceFromEjb21CreateUnitTestCase extends JBossTestCas
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(NoBusinessInterfaceFromEjb21CreateUnitTestCase.class, "ejbthree1059.jar");
+      return getDeploySetup(NoBusinessInterfaceFromEjb21CreateUnitTestCase.class,
+            "ejbthree1059-local.jar,ejbthree1059-remote.jar");
    }
 
    public void testRemoteBusinessFromEjb21CreateFails() throws Exception
    {
 
-      // Obtain Home
-      TestRemoteHome home = (TestRemoteHome) this.getInitialContext().lookup(TestRemoteHome.JNDI_NAME);
+      // Attempt to obtain remote home to invalid remote deployment
+      try
+      {
+         this.getInitialContext().lookup(TestRemoteHome.JNDI_NAME);
+      }
+      // Expected
+      catch (NameNotFoundException nnfe)
+      {
+         return;
+      }
 
-      // Attempt an invalid creation
-      home.createInvalid();
+      TestCase.fail(NameNotFoundException.class.getName() + " expeced to be thrown");
 
    }
 
    public void testLocalBusinessFromEjb21CreateFails() throws Exception
    {
 
-      // Obtain access bean
-      AccessRemoteBusiness access = (AccessRemoteBusiness) this.getInitialContext().lookup(
-            AccessRemoteBusiness.JNDI_NAME);
-
-      // Attempt invalid creation
+      // Attempt to obtain AccessBean to invalid local deployment
       try
       {
-         access.testInvalid();
+         this.getInitialContext().lookup(AccessRemoteBusiness.JNDI_NAME);
       }
-      catch (Exception e)
+      // Expected
+      catch (NameNotFoundException nnfe)
       {
-         TestCase.fail(e.getMessage());
+         return;
       }
+
+      TestCase.fail(NameNotFoundException.class.getName() + " expeced to be thrown");
 
    }
 

@@ -19,42 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.ejbthree1059;
+package org.jboss.ejb3.test.ejbthree1059.local;
 
-import javax.ejb.Local;
-import javax.ejb.LocalHome;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.Stateful;
-
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.LocalHomeBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteHomeBinding;
+import javax.ejb.EJBLocalObject;
 
 /**
- * TestBean
+ * TestLocal
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateful
-@Local(
-{TestLocal.class, TestLocalBusiness.class})
-@Remote(
-{TestRemote.class, TestRemoteBusiness.class})
-@LocalHome(TestLocalHome.class)
-@RemoteHome(TestRemoteHome.class)
-@LocalBinding(jndiBinding = TestLocalBusiness.JNDI_NAME)
-@RemoteBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
-@LocalHomeBinding(jndiBinding = TestLocalHome.JNDI_NAME)
-@RemoteHomeBinding(jndiBinding = TestRemoteHome.JNDI_NAME)
-public class TestBean implements TestRemoteBusiness, TestLocalBusiness
+public interface TestLocal extends EJBLocalObject
 {
-
-   // Required Implementations
-   public void test()
-   {
-
-   }
+   void test();
 }
