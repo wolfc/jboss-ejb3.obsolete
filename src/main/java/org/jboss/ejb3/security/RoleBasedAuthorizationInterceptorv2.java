@@ -45,7 +45,7 @@ import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.remoting.InvokerLocator;
 import org.jboss.security.AnybodyPrincipal;
 import org.jboss.security.NobodyPrincipal;
-import org.jboss.security.RunAsIdentity;
+import org.jboss.security.RunAs;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
 import org.jboss.security.SimplePrincipal;
@@ -173,7 +173,7 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
 
             String iface = (locator != null) ? "Remote" : "Local"; 
             
-            RunAsIdentity callerRunAs = SecurityActions.peekRunAsIdentity();
+            RunAs callerRunAs = SecurityActions.peekRunAs();
             
             EJBAuthorizationHelper helper = new EJBAuthorizationHelper(sc);
             boolean isAuthorized = helper.authorize(ejbName, 
