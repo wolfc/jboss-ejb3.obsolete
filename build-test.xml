@@ -108,6 +108,7 @@
   <property name="location.client.lib.jbossws-spi" value="${location.client.lib}/jbossws-spi.jar"/>
   <property name="location.client.lib.jboss-metadata" value="${location.client.lib}/jboss-metadata.jar"/>
   <property name="location.client.lib.jboss-jaxws" value="${location.client.lib}/jboss-jaxws.jar"/>
+  <property name="location.client.lib.jbossws-client" value="${location.client.lib}/jbossws-client.jar"/>
     
   <!-- EJB3 Internal Artifacts -->
   <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
@@ -322,6 +323,9 @@
 	
 	  <!-- Apache Codec -->
     <pathelement path="${location.dependencies.lib.apache-codec:commons-codec}" />
+    
+    <!-- JBossWS Client -->
+    <pathelement path="${location.client.lib.jbossws-client}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
