@@ -40,12 +40,12 @@ import org.jboss.logging.Logger;
 @Remote(
 {RemoteBusinessInterface.class, RemoteInterface.class})
 @RemoteBinding(jndiBinding="DuplicateStateful")
-@RemoteHomeBinding(jndiBinding="DuplicateStateful")
+@RemoteHomeBinding(jndiBinding="DuplicateStatefulHome")
 @RemoteHome(Home.class)
 @Local(
 {LocalBusinessInterface.class, LocalInterface.class})
 @LocalBinding(jndiBinding="DuplicateStatefulLocal")
-@LocalHomeBinding(jndiBinding="DuplicateStatefulLocal")
+@LocalHomeBinding(jndiBinding="DuplicateStatefulLocalHome")
 @LocalHome(org.jboss.ejb3.test.homeinterface.LocalHome.class)
 public class DuplicateStatefulBean implements RemoteBusinessInterface, LocalBusinessInterface
 {
