@@ -21,13 +21,12 @@
  */
 package org.jboss.ejb3.test.webservices.jsr181;
 
-import javax.ejb.*;
+import javax.ejb.EJBHome;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface RemoteHomeInterface extends EJBHome {
-    
-  public EJB3RemoteBusinessInterface create() throws java.rmi.RemoteException, javax.ejb.CreateException;
-} 
-
+public interface RemoteHomeInterface extends EJBHome
+{
+   public EJB3RemoteInterface create() throws java.rmi.RemoteException, javax.ejb.CreateException;
+}
