@@ -26,7 +26,6 @@ import java.security.CodeSource;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.AspectFactory;
-import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.security.RealmMapping;
 
@@ -43,28 +42,18 @@ implements AspectFactory
    {
       try
       {
-         String contextID = (String) advisor.getDefaultMetaData().getMetaData("JACC", "ctx");
-          
          CodeSource ejbCS = advisor.getClazz().getProtectionDomain().getCodeSource();
          
          // Must be a separate line (EJBContainer cannot be dereferenced)
          EJBContainer container = EJBContainer.getEJBContainer(advisor);
          String ejbName = container.getEjbName(); 
          JaccAuthorizationInterceptor jai = new JaccAuthorizationInterceptor(ejbName, ejbCS);
-         jai.setRealmMapping(getSecurityManager(advisor)); 
+         jai.setRealmMapping(container.getSecurityManager(RealmMapping.class)); 
          return jai;
       }
       catch (Exception e)
       {
          throw new RuntimeException(e);
       }
-   } 
-   
-   protected RealmMapping getSecurityManager(Advisor advisor)
-   {
-      Container container = (Container) advisor;
-      return container.getSecurityManager(RealmMapping.class);
-   }
+   }  
 }
-
-
