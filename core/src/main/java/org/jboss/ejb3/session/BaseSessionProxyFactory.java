@@ -25,6 +25,9 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
@@ -61,6 +64,8 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
    protected String containerGuid;
    protected String containerClusterUid;
    protected boolean isClustered = false;
+   
+   private static final String METHOD_PREFIX_EJB21_CREATE = "create";
    
    public BaseSessionProxyFactory()
    {
@@ -172,7 +177,7 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
     * @param localOrRemoteInterfaces
     * @throws RuntimeException
     */
-   protected void ensureEjb21ViewComplete(Class<?> home,Class<?>[] localOrRemoteInterfaces) throws RuntimeException
+   protected void validateCompleteEjb21View(Class<?> home, Class<?>[] localOrRemoteInterfaces) throws RuntimeException
    {
       // Ensure specified home is EJBHome or EJBLocalHome
       assert (home == null || (EJBHome.class.isAssignableFrom(home) || EJBLocalHome.class.isAssignableFrom(home)));
@@ -183,7 +188,7 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
          assert (EJBObject.class.isAssignableFrom(localOrRemoteInterface) || EJBLocalObject.class
                .isAssignableFrom(localOrRemoteInterface));
       }
-      
+
       // If home is defined and there are no local/remote interfaces
       if (home != null && localOrRemoteInterfaces.length == 0)
       {
@@ -198,8 +203,106 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
          throw new RuntimeException("EJBTHREE-1075: " + container.getBeanClassName()
                + " defines local/remote interfaces" + " but provides no home; EJB 2.1 view cannot be realized");
       }
-
    }
    
-   protected abstract void ensureEjb21ViewComplete();
+   /**
+    * Validates that the specified EJB2.1 Home interface returns only
+    * valid remote/local interfaces from "create<METHOD>" methods.  If no
+    * home is defined, the method will return without further checks
+    * 
+    * @param home
+    */
+   protected void validateHomeReturnsNoBusinessInterfaces(Class<?> home)
+   {
+      // Only perform if home is defined; otherwise no EJB2.1 view
+      if(home==null)
+      {
+         return;
+      }
+      
+      // Sanity checks
+      assert EJBHome.class.isAssignableFrom(home) || EJBLocalHome.class.isAssignableFrom(home) : "Specified home interface, "
+            + home.getName() + ", must be of type " + EJBHome.class.getName() + " or " + EJBLocalHome.class.getName();
+      assert home.isInterface() : "Specified home interface, " + home.getName() + " is not an interface.";
+
+      // Initialize
+      Set<Method> creates = new HashSet<Method>();
+
+      // Obtain all "create<METHOD>" methods
+      Method[] all = home.getDeclaredMethods();
+
+      // For each method
+      for (Method method : all)
+      {
+         // If a "create<METHOD>" method
+         if (method.getName().startsWith(BaseSessionProxyFactory.METHOD_PREFIX_EJB21_CREATE))
+         {
+            // Add to the Set of Creates
+            creates.add(method);
+         }
+      }
+
+      // For all "create<METHOD>" methods
+      for (Method create : creates)
+      {
+         // Init
+         boolean isLocal = true;
+
+         // Set as remote if applicable
+         if (EJBHome.class.isAssignableFrom(home))
+         {
+            isLocal = false;
+         }
+
+         // If local (EJBLocalHome)
+         if (isLocal)
+         {
+            // Validate return type is local interface
+            if (!EJBLocalObject.class.isAssignableFrom(create.getReturnType()))
+            {
+               throw new RuntimeException("EJB 3 Core Specification Section 4.6.10: "
+                     + "The return type for a create<METHOD> method must be"
+                     + " the session bean's local interface type.  " + home.getName() + " has method "
+                     + create.getName() + " which returns " + create.getReturnType().getName() + ". [EJBTHREE-1059]");
+            }
+         }
+         // If remote (EJBHome)
+         else
+         {
+            // Validate return type is remote interface
+            if (!EJBObject.class.isAssignableFrom(create.getReturnType()))
+            {
+               throw new RuntimeException("EJB 3 Core Specification Section 4.6.8: "
+                     + "The return type for a create<METHOD> method "
+                     + "must be the session bean’s remote interface type.  " + home.getName() + " has method "
+                     + create.getName() + " which returns " + create.getReturnType().getName() + ". [EJBTHREE-1059]");
+            }
+         }
+      }
+   }
+   
+   /**
+    * Validates that any EJB2.1 Views associated with this ProxyFactory 
+    * are valid
+    * 
+    * @param home
+    * @param localOrRemoteInterfaces
+    * @throws RuntimeException
+    */
+   protected void validateEjb21Views(Class<?> home,Class<?>[] localOrRemoteInterfaces) throws RuntimeException
+   {
+      // Ensure EJB2.1 Views are complete (EJBTHREE-1075)
+      this.validateCompleteEjb21View(home, localOrRemoteInterfaces);
+      
+      // Ensure EJB2.1 Home returns only local/remote interfaces
+      this.validateHomeReturnsNoBusinessInterfaces(home);
+   }
+   
+   
+   
+   /**
+    * Validates that any EJB2.1 Views associated with this ProxyFactory 
+    * are valid
+    */
+   protected abstract void validateEjb21Views();
 }
