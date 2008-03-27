@@ -88,14 +88,14 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       {});
    }
    
-   protected void ensureEjb21ViewComplete(){
+   protected void validateEjb21Views(){
       
       EJBContainer container = this.getContainer();
       
       LocalHome localHome = container.getAnnotation(LocalHome.class);
       
       // Ensure that if EJB 2.1 Components are defined, they're complete
-      this.ensureEjb21ViewComplete(localHome == null ? null : localHome.value(), ProxyFactoryHelper
+      this.validateEjb21Views(localHome == null ? null : localHome.value(), ProxyFactoryHelper
             .getLocalInterfaces(container));
    }
    

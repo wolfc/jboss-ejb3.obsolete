@@ -103,7 +103,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       return interfaces.toArray(new Class[]{});
    }
    
-   protected void ensureEjb21ViewComplete()
+   protected void validateEjb21Views()
    { 
       // Obtain Container
       SessionContainer container = this.getContainer();
@@ -112,7 +112,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
 
       // Ensure that if EJB 2.1 Components are defined, they're complete
-      this.ensureEjb21ViewComplete(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
+      this.validateEjb21Views(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
             .getRemoteInterfaces(container));
 
    }

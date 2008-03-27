@@ -27,9 +27,12 @@ import java.io.ObjectOutput;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -162,7 +165,7 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
    public void init() throws Exception
    {
       // Ensure EJB2.1 View is Complete
-      this.ensureEjb21ViewComplete();
+      this.validateEjb21Views();
       
       // Create the Proxy Constructors
       this.createProxyConstructors();
@@ -247,7 +250,7 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
       SessionContainer container = this.getContainer();
 
       // Initialize array of interfaces
-      Class<?>[] intfs = null;
+      Set<Class<?>> intfs = new HashSet<Class<?>>();
 
       // If Local
       if (accessType.equals(ProxyAccessType.LOCAL))
@@ -256,12 +259,16 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
          // If business
          if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
          {
-            intfs = ProxyFactoryHelper.getLocalBusinessInterfaces(container);
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalBusinessInterfaces(container)));
          }
          // If EJBLocalObject
          else
          {
-            intfs = ProxyFactoryHelper.getLocalInterfaces(container);
+            // Add local interfaces
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalInterfaces(container)));
+            
+            // Add EJBLocalObject
+            intfs.add(EJBLocalObject.class);
          }
       }
       // If remote
@@ -270,12 +277,16 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
          // If business
          if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
          {
-            intfs = ProxyFactoryHelper.getRemoteBusinessInterfaces(container);
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteBusinessInterfaces(container)));
          }
          // If EJBObject
          else
          {
-            intfs = ProxyFactoryHelper.getRemoteInterfaces(container);
+            // Add remote interfaces
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteInterfaces(container)));
+            
+            // Add EJBObject
+            intfs.add(EJBObject.class);
          }
       }
 
