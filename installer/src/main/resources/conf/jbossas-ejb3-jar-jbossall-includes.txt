@@ -30,3 +30,4 @@ jboss-metadata.jar
 trove.jar
 javassist.jar
 log4j.jar
+jboss-mdr.jar
