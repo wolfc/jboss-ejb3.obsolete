@@ -109,6 +109,7 @@
   <property name="location.client.lib.jboss-metadata" value="${location.client.lib}/jboss-metadata.jar"/>
   <property name="location.client.lib.jboss-jaxws" value="${location.client.lib}/jboss-jaxws.jar"/>
   <property name="location.client.lib.jbossws-client" value="${location.client.lib}/jbossws-client.jar"/>
+  <property name="location.client.lib.jboss-mdr" value="${location.client.lib}/jboss-mdr.jar"/>
     
   <!-- EJB3 Internal Artifacts -->
   <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
@@ -326,6 +327,9 @@
     
     <!-- JBossWS Client -->
     <pathelement path="${location.client.lib.jbossws-client}" />
+    
+    <!-- JBoss MDR -->
+    <pathelement path="${location.client.lib.jboss-mdr}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
@@ -4393,8 +4397,8 @@
          <sysproperty key="java.naming.provider.url" value="${node0.jndi.url}"/>
 
 
-         <jvmarg line="${jvmargs}" />
-         <!-- <jvmarg line="${jvmargs} -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y" />  -->
+<!--         <jvmarg line="${jvmargs}" /> -->
+          <jvmarg line="${jvmargs} -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y" /> 
          <classpath>
            
            <path refid="test.classpath" />
