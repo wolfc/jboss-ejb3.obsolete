@@ -4397,8 +4397,8 @@
          <sysproperty key="java.naming.provider.url" value="${node0.jndi.url}"/>
 
 
-<!--         <jvmarg line="${jvmargs}" /> -->
-          <jvmarg line="${jvmargs} -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y" /> 
+         <jvmarg line="${jvmargs}" />
+         <!-- <jvmarg line="${jvmargs} -Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y" /> -->
          <classpath>
            
            <path refid="test.classpath" />
