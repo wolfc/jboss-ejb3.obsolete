@@ -22,23 +22,23 @@
 package org.jboss.ejb3.test.bank.unit;
 
 import javax.ejb.EJBAccessException;
-import javax.ejb.EJBException;
 import javax.ejb.NoSuchEJBException;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.ClientKernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
 import org.jboss.ejb3.test.bank.Bank;
-import org.jboss.ejb3.test.bank.ProxyFactoryInterface;
 import org.jboss.ejb3.test.bank.Teller;
 import org.jboss.ejb3.test.bank.TellerInterceptor;
 import org.jboss.ejb3.test.bank.TestStatus;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Test for EJB3 deployment of EJB2.0 Bank EJBs
@@ -60,22 +60,29 @@ public class BankDeploymentDescriptorTestCase
    
    public void testEnvEntry() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
       SecurityAssociation.setCredential("password".toCharArray());
-      
+      */
       InitialContext jndiContext = new InitialContext();
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
       String id = bank.getEnvEntryId();
       assertEquals(id, "5678");
+      sc.logout();
    }
 
    public void testStatelessTeller() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("rolefail"), "password".toCharArray());
+      sc.login();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
  
       String greeting;
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
@@ -98,8 +105,10 @@ public class BankDeploymentDescriptorTestCase
          assertTrue(e instanceof EJBAccessException);
       }
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      sc.setSimple(new SimplePrincipal("customer"), "password".toCharArray());
+      sc.login();
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       try{
          greeting = teller.greetChecked("Hello");
@@ -116,8 +125,12 @@ public class BankDeploymentDescriptorTestCase
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
       assertNotNull(teller);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("customer"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       String greeting = teller.greetChecked("Hello");
       assertNotNull(greeting);
@@ -141,9 +154,13 @@ public class BankDeploymentDescriptorTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
  
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("rolefail"), "password".toCharArray());
+      sc.login();
+      
       String customerId = "CustomerId";
       String greeting;
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
@@ -160,8 +177,12 @@ public class BankDeploymentDescriptorTestCase
       assertNotNull(bank);
       String customerId = "CustomerId";
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("customer"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       try {
          bank.storeCustomerId(customerId);
          assertTrue(false);
@@ -169,12 +190,18 @@ public class BankDeploymentDescriptorTestCase
          assertTrue(e instanceof EJBAccessException);
       }
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      sc.logout();
+      
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       bank.storeCustomerId(customerId);
       String tmpId = bank.retrieveCustomerId();
       assertEquals(customerId, tmpId);
+      sc.logout();
    }
    
    public void testStatefulState() throws Exception
@@ -184,8 +211,12 @@ public class BankDeploymentDescriptorTestCase
       assertNotNull(bank);
       String customerId = "CustomerId";
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       bank.storeCustomerId(customerId);
       String tmpId = bank.retrieveCustomerId();
@@ -195,6 +226,7 @@ public class BankDeploymentDescriptorTestCase
       assertNotNull(bank);
       tmpId = bank.retrieveCustomerId();
       assertEquals("defaultId", tmpId);
+      sc.logout();
    }
  
    public void testStatefulBank21() throws Exception
@@ -203,8 +235,12 @@ public class BankDeploymentDescriptorTestCase
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME + "21");
       assertNotNull(bank);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       String activated = bank.isActivated();
       assertEquals(activated, "_CREATED");
@@ -218,8 +254,12 @@ public class BankDeploymentDescriptorTestCase
       TestStatus status = (TestStatus) getInitialContext().lookup("TestStatusBean/remote");
       status.clear();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       String id = bank.interceptCustomerId("CustomerId");
       log.debug("id=" + id);
@@ -233,8 +273,12 @@ public class BankDeploymentDescriptorTestCase
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       bank.testResource();
    }
@@ -245,8 +289,12 @@ public class BankDeploymentDescriptorTestCase
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       bank.remove();
       
@@ -266,8 +314,12 @@ public class BankDeploymentDescriptorTestCase
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       String initialized = bank.isInitialized();
       assertEquals("YESYES", initialized);
@@ -279,8 +331,12 @@ public class BankDeploymentDescriptorTestCase
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
       assertNotNull(teller);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("customer"), "password".toCharArray());
+      sc.login(); 
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       try {
          teller.excludedMethod();
@@ -301,8 +357,12 @@ public class BankDeploymentDescriptorTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("customer"), "password".toCharArray());
+      sc.login(); 
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("customer"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
       assertNotNull(teller);
@@ -324,8 +384,12 @@ public class BankDeploymentDescriptorTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient sc = SecurityClientFactory.getSecurityClient();
+      sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
+      sc.login();
+      
+      /*SecurityAssociation.setPrincipal(new SimplePrincipal("teller"));
+      SecurityAssociation.setCredential("password".toCharArray());*/
       
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
