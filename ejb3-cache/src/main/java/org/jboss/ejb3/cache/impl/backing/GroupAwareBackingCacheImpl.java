@@ -119,16 +119,5 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
          }
       }
    }
-
-   @Override
-   public void start()
-   {
-      // Validate clustering compatibility
-      assert groupCache.isClustered() == memberContainer.isClustered(): "incompatible clustering support between groupCache and memberContainer";     
-      
-      super.start();
-   }
-   
-   
    
 }
