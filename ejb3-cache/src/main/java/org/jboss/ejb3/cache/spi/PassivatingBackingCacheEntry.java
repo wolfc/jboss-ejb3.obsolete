@@ -25,15 +25,35 @@ package org.jboss.ejb3.cache.spi;
 import org.jboss.ejb3.cache.api.CacheItem;
 
 /**
+ * A {@link BackingCacheEntry} that can be passivated.
+ * 
  * @author Brian Stansberry
- *
  */
 public interface PassivatingBackingCacheEntry<T extends CacheItem> 
    extends BackingCacheEntry<T>
 {
-   
+   /**
+    * Attempt to lock this item, failing promptly if the lock is already
+    * held by another thread. Has the same semantics as
+    * {@java.util.concurrent.ReentrantLock#tryLock()}.
+    * 
+    * @return <code>true</code> if the lock was acquired, <code>false</code>
+    *         otherwise
+    */
    boolean tryLock();
+   
+   /**
+    * Lock this item, blocking until the lock is acquired. Has the same 
+    * semantics as {@java.util.concurrent.ReentrantLock#lockInterruptibly()},
+    * except that a <code>RuntimeException</code> will be thrown if the
+    * thread is interrupted instead of <code>InterruptedException</code>.
+    */
    void lock();
+   
+   /**
+    * Unlock this item. Has the same semantics as 
+    * {@java.util.concurrent.ReentrantLock#unlock()}.
+    */
    void unlock();
 
 }
