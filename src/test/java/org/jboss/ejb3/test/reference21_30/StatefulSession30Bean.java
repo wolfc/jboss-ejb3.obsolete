@@ -38,11 +38,13 @@ import org.jboss.logging.Logger;
  */
 @Stateful(name="StatefulSession30")
 @Local({LocalStatefulSession30Business.class, LocalStatefulSession30.class})
-@Remote(StatefulSession30.class)
+@Remote({StatefulSession30.class,StatefulSession30RemoteBusiness.class})
 @RemoteBinding(jndiBinding = "StatefulSession30Remote")
 @LocalBinding(jndiBinding = "LocalStatefulSession30")
-public class StatefulSession30Bean implements java.io.Serializable
+public class StatefulSession30Bean implements java.io.Serializable, StatefulSession30RemoteBusiness
 {
+   private static final long serialVersionUID = -8986168637251530390L;
+
    private static final Logger log = Logger.getLogger(StatefulSession30Bean.class);
    
    private String value = null;
@@ -87,7 +89,7 @@ public class StatefulSession30Bean implements java.io.Serializable
       {
          InitialContext jndiContext = new InitialContext();
          StatefulSession30LocalHome home = (StatefulSession30LocalHome)jndiContext.lookup("HomedStatefulSession30/localHome");
-         LocalStatefulSession30Business session = (LocalStatefulSession30Business)home.create();
+         LocalStatefulSession30 session = (LocalStatefulSession30)home.create();
          session.setLocalValue("LocalHome");
          return session.getLocalValue();
       } catch (Exception e)
