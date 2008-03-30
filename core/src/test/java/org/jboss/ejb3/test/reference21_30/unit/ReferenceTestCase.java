@@ -28,14 +28,18 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
 import javax.naming.InitialContext;
+
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.reference21_30.Session21;
 import org.jboss.ejb3.test.reference21_30.Session30;
 import org.jboss.ejb3.test.reference21_30.Session30Home;
+import org.jboss.ejb3.test.reference21_30.Session30RemoteBusiness;
 import org.jboss.ejb3.test.reference21_30.StatefulSession30;
 import org.jboss.ejb3.test.reference21_30.StatefulSession30Home;
+import org.jboss.ejb3.test.reference21_30.StatefulSession30RemoteBusiness;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Test for EJB3.0/EJB2.1 references
@@ -141,7 +145,7 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      StatefulSession30 session = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
+      StatefulSession30RemoteBusiness session = (StatefulSession30RemoteBusiness) jndiContext.lookup("StatefulSession30Remote");
       assertNotNull(session);
       session.setValue("testing");
       String value = session.getValue();
@@ -193,7 +197,7 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      StatefulSession30 session = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
+      StatefulSession30RemoteBusiness session = (StatefulSession30RemoteBusiness) jndiContext.lookup("StatefulSession30Remote");
       
       String access = session.accessLocalHome();
       assertEquals("LocalHome", access);
@@ -203,12 +207,13 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      StatefulSession30 statefulSession = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
+      StatefulSession30RemoteBusiness statefulSession = (StatefulSession30RemoteBusiness) jndiContext
+            .lookup("StatefulSession30Remote");
       assertNotNull(statefulSession);
       String access = statefulSession.accessLocalStateless();
       assertEquals("Session30", access);
       
-      Session30 session = (Session30) jndiContext.lookup("Session30Remote");
+      Session30RemoteBusiness session = (Session30RemoteBusiness) jndiContext.lookup("Session30Remote");
       assertNotNull(session);
       access = session.accessLocalStateful();
       assertEquals("default", access);
@@ -224,12 +229,13 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
            
-      StatefulSession30 session1 = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
-      assertNotNull(session1);
+      StatefulSession30RemoteBusiness session1 = (StatefulSession30RemoteBusiness) jndiContext
+            .lookup("StatefulSession30Remote");      assertNotNull(session1);
       session1.setValue("testing");
       assertEquals("testing", session1.getValue());
       
-      StatefulSession30 session2 = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
+      StatefulSession30RemoteBusiness session2 = (StatefulSession30RemoteBusiness) jndiContext
+            .lookup("StatefulSession30Remote");
       assertNotNull(session2);
       assertEquals("default", session2.getValue());
      
@@ -257,7 +263,8 @@ public class ReferenceTestCase
       assertNotNull(session7);
       assertEquals("secondinit", session7.getValue());
       
-      StatefulSession30 session8 = (StatefulSession30) jndiContext.lookup("StatefulSession30Remote");
+      StatefulSession30RemoteBusiness session8 = (StatefulSession30RemoteBusiness) jndiContext
+            .lookup("StatefulSession30Remote");
       assertNotNull(session8);
       assertEquals("default", session8.getValue());
       

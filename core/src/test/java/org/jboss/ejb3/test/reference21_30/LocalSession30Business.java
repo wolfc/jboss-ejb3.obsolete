@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,14 +21,13 @@
  */
 package org.jboss.ejb3.test.reference21_30;
 
-import javax.ejb.EJBLocalObject;
-
 /**
- * @version <tt>$Revision$</tt>
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * LocalSession30Business
+ * 
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-public interface LocalSession30 extends EJBLocalObject, LocalSession30Business
+public interface LocalSession30Business
 {
-   
+   public String access();
 }
-

@@ -27,14 +27,8 @@ import javax.ejb.EJBObject;
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface StatefulSession30 extends EJBObject
+public interface StatefulSession30 extends EJBObject, StatefulSession30RemoteBusiness
 {
-   void setValue(String value);
-   
-   String getValue();
-   
-   String accessLocalStateless();
-   
-   String accessLocalHome();
+
 }
 
