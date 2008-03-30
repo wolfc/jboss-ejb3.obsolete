@@ -51,7 +51,10 @@ public class PassivationExpirationRunner
 
    public void run()
    {
-      processor.processPassivationExpiration();
+      if (!isStopped())
+      {
+         processor.processPassivationExpiration();
+      }
    }
 
 }
