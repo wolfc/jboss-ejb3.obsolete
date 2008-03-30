@@ -34,30 +34,38 @@ import org.jboss.ejb3.cache.api.CacheItem;
  */
 public class OwnedItem
 {
+   public static final String LOCAL_OWNER = "local_owner";
+   public static final String REMOTE_OWNER = "remote_owner";
+   
    private static final int FQN_SIZE = JBCIntegratedObjectStore.FQN_SIZE;
    private static final int KEY_INDEX = FQN_SIZE - 1;
+   private static final int REGION_INDEX = FQN_SIZE - 2;
    private static final int OWNER_INDEX = 1;
    private static final int BR_FQN_SIZE = FQN_SIZE + OWNER_INDEX + 1;
    private static final int BR_KEY_INDEX = BR_FQN_SIZE - 1;
+   private static final int BR_REGION_INDEX = BR_FQN_SIZE - 2;
    
    private final String owner;
    private final Object id;
    private final Fqn<Object> region;
+   private boolean passivating;
+   private volatile boolean locallyOwned;
+   private long lastUsed;
    
    /**
     * Generates an OwnedItem from the given Fqn if the Fqn is a logical
     * child of <code>base</code>
     * 
     * @param fqn  the Fqn
-    * @param base the base Fqn
     * @param checkBuddy <code>true</code> if it is possible that <code>fqn</code>
     *                   belongs to a {@link BuddyManager#BUDDY_BACKUP_SUBTREE_FQN buddy-backup subtree}
-    *                   
+    * @param localOwner TODO
+    * @param base the base Fqn
     * @return an OwnedItem or <code>null</code> if <code>fqn</code> is not a
     *         logical child of <code>base</code>
     */
    @SuppressWarnings("unchecked")
-   public static OwnedItem getOwnedItem(Fqn fqn, boolean checkBuddy)
+   public static OwnedItem getOwnedItem(Fqn fqn, boolean checkBuddy, boolean localEvent)
    {
       int size = fqn.size();
       if (size < FQN_SIZE)
@@ -74,19 +82,24 @@ public class OwnedItem
          {
             key = fqn.get(BR_KEY_INDEX);
             owner = (String) fqn.get(OWNER_INDEX);
-            region = fqn.getSubFqn(OWNER_INDEX, BR_KEY_INDEX);
+            region = fqn.getSubFqn(OWNER_INDEX + 1, BR_REGION_INDEX);
          }
       }
       else if (size == FQN_SIZE)
       {
-         region = fqn.getParent();
+         region = fqn.getSubFqn(0, REGION_INDEX);
          key = fqn.get(KEY_INDEX);
       }
       
-      return (key == null ? null : new OwnedItem(owner, key, region));
+      return (key == null ? null : new OwnedItem(owner, key, region, localEvent));
    }
    
-   public OwnedItem(String owner, Object id, Fqn<Object> region)
+   public OwnedItem(Object id, Fqn<Object> region)
+   {
+      this(null, id, region, true);
+   }
+   
+   private OwnedItem(String owner, Object id, Fqn<Object> region, boolean locallyOwned)
    {
       assert id != null : "id is null";
       assert region != null : "region is null";
@@ -94,19 +107,22 @@ public class OwnedItem
       this.owner = owner;
       this.id = id;
       this.region = region;
+      this.locallyOwned = locallyOwned;
    }
    
    /**
-    * Gets the logical "owner" of the item.  A value of <code>null</code>
-    * means either there is no logical owner or this process is the owner.
-    * (Basically it means the item is stored in the main area of a JBoss CAche
-    * tree, not in a named buddy-backup region.)
+    * Gets the logical "owner" of the item.  
     * 
-    * @return
+    * @return A value of {@link #LOCAL_OWNER} means this process is the owner. 
+    *         A value of {@link #REMOTE_OWNER} means the cache is using total 
+    *         replication, but some other process is the owner. Any other 
+    *         value means buddy replication is in use and the object is 
+    *         owned by another node; the returned value identifies the 
+    *         owner's buddy backup tree. Will not return <code>null</code>.
     */
    public String getOwner()
    {
-      return owner;
+      return owner != null ? owner : (locallyOwned ? LOCAL_OWNER : REMOTE_OWNER);
    }
 
    /**
@@ -136,6 +152,45 @@ public class OwnedItem
       else
       {
          return new Fqn<Object>(region, id);
+      }
+   }
+
+   public boolean isPassivating()
+   {
+      return passivating;
+   }
+
+   public void setPassivating(boolean passivating)
+   {
+      this.passivating = passivating;
+   }
+
+   public boolean isLocallyOwned()
+   {
+      return locallyOwned;
+   }
+
+   public void setLocallyOwned(boolean locallyOwned)
+   {
+      if (this.locallyOwned != locallyOwned)
+      {
+         synchronized (this)
+         {
+            this.locallyOwned = locallyOwned;
+         }
+      }      
+   }
+
+   public long getLastUsed()
+   {
+      return lastUsed;
+   }
+
+   public void setLastUsed(long lastUsed)
+   {
+      if (lastUsed > this.lastUsed)
+      {
+         this.lastUsed = lastUsed;
       }
    }
 

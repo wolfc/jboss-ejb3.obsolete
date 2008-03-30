@@ -33,10 +33,12 @@ import org.jboss.cache.notifications.annotation.NodePassivated;
 import org.jboss.cache.notifications.annotation.NodeRemoved;
 import org.jboss.cache.notifications.annotation.NodeVisited;
 import org.jboss.cache.notifications.event.NodeActivatedEvent;
+import org.jboss.cache.notifications.event.NodeEvent;
 import org.jboss.cache.notifications.event.NodeModifiedEvent;
 import org.jboss.cache.notifications.event.NodePassivatedEvent;
 import org.jboss.cache.notifications.event.NodeRemovedEvent;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
+import org.jboss.logging.Logger;
 
 /**
  * Single {@link CacheListener} that handles event Fqn parsing and then
@@ -48,7 +50,9 @@ import org.jboss.cache.notifications.event.NodeVisitedEvent;
  */
 @CacheListener
 public class ClusteredCacheListener
-{
+{   
+   private static final Logger log = Logger.getLogger(ClusteredCacheListener.class);
+
    public static interface RegionHandler
    {
       void nodeVisited(OwnedItem ownedItem, NodeVisitedEvent event);
@@ -88,7 +92,7 @@ public class ClusteredCacheListener
       if (event.isPre())
          return;
       
-      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy);
+      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy, event.isOriginLocal());
       RegionHandler handler = getRegionHandler(oi);
       if (handler != null)
       {
@@ -102,7 +106,8 @@ public class ClusteredCacheListener
       if (event.isPre() || NodeModifiedEvent.ModificationType.REMOVE_DATA == event.getModificationType())
          return;
       
-      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy);
+      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy, event.isOriginLocal());
+      logEvent(oi, event);
       RegionHandler handler = getRegionHandler(oi);
       if (handler != null)
       {
@@ -117,7 +122,8 @@ public class ClusteredCacheListener
       if (!event.isPre())
          return; 
       
-      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy);
+      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy, event.isOriginLocal());
+      logEvent(oi, event);
       RegionHandler handler = getRegionHandler(oi);
       if (handler != null)
       {
@@ -130,7 +136,8 @@ public class ClusteredCacheListener
    {
       if(event.isPre()) return; 
       
-      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy);
+      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy, event.isOriginLocal());
+      logEvent(oi, event);
       RegionHandler handler = getRegionHandler(oi);
       if (handler != null)
       {
@@ -143,11 +150,20 @@ public class ClusteredCacheListener
    {
       if(event.isPre()) return;
       
-      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy);
+      OwnedItem oi = OwnedItem.getOwnedItem(event.getFqn(), checkBuddy, event.isOriginLocal());
+      logEvent(oi, event);
       RegionHandler handler = getRegionHandler(oi);
       if (handler != null)
       {
          handler.nodePassivated(oi, event);
+      }
+   }
+   
+   private void logEvent(OwnedItem oi, NodeEvent event)
+   {
+      if (log.isTraceEnabled())
+      {
+         log.trace("Event for " + oi + " -- " + event);
       }
    }
 }

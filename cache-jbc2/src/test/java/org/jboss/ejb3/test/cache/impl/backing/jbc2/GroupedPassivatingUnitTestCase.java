@@ -194,6 +194,9 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          cluster.getNode0().restoreTCCL();         
       }
       
+      // Let async messages propagate
+      sleep(200);
+      
       // Switch to second node
       cluster.getNode1().setTCCL();
       try
@@ -211,13 +214,13 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       }
       catch (Exception e)
       {
-         container1B.stop();
-         container2B.stop();
          throw e;
       }
       finally
       {
-         cluster.getNode1().restoreTCCL();         
+         cluster.getNode1().restoreTCCL();    
+         container1B.stop();
+         container2B.stop();     
       }
    }
 }

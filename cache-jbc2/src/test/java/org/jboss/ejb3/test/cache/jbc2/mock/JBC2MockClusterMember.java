@@ -37,12 +37,15 @@ import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockCacheConfig;
 import org.jboss.ejb3.test.cache.mock.MockEjb3System;
+import org.jboss.logging.Logger;
 
 /**
  * @author Brian Stansberry
  */
 public class JBC2MockClusterMember extends MockEjb3System
 {
+   private static final Logger log = Logger.getLogger(JBC2MockClusterMember.class);   
+   
    public static final String DEFAULT_JBC_CONFIG = "standard-session";
    private static final Map<String, String> DEFAULT_ALIAS_MAP = new HashMap<String, String>();
    
@@ -117,6 +120,8 @@ public class JBC2MockClusterMember extends MockEjb3System
    {
       if (localClassLoader == Thread.currentThread().getContextClassLoader())
          return false;
+      
+      log.debug("Setting TCCL to " + localClassLoader);
       Thread.currentThread().setContextClassLoader(localClassLoader);
       return true;
    }
@@ -125,8 +130,9 @@ public class JBC2MockClusterMember extends MockEjb3System
    {
       ClassLoader current = Thread.currentThread().getContextClassLoader();
       if (current == localClassLoader)
-      {
+      {         
          Thread.currentThread().setContextClassLoader(localClassLoader.getParent());
+         log.debug("Restored TCCL to " + localClassLoader.getParent());
       }
       else if (current != localClassLoader.getParent())
       {
