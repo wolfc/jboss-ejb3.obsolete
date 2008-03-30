@@ -23,11 +23,10 @@ package org.jboss.ejb3.test.initial;
 
 import javax.ejb.EJBAccessException;
 import javax.naming.InitialContext;
+
 import org.jboss.logging.Logger;
-import org.jboss.security.auth.callback.AppCallbackHandler;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
-import org.jboss.security.client.JBossSecurityClient;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 
@@ -47,14 +46,15 @@ public class SecurityTester implements SecurityTesterMBean
       InitialContext ctx = new InitialContext();
       SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/local");
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
 
       test.unchecked();
       test.testDefault();
       test.secured();
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("authfail"));
+      client.setSimple("authfail", "password");
 
       boolean securityFailure = true;
       try
@@ -70,8 +70,7 @@ public class SecurityTester implements SecurityTesterMBean
       if (securityFailure) throw new RuntimeException("auth failure was not caught for method");
 
       securityFailure = true;
-      SecurityAssociation.clear();
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
+      client.setSimple("rolefail", null);
       try
       {
          test.secured();
@@ -83,7 +82,7 @@ public class SecurityTester implements SecurityTesterMBean
       }
       if (securityFailure) throw new RuntimeException("role failure was not caught for method");
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
+      client.setSimple("somebody", null);
       log.info("test exclusion");
       securityFailure = true;
       try
@@ -101,14 +100,13 @@ public class SecurityTester implements SecurityTesterMBean
    
    public void testSecurityClient() throws Exception
    {
-      SecurityAssociation.clear();
       
       InitialContext ctx = new InitialContext();
       SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/local");
 
       SecurityClient sc = SecurityClientFactory.getSecurityClient();
-//      SecurityClient sc = SecurityClientFactory.getSecurityClient(JBossSecurityClient.class);
-      sc.setSimple(new SimplePrincipal("somebody"),"password".toCharArray());
+      sc.setSimple("somebody","password");
+      sc.login();
       
 //      AppCallbackHandler acbh = new AppCallbackHandler("somebody","password".toCharArray()); 
 //      sc.setJAAS("other", acbh);
@@ -120,7 +118,7 @@ public class SecurityTester implements SecurityTesterMBean
       
       sc.logout();
 
-      sc.setSimple(new SimplePrincipal("authfail"), "password".toCharArray());
+      sc.setSimple("authfail", "password");
       sc.login();
       boolean securityFailure = true;
       try
@@ -137,7 +135,7 @@ public class SecurityTester implements SecurityTesterMBean
       sc.logout();
       
       securityFailure = true;
-      sc.setSimple(new SimplePrincipal("rolefail"), "password".toCharArray());
+      sc.setSimple("rolefail", "password");
       sc.login();
       try
       {
@@ -152,7 +150,7 @@ public class SecurityTester implements SecurityTesterMBean
 
       sc.logout();
       
-      sc.setSimple(new SimplePrincipal("somebody"), "password".toCharArray());
+      sc.setSimple("somebody", "password");
       sc.login();
       
       log.info("test exclusion");

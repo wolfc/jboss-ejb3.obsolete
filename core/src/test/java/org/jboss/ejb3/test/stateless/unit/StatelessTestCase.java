@@ -31,6 +31,8 @@ import org.jboss.ejb3.test.stateless.RunAsStatelessLocal;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
@@ -52,8 +54,9 @@ public class StatelessTestCase extends JBossTestCase
  
    public void testCallerPrincipal() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
        
       RunAsStateless runAs = (RunAsStateless) getInitialContext().lookup("RunAsStatelessEjbName/remote");
       assertNotNull(runAs);
@@ -72,8 +75,9 @@ public class StatelessTestCase extends JBossTestCase
    
    public void testStatelessLocal() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
        
       try
       {
@@ -92,14 +96,14 @@ public class StatelessTestCase extends JBossTestCase
    {
       CheckedStateless checked = (CheckedStateless)getInitialContext().lookup("CheckedStatelessBean/remote");
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       int result = checked.method(1);
       assertEquals(1,result);
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple("rolefail", "password");
       
       try {
          checked.method(2);
@@ -119,7 +123,8 @@ public class StatelessTestCase extends JBossTestCase
    {
       AnonymousStateless anonymous = (AnonymousStateless)getInitialContext().lookup("AnonymousStatelessBean/remote");
       
-      SecurityAssociation.clear();
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.logout();
       
       try
       {
@@ -142,8 +147,9 @@ public class StatelessTestCase extends JBossTestCase
    {
       UnsecuredStateless stateless = (UnsecuredStateless)getInitialContext().lookup("UnsecuredStatelessBean/remote");
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       try
       {
@@ -159,7 +165,8 @@ public class StatelessTestCase extends JBossTestCase
    {
       UnsecuredStateless stateless = (UnsecuredStateless)getInitialContext().lookup("UnsecuredStatelessBean/remote");
       
-      SecurityAssociation.clear();
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.logout();
       
       try
       {

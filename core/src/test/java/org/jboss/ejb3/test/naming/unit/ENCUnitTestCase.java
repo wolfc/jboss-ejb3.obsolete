@@ -21,9 +21,12 @@
  */
 package org.jboss.ejb3.test.naming.unit;
 
+import org.jboss.ejb3.test.mdb.unit.MDBUnitTestCase;
 import org.jboss.ejb3.test.naming.TestENC;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
@@ -35,7 +38,7 @@ import junit.framework.Test;
  * @version $Revision$
  */
 public class ENCUnitTestCase extends JBossTestCase
-{
+{   
    /**
     * Constructor for the ENCUnitTestCase object
     *
@@ -52,8 +55,9 @@ public class ENCUnitTestCase extends JBossTestCase
     */
    public void testENC() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("jduke"));
-      SecurityAssociation.setCredential("theduke".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("jduke", "theduke");
+      client.login();
       
       TestENC bean = (TestENC)getInitialContext().lookup("ENCBean");
       getLog().debug("Created ENCBean");
@@ -68,8 +72,9 @@ public class ENCUnitTestCase extends JBossTestCase
     */
    public void testENC2() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("jduke"));
-      SecurityAssociation.setCredential("theduke".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("jduke", "theduke");
+      client.login();
       
       TestENC bean = (TestENC)getInitialContext().lookup("ENCBean0");
       getLog().debug("Created ENCBean0");

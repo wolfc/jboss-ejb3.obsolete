@@ -40,6 +40,8 @@ import org.jboss.ejb3.test.service.SessionRemote;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -72,8 +74,9 @@ extends JBossTestCase
    
    public void testEjbInjection() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
       test.testEjbInjection();
@@ -83,7 +86,8 @@ extends JBossTestCase
    {
       try
       {
-         SecurityAssociation.clear();
+         SecurityClient client = SecurityClientFactory.getSecurityClient();
+         client.logout();
          
          ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
          test.testEjbInjection();
@@ -97,8 +101,9 @@ extends JBossTestCase
 
    public void testServiceWithDefaultRemoteJNDIName() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
       test.setRemoteMethodCalls(0);
@@ -114,8 +119,9 @@ extends JBossTestCase
                   {
                      try
                      {
-                        SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-                        SecurityAssociation.setCredential("password".toCharArray());
+                        SecurityClient client = SecurityClientFactory.getSecurityClient();
+                        client.setSimple("somebody", "password");
+                        client.login();
                         ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
                         for (int j = 0 ; j < count ; j++)
                         {
@@ -336,8 +342,9 @@ extends JBossTestCase
 
    public void testManagementServiceWithDefaultName() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
 	  MBeanServerConnection server = getServer();
       ObjectName testerName = new ObjectName("jboss.j2ee:service=EJB3,jar=service-test.jar,name=ServiceOne,type=ManagementInterface");

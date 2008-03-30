@@ -56,6 +56,8 @@ import org.jboss.ejb3.test.stateful.Tester;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -177,8 +179,9 @@ extends JBossTestCase
    // Keep this test first so we test everything after a deployment restart
    public void testJmxName() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -216,8 +219,9 @@ extends JBossTestCase
 
    public void testStatefulSynchronization() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Tester test = (Tester) getInitialContext().lookup("TesterBean/remote");
       test.testSessionSynchronization();
@@ -226,8 +230,9 @@ extends JBossTestCase
    
    public void testEJBObject() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       StatefulHome home = (StatefulHome)getInitialContext().lookup("StatefulBean/home");
       assertNotNull(home);
@@ -237,8 +242,9 @@ extends JBossTestCase
    
    public void testStatefulTx() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx");
       assertNotNull(stateful);
@@ -262,8 +268,9 @@ extends JBossTestCase
    
    public void testTemplateInterfaceTx() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx");
       assertNotNull(stateful);
@@ -280,8 +287,9 @@ extends JBossTestCase
    
    public void testLocalSFSB() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       try
       {
@@ -300,8 +308,9 @@ extends JBossTestCase
    
    public void testNotSerialableSFSB() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -312,8 +321,9 @@ extends JBossTestCase
    
    public void testSFSBInit() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       StatefulHome home = (StatefulHome)getInitialContext().lookup("StatefulBean/home");
       assertNotNull(home);
@@ -326,8 +336,9 @@ extends JBossTestCase
    
    public void testStackTrace() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -346,8 +357,9 @@ extends JBossTestCase
    
    public void testExceptionCase() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -367,8 +379,9 @@ extends JBossTestCase
    
    public void testRemoteBindingInterceptorStack() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -378,8 +391,9 @@ extends JBossTestCase
 
    public void testUninstantiatedPassivation() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
@@ -541,8 +555,9 @@ extends JBossTestCase
 
    public void testPassivation() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       System.out.println("testPassivation");
       Stateless stateless = (Stateless)getInitialContext().lookup("Stateless");
@@ -582,8 +597,9 @@ extends JBossTestCase
    
    public void testClusteredPassivation() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       System.out.println("testPassivation");
       Stateless stateless = (Stateless)getInitialContext().lookup("Stateless");
@@ -624,8 +640,9 @@ extends JBossTestCase
    
    public void testRemove() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       System.out.println("testPassivation");
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");

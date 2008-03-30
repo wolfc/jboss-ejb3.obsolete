@@ -32,6 +32,8 @@ import org.jboss.ejb3.test.initial.TestRemote;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
@@ -91,9 +93,10 @@ extends JBossTestCase
       // Test basic security propagation
       InitialContext ctx = getInitialContext();
       SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/remote");
-
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
 
       System.out.println("Calling initial security tests....");
       test.unchecked();
@@ -103,7 +106,7 @@ extends JBossTestCase
       test.secured();
 
       System.out.println("Calling security fine grain tests....");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("authfail"));
+      client.setSimple("authfail", "password");
 
       boolean securityFailure = true;
       try
@@ -120,7 +123,7 @@ extends JBossTestCase
       if (securityFailure) throw new RuntimeException("auth failure was not caught for method");
 
       securityFailure = true;
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
+      client.setSimple("rolefail", "password");
       try
       {
          test.secured();
@@ -132,7 +135,7 @@ extends JBossTestCase
       }
       if (securityFailure) throw new RuntimeException("role failure was not caught for method");
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
+      client.setSimple("somebody","password");
       log.info("test exclusion");
       securityFailure = true;
       try

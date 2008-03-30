@@ -31,6 +31,8 @@ import org.jboss.ejb3.test.jacc.Stateful;
 import org.jboss.ejb3.test.jacc.Stateless;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
@@ -45,6 +47,10 @@ public class JaccTestCase extends JBossTestCase
 
    static boolean deployed = false;
    static int test = 0;
+   
+   private static final String PRINCIPAL_SOMEBODY = "somebody";
+   private static final String PRINCIPAL_ROLEFAIL = "rolefail";
+   private static final String PASSWORD_PASSWORD = "password";
 
    public JaccTestCase(String name)
    {
@@ -55,9 +61,10 @@ public class JaccTestCase extends JBossTestCase
    {
       Stateful stateful = (Stateful)getInitialContext().lookup("StatefulBean/remote");
       Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
-
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       int result = stateful.unchecked(1);
       assertEquals(1,result);
@@ -65,8 +72,7 @@ public class JaccTestCase extends JBossTestCase
       result = stateless.unchecked(10);
       assertEquals(10,result);
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
 
       result = stateful.unchecked(100);
       assertEquals(100,result);
@@ -81,9 +87,10 @@ public class JaccTestCase extends JBossTestCase
    {
       Stateful stateful = (Stateful)getInitialContext().lookup("StatefulBean/remote");
       Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
-
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       int result = stateful.checked(5);
       assertEquals(5,result);
@@ -91,8 +98,7 @@ public class JaccTestCase extends JBossTestCase
       result = stateless.checked(50);
       assertEquals(50,result);
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
 
       boolean securityException = false;
       try
@@ -119,8 +125,10 @@ public class JaccTestCase extends JBossTestCase
    public void testAllEntity()throws Exception
    {
       Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       System.out.println("Good role");
       System.out.println("Inserting...");
@@ -136,8 +144,7 @@ public class JaccTestCase extends JBossTestCase
       e = stateless.insertAllEntity();
 
       System.out.println("Bad role");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
 
       AllEntity ae2 = null;
       try
@@ -218,8 +225,10 @@ public class JaccTestCase extends JBossTestCase
    public void testStarEntity()throws Exception
    {
       Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       System.out.println("Good role");
       System.out.println("Inserting...");
@@ -235,8 +244,7 @@ public class JaccTestCase extends JBossTestCase
       e = stateless.insertStarEntity();
 
       System.out.println("Bad role");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
 
       StarEntity ae2 = null;
       try
@@ -316,8 +324,10 @@ public class JaccTestCase extends JBossTestCase
    public void testSomeEntity()throws Exception
    {
       Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       System.out.println("Good role");
       System.out.println("Inserting...");
@@ -361,8 +371,7 @@ public class JaccTestCase extends JBossTestCase
       e = stateless.insertSomeEntity();
 
       System.out.println("Bad role");
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
 
       SomeEntity ae2 = null;
       try

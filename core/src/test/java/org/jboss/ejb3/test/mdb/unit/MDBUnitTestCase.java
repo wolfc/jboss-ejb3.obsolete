@@ -25,13 +25,12 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.jms.DeliveryMode;
-import javax.jms.MessageProducer;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueReceiver;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.TextMessage;
@@ -53,6 +52,8 @@ import org.jboss.ejb3.test.mdb.TestStatus;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import org.jboss.util.collection.CollectionsUtil;
 
@@ -77,6 +78,9 @@ public class MDBUnitTestCase extends JBossTestCase
       super(name);
 
    }
+   
+   private static final String PRINCIPAL_ANYONE = "anyone";
+   private static final String PASSWORD_PASSWORD = "password";
 
    private static void removeAllMessagesFromDLQ() throws Exception
    {
@@ -87,8 +91,9 @@ public class MDBUnitTestCase extends JBossTestCase
    
    public void testOverrideQueue() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("anyone"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(MDBUnitTestCase.PRINCIPAL_ANYONE, MDBUnitTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       TestStatus status = (TestStatus) getInitialContext().lookup(
             "TestStatusBean/remote");
@@ -116,8 +121,9 @@ public class MDBUnitTestCase extends JBossTestCase
 
    public void testNondurableQueue() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("anyone"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(MDBUnitTestCase.PRINCIPAL_ANYONE, MDBUnitTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       TestStatus status = (TestStatus) getInitialContext().lookup(
             "TestStatusBean/remote");
@@ -147,8 +153,9 @@ public class MDBUnitTestCase extends JBossTestCase
 
    public void testDefaultedQueue() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("anyone"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(MDBUnitTestCase.PRINCIPAL_ANYONE, MDBUnitTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       TestStatus status = (TestStatus) getInitialContext().lookup(
             "TestStatusBean/remote");
@@ -176,8 +183,9 @@ public class MDBUnitTestCase extends JBossTestCase
 
    public void testOverrideDefaultedQueue() throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("anyone"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(MDBUnitTestCase.PRINCIPAL_ANYONE, MDBUnitTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       TestStatus status = (TestStatus) getInitialContext().lookup(
             "TestStatusBean/remote");
@@ -697,12 +705,11 @@ public class MDBUnitTestCase extends JBossTestCase
       assertFalse(status.preDestroy());
    }
 
-   protected void setSecurity(String user, String password)
+   protected void setSecurity(String user, String password) throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal(user));
-      SecurityAssociation.setCredential(password.toCharArray());
-
-      InitialContextFactory.setSecurity(user, password);
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(user, password);
+      client.login();
    }
 
    protected InitialContext getInitialContext() throws Exception

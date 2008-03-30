@@ -25,18 +25,20 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 
+import junit.framework.Test;
+
+import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.test.reference21_30.Test2;
 import org.jboss.ejb3.test.reference21_30.Test2Home;
 import org.jboss.ejb3.test.reference21_30.Test3;
 import org.jboss.ejb3.test.service.ServiceSixRemote;
-import org.jboss.ejb3.test.stateful.ProxyFactoryInterface;
 import org.jboss.ejb3.test.stateful.Stateful;
-import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -83,8 +85,9 @@ extends JBossTestCase
       System.out.println("Stats \n" + stats);
       assertTrue(stats.toString().contains("setCalled"));
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
