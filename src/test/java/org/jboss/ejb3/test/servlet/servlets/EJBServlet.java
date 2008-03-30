@@ -41,6 +41,8 @@ import org.jboss.ejb3.test.servlet.WarTestObject;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /** A servlet that accesses an EJB and tests whether the call argument
  is serialized.
@@ -63,8 +65,9 @@ public class EJBServlet extends HttpServlet
    {
       try
       {
-         SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-         SecurityAssociation.setCredential("password".toCharArray());
+         SecurityClient client = SecurityClientFactory.getSecurityClient();
+         client.setSimple("somebody", "password");
+         client.login();
          
          injectedSession.hello();
          injectedSession.goodbye();

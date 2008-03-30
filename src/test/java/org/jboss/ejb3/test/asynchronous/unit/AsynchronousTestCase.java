@@ -23,14 +23,17 @@ package org.jboss.ejb3.test.asynchronous.unit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+
 import javax.ejb.EJBAccessException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.transaction.RollbackException;
 import javax.transaction.UserTransaction;
+
+import junit.framework.Test;
+
 import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.asynch.Future;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.asynchronous.Asynch;
 import org.jboss.ejb3.test.asynchronous.SecuredStatelessRemote;
@@ -43,8 +46,10 @@ import org.jboss.ejb3.test.asynchronous.TxSessionRemote;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.JBossSecurityClient;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -165,9 +170,10 @@ public class AsynchronousTestCase extends JBossTestCase
             (SecuredStatelessRemote) getInitialContext().lookup("SecuredStatelessBean/remote");
       SecuredStatelessRemote asynchTester = (SecuredStatelessRemote)((JBossProxy)tester).getAsynchronousProxy();
       AsynchProvider ap = (AsynchProvider)asynchTester;
-
-      SecurityAssociation.setPrincipal(new SimplePrincipal("rolefail"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("rolefail","password");
+      client.login();
 
       asynchTester.method(61);
       Object ret = getReturnOrException(ap);
@@ -181,15 +187,13 @@ public class AsynchronousTestCase extends JBossTestCase
       ret = getReturnOrException(ap);
       assertTrue("SecurityException not thrown: " + ret, ret instanceof EJBAccessException);
 
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      client.setSimple("somebody","password");
 
       asynchTester.method(64);
       ret = getReturnOrException(ap);
-      assertEquals("Wrong return for authorised method", 64, ret);
-
-      SecurityAssociation.setPrincipal(new SimplePrincipal("nosuchuser"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      assertEquals("Wrong return for authorized method", 64, ret);
+      
+      client.setSimple("nosuchuser","password");
 
       asynchTester.method(65);
       ret = getReturnOrException(ap);

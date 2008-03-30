@@ -21,40 +21,25 @@
 */
 package org.jboss.ejb3.test.mdb.unit;
 
-import org.jboss.test.JBossTestCase;
-import org.jboss.logging.Logger;
-import org.jboss.ejb3.ClientKernelAbstraction;
-import org.jboss.ejb3.KernelAbstractionFactory;
-import org.jboss.ejb3.InitialContextFactory;
-import org.jboss.ejb3.test.mdb.TestStatus;
-import org.jboss.ejb3.test.mdb.Stateless;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.util.collection.CollectionsUtil;
-import org.jboss.embedded.junit.EmbeddedTestCase;
-import org.jboss.embedded.Bootstrap;
-
-import javax.management.ObjectName;
+import javax.jms.Queue;
 import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
-import javax.jms.Queue;
-import javax.jms.QueueConnectionFactory;
 import javax.jms.TextMessage;
-import javax.jms.DeliveryMode;
-import javax.jms.TopicConnection;
-import javax.jms.MessageProducer;
-import javax.jms.TopicSession;
-import javax.jms.Topic;
 import javax.jms.TopicConnectionFactory;
-import javax.jms.QueueReceiver;
-import javax.jms.QueueBrowser;
 import javax.naming.NamingException;
-import javax.naming.InitialContext;
-import java.util.List;
-import java.util.Enumeration;
 
 import junit.framework.Test;
+
+import org.jboss.ejb3.InitialContextFactory;
+import org.jboss.ejb3.test.mdb.Stateless;
+import org.jboss.ejb3.test.mdb.TestStatus;
+import org.jboss.embedded.Bootstrap;
+import org.jboss.embedded.junit.EmbeddedTestCase;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
+import org.jboss.test.JBossTestCase;
 
 /**
  * Sample client for the jboss container.
@@ -71,10 +56,11 @@ public class MDBUnitEmbeddedTest extends JBossTestCase
 
    }
 
-   protected void setSecurity(String user, String password)
+   protected void setSecurity(String user, String password) throws Exception
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal(user));
-      SecurityAssociation.setCredential(password.toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(user, password);
+      client.login();
 
       InitialContextFactory.setSecurity(user, password);
    }

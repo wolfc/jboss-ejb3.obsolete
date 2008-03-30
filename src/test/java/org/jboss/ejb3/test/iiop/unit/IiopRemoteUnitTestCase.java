@@ -44,6 +44,8 @@ import org.jboss.ejb3.test.iiop.MyStatefulHome;
 import org.jboss.ejb3.test.iiop.TxTester;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /**
  * TODO: use JBossIIOPTestCase
@@ -53,6 +55,8 @@ import org.jboss.security.SimplePrincipal;
  */
 public class IiopRemoteUnitTestCase extends CustomJNDIJBossTestCase
 {
+   
+   private SecurityClient client;
 
    public IiopRemoteUnitTestCase(String name)
    {
@@ -86,7 +90,7 @@ public class IiopRemoteUnitTestCase extends CustomJNDIJBossTestCase
    {
       super.tearDown();
       
-      SecurityAssociation.clear();
+      this.client.logout();
    }
    
    public void test0() throws Exception
@@ -96,9 +100,10 @@ public class IiopRemoteUnitTestCase extends CustomJNDIJBossTestCase
    
    public void test1() throws Exception
    {
-      SimplePrincipal principal = new SimplePrincipal("somebody");
-      SecurityAssociation.setPrincipal(principal);
-      SecurityAssociation.setCredential("password".toCharArray());
+     
+      this.client = SecurityClientFactory.getSecurityClient();
+      this.client.setSimple("somebody", "password");
+      this.client.login();
       
       InitialContext ctx = getInitialContext();
       Object obj = ctx.lookup("MySessionBean/remote");
@@ -230,9 +235,8 @@ public class IiopRemoteUnitTestCase extends CustomJNDIJBossTestCase
    
    public void testSecurity() throws Exception
    {
-      SimplePrincipal principal = new SimplePrincipal("somebody");
-      SecurityAssociation.setPrincipal(principal);
-      SecurityAssociation.setCredential("password".toCharArray());
+      this.client.setSimple("somebody", "password");
+      this.client.login();
       
       InitialContext ctx = getInitialContext();
       Object obj = ctx.lookup("MySessionBean/remote");

@@ -23,24 +23,18 @@ package org.jboss.ejb3.test.dd.web.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.naming.Context;
+
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.rmi.PortableRemoteObject;
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 import org.jboss.ejb3.test.dd.web.interfaces.ReferenceTest;
 import org.jboss.ejb3.test.dd.web.interfaces.StatelessSession;
-import org.jboss.ejb3.test.dd.web.interfaces.StatelessSessionLocal;
-import org.jboss.ejb3.test.dd.web.util.Util;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /**
  * A servlet that accesses an EJB and tests the speed of optimized versus
@@ -127,8 +121,18 @@ public class SpeedServlet extends HttpServlet
    {
       testNaming();
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("jduke"));
-      SecurityAssociation.setCredential("theduke".toCharArray());
+      SecurityClient client = null;
+      
+      try
+      {
+         client = SecurityClientFactory.getSecurityClient();
+         client.setSimple("jduke", "theduke");
+         client.login();
+      }
+      catch (Exception e)
+      {
+         throw new ServletException(e);
+      }
 
       long[] optimized = null;
       long[] notOptimized = null;

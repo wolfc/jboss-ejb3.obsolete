@@ -51,6 +51,8 @@ public class TimerRunAsTestCase extends JBossTestCase
       super(name);
    } 
    
+   //TODO SecurityAssociation is Deprecated, this should be replaced with equivalent
+   // testing for SecurityClient
    public void testSecurityAssociation()
    {
       SecurityAssociation.clear();

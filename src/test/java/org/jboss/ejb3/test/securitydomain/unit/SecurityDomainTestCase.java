@@ -24,6 +24,8 @@ package org.jboss.ejb3.test.securitydomain.unit;
 import org.jboss.ejb3.test.securitydomain.SecurityDomainTest;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
@@ -65,8 +67,9 @@ public class SecurityDomainTestCase extends JBossTestCase
       {
       }
       
-      SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-      SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
       
       test.testAccess();
       augment.testAccess();

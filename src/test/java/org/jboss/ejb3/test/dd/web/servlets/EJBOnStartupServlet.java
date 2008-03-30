@@ -24,7 +24,7 @@ package org.jboss.ejb3.test.dd.web.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
-import javax.naming.Context;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
@@ -32,14 +32,14 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 import org.jboss.ejb3.test.dd.web.interfaces.ReferenceTest;
 import org.jboss.ejb3.test.dd.web.interfaces.StatelessSession;
-import org.jboss.ejb3.test.dd.web.interfaces.StatelessSessionLocal;
 import org.jboss.ejb3.test.dd.web.util.Util;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /** A servlet that accesses an EJB inside its init and destroy methods
 to test web component startup ordering with respect to ebj components.
@@ -90,8 +90,9 @@ public class EJBOnStartupServlet extends HttpServlet
     {
         try
         {        
-           SecurityAssociation.setPrincipal(new SimplePrincipal("jduke"));
-           SecurityAssociation.setCredential("theduke".toCharArray());
+           SecurityClient client = SecurityClientFactory.getSecurityClient();
+           client.setSimple("jduke", "theduke");
+           client.login();
            
            InitialContext ctx = new InitialContext();
            StatelessSession bean = (StatelessSession)ctx.lookup("java:comp/env/ejb/OptimizedEJB");

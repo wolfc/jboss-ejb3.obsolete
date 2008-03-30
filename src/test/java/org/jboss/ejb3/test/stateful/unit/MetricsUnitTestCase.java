@@ -32,6 +32,8 @@ import junit.framework.Test;
 
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.SecurityAssociation;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -50,8 +52,9 @@ extends JBossTestCase
    
    public void testJmxMetrics() throws Exception
    {
-	   SecurityAssociation.setPrincipal(new SimplePrincipal("somebody"));
-	   SecurityAssociation.setCredential("password".toCharArray());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
 	      
 	   MBeanServerConnection server = getServer();
 	      

@@ -38,6 +38,8 @@ import org.jboss.logging.Logger;
 import org.jboss.ejb3.test.dd.web.interfaces.StatelessSession;
 import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SimplePrincipal;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 
 /** A servlet that accesses a stateful session EJB and stores a handle in the session context
  * to test retrieval of the session from the handle.
@@ -70,8 +72,17 @@ public class StatefulSessionServlet extends HttpServlet
    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
          throws ServletException, IOException
    {
-      SecurityAssociation.setPrincipal(new SimplePrincipal("jduke"));
-      SecurityAssociation.setCredential("theduke".toCharArray());
+      SecurityClient client = null;
+      try
+      {
+         client = SecurityClientFactory.getSecurityClient();
+         client.setSimple("jduke", "theduke");
+         client.login();
+      }
+      catch (Exception e)
+      {
+         throw new ServletException(e);
+      }
       
       HttpSession session = request.getSession();
       try
