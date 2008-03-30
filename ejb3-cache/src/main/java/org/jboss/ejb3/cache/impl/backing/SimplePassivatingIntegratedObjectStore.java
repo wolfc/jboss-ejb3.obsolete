@@ -170,8 +170,11 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    }   
    
    @Override
-   protected void processPassivation(Object key)
+   protected void processPassivation(Object key, long lastUse)
    {
+      if (!isRunning())
+         return;
+      
       // If we are for groups we shouldn't be getting a processPassivation
       // call at all, but just to be safe we'll ignore it
       if (!isForGroups())
@@ -181,8 +184,11 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    }
    
    @Override
-   protected void processExpiration(Object key)
+   protected void processExpiration(Object key, long lastUse)
    {
+      if (!isRunning())
+         return;
+      
       getPassivatingCache().remove(key);
    }
 

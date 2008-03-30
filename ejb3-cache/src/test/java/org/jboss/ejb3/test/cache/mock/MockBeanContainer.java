@@ -30,6 +30,7 @@ import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulCacheFactory;
 import org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.logging.Logger;
 
 /**
  * @author Brian Stansberry
@@ -37,6 +38,8 @@ import org.jboss.ejb3.cache.api.StatefulObjectFactory;
  */
 public class MockBeanContainer
 {
+   private static final Logger log = Logger.getLogger(MockBeanContainer.class);   
+   
    private final String containerName;
    private final String cacheFactoryName;
    private final StatefulCacheFactoryRegistry<MockBeanContext> cacheFactoryRegistry;
@@ -66,16 +69,24 @@ public class MockBeanContainer
    }
    
    public void start() throws Exception
-   {
+   {      
+      log.debug("Starting container " + containerName);
+      
       StatefulCacheFactory<MockBeanContext> cacheFactory = cacheFactoryRegistry.getCacheFactory(cacheFactoryName);
       cache = cacheFactory.createCache(containerName, objectFactory, passivationManager, cacheConfig);
       cache.start();
+      
+      log.debug("Started container " + containerName);
    }
    
    public void stop()
-   {
+   {      
+      log.debug("Starting container " + containerName);     
+      
       cache.stop();
       MockRegistry.remove(containerName);
+      
+      log.debug("Started container " + containerName);
    }
    
    public String getName()

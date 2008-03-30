@@ -44,6 +44,7 @@ import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
+import org.jboss.logging.Logger;
 
 /**
  * {@link StatefulCacheFactory} implementation that can return a group-aware 
@@ -57,6 +58,8 @@ import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
 public class GroupAwareCacheFactory<T extends CacheItem> 
    extends AbstractStatefulCacheFactory<T>
 {
+   private static final Logger log = Logger.getLogger(GroupAwareCacheFactory.class);
+   
    private final Map<String, GroupCacheTracker> groupCaches;
    private final IntegratedObjectStoreSource<T> storeSource;
    
@@ -92,7 +95,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
          GroupCacheTracker tracker = groupCaches.get(configName);
          if (tracker == null)
          {
-            groupCache = createGroupCache(containerName, configName, cacheConfig);
+            groupCache = createGroupCache(configName, cacheConfig);
             listener = new GroupMemberCacheLifecycleListener(configName);
             groupCaches.put(configName, new GroupCacheTracker(groupCache, listener));
          }
@@ -134,16 +137,17 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       backingCache.addLifecycleListener(listener);
       
       // Finally, the front-end cache
-      return new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator(), getStrictGroups());
+      Cache<T> cache = new GroupAwareTransactionalCache<T, SerializationGroupMember<T>>(backingCache, getTransactionManager(), getSynchronizationCoordinator(), getStrictGroups());
+      
+      log.debug("Created cache for " + containerName);
+      
+      return cache;      
    }
 
-   private PassivatingBackingCache<T, SerializationGroup<T>> createGroupCache(String name, String configName, CacheConfig cacheConfig)
+   private PassivatingBackingCache<T, SerializationGroup<T>> createGroupCache(String configName, CacheConfig cacheConfig)
    {
-      SerializationGroupContainer<T> container = new SerializationGroupContainer<T>();
-      StatefulObjectFactory<SerializationGroup<T>> factory = container;
-      PassivationManager<SerializationGroup<T>> passivationManager = container;
       PassivatingIntegratedObjectStore<T, SerializationGroup<T>> store = 
-         storeSource.createGroupIntegratedObjectStore(name, configName, cacheConfig, 
+         storeSource.createGroupIntegratedObjectStore(configName, configName, cacheConfig, 
                                                       getTransactionManager(), 
                                                       getSynchronizationCoordinator());
     
@@ -151,10 +155,14 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       // function of the caches for the members
       store.setInterval(0);
       
+      SerializationGroupContainer<T> container = new SerializationGroupContainer<T>();
+      
       PassivatingBackingCache<T, SerializationGroup<T>> groupCache =
-         new PassivatingBackingCacheImpl<T, SerializationGroup<T>>(factory, passivationManager, store);
+         new PassivatingBackingCacheImpl<T, SerializationGroup<T>>(container, container, store);
       
       container.setGroupCache(groupCache);
+      
+      log.debug("Created groupCache for " + configName);
       
       return groupCache;
    }
@@ -170,7 +178,8 @@ public class GroupAwareCacheFactory<T extends CacheItem>
          if (tracker.incrementLiveMemberCount() == 1)
          {
             // First group member cache is about to start; we need to
-            // start the groupCache
+            // start the groupCache            
+            log.debug("Starting groupCache for " + cacheConfigName);
             tracker.groupCache.start();
          }
       }
@@ -187,7 +196,8 @@ public class GroupAwareCacheFactory<T extends CacheItem>
          if (tracker.decrementLiveMemberCount() == 0)
          {
             // All group member caches have stopped; we need to
-            // stop the groupCache
+            // stop the groupCache           
+            log.debug("Stopping groupCache for " + cacheConfigName);
             tracker.groupCache.stop();
          }
       }

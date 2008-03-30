@@ -25,6 +25,7 @@ package org.jboss.ejb3.test.cache.mock;
 import java.util.Map;
 
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.logging.Logger;
 
 
 /**
@@ -33,6 +34,8 @@ import org.jboss.ejb3.cache.api.StatefulObjectFactory;
 public class MockStatefulObjectFactory 
    implements StatefulObjectFactory<MockBeanContext>
 {
+   private static final Logger log = Logger.getLogger(MockStatefulObjectFactory.class);   
+   
    private final MockBeanContainer container;
    
    private int creationCount;
@@ -59,8 +62,7 @@ public class MockStatefulObjectFactory
             xpc = new MockXPC(container.getXPCName());
          }
          ctx.addExtendedPersistenceContext(container.getXPCName(), xpc);
-      }
-      
+      }      
       
       // Here we mock creating nested beans
       for (MockBeanContainer childContainer : container.getChildren())
@@ -69,16 +71,19 @@ public class MockStatefulObjectFactory
       }
       
       creationCount++;
+      
+      log.trace("Created context " + ctx.getId() + " for " + container.getName());
+      
       return ctx;
    }
 
    public void destroy(MockBeanContext ctx)
    {
-      ctx.remove();
+      Object id = ctx.getId();
+      ctx.remove();      
       destroyCount++;
+      log.trace("Destroyed context " + id + " for " + container.getName());
    }
-
-
 
    public MockBeanContainer getContainer()
    {

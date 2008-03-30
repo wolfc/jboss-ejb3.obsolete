@@ -39,7 +39,7 @@ import org.jboss.logging.Logger;
 public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>, K>
       implements PassivatingIntegratedObjectStore<C, T>
 {
-   private static final Logger log = Logger.getLogger(AbstractPassivatingIntegratedObjectStore.class);
+   protected Logger log = Logger.getLogger(getClass().getName());
    
    /**
     * Support callbacks when our SessionTimeoutThread decides to
@@ -53,7 +53,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
    private long expirationTimeSeconds;   
    private PassivationExpirationRunner sessionTimeoutRunner;
    private final String name;
-   private boolean stopped = true;
+   private boolean running = true;
    
    /**
     * Create a new AbstractPassivatingIntegratedObjectStore.
@@ -77,13 +77,19 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
    /**
     * Invoked by {@link #processPassivationExpiration()} to indicate the
     * item associated with the given key needs to be passivated.
+    * 
+    * @param key  key for the item
+    * @param lastUse time item was last used
     */
-   protected abstract void processPassivation(K key);
+   protected abstract void processPassivation(K key, long lastUse);
    /**
     * Invoked by {@link #processPassivationExpiration()} to indicate the
     * item associated with the given key needs to be expired.
+    * 
+    * @param key  key for the item
+    * @param lastUse time item was last used
     */
-   protected abstract void processExpiration(K key);
+   protected abstract void processExpiration(K key, long lastUse);
 
    /**
     * Get a set of {@link CacheableTimestamp} representing the items currently
@@ -119,11 +125,13 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
 
    public void start()
    {    
+      log.debug("Starting store " + name);
+      
       internalStart();
       
-      stopped = false;
+      running = true;
       
-      log.debug("Started " + name);
+      log.debug("Started store " + name);
    }
    
    protected void internalStart()
@@ -143,11 +151,13 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
 
    public void stop()
    {     
-      internalStop();
+      log.debug("Stopping store " + name);
       
-      stopped = true;
+      running = false;
       
-      log.debug("Stopped " + name);
+      internalStop();      
+      
+      log.debug("Stopped store " + name);
    }
    
    protected void internalStop()
@@ -187,7 +197,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
       if (forGroups)
          return;
       
-      if (!stopped)
+      if (running)
       {
          try
          {
@@ -199,7 +209,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
          }
       }
       
-      if (!stopped)
+      if (running)
       {
          try
          {
@@ -252,9 +262,9 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
       return name;
    }
 
-   public boolean isStopped()
+   public boolean isRunning()
    {
-      return stopped;
+      return running;
    }
 
    public void setMaxSize(int maxSize)
@@ -278,9 +288,9 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
          {
             try
             {
-               if (minRemovalUse >= ts.getLastUsed())
+               if (running && minRemovalUse >= ts.getLastUsed())
                {
-                  processExpiration(ts.getId());
+                  processExpiration(ts.getId(), ts.getLastUsed());
                }
                else
                {
@@ -310,10 +320,10 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
          {
             try
             {
-               if (overCount > 0 || minPassUse >= ts.getLastUsed())
+               if (running && (overCount > 0 || minPassUse >= ts.getLastUsed()))
                {
                   log.trace("attempting to passivate " + ts.getId());
-                  processPassivation(ts.getId());
+                  processPassivation(ts.getId(), ts.getLastUsed());
                   overCount--;
                }
                else

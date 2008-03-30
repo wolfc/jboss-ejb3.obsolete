@@ -333,13 +333,13 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
    }
 
    @Override
-   protected void processExpiration(Object key)
+   protected void processExpiration(Object key, long lastUse)
    {
       remove(key);      
    }
 
    @Override
-   protected void processPassivation(Object key)
+   protected void processPassivation(Object key, long lastUse)
    {
       getPassivatingCache().passivate(key);      
    }
