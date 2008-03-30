@@ -65,7 +65,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    protected final Logger log = Logger.getLogger(getClass().getName());
    
    /** BackingCache that handles passivation, groups, etc */
-   private final BackingCache<C, T> delegate;
+   private final BackingCache<C, T> backingCache;
    
    /** Cache of items that are in use by a tx or non-transactional invocation */
    private final ConcurrentMap<Object, Entry> inUseCache;
@@ -139,11 +139,11 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
                              SynchronizationCoordinator syncCoordinator,
                              boolean strictGroups)
    {
-      assert delegate != null : "delegate is null";
+      assert delegate != null : "backingCache is null";
       assert tm != null : "tm is null";
       assert syncCoordinator != null : "syncCoordinator is null";
       
-      this.delegate = delegate;
+      this.backingCache = delegate;
       this.tm = tm;
       this.synchronizationCoordinator = syncCoordinator;
       this.strictGroups = strictGroups;
@@ -200,11 +200,11 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       entry.lock.lock();
       try
       {
-         T backingEntry = delegate.create(initTypes, initValues, sharedState);
+         T backingEntry = backingCache.create(initTypes, initValues, sharedState);
          C obj = backingEntry.getUnderlyingItem();
          
          // Note we deliberately don't assign obj to entry -- we want
-         // a call to get() to get it from delegate so delegate can lock it
+         // a call to get() to get it from backingCache so backingCache can lock it
          
          Entry old = inUseCache.putIfAbsent(obj.getId(), entry);
          if (old != null)
@@ -247,7 +247,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       try
       {
          if (entry.obj == null)
-            entry.obj = delegate.get(key).getUnderlyingItem();
+            entry.obj = backingCache.get(key).getUnderlyingItem();
          
          validateTransaction(entry.obj);
          entry.getCount++;
@@ -295,27 +295,27 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    {
       // Note that the object is not in my cache at this point.
       // FIXME BES 2008/03/10 -- above comment not true!
-      delegate.remove(key);
+      backingCache.remove(key);
       inUseCache.remove(key);
    }
 
    public void start()
    {
-      delegate.start();
+      backingCache.start();
    }
 
    public void stop()
    {
-      delegate.stop();
+      backingCache.stop();
    }
    
    public BackingCache<C, T> getBackingCache()
    {
-      return delegate;
+      return backingCache;
    }
 
    /**
-    * Actually release the object from our delegate 
+    * Actually release the object from our backingCache 
     * @param obj
     */
    private void release(C obj)
@@ -338,8 +338,8 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       try
       {
          entry.lock.lockInterruptibly();
-         // For sure we now control this key -- tell delegate to release
-         delegate.release(obj.getId());
+         // For sure we now control this key -- tell backingCache to release
+         backingCache.release(obj.getId());
          
          // Now remove the entry
          inUseCache.remove(key);
