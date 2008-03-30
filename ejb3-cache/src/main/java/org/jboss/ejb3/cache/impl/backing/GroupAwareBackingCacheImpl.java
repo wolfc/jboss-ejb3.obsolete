@@ -59,7 +59,6 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       super(memberContainer, memberContainer, memberContainer);
 
       assert groupCache != null : "groupCache is null";
-      assert groupCache.isClustered() == memberContainer.isClustered(): "incompatible clustering support between groupCache and passivationManager";
       
       this.groupCache = groupCache;
       this.memberContainer = memberContainer;
@@ -120,5 +119,16 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
          }
       }
    }
+
+   @Override
+   public void start()
+   {
+      // Validate clustering compatibility
+      assert groupCache.isClustered() == memberContainer.isClustered(): "incompatible clustering support between groupCache and memberContainer";     
+      
+      super.start();
+   }
+   
+   
    
 }
