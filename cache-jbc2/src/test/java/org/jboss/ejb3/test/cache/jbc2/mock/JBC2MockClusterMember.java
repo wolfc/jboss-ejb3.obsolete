@@ -29,8 +29,8 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheFactoryNotRegisteredException;
-import org.jboss.ejb3.cache.impl.backing.jbc2.JBCIntegratedObjectStoreSource;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
+import org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
@@ -60,12 +60,12 @@ public class JBC2MockClusterMember extends MockEjb3System
    }
    
    private ClassLoader localClassLoader;
-   private JBCIntegratedObjectStoreSource<MockBeanContext> storeSource;
+   private JBCBackingCacheEntryStoreSource<MockBeanContext> storeSource;
    
    public JBC2MockClusterMember(TransactionManager tm, 
                             boolean useCoordinator, 
                             CacheType cacheType,
-                            JBCIntegratedObjectStoreSource<MockBeanContext> storeSource)
+                            JBCBackingCacheEntryStoreSource<MockBeanContext> storeSource)
    {
       this(tm, useCoordinator, new CacheType[] {cacheType}, storeSource);
    }
@@ -73,7 +73,7 @@ public class JBC2MockClusterMember extends MockEjb3System
    public JBC2MockClusterMember(TransactionManager tm, 
                             boolean useCoordinator, 
                             CacheType[] cacheTypes,
-                            JBCIntegratedObjectStoreSource<MockBeanContext> storeSource)
+                            JBCBackingCacheEntryStoreSource<MockBeanContext> storeSource)
    {
       this(tm, useCoordinator, cacheTypes, storeSource, DEFAULT_JBC_CONFIG, getAliasMap());
    }
@@ -81,7 +81,7 @@ public class JBC2MockClusterMember extends MockEjb3System
    public JBC2MockClusterMember(TransactionManager tm, 
          boolean useCoordinator, 
          CacheType[] availableTypes,
-         JBCIntegratedObjectStoreSource<MockBeanContext> storeSource,
+         JBCBackingCacheEntryStoreSource<MockBeanContext> storeSource,
          String defaultJBCConfig,
          Map<String, String> aliases)
    {
@@ -141,7 +141,7 @@ public class JBC2MockClusterMember extends MockEjb3System
    }
 
    @Override
-   protected IntegratedObjectStoreSource<MockBeanContext> getDistributedStoreSource()
+   protected BackingCacheEntryStoreSource<MockBeanContext> getDistributedStoreSource()
    {
       return storeSource;
    }

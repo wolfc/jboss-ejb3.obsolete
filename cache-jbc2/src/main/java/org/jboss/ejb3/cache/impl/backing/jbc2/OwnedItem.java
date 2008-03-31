@@ -37,7 +37,7 @@ public class OwnedItem
    public static final String LOCAL_OWNER = "local_owner";
    public static final String REMOTE_OWNER = "remote_owner";
    
-   private static final int FQN_SIZE = JBCIntegratedObjectStore.FQN_SIZE;
+   private static final int FQN_SIZE = JBCBackingCacheEntryStore.FQN_SIZE;
    private static final int KEY_INDEX = FQN_SIZE - 1;
    private static final int REGION_INDEX = FQN_SIZE - 2;
    private static final int OWNER_INDEX = 1;

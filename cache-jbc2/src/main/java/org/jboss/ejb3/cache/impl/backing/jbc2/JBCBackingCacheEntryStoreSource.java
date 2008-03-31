@@ -27,35 +27,35 @@ import javax.transaction.TransactionManager;
 import org.jboss.cache.CacheManager;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 
 /**
  * {@link IntegratedObjectStoreSource} that provides instances of
- * {@link JBCIntegratedObjectStore}.
+ * {@link JBCBackingCacheEntryStore}.
  * 
  * @author Brian Stansberry
  */
-public class JBCIntegratedObjectStoreSource<T extends CacheItem> 
-   implements IntegratedObjectStoreSource<T>
+public class JBCBackingCacheEntryStoreSource<T extends CacheItem> 
+   implements BackingCacheEntryStoreSource<T>
 {
    private CacheManager cacheManager;
    
-   public PassivatingIntegratedObjectStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
+   public BackingCacheEntryStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       String nameSuffix = (containerName == null || containerName.length() == 0) ? "" : "-" + containerName;
       String name = "GroupCache" + nameSuffix;
-      return new JBCIntegratedObjectStore<T, SerializationGroup<T>>(cacheManager, cacheConfigName, cacheConfig, name, true);
+      return new JBCBackingCacheEntryStore<T, SerializationGroup<T>>(cacheManager, cacheConfigName, cacheConfig, name, true);
    }
 
-   public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
+   public BackingCacheEntryStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      return new JBCIntegratedObjectStore<T, SerializationGroupMember<T>>(cacheManager, cacheConfigName, cacheConfig, containerName, false);
+      return new JBCBackingCacheEntryStore<T, SerializationGroupMember<T>>(cacheManager, cacheConfigName, cacheConfig, containerName, false);
    }
 
    public CacheManager getCacheManager()

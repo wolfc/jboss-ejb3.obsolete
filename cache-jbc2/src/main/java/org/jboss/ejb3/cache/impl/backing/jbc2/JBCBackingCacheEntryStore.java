@@ -45,11 +45,10 @@ import org.jboss.cache.notifications.event.NodeRemovedEvent;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
-import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
 import org.jboss.logging.Logger;
 import org.jboss.util.id.GUID;
@@ -59,8 +58,8 @@ import org.jboss.util.id.GUID;
  * 
  * @author Brian Stansberry
  */
-public class JBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
-   extends AbstractPassivatingIntegratedObjectStore<C, T, OwnedItem>
+public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+   extends AbstractBackingCacheEntryStore<C, T, OwnedItem>
 {
    /** First element in EJB3 SFSB Fqns */
    private static final String FQN_BASE = "sfsb";
@@ -121,7 +120,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    private final ConcurrentMap<OwnedItem, OwnedItem> passivatedItems;
    
    /**
-    * Create a new JBCIntegratedObjectStore.
+    * Create a new JBCBackingCacheEntryStore.
     * 
     * @param cacheManager Source for our JBoss Cache instance
     * @param cacheConfigName name of config to request from CacheManager
@@ -130,7 +129,7 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
     * @param forGroups <code>true</code> if this cache is used for caching
     *                  {@link SerializationGroup}s, <code>false</code> otherwise
     */
-   public JBCIntegratedObjectStore(CacheManager cacheManager,
+   public JBCBackingCacheEntryStore(CacheManager cacheManager,
                                    String cacheConfigName,
                                    CacheConfig cacheConfig,
                                    String name,
@@ -283,9 +282,9 @@ public class JBCIntegratedObjectStore<C extends CacheItem, T extends Passivating
    @SuppressWarnings("unchecked")
    public boolean isCompatibleWith(GroupCompatibilityChecker other)
    {
-      if (other instanceof JBCIntegratedObjectStore)
+      if (other instanceof JBCBackingCacheEntryStore)
       {
-         JBCIntegratedObjectStore jbc2 = (JBCIntegratedObjectStore) other;
+         JBCBackingCacheEntryStore jbc2 = (JBCBackingCacheEntryStore) other;
          return this.cacheManager == jbc2.cacheManager
                  && this.cacheConfigName.equals(jbc2.cacheConfigName);
       }

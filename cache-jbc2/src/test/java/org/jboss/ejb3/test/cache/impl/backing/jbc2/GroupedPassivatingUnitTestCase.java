@@ -290,7 +290,9 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       }
       finally
       {
-         cluster.getNode1().restoreTCCL();    
+         cluster.getNode1().restoreTCCL();  
+         container1A.stop();
+         container2A.stop();  
          container1B.stop();
          container2B.stop();     
       }
