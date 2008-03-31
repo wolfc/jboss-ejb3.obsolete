@@ -102,19 +102,7 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          {
             if(prevSC == null)
                throw new IllegalStateException("Local Call: Security Context is null");
-            
-            /**
-             * If the local security context is the same as what we need,
-             * duplicate the sc, except the incoming and outgoing need to be dealt with
-             */
-            if(prevSC.getSecurityDomain().equals(domainValue)) 
-            { 
-               populateSecurityContext(sc, prevSC); 
-            }
-            else
-            {
-               SecurityActions.setIncomingRunAs(sc, prevSC.getOutgoingRunAs()); 
-            } 
+            populateSecurityContext(sc, prevSC);  
          }
          else
          { 
