@@ -46,7 +46,17 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
    public void testSimpleGroupPassivation() throws Exception
    {      
       log.info("====== testSimpleGroupPassivation() ======");
-      
+      simpleGroupPassivationTest(false);
+   }
+   
+   public void testSimpleGroupPassivationTransactional() throws Exception
+   {      
+      log.info("====== testSimpleGroupPassivationTransactional() ======");
+      simpleGroupPassivationTest(true);
+   }
+   
+   public void simpleGroupPassivationTest(boolean transactional) throws Exception
+   {      
       JBC2MockCluster cluster = new JBC2MockCluster(false);
       JBC2MockClusterMember node0 = cluster.getNode0();
       MockCacheConfig cacheConfig = new MockCacheConfig();
@@ -58,6 +68,10 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       node0.setTCCL();
       try
       {
+         if (transactional)
+         {
+            node0.getTransactionManager().begin();
+         }
          Object key1 = container1.getCache().create(null, null);
          MockBeanContext firstCtx1;
          MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
@@ -71,6 +85,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          container2.getCache().finished(ctx2);
          container1.getCache().finished(ctx1);
          
+         if (transactional)
+         {
+            node0.getTransactionManager().commit();
+         }
+         
          sleep(2100);
          
          MockPassivationManager pass1 = (MockPassivationManager) container1.getPassivationManager();
@@ -78,6 +97,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          
          assertEquals("ctx1 should have been passivated", 1, pass1.getPrePassivateCount());
          assertEquals("ctx2 should have been passivated", 1, pass2.getPrePassivateCount());
+         
+         if (transactional)
+         {
+            node0.getTransactionManager().begin();
+         }
          
          ctx2 = container2.getCache().get(key2);
          
@@ -99,6 +123,14 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          
          assertNotNull(ctx1.getXPC());
          assertSame(ctx1.getXPC(), ctx2.getXPC());
+         
+         container1.getCache().finished(ctx1);
+         container2.getCache().finished(ctx2);
+         
+         if (transactional)
+         {
+            node0.getTransactionManager().commit();
+         }
       }
       finally
       {
@@ -117,7 +149,17 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
    public void testSimpleGroupReplication() throws Exception
    {      
       log.info("====== testSimpleGroupReplication() ======");
-      
+      simpleGroupReplicationTest(false);
+   }
+   
+   public void testSimpleGroupReplicationTransactional() throws Exception
+   {      
+      log.info("====== testSimpleGroupReplicationTransactional() ======");
+      simpleGroupReplicationTest(true);
+   }
+   
+   public void simpleGroupReplicationTest(boolean transactional) throws Exception
+   {      
       JBC2MockCluster cluster = new JBC2MockCluster(false);
       MockCacheConfig cacheConfig = new MockCacheConfig();
       cacheConfig.setIdleTimeoutSeconds(1);
@@ -137,6 +179,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       cluster.getNode0().setTCCL();
       try
       {
+         if (transactional)
+         {
+            cluster.getNode0().getTransactionManager().begin();
+         }
+         
          key1 = container1A.getCache().create(null, null);
          MockBeanContext ctx1A = container1A.getCache().get(key1);
          
@@ -152,11 +199,21 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          container2A.getCache().finished(ctx2A);
          container1A.getCache().finished(ctx1A);
          
+         if (transactional)
+         {
+            cluster.getNode0().getTransactionManager().commit();
+         }
+         
          MockPassivationManager pass1A = (MockPassivationManager) container1A.getPassivationManager();
          MockPassivationManager pass2A = (MockPassivationManager) container2A.getPassivationManager();
          
          assertEquals("ctx1 should have been replicated", 1, pass1A.getPreReplicateCount());
          assertEquals("ctx2 should have been passivated", 1, pass2A.getPreReplicateCount());
+         
+         if (transactional)
+         {
+            cluster.getNode0().getTransactionManager().begin();
+         }
          
          ctx2A = container2A.getCache().get(key2);
          
@@ -182,6 +239,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          
          container1A.getCache().finished(ctx1A);         
          container2A.getCache().finished(ctx2A);
+         
+         if (transactional)
+         {
+            cluster.getNode0().getTransactionManager().commit();
+         }
       }
       catch (Exception e)
       {
@@ -201,6 +263,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       cluster.getNode1().setTCCL();
       try
       {
+         if (transactional)
+         {
+            cluster.getNode1().getTransactionManager().begin();
+         }
+         
          MockBeanContext ctx1B = container1B.getCache().get(key1);         
          MockBeanContext ctx2B = container2B.getCache().get(key2);
          
@@ -211,6 +278,11 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          
          container2B.getCache().finished(ctx2B);         
          container1B.getCache().finished(ctx1B);
+         
+         if (transactional)
+         {
+            cluster.getNode1().getTransactionManager().commit();
+         }
       }
       catch (Exception e)
       {
