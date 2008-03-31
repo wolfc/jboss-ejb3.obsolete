@@ -24,7 +24,6 @@ package org.jboss.ejb3.cache.spi.impl;
 
 import org.jboss.ejb3.cache.api.Identifiable;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 
 /**
  * Encapsulation of the {@link Identifiable#getId() id} and
@@ -35,8 +34,8 @@ import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
  * for LRU comparisons.
  * </p>
  * 
- * @see IntegratedObjectStore#getInMemoryEntries()
- * @see IntegratedObjectStore#getPassivatedEntries()
+ * @see AbstractBackingCacheEntryStore#getInMemoryEntries()
+ * @see AbstractBackingCacheEntryStore#getAllEntries()
  * 
  * @author Brian Stansberry
  * @version $Revision$

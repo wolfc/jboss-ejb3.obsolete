@@ -33,15 +33,14 @@ public interface PassivationManager<T extends CacheItem & Serializable>
 {
    /**
     * This method is called after an object has been retrieved
-    * from an ObjectStore.
+    * deserialized after passivation.
     * 
     * @param obj    the object
     */
    void postActivate(T obj);
    
    /**
-    * This method is called before an object is serialized into an
-    * ObjectStore.
+    * This method is called before an object is serialized for passivation.
     * 
     * @param obj    the object
     * 

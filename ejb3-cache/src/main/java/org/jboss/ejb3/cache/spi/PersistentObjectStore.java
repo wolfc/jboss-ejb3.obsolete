@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2007, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,41 +19,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.api.Identifiable;
+
 
 /**
- * A {@link BackingCacheEntry} that can be passivated.
+ * Stores an indentifiable object in a persistent store. Note that the object 
+ * store does NOT call any callbacks.
  * 
- * @author Brian Stansberry
+ * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public interface PassivatingBackingCacheEntry<T extends CacheItem> 
-   extends BackingCacheEntry<T>
+public interface PersistentObjectStore<T extends Identifiable>
 {
    /**
-    * Attempt to lock this item, failing promptly if the lock is already
-    * held by another thread. Has the same semantics as
-    * {@java.util.concurrent.ReentrantLock#tryLock()}.
+    * Load the object from storage.
     * 
-    * @return <code>true</code> if the lock was acquired, <code>false</code>
-    *         otherwise
+    * @param key    the object identifier. It is assumed the key represents 
+    *               something meaningful to the object store.
+    * @return       the object or null if not found
     */
-   boolean tryLock();
+   T load(Object key);
    
    /**
-    * Lock this item, blocking until the lock is acquired. Has the same 
-    * semantics as {@java.util.concurrent.ReentrantLock#lockInterruptibly()},
-    * except that a <code>RuntimeException</code> will be thrown if the
-    * thread is interrupted instead of <code>InterruptedException</code>.
+    * Store the object into storage.
+    * 
+    * @param obj    the object
     */
-   void lock();
+   void store(T obj);
    
    /**
-    * Unlock this item. Has the same semantics as 
-    * {@java.util.concurrent.ReentrantLock#unlock()}.
+    * Perform any initialization work.
     */
-   void unlock();
-
+   void start();
+   
+   /**
+    * Perform any shutdown work.
+    */
+   void stop();
 }

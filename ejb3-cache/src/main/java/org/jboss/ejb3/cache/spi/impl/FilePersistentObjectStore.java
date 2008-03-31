@@ -34,7 +34,7 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.ObjectStore;
+import org.jboss.ejb3.cache.spi.PersistentObjectStore;
 import org.jboss.logging.Logger;
 import org.jboss.serial.io.JBossObjectInputStream;
 import org.jboss.serial.io.JBossObjectOutputStream;
@@ -45,10 +45,10 @@ import org.jboss.serial.io.JBossObjectOutputStream;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: 65339 $
  */
-public class FileObjectStore<T extends CacheItem> 
-   implements ObjectStore<T>
+public class FilePersistentObjectStore<T extends CacheItem> 
+   implements PersistentObjectStore<T>
 {
-   private static final Logger log = Logger.getLogger(FileObjectStore.class);
+   private static final Logger log = Logger.getLogger(FilePersistentObjectStore.class);
    
    private int subdirectoryCount;   
    private File baseDirectory;

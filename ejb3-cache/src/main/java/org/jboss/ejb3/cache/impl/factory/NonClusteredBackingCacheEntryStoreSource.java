@@ -28,22 +28,22 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.impl.backing.SimplePassivatingIntegratedObjectStore;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
-import org.jboss.ejb3.cache.spi.impl.FileObjectStore;
+import org.jboss.ejb3.cache.spi.impl.FilePersistentObjectStore;
 
 /**
- * {@link IntegratedObjectStoreSource} for a non-clustered cache. Uses
- * a {@link FileObjectStore} store for persistence.
+ * {@link BackingCacheEntryStoreSource} for a non-clustered cache. Uses
+ * a {@link FilePersistentObjectStore} store for persistence.
  * 
  * @author Brian Stansberry
  */
-public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem> 
-   implements IntegratedObjectStoreSource<T>
+public class NonClusteredBackingCacheEntryStoreSource<T extends CacheItem> 
+   implements BackingCacheEntryStoreSource<T>
 {
    /**
     * The default session store directory name ("<tt>ejb3/sessions</tt>").
@@ -62,30 +62,30 @@ public class NonClusteredIntegratedObjectStoreSource<T extends CacheItem>
    private String baseDirectoryName;
    private int subdirectoryCount = DEFAULT_SUBDIRECTORY_COUNT;
    
-   public PassivatingIntegratedObjectStore<T, SerializationGroup<T>> createGroupIntegratedObjectStore(String containerName, String cacheConfigName,
+   public BackingCacheEntryStore<T, SerializationGroup<T>> createGroupIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      FileObjectStore<SerializationGroup<T>> objectStore = new FileObjectStore<SerializationGroup<T>>();
+      FilePersistentObjectStore<SerializationGroup<T>> objectStore = new FilePersistentObjectStore<SerializationGroup<T>>();
       objectStore.setStorageDirectory(getFullGroupDirectoryName(containerName));
       objectStore.setSubdirectoryCount(subdirectoryCount);
       
       String storeNameSuffix = (cacheConfig.name().length() == 0) ? "" : "-" + cacheConfig;
       String storeName = "StdGroupStore" + storeNameSuffix;
-      SimplePassivatingIntegratedObjectStore<T, SerializationGroup<T>> store = 
-         new SimplePassivatingIntegratedObjectStore<T, SerializationGroup<T>>(objectStore, cacheConfig, storeName, true);
+      SimpleBackingCacheEntryStore<T, SerializationGroup<T>> store = 
+         new SimpleBackingCacheEntryStore<T, SerializationGroup<T>>(objectStore, cacheConfig, storeName, true);
       
       return store;
    }
 
-   public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> createIntegratedObjectStore(String containerName, String cacheConfigName,
+   public BackingCacheEntryStore<T, SerializationGroupMember<T>> createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      FileObjectStore<SerializationGroupMember<T>> objectStore = new FileObjectStore<SerializationGroupMember<T>>();
+      FilePersistentObjectStore<SerializationGroupMember<T>> objectStore = new FilePersistentObjectStore<SerializationGroupMember<T>>();
       objectStore.setStorageDirectory(getFullSessionDirectoryName(containerName));
       objectStore.setSubdirectoryCount(subdirectoryCount);
       
-      SimplePassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> store = 
-         new SimplePassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>(objectStore, cacheConfig, containerName, false);
+      SimpleBackingCacheEntryStore<T, SerializationGroupMember<T>> store = 
+         new SimpleBackingCacheEntryStore<T, SerializationGroupMember<T>>(objectStore, cacheConfig, containerName, false);
       
       return store;
    }

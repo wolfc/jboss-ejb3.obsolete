@@ -24,43 +24,62 @@ package org.jboss.ejb3.cache.spi.impl;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.logging.Logger;
 
 /**
- * Abstract superclass for {@link PassivatingIntegratedObjectStore} 
+ * Abstract superclass for {@link BackingCacheEntryStore} 
  * implementations.
  * 
  * @author Brian Stansberry
  * @version $Revision$
  */
-public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>, K>
-      implements PassivatingIntegratedObjectStore<C, T>
+public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T extends BackingCacheEntry<C>, K>
+      implements BackingCacheEntryStore<C, T>
 {
    protected Logger log = Logger.getLogger(getClass().getName());
    
+   /** Our name */
+   private final String name;
    /**
     * Support callbacks when our SessionTimeoutThread decides to
     * evict an entry.
     */
    private PassivatingBackingCache<C, T> owningCache;   
+   /** Is this store for groups or group members? */
    private boolean forGroups;
+   /** How often (in seconds) any PassivationExpirationRunner should run */
    private int interval;
+   /** 
+    * Max number of stored items before passivation should begin passivating
+    * LRU items regardless of idleTimeSeconds.
+    */
    private int maxSize;
+   /** 
+    * Max number of seconds any item must be inactive after which passivation
+    * should passivate it, regardless of maxItems.
+    */
    private long idleTimeSeconds;
-   private long expirationTimeSeconds;   
+   private long expirationTimeSeconds; 
+   /** Timer task that performs passivation and expiration */
    private PassivationExpirationRunner sessionTimeoutRunner;
-   private final String name;
+   /** Whether start() has completed and stop() has not been called. */
    private boolean running = true;
    
    /**
-    * Create a new AbstractPassivatingIntegratedObjectStore.
+    * Create a new AbstractBackingCacheEntryStore.
+    * 
+    * @param config  the configuration for the cache. Cannot be <code>null</code>
+    * @param name    our name. Cannot be <code>null</code>
+    * @param forGroups <code>true</code> if this store is used for 
+    *                  {@link SerializationGroup}s, <code>false</code> if not
     */
-   protected AbstractPassivatingIntegratedObjectStore(CacheConfig config,
-                                                      String name,
-                                                      boolean forGroups)
+   protected AbstractBackingCacheEntryStore(CacheConfig config,
+                                            String name,
+                                            boolean forGroups)
    {
       assert config != null : "config is null";
       assert name != null : "name is null";
@@ -168,7 +187,7 @@ public abstract class AbstractPassivatingIntegratedObjectStore<C extends CacheIt
       }
    }
 
-   // ---------------------------------------  PassivatingIntegratedObjectStore
+   // ---------------------------------------  BackingCacheEntryStore
 
 
    public void setPassivatingCache(PassivatingBackingCache<C, T> cache)

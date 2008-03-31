@@ -29,16 +29,16 @@ import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.StatefulCacheFactory;
 
 /**
- * Provides {@link PassivatingIntegratedObjectStore} instances to a 
+ * Provides {@link BackingCacheEntryStore} instances to a 
  * {@link StatefulCacheFactory} that needs to create a 
  * {@link GroupAwareBackingCache}.
  * 
  * @author Brian Stansberry
  */
-public interface IntegratedObjectStoreSource<T extends CacheItem>
+public interface BackingCacheEntryStoreSource<T extends CacheItem>
 {
    /**
-    * Provide a {@link PassivatingIntegratedObjectStore} for storage
+    * Provide a {@link BackingCacheEntryStore} for storage
     * of serialization groups.
     * 
     * @param containerName name of the container using this store's cache
@@ -53,7 +53,7 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
     *                                   tranaction synchronizations
     * @return the store
     */
-   PassivatingIntegratedObjectStore<T, SerializationGroup<T>> 
+   BackingCacheEntryStore<T, SerializationGroup<T>> 
          createGroupIntegratedObjectStore(String containerName, 
                                           String cacheConfigName, 
                                           CacheConfig config, 
@@ -61,7 +61,7 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
                                           SynchronizationCoordinator synchronizationCoordinator);
    
    /**
-    * Provide a {@link PassivatingIntegratedObjectStore} for storage
+    * Provide a {@link BackingCacheEntryStore} for storage
     * of serialization group members.
     * 
     * @param containerName name of the container using this store's cache
@@ -74,7 +74,7 @@ public interface IntegratedObjectStoreSource<T extends CacheItem>
     * @param config configuration details of the cache
     * @return the store
     */
-   PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> 
+   BackingCacheEntryStore<T, SerializationGroupMember<T>> 
          createIntegratedObjectStore(String containerName, 
                                      String cacheConfigName, 
                                      CacheConfig cacheConfig, 

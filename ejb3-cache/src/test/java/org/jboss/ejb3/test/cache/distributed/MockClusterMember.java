@@ -24,7 +24,7 @@ package org.jboss.ejb3.test.cache.distributed;
 
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -108,11 +108,11 @@ public class MockClusterMember extends MockEjb3System
    }
 
    @Override
-   protected IntegratedObjectStoreSource<MockBeanContext> getDistributedStoreSource()
+   protected BackingCacheEntryStoreSource<MockBeanContext> getDistributedStoreSource()
    {
       if (localDistributedCacheMember != null && remoteDistributedCacheMember != null)
       {
-         return new MockIntegratedObjectStoreSource<MockBeanContext>(localDistributedCacheMember, 
+         return new MockBackingCacheEntryStoreSource<MockBeanContext>(localDistributedCacheMember, 
                                                                      remoteDistributedCacheMember);
       }
       else

@@ -29,7 +29,7 @@ import org.jboss.ejb3.cache.spi.BackingCacheEntry;
  * 
  * @author Brian Stansberry
  *
- * @param <T>
+ * @param <T> the type of item being managed by the entry
  */
 public abstract class AbstractBackingCacheEntry<T extends CacheItem>
    implements BackingCacheEntry<T>

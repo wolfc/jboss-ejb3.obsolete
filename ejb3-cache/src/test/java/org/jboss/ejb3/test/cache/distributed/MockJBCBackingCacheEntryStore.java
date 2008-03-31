@@ -34,25 +34,25 @@ import java.util.Set;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
 import org.jboss.logging.Logger;
 
 /**
- * {@link IntegratedObjectStore} implementation that mocks the functions
+ * {@link BackingCacheEntryStore} implementation that mocks the functions
  * of a JBoss Cache-based version.
  * 
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>> 
-     extends AbstractPassivatingIntegratedObjectStore<C, T, Object>
+public class MockJBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCacheEntry<C>> 
+     extends AbstractBackingCacheEntryStore<C, T, Object>
 
 {
-   private static final Logger log = Logger.getLogger(MockJBCIntegratedObjectStore.class);
+   private static final Logger log = Logger.getLogger(MockJBCBackingCacheEntryStore.class);
 
    /**
     * Qualifier used to scope our keys in the maps
@@ -84,7 +84,7 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
    /** A mock transaction manager */
    private final ThreadLocal<Boolean> tm = new ThreadLocal<Boolean>();
    
-   public MockJBCIntegratedObjectStore(UnmarshallingMap localCache, 
+   public MockJBCBackingCacheEntryStore(UnmarshallingMap localCache, 
                                        UnmarshallingMap remoteCache,
                                        CacheConfig cacheConfig,
                                        Object keyBase,
@@ -154,9 +154,9 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
    @SuppressWarnings("unchecked")
    public boolean isCompatibleWith(GroupCompatibilityChecker other)
    {
-      if (other instanceof MockJBCIntegratedObjectStore)
+      if (other instanceof MockJBCBackingCacheEntryStore)
       {
-         MockJBCIntegratedObjectStore jbc2 = (MockJBCIntegratedObjectStore) other;
+         MockJBCBackingCacheEntryStore jbc2 = (MockJBCBackingCacheEntryStore) other;
          return this.localJBC == jbc2.localJBC
                  && this.remoteJBC == jbc2.remoteJBC;
       }
@@ -259,7 +259,7 @@ public class MockJBCIntegratedObjectStore<C extends CacheItem, T extends Passiva
       return baos.toByteArray();
    }
 
-   // ---------------------------------------  PassivatingIntegratedObjectStore
+   // ---------------------------------------  BackingCacheEntryStore
    
      
 //   public void runExpiration()

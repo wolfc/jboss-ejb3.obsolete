@@ -39,7 +39,7 @@ public abstract class AbstractTimerTask
    private long interval;
    
    /**
-    * Create a new PassivationExpirationRunner.
+    * Create a new AbstractTimerTask.
     * 
     */
    protected AbstractTimerTask(String timerName, long interval)
@@ -47,8 +47,6 @@ public abstract class AbstractTimerTask
       setTimerName(timerName);
       setInterval(interval);
    }
-   
-   protected AbstractTimerTask() {}
    
    public boolean isStopped()
    {
@@ -72,7 +70,7 @@ public abstract class AbstractTimerTask
    }
 
    /**
-    * Gets the interval, in milliseconds, with which this task should
+    * Gets the interval, in seconds, with which this task should
     * be {@link Timer#schedule(TimerTask, long) scheduled with the timer}.
     * 
     * @return the interval
@@ -83,7 +81,7 @@ public abstract class AbstractTimerTask
    }
 
    /**
-    * Sets the interval, in milliseconds, with which this task should
+    * Sets the interval, in seconds, with which this task should
     * be {@link Timer#schedule(TimerTask, long) scheduled with the timer}.
     * 
     * @param interval the interval

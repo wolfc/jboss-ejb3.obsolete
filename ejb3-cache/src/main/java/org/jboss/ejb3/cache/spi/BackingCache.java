@@ -45,7 +45,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * functionality.
  * </li>
  * <li>
- * A BackingCache does not attempt to control concurrent access to its
+ * A BackingCache does not attempt to control concurrent client access to its
  * cached {@link BackingCacheEntry} instances, beyond the simple act of
  * {@link BackingCacheEntry#setInUse(boolean) marking the entries as being
  * in or out of use}.  It assumes the external-facing Cache is preventing
@@ -61,10 +61,10 @@ import org.jboss.ejb3.cache.api.CacheItem;
 public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C>> 
 {
    /**
-    * Creates and caches a new instance of <code>T</code>. The new
-    * <code>T</code> *is* returned, but is not regarded as being "in use".
-    * Callers *must not* attempt to use the underlying <code>C</code> without
-    * first calling {@link #get(Object)}. 
+    * Creates and caches a new instance of <code>C</code>, wrapped by a new
+    * <code>T</code>. The new <code>T</code> *is* returned, but is not 
+    * regarded as being "in use". Callers *must not* attempt to use the 
+    * underlying <code>C</code> without first calling {@link #get(Object)}. 
     * 
     * @param initTypes   the types of any <code>initValues</code>. 
     *                    May be <code>null</code>.
@@ -72,15 +72,14 @@ public interface BackingCache<C extends CacheItem, T extends BackingCacheEntry<C
     *                    May be null, in which case a default constructor will
     *                    be used.
     * @param sharedState map into which any objects meant to be shared with
-    *                    other members of the new items group should be
+    *                    other members of the new item's group should be
     *                    stored. 
     * @return the new <code>T</code> 
     */
    T create(Class<?> initTypes[], Object initValues[], Map<Object, Object> sharedState);
 
    /**
-    * Get the specified object from cache. This will mark
-    * the object as being in use.
+    * Get the specified object from cache. This will mark the entry as being in use.
     * 
     * @param key    the identifier of the object
     * @return       the object

@@ -100,7 +100,10 @@ public class GroupAwareBackingCacheImpl<C extends CacheItem>
       {
          // We just *try* to lock; a preReplication is low priority.
          if (!entry.tryLock())
+         {
+            // Abort; wait until whoever has the lock is done
             throw new IllegalStateException("entry " + entry + " is in use");
+         }
          
          try
          {

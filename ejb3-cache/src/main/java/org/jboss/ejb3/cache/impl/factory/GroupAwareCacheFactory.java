@@ -38,9 +38,9 @@ import org.jboss.ejb3.cache.impl.backing.SerializationGroupContainer;
 import org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer;
 import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
@@ -49,8 +49,8 @@ import org.jboss.logging.Logger;
 /**
  * {@link StatefulCacheFactory} implementation that can return a group-aware 
  * cache.  How the cache functions depends on the behavior of the 
- * {@link PassivatingIntegratedObjectStore} implementations returned by
- * the injected {@link IntegratedObjectStoreSource}.
+ * {@link BackingCacheEntryStore} implementations returned by
+ * the injected {@link BackingCacheEntryStoreSource}.
  * 
  * @author Brian Stansberry
  * @version $Revision$
@@ -61,13 +61,13 @@ public class GroupAwareCacheFactory<T extends CacheItem>
    private static final Logger log = Logger.getLogger(GroupAwareCacheFactory.class);
    
    private final Map<String, GroupCacheTracker> groupCaches;
-   private final IntegratedObjectStoreSource<T> storeSource;
+   private final BackingCacheEntryStoreSource<T> storeSource;
    
    /**
     * Creates a new GroupAwareCacheFactory that gets its object stores from
     * the provided source.
     */
-   public GroupAwareCacheFactory(IntegratedObjectStoreSource<T> storeSource)
+   public GroupAwareCacheFactory(BackingCacheEntryStoreSource<T> storeSource)
    {
       assert storeSource != null : "storeSource is null";
       
@@ -107,7 +107,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
       }
       
       // Create the store for SerializationGroupMembers from the container
-      PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>> store = 
+      BackingCacheEntryStore<T, SerializationGroupMember<T>> store = 
          storeSource.createIntegratedObjectStore(containerName, configName, cacheConfig, 
                                                  getTransactionManager(), getSynchronizationCoordinator());
       
@@ -146,7 +146,7 @@ public class GroupAwareCacheFactory<T extends CacheItem>
 
    private PassivatingBackingCache<T, SerializationGroup<T>> createGroupCache(String configName, CacheConfig cacheConfig)
    {
-      PassivatingIntegratedObjectStore<T, SerializationGroup<T>> store = 
+      BackingCacheEntryStore<T, SerializationGroup<T>> store = 
          storeSource.createGroupIntegratedObjectStore(configName, configName, cacheConfig, 
                                                       getTransactionManager(), 
                                                       getSynchronizationCoordinator());

@@ -23,9 +23,11 @@
 package org.jboss.ejb3.cache.spi;
 
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.api.Identifiable;
 
 /**
- * Specialized {@link BackingCacheEntry} that wraps an {@link #setUnderlyingItem(CacheItem)} 
+ * Specialized {@link BackingCacheEntry} that wraps an 
+ * {@link #setUnderlyingItem(CacheItem) underlying CacheItem} 
  * and represents it as a strong>potential</strong> member of a 
  * {@link SerializationGroup}. Note that a particular instance need not actually 
  * be a member of a group; such an instance will return <code>null</code> 
@@ -36,7 +38,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * @param <T> the type of the underlying item
  */
 public interface SerializationGroupMember<T extends CacheItem>
-  extends PassivatingBackingCacheEntry<T>
+  extends BackingCacheEntry<T>
 {  
    /**
     * {@inheritDoc}

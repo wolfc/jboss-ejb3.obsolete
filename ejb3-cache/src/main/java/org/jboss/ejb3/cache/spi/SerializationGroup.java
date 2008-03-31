@@ -39,7 +39,7 @@ import org.jboss.ejb3.cache.api.CacheItem;
  * @param <T> the type of the underlying items that form the group.
  */
 public interface SerializationGroup<T extends CacheItem>
-   extends PassivatingBackingCacheEntry<T>
+   extends BackingCacheEntry<T>
 {
    /**
     * Adds a member to the group.

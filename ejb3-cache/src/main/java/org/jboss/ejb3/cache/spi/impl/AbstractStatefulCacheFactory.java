@@ -200,6 +200,8 @@ public abstract class AbstractStatefulCacheFactory<T extends CacheItem>
    
    public void start()
    {
+      assert transactionManager != null : "transactionManager is null";
+      
       if (getSynchronizationCoordinator() == null)
          setSynchronizationCoordinator(new SynchronizationCoordinatorImpl());
    }

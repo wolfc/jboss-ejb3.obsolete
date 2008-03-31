@@ -30,10 +30,10 @@ import javax.transaction.TransactionManager;
 import org.jboss.ejb3.cache.api.StatefulCacheFactory;
 import org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry;
 import org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory;
-import org.jboss.ejb3.cache.impl.factory.NonClusteredIntegratedObjectStoreSource;
+import org.jboss.ejb3.cache.impl.factory.NonClusteredBackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.impl.factory.NonPassivatingCacheFactory;
 import org.jboss.ejb3.cache.impl.factory.PassivationExpirationCoordinatorImpl;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.PassivationExpirationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
 import org.jboss.ejb3.test.cache.mock.tm.MockTransactionManager;
@@ -174,18 +174,18 @@ public class MockEjb3System
    
    private AbstractStatefulCacheFactory<MockBeanContext> buildSimpleCacheFactory()
    {
-      NonClusteredIntegratedObjectStoreSource<MockBeanContext> source = 
-         new NonClusteredIntegratedObjectStoreSource<MockBeanContext>();
+      NonClusteredBackingCacheEntryStoreSource<MockBeanContext> source = 
+         new NonClusteredBackingCacheEntryStoreSource<MockBeanContext>();
       return new GroupAwareCacheFactory<MockBeanContext>(source);
    }
    
    private AbstractStatefulCacheFactory<MockBeanContext> buildDistributedCacheFactory()
    {
-     IntegratedObjectStoreSource<MockBeanContext> storeSource = getDistributedStoreSource();
+     BackingCacheEntryStoreSource<MockBeanContext> storeSource = getDistributedStoreSource();
      return storeSource == null ? null : new GroupAwareCacheFactory<MockBeanContext>(storeSource);
    }
    
-   protected IntegratedObjectStoreSource<MockBeanContext> getDistributedStoreSource()
+   protected BackingCacheEntryStoreSource<MockBeanContext> getDistributedStoreSource()
    {
       throw new UnsupportedOperationException("Distributed caching not supported");
    }

@@ -35,27 +35,26 @@ public interface BackingCacheEntry<T extends CacheItem>
    extends CacheItem
 {  
    /**
-    * Gets the underlying object that should be serialized as part of 
-    * serialization of the group.
+    * Gets the underlying CacheItem.
     * 
     * @return
     */
    T getUnderlyingItem();
    
    /**
-    * Gets whether this object is in use by a caller.
+    * Gets whether this entry is in use by a caller.
     */
    boolean isInUse();
    
    /**
-    * Sets whether this object is in use by a caller.
+    * Sets whether this entry is in use by a caller.
     * 
     * @param inUse
     */
    void setInUse(boolean inUse);
    
    /**
-    * Gets the timestamp of the last time this object was in use.
+    * Gets the timestamp of the last time this entry was in use.
     * 
     * @return
     */
@@ -72,4 +71,28 @@ public interface BackingCacheEntry<T extends CacheItem>
     * any callbacks on the underlying item.
     */
    void setPrePassivated(boolean prePassivated);
+   
+   /**
+    * Attempt to lock this item, failing promptly if the lock is already
+    * held by another thread. Has the same semantics as
+    * {@java.util.concurrent.ReentrantLock#tryLock()}.
+    * 
+    * @return <code>true</code> if the lock was acquired, <code>false</code>
+    *         otherwise
+    */
+   boolean tryLock();
+   
+   /**
+    * Lock this item, blocking until the lock is acquired. Has the same 
+    * semantics as {@java.util.concurrent.ReentrantLock#lockInterruptibly()},
+    * except that a <code>RuntimeException</code> will be thrown if the
+    * thread is interrupted instead of <code>InterruptedException</code>.
+    */
+   void lock();
+   
+   /**
+    * Unlock this item. Has the same semantics as 
+    * {@java.util.concurrent.ReentrantLock#unlock()}.
+    */
+   void unlock();
 }

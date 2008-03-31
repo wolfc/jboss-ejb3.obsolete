@@ -26,19 +26,63 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.spi.SerializationGroup;
+
 
 /**
+ * Stores contextual information about a set of {@link CacheItem}s that are 
+ * being created as members of a {@link SerializationGroup}. Implementation is 
+ * based on a <code>ThreadLocal</code>.
+ * 
  * @author Brian Stansberry
- *
  */
 public class GroupCreationContext
 {
-   @SuppressWarnings("unchecked")
    private static final ThreadLocal<GroupCreationContext> groupCreationContext = new ThreadLocal<GroupCreationContext>();
    
    private final List<ItemCachePair> pairs;
    private Map<Object, Object> sharedState;
    private final boolean strict;
+
+   /**
+    * Gets the GroupCreationContext associated with the thread.
+    * 
+    * @return the context. May return <code>null</code>.
+    */
+   public static GroupCreationContext getGroupCreationContext()
+   {
+      return groupCreationContext.get();
+   }
+   
+   /**
+    * Create a new GroupCreationContext associated with the thread.
+    * 
+    * @param strict <code>true</code> if other caches associated with the context
+    *               should strictly check compatibility with a 
+    *               {@link SerializationGroup}, <code>false</code> if not.
+    *               
+    * @return the context. Will not return <code>null</code>.
+    * 
+    * @throws IllegalStateException if a context is already bound to the thread
+    */
+   public static GroupCreationContext startGroupCreationContext(boolean strict)
+   {
+      if (groupCreationContext.get() != null)
+         throw new IllegalStateException("GroupCreationContext already exists");
+      GroupCreationContext started = new GroupCreationContext(strict);
+      groupCreationContext.set(started);
+      return started;
+   }
+   
+   /**
+    * Clears the association of any GroupCreationContext with the current thread.
+    *
+    */
+   public static void clearGroupCreationContext()
+   {
+      groupCreationContext.set(null);
+   }
    
    /**
     * Prevent external instantiation. 
@@ -49,44 +93,55 @@ public class GroupCreationContext
       this.strict = strict;
    }
 
+   /**
+    * Gets the list of cache items and associated caches that currently
+    * comprise the group.
+    * 
+    * @return a list of cache items and associated caches.  
+    *         Will not return <code>null</code>.
+    */
    public List<ItemCachePair> getPairs()
    {
       return pairs;
    }
 
+   /**
+    * Gets any shared state map that should be passed to
+    * {@link StatefulObjectFactory#create(Class[], Object[], Map)} for
+    * each member of the group.
+    * 
+    * @return the shared state map.  May be <code>null</code>
+    */
    public Map<Object, Object> getSharedState()
    {
       return sharedState;
    }  
    
+   /**
+    * Sets any shared state map that should be passed to
+    * {@link StatefulObjectFactory#create(Class[], Object[], Map)} for
+    * each member of the group.
+    * 
+    * @param sharedState the shared state map.  Cannot be <code>null</code>
+    * 
+    * @throws IllegalStateException if shared state has already been set
+    */
    public void setSharedState(Map<Object, Object> sharedState)
    {
+      assert sharedState != null : "sharedState is null";
+      
       if (this.sharedState != null)
          throw new IllegalStateException("Shared state already set");
       this.sharedState = sharedState;
    }
    
+   /**
+    * Gets whether the cache that initialized creation of the context has
+    * specified that all other caches must strictly check whether they
+    * are compatible with the group.
+    */
    public boolean isStrict()
    {
       return strict;
-   }
-
-   public static GroupCreationContext getGroupCreationContext()
-   {
-      return groupCreationContext.get();
-   }
-   
-   public static GroupCreationContext startGroupCreationContext(boolean strict)
-   {
-      if (groupCreationContext.get() != null)
-         throw new IllegalStateException("GroupCreationContext already exists");
-      GroupCreationContext started = new GroupCreationContext(strict);
-      groupCreationContext.set(started);
-      return started;
-   }
-   
-   public static void clearGroupCreationContext()
-   {
-      groupCreationContext.set(null);
    }
 }

@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
@@ -38,7 +37,7 @@ import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 import org.jboss.ejb3.cache.spi.impl.ItemCachePair;
 
 /**
- * {@link Cache#isGroupAware Group-aware} version of {@link TransactionalCache}.
+ * Group-aware version of {@link TransactionalCache}.
  * 
  * @author Brian Stansberry
  */
@@ -46,7 +45,7 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Seriali
    extends TransactionalCache<C, T>
 {
    /** 
-    * Another ref to super.delegate. Just saves having to do casts all the time. 
+    * Another ref to super.delegate. Saves having to do casts all the time. 
     */
    private final GroupAwareBackingCache<C, T> groupedCache;
    
@@ -118,7 +117,10 @@ public class GroupAwareTransactionalCache<C extends CacheItem, T extends Seriali
                SerializationGroup<C> group = groupedCache.createGroup();
                for (ItemCachePair pair : contextPairs)
                {
-                  pair.getCache().setGroup(pair.getItem(), group);
+                  C pairItem = (C) pair.getItem();
+                  GroupAwareBackingCache<C, T> pairCache = 
+                     (GroupAwareBackingCache<C, T>) pair.getCache();
+                  pairCache.setGroup(pairItem, group);
                }
             }
          }

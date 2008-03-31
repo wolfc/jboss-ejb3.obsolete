@@ -30,32 +30,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
-import org.jboss.ejb3.cache.spi.ObjectStore;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
-import org.jboss.ejb3.cache.spi.impl.AbstractPassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
+import org.jboss.ejb3.cache.spi.PersistentObjectStore;
+import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.impl.CacheableTimestamp;
 
 /**
- * A {@link PassivatingIntegratedObjectStore} that stores in a simple
- * <code>Map</code> and delegates to a provided {@link ObjectStore} for 
+ * A {@link BackingCacheEntryStore} that stores in a simple
+ * <code>Map</code> and delegates to a provided {@link PersistentObjectStore} for 
  * persistence.
  * 
  * @author Brian Stansberry
  * @version $Revision$
  */
-public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
-      extends AbstractPassivatingIntegratedObjectStore<C, T, Object>
+public class SimpleBackingCacheEntryStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+      extends AbstractBackingCacheEntryStore<C, T, Object>
 {
-   private final ObjectStore<T> store;
+   private final PersistentObjectStore<T> store;
    private Map<Object, T> cache;
    private Map<Object, Long> passivatedEntries;
    
    /**
     * Create a new SimpleIntegratedObjectStore.
     */
-   public SimplePassivatingIntegratedObjectStore(ObjectStore<T> store, 
+   public SimpleBackingCacheEntryStore(PersistentObjectStore<T> store, 
                                                  CacheConfig config,
                                                  String name,
                                                  boolean forGroups)
@@ -148,14 +148,14 @@ public class SimplePassivatingIntegratedObjectStore<C extends CacheItem, T exten
    @SuppressWarnings("unchecked")
    public boolean isCompatibleWith(GroupCompatibilityChecker other)
    {
-      if (other instanceof PassivatingIntegratedObjectStore)
+      if (other instanceof BackingCacheEntryStore)
       {
-         return ((PassivatingIntegratedObjectStore) other).isClustered() == false;
+         return ((BackingCacheEntryStore) other).isClustered() == false;
       }
       return false;
    }
 
-   // -------------------------------  AbstractPassivatingIntegratedObjectStore
+   // -------------------------------  AbstractBackingCacheEntryStore
 
    @Override
    public int getInMemoryCount()

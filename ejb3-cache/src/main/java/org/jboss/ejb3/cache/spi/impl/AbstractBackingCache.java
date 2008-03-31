@@ -37,9 +37,9 @@ import org.jboss.logging.Logger;
  * 
  * @author Brian Stansberry
  *
- * @param <C> the type of item being managed by the cache
+ * @param <T> the type of item being managed by the cache
  */
-public abstract class AbstractBackingCache<C extends CacheItem>
+public abstract class AbstractBackingCache<T extends CacheItem>
 {
    protected Logger log = Logger.getLogger(getClass().getName());
    

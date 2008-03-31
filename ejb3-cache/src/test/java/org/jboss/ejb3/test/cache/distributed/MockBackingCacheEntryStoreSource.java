@@ -26,8 +26,8 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStoreSource;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
@@ -36,29 +36,29 @@ import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
  * @author Brian Stansberry
  *
  */
-public class MockIntegratedObjectStoreSource<T extends CacheItem> 
-   implements IntegratedObjectStoreSource<T>
+public class MockBackingCacheEntryStoreSource<T extends CacheItem> 
+   implements BackingCacheEntryStoreSource<T>
 {
    private UnmarshallingMap localMap;
    private UnmarshallingMap remoteMap;
    
-   public MockIntegratedObjectStoreSource(UnmarshallingMap localMap, UnmarshallingMap remoteMap)
+   public MockBackingCacheEntryStoreSource(UnmarshallingMap localMap, UnmarshallingMap remoteMap)
    {
       this.localMap = localMap;
       this.remoteMap = remoteMap;
    }
    
-   public PassivatingIntegratedObjectStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
+   public BackingCacheEntryStore<T, SerializationGroup<T>>  createGroupIntegratedObjectStore(String containerName,
          String cacheConfigName, CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
       String keyBase = "GroupCache-" + containerName;
-      return new MockJBCIntegratedObjectStore<T, SerializationGroup<T>>(localMap, remoteMap, cacheConfig, keyBase, keyBase, true);
+      return new MockJBCBackingCacheEntryStore<T, SerializationGroup<T>>(localMap, remoteMap, cacheConfig, keyBase, keyBase, true);
    }
 
-   public PassivatingIntegratedObjectStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
+   public BackingCacheEntryStore<T, SerializationGroupMember<T>>  createIntegratedObjectStore(String containerName, String cacheConfigName,
          CacheConfig cacheConfig, TransactionManager transactionManager, SynchronizationCoordinator synchronizationCoordinator)
    {
-      return new MockJBCIntegratedObjectStore<T, SerializationGroupMember<T>>(localMap, remoteMap, cacheConfig, containerName, containerName, false);
+      return new MockJBCBackingCacheEntryStore<T, SerializationGroupMember<T>>(localMap, remoteMap, cacheConfig, containerName, containerName, false);
    }
 
 }

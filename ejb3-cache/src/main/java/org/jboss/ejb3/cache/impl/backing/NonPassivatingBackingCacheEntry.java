@@ -22,6 +22,7 @@
 package org.jboss.ejb3.cache.impl.backing;
 
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
@@ -42,6 +43,7 @@ public class NonPassivatingBackingCacheEntry<T extends CacheItem> extends Abstra
    private static final long serialVersionUID = 1325918596862109742L;
    
    private T wrapped;
+   private ReentrantLock lock = new ReentrantLock();
    
    /**
     * Create a new SimpleBackingCacheEntry.
@@ -74,5 +76,30 @@ public class NonPassivatingBackingCacheEntry<T extends CacheItem> extends Abstra
    public Object getId()
    {
       return wrapped.getId();
+   }
+     
+
+   public void lock()
+   { 
+      try
+      {
+         lock.lockInterruptibly();
+      }
+      catch (InterruptedException ie)
+      {
+         throw new RuntimeException("interrupted waiting for lock");
+      }
+   }
+
+   public boolean tryLock()
+   {
+     return lock.tryLock();
+   }
+
+   public void unlock()
+   {
+      if (lock.isHeldByCurrentThread())
+         lock.unlock();
+      
    }
 }

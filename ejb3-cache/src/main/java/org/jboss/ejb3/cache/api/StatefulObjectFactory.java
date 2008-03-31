@@ -25,11 +25,12 @@ import java.util.Map;
 
 /**
  * Creates and destroys stateful objects.
- * 
+ * <p>
  * The object returned by create has dependencies injected. The PostConstruct
  * callback, if defined, has been called and the Init callback, if defined,
  * has been called.
- *
+ * </p>
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */

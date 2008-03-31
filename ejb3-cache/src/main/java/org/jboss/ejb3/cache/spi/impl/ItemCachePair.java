@@ -25,6 +25,7 @@ package org.jboss.ejb3.cache.spi.impl;
 import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
+import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 
 /**
  * Simple data container for a {@link CacheItem} and the
@@ -36,9 +37,9 @@ import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 public class ItemCachePair
 {
    private final CacheItem item;
-   private final GroupAwareBackingCache cache;
+   private final GroupAwareBackingCache<? extends CacheItem, ? extends SerializationGroupMember<?>> cache;
    
-   public ItemCachePair(CacheItem item, GroupAwareBackingCache cache)
+   public ItemCachePair(CacheItem item, GroupAwareBackingCache<? extends CacheItem, ? extends SerializationGroupMember<?>> cache)
    {
       this.item = item;
       this.cache = cache;
@@ -49,7 +50,7 @@ public class ItemCachePair
       return item;
    }
 
-   public GroupAwareBackingCache getCache()
+   public GroupAwareBackingCache<? extends CacheItem, ? extends SerializationGroupMember<?>> getCache()
    {
       return cache;
    }

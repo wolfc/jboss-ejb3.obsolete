@@ -28,22 +28,22 @@ import javax.ejb.NoSuchEJBException;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.PassivationManager;
 import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.PassivatingBackingCacheEntry;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener.LifecycleState;
 import org.jboss.ejb3.cache.spi.impl.AbstractBackingCache;
 import org.jboss.logging.Logger;
 
 /**
  * Non group-aware {@link PassivatingBackingCache} that uses a 
- * {@link PassivatingIntegratedObjectStore} to manage data.
+ * {@link BackingCacheEntryStore} to manage data.
  *
  * @author Brian Stansberry
  * @version $Revision: 65339 $
  */
-public class PassivatingBackingCacheImpl<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
+public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingCacheEntry<C>>
    extends AbstractBackingCache<C>  
    implements PassivatingBackingCache<C, T>
 {
@@ -51,11 +51,11 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends Passivat
    
    private StatefulObjectFactory<T> factory;
    private PassivationManager<T> passivationManager;
-   private PassivatingIntegratedObjectStore<C, T> store;
+   private BackingCacheEntryStore<C, T> store;
    
    public PassivatingBackingCacheImpl(StatefulObjectFactory<T> factory, 
                                      PassivationManager<T> passivationManager, 
-                                     PassivatingIntegratedObjectStore<C, T> store)
+                                     BackingCacheEntryStore<C, T> store)
    {
       assert factory != null : "factory is null";
       assert passivationManager != null : "passivationManager is null";

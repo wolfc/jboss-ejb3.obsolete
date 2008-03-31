@@ -37,7 +37,6 @@ import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
-import org.jboss.ejb3.cache.spi.IntegratedObjectStore;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.GroupCreationContext;
 import org.jboss.logging.Logger;
@@ -50,7 +49,7 @@ import org.jboss.logging.Logger;
  * <li>ensures that until the first transaction that accesses a given CacheItem 
  * has completed, any other transaction that attempts to access the item will
  * receive an IllegalStateException</li>
- * <li>Only releases the CacheItem to the underlying {@link IntegratedObjectStore}
+ * <li>Only releases the CacheItem to the underlying {@link BackingCache}
  * when the transaction commits or rolls back.</li>
  * </ol>
  * <p>

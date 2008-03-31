@@ -27,10 +27,10 @@ import javax.ejb.NoSuchEJBException;
 /**
  * Cache a stateful object and make sure any life cycle callbacks are
  * called at the appropriate time.
- * 
- * A cache is linked to an object factory. How the link is established is left beyond
- * scope.
- *
+ * <p>
+ * A cache is linked to a {@link StatefulObjectFactory} and a {@link PassivationManager}. 
+ * How the link is established is left beyond scope.
+ * </p>
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author Brian Stansberry
  * 
@@ -39,17 +39,14 @@ import javax.ejb.NoSuchEJBException;
 public interface Cache<T extends CacheItem>
 {
    /**
-    * Creates and caches a new instance of <code>T</code>. The new
-    * <code>T</code> *is* returned, but is not regarded as being "in use".
-    * Callers *must not* attempt to use the new <code>T</code> without
-    * first calling {@link #get(Object)}. 
+    * Creates and caches a new instance of <code>T</code>.
     * 
     * @param initTypes   the types of any <code>initValues</code>. 
     *                    May be <code>null</code>.
     * @param initValues  any paramaters to pass to <code>T</code>'s constructor.
     *                    May be null, in which case a default constructor will
     *                    be used.
-    * @return the new <code>T</code> 
+    * @return the new <code>T</code>'s {@link Identifiable#getId() id}. 
     */
    Object create(Class<?> initTypes[], Object initValues[]);
 

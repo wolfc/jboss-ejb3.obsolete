@@ -30,25 +30,27 @@ import org.jboss.ejb3.cache.api.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
-import org.jboss.ejb3.cache.spi.PassivatingIntegratedObjectStore;
+import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 import org.jboss.logging.Logger;
 
 /**
+ * Functions as both a StatefulObjectFactory and PassivationManager for
+ * {@link SerializationGroupMember}s.
+ * 
  * @author Brian Stansberry
- *
  */
 public class SerializationGroupMemberContainer<C extends CacheItem>
    implements StatefulObjectFactory<SerializationGroupMember<C>>, 
               PassivationManager<SerializationGroupMember<C>>, 
-              PassivatingIntegratedObjectStore<C, SerializationGroupMember<C>>
+              BackingCacheEntryStore<C, SerializationGroupMember<C>>
 {
    private static final Logger log = Logger.getLogger(SerializationGroupMemberContainer.class);
    
    private StatefulObjectFactory<C> factory;
    private PassivationManager<C> passivationManager;
-   private PassivatingIntegratedObjectStore<C, SerializationGroupMember<C>> store;
+   private BackingCacheEntryStore<C, SerializationGroupMember<C>> store;
    private GroupAwareBackingCache<C, SerializationGroupMember<C>> delegate;
    
    /**
@@ -59,7 +61,7 @@ public class SerializationGroupMemberContainer<C extends CacheItem>
    
    public SerializationGroupMemberContainer(StatefulObjectFactory<C> factory, 
                                             PassivationManager<C> passivationManager, 
-                                            PassivatingIntegratedObjectStore<C, SerializationGroupMember<C>> store,
+                                            BackingCacheEntryStore<C, SerializationGroupMember<C>> store,
                                             PassivatingBackingCache<C, SerializationGroup<C>> groupCache)
    {
       assert factory != null : "factory is null";

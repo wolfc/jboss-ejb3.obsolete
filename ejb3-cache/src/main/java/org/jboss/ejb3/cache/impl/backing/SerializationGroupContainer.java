@@ -31,11 +31,8 @@ import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.logging.Logger;
 
 /**
- * Comment
- *  
- *  FIXME determine whether SerializationGroup clustering support should
- *  be controlled by a property of this container or via a param passed
- *  to create(). 
+ * Functions as both a StatefulObjectFactory and PassivationManager for
+ * {@link SerializationGroup}s.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author Brian Stansberry

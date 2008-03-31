@@ -81,12 +81,12 @@ public class MockBeanContainer
    
    public void stop()
    {      
-      log.debug("Starting container " + containerName);     
+      log.debug("Stopping container " + containerName);     
       
       cache.stop();
       MockRegistry.remove(containerName);
       
-      log.debug("Started container " + containerName);
+      log.debug("Stopped container " + containerName);
    }
    
    public String getName()

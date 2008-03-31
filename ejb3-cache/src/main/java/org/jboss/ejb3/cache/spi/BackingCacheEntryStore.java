@@ -22,17 +22,24 @@
 
 package org.jboss.ejb3.cache.spi;
 
+import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.cache.api.CacheItem;
 import org.jboss.ejb3.cache.api.Identifiable;
 
 /**
- * An in-memory store for identifiable objects that integrates a persistent store. 
- * Note that this class does NOT call any callbacks.
+ * An in-memory store for {@link BackingCacheEntry} instances 
+ * that integrates a persistent store and the ability to use its knowledge of
+ * when objects are accessed to coordinate the passivation and expiration of 
+ * cached objects. Note that this class does NOT call any callbacks; it 
+ * performs passivation and expiration by invoking methods on the 
+ * {@link #setPassivatingCache(PassivatingBackingCache) injected backing cache};
+ * the cache performs the actual passivation or removal.
  * 
  * @author Brian Stansberry
  * @version $Revision$
  */
-public interface IntegratedObjectStore<T extends CacheItem>
+public interface BackingCacheEntryStore<C extends CacheItem, T extends BackingCacheEntry<C>>
+   extends PassivationExpirationProcessor, GroupCompatibilityChecker
 {
    /**
     * Put a new entry into the store. This operation should only be
@@ -110,4 +117,37 @@ public interface IntegratedObjectStore<T extends CacheItem>
     * Perform any shutdown work.
     */
    void stop();
+      
+   /**
+    * Gets how often, in seconds, this object should process 
+    * {@link #runPassivation() passivations} and
+    * {@link #runExpiration() expirations}.
+    * 
+    * @return  interval, in seconds, at which passivations and expirations
+    *          are processed. A value of less than 1 means this object will 
+    *          not itself initiate processing, depending instead on an external 
+    *          caller to do so.
+    */
+   int getInterval();
+   
+   /**
+    * Sets how often, in seconds, this object should process 
+    * {@link #runPassivation() passivations} and
+    * {@link #runExpiration() expirations}.
+    * 
+    * @param seconds  interval, in seconds, at which passivations and
+    *                 expirations should be processed. A value of less than 1 
+    *                 means this object will not itself initiate processing, 
+    *                 depending instead on an external caller to do so.
+    */
+   void setInterval(int seconds);
+   
+   /**
+    * Handback provided by the controlling {@link PassivatingBackingCache} to
+    * allow the actual {@link PassivatingBackingCache#passivate(Object) passivate}
+    * and {@link Cache#remove(Object) remove} calls.
+    * 
+    * @param cache
+    */
+   void setPassivatingCache(PassivatingBackingCache<C, T> cache);
 }

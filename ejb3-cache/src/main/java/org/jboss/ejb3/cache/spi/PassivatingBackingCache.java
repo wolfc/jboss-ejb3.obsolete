@@ -27,17 +27,19 @@ import org.jboss.ejb3.cache.api.CacheItem;
 /**
  * A {@link BackingCache} which passivates unused objects.
  * <p>
- * A PassivatingBackingCache is linked to an ObjectStore to store the
- * passivated object and to a PassivationManager to manage lifecycle
+ * A PassivatingBackingCache is linked to a some sort of persistent store to 
+ * store the passivated object and to a PassivationManager to manage lifecycle
  * callbacks on the object.
  * </p>
+ * 
+ * @see BackingCacheEntryStore
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author Brian Stansberry
  * 
  * @version $Revision: 65977 $
  */
-public interface PassivatingBackingCache<C extends CacheItem, T extends PassivatingBackingCacheEntry<C>>
+public interface PassivatingBackingCache<C extends CacheItem, T extends BackingCacheEntry<C>>
    extends BackingCache<C, T>
 {
    /**
