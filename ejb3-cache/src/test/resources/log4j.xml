@@ -114,7 +114,25 @@
 
   <!-- Limit JBoss categories to INFO -->
   <category name="org.jboss">
-    <priority value="INFO" class="org.jboss.logging.XLevel"/>
+    <priority value="INFO"/>
+  </category>
+  <category name="org.jgroups">
+    <priority value="INFO"/>
+  </category>
+  <category name="org.jboss.cache">
+    <priority value="TRACE"/>
+  </category>
+  <category name="org.jboss.cache.interceptors">
+    <priority value="INFO"/>
+  </category>
+  <category name="org.jboss.cache.lock">
+    <priority value="INFO"/>
+  </category>
+  <category name="org.jboss.cache.RegionManager">
+    <priority value="INFO"/>
+  </category>
+  <category name="org.jboss.cache.interceptors.ReplicationInterceptor">
+    <priority value="TRACE"/>
   </category>
 
   <!-- Increase the priority threshold for the DefaultDS category

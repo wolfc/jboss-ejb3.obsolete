@@ -44,7 +44,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
    @Override
    protected Cache<MockBeanContext> createCache() throws Exception
    {
-      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockEjb3System system = new MockEjb3System(tm, false, CacheType.SIMPLE);
       MockBeanContainer ejb = system.deployBeanContainer("test", null, CacheType.SIMPLE);
       return ejb.getCache();
    }
@@ -52,25 +52,50 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
    public void testNonGroupedPassivation() throws Exception
    {    
       log.info("testNonGroupedPassivation()");
-      
-      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      nonGroupedPassivationTest(false);
+   }
+   
+   public void testNonGroupedPassivationTransactional() throws Exception
+   {    
+      log.info("testNonGroupedPassivationTransactional()");
+      nonGroupedPassivationTest(true);
+   }
+   
+   private void nonGroupedPassivationTest(boolean transactional) throws Exception
+   {    
+      MockEjb3System system = new MockEjb3System(tm, false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(4);
       MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
       Cache<MockBeanContext> cache = container.getCache();
       
+      if (transactional)
+      {
+         tm.begin();
+      }
+      
       Object key = cache.create(null, null);
       MockBeanContext obj = cache.get(key);
       
-      cache.finished(obj);
+      cache.finished(obj);      
       obj = null;
+      
+      if (transactional)
+      {
+         tm.commit();
+      }
       
       wait(container);
       
       MockPassivationManager pass = (MockPassivationManager) container.getPassivationManager();
       
       assertEquals("MockBeanContext should have been passivated", 1, pass.getPrePassivateCount());
+      
+      if (transactional)
+      {
+         tm.begin();
+      }
       
       obj = cache.get(key);
       assertNotNull(obj);
@@ -81,21 +106,34 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       
       assertEquals("MockBeanContext should not have been passivated", 1, pass.getPrePassivateCount());
       
-      cache.finished(obj);
+      cache.finished(obj);      
       obj = null;
+      
+      if (transactional)
+      {
+         tm.commit();
+      }
       
       wait(container);
       
       assertEquals("MockBeanContext should have been passivated", 2, pass.getPrePassivateCount());
    }
 
-
-
    public void testSimpleGroupPassivation() throws Exception
    {    
       log.info("testSimpleGroupPassivation()");
-      
-      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      simpleGroupPassivationTest(false);
+   }
+
+   public void testSimpleGroupPassivationTransactional() throws Exception
+   {    
+      log.info("testSimpleGroupPassivationTransactional()");
+      simpleGroupPassivationTest(true);
+   }
+
+   public void simpleGroupPassivationTest(boolean transactional) throws Exception
+   {    
+      MockEjb3System system = new MockEjb3System(tm, false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(1);
@@ -107,7 +145,12 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       assertTrue(container1.hasChild(container2));
       
       try
-      {
+      {         
+         if (transactional)
+         {
+            tm.begin();
+         }
+         
          Object key1 = container1.getCache().create(null, null);
          MockBeanContext firstCtx1;
          MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
@@ -121,6 +164,11 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          container2.getCache().finished(ctx2);
          container1.getCache().finished(ctx1);
          
+         if (transactional)
+         {
+            tm.commit();
+         }
+         
          log.info("Finished with contexts");
          
          sleep(2100);
@@ -133,6 +181,11 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          assertEquals("ctx2 should have been passivated", 1, pass2.getPrePassivateCount());
          
          log.info("Restoring ctx2");
+         
+         if (transactional)
+         {
+            tm.begin();
+         }
          
          ctx2 = container2.getCache().get(key2);
          
@@ -153,6 +206,11 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          container1.getCache().finished(ctx1);         
          container2.getCache().finished(ctx2);
          
+         if (transactional)
+         {
+            tm.commit();
+         }
+         
       }
       finally
       {
@@ -167,8 +225,26 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
    public void testRecursiveCalls() throws Exception
    {    
       log.info("testRecursiveCalls()");
+      recursiveCallsTest(false);
+   }
+   
+   /**
+    * Test call to bean1 that calls into bean2 that calls back into bean1
+    */
+   public void testRecursiveCallsTransactional() throws Exception
+   {    
+      log.info("testRecursiveCallsTransactional()");
+      recursiveCallsTest(true);
+   }
+   
+   /**
+    * Test call to bean1 that calls into bean2 that calls back into bean1
+    */
+   public void recursiveCallsTest(boolean transactional) throws Exception
+   {    
+      log.info("testRecursiveCalls()");
       
-      MockEjb3System system = new MockEjb3System(false, CacheType.SIMPLE);
+      MockEjb3System system = new MockEjb3System(tm, false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
       config.setIdleTimeoutSeconds(1);
@@ -180,7 +256,12 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       assertTrue(container1.hasChild(container2));
       
       try
-      {
+      {         
+         if (transactional)
+         {
+            tm.begin();
+         }
+         
          Object key1 = container1.getCache().create(null, null);
          MockBeanContext firstCtx1;
          MockBeanContext ctx1 = firstCtx1 = container1.getCache().get(key1);
@@ -198,6 +279,11 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          container1.getCache().finished(secondCtx1);
          container2.getCache().finished(ctx2);
          container1.getCache().finished(firstCtx1);
+         
+         if (transactional)
+         {
+            tm.commit();
+         }
          
       }
       finally

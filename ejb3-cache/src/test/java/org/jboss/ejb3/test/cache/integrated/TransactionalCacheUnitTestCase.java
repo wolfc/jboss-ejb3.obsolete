@@ -22,12 +22,14 @@
 package org.jboss.ejb3.test.cache.integrated;
 
 import javax.ejb.NoSuchEJBException;
+import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.cache.api.Cache;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
 import org.jboss.ejb3.test.cache.mock.MockEjb3System;
+import org.jboss.ejb3.test.cache.mock.tm.MockTransactionManager;
 import org.jboss.logging.Logger;
 
 /**
@@ -41,9 +43,11 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
 {   
    private static final Logger log = Logger.getLogger(TransactionalCacheUnitTestCase.class);
    
+   protected TransactionManager tm =  MockTransactionManager.getInstance();
+   
    protected Cache<MockBeanContext> createCache() throws Exception
    {
-      MockEjb3System system = new MockEjb3System(false, CacheType.NON_PASSIVATING);
+      MockEjb3System system = new MockEjb3System(tm, false, CacheType.NON_PASSIVATING);
       MockBeanContainer ejb = system.deployBeanContainer("test", null, CacheType.NON_PASSIVATING);
       return ejb.getCache();
    }
@@ -68,8 +72,23 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
    public void testSimpleLifeCycle() throws Exception
    {
       log.info("testSimpleLifeCycle()");
-      
+      simpleLifeCycleTest(false);
+   }
+   
+   public void testSimpleLifeCycleTransactional() throws Exception
+   {
+      log.info("testSimpleLifeCycleTransactional()");
+      simpleLifeCycleTest(true);
+   }
+   
+   private void simpleLifeCycleTest(boolean transactional) throws Exception
+   {
       Cache<MockBeanContext> cache = createCache();
+      
+      if (transactional)
+      {
+         tm.begin();
+      }
       
       Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
@@ -77,6 +96,11 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       assertNotNull(object);
       
       cache.remove(key);
+      
+      if (transactional)
+      {
+         tm.commit();
+      }
       
       try
       {
@@ -91,7 +115,24 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
    
    public void testSequentialGetCalls() throws Exception
    {
+      log.info("testSequentialGetCalls()");
+      sequentialGetCallsTest(false);
+   }
+   
+   public void testSequentialGetCallsTransactional() throws Exception
+   {
+      log.info("testSequentialGetCallsTransactional()");
+      sequentialGetCallsTest(true);
+   }
+   
+   private void sequentialGetCallsTest(boolean transactional) throws Exception
+   {
       Cache<MockBeanContext> cache = createCache();
+      
+      if (transactional)
+      {
+         tm.begin();
+      }
       
       Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
@@ -106,13 +147,35 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       cache.finished(object);
       
       cache.remove(key);
+      
+      if (transactional)
+      {
+         tm.commit();
+      }
    }
    
    public void testExcessFinishedCalls() throws Exception
    {    
       log.info("testExcessFinishedCalls()");
+      excessFinishedCallsTest(false);
+   }
+   
+   public void testExcessFinishedCallsTransactional() throws Exception
+   {    
+      log.info("testExcessFinishedCallsTransactional()");
+      excessFinishedCallsTest(true);
+   }
+   
+   private void excessFinishedCallsTest(boolean transactional) throws Exception
+   {    
+      log.info("testExcessFinishedCalls()");
       
       Cache<MockBeanContext> cache = createCache();
+      
+      if (transactional)
+      {
+         tm.begin();
+      }
       
       Object key = cache.create(null, null);
       MockBeanContext object = cache.get(key);
@@ -132,6 +195,11 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       }
       finally {
          cache.remove(key);
+         
+         if (transactional)
+         {
+            tm.commit();
+         }
       }
    }
 }
