@@ -112,6 +112,7 @@
     <version.org.jboss.microcontainer_jboss-container>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-container>
     <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-deployers-core-spi>
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.Beta9</version.org.jboss.microcontainer_jboss-kernel>
+    <version.org.jboss.ws-spi>1.0.2.GA</version.org.jboss.ws-spi>
    
     <!-- Miscellaneous -->
     <jvmargs />
@@ -357,6 +358,12 @@
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-deployers-core-spi</artifactId>
         <version>${version.org.jboss.microcontainer_jboss-deployers-core-spi}</version>
+      </dependency>
+
+       <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jbossws-spi</artifactId>
+        <version>${version.org.jboss.ws-spi}</version>
       </dependency>
 
       <!-- JBoss Test -->
