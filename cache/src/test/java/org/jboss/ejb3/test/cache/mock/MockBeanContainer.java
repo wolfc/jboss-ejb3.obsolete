@@ -23,6 +23,7 @@
 package org.jboss.ejb3.test.cache.mock;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.jboss.ejb3.cache.api.Cache;
@@ -37,6 +38,7 @@ import org.jboss.logging.Logger;
  *
  */
 public class MockBeanContainer
+   implements StatefulObjectFactory<MockBeanContext>, PassivationManager<MockBeanContext>
 {
    private static final Logger log = Logger.getLogger(MockBeanContainer.class);   
    
@@ -73,7 +75,7 @@ public class MockBeanContainer
       log.debug("Starting container " + containerName);
       
       StatefulCacheFactory<MockBeanContext> cacheFactory = cacheFactoryRegistry.getCacheFactory(cacheFactoryName);
-      cache = cacheFactory.createCache(containerName, objectFactory, passivationManager, cacheConfig);
+      cache = cacheFactory.createCache(containerName, this, this, cacheConfig);
       cache.start();
       
       log.debug("Started container " + containerName);
@@ -133,6 +135,42 @@ public class MockBeanContainer
    {
       return passivationManager;
    }
+   
+   // --------------------------------------------------  StatefulObjectFactory
+
+
+   public MockBeanContext create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
+   {
+      return objectFactory.create(initTypes, initValues, sharedState);
+   }
+
+   public void destroy(MockBeanContext obj)
+   {
+      objectFactory.destroy(obj);      
+   }
+   
+   // --------------------------------------------------  StatefulObjectFactory
+
+   public void postActivate(MockBeanContext ctx)
+   {
+      passivationManager.postActivate(ctx);
+   }
+
+   public void postReplicate(MockBeanContext ctx)
+   {
+      passivationManager.postReplicate(ctx); 
+   }
+
+   public void prePassivate(MockBeanContext ctx)
+   {
+      passivationManager.prePassivate(ctx);
+   }
+
+   public void preReplicate(MockBeanContext ctx)
+   {
+      passivationManager.preReplicate(ctx);
+   }
+   
    
    
 }

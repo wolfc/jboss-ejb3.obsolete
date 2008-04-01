@@ -25,11 +25,15 @@ package org.jboss.ejb3.test.cache.mock;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.ejb3.cache.api.CacheItem;
+
 /**
  * @author Brian Stansberry
  *
  */
-public class MockBeanContext extends MockCacheItem
+public class MockBeanContext 
+   extends MockIdentifiable
+   implements CacheItem
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = 3209950231614290498L;
@@ -39,6 +43,7 @@ public class MockBeanContext extends MockCacheItem
    private MockXPC xpc;
    private MockEntity entity;
    
+   private boolean modified;
    private int preReplicateCount;
    private int prePassivateCount;
    private int postReplicateCount;
@@ -53,6 +58,18 @@ public class MockBeanContext extends MockCacheItem
       this.children = new HashMap<String, Object>();
       this.sharedState = sharedState;
    }
+   
+   public boolean isModified()
+   {
+      boolean result = modified;
+      modified = false;
+      return result;
+   }
+
+   public void setModified(boolean modified)
+   {
+      this.modified = modified;
+   }   
    
    public MockBeanContainer getContainer()
    {
