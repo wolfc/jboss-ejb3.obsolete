@@ -23,15 +23,10 @@ package org.jboss.ejb3.security;
 
 import java.security.CodeSource;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.AspectFactory;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.security.AuthenticationManager;
-import org.jboss.security.RealmMapping;
 
 /**
  * Role Based AuthorizationInterceptor factory
@@ -46,31 +41,15 @@ implements AspectFactory
 
    public Object createPerClass(Advisor advisor)
    {
-      Object domain = null;
       // Must be a separate line (EJBContainer cannot be dereferenced)
       EJBContainer container = EJBContainer.getEJBContainer(advisor);
-      try
-      {
-         InitialContext ctx = container.getInitialContext();
-         SecurityDomain securityAnnotation = (SecurityDomain) advisor.resolveAnnotation(SecurityDomain.class);
+      SecurityDomain securityAnnotation = (SecurityDomain) advisor.resolveAnnotation(SecurityDomain.class);
          
-         //If there is no annotation, return a null action interceptor
-         if(securityAnnotation == null)
-            return new NullInterceptor();
-         
-         domain = SecurityDomainManager.getSecurityManager(securityAnnotation.value(), ctx);
-      }
-      catch (NamingException e)
-      {
-         throw new RuntimeException(e);
-      }
-      AuthenticationManager manager = (AuthenticationManager) domain;
-      RealmMapping mapping = (RealmMapping) domain;
-      if (manager == null) throw new RuntimeException("Unable to find Security Domain");
-      //return new RoleBasedAuthorizationInterceptor(manager, mapping, container);
+      //If there is no annotation, return a null action interceptor
+      if(securityAnnotation == null)
+         return new NullInterceptor();
       CodeSource ejbCS = advisor.getClazz().getProtectionDomain().getCodeSource();
       String ejbName = container.getEjbName(); 
       return new RoleBasedAuthorizationInterceptorv2(container, ejbCS, ejbName);
    } 
 }
-
