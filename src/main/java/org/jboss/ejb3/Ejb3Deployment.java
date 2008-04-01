@@ -69,6 +69,8 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
+import org.jboss.wsf.spi.deployment.integration.WebServiceDeployment;
+import org.jboss.wsf.spi.deployment.integration.WebServiceDeclaration;
 
 /**
  * An EjbModule represents a collection of beans that are deployed as a unit.
@@ -77,7 +79,8 @@ import org.jboss.virtual.VirtualFile;
  * @author adrian@jboss.org
  * @version $Revision$
  */
-public abstract class Ejb3Deployment extends ServiceMBeanSupport implements JavaEEModule, Ejb3DeploymentMBean
+public abstract class Ejb3Deployment extends ServiceMBeanSupport
+  implements JavaEEModule, Ejb3DeploymentMBean, WebServiceDeployment
 {
    private static final Logger log = Logger.getLogger(Ejb3Deployment.class);
 
@@ -853,5 +856,40 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport implements Java
    public String getName()
    {
       return unit.getShortName();
+   }
+
+   public List<WebServiceDeclaration> getServiceEndpoints()
+   {
+      List<WebServiceDeclaration> webServiceDeclarations = new ArrayList<WebServiceDeclaration>();
+
+      Iterator<Container> it = this.getEjbContainers().values().iterator();
+      while(it.hasNext())
+      {
+         final EJBContainer c = (EJBContainer)it.next();
+         webServiceDeclarations.add(
+           new WebServiceDeclaration()
+           {
+
+              public <T extends java.lang.annotation.Annotation> T getAnnotation(Class<T> t)
+              {
+                 return c.getAnnotation(t);
+              }
+
+
+              public String getComponentName()
+              {
+                 return c.getEjbName();
+              }
+
+              public String getComponentClassName()
+              {
+                 return c.getBeanClassName();
+              }
+           }
+
+         );
+      }
+      return webServiceDeclarations;
+
    }
 }
