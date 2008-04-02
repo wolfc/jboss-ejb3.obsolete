@@ -1,0 +1,240 @@
+<class-diagram generalizations="true" realizations="true" associations="true" dependencies="false" 
+  nesting-relationships="true">  
+  <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
+    signature="true" visibility="true"/>  
+  <association-display labels="false" multiplicity="true"/>  
+  <interface type="java" name="org.jboss.ejb3.cache.api.Cache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="116" y="42" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.TransactionalCache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/TransactionalCache.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="357" y="43" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.GroupAwareTransactionalCache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/GroupAwareTransactionalCache.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="670" y="42" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.GroupAwareBackingCache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/GroupAwareBackingCache.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="482" y="140" width="-1" height="-1"/>  
+  </interface>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.PassivatingBackingCache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="486" y="256" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.GroupAwareBackingCacheImpl" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/GroupAwareBackingCacheImpl.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="874" y="140" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupContainer" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupContainer.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="172" y="256" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.SerializationGroupMember" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroupMember.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="883" y="439" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer" 
+    project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberContainer.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="878" y="256" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.SerializationGroup" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroup.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="173" y="439" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberImpl" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberImpl.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="883" y="546" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupImpl" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupImpl.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="172" y="547" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.BackingCacheEntry" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntry.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="506" y="439" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.PassivatingBackingCacheImpl" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/PassivatingBackingCacheImpl.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="175" y="143" width="-1" height="-1"/>  
+  </class>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.PassivatingBackingCacheImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/PassivatingBackingCacheImpl.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivatingBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java"/>  
+  </realization>  
+  <association>    
+    <display labels="false" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberImpl.java">      
+      <attribute name="group"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroup" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroup.java"/>  
+  </association>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberImpl.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroupMember" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroupMember.java"/>  
+  </realization>  
+  <association>    
+    <display labels="false" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.GroupAwareBackingCacheImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/GroupAwareBackingCacheImpl.java">      
+      <attribute name="memberContainer"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberContainer.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroup" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroup.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntry" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntry.java"/>  
+  </generalization>  
+  <association>    
+    <display labels="false" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.GroupAwareTransactionalCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/GroupAwareTransactionalCache.java">      
+      <attribute name="groupedCache"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.GroupAwareBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/GroupAwareBackingCache.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.GroupAwareBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/GroupAwareBackingCache.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivatingBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.GroupAwareBackingCacheImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/GroupAwareBackingCacheImpl.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.GroupAwareBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/GroupAwareBackingCache.java"/>  
+  </realization>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.GroupAwareTransactionalCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/GroupAwareTransactionalCache.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.TransactionalCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/TransactionalCache.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupImpl.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroup" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroup.java"/>  
+  </realization>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroupMember" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroupMember.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntry" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntry.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.TransactionalCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/TransactionalCache.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
+  </realization>  
+  <dependency>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberContainer.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroupMember" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroupMember.java"/>  
+  </dependency>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberContainer.java">      
+      <attribute name="delegate"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.GroupAwareBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/GroupAwareBackingCache.java"/>  
+  </association>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SerializationGroupMemberContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupMemberContainer.java">      
+      <attribute name="groupCache"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivatingBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java"/>  
+  </association>  
+  <dependency>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupContainer.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroup" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroup.java"/>  
+  </dependency>  
+  <association>    
+    <display labels="false" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SerializationGroupContainer" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupContainer.java">      
+      <attribute name="groupCache"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivatingBackingCache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java"/>  
+  </association>  
+  <association>    
+    <display labels="false" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SerializationGroupImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SerializationGroupImpl.java">      
+      <attribute name="active"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.SerializationGroupMember" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/SerializationGroupMember.java"/>  
+  </association>
+</class-diagram>

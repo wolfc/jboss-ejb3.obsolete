@@ -1,0 +1,248 @@
+<class-diagram generalizations="true" realizations="true" associations="true" dependencies="false" 
+  nesting-relationships="true">  
+  <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
+    signature="true" visibility="true"/>  
+  <association-display labels="true" multiplicity="true"/>  
+  <class type="java" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="501" y="53" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="501" y="136" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.factory.NonPassivatingCacheFactory" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/NonPassivatingCacheFactory.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="162" y="213" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractStatefulCacheFactory.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="503" y="213" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStoreSource.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="518" y="316" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.factory.NonClusteredBackingCacheEntryStoreSource" 
+    project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/NonClusteredBackingCacheEntryStoreSource.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="202" y="392" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/GroupAwareCacheFactory.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="841" y="214" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStoreSource" 
+    project="jboss-ejb3-cache-jbc2" 
+    file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStoreSource.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="847" y="393" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+    project="jboss-ejb3-cache-jbc2" 
+    file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="846" y="484" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="200" y="482" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="525" y="482" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStore.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="526" y="412" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.test.cache.mock.MockBeanContainer" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContainer.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="132" y="54" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.api.Cache" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="132" y="134" width="-1" height="-1"/>  
+  </interface>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.PersistentObjectStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PersistentObjectStore.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="200" y="575" width="-1" height="-1"/>  
+  </interface>  
+  <interface type="java" name="org.jboss.cache.Cache" project="jboss-ejb3-cache-jbc2" 
+    file="/home/bes/.m2/repository/org/jboss/cache/jbosscache-core/2.1.0.GA/jbosscache-core-2.1.0.GA.jar" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="847" y="562" width="-1" height="-1"/>  
+  </interface>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>  
+  </generalization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache-jbc2" 
+      name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java">      
+      <attribute name="jbc"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache-jbc2" name="org.jboss.cache.Cache" 
+      file="/home/bes/.m2/repository/org/jboss/cache/jbosscache-core/2.1.0.GA/jbosscache-core-2.1.0.GA.jar"/>  
+  </association>  
+  <dependency>    
+    <source project="jboss-ejb3-cache-jbc2" 
+      name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStoreSource" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStoreSource.java"/>    
+    <target project="jboss-ejb3-cache-jbc2" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java"/>  
+  </dependency>  
+  <realization>    
+    <source project="jboss-ejb3-cache-jbc2" 
+      name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStoreSource" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStoreSource.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStoreSource.java"/>  
+  </realization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java">      
+      <attribute name="store"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PersistentObjectStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PersistentObjectStore.java"/>  
+  </association>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.MockBeanContainer" 
+      file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContainer.java">      
+      <attribute name="cache"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
+  </association>  
+  <dependency>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.factory.NonClusteredBackingCacheEntryStoreSource" 
+      
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/NonClusteredBackingCacheEntryStoreSource.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java"/>  
+  </dependency>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractStatefulCacheFactory.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>  
+  </realization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java">      
+      <attribute name="factories"/>      
+      <multiplicity minimum="0" maximum="2147483647"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>  
+  </association>  
+  <dependency>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
+  </dependency>  
+  <generalization>    
+    <source project="jboss-ejb3-cache-jbc2" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>  
+  </generalization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.MockBeanContainer" 
+      file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContainer.java">      
+      <attribute name="cacheFactoryRegistry"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java"/>  
+  </association>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStore.java"/>  
+  </realization>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/GroupAwareCacheFactory.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractStatefulCacheFactory.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.factory.NonClusteredBackingCacheEntryStoreSource" 
+      
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/NonClusteredBackingCacheEntryStoreSource.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStoreSource.java"/>  
+  </realization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/GroupAwareCacheFactory.java">      
+      <attribute name="storeSource"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStoreSource.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.factory.NonPassivatingCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/factory/NonPassivatingCacheFactory.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractStatefulCacheFactory.java"/>  
+  </generalization>
+</class-diagram>

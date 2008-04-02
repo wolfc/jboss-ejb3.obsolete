@@ -1,0 +1,141 @@
+<class-diagram generalizations="true" realizations="true" associations="true" dependencies="true" 
+  nesting-relationships="true">  
+  <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
+    signature="true" visibility="true"/>  
+  <association-display labels="true" multiplicity="true"/>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.PassivationExpirationProcessor" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivationExpirationProcessor.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="507" y="118" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.NonPassivatingBackingCacheImpl" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/NonPassivatingBackingCacheImpl.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="868" y="120" width="-1" height="-1"/>  
+  </class>  
+  <interface type="java" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStore.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="157" y="117" width="-1" height="-1"/>  
+  </interface>  
+  <class type="java" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="292" y="280" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="146" y="481" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+    project="jboss-ejb3-cache-jbc2" 
+    file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="452" y="484" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/PassivationExpirationRunner.java" 
+    corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="737" y="280" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="org.jboss.ejb3.cache.spi.impl.AbstractTimerTask" project="jboss-ejb3-cache" 
+    file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractTimerTask.java" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="736" y="379" width="-1" height="-1"/>  
+  </class>  
+  <class type="java" name="java.util.TimerTask" project="hibernate-jbosscache2" 
+    file="/usr/java/jdk1.5.0_12/jre/lib/rt.jar" corner="BOTTOM_RIGHT">    
+    <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
+      visibility="true"/>    
+    <position x="737" y="472" width="-1" height="-1"/>  
+  </class>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java">      
+      <attribute name="sessionTimeoutRunner"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/PassivationExpirationRunner.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/PassivationExpirationRunner.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractTimerTask" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractTimerTask.java"/>  
+  </generalization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/PassivationExpirationRunner.java">      
+      <attribute name="processor"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivationExpirationProcessor" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivationExpirationProcessor.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.SimpleBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/SimpleBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.backing.NonPassivatingBackingCacheImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/NonPassivatingBackingCacheImpl.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivationExpirationProcessor" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivationExpirationProcessor.java"/>  
+  </realization>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractTimerTask" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractTimerTask.java"/>    
+    <target project="hibernate-jbosscache2" name="java.util.TimerTask" file="/usr/java/jdk1.5.0_12/jre/lib/rt.jar"/>  
+  </generalization>  
+  <association>    
+    <display labels="true" multiplicity="true"/>    
+    <source navigable="false" project="jboss-ejb3-cache" 
+      name="org.jboss.ejb3.cache.impl.backing.NonPassivatingBackingCacheImpl" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/backing/NonPassivatingBackingCacheImpl.java">      
+      <attribute name="sessionTimeoutRunner"/>      
+      <multiplicity minimum="0" maximum="1"/>    
+    </source>    
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.PassivationExpirationRunner" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/PassivationExpirationRunner.java"/>  
+  </association>  
+  <generalization>    
+    <source project="jboss-ejb3-cache-jbc2" name="org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache-jbc2/src/main/java/org/jboss/ejb3/cache/impl/backing/jbc2/JBCBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>  
+  </generalization>  
+  <generalization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.PassivationExpirationProcessor" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivationExpirationProcessor.java"/>  
+  </generalization>  
+  <realization>    
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractBackingCacheEntryStore.java"/>    
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntryStore" 
+      file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntryStore.java"/>  
+  </realization>
+</class-diagram>
