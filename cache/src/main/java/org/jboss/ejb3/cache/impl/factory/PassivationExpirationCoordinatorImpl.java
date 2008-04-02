@@ -132,45 +132,38 @@ public class PassivationExpirationCoordinatorImpl
    @Override
    public void run()
    {
-      while (!isStopped())
+      Set<PassivationExpirationProcessor> toProcess = new HashSet<PassivationExpirationProcessor>();
+      synchronized (processors)
       {
-         Set<PassivationExpirationProcessor> toProcess = new HashSet<PassivationExpirationProcessor>();
-         synchronized (processors)
-         {
-            toProcess.addAll(processors);
-         }
+         toProcess.addAll(processors);
+      }
+      
+      for (PassivationExpirationProcessor cache : toProcess)
+      {            
+         if (cache.isPassivationExpirationSelfManaged())
+            continue;
          
-         for (PassivationExpirationProcessor cache : toProcess)
-         {            
-            if (cache.isPassivationExpirationSelfManaged())
-               continue;
-            
-            PassivationExpirationTask task = new PassivationExpirationTask(cache, threadLimit);
-            if (threadLimit != null)
+         PassivationExpirationTask task = new PassivationExpirationTask(cache, threadLimit);
+         if (threadLimit != null)
+         {
+            // Limit the number of concurrent threads
+            try
             {
-               // Limit the number of concurrent threads
-               try
-               {
-                  threadLimit.acquire();
-               }
-               catch (InterruptedException ignore)
-               {
-               }
-               
-               if (isStopped())
-                  break;
-               
-               threadPool.run(task);
+               threadLimit.acquire();
             }
-            else
+            catch (InterruptedException ignore)
             {
-               // We run it our self
-               task.run();
             }
-            
             
             if (isStopped())
                break;
+            
+            threadPool.run(task);
+         }
+         else
+         {
+            // We run it our self
+            task.run();
          }
       }
    }
