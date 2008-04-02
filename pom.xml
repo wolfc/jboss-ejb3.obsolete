@@ -1,17 +1,16 @@
 <!-- 
   vi:ts=2:sw=2:expandtab 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.0-SNAPSHOT</version>
+    <version>0.13.0</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-metadata</artifactId>
-  <version>0.12.0-SNAPSHOT</version>
+  <version>0.12.0</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Meta Data bridge</name>
   <url>http://www.jboss.org</url>
@@ -24,12 +23,8 @@
     <!-- internal -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-ext-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+      <version>0.3</version>
       <scope>test</scope>
     </dependency>
 
@@ -56,6 +51,21 @@
       <scope>test</scope>
     </dependency>
     
+    <!-- FIXME: broken JaxB dependency -->
+    <!--
+    <dependency>
+      <groupId>javax.xml.bind</groupId>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.1</version>
+    </dependency>
+    -->
+
     <!-- TODO: javassist -->
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.0</url>
+  </scm>
 </project>
