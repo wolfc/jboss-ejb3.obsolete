@@ -28,7 +28,7 @@
   <!-- Properties -->
 
   <properties>
-
+    <version.org.jboss.jboss-as>5.0.0-SNAPSHOT</version.org.jboss.jboss-as>
   </properties>
 
   <!-- Build Information -->
@@ -183,8 +183,8 @@
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
                 <artifactItem>
-                  <groupId>hibernate</groupId>
-                  <artifactId>hibernate3</artifactId>
+                  <groupId>org.hibernate</groupId>
+                  <artifactId>hibernate</artifactId>
                 </artifactItem>
                 <artifactItem>
                   <groupId>hsqldb</groupId>
@@ -203,10 +203,6 @@
                   <groupId>apache-codec</groupId>
                   <artifactId>commons-codec</artifactId>
                   <version>1.2</version><!-- Used only here -->
-                </artifactItem>
-                <artifactItem>
-                  <groupId>hibernate</groupId>
-                  <artifactId>hibernate3</artifactId>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jboss.microcontainer</groupId>
@@ -268,17 +264,26 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <!--
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>ejb3-persistence</artifactId>
     </dependency>
+    -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.6.ga</version>
+    </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
+      <version>3.3.1.GA</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.3.2.GA</version>
     </dependency>
     <dependency>
       <groupId>org.jboss</groupId>
@@ -318,30 +323,42 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
+      <version>1.0.0.GA</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
+      <version>1.0.0.GA</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-cache</artifactId>
+      <version>0.13.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
+      <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+      <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
+      <version>0.12.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-metadata</artifactId>
+      <version>0.12.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.embedded</groupId>
       <artifactId>jboss-embedded</artifactId>
+      <version>beta3-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -369,14 +386,17 @@
           <artifactId>jboss-as-cluster</artifactId>
         </exclusion>
       </exclusions>
+      <version>${version.org.jboss.jboss-as}</version>
     </dependency> 
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-connector</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-iiop</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
     </dependency>
     <dependency>
        <groupId>org.jboss.jbossas</groupId>
@@ -404,10 +424,12 @@
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jboss-security-spi-bare</artifactId>
+      <version>2.0.2.Beta5</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbosssx-client</artifactId>
+      <version>2.0.2.Beta5</version>
     </dependency>
      <dependency>
       <groupId>org.jboss.ws</groupId>
@@ -416,6 +438,7 @@
     <dependency>
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
+      <version>1.6.0</version>
     </dependency>
     <dependency>
       <groupId>trove</groupId>

@@ -49,6 +49,11 @@
     </dependency>
     <dependency>
       <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <version>2.2.1.GA</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
       <artifactId>jnpserver</artifactId>
       <scope>test</scope>
     </dependency>
