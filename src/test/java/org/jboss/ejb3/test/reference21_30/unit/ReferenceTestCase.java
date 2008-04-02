@@ -84,16 +84,16 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Session30 session = (Session30) jndiContext.lookup("Session30Remote");
+      Session30RemoteBusiness session = (Session30RemoteBusiness) jndiContext.lookup("Session30Remote");
       assertNotNull(session);
       String access = session.access();
       assertEquals("Session30", access);
       
       Session30Home home = (Session30Home) jndiContext.lookup("Session30/home");
       assertNotNull(home);
-      session = (Session30)home.create();
-      assertNotNull(session);
-      access = session.access();
+      Session30 sessionRemote = (Session30)home.create();
+      assertNotNull(sessionRemote);
+      access = sessionRemote.access();
       assertEquals("Session30", access);
    }
 
@@ -286,7 +286,7 @@ public class ReferenceTestCase
       
       EJBMetaData metadata = home.getEJBMetaData();
       assertNotNull(metadata);
-      assertEquals("org.jboss.ejb3.test.reference21_30.StatefulSession30",metadata.getRemoteInterfaceClass().getName());
+      assertEquals(StatefulSession30.class,metadata.getRemoteInterfaceClass());
       
       HomeHandle homeHandle = home.getHomeHandle();
       assertNotNull(homeHandle);
@@ -295,7 +295,7 @@ public class ReferenceTestCase
       assertNotNull(ejbHome);
       metadata = ejbHome.getEJBMetaData();
       assertNotNull(metadata);
-      assertEquals("org.jboss.ejb3.test.reference21_30.StatefulSession30",metadata.getRemoteInterfaceClass().getName());
+      assertEquals(StatefulSession30.class,metadata.getRemoteInterfaceClass());
       
       StatefulSession30 session = (StatefulSession30)home.create();
       assertNotNull(session);

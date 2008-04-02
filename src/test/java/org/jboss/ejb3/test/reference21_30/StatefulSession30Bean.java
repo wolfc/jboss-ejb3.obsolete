@@ -24,7 +24,9 @@ package org.jboss.ejb3.test.reference21_30;
 import javax.annotation.PreDestroy;
 import javax.ejb.Init;
 import javax.ejb.Local;
+import javax.ejb.LocalHome;
 import javax.ejb.Remote;
+import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 import javax.naming.InitialContext;
 
@@ -41,6 +43,8 @@ import org.jboss.logging.Logger;
 @Remote({StatefulSession30.class,StatefulSession30RemoteBusiness.class})
 @RemoteBinding(jndiBinding = "StatefulSession30Remote")
 @LocalBinding(jndiBinding = "LocalStatefulSession30")
+@RemoteHome(StatefulSession30Home.class)
+@LocalHome(StatefulSession30LocalHome.class)
 public class StatefulSession30Bean implements java.io.Serializable, StatefulSession30RemoteBusiness
 {
    private static final long serialVersionUID = -8986168637251530390L;
@@ -73,13 +77,13 @@ public class StatefulSession30Bean implements java.io.Serializable, StatefulSess
    {
       try {
          InitialContext jndiContext = new InitialContext();
-         Session30LocalHome localHome = (Session30LocalHome)jndiContext.lookup("Session30/localHome");
+         Session30LocalHome localHome = (Session30LocalHome) jndiContext
+               .lookup(Session30LocalHome.JNDI_NAME_SESSION_30);
          LocalSession30 localSession = localHome.create();
          return localSession.access();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
    }
    
@@ -94,8 +98,7 @@ public class StatefulSession30Bean implements java.io.Serializable, StatefulSess
          return session.getLocalValue();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
       
    }

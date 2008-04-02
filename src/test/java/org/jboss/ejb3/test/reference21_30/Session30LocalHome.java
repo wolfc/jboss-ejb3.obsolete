@@ -21,8 +21,7 @@
  */
 package org.jboss.ejb3.test.reference21_30;
 
-import javax.ejb.*;
-import java.rmi.*;
+import javax.ejb.EJBLocalHome;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -30,6 +29,8 @@ import java.rmi.*;
  */
 public interface Session30LocalHome extends EJBLocalHome
 {
-  public LocalSession30 create() throws javax.ejb.CreateException;
+   String JNDI_NAME_SESSION_30 = "Session30/localHome";
+   
+   public LocalSession30 create() throws javax.ejb.CreateException;
 } 
 
