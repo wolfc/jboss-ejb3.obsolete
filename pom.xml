@@ -410,7 +410,7 @@
       <artifactId>jbosssx-client</artifactId>
     </dependency>
      <dependency>
-      <groupId>org.jboss</groupId>
+      <groupId>org.jboss.ws</groupId>
       <artifactId>jbossws-spi</artifactId>
     </dependency>
     <dependency>
