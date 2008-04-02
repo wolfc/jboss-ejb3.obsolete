@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.cache.integrated;
 
 import javax.ejb.NoSuchEJBException;
+import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.cache.api.Cache;
@@ -201,5 +202,59 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
             tm.commit();
          }
       }
+   }
+   
+   public void testConcurrentTransactionalAccess() throws Exception
+   {      
+      log.info("testConcurrentTransactionalAccess()");
+      
+      Cache<MockBeanContext> cache = createCache();
+      
+      tm.begin();
+      
+      Object key = cache.create(null, null);
+      MockBeanContext object = cache.get(key);
+      
+      assertNotNull(object);
+      
+      Transaction tx1 = tm.suspend();
+      
+      tm.begin();
+      
+      try
+      {
+         cache.get(key);
+         fail("Ongoing transaction should have prevent get() by second tx");
+      }
+      catch (IllegalStateException good) {}
+      
+      // tx1 calling finished isn't sufficient to release item
+      Transaction tx2 = tm.suspend();      
+      tm.resume(tx1);
+      
+      cache.finished(object);      
+
+      tm.suspend();
+      tm.resume(tx2);
+      
+      try
+      {
+         cache.get(key);
+         fail("Ongoing transaction should have prevent get() by second tx");
+      }
+      catch (IllegalStateException good) {}
+      
+      // Committing tx1 releases the locks
+      tm.suspend();
+      tm.resume(tx1);
+      tm.commit();
+      
+      tm.resume(tx2);
+      MockBeanContext object2 = cache.get(key);
+      assertSame(object, object2);
+      
+      cache.finished(object2);
+      
+      tm.commit();
    }
 }
