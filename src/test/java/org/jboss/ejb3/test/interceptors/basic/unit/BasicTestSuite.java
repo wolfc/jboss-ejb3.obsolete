@@ -40,7 +40,7 @@ import org.jboss.logging.Logger;
  * Bootstrap the interceptor container.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BasicTestSuite extends TestSuite
 {
@@ -51,10 +51,14 @@ public class BasicTestSuite extends TestSuite
    public BasicTestSuite() throws Exception
    {
       // Neat trick to find the deployment URL
-      URL deploymentURL = getClass().getClassLoader().getResource(".");
+      // We can't use '.' as resource, because on some machines the classpath order is different,
+      // so we might get target/classes instead of target/test-classes.
+      String resourceName = "log4j.xml";
+      String spec = getClass().getClassLoader().getResource(resourceName).toString();
+      URL deploymentURL = new URL(spec.substring(0, spec.length() - resourceName.length()));
       log.info(deploymentURL);
       ScopedClassLoader deploymentClassLoader = new ScopedClassLoader(new URL[] { deploymentURL });
-      
+
       // Bootstrap AOP
       URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
       log.info("deploying AOP from " + url);
