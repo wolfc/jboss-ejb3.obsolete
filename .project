@@ -1,17 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>jboss-ejb3-metadata</name>
-  <comment>The JBoss EJB 3 Meta Data component implements the meta data retrieval
+	<name>jboss-ejb3-metadata</name>
+	<comment>The JBoss EJB 3 MetaData component implements the meta data retrieval
     bridge between jboss-metadata and annotations.</comment>
-  <projects>
-    <project>jboss-ejb3-ext-api</project>
-    <project>jboss-ejb3-ext-api-impl</project>
-  </projects>
-  <buildSpec>
-    <buildCommand>
-      <name>org.eclipse.jdt.core.javabuilder</name>
-    </buildCommand>
-  </buildSpec>
-  <natures>
-    <nature>org.eclipse.jdt.core.javanature</nature>
-  </natures>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.maven.ide.eclipse.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>org.maven.ide.eclipse.maven2Nature</nature>
+	</natures>
 </projectDescription>
