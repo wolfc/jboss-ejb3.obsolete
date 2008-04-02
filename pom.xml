@@ -13,7 +13,7 @@
 
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <name>JBoss EJB 3.0 Implementation Classes</name>
   <description>
     JBoss EJB 3.0 Implementation Internals conforming to API
@@ -49,4 +49,10 @@
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.3</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.3</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.3</url>
+  </scm>
 </project>
