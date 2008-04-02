@@ -50,6 +50,7 @@ public class MockBeanContext
    private int postActivateCount;
    private Map<String, Object> children;
    private final Map<Object, Object> sharedState;
+   private int count;
    
    public MockBeanContext(String containerName, Map<Object, Object> sharedState)
    {
@@ -220,5 +221,17 @@ public class MockBeanContext
    {
       log.trace(getId() + ": invokeModifying()");
       setModified(true);
+   }
+   
+   public int getCount()
+   {
+      return count;
+   }
+   
+   public int increment()
+   {
+      count++;
+      setModified(true);
+      return count;
    }
 }
