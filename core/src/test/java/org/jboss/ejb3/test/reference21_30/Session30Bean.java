@@ -24,12 +24,15 @@ package org.jboss.ejb3.test.reference21_30;
 import javax.ejb.EJB;
 import javax.ejb.EJBs;
 import javax.ejb.Local;
+import javax.ejb.LocalHome;
 import javax.ejb.Remote;
+import javax.ejb.RemoteHome;
 import javax.ejb.Stateless;
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
@@ -42,12 +45,14 @@ import org.jboss.logging.Logger;
 @Local({LocalSession30.class, LocalSession30Business.class})
 @RemoteBinding(jndiBinding = "Session30Remote")
 @LocalBinding(jndiBinding = "LocalSession30")
+@RemoteHome(Session30Home.class)
+@LocalHome(Session30LocalHome.class)
+@LocalHomeBinding(jndiBinding = Session30LocalHome.JNDI_NAME_SESSION_30)
 @EJBs({@EJB(name="injected", beanInterface=org.jboss.ejb3.test.reference21_30.Session21.class, beanName="Session21")})
+
 public class Session30Bean implements Session30RemoteBusiness, LocalSession30Business
 {
    private static final Logger log = Logger.getLogger(Session30Bean.class);
-
-   @EJB(mappedName="Session21") Object testMappedName;
    
    public String access()
    {
@@ -62,8 +67,7 @@ public class Session30Bean implements Session30RemoteBusiness, LocalSession30Bus
          return session.access();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
    }
    
@@ -76,8 +80,7 @@ public class Session30Bean implements Session30RemoteBusiness, LocalSession30Bus
          return session.access();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
    }
    
@@ -90,8 +93,7 @@ public class Session30Bean implements Session30RemoteBusiness, LocalSession30Bus
          return localSession.getLocalValue();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
    }
    
@@ -118,8 +120,7 @@ public class Session30Bean implements Session30RemoteBusiness, LocalSession30Bus
          return localSession.getLocalValue();
       } catch (Exception e)
       {
-         e.printStackTrace();
-         return null;
+         throw new RuntimeException(e);
       }
    }
    

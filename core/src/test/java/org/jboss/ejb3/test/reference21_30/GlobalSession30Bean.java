@@ -35,7 +35,7 @@ import org.jboss.logging.Logger;
 @Stateless(name="GlobalSession30")
 @Remote(Session30RemoteBusiness.class)
 @RemoteBinding(jndiBinding = "GlobalSession30Remote")
-public class GlobalSession30Bean 
+public class GlobalSession30Bean  implements Session30RemoteBusiness
 {
    private static final Logger log = Logger.getLogger(GlobalSession30Bean.class);
    

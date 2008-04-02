@@ -23,7 +23,6 @@ package org.jboss.ejb3.test.reference21_30;
 
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
 
 import org.jboss.logging.Logger;
 
