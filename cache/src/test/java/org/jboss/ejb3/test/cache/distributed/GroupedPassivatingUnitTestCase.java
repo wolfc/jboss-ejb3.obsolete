@@ -53,7 +53,7 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       simpleGroupPassivationTest(true);
    }
    
-   public void simpleGroupPassivationTest(boolean transactional) throws Exception
+   private void simpleGroupPassivationTest(boolean transactional) throws Exception
    {      
       MockCluster cluster = new MockCluster(false);
       MockClusterMember node0 = cluster.getNode0();
@@ -157,7 +157,7 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
       simpleGroupReplicationTest(true);
    }
    
-   public void simpleGroupReplicationTest(boolean transactional) throws Exception
+   private void simpleGroupReplicationTest(boolean transactional) throws Exception
    {      
       MockCluster cluster = new MockCluster(false);
       MockCacheConfig cacheConfig = new MockCacheConfig();
