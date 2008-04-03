@@ -6,6 +6,7 @@ concurrent.jar
 ejb3-persistence.jar
 hibernate-annotations.jar
 jboss-annotations-ejb3.jar
+jboss-appclient.jar
 jboss-auth.jar
 jboss-common*.jar
 jboss-ejb3-ext-api.jar
