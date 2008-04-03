@@ -1,9 +1,7 @@
 <projectDescription>
   <name>jboss-ejb3-ext-api-impl</name>
   <comment>JBoss EJB 3.0 Implementation Internals conforming to API</comment>
-  <projects>
-    <project>jboss-ejb3-ext-api</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
