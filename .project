@@ -3,10 +3,6 @@
   <comment>JBoss EJB 3.0 Core</comment>
   <projects>
     <project>jboss-ejb3-cache</project>
-    <project>jboss-ejb3-ext-api</project>
-    <project>jboss-ejb3-ext-api-impl</project>
-    <project>jboss-ejb3-interceptors</project>
-    <project>jboss-ejb3-metadata</project>
   </projects>
   <buildSpec>
     <buildCommand>
