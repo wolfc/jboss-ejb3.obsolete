@@ -24,6 +24,7 @@
 package org.jboss.ejb3.test.cache.mock.tm;
 
 import java.util.LinkedList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -32,6 +33,7 @@ import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 
 import org.jboss.logging.Logger;
@@ -45,16 +47,26 @@ public class MockTransaction implements Transaction
 {
    private static final Logger log = Logger.getLogger(MockTransaction.class);
 
+   private static final AtomicInteger count = new AtomicInteger();
+   
    private int status;
+   private final String id;
 
-   private LinkedList<Synchronization> synchronizations;
-
+   private LinkedList<Synchronization> synchronizations = new LinkedList<Synchronization>();
+   private MockTransactionSynchroniztionRegistry syncRegistry; 
+   
    private final MockTransactionManager jtaTransactionManager;
 
    public MockTransaction(MockTransactionManager jtaTransactionManager)
    {
       this.jtaTransactionManager = jtaTransactionManager;
       this.status = Status.STATUS_ACTIVE;
+      this.id = "MockTransaction-" + count.incrementAndGet();
+   }
+   
+   public String getId()
+   {
+      return id;
    }
 
    public int getStatus()
@@ -81,9 +93,25 @@ public class MockTransaction implements Transaction
             s.beforeCompletion();
          }
 
+         if (syncRegistry != null)
+         {
+            for (Synchronization sync : syncRegistry.getSynchronizations())
+            {
+               sync.beforeCompletion();
+            }
+         }
+
          status = Status.STATUS_COMMITTING;
 
          status = Status.STATUS_COMMITTED;
+
+         if (syncRegistry != null)
+         {
+            for (Synchronization sync : syncRegistry.getSynchronizations())
+            {
+               sync.afterCompletion(status);
+            }
+         }
 
          for (int i = 0; i < synchronizations.size(); i++)
          {
@@ -100,6 +128,14 @@ public class MockTransaction implements Transaction
    {
       status = Status.STATUS_ROLLEDBACK;
 
+      if (syncRegistry != null)
+      {
+         for (Synchronization sync : syncRegistry.getSynchronizations())
+         {
+            sync.afterCompletion(status);
+         }
+      }
+      
       if (synchronizations != null)
       {
          for (int i = 0; i < synchronizations.size(); i++)
@@ -122,10 +158,6 @@ public class MockTransaction implements Transaction
          IllegalStateException, SystemException
    {
       // todo : find the spec-allowable statuses during which synch can be registered...
-      if (synchronizations == null)
-      {
-         synchronizations = new LinkedList<Synchronization>();
-      }
       synchronizations.add(synchronization);
    }
 
@@ -138,5 +170,14 @@ public class MockTransaction implements Transaction
    public boolean delistResource(XAResource xaResource, int i) throws IllegalStateException, SystemException
    {
       return false;
+   }
+   
+   public synchronized TransactionSynchronizationRegistry getTransactionSynchronizationRegistry()
+   {
+      if (syncRegistry == null)
+      {
+         syncRegistry = new MockTransactionSynchroniztionRegistry(this);
+      }
+      return syncRegistry;
    }
 }

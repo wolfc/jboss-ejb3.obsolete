@@ -22,21 +22,31 @@
 
 package org.jboss.ejb3.cache.spi;
 
-import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
 
 /**
- * Coordinates order of transaction {@link Synchronization} execution, allowing
- * different elements of the caching system to ensure their synchronization
+ * Coordinates order of transaction {@link Synchronization} execution. In 
+ * particular it:
+ * <ol>
+ * <li>
+ * Ensures that any registered synchronization's <code>beforeCompletion()</code>
+ * is invoked after any {@link javax.ejb.SessionSynchronization#beforeCompletion()}
+ * and that any registered synchronization's <code>afterCompletion()</code>
+ * is invoked before any {@link javax.ejb.SessionSynchronization#afterCompletion()}.
+ * </li>
+ * <li>
+ * Allows different elements of the caching system to ensure their synchronization
  * executes either relatively early or relatively late in the transaction 
  * commit process.
+ * </li>
+ * </ol>
  * <p>
  * Note that a <code>SynchronizationCoordinator</code> has no effect on the
  * order of execution of synchronizations it doesn't know about (e.g. those
  * registered by code external to the caching subsystem.)
  * </p>
+ * 
+ * @see javax.transaction.TransactionSynchronizationRegistry#registerInterposedSynchronization(Synchronization)
  * 
  * @author Brian Stansberry
  */
@@ -51,11 +61,9 @@ public interface SynchronizationCoordinator
     * @param tx   the transaction
     * @param sync the synchronization
     * 
-    * @throws RollbackException
-    * @throws SystemException
+    * @throws IllegalStateException if no transaction is active
     */
-   void addSynchronizationFirst(Transaction tx, Synchronization sync) 
-      throws RollbackException, SystemException;
+   void addSynchronizationFirst(Synchronization sync);
    
    /**
     * Register the given Synchronization with the given Transaction, 
@@ -66,9 +74,7 @@ public interface SynchronizationCoordinator
     * @param tx   the transaction
     * @param sync the synchronization
     * 
-    * @throws RollbackException
-    * @throws SystemException
+    * @throws IllegalStateException if no transaction is active
     */
-   void addSynchronizationLast(Transaction tx, Synchronization sync) 
-      throws RollbackException, SystemException;
+   void addSynchronizationLast(Synchronization sync);
 }

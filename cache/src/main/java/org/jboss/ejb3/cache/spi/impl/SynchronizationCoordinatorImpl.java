@@ -26,75 +26,95 @@ import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
+import javax.transaction.TransactionSynchronizationRegistry;
 
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 import org.jboss.logging.Logger;
 
 /**
+ * Default implementation of {@link SynchronizationCoordinator}.
+ * 
  * @author Brian Stansberry
- *
  */
 public class SynchronizationCoordinatorImpl implements SynchronizationCoordinator
 {
    private static final Logger log = Logger.getLogger(SynchronizationCoordinatorImpl.class);
    
-   private ConcurrentMap<Transaction, OrderedSynchronizationHandler> handlers = 
-      new ConcurrentHashMap<Transaction, OrderedSynchronizationHandler>();
+   private ConcurrentMap<Object, OrderedSynchronizationHandler> handlers = 
+      new ConcurrentHashMap<Object, OrderedSynchronizationHandler>();
    
-   public void addSynchronizationFirst(Transaction tx, Synchronization sync) 
-      throws RollbackException, SystemException
+   private TransactionSynchronizationRegistrySource registrySource;
+   
+   public void addSynchronizationFirst(Synchronization sync)
    {      
-      getHandler(tx).registerAtHead(sync);
+      getHandler().registerAtHead(sync);
    }
 
-   public void addSynchronizationLast(Transaction tx, Synchronization sync) 
-      throws RollbackException, SystemException
+   public void addSynchronizationLast(Synchronization sync)
    {
-      getHandler(tx).registerAtTail(sync);
+      getHandler().registerAtTail(sync);
    }
    
-   private OrderedSynchronizationHandler getHandler(Transaction tx) throws RollbackException, SystemException
+   public void start()
    {
-      OrderedSynchronizationHandler handler = handlers.get(tx);
+      if (registrySource == null)
+      {
+         registrySource = new JndiTransactionSynchronizationRegistrySource();
+      }
+   }
+   
+   public TransactionSynchronizationRegistrySource getTransactionSynchronizationRegistrySource()
+   {
+      return registrySource;
+   }
+
+   public void setTransactionSynchronizationRegistrySource(TransactionSynchronizationRegistrySource registrySource)
+   {
+      this.registrySource = registrySource;
+   }
+
+   private OrderedSynchronizationHandler getHandler()
+   {
+      TransactionSynchronizationRegistry syncRegistry = registrySource.getTransactionSynchronizationRegistry();
+      Object txId = syncRegistry.getTransactionKey();
+      
+      OrderedSynchronizationHandler handler = handlers.get(txId);
       if (handler == null)
       {
-         handler = new OrderedSynchronizationHandler(tx, this);
-         OrderedSynchronizationHandler old = handlers.putIfAbsent(tx, handler);
+         handler = new OrderedSynchronizationHandler(txId, this);
+         OrderedSynchronizationHandler old = handlers.putIfAbsent(txId, handler);
          if (old != null)
          {
             handler = old;
          }
          else
          {
-            tx.registerSynchronization(handler);
+            syncRegistry.registerInterposedSynchronization(handler);
          }
       }
       
       return handler;      
    }
    
-   private void removeHandler(Transaction tx)
+   private void removeHandler(Object txId)
    {
-      handlers.remove(tx);
+      handlers.remove(txId);
    }
 
    private static class OrderedSynchronizationHandler implements Synchronization
    {       
-      private Transaction tx = null;
+      private Object txId = null;
       private SynchronizationCoordinatorImpl coordinator;
       private final LinkedList<Synchronization> synchronizations = new LinkedList<Synchronization>();
 
 
-      private OrderedSynchronizationHandler(Transaction tx, SynchronizationCoordinatorImpl coordinator)
+      private OrderedSynchronizationHandler(Object txId, SynchronizationCoordinatorImpl coordinator)
       {
-         assert tx != null : "tx is null";
+         assert txId != null : "txId is null";
          assert coordinator != null : "coordinator is null";
          
-         this.tx = tx;
+         this.txId = txId;
          this.coordinator = coordinator;
       }
 
@@ -145,8 +165,8 @@ public class SynchronizationCoordinatorImpl implements SynchronizationCoordinato
          }
 
          // finally unregister us from the hashmap
-         coordinator.removeHandler(tx);
-         tx = null;
+         coordinator.removeHandler(txId);
+         txId = null;
 
          // throw the exception so the TM can deal with it.
          if (exceptionInAfterCompletion != null) throw exceptionInAfterCompletion;
@@ -155,17 +175,8 @@ public class SynchronizationCoordinatorImpl implements SynchronizationCoordinato
       public String toString()
       {
          StringBuffer sb = new StringBuffer();
-         sb.append("tx=" + getTxAsString() + ", handlers=" + synchronizations);
+         sb.append("txId=" + txId + ", handlers=" + synchronizations);
          return sb.toString();
-      }
-      
-      private String getTxAsString()
-      {
-         // Don't call toString() on tx or it can lead to stack overflow
-         if (tx == null)
-            return null;
-         
-         return tx.getClass().getName() + "@" + System.identityHashCode(tx);
       }
       
    }

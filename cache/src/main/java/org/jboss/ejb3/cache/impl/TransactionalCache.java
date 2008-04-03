@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.ejb.NoSuchEJBException;
-import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
@@ -358,18 +357,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       if (tx != null)
       {
          CacheReleaseSynchronization<C, T> sync = new CacheReleaseSynchronization<C, T>(this, cacheItem, tx);
-         try
-         {
-            synchronizationCoordinator.addSynchronizationFirst(tx, sync);
-         }
-         catch (RollbackException e)
-         {
-            throw new RuntimeException("Failed registering synchronization for " + cacheItem, e);
-         }
-         catch (SystemException e)
-         {
-            throw new RuntimeException("Failed registering synchronization for " + cacheItem, e);
-         }
+         synchronizationCoordinator.addSynchronizationFirst(sync);
          synchronizations.put(cacheItem.getId(), sync);
       }
    }

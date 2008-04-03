@@ -36,6 +36,7 @@ import org.jboss.ejb3.cache.impl.factory.PassivationExpirationCoordinatorImpl;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.PassivationExpirationCoordinator;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
+import org.jboss.ejb3.cache.spi.impl.SynchronizationCoordinatorImpl;
 import org.jboss.ejb3.test.cache.mock.tm.MockTransactionManager;
 
 /**
@@ -162,6 +163,12 @@ public class MockEjb3System
          factory.setPassivationExpirationCoordinator(coordinator);
          // Process passivation/expiration as quickly as possible so tests run fast
          factory.setDefaultPassivationExpirationInterval(1);
+         if (tm instanceof MockTransactionManager)
+         {
+            SynchronizationCoordinatorImpl sci = new SynchronizationCoordinatorImpl();
+            sci.setTransactionSynchronizationRegistrySource((MockTransactionManager) tm);
+            factory.setSynchronizationCoordinator(sci);
+         }
          factory.start();
       }
       return factory;

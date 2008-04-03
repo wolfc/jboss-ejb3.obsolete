@@ -34,7 +34,9 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 
+import org.jboss.ejb3.cache.spi.impl.TransactionSynchronizationRegistrySource;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,7 +45,7 @@ import org.jboss.logging.Logger;
  *
  * @author Brian Stansberry
  */
-public class MockTransactionManager implements TransactionManager 
+public class MockTransactionManager implements TransactionManager, TransactionSynchronizationRegistrySource 
 {
    public static final String DEFAULT = "default";
    
@@ -162,6 +164,16 @@ public class MockTransactionManager implements TransactionManager
 
    public void setTransactionTimeout(int i) throws SystemException
    {
+   }
+   
+   public TransactionSynchronizationRegistry getTransactionSynchronizationRegistry()
+   {
+      if (currentTransaction.get() == null)
+      {
+         throw new IllegalStateException("no current transaction");
+      }
+      return currentTransaction.get().getTransactionSynchronizationRegistry();
+      
    }
 
    void endCurrent(MockTransaction transaction)
