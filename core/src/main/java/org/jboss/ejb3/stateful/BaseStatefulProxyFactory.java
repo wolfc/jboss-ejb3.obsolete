@@ -45,6 +45,8 @@ import org.jboss.ejb3.JndiProxyFactory;
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.SpecificationInterfaceType;
+import org.jboss.ejb3.session.BaseSessionProxyFactory;
+import org.jboss.ejb3.session.BaseSessionRemoteProxy;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
@@ -194,7 +196,7 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
 
    public void start() throws Exception
    {
-      init();
+      this.init();
 
       Context ctx = getContainer().getInitialContext();
       Name name = ctx.getNameParser("").parse(jndiName);
@@ -317,6 +319,11 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
    protected abstract ProxyAccessType getProxyAccessType();
 
    protected final void initializeJndiName() {};
+   
+   public String getJndiName()
+   {
+      return this.jndiName;
+   }
    
    @Override
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException

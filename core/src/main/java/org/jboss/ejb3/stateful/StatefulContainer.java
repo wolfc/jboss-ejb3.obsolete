@@ -26,7 +26,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.NoSuchObjectException;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -44,12 +46,12 @@ import javax.ejb.RemoteHome;
 import javax.ejb.RemoveException;
 import javax.ejb.TimerService;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.aop.Domain;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.advice.PerVmAdvice;
-import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
@@ -74,7 +76,6 @@ import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
 import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.proxy.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.handle.HomeHandleImpl;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
@@ -120,7 +121,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
    }
    
    @Override
-   protected RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding)
+   protected BaseStatefulRemoteProxyFactory createProxyFactory(RemoteBinding binding)
    {
       Clustered clustered = getAnnotation(Clustered.class);
       if (clustered != null)
@@ -143,17 +144,34 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       return mbean;
    }
    
+   /**
+    * Creates and starts the configured cache, if not
+    * started already
+    * 
+    * @throws Exception
+    */
+   protected void createAndStartCache() throws Exception {
+      
+      // If Cache is initialized, exit
+      if(this.cache!=null && this.cache.isStarted())
+      {
+         return;
+      }
+      
+      Cache cacheConfig = getAnnotation(Cache.class);
+      CacheFactoryRegistry registry = getCacheFactoryRegistry();
+      Ejb3CacheFactory factory = registry.getCacheFactory(cacheConfig.value());
+      this.cache = factory.createCache();
+      this.cache.initialize(this);
+      this.cache.start();
+   }
+   
    public void start() throws Exception
    {
       try
       {
          super.start();
-         Cache cacheConfig = getAnnotation(Cache.class);
-         CacheFactoryRegistry registry = getCacheFactoryRegistry();
-         Ejb3CacheFactory factory = registry.getCacheFactory(cacheConfig.value());
-         cache = factory.createCache();
-         cache.initialize(this);
-         cache.start();
+         this.createAndStartCache();
       }
       catch (Exception e)
       {
@@ -178,6 +196,16 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
    public StatefulCache getCache()
    {
+      // Ensure initialized
+      try{
+         this.createAndStartCache();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+      
+      // Return
       return cache;
    }
    
@@ -296,16 +324,17 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
     *
     * @return
     */
-   public Object createSession(Class[] initTypes, Object[] initValues)
+   public Object createSession(Class<?>[] initTypes, Object[] initValues)
    {
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       pushEnc();
       try
       {
          Thread.currentThread().setContextClassLoader(classloader);
-         StatefulBeanContext ctx = getCache().create(initTypes, initValues);
+         StatefulCache cache = this.getCache();
+         StatefulBeanContext ctx = cache.create(initTypes, initValues);
          // Since we return the key here, the context is not in use.
-         getCache().release(ctx);
+         cache.release(ctx);
          return ctx.getId();
       }
       finally
@@ -774,9 +803,9 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
 
          Object proxy = null;
          if (newStatefulInvocation.getId() != null)
-            proxy = factory.createEjb21Proxy(newStatefulInvocation.getId());
+            proxy = factory.createProxyEjb21(newStatefulInvocation.getId());
          else
-            proxy = factory.createEjb21Proxy();
+            proxy = factory.createProxyEjb21();
 
          InvocationResponse response = marshallResponse(statefulInvocation, proxy, newStatefulInvocation.getResponseContextInfo());
          if (newStatefulInvocation.getId() != null)
@@ -844,11 +873,14 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          StatefulContainerInvocation newStatefulInvocation = buildInvocation(
                  info, statefulInvocation);
 
-         StatefulHandleImpl handle = new StatefulHandleImpl();
-         handle.id = newStatefulInvocation.getId();
-         RemoteBinding remoteBinding = this.getAnnotation(RemoteBinding.class);
-         if (remoteBinding != null)
-            handle.jndiName = remoteBinding.jndiBinding();
+         ProxyFactory proxyFactory = this.proxyDeployer.getProxyFactory(this.getAnnotation(RemoteBinding.class));;
+         if (proxyFactory == null)
+         {
+            proxyFactory = this.createProxyFactory(this.getAnnotation(RemoteBinding.class));
+         }
+         BaseStatefulRemoteProxyFactory statefulRemoteProxyFactory = (BaseStatefulRemoteProxyFactory) proxyFactory;
+         EJBObject proxy = (EJBObject) statefulRemoteProxyFactory.createProxyEjb21(newStatefulInvocation.getId());
+         StatefulRemoteHandleImpl handle = new StatefulRemoteHandleImpl(proxy);
          InvocationResponse response = marshallResponse(statefulInvocation, handle, null);
          return response;
       }
@@ -988,7 +1020,8 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
       if (found == false) throw new IllegalStateException(businessInterface.getName() + " is not a business interface for container " + this);
 
-      for (ProxyFactory factory : proxyDeployer.getProxyFactories())
+      Collection<ProxyFactory> proxyFactories = this.proxyDeployer.getProxyFactories().values();
+      for (ProxyFactory factory : proxyFactories)
       {
          if (isRemote && factory instanceof StatefulRemoteProxyFactory)
          {
@@ -1014,9 +1047,16 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       if(!(target instanceof Handle))
          throw new RemoveException("EJB 3 3.6.2.2: Session beans do not have a primary key");
       
-      StatefulHandleImpl handle = (StatefulHandleImpl) target;
+      StatefulRemoteHandleImpl handle = (StatefulRemoteHandleImpl) target;
 
-      destroySession(handle.id);   
+      try
+      {
+         handle.getEJBObject().remove();
+      }
+      catch(RemoteException re)
+      {
+         throw new RemoveException(re.getMessage());
+      }
    }
    
    protected void removeHandle(Handle arg) throws Exception

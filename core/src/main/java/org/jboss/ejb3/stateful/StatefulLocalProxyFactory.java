@@ -25,20 +25,18 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.rmi.dgc.VMID;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
+import javax.ejb.EJBLocalObject;
 import javax.ejb.LocalHome;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.session.SessionContainer;
-import org.jboss.ejb3.stateful.BaseStatefulProxyFactory.ProxyAccessType;
+import org.jboss.proxy.ejb.handle.StatefulHandleImpl;
+import org.jboss.util.NotImplementedException;
 import org.jboss.util.naming.Util;
 
 
@@ -143,10 +141,10 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       return this.createProxy(id);
    }
 
-   public Object createEjb21Proxy()
+   public EJBLocalObject createProxyEjb21()
    {
       Object id = getContainer().createSession();
-      return this.createEjb21Proxy(id);
+      return this.createProxyEjb21(id);
    }
 
    public Object createProxy(Object id)
@@ -154,9 +152,10 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
    }
 
-   public Object createEjb21Proxy(Object id)
+   @SuppressWarnings("unchecked")
+   public <T extends EJBLocalObject> T createProxyEjb21(Object id)
    {
-      return this.createProxy(id, SpecificationInterfaceType.EJB21);
+      return (T)this.createProxy(id, SpecificationInterfaceType.EJB21);
    }
 
    private Object createProxy(Object id, SpecificationInterfaceType type)
@@ -179,14 +178,9 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       return this.createProxy(id, SpecificationInterfaceType.EJB21);
    }
 
-   protected StatefulHandleImpl getHandle()
+   protected StatefulHandleImpl createHandle()
    {
-      StatefulHandleImpl handle = new StatefulHandleImpl();
-      LocalBinding remoteBinding = this.getContainer().getAnnotation(LocalBinding.class);
-      if (remoteBinding != null)
-         handle.jndiName = remoteBinding.jndiBinding();
-
-      return handle;
+      throw new NotImplementedException("NYI");
    }
    
    @Override

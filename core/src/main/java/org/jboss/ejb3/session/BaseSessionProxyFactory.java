@@ -106,12 +106,12 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
    
    protected void setEjb21Objects(BaseSessionRemoteProxy proxy)
    {
-      proxy.setHandle(getHandle());
+      proxy.setHandle(this.createHandle());
       proxy.setHomeHandle(getHomeHandle());
       proxy.setEjbMetaData(getEjbMetaData());
    }
    
-   abstract protected Handle getHandle();
+   abstract protected Handle createHandle();
    
    protected HomeHandle getHomeHandle()
    {

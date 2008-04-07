@@ -27,9 +27,7 @@ import java.util.List;
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
-import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
-import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.Remoting;
 import org.jboss.ejb3.ProxyFactory;
@@ -60,16 +58,14 @@ import org.jboss.util.naming.Util;
  *
  * @version $Revision$
  */
-public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory 
+public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory 
    implements RemoteProxyFactory, DistributedReplicantManager.ReplicantListener
 {
    private static final Logger log = Logger.getLogger(StatefulClusterProxyFactory.class);
    
-//   public static final String FACTORY_ATTRIBUTE = ",element=ProxyFactory,partition=";
+   private static String STACK_NAME_CLUSTERED_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "ClusteredStatefulSessionClientInterceptors";
    
-   private RemoteBinding binding;
    private Clustered clustered;
-   private InvokerLocator locator;
    private DistributedReplicantManager drm;
    private HATarget hatarget;
    private String proxyFamilyName;
@@ -78,11 +74,10 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
 
    public StatefulClusterProxyFactory(SessionContainer container, RemoteBinding binding, Clustered clustered)
    {
-      super(container, binding.jndiBinding());
+      super(container, binding);
       
       assert clustered != null : "clustered is null";
       
-      this.binding = binding;
       this.clustered = clustered;
    }
    
@@ -112,14 +107,17 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
 
    public void start() throws Exception
    {
-      String clientBindUrl = ProxyFactoryHelper.getClientBindUrl(binding);
-      locator = new InvokerLocator(clientBindUrl);
-      String partitionName = ((SessionContainer) getContainer()).getPartitionName();
-      proxyFamilyName = ((SessionContainer) getContainer()).getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
-      HAPartition partition = (HAPartition) getContainer().getInitialContext().lookup("/HAPartition/" + partitionName);
+      this.init();
+      
+      RemoteBinding binding = this.getBinding();
+      InvokerLocator locator = this.getLocator();
+      SessionContainer container = this.getContainer();
+      String partitionName = container.getPartitionName();
+      proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
+      HAPartition partition = (HAPartition) this.getContainer().getInitialContext().lookup(
+            "/HAPartition/" + partitionName);
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
-      SessionContainer container = (SessionContainer) getContainer();
       container.getClusterFamilies().put(proxyFamilyName, hatarget);
       
       if (clustered.loadBalancePolicy() == null || clustered.loadBalancePolicy().equals(ClusteredDefaults.LOAD_BALANCE_POLICY_DEFAULT))
@@ -155,7 +153,9 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
          Util.rebind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME, factoryProxy);
       } catch (NamingException e)
       {
-         NamingException namingException = new NamingException("Could not bind stateful cluster proxy with ejb name " + getContainer().getEjbName() + " into JNDI under jndiName: " + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName + PROXY_FACTORY_NAME);
+         NamingException namingException = new NamingException("Could not bind stateful cluster proxy with ejb name "
+               + getContainer().getEjbName() + " into JNDI under jndiName: "
+               + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName + PROXY_FACTORY_NAME);
          namingException.setRootCause(e);
          throw namingException;
       }
@@ -164,17 +164,10 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
 
    }
 
-   public Object createProxy()
+   @Override
+   String getStackNameInterceptors()
    {
-      String stackName = "ClusteredStatefulSessionClientInterceptors";
-      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
-      {
-         stackName = binding.interceptorStack();
-      }
-      AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-      String partitionName = ((SessionContainer) getContainer()).getPartitionName();
-      return constructBusinessProxy(new StatefulClusteredProxy(getContainer(), stack.createInterceptors(this.getContainer()
-            .getAdvisor(), null), wrapper, lbPolicy, partitionName));
+      return StatefulClusterProxyFactory.STACK_NAME_CLUSTERED_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
    }
 
    public Object createProxy(Object id)
@@ -187,21 +180,11 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
       Dispatcher.singleton.unregisterTarget(getTargetId());
       hatarget.destroy();
       drm.unregisterListener(proxyFamilyName, this);
-      ((SessionContainer) getContainer()).getClusterFamilies().remove(proxyFamilyName);
+      this.getContainer().getClusterFamilies().remove(proxyFamilyName);
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
       super.stop();
    }
-   
-   protected StatefulHandleImpl getHandle()
-   {
-      StatefulHandleImpl handle = new StatefulHandleImpl();
-      RemoteBinding remoteBinding = this.getContainer().getAnnotation(RemoteBinding.class);
-      if (remoteBinding != null)
-         handle.jndiName = remoteBinding.jndiBinding();
- 
-      return handle;
-   }
-   
+
    /**
     * @return unique name for this proxy factory
     */
@@ -228,5 +211,4 @@ public class StatefulClusterProxyFactory extends BaseStatefulProxyFactory
          log.error(e);
       }
    }
-
 }

@@ -23,7 +23,9 @@ package org.jboss.ejb3.session;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
@@ -47,7 +49,7 @@ public class ProxyDeployer
 {
    private static final Logger log = Logger.getLogger(ProxyDeployer.class);
    private SessionContainer container;
-   private ArrayList<ProxyFactory> proxyFactories = new ArrayList<ProxyFactory>();
+   private Map<Object, ProxyFactory> proxyFactories = new HashMap<Object, ProxyFactory>();
    private RemoteBindings remoteBindings;
    private LocalBinding localBinding;
 
@@ -58,7 +60,15 @@ public class ProxyDeployer
       this.container = container;
    }
 
-   public List<ProxyFactory> getProxyFactories() { return proxyFactories; }
+   public Map<Object, ProxyFactory> getProxyFactories()
+   {
+      return proxyFactories;
+   }
+   
+   public ProxyFactory getProxyFactory(Object key)
+   {
+      return this.getProxyFactories().get(key);
+   }
 
    public void start() throws Exception
    {
@@ -73,7 +83,7 @@ public class ProxyDeployer
             String factoryImplementationRegistryKey = binding.factory();
             if (factoryImplementationRegistryKey.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
             {
-               factory = container.createRemoteProxyFactory(binding);
+               factory = container.createProxyFactory(binding);
             }
             else
             {
@@ -82,7 +92,7 @@ public class ProxyDeployer
                factory = constructor.newInstance(container, binding);
             }
             factory.start();
-            proxyFactories.add(factory);
+            proxyFactories.put(binding,factory);
          }
       }
 
@@ -90,7 +100,7 @@ public class ProxyDeployer
       {
          ProxyFactory factory = container.createProxyFactory(localBinding);
          factory.start();
-         proxyFactories.add(factory);
+         proxyFactories.put(localBinding,factory);
       }
    }
 

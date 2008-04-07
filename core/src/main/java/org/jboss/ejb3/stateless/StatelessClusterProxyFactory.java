@@ -185,7 +185,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       return proxy;
    }
 
-   protected StatelessHandleImpl getHandle()
+   protected StatelessHandleImpl createHandle()
    {
       StatelessHandleImpl handle = new StatelessHandleImpl();
       handle.jndiName = binding.jndiBinding();

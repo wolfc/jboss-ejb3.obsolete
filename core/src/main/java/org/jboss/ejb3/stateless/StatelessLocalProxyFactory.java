@@ -160,7 +160,7 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       return constructProxy(new StatelessLocalProxy(getContainer()));
    }
 
-   protected StatelessHandleImpl getHandle()
+   protected StatelessHandleImpl createHandle()
    {
       StatelessHandleImpl handle = new StatelessHandleImpl();
       LocalBinding remoteBinding = (LocalBinding) getContainer().resolveAnnotation(LocalBinding.class);

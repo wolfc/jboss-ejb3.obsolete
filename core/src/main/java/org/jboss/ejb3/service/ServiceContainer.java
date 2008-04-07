@@ -129,7 +129,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
    
    @Override
-   protected RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding)
+   protected RemoteProxyFactory createProxyFactory(RemoteBinding binding)
    {
       // TODO Implement clustering
       return new ServiceRemoteProxyFactory(this, binding);

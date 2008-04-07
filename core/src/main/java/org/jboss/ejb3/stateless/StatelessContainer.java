@@ -50,6 +50,7 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.logging.Logger;
@@ -103,7 +104,7 @@ public class StatelessContainer extends SessionContainer
    }
    
    @Override
-   protected RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding)
+   protected RemoteProxyFactory createProxyFactory(RemoteBinding binding)
    {
       Clustered clustered = getAnnotation(Clustered.class);
       if(clustered != null)

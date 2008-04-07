@@ -55,6 +55,7 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
+import org.jboss.ejb3.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
@@ -155,12 +156,10 @@ public abstract class SessionContainer extends EJBContainer
    /**
     * Create a remote proxy factory on the given binding.
     * 
-    * The jndiBinding is set to a value, the factory is set to it's default value.
-    * 
     * @param binding
     * @return
     */
-   protected abstract RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding);
+   protected abstract RemoteProxyFactory createProxyFactory(RemoteBinding binding);
    
    public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
    
@@ -510,7 +509,7 @@ public abstract class SessionContainer extends EJBContainer
     * @param initParameterValues    the arguments for the home's create method
     * @return   the identifier of the session
     */
-   abstract public Object createSession(Class initParameterTypes[], Object initParameterValues[]);
+   abstract public Object createSession(Class<?> initParameterTypes[], Object initParameterValues[]);
    
    abstract public Object localInvoke(Object id, Method method, Object[] args, FutureHolder provider) throws Throwable;
    

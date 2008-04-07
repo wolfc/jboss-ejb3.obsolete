@@ -158,7 +158,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessProxyFactory imple
       }
    }
 
-   protected StatelessHandleImpl getHandle()
+   protected StatelessHandleImpl createHandle()
    {
       StatelessHandleImpl handle = new StatelessHandleImpl();
       RemoteBinding remoteBinding = (RemoteBinding) getContainer().resolveAnnotation(RemoteBinding.class);
