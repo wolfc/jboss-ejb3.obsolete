@@ -292,6 +292,7 @@
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-test</artifactId>
+      <version>1.0.6-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss</groupId>
