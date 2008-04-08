@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.interceptor.AroundInvoke;
 import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 
@@ -36,13 +37,16 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.ConstructorJoinpoint;
 import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.joinpoint.MethodJoinpoint;
+import org.jboss.ejb3.interceptors.container.AbstractContainer;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
+import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
 /**
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InjectInterceptorsFactory extends AbstractInterceptorFactory
 {
@@ -76,6 +80,26 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
          // aroundInvoke
          
          Method method = ((MethodJoinpoint) jp).getMethod();
+         
+         if(advisor instanceof ManagedObjectAdvisor)
+         {
+            AbstractContainer<?, ?> container = AbstractContainer.getContainer(advisor);
+            List<Class<?>> interceptorClasses = container.getInterceptorRegistry().getApplicableInterceptorClasses(method);
+            List<Interceptor> interceptors = new ArrayList<Interceptor>();
+            for(Class<?> interceptorClass : interceptorClasses)
+            {
+               interceptors.add(new EJB3InterceptorInterceptor(interceptorClass));
+            }
+            Class<?> beanClass = advisor.getClazz();
+            for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
+            {
+               if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
+               {
+                  interceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
+               }
+            }
+            return new InterceptorSequencer(interceptors);
+         }
          
          List<Interceptor> interceptors = new ArrayList<Interceptor>() {
             private static final long serialVersionUID = 1L;

@@ -30,6 +30,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.interceptors.signature.PackageProtectedInterceptor;
 import org.jboss.ejb3.test.interceptors.signature.SignatureTestBean;
@@ -39,7 +40,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SignatureTestCase extends TestCase
 {
@@ -69,7 +70,7 @@ public class SignatureTestCase extends TestCase
       
       DirectContainer<SignatureTestBean> container = new DirectContainer<SignatureTestBean>("SignatureTestBean", "Test", SignatureTestBean.class);
       
-      SignatureTestBean bean = container.construct();
+      BeanContext<SignatureTestBean> bean = container.construct();
       
       List<String> expectedLifeCycleVisits = Arrays.asList("org.jboss.ejb3.test.interceptors.signature.PackageProtectedInterceptor.postConstruct");
       assertEquals(expectedLifeCycleVisits, lifeCycleVisits);

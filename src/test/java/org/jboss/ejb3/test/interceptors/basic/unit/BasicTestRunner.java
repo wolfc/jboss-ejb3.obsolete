@@ -36,7 +36,7 @@ import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
  * Named TestRunner, so surefire does not pick it up.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BasicTestRunner extends TestCase
 {
@@ -69,5 +69,17 @@ public class BasicTestRunner extends TestCase
       
       //((Destructable) bean)._preDestroy();
       bean = null;
+   }
+   
+   public void testInstances() throws Exception
+   {
+      BasicBean bean1 = new BasicBean();
+      BasicBean bean2 = new BasicBean();
+      
+      bean1.setState(1);
+      bean2.setState(2);
+      
+      assertEquals(1, bean1.getState());
+      assertEquals(2, bean2.getState());
    }
 }

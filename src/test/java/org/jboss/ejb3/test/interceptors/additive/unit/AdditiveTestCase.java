@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFactory;
@@ -138,7 +139,7 @@ public class AdditiveTestCase extends TestCase
       
       MyContainer<MySessionBean> container = new MyContainer<MySessionBean>("MySessionBean", "Test", MySessionBean.class, beanMetaData);
       
-      MySessionBean bean = container.construct();
+      BeanContext<MySessionBean> bean = container.construct();
       
       List<Class<?>> visits = new ArrayList<Class<?>>();
       container.invoke(bean, "doIt", visits);

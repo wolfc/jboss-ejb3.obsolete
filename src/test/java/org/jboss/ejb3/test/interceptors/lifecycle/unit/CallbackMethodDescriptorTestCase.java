@@ -29,6 +29,7 @@ import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.BeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFactory;
@@ -129,7 +130,7 @@ public class CallbackMethodDescriptorTestCase extends TestCase
       
       MyContainer<SessionBeanCallbackBean> container = new MyContainer<SessionBeanCallbackBean>("SessionBeanCallbackBean", "Test", SessionBeanCallbackBean.class, beanMetaData);
       
-      SessionBeanCallbackBean bean = container.construct();
+      BeanContext<SessionBeanCallbackBean> bean = container.construct();
       
       assertEquals("SessionBeanCallbackBean ejbCreate must have been called once", 1, SessionBeanCallbackBean.postConstructs);
       
