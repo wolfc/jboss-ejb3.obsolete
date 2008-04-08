@@ -30,6 +30,7 @@ import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.BeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFactory;
@@ -142,7 +143,7 @@ public class MetadataTestCase extends TestCase
       MyContainer<MetadataBean> container = new MyContainer<MetadataBean>("MetadataBean", "Test", MetadataBean.class, beanMetaData);
       container.testAdvisor();
       
-      MetadataBean bean = container.construct();
+      BeanContext<MetadataBean> bean = container.construct();
       
       assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
       

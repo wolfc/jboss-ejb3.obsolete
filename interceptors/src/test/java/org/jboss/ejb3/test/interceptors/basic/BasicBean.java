@@ -25,6 +25,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.test.interceptors.instances.StatefulInterceptor;
 import org.jboss.logging.Logger;
 
 /**
@@ -35,7 +36,7 @@ import org.jboss.logging.Logger;
  * And it has bean method interceptors: aroundInvoke
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Interceptors(BasicInterceptor.class)
 public class BasicBean
@@ -72,5 +73,19 @@ public class BasicBean
    public void intercept()
    {
       log.debug("intercept");
+   }
+   
+   // State check
+   
+   @Interceptors(StatefulInterceptor.class)
+   public int getState()
+   {
+      throw new RuntimeException("Should not get here");
+   }
+   
+   @Interceptors(StatefulInterceptor.class)
+   public void setState(int state)
+   {
+      throw new RuntimeException("Should not get here");
    }
 }

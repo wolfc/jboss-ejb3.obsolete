@@ -26,6 +26,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.interceptor.AroundInvoke;
+
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.Domain;
@@ -35,14 +37,18 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
+import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
+import org.jboss.ejb3.interceptors.aop.BusinessMethodInterceptorMethodInterceptor;
+import org.jboss.ejb3.interceptors.aop.ExtendedAdvisor;
+import org.jboss.ejb3.interceptors.aop.ExtendedAdvisorHelper;
 import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
 import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
+import org.jboss.ejb3.interceptors.registry.InterceptorRegistry;
 import org.jboss.logging.Logger;
 
 /**
@@ -59,6 +65,8 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    private static final Logger log = Logger.getLogger(AbstractContainer.class);
    
    private ManagedObjectAdvisor<T, C> advisor;
+   
+   private InterceptorRegistry interceptorRegistry;
    
    /**
     * For a completely customized startup.
@@ -80,12 +88,34 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       this(name, getDomain(domainName), beanClass);
    }
    
-   protected T construct(Constructor<? extends T> constructor, Object ... initargs)
+   protected BeanContext<T> construct(Constructor<? extends T> constructor, Object ... initargs)
    {
       int idx = advisor.getConstructorIndex(constructor);
       assert idx != -1 : "can't find constructor in the advisor";
       try
       {
+         // TODO: ask the BeanFactory<BeanContext> for a new ctx
+         
+         InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
+         if(interceptorFactoryRef == null)
+            throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
+         log.debug("interceptor factory class = " + interceptorFactoryRef.value());
+         InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
+         
+         List<Interceptor> ejb3Interceptors = new ArrayList<Interceptor>();
+         for(Class<?> interceptorClass : getInterceptorRegistry().getInterceptorClasses())
+         {
+            Object interceptor = interceptorFactory.create(advisor, interceptorClass);
+            ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
+            for(Method method : ClassHelper.getAllMethods(interceptorClass))
+            {
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
+               {
+                  ejb3Interceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
+               }
+            }
+         }
+         
          T targetObject = (T) advisor.invokeNew(initargs, idx);
          
          Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
@@ -94,7 +124,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
          invocation.setTargetObject(targetObject);
          invocation.invokeNext();
          
-         return targetObject;
+         return new DummyBeanContext(targetObject, ejb3Interceptors);
       }
       catch(Throwable t)
       {
@@ -110,7 +140,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       return interceptorClass.newInstance();
    }
    
-   protected void destroy(T bean)
+   protected void destroy(BeanContext<T> bean)
    {
       try
       {
@@ -120,7 +150,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
          
          DestructionInvocation invocation = new DestructionInvocation(interceptors.toArray(new Interceptor[0]));
          invocation.setAdvisor(advisor);
-         invocation.setTargetObject(bean);
+         invocation.setTargetObject(bean.getInstance());
          invocation.invokeNext();
       }
       catch(Throwable t)
@@ -190,6 +220,19 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       return domain;
    }
    
+   public InterceptorRegistry getInterceptorRegistry()
+   {
+      if(interceptorRegistry == null)
+      {
+         synchronized (this)
+         {
+            if(interceptorRegistry == null)
+               interceptorRegistry = new InterceptorRegistry(getAdvisor());
+         }
+      }
+      return interceptorRegistry;
+   }
+   
    /**
     * Call a method upon a target object with all interceptors in place.
     * 
@@ -199,15 +242,13 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
     * @return           return value of the method
     * @throws Throwable if anything goes wrong
     */
-   protected Object invoke(T target, Method method, Object arguments[]) throws Throwable
+   protected Object invoke(BeanContext<T> target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);
       MethodInfo info = getAdvisor().getMethodInfo(methodHash);
       if(info == null)
          throw new IllegalArgumentException("method " + method + " is not under advisement by " + this);
-      MethodInvocation invocation = new MethodInvocation(info, info.getInterceptors());
-      invocation.setArguments(arguments);
-      invocation.setTargetObject(target);
+      ContainerMethodInvocation invocation = new ContainerMethodInvocation(info, target, arguments);
       return invocation.invokeNext();
    }
    
@@ -224,9 +265,9 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
     * @throws Throwable if anything goes wrong
     */
    @SuppressWarnings("unchecked")
-   protected <R> R invoke(T target, String methodName, Object ... args) throws Throwable
+   protected <R> R invoke(BeanContext<T> target, String methodName, Object ... args) throws Throwable
    {
-      Method method = ClassHelper.getMethod(target.getClass(), methodName);
+      Method method = ClassHelper.getMethod(target.getInstance().getClass(), methodName);
       return (R) invoke(target, method, args);
    }
 }

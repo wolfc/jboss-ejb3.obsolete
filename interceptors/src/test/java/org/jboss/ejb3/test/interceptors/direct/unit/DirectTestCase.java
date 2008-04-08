@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.interceptors.direct.DirectBean;
@@ -80,7 +81,7 @@ public class DirectTestCase extends TestCase
       MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "Test", DirectBean.class);
       container.testAdvisor();
       
-      DirectBean bean = container.construct();
+      BeanContext<DirectBean> bean = container.construct();
       
       assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
       assertEquals("DirectBean postConstruct must have been called once", 1, DirectBean.postConstructs);

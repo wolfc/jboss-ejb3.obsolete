@@ -30,7 +30,9 @@ import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
+import org.jboss.ejb3.interceptors.registry.InterceptorRegistry;
 import org.jboss.logging.Logger;
 
 /**
@@ -61,17 +63,17 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
       super(name, domainName, beanClass);
    }
    
-   public T construct() throws SecurityException, NoSuchMethodException
+   public BeanContext<T> construct() throws SecurityException, NoSuchMethodException
    {
       return construct((Object[]) null, null);
    }
    
    @SuppressWarnings("unchecked")
-   public T construct(Object initargs[], Class<?> parameterTypes[]) throws SecurityException, NoSuchMethodException
+   public BeanContext<T> construct(Object initargs[], Class<?> parameterTypes[]) throws SecurityException, NoSuchMethodException
    {
       ClassAdvisor advisor = getAdvisor();
       Constructor<T> constructor = advisor.getClazz().getConstructor(parameterTypes);
-      T targetObject = construct(constructor, initargs);
+      BeanContext<T> targetObject = construct(constructor, initargs);
       
       if(targetObject instanceof IndirectContainer)
          ((IndirectContainer<T, C>) targetObject).setDirectContainer((C) this);
@@ -80,7 +82,7 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
    }
    
    @Override
-   public void destroy(T bean)
+   public void destroy(BeanContext<T> bean)
    {
       super.destroy(bean);
    }
@@ -94,9 +96,16 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
       return super.getBeanClass();
    }
    
+   // expose the interceptor registry
+   @Override
+   public InterceptorRegistry getInterceptorRegistry()
+   {
+      return super.getInterceptorRegistry();
+   }
+   
    // expose the invoke method
    @Override
-   public Object invoke(T target, Method method, Object[] arguments) throws Throwable
+   public Object invoke(BeanContext<T> target, Method method, Object[] arguments) throws Throwable
    {
       return super.invoke(target, method, arguments);
    }
@@ -115,9 +124,9 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
     * @throws Throwable if anything goes wrong
     */
    @SuppressWarnings("unchecked")
-   public <R> R invoke(T target, String methodName, Object ... args) throws Throwable
+   public <R> R invoke(BeanContext<T> target, String methodName, Object ... args) throws Throwable
    {
-      Method method = ClassHelper.getMethod(target.getClass(), methodName);
+      Method method = ClassHelper.getMethod(target.getInstance().getClass(), methodName);
       return (R) invoke(target, method, args);
    }
    

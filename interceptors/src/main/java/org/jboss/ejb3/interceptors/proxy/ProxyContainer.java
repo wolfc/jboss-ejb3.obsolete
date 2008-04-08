@@ -28,6 +28,7 @@ import java.lang.reflect.Proxy;
 
 import org.jboss.aop.Domain;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
 
 /**
@@ -37,7 +38,7 @@ import org.jboss.logging.Logger;
  * Advisor life-cycle is controlled.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
 {
@@ -45,9 +46,9 @@ public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
    
    private class ProxyInvocationHandler implements InvocationHandler
    {
-      private T target;
+      private BeanContext<T> target;
       
-      public ProxyInvocationHandler(T target)
+      public ProxyInvocationHandler(BeanContext<T> target)
       {
          assert target != null : "target is null";
          
@@ -74,7 +75,7 @@ public class ProxyContainer<T> extends AbstractContainer<T, ProxyContainer<T>>
    public <I> I constructProxy(Class<?> interfaces[]) throws Throwable
    {
       Constructor<? extends T> constructor = getBeanClass().getConstructor();
-      T instance = construct(constructor);
+      BeanContext<T> instance = construct(constructor);
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       //Class<?> interfaces[] = { intf };

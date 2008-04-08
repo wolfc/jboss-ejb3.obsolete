@@ -37,7 +37,7 @@ import org.jboss.aop.joinpoint.Invocation;
  * Object <METHOD>(InvocationContext) throws Exception
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BusinessMethodInterceptorMethodInterceptor implements Interceptor
 {
@@ -66,6 +66,11 @@ public class BusinessMethodInterceptorMethodInterceptor implements Interceptor
    public String getName()
    {
       return "BusinessMethodInterceptorMethodInterceptor";
+   }
+
+   public Class<?> getRealClass()
+   {
+      return interceptor.getClass();
    }
 
    public Object invoke(final Invocation invocation) throws Throwable
