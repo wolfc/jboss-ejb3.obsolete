@@ -38,9 +38,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a> 
  * @version $Revision$
  */
-public class StatefulRemoteHandleImpl implements Handle
+public class StatefulHandleRemoteImpl implements Handle
 {
-   private static final Logger log = Logger.getLogger(StatefulRemoteHandleImpl.class);
+   private static final Logger log = Logger.getLogger(StatefulHandleRemoteImpl.class);
 
    /** Serial Version Identifier. */
    static final long serialVersionUID = -6324520755180597156L;
@@ -51,7 +51,7 @@ public class StatefulRemoteHandleImpl implements Handle
 
    // Constructor
 
-   public StatefulRemoteHandleImpl(EJBObject proxy)
+   public StatefulHandleRemoteImpl(EJBObject proxy)
    {
       this.proxy = proxy;
    }

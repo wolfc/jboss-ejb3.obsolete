@@ -65,7 +65,7 @@ public class RemoteProducerFactory extends ProducerFactory
    {
    }
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       Class[] interfaces = {producer, ProducerObject.class};
 

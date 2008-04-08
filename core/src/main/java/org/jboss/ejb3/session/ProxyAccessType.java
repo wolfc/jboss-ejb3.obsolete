@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,25 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.stateful;
-
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.session.SessionSpecContainer;
-import org.jboss.logging.Logger;
+package org.jboss.ejb3.session;
 
 /**
- * Comment
- *
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version $Revision$
+ * Defines access type (remote/local) for client view
+ * 
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-public class StatefulRemoteProxyFactory extends org.jboss.ejb3.stateful.StatefulRemoteProxyFactory
-{
-   @SuppressWarnings("unused")
-   private static final Logger log = Logger.getLogger(StatefulRemoteProxyFactory.class);
-   
-   public StatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
-   {
-      super(container, binding);
-   }
+public enum ProxyAccessType {
+   REMOTE, LOCAL
 }

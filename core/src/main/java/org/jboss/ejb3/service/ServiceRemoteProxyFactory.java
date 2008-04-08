@@ -78,7 +78,7 @@ public class ServiceRemoteProxyFactory extends BaseServiceProxyFactory implement
       super.start();
    }
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       try
       {

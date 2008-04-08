@@ -42,8 +42,9 @@ import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.cache.Identifiable;
 import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
-import org.jboss.ejb3.session.SessionBeanContext;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecBeanContext;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.serial.io.MarshalledObject;
 import org.jboss.tm.TxUtils;
@@ -59,7 +60,7 @@ import org.jboss.util.id.GUID;
  * 
  * @version $Revision$
  */
-public class StatefulBeanContext extends SessionBeanContext implements Identifiable, Serializable
+public class StatefulBeanContext extends SessionSpecBeanContext<SessionSpecContainer> implements Identifiable, Serializable
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;
@@ -140,7 +141,7 @@ public class StatefulBeanContext extends SessionBeanContext implements Identifia
     * @param container
     * @param beanMO
     */
-   protected StatefulBeanContext(SessionContainer container, MarshalledObject beanMO)
+   protected StatefulBeanContext(SessionSpecContainer container, MarshalledObject beanMO)
    {
       super(container);
       
@@ -158,7 +159,7 @@ public class StatefulBeanContext extends SessionBeanContext implements Identifia
     * @param container
     * @param bean
     */
-   protected StatefulBeanContext(SessionContainer container, Object bean)
+   protected StatefulBeanContext(SessionSpecContainer container, Object bean)
    {
       super(container, bean);
       
@@ -791,16 +792,16 @@ public class StatefulBeanContext extends SessionBeanContext implements Identifia
    }
 
    @Override
-   public SessionContainer getContainer()
+   public SessionSpecContainer getContainer()
    {
       if (container == null)
       {
-         container = (SessionContainer)Ejb3Registry.findContainer(containerGuid);
-          
+         container = (SessionSpecContainer) Ejb3Registry.findContainer(containerGuid);
+
          if (isClustered && container == null)
-            container = (SessionContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
+            container = (SessionSpecContainer) Ejb3Registry.getClusterContainer(containerClusterUid);
       }
-      
+
       return container;
    }
 

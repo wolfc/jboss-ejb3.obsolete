@@ -100,22 +100,14 @@ public class MultipleDefinitionsOfSameBusinessInterfaceUnitTestCase extends JBos
 
    // Internal Helper Methods
 
-   private void internalTestRemoteView(String jndiName)
+   private void internalTestRemoteView(String jndiName) throws Exception
    {
       // Initialize
       TestRemoteBusinessInterface test = null;
 
       // Lookup
-      try
-      {
-         test = (TestRemoteBusinessInterface) this.getInitialContext().lookup(
-               jndiName);
-      }
-      catch (Throwable t)
-      {
-         log.error(t);
-         JBossTestCase.fail(t.getMessage());
-      }
+      test = (TestRemoteBusinessInterface) this.getInitialContext().lookup(jndiName);
+      
       // Ensure lookup succeeds; bean is deployed
       JBossTestCase.assertNotNull(test);
 
@@ -131,21 +123,14 @@ public class MultipleDefinitionsOfSameBusinessInterfaceUnitTestCase extends JBos
       }
    }
 
-   private void internalTestLocalView(String remoteDelegateJndiName)
+   private void internalTestLocalView(String remoteDelegateJndiName) throws Exception
    {
       // Initialize
       TestRemoteBusinessInterface test = null;
 
       // Lookup
-      try
-      {
-         test = (TestRemoteBusinessInterface) this.getInitialContext().lookup(remoteDelegateJndiName);
-      }
-      catch (Throwable t)
-      {
-         log.error(t);
-         JBossTestCase.fail(t.getMessage());
-      }
+      test = (TestRemoteBusinessInterface) this.getInitialContext().lookup(remoteDelegateJndiName);
+      
       // Ensure lookup succeeds; bean is deployed
       JBossTestCase.assertNotNull(test);
 

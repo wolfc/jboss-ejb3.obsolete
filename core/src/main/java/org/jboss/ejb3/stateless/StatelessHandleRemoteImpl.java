@@ -21,48 +21,50 @@
  */
 package org.jboss.ejb3.stateless;
 
-import org.jboss.ejb3.session.SessionSpecBeanContext;
-import org.jboss.ejb3.session.SessionSpecContainer;
-import org.jboss.injection.lang.reflect.BeanProperty;
+import java.rmi.RemoteException;
 
+import javax.ejb.EJBObject;
+import javax.ejb.Handle;
 
 /**
- * Comment
+ * An EJB stateless session bean handle.
  *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
+ * @author  <a href="mailto:marc.fleury@jboss.org">Marc Fleury</a>
+ * @author Scott.Stark@jboss.org
  * @version $Revision$
  */
-public class StatelessBeanContext extends SessionSpecBeanContext<SessionSpecContainer>
+public class StatelessHandleRemoteImpl
+      implements Handle
 {
-   private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
-   private BeanProperty webServiceContextProperty;
+   /** Serial Version Identifier. */
+   static final long serialVersionUID = 3811452873535097661L;
    
-   protected StatelessBeanContext(SessionSpecContainer container, Object bean)
+   private EJBObject proxy;
+
+   // Constructors --------------------------------------------------
+
+   public StatelessHandleRemoteImpl()
    {
-      super(container, bean);
+      
+   }
+   
+   /**
+    * Construct a <tt>StatelessHandleImpl</tt>.
+    *
+    * @param handle    The initial context handle that will be used
+    *                  to restore the naming context or null to use
+    *                  a fresh InitialContext object.
+    * @param name      JNDI name.
+    */
+   public StatelessHandleRemoteImpl(EJBObject proxy)
+   {
+      this.proxy = proxy;
    }
 
-   public javax.xml.rpc.handler.MessageContext getMessageContextJAXRPC()
-   {
-      return jaxrpcMessageContext;
-   }
+   // Public --------------------------------------------------------
 
-   public void setMessageContextJAXRPC(javax.xml.rpc.handler.MessageContext rpcMessageContext)
+   public EJBObject getEJBObject() throws RemoteException
    {
-      this.jaxrpcMessageContext = rpcMessageContext;
-   }
-
-   public BeanProperty getWebServiceContextProperty()
-   {
-      return webServiceContextProperty;
-   }
-
-   public void setWebServiceContextProperty(BeanProperty webServiceContextProperty)
-   {
-      this.webServiceContextProperty = webServiceContextProperty;
-   }
-
-   public void remove()
-   {
+      return this.proxy;
    }
 }

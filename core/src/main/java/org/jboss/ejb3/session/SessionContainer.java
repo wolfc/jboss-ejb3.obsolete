@@ -55,7 +55,6 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
-import org.jboss.ejb3.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
@@ -89,35 +88,14 @@ public abstract class SessionContainer extends EJBContainer
    }
    
    /**
-    * @param id
-    * @return
-    * @throws Exception
-    * @deprecated       the binding on which this proxy is bound is unspecified
-    */
-   public Object createLocalProxy(Object id) throws Exception
-   {
-      LocalBinding binding = getAnnotation(LocalBinding.class);
-      return createLocalProxy(id, binding);
-   }
-   
-   /**
-    * Create a local proxy for an enterprise bean identified by id on a given binding.
+    * Returns a remote binding for this container
     * 
-    * @param id             the identifier of the enterprise bean (null for stateless)
-    * @param binding        the binding of the proxy
-    * @return               a proxy to an enterprise bean
-    * @throws Exception
-    */
-   public abstract Object createLocalProxy(Object id, LocalBinding binding) throws Exception;
-   
-   /**
-    * @param id
+    * @deprecated Non-deterministic, more than one binding may be specified 
+    * for this container
     * @return
-    * @throws Exception
-    * @deprecated       the binding on which this proxy is bound is unspecified
     */
    @Deprecated
-   public Object createRemoteProxy(Object id) throws Exception
+   protected RemoteBinding getRemoteBinding()
    {
       RemoteBinding binding = null;
       RemoteBindings bindings = getAnnotation(RemoteBindings.class);
@@ -126,17 +104,8 @@ public abstract class SessionContainer extends EJBContainer
       else
          binding = getAnnotation(RemoteBinding.class);
       
-      return createRemoteProxy(id, binding);
+      return binding;
    }
-   /**
-    * Create a remote proxy for an enterprise bean identified by id on a given binding.
-    * 
-    * @param id             the identifier of the enterprise bean (null for stateless)
-    * @param binding        the binding of the proxy
-    * @return               a proxy to an enterprise bean
-    * @throws Exception
-    */
-   public abstract Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception;
 
    protected ThreadLocalStack<InvokedMethod> invokedMethod = new ThreadLocalStack<InvokedMethod>();
 
@@ -151,7 +120,7 @@ public abstract class SessionContainer extends EJBContainer
     * Create a local proxy factory.
     * @return
     */
-   protected abstract ProxyFactory createProxyFactory(LocalBinding binding);
+   protected abstract ProxyFactory getProxyFactory(LocalBinding binding);
    
    /**
     * Create a remote proxy factory on the given binding.
@@ -159,7 +128,7 @@ public abstract class SessionContainer extends EJBContainer
     * @param binding
     * @return
     */
-   protected abstract RemoteProxyFactory createProxyFactory(RemoteBinding binding);
+   protected abstract RemoteProxyFactory getProxyFactory(RemoteBinding binding);
    
    public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
    
@@ -246,7 +215,7 @@ public abstract class SessionContainer extends EJBContainer
       }
       catch (Exception ignore)
       {
-         log.trace("Proxy deployer stop failed", ignore);
+         log.debug("Proxy deployer stop failed", ignore);
       }
       try
       {
@@ -254,7 +223,7 @@ public abstract class SessionContainer extends EJBContainer
       }
       catch (Exception ignore)
       {
-         log.trace("Dispatcher unregister target failed", ignore);
+         log.debug("Dispatcher unregister target failed", ignore);
       }
       super.stop();
    }
@@ -473,7 +442,7 @@ public abstract class SessionContainer extends EJBContainer
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("create"))
       {
-         Class[] initParameterTypes = {};
+         Class<?>[] initParameterTypes = {};
          Object[] initParameterValues = {};
          if (unadvisedMethod.getParameterTypes().length > 0)
          {
@@ -483,7 +452,7 @@ public abstract class SessionContainer extends EJBContainer
 
          Object id = createSession(initParameterTypes, initParameterValues);
          
-         Object proxy = factory.createProxy(id);
+         Object proxy = factory.createProxyBusiness(id);
 
          return proxy;
       }

@@ -57,7 +57,7 @@ public class ServiceLocalProxyFactory extends BaseServiceProxyFactory
       return uniqueInterfaces.toArray(new Class<?>[]{});
    }
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       try
       {

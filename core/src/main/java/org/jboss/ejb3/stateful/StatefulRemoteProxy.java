@@ -80,7 +80,7 @@ public class StatefulRemoteProxy extends org.jboss.ejb3.session.BaseSessionRemot
    {
    }
    
-   public void setHandle(StatefulRemoteHandleImpl handle)
+   public void setHandle(StatefulHandleRemoteImpl handle)
    {
       this.handle = handle;
    }

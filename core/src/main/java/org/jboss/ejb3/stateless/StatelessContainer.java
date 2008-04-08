@@ -26,7 +26,11 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.ejb.*;
+import javax.ejb.EJBContext;
+import javax.ejb.EJBException;
+import javax.ejb.Handle;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 import javax.naming.NamingException;
 
 import org.jboss.aop.Domain;
@@ -41,31 +45,27 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.BeanContextLifecycleCallback;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.ProxyUtils;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
-import org.jboss.ejb3.session.SessionContainer;
-import org.jboss.ejb3.stateful.BaseStatefulRemoteProxyFactory;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
 import org.jboss.proxy.ejb.handle.StatelessHandleImpl;
-import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
-import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
-import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
-import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
-import org.jboss.wsf.spi.invocation.InvocationType;
 import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
-import org.jboss.injection.lang.reflect.BeanProperty;
+import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
+import org.jboss.wsf.spi.invocation.InvocationType;
+import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
+import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
+import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
 
 
 /**
@@ -74,7 +74,7 @@ import org.jboss.injection.lang.reflect.BeanProperty;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatelessContainer extends SessionContainer
+public class StatelessContainer extends SessionSpecContainer
   implements TimedObjectInvoker, ServiceEndpointContainer
 {
    private static final Logger log = Logger.getLogger(StatelessContainer.class);
@@ -98,22 +98,76 @@ public class StatelessContainer extends SessionContainer
    }
    
    @Override
-   protected ProxyFactory createProxyFactory(LocalBinding binding)
+   protected StatelessLocalProxyFactory getProxyFactory(LocalBinding binding)
    {
-      return new StatelessLocalProxyFactory(this, binding);
+      StatelessLocalProxyFactory factory = (StatelessLocalProxyFactory) this.proxyDeployer.getProxyFactory(binding);
+
+      if (factory == null)
+      {
+         factory = new StatelessLocalProxyFactory(this, binding);
+         try
+         {
+            factory.init();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+
+      return factory;
    }
    
    @Override
-   protected RemoteProxyFactory createProxyFactory(RemoteBinding binding)
+   protected BaseStatelessRemoteProxyFactory getProxyFactory(RemoteBinding binding)
    {
-      Clustered clustered = getAnnotation(Clustered.class);
-      if(clustered != null)
-         return new StatelessClusterProxyFactory(this, binding, clustered);
-      else
-         return new StatelessRemoteProxyFactory(this, binding);
+      BaseStatelessRemoteProxyFactory factory = (BaseStatelessRemoteProxyFactory) this.proxyDeployer
+            .getProxyFactory(binding);
+
+      if (factory == null)
+      {
+         Clustered clustered = getAnnotation(Clustered.class);
+         if (clustered != null)
+            factory = new StatelessClusterProxyFactory(this, binding, clustered);
+         else
+            factory = new StatelessRemoteProxyFactory(this, binding);
+         
+         try
+         {
+            factory.init();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+
+      return factory;
    }
    
-   public Object createSession(Class initTypes[], Object initArgs[])
+   /**
+    * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id, with
+    * the specified LocalBinding
+    * 
+    * @param id
+    * @return
+    * @throws Exception
+    */
+   @Override
+   public Object createProxyLocalEjb21(LocalBinding binding) throws Exception
+   {
+      StatelessLocalProxyFactory proxyFactory = this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb21();
+   }
+   
+   @Override
+   public Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception
+   {
+      BaseStatelessRemoteProxyFactory proxyFactory = this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb21();
+   }
+   
+   public Object createSession(Class<?> initTypes[], Object initArgs[])
    {
       if((initTypes != null && initTypes.length > 0) || (initArgs != null && initArgs.length > 0))
          throw new IllegalArgumentException("stateless bean create method must take no arguments (EJB3 4.5)");
@@ -368,7 +422,7 @@ public class StatelessContainer extends SessionContainer
       if (unadvisedMethod.getName().equals("getHandle"))
       {
          StatelessHandleImpl handle = null;
-         RemoteBinding remoteBindingAnnotation = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
          if (remoteBindingAnnotation != null)
             handle = new StatelessHandleImpl(remoteBindingAnnotation.jndiBinding());
 
@@ -382,7 +436,7 @@ public class StatelessContainer extends SessionContainer
       {
          HomeHandleImpl homeHandle = null;
 
-         RemoteBinding remoteBindingAnnotation = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
+         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
          if (remoteBindingAnnotation != null)
             homeHandle = new HomeHandleImpl(ProxyFactoryHelper.getHomeJndiName(this));
 
@@ -406,14 +460,13 @@ public class StatelessContainer extends SessionContainer
    {
       if (method.getName().equals("create"))
       {
-         LocalBinding binding = (LocalBinding) resolveAnnotation(LocalBinding.class);
+         LocalBinding binding = this.getAnnotation(LocalBinding.class);
          
          // FIXME: why this binding? Could be another one. (there is only one local binding, but that's another bug)
          
-         StatelessLocalProxyFactory factory = new StatelessLocalProxyFactory(this, binding);
-         factory.init();
+         StatelessLocalProxyFactory factory = this.getProxyFactory(binding);
 
-         Object proxy = factory.createProxy();
+         Object proxy = factory.createProxyEjb21();
 
          return proxy;
       }
@@ -422,52 +475,17 @@ public class StatelessContainer extends SessionContainer
          return null;
       }
    }
-   
-   public Object createLocalProxy(Object id, LocalBinding binding) throws Exception
-   {
-      StatelessLocalProxyFactory factory = new StatelessLocalProxyFactory(this, binding);
-      factory.init();
-
-      Object proxy = factory.createProxy();
-
-      return proxy;
-   }
-   
-   public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
-   {
-//      RemoteBinding binding = null;
-//
-//      RemoteBindings bindings = (RemoteBindings) resolveAnnotation(RemoteBindings.class);
-//      if (bindings != null)
-//         binding = bindings.value()[0];
-//      else
-//         binding = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
-
-      StatelessRemoteProxyFactory factory = new StatelessRemoteProxyFactory(this, binding);
-      factory.init();
-
-      return factory.createProxy();
-   }
 
    protected Object invokeHomeMethod(MethodInfo info, MethodInvocation invocation) throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("create"))
       {
-         RemoteBinding binding = null;
-
-         RemoteBindings bindings = (RemoteBindings) resolveAnnotation(RemoteBindings.class);
-         if (bindings != null)
-            binding = bindings.value()[0];
-         else
-            binding = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
-
-         // FIXME: why this binding? Better select the proper one.
+         RemoteBinding binding = this.getRemoteBinding();
          
-         StatelessRemoteProxyFactory factory = new StatelessRemoteProxyFactory(this, binding);
-         factory.init();
-
-         return factory.createProxy();
+         BaseStatelessRemoteProxyFactory factory = this.getProxyFactory(binding);
+         
+         return factory.createProxyEjb21();
       }
       else // remove
       {

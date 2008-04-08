@@ -1,4 +1,4 @@
-package org.jboss.ejb3.stateful;
+package org.jboss.ejb3.stateless;
 
 import javax.ejb.EJBObject;
 import javax.ejb.RemoteHome;
@@ -14,7 +14,7 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.remoting.InvokerLocator;
 
-public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFactory implements RemoteProxyFactory
+public abstract class BaseStatelessRemoteProxyFactory extends BaseStatelessProxyFactory implements RemoteProxyFactory
 {
    
    // Instance Members
@@ -24,7 +24,7 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
    private InvokerLocator locator;
    
    // Constructor
-   public BaseStatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
+   public BaseStatelessRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
       super(container, binding.jndiBinding());
       
@@ -44,13 +44,13 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
    // Required Implementations
 
    @Override
-   protected ProxyAccessType getProxyAccessType()
+   protected final ProxyAccessType getProxyAccessType()
    {
       return ProxyAccessType.REMOTE;
-   }
-
+   }  
+   
    @Override
-   protected void validateEjb21Views()
+   protected final void validateEjb21Views()
    {
       // Obtain Container
       SessionContainer container = this.getContainer();
@@ -61,17 +61,6 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
       // Ensure that if EJB 2.1 Components are defined, they're complete
       this.validateEjb21Views(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
             .getRemoteInterfaces(container));
-   }
-   
-   public Object createProxyBusiness()
-   {
-      Object id = getContainer().createSession();
-      return this.createProxyBusiness(id);
-   }
-   
-   public Object createProxyBusiness(Object id)
-   {
-      return this.createProxy(id,SpecificationInterfaceType.EJB30_BUSINESS);
    }
    
    // Specifications
@@ -87,18 +76,21 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
       return homeJndiName.equals(remoteBusinessJndiName);
    }
    
-   Object createProxy(Object id,SpecificationInterfaceType type)
+   public Object createProxyBusiness()
+   {
+      return this.createProxy(SpecificationInterfaceType.EJB30_BUSINESS);
+   }
+   
+   public Object createProxy(SpecificationInterfaceType type)
    {
       String stackName = this.getStackNameInterceptors();
-      RemoteBinding binding = this.getBinding();
-      if (binding.interceptorStack() != null && !binding.interceptorStack().trim().equals(""))
+      if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
       {
          stackName = binding.interceptorStack();
       }
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
-      if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
-      StatefulRemoteProxy proxy = new StatefulRemoteProxy(getContainer(), stack.createInterceptors(getContainer()
-            .getAdvisor(), null), this.getLocator(), id);
+      StatelessRemoteProxy proxy = new StatelessRemoteProxy(getContainer(),
+            stack.createInterceptors(getContainer().getAdvisor(), null), locator);
       
       if(type.equals(SpecificationInterfaceType.EJB21))
       {
@@ -111,29 +103,18 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
    }
    
    @Override
-   protected StatefulHandleRemoteImpl createHandle()
+   protected final StatelessHandleRemoteImpl createHandle()
    {
       EJBObject proxy = this.createProxyEjb21();
-      return this.createHandle(proxy);
-   }
-   
-   protected StatefulHandleRemoteImpl createHandle(EJBObject proxy)
-   {
-      StatefulHandleRemoteImpl handle = new StatefulHandleRemoteImpl(proxy);
+      StatelessHandleRemoteImpl handle = new StatelessHandleRemoteImpl(proxy);
       return handle;
-   } 
-   
-   public EJBObject createProxyEjb21()
-   {
-      Object id = getContainer().createSession();
-      return this.createProxyEjb21(id);
    }
    
    @SuppressWarnings("unchecked")
-   public <T extends EJBObject> T createProxyEjb21(Object id)
+   public <T extends EJBObject> T createProxyEjb21()
    {
       // Cast explicitly to catch improper proxies
-      return (T)this.createProxy(id,SpecificationInterfaceType.EJB21);
+      return (T)this.createProxy(SpecificationInterfaceType.EJB21);
    }
 
    // Accessors / Mutators

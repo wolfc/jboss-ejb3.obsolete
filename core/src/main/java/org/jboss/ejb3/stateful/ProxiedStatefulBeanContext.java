@@ -34,7 +34,7 @@ import javax.persistence.EntityManager;
 
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 
 /**
  * Proxy to a NestedStatefulBeanContext that can be independently passivated,
@@ -280,7 +280,7 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
 //   }
 //
    @Override
-   public SessionContainer getContainer()
+   public SessionSpecContainer getContainer()
    {
       return getDelegate().getContainer();
    }

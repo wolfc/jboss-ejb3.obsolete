@@ -21,23 +21,11 @@
  */
 package org.jboss.ejb3.stateless;
 
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyObject;
-
-import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.jboss.aop.Advisor;
-import org.jboss.ejb3.Container;
 import org.jboss.ejb3.ProxyFactory;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.ProxyAccessType;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
 
@@ -51,13 +39,9 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
 {
    private static final Logger log = Logger.getLogger(BaseStatelessProxyFactory.class);
 
-//   protected Class proxyClass;
-//   protected Context proxyFactoryContext;
    protected String jndiName;
    
-   private Constructor proxyConstructor;
-   
-   public BaseStatelessProxyFactory(SessionContainer container, String jndiName)
+   public BaseStatelessProxyFactory(SessionSpecContainer container, String jndiName)
    {
       super(container);
       
@@ -93,121 +77,41 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
    }
    */
    
-   /**
-    * Adapt the InvocationHandler to MethodHandler.
-    * 
-    * This is a named class because it implements both MethodHandler and Serializable.
-    */
-   private static class MethodHandlerAdapter implements MethodHandler, Serializable
-   {
-      private static final long serialVersionUID = 1L;
-      
-      private InvocationHandler delegate;
-      
-      private MethodHandlerAdapter(InvocationHandler delegate)
-      {
-         if(delegate == null)
-            throw new IllegalArgumentException("delegate must not be null");
-         this.delegate = delegate;
-      }
-      
-      public Object invoke(Object self, Method thisMethod, Method process, Object[] args) throws Throwable
-      {
-         return delegate.invoke(self, thisMethod, args);
-      }         
-   }
+//   /**
+//    * Adapt the InvocationHandler to MethodHandler.
+//    * 
+//    * This is a named class because it implements both MethodHandler and Serializable.
+//    */
+//   private static class MethodHandlerAdapter implements MethodHandler, Serializable
+//   {
+//      private static final long serialVersionUID = 1L;
+//      
+//      private InvocationHandler delegate;
+//      
+//      private MethodHandlerAdapter(InvocationHandler delegate)
+//      {
+//         if(delegate == null)
+//            throw new IllegalArgumentException("delegate must not be null");
+//         this.delegate = delegate;
+//      }
+//      
+//      public Object invoke(Object self, Method thisMethod, Method process, Object[] args) throws Throwable
+//      {
+//         return delegate.invoke(self, thisMethod, args);
+//      }         
+//   }
    
-   /**
-    * Hide the fact that I'm now using javassist.
-    * 
-    * @param handler    a JDK proxy InvocationHandler
-    * @return           a true proxy
-    */
-   protected Object constructProxy(final InvocationHandler handler)
-   {
-      try
-      {
-         /* plain jdk */
-         Object args[] = { handler };
-         Object proxy = proxyConstructor.newInstance(args);
-         
-         /* javassist */
-         /*
-         MethodHandler realHandler = new MethodHandlerAdapter(handler);
-//         ProxyObject proxy = (ProxyObject) proxyConstructor.newInstance((Object[]) null);
-//         proxy.setHandler(realHandler);
-         JavassistProxy proxy = (JavassistProxy) proxyConstructor.newInstance((Object[]) null);
-         proxy.setMethodHandler(realHandler);
-         JavassistProxy.pokeInterfaces(proxy, getInterfaces());
-         */
-         
-         /* cglib */
-         /*
-         Object args[] = { new CGLibInvocationHandlerAdapter(handler) };
-         Object proxy = proxyConstructor.newInstance(args);
-         */
-         
-         return proxy;
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new RuntimeException(e.getTargetException());
-      }
-   }
    
-   public final Object createProxy(Object id)
+   public final Object createProxyBusiness(Object id)
    {
       assert id == null : "stateless bean must not have an id";
-      return createProxy();
+      return createProxyBusiness();
    }
    
    public void init() throws Exception
    {
-      initializeJndiName();
-      Class<?>[] interfaces = getInterfaces();
+      this.createProxyConstructors();
       this.validateEjb21Views();
-      
-      
-      /* plain jdk */
-      Class<?> proxyClass = java.lang.reflect.Proxy.getProxyClass(getContainer().getBeanClass().getClassLoader(), interfaces);
-      final Class<?>[] constructorParams =
-              {InvocationHandler.class};
-      proxyConstructor = proxyClass.getConstructor(constructorParams);
-      
-      /* javassist */
-      /*
-      proxyFactory = new javassist.util.proxy.ProxyFactory()
-      {
-         @Override
-         protected ClassLoader getClassLoader()
-         {
-            return container.getBeanClass().getClassLoader();
-         }
-      };
-      proxyFactory.setInterfaces(interfaces);
-      proxyFactory.setSuperclass(JavassistProxy.class);
-      proxyClass = proxyFactory.createClass();
-      proxyConstructor = proxyClass.getConstructor((Class[]) null);
-      */
-      
-      /* cglib */
-      /*
-      proxyClass = net.sf.cglib.proxy.Proxy.getProxyClass(container.getBeanClass().getClassLoader(), interfaces);
-      final Class[] constructorParams = {net.sf.cglib.proxy.InvocationHandler.class};
-      proxyConstructor = proxyClass.getConstructor(constructorParams);
-      */
    }
 
    /* for debugging purposes * /
@@ -229,7 +133,7 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
    {
       init();
 
-      Object proxy = createProxy();
+      Object proxy = createProxyBusiness();
       //describeClass(proxy.getClass());
       bindProxy(proxy);
    }
@@ -238,12 +142,10 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
    {
       Util.unbind(getContainer().getInitialContext(), jndiName);
    }
-
-   protected abstract Class<?>[] getInterfaces();
    
    protected abstract void validateEjb21Views();
-
-   protected final void initializeJndiName() {};
+   
+   protected abstract ProxyAccessType getProxyAccessType();
 
    protected void bindProxy(Object proxy) throws NamingException
    {
@@ -253,7 +155,9 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.session.B
          Util.rebind(getContainer().getInitialContext(), jndiName, proxy);
       } catch (NamingException e)
       {
-         NamingException namingException = new NamingException("Could not bind stateless proxy with ejb name " + getContainer().getEjbName() + " into JNDI under jndiName: " + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName);
+         NamingException namingException = new NamingException("Could not bind stateless proxy with ejb name "
+               + getContainer().getEjbName() + " into JNDI under jndiName: "
+               + getContainer().getInitialContext().getNameInNamespace() + "/" + jndiName);
          namingException.setRootCause(e);
          throw namingException;
       }

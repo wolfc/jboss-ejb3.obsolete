@@ -21,17 +21,15 @@
  */
 package org.jboss.ejb3.stateless;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
+import javax.ejb.EJBLocalObject;
 import javax.ejb.LocalHome;
 
 import org.jboss.ejb3.EJBContainer;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
+import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.ProxyAccessType;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
 
@@ -46,47 +44,17 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
 {
    private static final Logger log = Logger.getLogger(StatelessLocalProxyFactory.class);
    
-   public StatelessLocalProxyFactory(SessionContainer container, LocalBinding binding)
+   public StatelessLocalProxyFactory(SessionSpecContainer container, LocalBinding binding)
    {
       super(container, binding.jndiBinding());
    }
-
-   protected Class<?>[] getInterfaces()
+   
+   @Override
+   protected ProxyAccessType getProxyAccessType()
    {
-      EJBContainer statelessContainer = this.getContainer();
-      LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
-
-      boolean bindTogether = false;
-
-      if (localHome != null && bindHomeAndBusinessTogether(statelessContainer))
-         bindTogether = true;
-
-      // Obtain all local interfaces
-      Set<Class<?>> localInterfaces = new HashSet<Class<?>>();
-      localInterfaces.addAll(Arrays.asList(ProxyFactoryHelper.getLocalAndBusinessLocalInterfaces(getContainer())));
-
-      // Ensure local interfaces defined
-      if (localInterfaces.size() > 0)
-      {
-         // Add JBossProxy
-         localInterfaces.add(JBossProxy.class);
-
-         // If binding along w/ home, add home
-         if (bindTogether)
-         {
-            localInterfaces.add(localHome.value());
-         }
-      }
-      else
-      {
-         // No remote interfaces defined, log warning
-         log.warn("[EJBTHREE-933] NPE when deploying web service beans");
-      }
-
-      // Return
-      return localInterfaces.toArray(new Class<?>[]
-      {});
+      return ProxyAccessType.LOCAL;
    }
+
    
    protected void validateEjb21Views(){
       
@@ -109,7 +77,7 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    {
       super.start();
       EJBContainer statelessContainer = (EJBContainer) getContainer();
-      LocalHome localHome = (LocalHome) statelessContainer.resolveAnnotation(LocalHome.class);
+      LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
       if (localHome != null && !bindHomeAndBusinessTogether(statelessContainer))
       {
          Class<?>[] interfaces = {localHome.value()};
@@ -123,8 +91,8 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    public void stop() throws Exception
    {
       super.stop();
-      EJBContainer statelessContainer = (EJBContainer) getContainer();
-      LocalHome localHome = (LocalHome) statelessContainer.resolveAnnotation(LocalHome.class);
+      SessionSpecContainer statelessContainer = this.getContainer();
+      LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
       if (localHome != null && !bindHomeAndBusinessTogether(statelessContainer))
       {
          Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()));
@@ -132,42 +100,30 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    }
 
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
-      /*
-      try
-      {
-         Object[] args = {new StatelessLocalProxy(container)};
-         return proxyConstructor.newInstance(args);
-      }
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new RuntimeException(e.getTargetException());  //To change body of catch statement use Options | File Templates.
-      }
-      */
-      return constructProxy(new StatelessLocalProxy(getContainer()));
+      return this.constructProxyBusiness(new StatelessLocalProxy(getContainer()));
+   }
+   
+   @SuppressWarnings("unchecked")
+   public <T extends EJBLocalObject> T createProxyEjb21()
+   {
+      return (T)this.createProxy(SpecificationInterfaceType.EJB21);
+   }
+   
+   private Object createProxy(SpecificationInterfaceType type)
+   {
+      StatelessLocalProxy proxy = new StatelessLocalProxy(this.getContainer());
+      return type.equals(SpecificationInterfaceType.EJB30_BUSINESS) ? this.constructProxyBusiness(proxy) : this
+            .constructEjb21Proxy(proxy);
    }
 
-   protected StatelessHandleImpl createHandle()
+   @Override
+   protected StatelessHandleRemoteImpl createHandle()
    {
-      StatelessHandleImpl handle = new StatelessHandleImpl();
-      LocalBinding remoteBinding = (LocalBinding) getContainer().resolveAnnotation(LocalBinding.class);
-      if (remoteBinding != null)
-         handle.jndiName = remoteBinding.jndiBinding();
-
-      return handle;
+      // Local beans have no Handle
+      //TODO Rework the contract such that this method does not need to be
+      // defined for local proxy factories
+      return null;
    }
-
 }

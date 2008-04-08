@@ -46,7 +46,6 @@ import javax.ejb.RemoteHome;
 import javax.ejb.RemoveException;
 import javax.ejb.TimerService;
 
-import org.jboss.aop.Dispatcher;
 import org.jboss.aop.Domain;
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
@@ -77,6 +76,7 @@ import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.proxy.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.handle.HomeHandleImpl;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
 import org.jboss.logging.Logger;
@@ -88,7 +88,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatefulContainer extends SessionContainer implements StatefulObjectFactory<StatefulBeanContext>
+public class StatefulContainer extends SessionSpecContainer implements StatefulObjectFactory<StatefulBeanContext>
 {
    private static final Logger log = Logger.getLogger(StatefulContainer.class);
 
@@ -115,23 +115,95 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
    }
    
    @Override
-   protected ProxyFactory createProxyFactory(LocalBinding binding)
+   protected StatefulLocalProxyFactory getProxyFactory(LocalBinding binding)
    {
-      return new StatefulLocalProxyFactory(this, binding);
+      StatefulLocalProxyFactory factory = (StatefulLocalProxyFactory) this.proxyDeployer.getProxyFactory(binding);
+
+      if (factory == null)
+      {
+         factory = new StatefulLocalProxyFactory(this, binding);
+
+         try
+         {
+            factory.init();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+      
+      return factory;
+   }
+   
+   public Object createProxyLocalEjb21(Object id, LocalBinding binding) throws Exception
+   {
+      StatefulLocalProxyFactory proxyFactory = this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb21(id);
+   }
+   
+   public Object createProxyRemoteEjb21(Object id) throws Exception
+   {
+      RemoteBinding binding = this.getRemoteBinding();
+      return this.createProxyRemoteEjb21(id,binding);
+   }
+
+   public Object createProxyRemoteEjb21(Object id, RemoteBinding binding) throws Exception
+   { 
+      BaseStatefulRemoteProxyFactory proxyFactory = this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb21(id);
+   }
+   
+   public Object createProxyLocalEjb21(Object id) throws Exception
+   {
+      LocalBinding binding = this.getAnnotation(LocalBinding.class);
+      return this.createProxyLocalEjb21(id,binding);
    }
    
    @Override
-   protected BaseStatefulRemoteProxyFactory createProxyFactory(RemoteBinding binding)
+   public Object createProxyLocalEjb21(LocalBinding binding) throws Exception
    {
-      Clustered clustered = getAnnotation(Clustered.class);
-      if (clustered != null)
+      Object id = this.createSession();
+      return this.createProxyLocalEjb21(id,binding);
+   }
+
+   @Override
+   public Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception
+   {
+      Object id = this.createSession();
+      return this.createProxyRemoteEjb21(id, binding);
+   }
+   
+   @Override
+   protected BaseStatefulRemoteProxyFactory getProxyFactory(RemoteBinding binding)
+   {
+      BaseStatefulRemoteProxyFactory factory = (BaseStatefulRemoteProxyFactory) this.proxyDeployer
+            .getProxyFactory(binding);
+
+      if (factory == null)
       {
-         return new StatefulClusterProxyFactory(this, binding, clustered);
+
+         Clustered clustered = getAnnotation(Clustered.class);
+         if (clustered != null)
+         {
+            factory = new StatefulClusterProxyFactory(this, binding, clustered);
+         }
+         else
+         {
+            factory = new StatefulRemoteProxyFactory(this, binding);
+         }
+         
+         try
+         {
+            factory.init();
+         }
+         catch(Exception e)
+         {
+            throw new RuntimeException(e);
+         }
       }
-      else
-      {
-         return new StatefulRemoteProxyFactory(this, binding);
-      }
+
+      return factory;
    }
    
    public void destroy(StatefulBeanContext obj)
@@ -723,7 +795,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
          factory.init();
 
-         Object proxy = factory.createEjb21Proxy(initParameterTypes,
+         Object proxy = factory.createProxyEjb21(initParameterTypes,
                  initParameterValues);
 
          return proxy;
@@ -740,30 +812,28 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       }
    }
    
+   public Object createLocalProxy(Object id) throws Exception
+   {
+      return this.createLocalProxy(id, this.getAnnotation(LocalBinding.class));
+   }
+   
    public Object createLocalProxy(Object id, LocalBinding binding) throws Exception
    {
       StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
       factory.init();
 
-      return factory.createProxy(id);
+      return factory.createProxyBusiness(id);
    }
    
    public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
    {
-      //      RemoteBinding binding = null;
-      //      RemoteBindings bindings = (RemoteBindings) resolveAnnotation(RemoteBindings.class);
-      //      if (bindings != null)
-      //         binding = bindings.value()[0];
-      //      else
-      //         binding = (RemoteBinding) resolveAnnotation(RemoteBinding.class);
-
       StatefulRemoteProxyFactory factory = new StatefulRemoteProxyFactory(this, binding);
       factory.init();
 
       if (id != null)
-         return factory.createProxy(id);
+         return factory.createProxyBusiness(id);
       else
-         return factory.createProxy();
+         return factory.createProxyBusiness();
    }
    
    public boolean isClustered()
@@ -876,11 +946,11 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
          ProxyFactory proxyFactory = this.proxyDeployer.getProxyFactory(this.getAnnotation(RemoteBinding.class));;
          if (proxyFactory == null)
          {
-            proxyFactory = this.createProxyFactory(this.getAnnotation(RemoteBinding.class));
+            proxyFactory = this.getProxyFactory(this.getAnnotation(RemoteBinding.class));
          }
          BaseStatefulRemoteProxyFactory statefulRemoteProxyFactory = (BaseStatefulRemoteProxyFactory) proxyFactory;
          EJBObject proxy = (EJBObject) statefulRemoteProxyFactory.createProxyEjb21(newStatefulInvocation.getId());
-         StatefulRemoteHandleImpl handle = new StatefulRemoteHandleImpl(proxy);
+         StatefulHandleRemoteImpl handle = new StatefulHandleRemoteImpl(proxy);
          InvocationResponse response = marshallResponse(statefulInvocation, handle, null);
          return response;
       }
@@ -1025,11 +1095,11 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       {
          if (isRemote && factory instanceof StatefulRemoteProxyFactory)
          {
-            return ((StatefulRemoteProxyFactory) factory).createProxy(ctx.getId());
+            return ((StatefulRemoteProxyFactory) factory).createProxyBusiness(ctx.getId());
          }
          else if (!isRemote && factory instanceof StatefulLocalProxyFactory)
          {
-            return ((StatefulLocalProxyFactory) factory).createProxy(ctx.getId());
+            return ((StatefulLocalProxyFactory) factory).createProxyBusiness(ctx.getId());
          }
       }
       throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");
@@ -1047,7 +1117,7 @@ public class StatefulContainer extends SessionContainer implements StatefulObjec
       if(!(target instanceof Handle))
          throw new RemoveException("EJB 3 3.6.2.2: Session beans do not have a primary key");
       
-      StatefulRemoteHandleImpl handle = (StatefulRemoteHandleImpl) target;
+      StatefulHandleRemoteImpl handle = (StatefulHandleRemoteImpl) target;
 
       try
       {

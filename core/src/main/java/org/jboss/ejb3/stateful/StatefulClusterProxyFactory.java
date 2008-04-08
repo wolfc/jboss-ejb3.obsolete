@@ -38,7 +38,9 @@ import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
 import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
+import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ha.client.loadbalance.FirstAvailable;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.framework.interfaces.ClusteringTargetsRepository;
@@ -72,7 +74,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    private LoadBalancePolicy lbPolicy;
    private FamilyWrapper wrapper;
 
-   public StatefulClusterProxyFactory(SessionContainer container, RemoteBinding binding, Clustered clustered)
+   public StatefulClusterProxyFactory(SessionSpecContainer container, RemoteBinding binding, Clustered clustered)
    {
       super(container, binding);
       
@@ -170,7 +172,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       return StatefulClusterProxyFactory.STACK_NAME_CLUSTERED_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
    }
 
-   public Object createProxy(Object id)
+   public Object createProxyBusiness(Object id)
    {
       throw new RuntimeException("NYI");
    }

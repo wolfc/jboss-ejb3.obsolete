@@ -23,7 +23,6 @@ package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Proxy;
 
-import javax.ejb.EJBObject;
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
@@ -40,6 +39,7 @@ import org.jboss.ejb3.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.BaseSessionRemoteProxy;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 import org.jboss.util.naming.Util;
@@ -60,16 +60,9 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
    
    private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
 
-   public StatefulRemoteProxyFactory(SessionContainer container, RemoteBinding binding)
+   public StatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
       super(container, binding);
-   }
-   
-   protected boolean bindHomeAndBusinessTogether(SessionContainer container)
-   {
-      String homeJndiName = ProxyFactoryHelper.getHomeJndiName(container);
-      String remoteBusinessJndiName = ProxyFactoryHelper.getRemoteBusinessJndiName(container);
-      return homeJndiName.equals(remoteBusinessJndiName);
    }
 
    @Override

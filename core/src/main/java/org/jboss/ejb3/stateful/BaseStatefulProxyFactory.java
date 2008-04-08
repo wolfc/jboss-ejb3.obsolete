@@ -24,15 +24,7 @@ package org.jboss.ejb3.stateful;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
 import javax.naming.Context;
 import javax.naming.Name;
 import javax.naming.NamingException;
@@ -40,14 +32,9 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.JndiProxyFactory;
 import org.jboss.ejb3.ProxyFactory;
-import org.jboss.ejb3.ProxyFactoryHelper;
-import org.jboss.ejb3.SpecificationInterfaceType;
-import org.jboss.ejb3.session.BaseSessionProxyFactory;
-import org.jboss.ejb3.session.BaseSessionRemoteProxy;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
 
@@ -64,22 +51,6 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(BaseStatefulProxyFactory.class);
    
-   protected static enum ProxyAccessType{
-      REMOTE,LOCAL;
-   }
-
-//   protected Class proxyClass;
-   
-   /**
-    * Proxy Constructor for the Business Interfaces' Proxy
-    */
-   private Constructor<?> businessProxyConstructor;
-   
-   /**
-    * Proxy Constructor for the EJBObject/EJBLocalObject Proxy
-    */
-   private Constructor<?> ejb21ProxyConstructor; 
-   
 //   protected Context proxyFactoryContext;
    protected String jndiName;
 
@@ -93,7 +64,7 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
       super();
    }
 
-   public BaseStatefulProxyFactory(SessionContainer container, String jndiName)
+   public BaseStatefulProxyFactory(SessionSpecContainer container, String jndiName)
    {
       super(container);
       
@@ -102,68 +73,6 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
       this.jndiName = jndiName;
    }
    
-   protected Object constructBusinessProxy(InvocationHandler handler)
-   {
-      // Return
-      return this.constructProxy(handler, SpecificationInterfaceType.EJB30_BUSINESS);
-   }
-   
-   protected Object constructEjb21Proxy(InvocationHandler handler)
-   {
-      // Return
-      return this.constructProxy(handler, SpecificationInterfaceType.EJB21);
-   }
-   
-   /**
-    * Construct a new Proxy of the specified type using the 
-    * specified handler as argument to the Constructor
-    * 
-    * @param handler
-    * @param specType
-    * @return
-    */
-   private Object constructProxy(InvocationHandler handler, SpecificationInterfaceType specType)
-   {
-      // Initialize
-      Object obj = null;
-
-      try
-      {
-         // Business Proxy
-         if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
-         {
-            obj = this.businessProxyConstructor.newInstance(handler);
-         }
-         // EJBObject/EJBLocalObject
-         else if (specType.equals(SpecificationInterfaceType.EJB21))
-         {
-            obj = this.ejb21ProxyConstructor.newInstance(handler);
-         }
-      }
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (InvocationTargetException e)
-      {
-         Throwable t = e.getTargetException();
-         if (t instanceof RuntimeException)
-            throw (RuntimeException) t;
-         throw new RuntimeException(t);
-      }
-
-      // Ensure Proxy object was created
-      assert obj != null : "Proxy Object must not be null";
-
-      // Return
-      return obj;
-   }
-
-   
    public void init() throws Exception
    {
       // Ensure EJB2.1 View is Complete
@@ -171,28 +80,7 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
       
       // Create the Proxy Constructors
       this.createProxyConstructors();
-   }
-   
-   /**
-    * Creates the Proxy constructors
-    */
-   protected void createProxyConstructors() throws Exception
-   {
-      // Obtain interfaces to be used in the proxies
-      Class<?>[] businessInterfaces = this.getInterfacesForBusinessProxy();
-      Class<?>[] ejb21Interfaces = this.getInterfacesForEjb21Proxy();
-      
-      // Obtain this bean class' CL
-      ClassLoader cl = this.getContainer().getBeanClass().getClassLoader();
-      
-      // Create proxy classes
-      Class<?> businessProxyClass = java.lang.reflect.Proxy.getProxyClass(cl, businessInterfaces);
-      Class<?> ejb21ProxyClass = java.lang.reflect.Proxy.getProxyClass(cl, ejb21Interfaces);
-      
-      // Obtain and set the proxy constructors 
-      this.businessProxyConstructor = businessProxyClass.getConstructor(InvocationHandler.class);
-      this.ejb21ProxyConstructor = ejb21ProxyClass.getConstructor(InvocationHandler.class);
-   }
+   }   
 
    public void start() throws Exception
    {
@@ -216,107 +104,11 @@ public abstract class BaseStatefulProxyFactory extends org.jboss.ejb3.session.Ba
          throw namingException;
       }
    }
-   
-   /**
-    * Obtains interfaces to be used in the business proxy
-    * 
-    * @return
-    */
-   protected Class<?>[] getInterfacesForBusinessProxy()
-   {
-      return this.getInterfacesForProxy(this.getProxyAccessType(), SpecificationInterfaceType.EJB30_BUSINESS);
-   }
-   
-   /**
-    * Obtains interfaces to be used in the EJB21 proxy
-    * 
-    * @return
-    */
-   protected Class<?>[] getInterfacesForEjb21Proxy()
-   {
-      return this.getInterfacesForProxy(this.getProxyAccessType(), SpecificationInterfaceType.EJB21);
-   }
-   
-   /**
-    * Returns an array of interfaces to be used for the proxy;
-    * the proxy type will be dependent on 
-    * 
-    * @param business
-    * @return
-    */
-   private Class<?>[] getInterfacesForProxy(ProxyAccessType accessType, SpecificationInterfaceType specType)
-   {
-
-      // Initialize
-      Set<Class<?>> interfaces = new HashSet<Class<?>>();
-      SessionContainer container = this.getContainer();
-
-      // Initialize array of interfaces
-      Set<Class<?>> intfs = new HashSet<Class<?>>();
-
-      // If Local
-      if (accessType.equals(ProxyAccessType.LOCAL))
-      {
-
-         // If business
-         if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
-         {
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalBusinessInterfaces(container)));
-         }
-         // If EJBLocalObject
-         else
-         {
-            // Add local interfaces
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalInterfaces(container)));
-            
-            // Add EJBLocalObject
-            intfs.add(EJBLocalObject.class);
-         }
-      }
-      // If remote
-      else
-      {
-         // If business
-         if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
-         {
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteBusinessInterfaces(container)));
-         }
-         // If EJBObject
-         else
-         {
-            // Add remote interfaces
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteInterfaces(container)));
-            
-            // Add EJBObject
-            intfs.add(EJBObject.class);
-         }
-      }
-
-      // Add all interfaces
-      for (Class<?> interfaze : intfs)
-      {
-         interfaces.add(interfaze);
-      }
-
-      // Add JBossProxy
-      interfaces.add(JBossProxy.class);
-
-      // Return
-      return interfaces.toArray(new Class[]
-      {});
-   }
 
    public void stop() throws Exception
    {
       Util.unbind(getContainer().getInitialContext(), jndiName);
    }
-   
-   /**
-    * Defines the access type for this Proxies created by this Factory
-    * 
-    * @return
-    */
-   protected abstract ProxyAccessType getProxyAccessType();
 
    protected final void initializeJndiName() {};
    

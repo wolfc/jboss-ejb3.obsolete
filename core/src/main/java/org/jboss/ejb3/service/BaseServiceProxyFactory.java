@@ -54,11 +54,11 @@ public abstract class BaseServiceProxyFactory implements ProxyFactory
       throw new UnsupportedOperationException("service can't have a home interface");
    }
    
-   public Object createProxy(Object id)
+   public Object createProxyBusiness(Object id)
    {
       if(id != null)
          throw new IllegalArgumentException("service proxy must not have an id");
-      return createProxy();
+      return createProxyBusiness();
    }
    
    public void start() throws Exception
@@ -69,7 +69,7 @@ public abstract class BaseServiceProxyFactory implements ProxyFactory
 
       try
       {
-         Util.rebind(container.getInitialContext(), jndiName, createProxy());
+         Util.rebind(container.getInitialContext(), jndiName, createProxyBusiness());
       } catch (NamingException e)
       {
          NamingException namingException = new NamingException("Could not bind service proxy factory for EJB container with ejb name " + container.getEjbName() + " into JNDI under jndiName: " + container.getInitialContext().getNameInNamespace() + "/" + jndiName);

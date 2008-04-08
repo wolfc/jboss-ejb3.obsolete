@@ -29,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import org.jboss.aop.metadata.SimpleMetaData;
-import org.jboss.ejb3.session.SessionContainer;
 
+import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.Ejb3Registry;
+import org.jboss.ejb3.session.SessionSpecContainer;
 
 /**
  * Overrides superclass to not use MarshalledValue in externalization,
@@ -50,7 +50,7 @@ public class NestedStatefulBeanContext extends StatefulBeanContext implements Ex
    private static final long serialVersionUID = 7835719320529968045L;
    
 
-   public NestedStatefulBeanContext(SessionContainer container, Object bean)
+   public NestedStatefulBeanContext(SessionSpecContainer container, Object bean)
    {
       super(container, bean);
    }

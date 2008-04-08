@@ -147,7 +147,7 @@ public class IORFactory
       }
    }
    
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       try
       {
@@ -163,7 +163,7 @@ public class IORFactory
       }
    }
    
-   public Object createProxy(Object id)
+   public Object createProxyBusiness(Object id)
    {
       try
       {
@@ -348,7 +348,7 @@ public class IORFactory
       Servant servant = new BeanCorbaServant(this, poaCurrent, container, interfaceDef, interfaceAnalysis);
       this.referenceFactory = servantRegistry.bind(getServantName(), servant, policies);
       
-      EJBObject corbaObj = (EJBObject) createProxy();
+      EJBObject corbaObj = (EJBObject) createProxyBusiness();
       
       rebind(ctx, getJndiName(), (org.omg.CORBA.Object) corbaObj);
       

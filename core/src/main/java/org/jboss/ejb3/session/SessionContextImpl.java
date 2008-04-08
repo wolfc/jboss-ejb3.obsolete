@@ -27,7 +27,9 @@ import javax.ejb.SessionContext;
 import javax.xml.rpc.handler.MessageContext;
 
 import org.jboss.ejb3.EJBContextImpl;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessBeanContext;
+import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -36,12 +38,14 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class SessionContextImpl extends EJBContextImpl<SessionContainer, SessionBeanContext> implements SessionContext
+public class SessionContextImpl<J extends SessionContainer> extends EJBContextImpl<J, SessionBeanContext<J>>
+      implements
+         SessionContext
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(SessionContextImpl.class);
    
-   public SessionContextImpl(SessionBeanContext beanContext)
+   public SessionContextImpl(SessionBeanContext<J> beanContext)
    {
       super(beanContext);
    }
@@ -62,7 +66,14 @@ public class SessionContextImpl extends EJBContextImpl<SessionContainer, Session
          EJBLocalObject proxy = null;
          try
          {
-            proxy = (EJBLocalObject) container.createLocalProxy(id);
+            if (container instanceof StatefulContainer)
+            {
+               proxy = (EJBLocalObject) ((StatefulContainer) container).createProxyLocalEjb21(id);
+            }
+            else
+            {
+               proxy = (EJBLocalObject) ((StatelessContainer) container).createProxyLocalEjb21();
+            }
          }
          // Proxy does not implement EJBLocalObject
          catch (ClassCastException cce)
@@ -90,7 +101,14 @@ public class SessionContextImpl extends EJBContextImpl<SessionContainer, Session
          EJBObject proxy = null;
          try
          {
-            proxy = (EJBObject) container.createRemoteProxy(id);
+            if (container instanceof StatefulContainer)
+            {
+               proxy = (EJBObject) ((StatefulContainer) container).createProxyRemoteEjb21(id);
+            }
+            else
+            {
+               proxy = (EJBObject) ((StatelessContainer) container).createProxyRemoteEjb21();
+            }
          }
          // Proxy does not implement EJBObject
          catch (ClassCastException cce)
@@ -109,7 +127,7 @@ public class SessionContextImpl extends EJBContextImpl<SessionContainer, Session
       }
    }
    
-   public Class getInvokedBusinessInterface() throws IllegalStateException
+   public Class<?> getInvokedBusinessInterface() throws IllegalStateException
    {
       return container.getInvokedBusinessInterface();
    }

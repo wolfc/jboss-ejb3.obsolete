@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors as indicated
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors as indicated
  * by the @authors tag. See the copyright.txt in the distribution for a
  * full listing of individual contributors.
  *
@@ -21,42 +21,25 @@
  */
 package org.jboss.ejb3.session;
 
-import javax.ejb.EJBContext;
-
-import org.jboss.ejb3.BaseContext;
-
 /**
- * An instance of an enterprise bean link to its container.
- *
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision$
+ * Context for Session Beans adhering to EJB3 Specification (SFSB, SLSB)
+ * 
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-public abstract class SessionBeanContext<T extends SessionContainer> extends BaseContext<T>
+public abstract class SessionSpecBeanContext<T extends SessionSpecContainer>
+      extends
+         SessionBeanContext<SessionSpecContainer>
 {
-   protected EJBContext ejbContext;
 
-   /**
-    * Must not break getInstance post condition!
-    * @param container
-    */
-   protected SessionBeanContext(T container)
+   protected SessionSpecBeanContext(T container)
    {
       super(container);
    }
-   
-   protected SessionBeanContext(T container, Object bean)
+
+   protected SessionSpecBeanContext(T container, Object bean)
    {
       super(container, bean);
-   }
-   
-   public EJBContext getEJBContext()
-   {
-      if (ejbContext == null)
-      {
-         SessionContextImpl<T> bsc = new SessionContextImpl<T>(this);
-         ejbContext = bsc;
-      }
-      return ejbContext;
    }
 
 }

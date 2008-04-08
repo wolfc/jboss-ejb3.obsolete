@@ -34,7 +34,9 @@ import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.proxy.ejb.handle.StatefulHandleImpl;
 import org.jboss.util.NotImplementedException;
 import org.jboss.util.naming.Util;
@@ -58,7 +60,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       super();
    }
    
-   public StatefulLocalProxyFactory(SessionContainer container, LocalBinding binding)
+   public StatefulLocalProxyFactory(SessionSpecContainer container, LocalBinding binding)
    {
       super(container, binding.jndiBinding());
    }
@@ -134,11 +136,11 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       }
    }
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession();
-      return this.createProxy(id);
+      return this.createProxyBusiness(id);
    }
 
    public EJBLocalObject createProxyEjb21()
@@ -147,7 +149,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       return this.createProxyEjb21(id);
    }
 
-   public Object createProxy(Object id)
+   public Object createProxyBusiness(Object id)
    {
       return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
    }
@@ -161,7 +163,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    private Object createProxy(Object id, SpecificationInterfaceType type)
    {
       StatefulLocalProxy proxy = new StatefulLocalProxy(this.getContainer(), id, vmid);
-      return type.equals(SpecificationInterfaceType.EJB30_BUSINESS) ? this.constructBusinessProxy(proxy) : this
+      return type.equals(SpecificationInterfaceType.EJB30_BUSINESS) ? this.constructProxyBusiness(proxy) : this
             .constructEjb21Proxy(proxy);
    }
    
@@ -172,7 +174,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
    }
    
-   public Object createEjb21Proxy(Class<?>[] initTypes, Object[] initValues){
+   public Object createProxyEjb21(Class<?>[] initTypes, Object[] initValues){
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession(initTypes, initValues);
       return this.createProxy(id, SpecificationInterfaceType.EJB21);

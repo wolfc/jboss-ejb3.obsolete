@@ -23,6 +23,7 @@ package org.jboss.ejb3.session;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class ProxyDeployer
             String factoryImplementationRegistryKey = binding.factory();
             if (factoryImplementationRegistryKey.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
             {
-               factory = container.createProxyFactory(binding);
+               factory = container.getProxyFactory(binding);
             }
             else
             {
@@ -98,7 +99,7 @@ public class ProxyDeployer
 
       if (localBinding != null)
       {
-         ProxyFactory factory = container.createProxyFactory(localBinding);
+         ProxyFactory factory = container.getProxyFactory(localBinding);
          factory.start();
          proxyFactories.put(localBinding,factory);
       }
@@ -128,7 +129,7 @@ public class ProxyDeployer
    
    public void initializeLocalBindingMetadata()
    {
-      localBinding = (LocalBinding) container.resolveAnnotation(LocalBinding.class);
+      localBinding = container.getAnnotation(LocalBinding.class);
       if (localBinding == null)
       {
          if (ProxyFactoryHelper.getLocalAndBusinessLocalInterfaces(container).length > 0)
@@ -151,10 +152,10 @@ public class ProxyDeployer
    
    public void initializeRemoteBindingMetadata()
    {
-      remoteBindings = (RemoteBindings) container.resolveAnnotation(RemoteBindings.class);
+      remoteBindings = container.getAnnotation(RemoteBindings.class);
       if (remoteBindings == null)
       {
-         RemoteBinding binding = (RemoteBinding) container.resolveAnnotation(RemoteBinding.class);
+         RemoteBinding binding = container.getAnnotation(RemoteBinding.class);
          if (binding == null)
          {
             log.debug("no declared remote bindings for : " + container.getEjbName());
@@ -190,9 +191,9 @@ public class ProxyDeployer
 
    public void stop() throws Exception
    {
-      for (int i = 0; i < proxyFactories.size(); i++)
+      Collection<ProxyFactory> proxyFactories = this.getProxyFactories().values();
+      for(ProxyFactory factory : proxyFactories)
       {
-         ProxyFactory factory = (ProxyFactory) proxyFactories.get(i);
          factory.stop();
       }
    }
