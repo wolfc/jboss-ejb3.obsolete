@@ -235,23 +235,23 @@
         <version>${version.commons-validator_commons-validator}</version>
       </dependency>
       
-	  <dependency>
-	    <groupId>jboss</groupId>
-		<artifactId>jboss-logging-log4j</artifactId>
-		<version>2.0.2.GA</version>
-		<scope>runtime</scope>
-	  </dependency>
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+	<artifactId>jboss-logging-log4j</artifactId>
+	<version>2.0.5.GA</version>
+	<scope>runtime</scope>
+      </dependency>
 
-	  <dependency>
-	    <groupId>jboss</groupId>
-		<artifactId>jboss-logging-spi</artifactId>
-		<version>2.0.2.GA</version>
-	  </dependency>
+      <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging-spi</artifactId>
+        <version>2.0.5.GA</version>
+      </dependency>
 
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
-        <version>2.2.4.GA</version>
+        <version>2.2.5.GA</version>
       </dependency>
       
       <dependency>
@@ -270,7 +270,7 @@
         <groupId>org.jboss</groupId>
         <artifactId>jnpserver</artifactId>
         <version>5.0.0.Beta4</version>
-		<scope>test</scope>
+        <scope>test</scope>
       </dependency>
       
       <!-- JBoss AOP -->
@@ -317,11 +317,13 @@
         <artifactId>jboss-container</artifactId>
         <version>${version.org.jboss.microcontainer_jboss-container}</version>
       </dependency>
+      
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-kernel</artifactId>
         <version>${version.org.jboss.microcontainer_jboss-kernel}</version>
       </dependency>
+      
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-deployers-core-spi</artifactId>
@@ -339,7 +341,7 @@
         <groupId>org.jboss</groupId>
         <artifactId>jboss-test</artifactId>
         <version>1.0.5.GA</version>
-		<!-- TODO: was 1.0.6-SNAPSHOT -->
+        <!-- TODO: was 1.0.6-SNAPSHOT -->
       </dependency>
 
       <!-- JUnit -->
@@ -350,11 +352,11 @@
         <scope>test</scope>
       </dependency>
 
-	  <dependency>
-	    <groupId>trove</groupId>
-		<artifactId>trove</artifactId>
-		<version>1.0.2</version>
-	  </dependency>
+      <dependency>
+        <groupId>trove</groupId>
+        <artifactId>trove</artifactId>
+        <version>1.0.2</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
