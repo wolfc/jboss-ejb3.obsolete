@@ -20,7 +20,7 @@
   
   <dependencies>
     <dependency>
-      <groupId>jboss</groupId>
+      <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-spi</artifactId>
     </dependency>
     <dependency>

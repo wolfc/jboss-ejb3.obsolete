@@ -34,12 +34,12 @@
       <version>1.2.14</version>
     </dependency>
     <dependency>
-      <groupId>jboss</groupId>
+      <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-log4j</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jboss</groupId>
+      <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-spi</artifactId>
     </dependency>
     <dependency>
