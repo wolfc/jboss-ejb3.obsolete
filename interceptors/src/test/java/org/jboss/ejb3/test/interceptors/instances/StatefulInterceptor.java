@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.interceptors.instances;
 
 import java.lang.reflect.Method;
 
+import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
@@ -35,6 +36,8 @@ import javax.interceptor.InvocationContext;
  */
 public class StatefulInterceptor
 {
+   public static int postConstructs = 0;
+   private boolean constructed = false;
    private int state;
    
    @AroundInvoke
@@ -58,6 +61,17 @@ public class StatefulInterceptor
       return state;
    }
 
+   @PostConstruct
+   public void postConstruct(InvocationContext ctx) throws Exception
+   {
+      // Make sure postConstruct only gets called once (else it will probably be called on the wrong instance)
+      if(constructed)
+         throw new IllegalStateException(this + " is already constructed");
+      constructed = true;
+      
+      postConstructs++;
+   }
+   
    private void setState(int state)
    {
       this.state = state;

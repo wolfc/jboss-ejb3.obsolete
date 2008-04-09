@@ -22,15 +22,18 @@
 package org.jboss.ejb3.interceptors.container;
 
 /**
- * The intercepted component consisting of a bean instance and the interceptor
- * instances.
+ * A factory for bean contexts. After construction of the context the bean instance
+ * and interceptor instances have been injected and the post construct life cycle
+ * callback has been called.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface BeanContext<T>
+public interface BeanContextFactory<T, C extends AbstractContainer<T, C>>
 {
-   T getInstance();
+   BeanContext<T> createBean() throws Exception;
    
-   Object[] getInterceptors();
+   void destroyBean(BeanContext<T> bean);
+   
+   void setContainer(AbstractContainer<T, C> container);
 }

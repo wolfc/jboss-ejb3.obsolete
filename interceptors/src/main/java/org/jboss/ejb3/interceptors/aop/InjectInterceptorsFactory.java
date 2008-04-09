@@ -88,7 +88,14 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
             List<Interceptor> interceptors = new ArrayList<Interceptor>();
             for(Class<?> interceptorClass : interceptorClasses)
             {
-               interceptors.add(new EJB3InterceptorInterceptor(interceptorClass));
+               ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
+               for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
+               {
+                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                  {
+                     interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
+                  }
+               }
             }
             Class<?> beanClass = advisor.getClazz();
             for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
@@ -127,6 +134,13 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       else
       {
          // postConstruct
+         
+         if(advisor instanceof ManagedObjectAdvisor)
+         {
+            log.warn("EJBTHREE-1246: Do not use InjectInterceptorsFactory with a ManagedObjectAdvisor for lifecycle callbacks, should be done by the container");
+            // Note that the container delegates it to ejb3-callbacks or the MC bean factory
+            return new NopInterceptor();
+         }
          
          List<Interceptor> interceptors = InterceptorsFactory.getLifeCycleInterceptors(instanceAdvisor, PostConstruct.class);
          

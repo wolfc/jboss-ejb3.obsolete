@@ -31,7 +31,7 @@ import org.jboss.logging.Logger;
  * To be put on a method.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DirectMethodInterceptor
 {
@@ -44,6 +44,7 @@ public class DirectMethodInterceptor
    {
       log.info("postConstruct");
       postConstructs++;
+      ctx.proceed();
    }
    
    @AroundInvoke

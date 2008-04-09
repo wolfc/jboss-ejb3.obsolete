@@ -51,6 +51,13 @@ public class InterceptorRegistry
    
    private List<Class<?>> interceptorClasses = new ArrayList<Class<?>>();
    private List<Class<?>> readOnlyInterceptorClasses = Collections.unmodifiableList(interceptorClasses);
+   
+   /**
+    * Interceptors who are interested in lifecycle callbacks.
+    */
+   private List<Class<?>> lifecycleInterceptorClasses = new ArrayList<Class<?>>();
+   private List<Class<?>> readOnlyLifecycleInterceptorClasses = Collections.unmodifiableList(lifecycleInterceptorClasses);
+   
    private Map<Method, List<Class<?>>> applicableInterceptorClasses = new HashMap<Method, List<Class<?>>>();
    
    public InterceptorRegistry(Advisor advisor)
@@ -74,6 +81,15 @@ public class InterceptorRegistry
       return readOnlyInterceptorClasses;
    }
    
+   /**
+    * All default and class interceptors (not method interceptors (12.7 footnote 57)
+    * @return
+    */
+   public List<Class<?>> getLifecycleInterceptorClasses()
+   {
+      return readOnlyLifecycleInterceptorClasses;
+   }
+   
    private void initialize()
    {
       DefaultInterceptors defaultInterceptorsAnnotation = (DefaultInterceptors) advisor.resolveAnnotation(DefaultInterceptors.class);
@@ -85,6 +101,7 @@ public class InterceptorRegistry
       }
       log.debug("Found default interceptors " + defaultInterceptorClasses);
       interceptorClasses.addAll(defaultInterceptorClasses);
+      lifecycleInterceptorClasses.addAll(defaultInterceptorClasses);
       
       Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
       List<Class<?>> classInterceptorClasses = new ArrayList<Class<?>>();
@@ -95,6 +112,8 @@ public class InterceptorRegistry
             classInterceptorClasses.add(classInterceptorClass);
             if(!interceptorClasses.contains(classInterceptorClass))
                interceptorClasses.add(classInterceptorClass);
+            if(!lifecycleInterceptorClasses.contains(classInterceptorClass))
+               lifecycleInterceptorClasses.add(classInterceptorClass);
          }
       }
       log.debug("Found class interceptors " + classInterceptorClasses);

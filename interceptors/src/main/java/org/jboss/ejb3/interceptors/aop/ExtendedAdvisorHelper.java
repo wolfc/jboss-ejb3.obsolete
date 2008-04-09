@@ -29,11 +29,19 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ExtendedAdvisorHelper
 {
    private static final Logger log = Logger.getLogger(ExtendedAdvisorHelper.class);
+   
+   public static ExtendedAdvisor getExtendedAdvisor(Advisor advisor)
+   {
+      if(advisor instanceof ExtendedAdvisor)
+         return ExtendedAdvisor.class.cast(advisor);
+      
+      throw new RuntimeException("NYI");
+   }
    
    public static ExtendedAdvisor getExtendedAdvisor(Advisor advisor, Object target)
    {
