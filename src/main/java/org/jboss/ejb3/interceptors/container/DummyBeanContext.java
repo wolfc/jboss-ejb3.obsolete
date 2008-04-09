@@ -23,8 +23,6 @@ package org.jboss.ejb3.interceptors.container;
 
 import java.util.List;
 
-import org.jboss.aop.advice.Interceptor;
-
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -39,7 +37,7 @@ public class DummyBeanContext<T> implements BeanContext<T>
       assert instance != null : "instance is null";
       assert interceptors != null : "interceptors is null";
       this.instance = instance;
-      this.interceptors = interceptors.toArray(new Interceptor[0]);
+      this.interceptors = interceptors.toArray(new Object[0]);
    }
    
    public T getInstance()

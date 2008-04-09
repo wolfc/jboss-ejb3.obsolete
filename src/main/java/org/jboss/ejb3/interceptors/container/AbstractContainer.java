@@ -23,30 +23,17 @@ package org.jboss.ejb3.interceptors.container;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.interceptor.AroundInvoke;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.annotation.AnnotationRepository;
-import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
-import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
-import org.jboss.ejb3.interceptors.aop.BusinessMethodInterceptorMethodInterceptor;
-import org.jboss.ejb3.interceptors.aop.ExtendedAdvisor;
-import org.jboss.ejb3.interceptors.aop.ExtendedAdvisorHelper;
-import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
-import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.registry.InterceptorRegistry;
 import org.jboss.logging.Logger;
@@ -67,6 +54,10 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    private ManagedObjectAdvisor<T, C> advisor;
    
    private InterceptorRegistry interceptorRegistry;
+   
+   //private Class<BeanContextFactory<T, C>> beanContextFactoryClass = SimpleBeanContextFactory.class;
+   private Class<? extends BeanContextFactory> beanContextFactoryClass = SimpleBeanContextFactory.class;
+   private BeanContextFactory<T, C> beanContextFactory;
    
    /**
     * For a completely customized startup.
@@ -96,27 +87,21 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       {
          // TODO: ask the BeanFactory<BeanContext> for a new ctx
          
+         /*
          InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
          if(interceptorFactoryRef == null)
             throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
          log.debug("interceptor factory class = " + interceptorFactoryRef.value());
          InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
          
-         List<Interceptor> ejb3Interceptors = new ArrayList<Interceptor>();
+         List<Object> ejb3Interceptors = new ArrayList<Object>();
          for(Class<?> interceptorClass : getInterceptorRegistry().getInterceptorClasses())
          {
             Object interceptor = interceptorFactory.create(advisor, interceptorClass);
-            ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
-            for(Method method : ClassHelper.getAllMethods(interceptorClass))
-            {
-               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, method, AroundInvoke.class))
-               {
-                  ejb3Interceptors.add(new BusinessMethodInterceptorMethodInterceptor(interceptor, method));
-               }
-            }
+            ejb3Interceptors.add(interceptor);
          }
          
-         T targetObject = (T) advisor.invokeNew(initargs, idx);
+         T targetObject = getBeanClass().cast(advisor.invokeNew(initargs, idx));
          
          Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
          ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
@@ -124,7 +109,9 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
          invocation.setTargetObject(targetObject);
          invocation.invokeNext();
          
-         return new DummyBeanContext(targetObject, ejb3Interceptors);
+         return new DummyBeanContext<T>(targetObject, ejb3Interceptors);
+         */
+         return getBeanContextFactory().createBean();
       }
       catch(Throwable t)
       {
@@ -142,6 +129,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    
    protected void destroy(BeanContext<T> bean)
    {
+      /*
       try
       {
          // TODO: speed up
@@ -160,6 +148,37 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
             throw (RuntimeException) t;
          throw new RuntimeException(t);
       }
+      */
+      getBeanContextFactory().destroyBean(bean);
+   }
+   
+   private BeanContextFactory<T, C> getBeanContextFactory()
+   {
+      if(beanContextFactory == null)
+      {
+         synchronized (this)
+         {
+            if(beanContextFactory == null)
+            {
+               if(beanContextFactoryClass == null)
+                  throw new IllegalStateException("beanContextFactoryClass has not been set");
+               try
+               {
+                  beanContextFactory = beanContextFactoryClass.newInstance();
+                  beanContextFactory.setContainer(this);
+               }
+               catch (InstantiationException e)
+               {
+                  throw new RuntimeException(e.getCause());
+               }
+               catch (IllegalAccessException e)
+               {
+                  throw new RuntimeException(e);
+               }
+            }
+         }
+      }
+      return beanContextFactory;
    }
    
    /**
@@ -269,5 +288,10 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    {
       Method method = ClassHelper.getMethod(target.getInstance().getClass(), methodName);
       return (R) invoke(target, method, args);
+   }
+   
+   public void setBeanContextFactoryClass(Class<BeanContextFactory<T, C>> beanContextFactoryClass)
+   {
+      this.beanContextFactoryClass = beanContextFactoryClass;
    }
 }

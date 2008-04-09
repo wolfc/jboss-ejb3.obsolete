@@ -102,7 +102,7 @@ public class DirectTestCase extends TestCase
       assertEquals("intercept didn't invoke DirectInterceptor.aroundInvoke", 3, DirectInterceptor.aroundInvokes);
       assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
       // 12.7 footnote 57
-      assertEquals("DirectMethodInterceptor.postConstruct must not have been called", 0, DirectMethodInterceptor.postConstructs);
+      assertEquals("DirectMethodInterceptor.postConstruct must not have been called (12.7 footnote 57)", 0, DirectMethodInterceptor.postConstructs);
       
       //((Destructable) bean)._preDestroy();
       bean = null;

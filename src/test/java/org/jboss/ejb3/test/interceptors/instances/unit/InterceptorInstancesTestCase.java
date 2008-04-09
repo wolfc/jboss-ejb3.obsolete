@@ -28,6 +28,7 @@ import junit.framework.TestCase;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
 import org.jboss.ejb3.test.interceptors.instances.SimpleBean;
+import org.jboss.ejb3.test.interceptors.instances.StatefulInterceptor;
 import org.jboss.ejb3.test.interceptors.instances.StatefulInterceptorInterface;
 import org.jboss.logging.Logger;
 
@@ -56,6 +57,8 @@ public class InterceptorInstancesTestCase extends TestCase
       
       ProxyContainer<SimpleBean> container = new ProxyContainer<SimpleBean>("InterceptorInstancesTestCase", "InterceptorContainer", SimpleBean.class);
       
+      assertEquals(0, StatefulInterceptor.postConstructs);
+      
       StatefulInterceptorInterface bean1 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
       StatefulInterceptorInterface bean2 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
       
@@ -64,5 +67,7 @@ public class InterceptorInstancesTestCase extends TestCase
       
       assertEquals(1, bean1.getState());
       assertEquals(2, bean2.getState());
+      
+      assertEquals(2, StatefulInterceptor.postConstructs);
    }
 }

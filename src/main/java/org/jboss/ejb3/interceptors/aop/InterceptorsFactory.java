@@ -44,6 +44,7 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -112,6 +113,12 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    
    public Object createPerInstance(Advisor advisor, InstanceAdvisor instanceAdvisor)
    {
+      if(advisor instanceof ManagedObjectAdvisor)
+      {
+         log.warn("EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the container");
+         return new NopInterceptor();
+      }
+      
       try
       {
          log.debug("createPerInstance");
