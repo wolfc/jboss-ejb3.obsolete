@@ -35,7 +35,7 @@ import org.jboss.ejb3.EJBContainerInvocation;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatefulContainerInvocation extends EJBContainerInvocation
+public class StatefulContainerInvocation extends EJBContainerInvocation<StatefulContainer, StatefulBeanContext>
 {
    private static final long serialVersionUID = -7636489066612082373L;
    
@@ -67,9 +67,9 @@ public class StatefulContainerInvocation extends EJBContainerInvocation
       StatefulContainerInvocation wrapper = new StatefulContainerInvocation(interceptors, methodHash, advisedMethod, unadvisedMethod, advisor, id);
       wrapper.metadata = this.metadata;
       wrapper.currentInterceptor = this.currentInterceptor;
-      wrapper.setTargetObject(this.getTargetObject());
+      //wrapper.setTargetObject(this.getTargetObject());
       wrapper.setArguments(this.getArguments());
-      wrapper.setBeanContext(this.ctx);
+      wrapper.setBeanContext(getBeanContext());
       return wrapper;
    }
 

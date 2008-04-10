@@ -25,6 +25,7 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -56,23 +57,20 @@ import javax.naming.StringRefAddr;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
-import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.annotation.AnnotationRepository;
+import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
-import org.jboss.ejb3.aop.LifeCycleInvocation;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.interceptor.InterceptorInjector;
-import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
-import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
+import org.jboss.ejb3.interceptors.aop.LifecycleCallbacks;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.interceptors.direct.IndirectContainer;
@@ -780,40 +778,6 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    protected Object construct()
    {
       /*
-      Interceptor[] cInterceptors = constructorInterceptors[defaultConstructorIndex];
-      if (cInterceptors == null)
-      {
-         try
-         {
-            return constructors[defaultConstructorIndex].newInstance();
-         }
-         catch (InstantiationException e)
-         {
-            throw new RuntimeException(e);
-         }
-         catch (IllegalAccessException e)
-         {
-            throw new RuntimeException(e);
-         }
-         catch (InvocationTargetException e)
-         {
-            throw new RuntimeException(e);
-         }
-      }
-      ConstructorInvocation invocation = new ConstructorInvocation(
-              cInterceptors);
-
-      invocation.setAdvisor(this);
-      invocation.setConstructor(constructors[defaultConstructorIndex]);
-      try
-      {
-         return invocation.invokeNext();
-      }
-      catch (Throwable throwable)
-      {
-         throw new RuntimeException(throwable);
-      }
-      */
       try
       {
          return beanContainer.construct();
@@ -823,6 +787,19 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
          throw new RuntimeException(e);
       }
       catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException(e);
+      }
+      */
+      try
+      {
+         return beanClass.newInstance();
+      }
+      catch (InstantiationException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (IllegalAccessException e)
       {
          throw new RuntimeException(e);
       }
@@ -1038,11 +1015,15 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    {
       try
       {
-         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), callbackAnnotationClass));
-         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+         // Do lifecycle callbacks
+         List<Class<?>> lifecycleInterceptorClasses = beanContainer.getInterceptorRegistry().getLifecycleInterceptorClasses();
+         Advisor advisor = getAdvisor();
+         Interceptor interceptors[] = LifecycleCallbacks.createLifecycleCallbackInterceptors(advisor, lifecycleInterceptorClasses, beanContext, callbackAnnotationClass);
          
-         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
-         invocation.setAdvisor(getAdvisor());
+         Constructor<?> constructor = beanClass.getConstructor();
+         Object initargs[] = null;
+         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
+         invocation.setAdvisor(advisor);
          invocation.setTargetObject(beanContext.getInstance());
          invocation.invokeNext();
       }
@@ -1067,7 +1048,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    {
       // This is the correct way to destroy an instance, do
       // not call invokeCallback here.
-      beanContainer.destroy(beanContext.getInstance());
+      beanContainer.destroy(beanContext);
    }
 
    public void invokePostActivate(BeanContext beanContext)

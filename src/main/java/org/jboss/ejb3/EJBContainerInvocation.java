@@ -22,11 +22,12 @@
 package org.jboss.ejb3;
 
 import java.lang.reflect.Method;
+
 import org.jboss.aop.Advisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 
 /**
  * Representation of an EJB invocation on the serverside
@@ -34,16 +35,15 @@ import org.jboss.aop.joinpoint.MethodInvocation;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class EJBContainerInvocation<A extends EJBContainer, T extends BeanContext> extends MethodInvocation
+public class EJBContainerInvocation<A extends EJBContainer, T extends BeanContext<?>> extends ContainerMethodInvocation
 {
    private static final long serialVersionUID = 4941832732679380382L;
    
-   protected T ctx;
    private BeanContextLifecycleCallback<T> callback;
 
    public EJBContainerInvocation(MethodInfo info)
    {
-      super(info, info.getInterceptors());
+      super(info);
    }
 
    public EJBContainerInvocation(Interceptor[] interceptors, long methodHash, Method advisedMethod, Method unadvisedMethod, Advisor advisor)
@@ -56,37 +56,31 @@ public class EJBContainerInvocation<A extends EJBContainer, T extends BeanContex
       super(null, null);
    }
 
-   /*
-   @SuppressWarnings("unchecked")
-   public A getAdvisor()
-   {
-      return (A) super.getAdvisor();
-   }
-   */
-   
+   @Override
    public T getBeanContext()
    {
-      return ctx;
+      return (T) super.getBeanContext();
    }
-
-   public void setBeanContext(T beanCtx)
+   
+   @Override
+   public void setBeanContext(org.jboss.ejb3.interceptors.container.BeanContext<?> beanCtx)
    {
       if(beanCtx != null)
       {
-         ctx = beanCtx;
+         super.setBeanContext(beanCtx);
          
          if(callback != null)
-            callback.attached(beanCtx);
+            callback.attached((T) beanCtx);
       }
       else
       {
          if(callback != null)
-            callback.released(ctx);
+            callback.released(getBeanContext());
          
-         ctx = null;
+         super.setBeanContext(beanCtx);
       }
    }
-
+   
    public Invocation getWrapper(Interceptor[] newchain)
    {
       return new EJBContainerInvocationWrapper<A, T>(this, newchain);
@@ -97,9 +91,9 @@ public class EJBContainerInvocation<A extends EJBContainer, T extends BeanContex
       EJBContainerInvocation<A, T> wrapper = new EJBContainerInvocation<A, T>(interceptors, methodHash, advisedMethod, unadvisedMethod, advisor);
       wrapper.metadata = this.metadata;
       wrapper.currentInterceptor = this.currentInterceptor;
-      wrapper.setTargetObject(this.getTargetObject());
+      //wrapper.setTargetObject(this.getTargetObject());
       wrapper.setArguments(this.getArguments());
-      wrapper.setBeanContext(this.ctx);
+      wrapper.setBeanContext(getBeanContext());
       wrapper.callback = this.callback;
       return wrapper;
    }

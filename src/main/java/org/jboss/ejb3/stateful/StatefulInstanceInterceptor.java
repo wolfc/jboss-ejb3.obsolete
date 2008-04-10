@@ -23,19 +23,14 @@ package org.jboss.ejb3.stateful;
 
 import java.rmi.RemoteException;
 
-import javax.ejb.ApplicationException;
 import javax.ejb.ConcurrentAccessException;
 import javax.ejb.EJBException;
 
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SerializedConcurrentAccess;
 import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
-import org.jboss.metadata.ejb.spec.ApplicationExceptionMetaData;
-import org.jboss.metadata.ejb.spec.ApplicationExceptionsMetaData;
 
 /**
  * Comment
@@ -77,7 +72,6 @@ public class StatefulInstanceInterceptor extends AbstractInterceptor
             target.setInInvocation(true);
          }
       }
-      ejb.setTargetObject(target.getInstance());
       ejb.setBeanContext(target);
       StatefulBeanContext.currentBean.push(target);
       container.pushContext(target);
@@ -103,6 +97,7 @@ public class StatefulInstanceInterceptor extends AbstractInterceptor
       {
          container.popContext();
          StatefulBeanContext.currentBean.pop();
+         ejb.setBeanContext(null);
          synchronized (target)
          {
             target.setInInvocation(false);

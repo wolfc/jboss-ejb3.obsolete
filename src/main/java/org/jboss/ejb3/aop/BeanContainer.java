@@ -31,10 +31,7 @@ import javax.interceptor.Interceptors;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
-import org.jboss.aop.MethodInfo;
 import org.jboss.aop.annotation.AnnotationRepository;
-import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.cluster.metadata.ClusteredMetaDataBridge;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
@@ -68,13 +65,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       super();
       assert container != null : "container is null";
       this.container = container;
-   }
-   
-   public BeanContainer(EJBContainer container, String name, String domainName, Class<? extends Object> beanClass)
-   {
-      super(name, domainName, beanClass);
-      assert container != null : "container is null";
-      this.container = container;
+      setBeanContextFactoryClass(BeanContainerBeanContextFactory.class);
    }
    
    private static void addInterceptorClasses(List<Class<?>> interceptorClasses, Class<?> interceptors[])
@@ -264,6 +255,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       advisor.initialize(beanClass);
    }
    
+   /*
    @Override
    public Object invoke(Object target, Method method, Object[] arguments) throws Throwable
    {
@@ -277,6 +269,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       invocation.setTargetObject(target);
       return invocation.invokeNext();
    }
+   */
    
    public boolean isAnnotationPresent(Class<? extends Annotation> annotationType)
    {
