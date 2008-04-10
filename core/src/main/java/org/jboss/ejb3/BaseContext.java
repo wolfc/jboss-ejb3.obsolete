@@ -21,7 +21,9 @@
  */ 
 package org.jboss.ejb3;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
@@ -43,6 +45,7 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
    protected SimpleMetaData metadata;
    
    protected HashMap<Class, Object> interceptorInstances;
+   private Object interceptors[];
    
    /**
     * Use with extreme caution, must not break getInstance post condition.
@@ -89,31 +92,27 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
       return metadata;
    }
 
-   @Deprecated
    public void initialiseInterceptorInstances()
    {
-      /*
-      HashSet<InterceptorInfo> interceptors = ((EJBContainer)container).getApplicableInterceptors();
-      if (interceptors != null && interceptors.size() > 0 && interceptorInstances == null)
+      try
       {
-         HashMap<Class,InterceptorInjector> interceptorInjectors = ((EJBContainer)container).getInterceptorInjectors();
-         interceptorInstances = new HashMap<Class, Object>();
-         for (InterceptorInfo info : interceptors)
+         EJBContainer c = (EJBContainer) container;
+         List<Class<?>> interceptorClasses = c.getBeanContainer().getInterceptorClasses();
+         List<Object> interceptors = new ArrayList<Object>();
+         for(Class<?> interceptorClass : interceptorClasses)
          {
-            try
-            {
-               Object instance = info.getClazz().newInstance();
-               interceptorInstances.put(info.getClazz(), instance);
-               interceptorInjectors.get(info.getClazz()).inject(this, instance);
-            }
-            catch (Exception e)
-            {
-               log.warn("Interceptors must have a public noargs constructor: " + info.getClazz().getName());
-            }
+            interceptors.add(c.createInterceptor(interceptorClass));
          }
+         this.interceptors = interceptors.toArray(new Object[0]);
       }
-      */
-      log.warn("FIXME: don't call BaseContext.initialiseInterceptorInstances (EJBTHREE-1174)");
+      catch(IllegalAccessException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (InstantiationException e)
+      {
+         throw new RuntimeException(e.getCause());
+      }
    }
 
    @Deprecated
@@ -131,5 +130,10 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
    public Object getInvokedMethodKey()
    {
       return container;
+   }
+   
+   public Object[] getInterceptors()
+   {
+      return interceptors;
    }
 }

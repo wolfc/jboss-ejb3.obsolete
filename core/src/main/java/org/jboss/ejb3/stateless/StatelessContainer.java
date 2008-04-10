@@ -26,7 +26,11 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.ejb.*;
+import javax.ejb.EJBContext;
+import javax.ejb.EJBException;
+import javax.ejb.Handle;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
 import javax.naming.NamingException;
 
 import org.jboss.aop.Domain;
@@ -52,19 +56,19 @@ import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
 import org.jboss.proxy.ejb.handle.StatelessHandleImpl;
-import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
-import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
-import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
-import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
-import org.jboss.wsf.spi.invocation.InvocationType;
 import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
-import org.jboss.injection.lang.reflect.BeanProperty;
+import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
+import org.jboss.wsf.spi.invocation.InvocationType;
+import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
+import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
+import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
 
 
 /**
@@ -321,7 +325,7 @@ public class StatelessContainer extends SessionContainer
 
                EJBContainerInvocation newSi = null;
 
-               newSi = new EJBContainerInvocation(info);
+               newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
                newSi.setAdvisor(getAdvisor());

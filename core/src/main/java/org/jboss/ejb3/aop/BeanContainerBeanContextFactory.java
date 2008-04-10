@@ -19,21 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.container;
+package org.jboss.ejb3.aop;
+
+import org.jboss.ejb3.interceptors.container.BeanContext;
+import org.jboss.ejb3.interceptors.container.BeanContextFactory;
 
 /**
- * A factory for bean contexts. After construction of the context the bean instance
- * and interceptor instances have been injected and the post construct life cycle
- * callback has been called.
- * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface BeanContextFactory<T, C extends AbstractContainer<T, C>>
+public class BeanContainerBeanContextFactory implements BeanContextFactory<Object, BeanContainer>
 {
-   BeanContext<T> createBean() throws Exception;
+   private BeanContainer container;
    
-   void destroyBean(BeanContext<T> bean);
-   
-   void setContainer(C container);
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.interceptors.container.BeanContextFactory#createBean()
+    */
+   public BeanContext<Object> createBean() throws Exception
+   {
+      return container.getEJBContainer().createBeanContext();
+   }
+
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.interceptors.container.BeanContextFactory#destroyBean(org.jboss.ejb3.interceptors.container.BeanContext)
+    */
+   public void destroyBean(BeanContext<Object> bean)
+   {
+      // TODO Auto-generated method stub
+
+   }
+
+   public void setContainer(BeanContainer container)
+   {
+      this.container = container;
+   }
 }

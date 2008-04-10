@@ -49,7 +49,6 @@ import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.advice.PerVmAdvice;
-import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;

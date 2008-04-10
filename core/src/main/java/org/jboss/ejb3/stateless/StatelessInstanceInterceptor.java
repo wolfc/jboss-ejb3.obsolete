@@ -52,11 +52,12 @@ public class StatelessInstanceInterceptor extends AbstractInterceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      EJBContainerInvocation ejb = (EJBContainerInvocation) invocation;
+      EJBContainerInvocation<StatelessContainer, StatelessBeanContext> ejb = (EJBContainerInvocation<StatelessContainer, StatelessBeanContext>) invocation;
       EJBContainer container = getEJBContainer(invocation);
       Pool pool = container.getPool();
       BeanContext<?> ctx = pool.get();
-      ejb.setTargetObject(ctx.getInstance());
+      assert ctx != null : "pool returned null instance";
+      //ejb.setTargetObject(ctx.getInstance());
       ejb.setBeanContext(ctx);
       container.pushContext(ctx);
 
@@ -75,7 +76,7 @@ public class StatelessInstanceInterceptor extends AbstractInterceptor
       finally
       {
          container.popContext();
-         ejb.setTargetObject(null);
+         //ejb.setTargetObject(null);
          ejb.setBeanContext(null);
          if (discard) pool.discard(ctx);
          else pool.release(ctx);

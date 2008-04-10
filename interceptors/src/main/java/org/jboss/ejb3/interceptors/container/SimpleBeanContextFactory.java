@@ -23,7 +23,6 @@ package org.jboss.ejb3.interceptors.container;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,16 +32,10 @@ import javax.annotation.PreDestroy;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.ejb3.interceptors.InterceptorFactory;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
-import org.jboss.ejb3.interceptors.aop.ExtendedAdvisor;
-import org.jboss.ejb3.interceptors.aop.ExtendedAdvisorHelper;
-import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
-import org.jboss.ejb3.interceptors.aop.LifecycleCallbackBeanMethodInterceptor;
-import org.jboss.ejb3.interceptors.aop.LifecycleCallbackInterceptorMethodInterceptor;
-import org.jboss.ejb3.interceptors.lang.ClassHelper;
+import org.jboss.ejb3.interceptors.aop.LifecycleCallbacks;
 import org.jboss.logging.Logger;
 
 /**
@@ -53,7 +46,7 @@ public class SimpleBeanContextFactory<T, C extends AbstractContainer<T, C>> impl
 {
    private static final Logger log = Logger.getLogger(SimpleBeanContextFactory.class);
    
-   private AbstractContainer<T, C> container;
+   private C container;
    
    public BeanContext<T> createBean() throws Exception
    {
@@ -126,37 +119,10 @@ public class SimpleBeanContextFactory<T, C extends AbstractContainer<T, C>> impl
    {
       List<Class<?>> lifecycleInterceptorClasses = container.getInterceptorRegistry().getLifecycleInterceptorClasses();
       Advisor advisor = container.getAdvisor();
-      List<Interceptor> interceptors = new ArrayList<Interceptor>();
-      Object ejb3Interceptors[] = component.getInterceptors();
-      for(Object interceptor : ejb3Interceptors)
-      {
-         // 12.7 footnote 57: ignore method level interceptors
-         Class<?> interceptorClass = interceptor.getClass();
-         if(!lifecycleInterceptorClasses.contains(interceptorClass))
-            continue;
-         ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
-         for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
-         {
-            if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, lifecycleAnnotationType))
-            {
-               interceptors.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, interceptorMethod));
-            }
-         }
-      }
-      Class<?> beanClass = container.getBeanClass();
-      for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
-      {
-         if(advisor.hasAnnotation(beanMethod, lifecycleAnnotationType))
-         {
-            interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
-         }
-      }
-      interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
-      
-      return interceptors.toArray(new Interceptor[0]);
+      return LifecycleCallbacks.createLifecycleCallbackInterceptors(advisor, lifecycleInterceptorClasses, component, lifecycleAnnotationType);
    }
    
-   public void setContainer(AbstractContainer<T, C> container)
+   public void setContainer(C container)
    {
       this.container = container;
    }

@@ -68,10 +68,13 @@ public class EJB3InterceptorInterceptor implements Interceptor
    {
       // TODO: speed up
       Object interceptors[] = ContainerMethodInvocation.getContainerMethodInvocation(invocation).getBeanContext().getInterceptors();
-      for(Object interceptor : interceptors)
+      if(interceptors != null)
       {
-         if(interceptor.getClass().equals(interceptorClass))
-            return invoke(interceptor, invocation);
+         for(Object interceptor : interceptors)
+         {
+            if(interceptor.getClass().equals(interceptorClass))
+               return invoke(interceptor, invocation);
+         }
       }
       //throw new IllegalStateException("Can't find an interceptor instance for " + interceptorClass + " among " + Arrays.toString(instances));
       // The business method interceptor method interceptor only exists when there is an aroundInvoke

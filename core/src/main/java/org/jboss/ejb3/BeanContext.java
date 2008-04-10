@@ -33,7 +33,7 @@ import org.jboss.ejb3.interceptor.InterceptorInfo;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public interface BeanContext<T extends Container>
+public interface BeanContext<T extends Container> extends org.jboss.ejb3.interceptors.container.BeanContext<Object>
 {
    Object getInstance();
 

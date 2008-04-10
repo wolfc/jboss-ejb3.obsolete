@@ -36,7 +36,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class EJBContainerInvocationWrapper<A extends EJBContainer, T extends BeanContext> extends EJBContainerInvocation<A, T>
+public class EJBContainerInvocationWrapper<A extends EJBContainer, T extends BeanContext<?>> extends EJBContainerInvocation<A, T>
 {
    private static final long serialVersionUID = 5402917625526438235L;
 
@@ -172,5 +172,17 @@ public class EJBContainerInvocationWrapper<A extends EJBContainer, T extends Bea
    public Advisor getAdvisor()
    {
       return wrapped.getAdvisor();
+   }
+   
+   @Override
+   public T getBeanContext()
+   {
+      return wrapped.getBeanContext();
+   }
+   
+   @Override
+   public void setBeanContext(org.jboss.ejb3.interceptors.container.BeanContext<?> beanCtx)
+   {
+      wrapped.setBeanContext(beanCtx);
    }
 }

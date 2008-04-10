@@ -85,32 +85,6 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       assert idx != -1 : "can't find constructor in the advisor";
       try
       {
-         // TODO: ask the BeanFactory<BeanContext> for a new ctx
-         
-         /*
-         InterceptorFactoryRef interceptorFactoryRef = (InterceptorFactoryRef) advisor.resolveAnnotation(InterceptorFactoryRef.class);
-         if(interceptorFactoryRef == null)
-            throw new IllegalStateException("No InterceptorFactory specified on " + advisor.getName());
-         log.debug("interceptor factory class = " + interceptorFactoryRef.value());
-         InterceptorFactory interceptorFactory = interceptorFactoryRef.value().newInstance();
-         
-         List<Object> ejb3Interceptors = new ArrayList<Object>();
-         for(Class<?> interceptorClass : getInterceptorRegistry().getInterceptorClasses())
-         {
-            Object interceptor = interceptorFactory.create(advisor, interceptorClass);
-            ejb3Interceptors.add(interceptor);
-         }
-         
-         T targetObject = getBeanClass().cast(advisor.invokeNew(initargs, idx));
-         
-         Interceptor interceptors[] = advisor.getConstructionInfos()[idx].getInterceptors();
-         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
-         invocation.setAdvisor(advisor);
-         invocation.setTargetObject(targetObject);
-         invocation.invokeNext();
-         
-         return new DummyBeanContext<T>(targetObject, ejb3Interceptors);
-         */
          return getBeanContextFactory().createBean();
       }
       catch(Throwable t)
@@ -129,26 +103,6 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    
    protected void destroy(BeanContext<T> bean)
    {
-      /*
-      try
-      {
-         // TODO: speed up
-         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getPreDestroys(advisor));
-         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
-         
-         DestructionInvocation invocation = new DestructionInvocation(interceptors.toArray(new Interceptor[0]));
-         invocation.setAdvisor(advisor);
-         invocation.setTargetObject(bean.getInstance());
-         invocation.invokeNext();
-      }
-      catch(Throwable t)
-      {
-         // TODO: disect
-         if(t instanceof RuntimeException)
-            throw (RuntimeException) t;
-         throw new RuntimeException(t);
-      }
-      */
       getBeanContextFactory().destroyBean(bean);
    }
    
@@ -165,7 +119,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
                try
                {
                   beanContextFactory = beanContextFactoryClass.newInstance();
-                  beanContextFactory.setContainer(this);
+                  beanContextFactory.setContainer((C) this);
                }
                catch (InstantiationException e)
                {
@@ -290,7 +244,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       return (R) invoke(target, method, args);
    }
    
-   public void setBeanContextFactoryClass(Class<BeanContextFactory<T, C>> beanContextFactoryClass)
+   public void setBeanContextFactoryClass(Class<? extends BeanContextFactory<T, C>> beanContextFactoryClass)
    {
       this.beanContextFactoryClass = beanContextFactoryClass;
    }
