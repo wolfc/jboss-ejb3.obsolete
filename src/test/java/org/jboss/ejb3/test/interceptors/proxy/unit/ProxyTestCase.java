@@ -36,7 +36,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ProxyTestCase extends TestCase
 {
@@ -47,7 +47,7 @@ public class ProxyTestCase extends TestCase
       //AspectManager.verbose = true;
       
       // Bootstrap AOP
-      URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
+      URL url = Thread.currentThread().getContextClassLoader().getResource("proxyinstanceadvisor/jboss-aop.xml");
       log.info("deploying AOP from " + url);
       AspectXmlLoader.deployXML(url);
 

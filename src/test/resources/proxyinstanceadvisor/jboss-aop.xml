@@ -1,0 +1,14 @@
+<aop>
+   <interceptor name="SimplePoolInterceptor" class="org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.SimplePoolInterceptor" scope="PER_VM"/>  
+   <interceptor name="PerInstanceInterceptor" class="org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.PerInstanceInterceptor" scope="PER_INSTANCE"/>  
+   <interceptor name="PerJoinpointInterceptor" class="org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.PerJoinpointInterceptor" scope="PER_JOINPOINT"/>  
+	
+	<!-- TODO: this is actually the bootstrap container -->
+	<domain name="InterceptorContainer">			
+		<bind pointcut="execution(* @org.jboss.ejb3.interceptors.ManagedObject->*(..))">
+		   <interceptor-ref name="SimplePoolInterceptor"/>
+		   <interceptor-ref name="PerInstanceInterceptor"/>
+		   <interceptor-ref name="PerJoinpointInterceptor"/>
+		</bind>
+	</domain>
+</aop>
