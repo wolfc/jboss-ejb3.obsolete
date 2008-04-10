@@ -35,5 +35,5 @@ public interface BeanContextFactory<T, C extends AbstractContainer<T, C>>
    
    void destroyBean(BeanContext<T> bean);
    
-   void setContainer(AbstractContainer<T, C> container);
+   void setContainer(C container);
 }

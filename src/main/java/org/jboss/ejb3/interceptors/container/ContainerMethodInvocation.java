@@ -21,6 +21,9 @@
  */
 package org.jboss.ejb3.interceptors.container;
 
+import java.lang.reflect.Method;
+
+import org.jboss.aop.Advisor;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
@@ -34,8 +37,34 @@ import org.jboss.aop.joinpoint.MethodInvocation;
  */
 public class ContainerMethodInvocation extends MethodInvocation
 {
+   private static final long serialVersionUID = 1L;
+   
    private BeanContext<?> beanContext;
    
+   /**
+    * Meant for use in the EJB container, which does a late beanContext
+    * association using an instance interceptor.
+    */
+   protected ContainerMethodInvocation(MethodInfo info)
+   {
+      super(info, info.getInterceptors());
+   }
+   
+   protected ContainerMethodInvocation(Interceptor[] interceptors, long methodHash, Method advisedMethod, Method unadvisedMethod, Advisor advisor)
+   {
+      super(interceptors, methodHash, advisedMethod, unadvisedMethod, advisor);
+   }
+   
+   protected ContainerMethodInvocation()
+   {
+      super();
+   }
+
+   protected ContainerMethodInvocation(MethodInfo info, Interceptor[] interceptors)
+   {
+      super(info, interceptors);
+   }
+
    ContainerMethodInvocation(MethodInfo info, BeanContext<?> beanContext, Object arguments[])
    {
       super(info, info.getInterceptors());
@@ -43,9 +72,7 @@ public class ContainerMethodInvocation extends MethodInvocation
       assert beanContext != null : "beanContext is null";
       
       setArguments(arguments);
-      setTargetObject(beanContext.getInstance());
-      
-      this.beanContext = beanContext;
+      setBeanContext(beanContext);
    }
    
    /**
@@ -58,6 +85,7 @@ public class ContainerMethodInvocation extends MethodInvocation
 
    public BeanContext<?> getBeanContext()
    {
+      assert beanContext != null : "beanContext has not been set";
       return beanContext;
    }
    
@@ -72,5 +100,23 @@ public class ContainerMethodInvocation extends MethodInvocation
    public Invocation getWrapper(Interceptor[] newchain)
    {
       return new ContainerMethodInvocationWrapper(this, newchain);
+   }
+   
+   /**
+    * @param beanContext the beanContext to set or null for disassociation
+    */
+   public void setBeanContext(BeanContext<?> beanContext)
+   {
+      this.beanContext = beanContext;
+      if(beanContext != null)
+         super.setTargetObject(beanContext.getInstance());
+      else
+         super.setTargetObject(null);
+   }
+   
+   @Override
+   public void setTargetObject(Object targetObject)
+   {
+      throw new RuntimeException("Call setBeanContext, not setTargetObject");
    }
 }
