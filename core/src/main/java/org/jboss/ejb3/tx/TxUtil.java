@@ -24,8 +24,6 @@ package org.jboss.ejb3.tx;
 import javax.ejb.ApplicationException;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.jboss.aop.Advisor;
@@ -33,7 +31,6 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
-import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.annotation.impl.ApplicationExceptionImpl;
 import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
@@ -49,19 +46,9 @@ import org.jboss.tm.TransactionManagerLocator;
  */
 public class TxUtil
 {
-   public static TransactionManager getTransactionManager() throws RuntimeException
+   public static TransactionManager getTransactionManager()
    {
-      try
-      {
-         //return TxManager.getInstance();
-         InitialContext jndiContext = InitialContextFactory.getInitialContext();
-         TransactionManager tm = TransactionManagerLocator.getInstance().locate();
-         return tm;
-      } 
-      catch (NamingException e)
-      {
-         throw new RuntimeException("Unable to lookup TransactionManager", e);
-      }
+      return TransactionManagerLocator.getInstance().locate();
    }
 
    public static TransactionManagementType getTransactionManagementType(Advisor advisor)
