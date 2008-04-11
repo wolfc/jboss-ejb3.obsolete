@@ -23,6 +23,7 @@ package org.jboss.ejb3.mdb.inflow;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
@@ -37,8 +38,6 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
-
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedBoolean;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -61,7 +60,7 @@ public class MessageInflowLocalProxy implements InvocationHandler
    private String cachedProxyString = null;
    
    /** Whether this proxy has been released */
-   protected SynchronizedBoolean released = new SynchronizedBoolean(false);
+   protected AtomicBoolean released = new AtomicBoolean(false);
    
    /** Whether we have delivered a message */
    protected boolean delivered = false;

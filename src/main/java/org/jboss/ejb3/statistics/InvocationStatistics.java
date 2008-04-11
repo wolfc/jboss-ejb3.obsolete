@@ -26,8 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /** A method invocation statistics collection class.
  *
@@ -65,7 +64,7 @@ public class InvocationStatistics implements Serializable
 
    public InvocationStatistics()
    {
-      methodStats = new ConcurrentReaderHashMap();
+      methodStats = new ConcurrentHashMap();
    }
 
    /** Update the TimeStatistic for the given method. This synchronizes on

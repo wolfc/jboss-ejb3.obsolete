@@ -48,8 +48,6 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.ActivationConfigPropertyMetaData;
 import org.jboss.mx.util.JMXExceptionDecoder;
 
-import EDU.oswego.cs.dl.util.concurrent.SynchronizedInt;
-
 /**
  * EJBProxyFactory for inflow message driven beans
  *
@@ -84,9 +82,6 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
    
    /** The interfaces */
    protected Class[] interfaces;
-
-   /** The next proxy id */
-   protected SynchronizedInt nextProxyId = new SynchronizedInt(0);
     
    // Static --------------------------------------------------------
    

@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.jca.inflow;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -38,8 +39,6 @@ import javax.transaction.xa.XAResource;
 import org.jboss.mx.util.MBeanServerLocator;
 import org.jboss.mx.util.ObjectNameFactory;
 
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
-
 /**
  * A TestResourceAdapter.
  * 
@@ -52,7 +51,7 @@ public class TestResourceAdapter implements ResourceAdapter, TestResourceAdapter
    
    BootstrapContext ctx;
 
-   ConcurrentReaderHashMap endpoints = new ConcurrentReaderHashMap();
+   ConcurrentHashMap endpoints = new ConcurrentHashMap();
    
    public TestResourceAdapterInflowResults testInflow() throws Exception
    {
