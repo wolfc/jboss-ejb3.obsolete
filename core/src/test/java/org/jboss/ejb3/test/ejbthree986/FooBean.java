@@ -28,7 +28,7 @@ import javax.ejb.Stateless;
  *
  * @author <a href="mailto:yvan.borgne@lapeyre.fr">Yvan Borgne</a>
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 public class FooBean implements Foo

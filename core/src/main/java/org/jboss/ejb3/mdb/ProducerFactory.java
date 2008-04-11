@@ -117,11 +117,11 @@ public abstract class ProducerFactory implements ProxyFactory
       throw new UnsupportedOperationException("producer can't have a home interface");
    }
    
-   public Object createProxy(Object id)
+   public Object createProxyBusiness(Object id)
    {
       if(id != null)
          throw new IllegalArgumentException("producer proxy must not have an id");
-      return createProxy();
+      return createProxyBusiness();
    }
    
    public void setContainer(Container container)

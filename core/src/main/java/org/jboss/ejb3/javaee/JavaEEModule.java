@@ -27,7 +27,7 @@ package org.jboss.ejb3.javaee;
  * Java EE components and an optional module level deployment descriptor.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface JavaEEModule
 {

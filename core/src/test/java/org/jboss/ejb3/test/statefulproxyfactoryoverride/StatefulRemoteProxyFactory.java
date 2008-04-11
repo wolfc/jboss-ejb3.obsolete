@@ -22,7 +22,7 @@
 package org.jboss.ejb3.test.statefulproxyfactoryoverride;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -35,22 +35,9 @@ public class StatefulRemoteProxyFactory extends org.jboss.ejb3.stateful.Stateful
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(StatefulRemoteProxyFactory.class);
-   
-   public StatefulRemoteProxyFactory(SessionContainer container, RemoteBinding binding)
+
+   public StatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
       super(container, binding);
-   }
-
-   @Override
-   protected Class<?>[] getInterfacesForBusinessProxy()
-   {
-      Class<?>[] remoteInterfaces = super.getInterfacesForBusinessProxy();
-
-      Class<?>[] interfaces = new Class[remoteInterfaces.length + 1];
-
-      System.arraycopy(remoteInterfaces, 0, interfaces, 0, remoteInterfaces.length);
-      interfaces[remoteInterfaces.length] = org.jboss.ejb3.test.statefulproxyfactoryoverride.ProxyFactoryInterface.class;
-
-      return interfaces;
    }
 }

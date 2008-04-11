@@ -27,7 +27,7 @@ import javax.ejb.Remote;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Remote
 public interface Tester

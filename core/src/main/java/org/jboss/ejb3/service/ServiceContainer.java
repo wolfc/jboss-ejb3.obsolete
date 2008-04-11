@@ -123,13 +123,13 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
    
    @Override
-   protected ProxyFactory createProxyFactory(LocalBinding binding)
+   protected ProxyFactory getProxyFactory(LocalBinding binding)
    {
       return new ServiceLocalProxyFactory(this, binding);
    }
    
    @Override
-   protected RemoteProxyFactory createRemoteProxyFactory(RemoteBinding binding)
+   protected RemoteProxyFactory getProxyFactory(RemoteBinding binding)
    {
       // TODO Implement clustering
       return new ServiceRemoteProxyFactory(this, binding);
@@ -535,14 +535,14 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       ServiceLocalProxyFactory factory = new ServiceLocalProxyFactory(this, binding);
 
-      return factory.createProxy(id);
+      return factory.createProxyBusiness(id);
    }
    
    public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
    {
       ServiceRemoteProxyFactory factory = new ServiceRemoteProxyFactory(this, binding);
 
-      return factory.createProxy(id);
+      return factory.createProxyBusiness(id);
    }
 
    private void registerManagementInterface()

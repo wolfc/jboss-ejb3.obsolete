@@ -80,10 +80,9 @@ public class StatefulRemoteProxy extends org.jboss.ejb3.session.BaseSessionRemot
    {
    }
    
-   public void setHandle(StatefulHandleImpl handle)
+   public void setHandle(StatefulHandleRemoteImpl handle)
    {
       this.handle = handle;
-      handle.id = id;
    }
    
    public void setHomeHandle(HomeHandle homeHandle)
@@ -150,10 +149,10 @@ public class StatefulRemoteProxy extends org.jboss.ejb3.session.BaseSessionRemot
 
    public Object getAsynchronousProxy(Object proxy)
    {
-      Class[] infs = proxy.getClass().getInterfaces();
+      Class<?>[] infs = proxy.getClass().getInterfaces();
       if (!ProxyUtils.isAsynchronous(infs))
       {
-         Class[] interfaces = ProxyUtils.addAsynchProviderInterface(infs);
+         Class<?>[] interfaces = ProxyUtils.addAsynchProviderInterface(infs);
          AsynchMixin mixin = new AsynchMixin();
          Interceptor[] newInterceptors = ProxyUtils.addAsynchProxyInterceptor(mixin, interceptors);
          StatefulRemoteProxy handler = new StatefulRemoteProxy(mixin, containerId, containerGuid, newInterceptors, uri);

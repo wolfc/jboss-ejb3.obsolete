@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.ejbthree1062;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface CommonInterface
 {

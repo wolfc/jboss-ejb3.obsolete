@@ -35,7 +35,7 @@ import org.jboss.logging.Logger;
  * Connect to a jarjar.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class JarJarURLConnection extends URLConnection
 {

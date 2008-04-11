@@ -27,7 +27,7 @@ import javax.interceptor.Interceptors;
 
 /**
  * @author <a href="mailto:amay@ingenta.com">Andrew May</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 @Remote(B.class)

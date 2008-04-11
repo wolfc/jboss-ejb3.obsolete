@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
@@ -832,6 +834,20 @@ public class ProxyFactoryHelper
          clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
       
       return clientBindUrl;
+   }
+   
+   /**
+    * Create a Proxy Constructor for the specified interfaces, using the specified CL
+    * 
+    * @param interfaces
+    * @param cl
+    * @return
+    * @throws Exception
+    */
+   public static Constructor<?> createProxyConstructor(Class<?>[] interfaces, ClassLoader cl) throws Exception
+   {
+      Class<?> proxyClass = java.lang.reflect.Proxy.getProxyClass(cl, interfaces);
+      return proxyClass.getConstructor(InvocationHandler.class);
    }
 
    public static String getHomeJndiName(EJBContainer container)

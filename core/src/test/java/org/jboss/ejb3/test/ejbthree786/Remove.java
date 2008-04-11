@@ -26,7 +26,7 @@ package org.jboss.ejb3.test.ejbthree786;
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author <a href="mailto:arubinge@redhat.com">ALR</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface Remove
 {

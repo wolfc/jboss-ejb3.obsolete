@@ -29,7 +29,7 @@ import org.jboss.ejb3.EJBContextImpl;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MessageDrivenContextImpl extends EJBContextImpl<MessagingContainer, MDBContext> implements MessageDrivenContext
 {

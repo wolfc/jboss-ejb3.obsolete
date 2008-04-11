@@ -26,7 +26,7 @@ import javax.interceptor.InvocationContext;
 
 /**
  * @author <a href="mailto:amay@ingenta.com">Andrew May</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class Intercept
 {

@@ -33,6 +33,7 @@ import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
+import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
@@ -40,6 +41,7 @@ import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.client.loadbalance.RandomRobin;
 import org.jboss.ha.framework.interfaces.ClusteringTargetsRepository;
@@ -56,11 +58,13 @@ import org.jboss.remoting.InvokerLocator;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory  
+public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactory  
    implements RemoteProxyFactory, DistributedReplicantManager.ReplicantListener
 {
    private static final Logger log = Logger.getLogger(StatelessClusterProxyFactory.class);
 
+   private static final String STACK_NAME_CLUSTERED_STATELESS_SESSION_CLIENT_INTERCEPTORS = "ClusteredStatelessSessionClientInterceptors";
+   
    private RemoteBinding binding;
    private Clustered clustered;
    private InvokerLocator locator;
@@ -71,50 +75,14 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
    private FamilyWrapper wrapper;
    private Object proxy;
 
-   public StatelessClusterProxyFactory(SessionContainer container, RemoteBinding binding, Clustered clustered)
+   public StatelessClusterProxyFactory(SessionSpecContainer container, RemoteBinding binding, Clustered clustered)
    {
-      super(container, binding.jndiBinding());
+      super(container, binding);
       
       assert clustered != null : "clustered is null";
       
       this.binding = binding;
       this.clustered = clustered;
-   }
-
-   protected Class<?>[] getInterfaces()
-   {
-      // Initialize
-      Set<Class<?>> interfaces = new HashSet<Class<?>>();
-      
-      // Obtain remote and business remote interfaces
-      Class<?>[] remoteAndBusinessRemoteInterfaces = ProxyFactoryHelper
-            .getRemoteAndBusinessRemoteInterfaces(getContainer());
-      
-      // Add all remote and business remotes
-      for(Class<?> interfaze : remoteAndBusinessRemoteInterfaces)
-      {
-         interfaces.add(interfaze);
-      }
-      
-      // Add JBossProxy
-      interfaces.add( JBossProxy.class);
-      
-      // Return
-      return interfaces.toArray(new Class[]{});
-   }
-   
-   protected void validateEjb21Views()
-   { 
-      // Obtain Container
-      SessionContainer container = this.getContainer();
-      
-      // Obtain @RemoteHome
-      RemoteHome remoteHome = container.getAnnotation(RemoteHome.class);
-
-      // Ensure that if EJB 2.1 Components are defined, they're complete
-      this.validateEjb21Views(remoteHome == null ? null : remoteHome.value(), ProxyFactoryHelper
-            .getRemoteInterfaces(container));
-
    }
 
    public void start() throws Exception
@@ -165,10 +133,10 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       ((StatelessContainer) getContainer()).getClusterFamilies().remove(proxyFamilyName);
    }
 
-   public Object createProxy()
+   public Object createProxyBusiness()
    {
       Object containerId = getContainer().getObjectName().getCanonicalName();
-      String stackName = "ClusteredStatelessSessionClientInterceptors";
+      String stackName = this.getStackNameInterceptors();
       if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
       {
          stackName = binding.interceptorStack();
@@ -180,17 +148,9 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       */
       String partitionName = ((StatelessContainer) getContainer()).getPartitionName();
       
-      proxy = constructProxy(new StatelessClusteredProxy(getContainer(), stack.createInterceptors(getContainer().getAdvisor(), null), 
-            wrapper, lbPolicy, partitionName));
+      proxy = constructProxy(new StatelessClusteredProxy(getContainer(), stack.createInterceptors(getContainer()
+            .getAdvisor(), null), wrapper, lbPolicy, partitionName), SpecificationInterfaceType.EJB30_BUSINESS);
       return proxy;
-   }
-
-   protected StatelessHandleImpl getHandle()
-   {
-      StatelessHandleImpl handle = new StatelessHandleImpl();
-      handle.jndiName = binding.jndiBinding();
- 
-      return handle;
    }
    
    public synchronized void replicantsChanged (String key, 
@@ -212,5 +172,11 @@ public class StatelessClusterProxyFactory extends BaseStatelessProxyFactory
       {
          log.error(e);
       }
+   }
+
+   @Override
+   String getStackNameInterceptors()
+   {
+      return StatelessClusterProxyFactory.STACK_NAME_CLUSTERED_STATELESS_SESSION_CLIENT_INTERCEPTORS;
    }
 }

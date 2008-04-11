@@ -28,7 +28,7 @@ import javax.ejb.Remote;
  *
  * @author <a href="mailto:yvan.borgne@lapeyre.fr">Yvan Borgne</a>
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Remote
 public interface Foo

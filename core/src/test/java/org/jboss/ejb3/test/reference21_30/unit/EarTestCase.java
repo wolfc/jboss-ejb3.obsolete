@@ -21,15 +21,15 @@
  */
 package org.jboss.ejb3.test.reference21_30.unit;
 
-import javax.naming.*;
-
-import org.jboss.ejb3.test.reference21_30.*;
-import org.jboss.logging.Logger;
-
-import org.jboss.ejb3.test.reference21_30.Test3;
+import javax.naming.InitialContext;
 
 import junit.framework.Test;
 
+import org.jboss.ejb3.test.reference21_30.Test2;
+import org.jboss.ejb3.test.reference21_30.Test2Home;
+import org.jboss.ejb3.test.reference21_30.Test3;
+import org.jboss.ejb3.test.reference21_30.Test3Home;
+import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -53,7 +53,8 @@ public class EarTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Test3 test3 = (Test3)jndiContext.lookup("Test3Remote");
+      Test3Home test3Home = (Test3Home) jndiContext.lookup("Test3/home");
+      Test3 test3 = test3Home.create(); 
       assertNotNull(test3);
       test3.testAccess();
       

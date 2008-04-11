@@ -28,7 +28,7 @@ package org.jboss.ejb3.test.ejbthree1066;
  * - Subtractor 
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class CalculatorBean implements Adder, Subtractor
 {

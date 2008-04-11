@@ -32,6 +32,7 @@ import javax.naming.InitialContext;
 import junit.framework.Test;
 
 import org.jboss.ejb3.test.reference21_30.Session21;
+import org.jboss.ejb3.test.reference21_30.Session21Home;
 import org.jboss.ejb3.test.reference21_30.Session30;
 import org.jboss.ejb3.test.reference21_30.Session30Home;
 import org.jboss.ejb3.test.reference21_30.Session30RemoteBusiness;
@@ -62,7 +63,8 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Session21 session = (Session21)jndiContext.lookup("Session21Remote");
+      Session21Home home = (Session21Home)jndiContext.lookup("Session21/home");
+      Session21 session = home.create();
       String access = session.access();
       assertEquals("Session21", access);
       access = session.access30();
@@ -73,7 +75,8 @@ public class ReferenceTestCase
    {
       InitialContext jndiContext = new InitialContext();
  
-      Session30 session = (Session30) jndiContext.lookup("Session30Remote");
+      Session30Home sessionHome = (Session30Home) jndiContext.lookup("Session30/home");
+      Session30 session = sessionHome.create();
       String access = session.access();
       assertEquals("Session30", access);
       access = session.access21();

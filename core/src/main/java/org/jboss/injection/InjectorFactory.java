@@ -27,7 +27,7 @@ import org.jboss.injection.lang.reflect.BeanProperty;
  * Allows the creation of injectors.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface InjectorFactory<I extends Injector>
 {

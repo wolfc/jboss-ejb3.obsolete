@@ -31,7 +31,7 @@ import org.jboss.test.JBossTestCase;
  * Test to see if the proper invoked business interface is returned.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InvokedBusinessInterfaceUnitTestCase extends JBossTestCase
 {

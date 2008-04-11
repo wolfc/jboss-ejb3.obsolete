@@ -36,15 +36,27 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class SessionContextImpl extends EJBContextImpl<SessionContainer, SessionBeanContext> implements SessionContext
+public abstract class SessionContextDelegateBase<J extends SessionContainer> extends EJBContextImpl<J, SessionBeanContext<J>>
+      implements
+         SessionContext
 {
+   // Class Members
    @SuppressWarnings("unused")
-   private static final Logger log = Logger.getLogger(SessionContextImpl.class);
+   private static final Logger log = Logger.getLogger(SessionContextDelegateBase.class);
    
-   public SessionContextImpl(SessionBeanContext beanContext)
+   // Constructor
+   public SessionContextDelegateBase(SessionBeanContext<J> beanContext)
    {
       super(beanContext);
    }
+   
+   // Specifications
+   
+   public abstract EJBLocalObject getEJBLocalObject() throws IllegalStateException;
+   
+   public abstract EJBObject getEJBObject() throws IllegalStateException;
+   
+   // Implementations
    
    public <T> T getBusinessObject(Class<T> businessInterface) throws IllegalStateException
    {
@@ -54,62 +66,7 @@ public class SessionContextImpl extends EJBContextImpl<SessionContainer, Session
       return container.getBusinessObject(beanContext, businessInterface); 
    }
    
-   public EJBLocalObject getEJBLocalObject() throws IllegalStateException
-   {
-      try
-      {
-         Object id = beanContext.getId();
-         EJBLocalObject proxy = null;
-         try
-         {
-            proxy = (EJBLocalObject) container.createLocalProxy(id);
-         }
-         // Proxy does not implement EJBLocalObject
-         catch (ClassCastException cce)
-         {
-            // JIRA EJBTHREE-1057
-            throw new IllegalStateException("EJB3 Specification Violation: " + container.getBeanClassName()
-                  + " does not have a local interface; "
-                  + "EJB3 Spec 4.3.3 Bullet 12: Only session beans with a local EJBLocalObject interface "
-                  + "can call this method.");
-
-         }
-         return proxy;
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException(e);
-      }
-   }
-
-   public EJBObject getEJBObject() throws IllegalStateException
-   {
-      try
-      {
-         Object id = beanContext.getId();
-         EJBObject proxy = null;
-         try
-         {
-            proxy = (EJBObject) container.createRemoteProxy(id);
-         }
-         // Proxy does not implement EJBObject
-         catch (ClassCastException cce)
-         {
-            // JIRA EJBTHREE-1057
-            throw new IllegalStateException("EJB3 Specification Violation: " + container.getBeanClassName()
-                  + " does not have a remote interface; "
-                  + "EJB3 Spec 4.3.3 Bullet 10: Only session beans with a remote EJBObject interface "
-                  + "can call this method.");
-         }
-         return proxy;
-      }
-      catch (Exception e)
-      {
-         throw new IllegalStateException(e);
-      }
-   }
-   
-   public Class getInvokedBusinessInterface() throws IllegalStateException
+   public Class<?> getInvokedBusinessInterface() throws IllegalStateException
    {
       return container.getInvokedBusinessInterface();
    }

@@ -37,7 +37,7 @@ import java.net.URLStreamHandler;
  *
  * @see javax.persistence.spi.PersistenceUnitInfo#getPersistenceUnitRootUrl()
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class Handler extends URLStreamHandler
 {

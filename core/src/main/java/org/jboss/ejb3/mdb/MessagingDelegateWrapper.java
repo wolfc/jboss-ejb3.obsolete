@@ -27,7 +27,7 @@ import org.jboss.ejb3.ContainerDelegateWrapper;
  * TODO: implement proper mdb stats
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MessagingDelegateWrapper extends ContainerDelegateWrapper<MessagingContainer>
    implements MessagingDelegateWrapperMBean

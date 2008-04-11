@@ -31,7 +31,7 @@ import javax.naming.NamingException;
  * Return the value of a burried env entry.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 @Remote(OptionalEnvEntry.class)

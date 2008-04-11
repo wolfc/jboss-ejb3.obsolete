@@ -70,10 +70,9 @@ public class StatefulHomeRemoteProxy extends org.jboss.ejb3.session.BaseSessionR
    {
    }
 
-   public void setHandle(StatefulHandleImpl handle)
+   public void setHandle(StatefulHandleRemoteImpl handle)
    {
       this.handle = handle;
-      handle.id = id;
    }
 
    public void setHomeHandle(HomeHandle homeHandle)

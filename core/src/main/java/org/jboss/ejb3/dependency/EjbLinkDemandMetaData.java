@@ -45,7 +45,7 @@ import org.jboss.util.JBossStringBuilder;
  * specified.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class EjbLinkDemandMetaData extends JBossObject
    implements DemandMetaData, Serializable

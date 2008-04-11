@@ -29,7 +29,7 @@ import javax.persistence.PersistenceContext;
  * A stateless bean to check on the persistence unit
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 public class InspectorBean implements Inspector

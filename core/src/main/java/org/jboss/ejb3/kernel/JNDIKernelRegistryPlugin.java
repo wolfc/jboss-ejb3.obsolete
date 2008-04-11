@@ -38,7 +38,7 @@ import org.jboss.logging.Logger;
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @author <a href="mailto:ajustin@redhat.com">Ales Justin</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class JNDIKernelRegistryPlugin implements KernelRegistryPlugin
 {
