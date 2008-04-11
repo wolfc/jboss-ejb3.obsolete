@@ -23,6 +23,7 @@ package org.jboss.ejb3.interceptors.registry;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import javax.interceptor.Interceptors;
 
 import org.jboss.aop.Advisor;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
+import org.jboss.ejb3.interceptors.aop.annotation.InterceptorOrder;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.logging.Logger;
 
@@ -141,10 +143,18 @@ public class InterceptorRegistry
             methodApplicableInterceptorClasses.addAll(classInterceptorClasses);
          methodApplicableInterceptorClasses.addAll(methodInterceptorClasses);
          
-         // TODO: remove duplicates
-         // TODO: total ordering (EJB 3 12.8.2.1 and @Interceptors with all)
+         // TODO: remove duplicates?
          
-         applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
+         // Total ordering (EJB 3 12.8.2.1)
+         // TODO: @Interceptors with all?
+         InterceptorOrder order = (InterceptorOrder) advisor.resolveAnnotation(beanMethod, InterceptorOrder.class);
+         if(order == null)
+            order = (InterceptorOrder) advisor.resolveAnnotation(InterceptorOrder.class);
+         // TODO: validate the order to see if all interceptors are listed
+         if(order != null)
+            applicableInterceptorClasses.put(beanMethod, Arrays.asList(order.value()));
+         else
+            applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
       }
    }
    

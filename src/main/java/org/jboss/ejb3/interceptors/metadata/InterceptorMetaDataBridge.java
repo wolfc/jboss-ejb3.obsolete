@@ -23,11 +23,15 @@ package org.jboss.ejb3.interceptors.metadata;
 
 import java.lang.annotation.Annotation;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 
 import org.jboss.ejb3.interceptors.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PostConstructImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PreDestroyImpl;
 import org.jboss.ejb3.interceptors.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
@@ -37,7 +41,7 @@ import org.jboss.metadata.ejb.spec.InterceptorMetaData;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBridge<InterceptorMetaData> implements MetaDataBridge<InterceptorMetaData>
 {
@@ -61,6 +65,18 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
       else if(annotationClass == PostActivate.class)
       {
          PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostActivates(), PostActivateImpl.class, methodName);
+         if(lifeCycleAnnotation != null)
+            return annotationClass.cast(lifeCycleAnnotation);
+      }
+      else if(annotationClass == PostConstruct.class)
+      {
+         PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostConstructs(), PostConstructImpl.class, methodName);
+         if(lifeCycleAnnotation != null)
+            return annotationClass.cast(lifeCycleAnnotation);
+      }
+      else if(annotationClass == PreDestroy.class)
+      {
+         PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPreDestroys(), PreDestroyImpl.class, methodName);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
