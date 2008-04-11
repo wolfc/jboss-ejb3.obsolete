@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.ejbthree1062;
  * A common base for beans that implements an interface.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public abstract class CommonBase implements CommonInterface
 {

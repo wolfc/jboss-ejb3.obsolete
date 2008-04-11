@@ -30,7 +30,7 @@ import javax.ejb.Stateless;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 @Remote({Remote1.class, Remote2.class})

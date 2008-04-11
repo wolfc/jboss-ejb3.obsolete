@@ -28,7 +28,7 @@ import javax.persistence.EntityManager;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Local
 public interface LowEnd

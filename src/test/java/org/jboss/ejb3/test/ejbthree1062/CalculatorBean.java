@@ -30,7 +30,7 @@ import javax.ejb.Stateless;
  * in effect the calculator bean only implements the calculator interface.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 @Local

@@ -40,7 +40,7 @@ import org.jboss.logging.Logger;
  * using a subset of a jar file.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class JarJarInputStream extends InputStream
 {

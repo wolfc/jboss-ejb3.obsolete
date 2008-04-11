@@ -21,11 +21,9 @@
  */
 package org.jboss.ejb3.stateless;
 
-import javax.xml.ws.WebServiceContext;
+import javax.ejb.EJBContext;
 
-import org.jboss.ejb3.BaseContext;
-import org.jboss.ejb3.session.SessionBeanContext;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecBeanContext;
 import org.jboss.injection.lang.reflect.BeanProperty;
 
 
@@ -35,12 +33,12 @@ import org.jboss.injection.lang.reflect.BeanProperty;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class StatelessBeanContext extends SessionBeanContext
+public class StatelessBeanContext extends SessionSpecBeanContext<StatelessContainer>
 {
    private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
    private BeanProperty webServiceContextProperty;
    
-   protected StatelessBeanContext(SessionContainer container, Object bean)
+   protected StatelessBeanContext(StatelessContainer container, Object bean)
    {
       super(container, bean);
    }
@@ -67,5 +65,13 @@ public class StatelessBeanContext extends SessionBeanContext
 
    public void remove()
    {
+   }
+   
+   @Override
+   public EJBContext getEJBContext()
+   {
+      if(ejbContext == null)
+         ejbContext = new StatelessSessionContextImpl(this);
+      return ejbContext;
    }
 }

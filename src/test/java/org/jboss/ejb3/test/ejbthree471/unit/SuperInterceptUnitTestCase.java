@@ -30,7 +30,7 @@ import org.jboss.test.JBossTestCase;
  * Interceptor must also apply to super-methods.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SuperInterceptUnitTestCase extends JBossTestCase
 {

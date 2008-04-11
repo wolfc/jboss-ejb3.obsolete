@@ -30,8 +30,6 @@ import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 import javax.naming.InitialContext;
 
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,8 +41,6 @@ import org.jboss.logging.Logger;
 @LocalHome(StatefulSession30LocalHome.class)
 @Local({LocalStatefulSession30Business.class,LocalStatefulSession30.class})
 @Remote(StatefulSession30.class)
-@RemoteBinding(jndiBinding = "HomedStatefulSession30Remote")
-@LocalBinding(jndiBinding = "HomedLocalStatefulSession30")
 public class HomedStatefulSession30Bean implements java.io.Serializable
 {
    

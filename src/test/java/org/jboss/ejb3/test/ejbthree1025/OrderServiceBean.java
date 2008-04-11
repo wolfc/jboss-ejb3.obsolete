@@ -29,7 +29,7 @@ import javax.ejb.Stateless;
  * This is an illegal construct.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 @Local

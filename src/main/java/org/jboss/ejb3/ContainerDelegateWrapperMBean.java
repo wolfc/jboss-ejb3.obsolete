@@ -29,7 +29,7 @@ import org.jboss.ejb3.statistics.InvocationStatistics;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface ContainerDelegateWrapperMBean
 {

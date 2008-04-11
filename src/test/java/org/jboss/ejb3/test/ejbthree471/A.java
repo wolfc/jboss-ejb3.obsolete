@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.ejbthree471;
 
 /**
  * @author <a href="mailto:amay@ingenta.com">Andrew May</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface A
 {

@@ -31,6 +31,7 @@
         <include>org/jboss/ejb3/stateful/StatefulRemoteInvocation.class</include>
         <include>org/jboss/ejb3/ProxyUtils.class</include>
         <include>org/jboss/ejb3/**/*Proxy.class</include>
+        <include>org/jboss/ejb3/**/*Handle*Impl.class</include>
         <include>org/jboss/ejb3/**/*HandleImpl.class</include>
         <include>org/jboss/ejb3/*Container.class</include>
         <include>org/jboss/ejb3/session/SessionContainer.class</include>

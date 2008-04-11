@@ -23,7 +23,6 @@ package org.jboss.ejb3.test.reference21_30;
 
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
 
 import org.jboss.ejb3.Container;
 import org.jboss.logging.Logger;
@@ -45,7 +44,6 @@ public class Session21Bean implements javax.ejb.SessionBean
    {
       try {
          InitialContext jndiContext = new InitialContext();
-         
          Session30 session = (Session30)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/Session30");
          return session.access();
       } catch (Exception e)

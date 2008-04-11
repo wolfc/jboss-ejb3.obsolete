@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.ejbthree973;
  * Allows for some security checks.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface SpyMe extends WhoAmI
 {

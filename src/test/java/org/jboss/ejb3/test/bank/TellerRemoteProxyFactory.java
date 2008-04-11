@@ -22,7 +22,7 @@
 package org.jboss.ejb3.test.bank;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 
 /**
@@ -35,20 +35,8 @@ public class TellerRemoteProxyFactory extends org.jboss.ejb3.stateless.Stateless
 {
    private static final Logger log = Logger.getLogger(TellerRemoteProxyFactory.class);
    
-   public TellerRemoteProxyFactory(SessionContainer container, RemoteBinding binding)
+   public TellerRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
       super(container, binding);
-   }
-
-   protected Class[] getInterfaces()
-   {
-      Class[] remoteInterfaces = super.getInterfaces();
-
-      Class[] interfaces = new Class[remoteInterfaces.length + 1];
-
-      System.arraycopy(remoteInterfaces, 0, interfaces, 0, remoteInterfaces.length);
-      interfaces[remoteInterfaces.length] = org.jboss.ejb3.test.bank.ProxyFactoryInterface.class;
-
-      return interfaces;
    }
 }

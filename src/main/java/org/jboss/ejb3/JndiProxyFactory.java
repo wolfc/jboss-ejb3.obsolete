@@ -52,7 +52,7 @@ public class JndiProxyFactory implements ObjectFactory
       {
          ProxyFactory factory = (ProxyFactory) nameCtx.lookup(factoryName);
          
-         Object proxy = factory.createProxy();
+         Object proxy = factory.createProxyBusiness();
          MarshalledValuePair marshalledProxy = new MarshalledValuePair(proxy);
          return marshalledProxy.get();
       }

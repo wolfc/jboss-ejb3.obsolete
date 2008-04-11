@@ -37,8 +37,6 @@ import javax.transaction.UserTransaction;
 import javax.xml.rpc.handler.MessageContext;
 
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.session.SessionBeanContext;
-import org.jboss.ejb3.session.SessionContextImpl;
 
 /**
  * A session context that is serializable.
@@ -95,11 +93,11 @@ public class StatefulSessionContextImpl implements Serializable, SessionContext
       this.isClustered = isClustered;
    }
    
-   public StatefulSessionContextImpl(SessionBeanContext beanContext)
+   public StatefulSessionContextImpl(StatefulBeanContext beanContext)
    {
       assert beanContext != null : "beanContext is null";
       
-      this.delegate = new SessionContextImpl(beanContext);
+      this.delegate = new StatefulSessionContextDelegate(beanContext);
       this.containerGuid = Ejb3Registry.guid(beanContext.getContainer());
       this.containerClusterUid =Ejb3Registry.clusterUid(beanContext.getContainer());
       this.id = beanContext.getId();
@@ -129,7 +127,7 @@ public class StatefulSessionContextImpl implements Serializable, SessionContext
          if (container == null && isClustered)
             container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
          
-         delegate = new SessionContextImpl(container.getCache().get(id, false));
+         delegate = new StatefulSessionContextDelegate(container.getCache().get(id, false));
       }
       return delegate;
    }

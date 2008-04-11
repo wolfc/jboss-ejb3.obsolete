@@ -40,7 +40,7 @@ implements javax.ejb.SessionBean
    {
       InitialContext jndiContext = new InitialContext();
       
-      Test3 session = (Test3)jndiContext.lookup("java:comp/env/ejb/Test3");
+      Test3Business session = (Test3Business)jndiContext.lookup("java:comp/env/ejb/Test3");
       session.testAccess();
      
       Test3Home home = (Test3Home)jndiContext.lookup("java:comp/env/ejb/Test3Home");

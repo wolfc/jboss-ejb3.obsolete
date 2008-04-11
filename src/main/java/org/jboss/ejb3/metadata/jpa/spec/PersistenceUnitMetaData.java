@@ -31,7 +31,7 @@ import org.jboss.metadata.javaee.support.MappableMetaData;
  * A wrapper around Hibernate's PersistenceMetadata.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class PersistenceUnitMetaData implements MappableMetaData, Serializable
 {

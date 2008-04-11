@@ -23,7 +23,10 @@ package org.jboss.ejb3.session;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.ProxyFactoryHelper;
@@ -47,7 +50,7 @@ public class ProxyDeployer
 {
    private static final Logger log = Logger.getLogger(ProxyDeployer.class);
    private SessionContainer container;
-   private ArrayList<ProxyFactory> proxyFactories = new ArrayList<ProxyFactory>();
+   private Map<Object, ProxyFactory> proxyFactories = new HashMap<Object, ProxyFactory>();
    private RemoteBindings remoteBindings;
    private LocalBinding localBinding;
 
@@ -58,7 +61,15 @@ public class ProxyDeployer
       this.container = container;
    }
 
-   public List<ProxyFactory> getProxyFactories() { return proxyFactories; }
+   public Map<Object, ProxyFactory> getProxyFactories()
+   {
+      return proxyFactories;
+   }
+   
+   public ProxyFactory getProxyFactory(Object key)
+   {
+      return this.getProxyFactories().get(key);
+   }
 
    public void start() throws Exception
    {
@@ -73,7 +84,7 @@ public class ProxyDeployer
             String factoryImplementationRegistryKey = binding.factory();
             if (factoryImplementationRegistryKey.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
             {
-               factory = container.createRemoteProxyFactory(binding);
+               factory = container.getProxyFactory(binding);
             }
             else
             {
@@ -82,15 +93,15 @@ public class ProxyDeployer
                factory = constructor.newInstance(container, binding);
             }
             factory.start();
-            proxyFactories.add(factory);
+            proxyFactories.put(binding,factory);
          }
       }
 
       if (localBinding != null)
       {
-         ProxyFactory factory = container.createProxyFactory(localBinding);
+         ProxyFactory factory = container.getProxyFactory(localBinding);
          factory.start();
-         proxyFactories.add(factory);
+         proxyFactories.put(localBinding,factory);
       }
    }
 
@@ -118,7 +129,7 @@ public class ProxyDeployer
    
    public void initializeLocalBindingMetadata()
    {
-      localBinding = (LocalBinding) container.resolveAnnotation(LocalBinding.class);
+      localBinding = container.getAnnotation(LocalBinding.class);
       if (localBinding == null)
       {
          if (ProxyFactoryHelper.getLocalAndBusinessLocalInterfaces(container).length > 0)
@@ -141,10 +152,10 @@ public class ProxyDeployer
    
    public void initializeRemoteBindingMetadata()
    {
-      remoteBindings = (RemoteBindings) container.resolveAnnotation(RemoteBindings.class);
+      remoteBindings = container.getAnnotation(RemoteBindings.class);
       if (remoteBindings == null)
       {
-         RemoteBinding binding = (RemoteBinding) container.resolveAnnotation(RemoteBinding.class);
+         RemoteBinding binding = container.getAnnotation(RemoteBinding.class);
          if (binding == null)
          {
             log.debug("no declared remote bindings for : " + container.getEjbName());
@@ -180,9 +191,10 @@ public class ProxyDeployer
 
    public void stop() throws Exception
    {
-      for (int i = 0; i < proxyFactories.size(); i++)
+      // Stop all proxy factories
+      Collection<ProxyFactory> proxyFactories = this.getProxyFactories().values();
+      for(ProxyFactory factory : proxyFactories)
       {
-         ProxyFactory factory = (ProxyFactory) proxyFactories.get(i);
          factory.stop();
       }
    }

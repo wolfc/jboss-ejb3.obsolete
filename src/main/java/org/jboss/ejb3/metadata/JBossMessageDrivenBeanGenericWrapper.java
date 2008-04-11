@@ -80,7 +80,7 @@ import org.jboss.metadata.javaee.support.NamedMetaData;
  * Create a wrapper around a JBossGenericBeanMetaData for MDB meta data.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Deprecated
 public class JBossMessageDrivenBeanGenericWrapper extends JBossMessageDrivenBeanMetaData

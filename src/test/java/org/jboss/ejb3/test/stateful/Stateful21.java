@@ -27,7 +27,7 @@ import javax.ejb.EJBObject;
  * A remote interface for a stateful bean.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface Stateful21 extends Stateful, EJBObject
 {

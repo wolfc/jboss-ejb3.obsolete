@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.service;
 
+import javax.ejb.EJBContext;
+
 import org.jboss.ejb3.session.SessionBeanContext;
 import org.jboss.ejb3.session.SessionContainer;
 
@@ -38,5 +40,12 @@ public class ServiceBeanContext extends SessionBeanContext
    public void remove()
    {
 
+   }
+
+   @Override
+   public EJBContext getEJBContext()
+   {
+      // TODO Auto-generated method stub
+      return null;
    }
 }

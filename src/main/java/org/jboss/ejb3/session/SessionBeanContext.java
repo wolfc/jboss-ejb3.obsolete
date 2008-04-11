@@ -29,9 +29,9 @@ import org.jboss.ejb3.BaseContext;
  * An instance of an enterprise bean link to its container.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
-public abstract class SessionBeanContext extends BaseContext<SessionContainer>
+public abstract class SessionBeanContext<T extends SessionContainer> extends BaseContext<T>
 {
    protected EJBContext ejbContext;
 
@@ -39,24 +39,16 @@ public abstract class SessionBeanContext extends BaseContext<SessionContainer>
     * Must not break getInstance post condition!
     * @param container
     */
-   protected SessionBeanContext(SessionContainer container)
+   protected SessionBeanContext(T container)
    {
       super(container);
    }
    
-   protected SessionBeanContext(SessionContainer container, Object bean)
+   protected SessionBeanContext(T container, Object bean)
    {
       super(container, bean);
    }
    
-   public EJBContext getEJBContext()
-   {
-      if (ejbContext == null)
-      {
-         SessionContextImpl bsc = new SessionContextImpl(this);
-         ejbContext = bsc;
-      }
-      return ejbContext;
-   }
+   public abstract EJBContext getEJBContext();
 
 }

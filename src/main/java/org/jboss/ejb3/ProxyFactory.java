@@ -31,9 +31,9 @@ public interface ProxyFactory
 {
    public Object createHomeProxy();
    
-   public Object createProxy();
+   public Object createProxyBusiness();
 
-   public Object createProxy(Object id);
+   public Object createProxyBusiness(Object id);
    
    public void start() throws Exception;
 

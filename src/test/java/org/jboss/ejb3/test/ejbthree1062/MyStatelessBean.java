@@ -30,7 +30,7 @@ import javax.ejb.Stateless;
  * But it extends a common base which also implements an interface.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 public class MyStatelessBean extends CommonBase implements MyStatelessLocal

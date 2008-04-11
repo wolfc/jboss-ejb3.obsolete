@@ -33,7 +33,7 @@ import org.jboss.metadata.javaee.support.AbstractMappedMetaData;
  * Currently a wrapper around the Hibernate metadata.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class PersistenceUnitsMetaData extends AbstractMappedMetaData<PersistenceUnitMetaData>
 {

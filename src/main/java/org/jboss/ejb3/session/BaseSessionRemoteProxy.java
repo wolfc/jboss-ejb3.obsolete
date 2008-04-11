@@ -58,6 +58,11 @@ public abstract class BaseSessionRemoteProxy extends org.jboss.ejb3.remoting.Bas
    {
    }
    
+   public Handle getHandle()
+   {
+      return this.handle;
+   }
+   
    public void setHandle(Handle handle)
    {
       this.handle = handle;

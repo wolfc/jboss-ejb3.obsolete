@@ -48,7 +48,7 @@ import org.jboss.logging.Logger;
 @RemoteHome(Session30Home.class)
 @LocalHome(Session30LocalHome.class)
 @LocalHomeBinding(jndiBinding = Session30LocalHome.JNDI_NAME_SESSION_30)
-@EJBs({@EJB(name="injected", beanInterface=org.jboss.ejb3.test.reference21_30.Session21.class, beanName="Session21")})
+@EJBs({@EJB(name="injected", beanInterface=org.jboss.ejb3.test.reference21_30.Session21Home.class, beanName="Session21")})
 
 public class Session30Bean implements Session30RemoteBusiness, LocalSession30Business
 {
@@ -63,7 +63,8 @@ public class Session30Bean implements Session30RemoteBusiness, LocalSession30Bus
    {
       try {
          InitialContext jndiContext = new InitialContext();
-         Session21 session = (Session21)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/injected");
+         Session21Home sessionHome = (Session21Home) jndiContext.lookup(Container.ENC_CTX_NAME + "/env/injected");
+         Session21 session = sessionHome.create();
          return session.access();
       } catch (Exception e)
       {

@@ -27,7 +27,7 @@ import javax.ejb.Stateless;
  * Dirty bean to check status of MyStatefulBean
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Stateless
 public class StatusBean implements Status

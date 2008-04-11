@@ -44,7 +44,7 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
    protected RealmMapping rm;
    protected SimpleMetaData metadata;
    
-   protected HashMap<Class, Object> interceptorInstances;
+   protected HashMap<Class<?>, Object> interceptorInstances;
    private Object interceptors[];
    
    /**
