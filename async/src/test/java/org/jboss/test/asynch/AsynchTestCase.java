@@ -23,10 +23,11 @@ package org.jboss.test.asynch;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+
 import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.asynch.Future;
 import org.jboss.test.JBossTestCase;
-import org.jboss.test.aop.test.AOPTestSetup;
+import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -95,8 +96,10 @@ extends JBossTestCase
       TestSuite suite = new TestSuite();
       suite.addTest(new TestSuite(AsynchTestCase.class));
 
-      AOPTestSetup setup = new AOPTestSetup(suite, "asynch-test.sar");
-      return setup;
+      //TODO Rework this dependency
+//      AOPTestSetup setup = new AOPTestSetup(suite, "asynch-test.sar");
+//      return setup;
+      throw new NotImplementedException();
    }
 
 }
