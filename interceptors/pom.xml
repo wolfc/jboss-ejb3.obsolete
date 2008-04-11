@@ -42,7 +42,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
-      <version>0.12.0</version>
+      <version>0.12.1-SNAPSHOT</version>
     </dependency>
 
     <!-- External -->
@@ -61,7 +61,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jboss</groupId>
+      <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
     </dependency>
     <dependency>
