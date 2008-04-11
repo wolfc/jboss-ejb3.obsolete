@@ -27,10 +27,36 @@
 
 
   <dependencies>
+  
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-test</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop-aspects</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+    </dependency>
+    
+    <!-- 
+    
+    Everything below here should be removed, JBAS-5408 
+    
+    -->
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-remoting-aspects</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>jboss.remoting</groupId>
+      <artifactId>jboss-remoting</artifactId>
+      <version>2.4.0.CR1</version>
+    </dependency>
+    
   </dependencies>
 
 </project>

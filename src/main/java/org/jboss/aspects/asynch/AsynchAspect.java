@@ -45,8 +45,8 @@ public class AsynchAspect
    public static final String FUTURE = "ASYNCH_FUTURE";
 
    private static GUID futureClassGUID = new GUID();
-   private static Class[] futureIntf = {Future.class};
-   private static Class[] futureDynamicIntf = {Future.class, Serializable.class, InstanceAdvised.class};
+   private static Class<?>[] futureIntf = {Future.class};
+   private static Class<?>[] futureDynamicIntf = {Future.class, Serializable.class, InstanceAdvised.class};
    private Advisor advisor;
    protected ExecutorAbstraction executor;
    private boolean generateFutureProxy = true;
@@ -59,7 +59,7 @@ public class AsynchAspect
    public void setAdvisor(Advisor advisor)
    {
       this.advisor = advisor;
-      Class executorClass = null;
+      Class<?> executorClass = null;
       AsynchExecutor executorAnnotation = (AsynchExecutor) advisor.resolveAnnotation(AsynchExecutor.class);
       if (executorAnnotation == null)
       {
