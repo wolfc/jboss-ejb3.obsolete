@@ -30,8 +30,7 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.MCDependencyPolicy;
 import org.jboss.ejb3.MCKernelAbstraction;
 import org.jboss.ejb3.javaee.JavaEEApplication;
-import org.jboss.ejb3.javaee.JavaEEComponent;
-import org.jboss.ejb3.security.JaccHelper;
+import org.jboss.ejb3.javaee.JavaEEComponent; 
 import org.jboss.kernel.Kernel;
 
 /**
@@ -75,7 +74,8 @@ public class EJB3StandaloneDeployment extends Ejb3Deployment
 
    protected PolicyConfiguration createPolicyConfiguration() throws Exception
    {
-      return JaccHelper.initialiseJacc(getJaccContextId());
+      return null;
+      //return JaccHelper.initialiseJacc(getJaccContextId());
    }
 
 /*
