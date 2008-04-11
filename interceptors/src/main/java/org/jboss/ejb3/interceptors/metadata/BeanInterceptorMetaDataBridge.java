@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
@@ -33,9 +35,14 @@ import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.interceptors.annotation.impl.InterceptorsImpl;
 import org.jboss.ejb3.interceptors.annotation.impl.PostActivateImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PostConstructImpl;
+import org.jboss.ejb3.interceptors.annotation.impl.PreDestroyImpl;
 import org.jboss.ejb3.interceptors.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptorsImpl;
+import org.jboss.ejb3.interceptors.aop.annotation.InterceptorOrder;
+import org.jboss.ejb3.interceptors.aop.annotation.InterceptorOrderImpl;
+import org.jboss.ejb3.interceptors.util.InterceptorCollection;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -52,13 +59,13 @@ import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBridge<JBossEnterpriseBeanMetaData> implements MetaDataBridge<JBossEnterpriseBeanMetaData>
 {
    private static final Logger log = Logger.getLogger(BeanInterceptorMetaDataBridge.class);
 
-   private static boolean add(InterceptorsImpl interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
+   private static boolean add(InterceptorCollection interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
    {
       boolean result = false;
       InterceptorClassesMetaData interceptorClassesMetaData;
@@ -133,6 +140,31 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                return annotationClass.cast(new DefaultInterceptorsImpl(interceptors));
          }
       }
+      else if(annotationClass == InterceptorOrder.class)
+      {
+         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
+         if(bindings != null)
+         {
+            InterceptorOrderImpl interceptorOrder = new InterceptorOrderImpl();
+            for(InterceptorBindingMetaData binding : bindings)
+            {
+               // Only for specifying order
+               if(!binding.isTotalOrdering())
+                  continue;
+               
+               // For the method component
+               if(binding.getMethod() != null)
+                  continue;
+               
+               String ejbName = beanMetaData.getEjbName();
+               String bindingEjbName = binding.getEjbName();
+               if(bindingEjbName.equals(ejbName))
+                  add(interceptorOrder, classLoader, binding);
+            }
+            if(!interceptorOrder.isEmpty())
+               return annotationClass.cast(interceptorOrder);
+         }
+      }
       else if(annotationClass == Interceptors.class)
       {
          InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
@@ -141,6 +173,10 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             InterceptorsImpl interceptors = new InterceptorsImpl();
             for(InterceptorBindingMetaData binding : bindings)
             {
+               // Only for specifying order
+               if(binding.isTotalOrdering())
+                  continue;
+               
                // For the method component
                if(binding.getMethod() != null)
                   continue;
@@ -150,7 +186,8 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                if(bindingEjbName.equals(ejbName))
                   add(interceptors, classLoader, binding);
             }
-            return annotationClass.cast(interceptors);
+            if(!interceptors.isEmpty())
+               return annotationClass.cast(interceptors);
          }
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader);
@@ -175,6 +212,44 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                return annotationClass.cast(annotation);
          }
       }
+      else if(annotationClass == InterceptorOrder.class)
+      {
+         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
+         if(bindings != null)
+         {
+            InterceptorOrderImpl interceptorOrder = new InterceptorOrderImpl();
+            for(InterceptorBindingMetaData binding : bindings)
+            {
+               // Only for specifying order
+               if(!binding.isTotalOrdering())
+                  continue;
+               
+               // For the bean
+               if(binding.getMethod() == null)
+                  continue;
+               
+               NamedMethodMetaData method = binding.getMethod();
+               
+               // TODO: this is weird, it should have been caught earlier (invalid xml)
+               if(method.getMethodName() == null)
+                  continue;
+               
+               if(method.getMethodName().equals(methodName))
+               {
+                  MethodParametersMetaData methodParams = method.getMethodParams();
+                  if(methodParams == null)
+                     add(interceptorOrder, classLoader, binding);
+                  else
+                  {
+                     if(Arrays.equals(methodParams.toArray(), parameterNames))
+                        add(interceptorOrder, classLoader, binding);
+                  }
+               }
+            }
+            if(!interceptorOrder.isEmpty())
+               return annotationClass.cast(interceptorOrder);
+         }
+      }
       else if(annotationClass == Interceptors.class)
       {
          InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
@@ -183,6 +258,10 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             InterceptorsImpl interceptors = new InterceptorsImpl();
             for(InterceptorBindingMetaData binding : bindings)
             {
+               // Only for specifying order
+               if(binding.isTotalOrdering())
+                  continue;
+               
                // For the bean
                if(binding.getMethod() == null)
                   continue;
@@ -205,7 +284,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                   }
                }
             }
-            if(interceptors.value().length > 0)
+            if(!interceptors.isEmpty())
                return annotationClass.cast(interceptors);
          }
       }
@@ -214,6 +293,24 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          if(beanMetaData instanceof JBossSessionBeanMetaData)
          {
             PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, methodName);
+            if(lifeCycleAnnotation != null)
+               return annotationClass.cast(lifeCycleAnnotation);
+         }
+      }
+      else if(annotationClass == PostConstruct.class)
+      {
+         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         {
+            PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostConstructs(), PostConstructImpl.class, methodName);
+            if(lifeCycleAnnotation != null)
+               return annotationClass.cast(lifeCycleAnnotation);
+         }
+      }
+      else if(annotationClass == PreDestroy.class)
+      {
+         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         {
+            PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPreDestroys(), PreDestroyImpl.class, methodName);
             if(lifeCycleAnnotation != null)
                return annotationClass.cast(lifeCycleAnnotation);
          }
