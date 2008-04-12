@@ -5,12 +5,12 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.1-SNAPSHOT</version>
+    <version>0.13.2</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-metadata</artifactId>
-  <version>0.12.1-SNAPSHOT</version>
+  <version>0.12.1</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Meta Data bridge</name>
   <url>http://www.jboss.org</url>
@@ -62,4 +62,10 @@
 
     <!-- TODO: javassist -->
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-0.12.1</url>
+  </scm>
 </project>
