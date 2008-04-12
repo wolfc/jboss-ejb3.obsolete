@@ -50,7 +50,7 @@ public class EJB3InterceptorInterceptor implements Interceptor
    {
       assert interceptorClass != null : "interceptorClass is null";
       assert businessMethodInterceptorMethod != null : "businessMethodInterceptorMethod is null";
-      assert interceptorClass.equals(businessMethodInterceptorMethod.getDeclaringClass()) : businessMethodInterceptorMethod + " does not belong to " + interceptorClass;
+      assert businessMethodInterceptorMethod.getDeclaringClass().isAssignableFrom(interceptorClass) : businessMethodInterceptorMethod + " does not belong to " + interceptorClass;
       assert businessMethodInterceptorMethod.getReturnType() == Object.class : "return type must be Object " + businessMethodInterceptorMethod;
       assert Arrays.equals(businessMethodInterceptorMethod.getParameterTypes(), PARAMETER_TYPES) : "wrong parameter signature";
       // Ignore throw clause
