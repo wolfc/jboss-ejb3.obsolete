@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>3</version>
+    <version>4-beta-2</version>
   </parent>
 
   <!-- POM Model Version -->
@@ -216,27 +216,28 @@
         External
         
       -->
-      
       <!-- Apache Commons Validator -->
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>${version.commons-validator_commons-validator}</version>
+        <version>
+          ${version.commons-validator_commons-validator}
+        </version>
       </dependency>
       
       <dependency>
         <groupId>org.jboss.logging</groupId>
-	<artifactId>jboss-logging-log4j</artifactId>
-	<version>2.0.5.GA</version>
-	<scope>runtime</scope>
+        <artifactId>jboss-logging-log4j</artifactId>
+        <version>2.0.5.GA</version>
+        <scope>runtime</scope>
       </dependency>
-
+      
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-spi</artifactId>
         <version>2.0.5.GA</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
@@ -351,6 +352,7 @@
   </dependencyManagement>
 
   <profiles>
+  
     <profile>
       <id>default</id>
       <activation>
@@ -358,9 +360,12 @@
       </activation>
       <properties>
         <ejb3.outputDirectory>target/classes</ejb3.outputDirectory>
-        <ejb3.testOutputDirectory>target/tests-classes</ejb3.testOutputDirectory>
+        <ejb3.testOutputDirectory>
+          target/tests-classes
+        </ejb3.testOutputDirectory>
       </properties>
     </profile>
+        
     <profile>
       <id>eclipse</id>
       <build>
@@ -389,6 +394,7 @@
         <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
       </properties>
     </profile>
+    
   </profiles>
-
+  
 </project>
