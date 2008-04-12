@@ -32,17 +32,6 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>William DeCoste</name>
-      <email>bill.decoste@jboss.com</email>
-      <url />
-      <organization>JBoss, a division of Red Hat, Inc.</organization>
-      <organizationUrl>http://www.jboss.com</organizationUrl>
-      <roles>
-        <role>Developer</role>
-      </roles>
-      <timezone>-8</timezone>
-    </developer>
-    <developer>
       <name>Andrew Lee Rubinger</name>
       <email>andrew.rubinger@jboss.org</email>
       <organization>JBoss, a division of Red Hat, Inc.</organization>
@@ -119,7 +108,7 @@
           <showWarnings>true</showWarnings>
           <optimize>true</optimize>
           <compilerVersion>1.5</compilerVersion>
-          <fork>false<fork>
+          <fork>false</fork>
         </configuration>
       </plugin>
 
