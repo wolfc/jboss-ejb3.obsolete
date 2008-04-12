@@ -4,7 +4,16 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>4-beta-2</version>
+    <!-- 
+
+    This should be re-enabled after Plugin
+    configuration makes it into 
+    release-pom.xml.  Otherwise all builds
+    will break.
+
+
+    <version>4-beta-2</version> -->
+    <version>3</version>
   </parent>
 
   <!-- POM Model Version -->
@@ -101,6 +110,7 @@
       <!-- Compiler -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <inherited>true</inherited>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
