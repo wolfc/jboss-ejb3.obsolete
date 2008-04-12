@@ -74,7 +74,7 @@ public class InterceptorRegistry
    public List<Class<?>> getApplicableInterceptorClasses(Method method)
    {
       List<Class<?>> methodApplicableInterceptorClasses = applicableInterceptorClasses.get(method);
-      assert methodApplicableInterceptorClasses != null;
+      assert methodApplicableInterceptorClasses != null : "applicable interceptors is non-existent for " + method;
       return methodApplicableInterceptorClasses;
    }
    
