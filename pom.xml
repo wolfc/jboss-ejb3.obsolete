@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <version>3</version>
+    <version>4-beta-2</version>
   </parent>
 
   <!-- POM Model Version -->
@@ -13,7 +13,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-build</artifactId>
-  <version>0.13.1-SNAPSHOT</version>
+  <version>0.13.1</version>
   <packaging>pom</packaging>
   <name>JBoss EJB 3.0 Build POM</name>
   <url>http://labs.jboss.com/jbossejb3</url>
@@ -32,17 +32,6 @@
       <timezone>+1</timezone>
     </developer>
     <developer>
-      <name>William DeCoste</name>
-      <email>bill.decoste@jboss.com</email>
-      <url />
-      <organization>JBoss, a division of Red Hat, Inc.</organization>
-      <organizationUrl>http://www.jboss.com</organizationUrl>
-      <roles>
-        <role>Developer</role>
-      </roles>
-      <timezone>-8</timezone>
-    </developer>
-    <developer>
       <name>Andrew Lee Rubinger</name>
       <email>andrew.rubinger@jboss.org</email>
       <organization>JBoss, a division of Red Hat, Inc.</organization>
@@ -56,9 +45,9 @@
 
   <!-- SCM -->
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.1</url>
   </scm>  
   
   <!-- Issues -->
@@ -119,7 +108,7 @@
           <showWarnings>true</showWarnings>
           <optimize>true</optimize>
           <compilerVersion>1.5</compilerVersion>
-          <fork>true</fork>
+          <fork>false</fork>
         </configuration>
       </plugin>
 
@@ -227,27 +216,28 @@
         External
         
       -->
-      
       <!-- Apache Commons Validator -->
       <dependency>
         <groupId>commons-validator</groupId>
         <artifactId>commons-validator</artifactId>
-        <version>${version.commons-validator_commons-validator}</version>
+        <version>
+          ${version.commons-validator_commons-validator}
+        </version>
       </dependency>
       
       <dependency>
         <groupId>org.jboss.logging</groupId>
-	<artifactId>jboss-logging-log4j</artifactId>
-	<version>2.0.5.GA</version>
-	<scope>runtime</scope>
+        <artifactId>jboss-logging-log4j</artifactId>
+        <version>2.0.5.GA</version>
+        <scope>runtime</scope>
       </dependency>
-
+      
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-spi</artifactId>
         <version>2.0.5.GA</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
@@ -362,6 +352,7 @@
   </dependencyManagement>
 
   <profiles>
+  
     <profile>
       <id>default</id>
       <activation>
@@ -369,9 +360,12 @@
       </activation>
       <properties>
         <ejb3.outputDirectory>target/classes</ejb3.outputDirectory>
-        <ejb3.testOutputDirectory>target/tests-classes</ejb3.testOutputDirectory>
+        <ejb3.testOutputDirectory>
+          target/tests-classes
+        </ejb3.testOutputDirectory>
       </properties>
     </profile>
+        
     <profile>
       <id>eclipse</id>
       <build>
@@ -400,6 +394,7 @@
         <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
       </properties>
     </profile>
+    
   </profiles>
-
+  
 </project>
