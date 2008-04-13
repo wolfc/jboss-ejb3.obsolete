@@ -37,6 +37,11 @@ public class SimpleContext<T> implements BeanContext<T>
       return instance;
    }
 
+   public Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException
+   {
+      throw new IllegalArgumentException("No interceptors defined");
+   }
+   
    public Object[] getInterceptors()
    {
       return new Object[0];

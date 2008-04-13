@@ -19,33 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.aop;
+package org.jboss.ejb3.test.interceptors.order;
 
 import java.util.List;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
+import javax.annotation.PostConstruct;
+import javax.interceptor.AroundInvoke;
+import javax.interceptor.InvocationContext;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class EJB3InterceptorsInterceptor implements Interceptor
+public abstract class AbstractInterceptor
 {
-   public EJB3InterceptorsInterceptor(List<Class<?>> applicableInterceptorClasses)
+   @AroundInvoke
+   public Object aroundInvoke(InvocationContext ctx) throws Exception
    {
-      // TODO Auto-generated constructor stub
-   }
-   
-   public String getName()
-   {
-      return EJB3InterceptorsInterceptor.class.getName();
+      List<String> list = (List<String>) ctx.getParameters()[0];
+      list.add(getInterceptorName());
+      return ctx.proceed();
    }
 
-   public Object invoke(Invocation invocation) throws Throwable
+   protected abstract String getInterceptorName();
+   
+   @PostConstruct
+   public void postConstruct(InvocationContext ctx) throws Exception
    {
-      ContainerMethodInvocation.getContainerMethodInvocation(invocation).getBeanContext().getInterceptors();
-      return null;
+      InterceptorChainBean bean = (InterceptorChainBean) ctx.getTarget();
+      bean.addPostConstruct(getInterceptorName());
+      ctx.proceed();
    }
 }

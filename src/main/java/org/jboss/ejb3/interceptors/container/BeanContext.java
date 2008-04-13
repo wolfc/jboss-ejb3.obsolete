@@ -30,7 +30,17 @@ package org.jboss.ejb3.interceptors.container;
  */
 public interface BeanContext<T>
 {
+   /**
+    * @return the bean instance
+    */
    T getInstance();
    
-   Object[] getInterceptors();
+   /**
+    * Get the EJB3 interceptor of a certain type.
+    *  
+    * @param interceptorClass   the interceptor type to get
+    * @return   the interceptor
+    * @throws IllegalArgumentException  if no interceptor of that class is associated
+    */
+   Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException;
 }

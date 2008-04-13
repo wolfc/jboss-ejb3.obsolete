@@ -43,13 +43,11 @@ public class LifecycleCallbacks
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
-      Object ejb3Interceptors[] = component.getInterceptors();
-      for(Object interceptor : ejb3Interceptors)
+      // 12.7 footnote 57: ignore method level interceptors
+      // The lifecycle callbacks on the interceptors must be invoked in order
+      for(Class<?> interceptorClass : lifecycleInterceptorClasses)
       {
-         // 12.7 footnote 57: ignore method level interceptors
-         Class<?> interceptorClass = interceptor.getClass();
-         if(!lifecycleInterceptorClasses.contains(interceptorClass))
-            continue;
+         Object interceptor = component.getInterceptor(interceptorClass);
          ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
          for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
          {
@@ -59,6 +57,8 @@ public class LifecycleCallbacks
             }
          }
       }
+      
+      // Bean lifecycle callbacks
       Class<?> beanClass = advisor.getClazz();
       for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
       {
@@ -67,6 +67,7 @@ public class LifecycleCallbacks
             interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
          }
       }
+      
       interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
       
       return interceptors.toArray(new Interceptor[0]);

@@ -15,6 +15,9 @@
     			<method-name>aroundInvoke</method-name>
     		</around-invoke>
     	</session>
+    	<session>
+    		<ejb-name>InterceptorOrderBean</ejb-name>
+    	</session>
     </enterprise-beans>
     <interceptors>
 		<interceptor>
@@ -42,6 +45,12 @@
     		<method>
     			<method-name>intercept</method-name>
     		</method>
+    	</interceptor-binding>
+    	<interceptor-binding>
+    		<ejb-name>InterceptorOrderBean</ejb-name>
+    		<interceptor-order>
+                <interceptor-class>org.jboss.ejb3.test.interceptors.common.CommonInterceptor</interceptor-class>
+            </interceptor-order>
     	</interceptor-binding>
     </assembly-descriptor>
 </ejb-jar>

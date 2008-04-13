@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.interceptors.container;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -30,7 +31,8 @@ import java.util.List;
 public class DummyBeanContext<T> implements BeanContext<T>
 {
    private T instance;
-   private Object interceptors[];
+   private Object[] interceptors;
+   private LinkedHashMap<Class<?>, Object> interceptorsMap = new LinkedHashMap<Class<?>, Object>();
    
    public DummyBeanContext(T instance, List<Object> interceptors)
    {
@@ -38,6 +40,8 @@ public class DummyBeanContext<T> implements BeanContext<T>
       assert interceptors != null : "interceptors is null";
       this.instance = instance;
       this.interceptors = interceptors.toArray(new Object[0]);
+      for(Object interceptor : interceptors)
+         this.interceptorsMap.put(interceptor.getClass(), interceptor);
    }
    
    public T getInstance()
@@ -45,9 +49,16 @@ public class DummyBeanContext<T> implements BeanContext<T>
       return instance;
    }
 
+   public Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException
+   {
+      Object interceptor = interceptorsMap.get(interceptorClass);
+      if(interceptor == null)
+         throw new IllegalArgumentException("No interceptor found for " + interceptorClass + " in " + this);
+      return interceptor;
+   }
+
    public Object[] getInterceptors()
    {
       return interceptors;
    }
-
 }

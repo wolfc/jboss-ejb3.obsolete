@@ -94,6 +94,12 @@ public class InterceptorRegistry
    
    private void initialize()
    {
+      // The lifecycle interceptor classes are: 
+      // 1. the interceptors listed in an interceptor-order
+      // or
+      // 2. default interceptor + class interceptors
+      // where set 1 = set 2 + optionally extra interceptors
+      
       DefaultInterceptors defaultInterceptorsAnnotation = (DefaultInterceptors) advisor.resolveAnnotation(DefaultInterceptors.class);
       List<Class<?>> defaultInterceptorClasses = new ArrayList<Class<?>>();
       if(defaultInterceptorsAnnotation != null)
@@ -102,7 +108,8 @@ public class InterceptorRegistry
             defaultInterceptorClasses.add(defaultInterceptorClass);
       }
       log.debug("Found default interceptors " + defaultInterceptorClasses);
-      interceptorClasses.addAll(defaultInterceptorClasses);
+//      interceptorClasses.addAll(defaultInterceptorClasses);
+      List<Class<?>> lifecycleInterceptorClasses = new ArrayList<Class<?>>();
       lifecycleInterceptorClasses.addAll(defaultInterceptorClasses);
       
       Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
@@ -112,13 +119,31 @@ public class InterceptorRegistry
          for(Class<?> classInterceptorClass : interceptorsAnnotation.value())
          {
             classInterceptorClasses.add(classInterceptorClass);
-            if(!interceptorClasses.contains(classInterceptorClass))
-               interceptorClasses.add(classInterceptorClass);
+//            if(!interceptorClasses.contains(classInterceptorClass))
+//               interceptorClasses.add(classInterceptorClass);
             if(!lifecycleInterceptorClasses.contains(classInterceptorClass))
                lifecycleInterceptorClasses.add(classInterceptorClass);
          }
       }
       log.debug("Found class interceptors " + classInterceptorClasses);
+      
+      {
+         // Ordering of lifecycle interceptors
+         InterceptorOrder order = (InterceptorOrder) advisor.resolveAnnotation(InterceptorOrder.class);
+         if(order != null)
+         {
+            List<Class<?>> orderedInterceptorClasses = Arrays.asList(order.value());
+            if(!orderedInterceptorClasses.containsAll(lifecycleInterceptorClasses))
+               throw new IllegalStateException("EJB3 12.8.2 footnote 59: all applicable lifecycle interceptors must be listed in the interceptor order");
+            lifecycleInterceptorClasses = orderedInterceptorClasses;
+         }
+      }
+      this.lifecycleInterceptorClasses.addAll(lifecycleInterceptorClasses);
+      for(Class<?> interceptorClass : lifecycleInterceptorClasses)
+      {
+         if(!interceptorClasses.contains(interceptorClass))
+            interceptorClasses.add(interceptorClass);
+      }
       
       Class<?> beanClass = advisor.getClazz();
       for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
@@ -128,11 +153,7 @@ public class InterceptorRegistry
          if(interceptorsAnnotation != null)
          {
             for(Class<?> interceptorClass : interceptorsAnnotation.value())
-            {
                methodInterceptorClasses.add(interceptorClass);
-               if(!interceptorClasses.contains(interceptorClass))
-                  interceptorClasses.add(interceptorClass);
-            }
          }
          
          // Interceptors applicable for this bean method
@@ -152,9 +173,19 @@ public class InterceptorRegistry
             order = (InterceptorOrder) advisor.resolveAnnotation(InterceptorOrder.class);
          // TODO: validate the order to see if all interceptors are listed
          if(order != null)
-            applicableInterceptorClasses.put(beanMethod, Arrays.asList(order.value()));
-         else
-            applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
+         {
+            List<Class<?>> orderedInterceptorClasses = Arrays.asList(order.value());
+            if(!orderedInterceptorClasses.containsAll(methodApplicableInterceptorClasses))
+               throw new IllegalStateException("EJB3 12.8.2 footnote 59: all applicable method interceptors must be listed in the interceptor order");
+            methodApplicableInterceptorClasses = orderedInterceptorClasses;
+         }
+         applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
+         
+         for(Class<?> interceptorClass : methodApplicableInterceptorClasses)
+         {
+            if(!interceptorClasses.contains(interceptorClass))
+               interceptorClasses.add(interceptorClass);
+         }
       }
    }
    
