@@ -21,22 +21,16 @@
  */
 package org.jboss.ejb3.test.interceptors.order;
 
-import java.util.List;
-
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.InvocationContext;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptorA
+public class InterceptorA extends AbstractInterceptor
 {
-   @AroundInvoke
-   public Object aroundInvoke(InvocationContext ctx) throws Exception
+   @Override
+   protected String getInterceptorName()
    {
-      List<String> list = (List<String>) ctx.getParameters()[0];
-      list.add("A");
-      return ctx.proceed();
-   }
+      return "A";
+   }   
 }

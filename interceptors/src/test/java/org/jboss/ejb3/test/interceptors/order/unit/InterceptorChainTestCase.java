@@ -143,9 +143,11 @@ public class InterceptorChainTestCase extends TestCase
       BeanContext<InterceptorChainBean> bean = container.construct();
       
       List<String> chain = new ArrayList<String>();
-      container.invoke(bean, "createInterceptorChain", chain);
+      List<String> postConstructs = container.invoke(bean, "createInterceptorChain", chain);
       
       assertEquals(Arrays.asList("B", "A", "BEAN"), chain);
+      
+      assertEquals(Arrays.asList("B", "A", "BEAN"), postConstructs);
       
       bean = null;
    }

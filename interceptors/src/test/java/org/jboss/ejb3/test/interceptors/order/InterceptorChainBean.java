@@ -21,13 +21,18 @@
  */
 package org.jboss.ejb3.test.interceptors.order;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.interceptor.Interceptors;
 
 import org.jboss.ejb3.interceptors.ManagedObject;
 
 /**
+ * Keep track of the interceptor chain invoked.
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
@@ -35,9 +40,29 @@ import org.jboss.ejb3.interceptors.ManagedObject;
 @Interceptors({InterceptorA.class, InterceptorB.class})
 public class InterceptorChainBean
 {
-   //@Interceptors({InterceptorA.class, InterceptorB.class})
-   public void createInterceptorChain(List<String> chain)
+   private List<String> postConstructs = new ArrayList<String>();
+   
+   protected boolean addPostConstruct(String name)
+   {
+      return postConstructs.add(name);
+   }
+   
+   /**
+    * Add the called instance to the chain and return
+    * the post constructs invoked.
+    * 
+    * @param chain
+    * @return a list of post constructed instances
+    */
+   public List<String> createInterceptorChain(List<String> chain)
    {
       chain.add("BEAN");
+      return Collections.unmodifiableList(postConstructs);
+   }
+   
+   @PostConstruct
+   public void postConstruct()
+   {
+      addPostConstruct("BEAN");
    }
 }

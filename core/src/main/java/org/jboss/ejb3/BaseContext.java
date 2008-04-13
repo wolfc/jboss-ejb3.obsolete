@@ -21,9 +21,9 @@
  */ 
 package org.jboss.ejb3;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
@@ -44,8 +44,7 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
    protected RealmMapping rm;
    protected SimpleMetaData metadata;
    
-   protected HashMap<Class<?>, Object> interceptorInstances;
-   private Object interceptors[];
+   protected Map<Class<?>, Object> interceptorInstances = new HashMap<Class<?>, Object>();
    
    /**
     * Use with extreme caution, must not break getInstance post condition.
@@ -98,12 +97,10 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
       {
          EJBContainer c = (EJBContainer) container;
          List<Class<?>> interceptorClasses = c.getBeanContainer().getInterceptorClasses();
-         List<Object> interceptors = new ArrayList<Object>();
          for(Class<?> interceptorClass : interceptorClasses)
          {
-            interceptors.add(c.createInterceptor(interceptorClass));
+            interceptorInstances.put(interceptorClass, c.createInterceptor(interceptorClass));
          }
-         this.interceptors = interceptors.toArray(new Object[0]);
       }
       catch(IllegalAccessException e)
       {
@@ -132,8 +129,11 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
       return container;
    }
    
-   public Object[] getInterceptors()
+   public Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException
    {
-      return interceptors;
+      Object interceptor = interceptorInstances.get(interceptorClass);
+      if(interceptor == null)
+         throw new IllegalArgumentException("No interceptor found for " + interceptorClass + " in " + this);
+      return interceptor;
    }
 }

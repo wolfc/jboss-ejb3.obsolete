@@ -58,7 +58,8 @@ public class SimplePoolInterceptor implements Interceptor
       ProxiedBean bean = createNewInstance ? new ProxiedBean() : pooledBean;
       pooledBean = bean;
       ctx.setInstance(bean);
-      mi.setTargetObject(bean);
+      //mi.setTargetObject(bean);
+      mi.setBeanContext(ctx);
       try
       {
          return invocation.invokeNext();
@@ -66,6 +67,7 @@ public class SimplePoolInterceptor implements Interceptor
       finally
       {
          ctx.setInstance(null);
+         mi.setBeanContext(null);
       }
    }
 

@@ -19,18 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.interceptors.order;
+package org.jboss.ejb3.test.interceptors.metadata;
 
+import org.jboss.ejb3.interceptors.ManagedObject;
+import org.jboss.logging.Logger;
 
 /**
+ * This one has an interceptor bound to it via an interceptor order.
+ * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InterceptorB extends AbstractInterceptor
+@ManagedObject
+public class InterceptorOrderBean
 {
-   @Override
-   protected String getInterceptorName()
+   private static final Logger log = Logger.getLogger(InterceptorOrderBean.class);
+   
+   public String sayHi(String name)
    {
-      return "B";
+      log.debug("sayHi");
+      return "Hi " + name;
    }   
 }
