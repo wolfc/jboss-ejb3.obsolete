@@ -27,20 +27,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.interceptor.Interceptors;
-
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.cluster.metadata.ClusteredMetaDataBridge;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
-import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.ejb3.interceptors.container.ContainerInterceptorFactory;
 import org.jboss.ejb3.interceptors.container.InterceptorFactoryRefImpl;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
-import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFactory;
 import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
@@ -68,45 +64,9 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       setBeanContextFactoryClass(BeanContainerBeanContextFactory.class);
    }
    
-   private static void addInterceptorClasses(List<Class<?>> interceptorClasses, Class<?> interceptors[])
-   {
-      if(interceptors != null)
-      {
-         for(Class<?> interceptorClass : interceptors)
-         {
-            if(!interceptorClasses.contains(interceptorClass))
-               interceptorClasses.add(interceptorClass);
-         }
-      }
-   }
-   
-   private static void addInterceptorClasses(List<Class<?>> interceptorClasses, Interceptors interceptorsAnnotation)
-   {
-      if(interceptorsAnnotation != null)
-      {
-         addInterceptorClasses(interceptorClasses, interceptorsAnnotation.value());
-      }
-   }
-   
    public List<Class<?>> getInterceptorClasses()
    {
-      // FIXME: move to ejb3-interceptors
-      List<Class<?>> interceptorClasses = new ArrayList<Class<?>>();
-      
-      DefaultInterceptors defaultInterceptorsAnnotation = getAnnotation(DefaultInterceptors.class);
-      if(defaultInterceptorsAnnotation != null)
-         addInterceptorClasses(interceptorClasses, defaultInterceptorsAnnotation.value());
-      
-      Interceptors interceptorsAnnotation = (Interceptors) getAdvisor().resolveAnnotation(Interceptors.class);
-      addInterceptorClasses(interceptorClasses, interceptorsAnnotation);
-      
-      for(Method beanMethod : ClassHelper.getAllMethods(getBeanClass()))
-      {
-         interceptorsAnnotation = (Interceptors) getAdvisor().resolveAnnotation(beanMethod, Interceptors.class);
-         addInterceptorClasses(interceptorClasses, interceptorsAnnotation);
-      }
-      
-      return interceptorClasses;
+      return getInterceptorRegistry().getInterceptorClasses();
    }
    
    @Override
