@@ -43,6 +43,7 @@ import org.jboss.aop.joinpoint.Joinpoint;
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.interceptors.ManagedObject;
 import org.jboss.ejb3.interceptors.aop.ExtendedAdvisor;
+import org.jboss.ejb3.interceptors.util.ThreadLocalStack;
 import org.jboss.ejb3.metadata.annotation.ExtendedAnnotationRepository;
 import org.jboss.logging.Logger;
 
@@ -62,7 +63,8 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
    private InstanceAdvisorDelegate instanceAdvisorDelegate;
    
    /** The instance advisor delegate set per invocation should be maintained per thread, not globally */ 
-   private ThreadLocal<InstanceAdvisorDelegate> threadedInstanceAdvisorDelegate; 
+   private ThreadLocalStack<InstanceAdvisorDelegate> threadedInstanceAdvisorDelegateStack;
+   
    
    protected ManagedObjectAdvisor(C container, String name, AspectManager manager)
    {
@@ -184,9 +186,9 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
     */
    private final InstanceAdvisorDelegate getInstanceAdvisorDelegate()
    {
-      if (threadedInstanceAdvisorDelegate != null)
+      if (threadedInstanceAdvisorDelegateStack != null)
       {
-         InstanceAdvisorDelegate delegate = threadedInstanceAdvisorDelegate.get();
+         InstanceAdvisorDelegate delegate = threadedInstanceAdvisorDelegateStack.get();
          if (delegate != null)
          {
             return delegate;
@@ -207,22 +209,22 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       return instanceAdvisorDelegate;
    }
    
-   public final void setThreadedInstanceAdvisorDelegate(InstanceAdvisorDelegate delegate)
+   public final void pushThreadedInstanceAdvisorDelegate(InstanceAdvisorDelegate delegate)
    {
-      if (threadedInstanceAdvisorDelegate == null)
+      if (threadedInstanceAdvisorDelegateStack == null)
       {
-         threadedInstanceAdvisorDelegate = new ThreadLocal<InstanceAdvisorDelegate>();
+         threadedInstanceAdvisorDelegateStack = new ThreadLocalStack<InstanceAdvisorDelegate>();
       }
-      threadedInstanceAdvisorDelegate.set(delegate);
+      threadedInstanceAdvisorDelegateStack.push(delegate);
    }
    
-   public final InstanceAdvisorDelegate getThreadedInstanceAdvisorDelegate()
+   public final InstanceAdvisorDelegate popThreadedInstanceAdvisorDelegate()
    {
-      if (threadedInstanceAdvisorDelegate == null)
+      if (threadedInstanceAdvisorDelegateStack == null)
       {
          return null;
       }
-      return threadedInstanceAdvisorDelegate.get();
+      return threadedInstanceAdvisorDelegateStack.pop();
    }
    
    public void appendInterceptor(Interceptor interceptor)

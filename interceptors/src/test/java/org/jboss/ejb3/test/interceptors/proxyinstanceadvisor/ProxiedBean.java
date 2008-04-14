@@ -36,8 +36,6 @@ public class ProxiedBean implements MyInterface
 {
    private static final Logger log = Logger.getLogger(ProxiedBean.class);
    
-   public static ProxiedBean instance;
-   
 //   public static int constructors = 0, aroundInvokes = 0;
    
    public ProxiedBean()
@@ -60,15 +58,30 @@ public class ProxiedBean implements MyInterface
    
    public String sayHi(String name)
    {
-      instance = this;
+      Interceptions.setProxiedBean(this);
       log.debug("sayHi");
       return "Hi " + name;
    }
 
    public String sayBye(String name)
    {
-      instance = this;
+      Interceptions.setProxiedBean(this);
       log.debug("sayBye");
       return "Bye " + name;
+   }
+
+   public String sleepyHello(long ms, String name)
+   {
+      log.debug("sleepyHello");
+      try
+      {
+         Thread.sleep(ms);
+      }
+      catch (InterruptedException e)
+      {
+         throw new RuntimeException(e);
+      }
+      Interceptions.setProxiedBean(this);
+      return "Hi " + name;
    }
 }

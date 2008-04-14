@@ -34,8 +34,6 @@ public class PerInstanceInterceptor implements Interceptor
 {
    Logger log = Logger.getLogger(PerInstanceInterceptor.class);
    
-   public static PerInstanceInterceptor instance;
-   
    public String getName()
    {
       return this.getClass().getName();
@@ -43,7 +41,7 @@ public class PerInstanceInterceptor implements Interceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      instance = this;
+      Interceptions.setPerInstanceInterceptor(this);
       return invocation.invokeNext();
    }
 

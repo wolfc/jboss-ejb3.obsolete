@@ -30,6 +30,7 @@ import org.jboss.aop.InstanceAdvisorDelegate;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
+import org.jboss.logging.Logger;
 
 /**
  * 
@@ -38,6 +39,8 @@ import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
  */
 public class ManagedObjectAdvisorInstanceInterceptor implements Interceptor
 {
+   Logger log = Logger.getLogger(ManagedObjectAdvisorInstanceInterceptor.class);
+   
    private Map<Object, InstanceAdvisorDelegate> instanceAdvisorDelegates;
    
    public String getName()
@@ -51,15 +54,15 @@ public class ManagedObjectAdvisorInstanceInterceptor implements Interceptor
       ManagedObjectAdvisor advisor = (ManagedObjectAdvisor)invocation.getAdvisor();
 
       InstanceAdvisorDelegate delegate = getInstanceAdvisorDelegate(invocation.getTargetObject(), advisor, advisor);
-      InstanceAdvisorDelegate oldDelegate = advisor.getThreadedInstanceAdvisorDelegate();
       try
       {
-         advisor.setThreadedInstanceAdvisorDelegate(delegate);
+         log.info("Puxhing ia delegate " + delegate + " for " + invocation.getTargetObject());
+         advisor.pushThreadedInstanceAdvisorDelegate(delegate);
          return invocation.invokeNext();
       }
       finally
       {
-         advisor.setThreadedInstanceAdvisorDelegate(oldDelegate);
+         advisor.popThreadedInstanceAdvisorDelegate();
       }
    }
    

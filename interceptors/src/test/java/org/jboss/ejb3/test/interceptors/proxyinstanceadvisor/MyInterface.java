@@ -32,4 +32,6 @@ public interface MyInterface
    String sayHi(String name);
    
    String sayBye(String name);
+   
+   String sleepyHello(long ms, String name);
 }
