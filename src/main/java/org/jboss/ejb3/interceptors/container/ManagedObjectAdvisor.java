@@ -61,6 +61,9 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
    private C container;
    private InstanceAdvisorDelegate instanceAdvisorDelegate;
    
+   /** The instance advisor delegate set per invocation should be maintained per thread, not globally */ 
+   private ThreadLocal<InstanceAdvisorDelegate> threadedInstanceAdvisorDelegate; 
+   
    protected ManagedObjectAdvisor(C container, String name, AspectManager manager)
    {
       this(container, name, manager, null);
@@ -181,6 +184,15 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
     */
    private final InstanceAdvisorDelegate getInstanceAdvisorDelegate()
    {
+      if (threadedInstanceAdvisorDelegate != null)
+      {
+         InstanceAdvisorDelegate delegate = threadedInstanceAdvisorDelegate.get();
+         if (delegate != null)
+         {
+            return delegate;
+         }
+      }
+      
       if(instanceAdvisorDelegate != null)
          return instanceAdvisorDelegate;
 
@@ -195,9 +207,22 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       return instanceAdvisorDelegate;
    }
    
-   public final void setInstanceAdvisorDelegate(InstanceAdvisorDelegate delegate)
+   public final void setThreadedInstanceAdvisorDelegate(InstanceAdvisorDelegate delegate)
    {
-      instanceAdvisorDelegate = delegate;
+      if (threadedInstanceAdvisorDelegate == null)
+      {
+         threadedInstanceAdvisorDelegate = new ThreadLocal<InstanceAdvisorDelegate>();
+      }
+      threadedInstanceAdvisorDelegate.set(delegate);
+   }
+   
+   public final InstanceAdvisorDelegate getThreadedInstanceAdvisorDelegate()
+   {
+      if (threadedInstanceAdvisorDelegate == null)
+      {
+         return null;
+      }
+      return threadedInstanceAdvisorDelegate.get();
    }
    
    public void appendInterceptor(Interceptor interceptor)
