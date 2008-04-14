@@ -53,7 +53,7 @@ public class MultiDeployTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Test3 test3 = (Test3)jndiContext.lookup("Test3Remote");
+      Test3Business test3 = (Test3Business)jndiContext.lookup("Test3Remote");
       assertNotNull(test3);
       test3.testAccess();
       
@@ -66,6 +66,6 @@ public class MultiDeployTestCase
    
    public static Test suite() throws Exception
    {
-      return getDeploySetup(MultiDeployTestCase.class, "multideploy.jar, multideploy-ejb3.jar");
+      return getDeploySetup(MultiDeployTestCase.class, "multideploy.ear");
    }
 }
