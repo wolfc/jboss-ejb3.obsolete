@@ -34,8 +34,6 @@ public class PerJoinpointInterceptor implements Interceptor
 {
    Logger log = Logger.getLogger(PerJoinpointInterceptor.class);
 
-   public static PerJoinpointInterceptor instance;
-   
    public String getName()
    {
       return this.getClass().getName();
@@ -43,7 +41,7 @@ public class PerJoinpointInterceptor implements Interceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      instance = this;
+      Interceptions.setPerJoinpointInterceptor(this);
       return invocation.invokeNext();
    }
 }

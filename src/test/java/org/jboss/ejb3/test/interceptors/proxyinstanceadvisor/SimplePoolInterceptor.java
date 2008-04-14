@@ -39,6 +39,7 @@ public class SimplePoolInterceptor implements Interceptor
    private static ProxiedBean pooledBean;
    
    Logger log = Logger.getLogger(SimplePoolInterceptor.class);
+
    public String getName()
    {
       return this.getClass().getName();
@@ -57,6 +58,9 @@ public class SimplePoolInterceptor implements Interceptor
       SimpleContext ctx = (SimpleContext)mi.getBeanContext(); 
       ProxiedBean bean = createNewInstance ? new ProxiedBean() : pooledBean;
       pooledBean = bean;
+      
+      log.debug("Using instance " + bean);
+      
       ctx.setInstance(bean);
       //mi.setTargetObject(bean);
       mi.setBeanContext(ctx);

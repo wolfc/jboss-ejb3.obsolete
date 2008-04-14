@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.unit;
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
+import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.Interceptions;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.MyInterface;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.PerInstanceInterceptor;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.PerJoinpointInterceptor;
@@ -42,68 +43,217 @@ public class ProxyInstanceAdvisorTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(ProxyInstanceAdvisorTestCase.class);
 
+   AOPDeployer deployer = new AOPDeployer("proxyinstanceadvisor/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test1() throws Throwable
    {
       log.info("======= ProxyInstanceAdvisor.test1()");
       //AspectManager.verbose = true;
       
-      AOPDeployer deployer = new AOPDeployer("proxyinstanceadvisor/jboss-aop.xml");
-      try
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      ProxyContainerWithPool<ProxiedBean> container = new ProxyContainerWithPool<ProxiedBean>("ProxyInstanceAdvisorTestCase", "InterceptorContainer", ProxiedBean.class);
+      
+      
+      Class<?> interfaces[] = { MyInterface.class };
+      MyInterface proxy = container.constructProxy(interfaces);
+      
+      
+      reset(true);
+      String result = proxy.sayHi("Me");
+      assertEquals("Hi Me", result);
+      ProxiedBean bean1hi = Interceptions.getProxiedBean();
+      PerInstanceInterceptor pi1hi = Interceptions.getPerInstanceInterceptor();
+      PerJoinpointInterceptor pj1hi = Interceptions.getPerJoinpointInterceptor();
+      assertEquals(1, Interceptions.getProxiedBeanCalls());
+      assertEquals(1, Interceptions.getPerInstanceCalls());
+      assertEquals(1, Interceptions.getPerJoinpointCalls());
+      
+      reset(false);
+      result = proxy.sayBye("Me");
+      assertEquals("Bye Me", result);
+      ProxiedBean bean1bye = Interceptions.getProxiedBean();
+      PerInstanceInterceptor pi1bye = Interceptions.getPerInstanceInterceptor();
+      PerJoinpointInterceptor pj1bye = Interceptions.getPerJoinpointInterceptor();
+      assertEquals(1, Interceptions.getProxiedBeanCalls());
+      assertEquals(1, Interceptions.getPerInstanceCalls());
+      assertEquals(1, Interceptions.getPerJoinpointCalls());
+      
+      assertSame(bean1hi, bean1bye);
+      assertSame(pi1hi, pi1bye);
+      assertNotSame(pj1hi, pj1bye);
+
+      reset(true);
+      result = proxy.sayHi("Me");
+      assertEquals("Hi Me", result);
+      ProxiedBean bean2hi = Interceptions.getProxiedBean();
+      PerInstanceInterceptor pi2hi = Interceptions.getPerInstanceInterceptor();
+      PerJoinpointInterceptor pj2hi = Interceptions.getPerJoinpointInterceptor();
+      assertNotSame(bean1hi, bean2hi);
+      assertEquals(1, Interceptions.getProxiedBeanCalls());
+      assertEquals(1, Interceptions.getPerInstanceCalls());
+      assertEquals(1, Interceptions.getPerJoinpointCalls());
+      
+      //FIXME - These must be enabled to start the test
+      assertNotSame(pi2hi, pi1hi);
+      assertNotSame(pj2hi, pj1hi);
+
+      log.info("======= Done");
+   }
+   
+   public void testThreadedDifferentInstance() throws Throwable
+   {
+      log.info("======= ProxyInstanceAdvisor.test1()");
+      runThreadedTest(true);
+      log.info("======= Done");
+   }
+   
+   public void testThreadedSameInstance() throws Throwable
+   {
+      log.info("======= ProxyInstanceAdvisor.test1()");
+      runThreadedTest(false);
+      log.info("======= Done");
+   }
+   
+   private void runThreadedTest(boolean differentInstances) throws Throwable
+   {
+      //AspectManager.verbose = true;
+      
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      ProxyContainerWithPool<ProxiedBean> container = new ProxyContainerWithPool<ProxiedBean>("ProxyInstanceAdvisorTestCase", "InterceptorContainer", ProxiedBean.class);
+
+      Class<?> interfaces[] = { MyInterface.class };
+      MyInterface proxy = container.constructProxy(interfaces);
+
+      CallSleepyHelloRunnable sleepyRunner = new CallSleepyHelloRunnable(proxy, 5000);
+      Thread thread = new Thread(sleepyRunner);
+      System.out.println("My thread " + Thread.currentThread().getName() + " new thread " + thread.getName());
+      thread.start();
+      
+      //Give other thread a chance to start
+      Thread.sleep(1000);         
+      
+      reset(differentInstances);
+      
+      String result = proxy.sleepyHello(0, "Me");
+      assertEquals("Hi Me", result);
+      ProxiedBean beanMine = Interceptions.getProxiedBean();
+      PerInstanceInterceptor piMine = Interceptions.getPerInstanceInterceptor();
+      PerJoinpointInterceptor pjMine = Interceptions.getPerJoinpointInterceptor();
+      assertEquals(1, Interceptions.getProxiedBeanCalls());
+      assertEquals(1, Interceptions.getPerInstanceCalls());
+      assertEquals(1, Interceptions.getPerJoinpointCalls());
+
+      while(thread.isAlive())
       {
-         // Bootstrap AOP
-         log.info(deployer.deploy());
-   
-         Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
-         
-         ProxyContainerWithPool<ProxiedBean> container = new ProxyContainerWithPool<ProxiedBean>("ProxyInstanceAdvisorTestCase", "InterceptorContainer", ProxiedBean.class);
-         
-         
-         Class<?> interfaces[] = { MyInterface.class };
-         MyInterface proxy = container.constructProxy(interfaces);
-         
-         
-         reset(true);
-         String result = proxy.sayHi("Me");
-         assertEquals("Hi Me", result);
-         ProxiedBean bean1hi = ProxiedBean.instance;
-         PerInstanceInterceptor pi1hi = PerInstanceInterceptor.instance;
-         PerJoinpointInterceptor pj1hi = PerJoinpointInterceptor.instance;
-         
-         reset(false);
-         result = proxy.sayBye("Me");
-         assertEquals("Bye Me", result);
-         ProxiedBean bean1bye = ProxiedBean.instance;
-         PerInstanceInterceptor pi1bye = PerInstanceInterceptor.instance;
-         PerJoinpointInterceptor pj1bye = PerJoinpointInterceptor.instance;
-         
-         assertSame(bean1hi, bean1bye);
-         assertSame(pi1hi, pi1bye);
-         assertNotSame(pj1hi, pj1bye);
-   
-         reset(true);
-         result = proxy.sayHi("Me");
-         assertEquals("Hi Me", result);
-         ProxiedBean bean2hi = ProxiedBean.instance;
-         PerInstanceInterceptor pi2hi = PerInstanceInterceptor.instance;
-         PerJoinpointInterceptor pj2hi = PerJoinpointInterceptor.instance;
-         assertNotSame(bean1hi, bean2hi);
-         
-         //FIXME - These must be enabled to start the test
-         assertNotSame(pi2hi, pi1hi);
-         assertNotSame(pj2hi, pj1hi);
+         Thread.sleep(500);
       }
-      finally
+      
+      ProxiedBean beanThread = sleepyRunner.getProxiedBean();
+      PerInstanceInterceptor piThread = sleepyRunner.getPerInstanceInterceptor();
+      PerJoinpointInterceptor pjThread = sleepyRunner.getPerJoinpointInterceptor();
+      assertEquals(1, sleepyRunner.getProxiedBeanCalls());
+      assertEquals(1, sleepyRunner.getPerInstanceCalls());
+      assertEquals(1, sleepyRunner.getPerJoinpointCalls());
+      
+      assertNotNull(beanThread);
+      assertNotNull(piThread);
+      assertNotNull(pjThread);
+      
+      if (differentInstances)
       {
-         log.info(deployer.undeploy());
+         assertNotSame(beanMine, beanThread);
+         assertNotSame(piMine, piThread);
+         assertNotSame(pjMine, pjThread);
+      }
+      else
+      {
+         assertSame(beanMine, beanThread);
+         assertSame(piMine, piThread);
+         assertSame(pjMine, pjThread);
       }
       log.info("======= Done");
    }
    
-   private void reset(boolean createNewInstance)
+   
+   private static void reset(boolean createNewInstance)
    {
-      ProxiedBean.instance = null;
-      PerInstanceInterceptor.instance = null;
-      PerJoinpointInterceptor.instance = null;
+      Interceptions.reset();
+      System.out.println("Setting createNewInstance " + createNewInstance + " for thread " + Thread.currentThread().getName());
       SimplePoolInterceptor.createNewInstance = createNewInstance;      
+   }
+   
+   private static class CallSleepyHelloRunnable implements Runnable
+   {
+      MyInterface proxy;
+      long sleepTime;
+    
+      PerInstanceInterceptor perInstanceInterceptor;
+      PerJoinpointInterceptor perJoinpointInterceptor;
+      ProxiedBean proxiedBean;
+      int proxiedBeanCalls;
+      int perInstanceCalls;
+      int perJoinpointCalls;
+      
+      public CallSleepyHelloRunnable(MyInterface proxy, long sleepTime)
+      {
+         this.proxy = proxy;
+         this.sleepTime = sleepTime;
+      }
+
+      public void run()
+      {
+         reset(true);
+         proxy.sleepyHello(sleepTime, "Kabir");
+         perInstanceInterceptor = Interceptions.getPerInstanceInterceptor();
+         perJoinpointInterceptor = Interceptions.getPerJoinpointInterceptor();
+         proxiedBean = Interceptions.getProxiedBean();
+         proxiedBeanCalls = Interceptions.getProxiedBeanCalls();
+         perInstanceCalls = Interceptions.getPerInstanceCalls();
+         perJoinpointCalls = Interceptions.getPerJoinpointCalls();
+      }
+
+      public PerInstanceInterceptor getPerInstanceInterceptor()
+      {
+         return perInstanceInterceptor;
+      }
+
+      public PerJoinpointInterceptor getPerJoinpointInterceptor()
+      {
+         return perJoinpointInterceptor;
+      }
+
+      public ProxiedBean getProxiedBean()
+      {
+         return proxiedBean;
+      }
+
+      public int getProxiedBeanCalls()
+      {
+         return proxiedBeanCalls;
+      }
+
+      public int getPerInstanceCalls()
+      {
+         return perInstanceCalls;
+      }
+
+      public int getPerJoinpointCalls()
+      {
+         return perJoinpointCalls;
+      }
    }
 }
