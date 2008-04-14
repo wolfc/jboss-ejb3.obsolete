@@ -85,12 +85,12 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
       assert !Dispatcher.singleton.isRegistered(targetId) : targetId + " is already registered";
       Dispatcher.singleton.registerTarget(targetId, this);
 
-      SessionContainer statefulContainer = this.getContainer();
+      SessionSpecContainer statefulContainer = this.getContainer();
       RemoteHome remoteHome = statefulContainer.getAnnotation(RemoteHome.class);
-      if (remoteHome != null && !bindHomeAndBusinessTogether(statefulContainer))
+      if (remoteHome != null && !bindHomeAndBusinessTogether())
       {
          Object homeProxy = createHomeProxy(remoteHome.value());
-         String homeJndiName = ProxyFactoryHelper.getHomeJndiName(this.getContainer());
+         String homeJndiName = ProxyFactoryHelper.getHomeJndiName(statefulContainer);
          log.debug("Binding home proxy at " + homeJndiName);
          Util.rebind(this.getContainer().getInitialContext(), homeJndiName, homeProxy);
       }
@@ -104,7 +104,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
       
       SessionContainer statefulContainer = this.getContainer();
       RemoteHome remoteHome = statefulContainer.getAnnotation(RemoteHome.class);
-      if (remoteHome != null && !bindHomeAndBusinessTogether(statefulContainer))
+      if (remoteHome != null && !bindHomeAndBusinessTogether())
       {
          Util.unbind(this.getContainer().getInitialContext(), ProxyFactoryHelper.getHomeJndiName(getContainer()));
       }
@@ -142,6 +142,17 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
       proxy.setHandle(this.createHandle());
       proxy.setHomeHandle(getHomeHandle());
       proxy.setEjbMetaData(getEjbMetaData());
+   }
+   
+   /**
+    * Returns the interface type for Home
+    * 
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      return ProxyFactoryHelper.getRemoteHomeInterface(this.getContainer());
    }
    
    @Override

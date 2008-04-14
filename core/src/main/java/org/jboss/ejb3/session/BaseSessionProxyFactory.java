@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.ejb.EJBException;
@@ -171,6 +170,13 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       }
    }
    
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   protected abstract boolean bindHomeAndBusinessTogether(); 
+   
    protected Object constructProxyBusiness(InvocationHandler handler)
    {
       // Return
@@ -286,9 +292,9 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
     * Returns an array of interfaces to be used for the proxy;
     * will return null if none are defined.
     * 
-    * @param business
+    * @param accessType
+    * @param specType
     * @return
-    * @throws IllegalStateException If specified to use EJB21 View and no Remote/Local interfaces defined
     */
    private Class<?>[] getInterfacesForProxy(ProxyAccessType accessType, SpecificationInterfaceType specType)
    {
@@ -307,7 +313,13 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
          // If business
          if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
          {
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalBusinessInterfaces(container)));
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getLocalBusinessInterfaces(container)));  
+            
+            // If binding home with local business 
+            if(this.bindHomeAndBusinessTogether())
+            {
+               intfs.add(this.getHomeType());
+            }
          }
          // If EJBLocalObject
          else
@@ -331,7 +343,14 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
          // If business
          if (specType.equals(SpecificationInterfaceType.EJB30_BUSINESS))
          {
-            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteBusinessInterfaces(container)));
+            intfs.addAll(Arrays.asList(ProxyFactoryHelper.getRemoteBusinessInterfaces(container)));   
+            
+            // If binding home with remote business
+            if(this.bindHomeAndBusinessTogether())
+            {
+               intfs.add(this.getHomeType());
+            }
+            
          }
          // If EJBObject
          else
@@ -392,6 +411,13 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       
       return homeHandle;
    }
+   
+   /**
+    * Returns the interface type for Home
+    * 
+    * @return
+    */
+   protected abstract Class<?> getHomeType();
    
    protected final String getJndiName()
    {

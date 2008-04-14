@@ -22,16 +22,11 @@
 package org.jboss.ejb3.stateless;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import javax.ejb.RemoteHome;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.Clustered;
@@ -40,7 +35,6 @@ import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
 import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
-import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.client.loadbalance.RandomRobin;
@@ -50,6 +44,7 @@ import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
+import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -153,6 +148,16 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       return proxy;
    }
    
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   @Override
+   protected boolean bindHomeAndBusinessTogether(){
+      throw new NotImplementedException("Not Applicable for Cluster Proxy Factories");
+   }
+   
    public synchronized void replicantsChanged (String key, 
          List newReplicants, 
          int newReplicantsViewId,
@@ -172,6 +177,18 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       {
          log.error(e);
       }
+   }
+   
+   /**
+    * Returns the interface type for Home
+    * 
+    * @param container
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      throw new NotImplementedException("Cluster Proxy Factories do not have Home interfaces");
    }
 
    @Override
