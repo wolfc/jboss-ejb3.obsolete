@@ -2262,7 +2262,7 @@
 
       <build-simple-jar name="ejbthree989"/>
    </target>
-
+  
    <target name="ejbthree1020"
       description="Builds a simple jar file."
       >
@@ -2400,6 +2400,10 @@
   
    <target name="ejbthree1222" >
       <build-simple-jar name="ejbthree1222"/>
+   </target>
+  
+   <target name="ejbthree1271">
+      <build-simple-jar name="ejbthree1271"/>
    </target>
 
    <target name="jbas4489"
@@ -4174,7 +4178,7 @@
       ejbthree1062,
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
-      ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1155, ejbthree1157, ejbthree1222, jaxws, jbas4489,
+      ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1155, ejbthree1157, ejbthree1222, ejbthree1271, jaxws, jbas4489,
 	  epcpropagation,
       aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
@@ -5220,6 +5224,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1222"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+        <param name="test" value="ejbthree1271"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="statelesscreation"/>
