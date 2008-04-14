@@ -86,14 +86,18 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
             AbstractContainer<?, ?> container = AbstractContainer.getContainer(advisor);
             List<Class<?>> interceptorClasses = container.getInterceptorRegistry().getApplicableInterceptorClasses(method);
             List<Interceptor> interceptors = new ArrayList<Interceptor>();
-            for(Class<?> interceptorClass : interceptorClasses)
+            if (interceptorClasses != null)
             {
-               ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
-               for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
+               for (Class<?> interceptorClass : interceptorClasses)
                {
-                  if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                  ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
+                  for (Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
                   {
-                     interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
+                     if (interceptorAdvisor
+                           .isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                     {
+                        interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
+                     }
                   }
                }
             }
