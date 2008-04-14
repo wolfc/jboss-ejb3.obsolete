@@ -52,6 +52,20 @@ public class SignatureTestCase extends TestCase
       return lifeCycleVisits.add(cls.getName() + "." + methodName);
    }
    
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test() throws Throwable
    {
       log.info("======= Signature.test()");
@@ -60,33 +74,22 @@ public class SignatureTestCase extends TestCase
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(SignatureTestBean.class.getClassLoader());
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         // FIXME: use the right jboss-aop.xml
-         log.info(deployer.deploy());
+      lifeCycleVisits.clear();
       
-         lifeCycleVisits.clear();
-         
-         DirectContainer<SignatureTestBean> container = new DirectContainer<SignatureTestBean>("SignatureTestBean", "Test", SignatureTestBean.class);
-         
-         BeanContext<SignatureTestBean> bean = container.construct();
-         
-         List<String> expectedLifeCycleVisits = Arrays.asList("org.jboss.ejb3.test.interceptors.signature.PackageProtectedInterceptor.postConstruct");
-         assertEquals(expectedLifeCycleVisits, lifeCycleVisits);
-         
-         List<Class<?>> visits = new ArrayList<Class<?>>();
-         Integer numVisits = container.invoke(bean, "test", visits);
-         
-         assertEquals(2, numVisits.intValue());
-         List<Class<?>> expectedVisits = Arrays.asList(PackageProtectedInterceptor.class, SignatureTestBean.class);
-         assertEquals(expectedVisits, visits);
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+      DirectContainer<SignatureTestBean> container = new DirectContainer<SignatureTestBean>("SignatureTestBean", "Test", SignatureTestBean.class);
+      
+      BeanContext<SignatureTestBean> bean = container.construct();
+      
+      List<String> expectedLifeCycleVisits = Arrays.asList("org.jboss.ejb3.test.interceptors.signature.PackageProtectedInterceptor.postConstruct");
+      assertEquals(expectedLifeCycleVisits, lifeCycleVisits);
+      
+      List<Class<?>> visits = new ArrayList<Class<?>>();
+      Integer numVisits = container.invoke(bean, "test", visits);
+      
+      assertEquals(2, numVisits.intValue());
+      List<Class<?>> expectedVisits = Arrays.asList(PackageProtectedInterceptor.class, SignatureTestBean.class);
+      assertEquals(expectedVisits, visits);
+
       log.info("======= Done");
    }
 }

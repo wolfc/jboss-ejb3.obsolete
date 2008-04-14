@@ -42,45 +42,36 @@ public class ContextGetMethodTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(ContextGetMethodTestCase.class);
 
+   // FIXME: use the right jboss-aop.xml
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test1() throws Throwable
    {
       log.info("======= ContextGetMethod.test1()");
-      //AspectManager.verbose = true;
+      Thread.currentThread().setContextClassLoader(Hello.class.getClassLoader());
       
-//      // TODO: During inventory surefire boots up BasicTestSuite
-//      LinkedHashMap pointcuts = AspectManager.instance().getPointcuts();
-//      if(!pointcuts.isEmpty())
-//      {
-//         //System.err.println("AspectManager still contains: " + pointcuts);
-//         URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
-//         AspectXmlLoader.undeployXML(url);
-//      }
-
+      ProxyContainer<HelloBean> container = new ProxyContainer<HelloBean>("ContextGetMethodTestCase", "InterceptorContainer", HelloBean.class);
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         // FIXME: use the right jboss-aop.xml
-         log.info(deployer.deploy());
-
-         Thread.currentThread().setContextClassLoader(Hello.class.getClassLoader());
-         
-         ProxyContainer<HelloBean> container = new ProxyContainer<HelloBean>("ContextGetMethodTestCase", "InterceptorContainer", HelloBean.class);
-         
-         Class<?> interfaces[] = { Hello.class };
-         Hello proxy = container.constructProxy(interfaces);
-         
-         String name = new Date().toString();
-         String result = proxy.sayHiTo(name);
-         
-         assertEquals(1, GetMethodInterceptor.invocations);
-         assertEquals("Hi " + name, result);
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+      Class<?> interfaces[] = { Hello.class };
+      Hello proxy = container.constructProxy(interfaces);
+      
+      String name = new Date().toString();
+      String result = proxy.sayHiTo(name);
+      
+      assertEquals(1, GetMethodInterceptor.invocations);
+      assertEquals("Hi " + name, result);
       log.info("======= Done");
    }
 }

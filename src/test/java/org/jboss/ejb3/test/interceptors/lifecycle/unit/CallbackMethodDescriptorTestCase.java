@@ -27,7 +27,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.jboss.aop.AspectManager;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.BeanInterceptorMetaDataBridge;
@@ -102,6 +101,21 @@ public class CallbackMethodDescriptorTestCase extends TestCase
       };
    }
 
+   // FIXME: use the right jboss-aop.xml
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test() throws Throwable
    {
       log.info("======= CallbackMethodDescriptor.test()");
@@ -110,41 +124,31 @@ public class CallbackMethodDescriptorTestCase extends TestCase
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         // FIXME: use the right jboss-aop.xml
-         log.info(deployer.deploy());
-         
-         // Bootstrap metadata
-         UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
-         Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-         URL url = Thread.currentThread().getContextClassLoader().getResource("lifecycle/META-INF/ejb-jar.xml");
-         EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
-         JBoss50MetaData jbossMetaData = new JBoss50MetaData();
-         jbossMetaData.merge(null, metaData);
-         
-         JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("SessionBeanCallbackBean");
-         assertNotNull(beanMetaData);
-         
-         assertEquals(0, SessionBeanCallbackBean.postConstructs);
-         
-         MyContainer<SessionBeanCallbackBean> container = new MyContainer<SessionBeanCallbackBean>("SessionBeanCallbackBean", "Test", SessionBeanCallbackBean.class, beanMetaData);
-         
-         BeanContext<SessionBeanCallbackBean> bean = container.construct();
-         
-         assertEquals("SessionBeanCallbackBean ejbCreate must have been called once", 1, SessionBeanCallbackBean.postConstructs);
-         
-         container.destroy(bean);
-         assertEquals(1, SessionBeanCallbackBean.preDestroys);
-         
-         bean = null;
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+     
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("lifecycle/META-INF/ejb-jar.xml");
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("SessionBeanCallbackBean");
+      assertNotNull(beanMetaData);
+      
+      assertEquals(0, SessionBeanCallbackBean.postConstructs);
+      
+      MyContainer<SessionBeanCallbackBean> container = new MyContainer<SessionBeanCallbackBean>("SessionBeanCallbackBean", "Test", SessionBeanCallbackBean.class, beanMetaData);
+      
+      BeanContext<SessionBeanCallbackBean> bean = container.construct();
+      
+      assertEquals("SessionBeanCallbackBean ejbCreate must have been called once", 1, SessionBeanCallbackBean.postConstructs);
+      
+      container.destroy(bean);
+      assertEquals(1, SessionBeanCallbackBean.preDestroys);
+      
+      bean = null;
+
       log.info("======= Done");
    }
 }

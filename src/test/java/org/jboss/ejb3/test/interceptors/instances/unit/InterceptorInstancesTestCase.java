@@ -42,39 +42,42 @@ public class InterceptorInstancesTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(InterceptorInstancesTestCase.class);
    
+   // FIXME: use the right jboss-aop.xml
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test1() throws Throwable
    {
       log.info("======= InterceptorInstances.test1()");
-      //AspectManager.verbose = true;
+
+      Thread.currentThread().setContextClassLoader(StatefulInterceptorInterface.class.getClassLoader());
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         // FIXME: use the right jboss-aop.xml
-         log.info(deployer.deploy());
-         
-         Thread.currentThread().setContextClassLoader(StatefulInterceptorInterface.class.getClassLoader());
-         
-         ProxyContainer<SimpleBean> container = new ProxyContainer<SimpleBean>("InterceptorInstancesTestCase", "InterceptorContainer", SimpleBean.class);
-         
-         assertEquals(0, StatefulInterceptor.postConstructs);
-         
-         StatefulInterceptorInterface bean1 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
-         StatefulInterceptorInterface bean2 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
-         
-         bean1.setState(1);
-         bean2.setState(2);
-         
-         assertEquals(1, bean1.getState());
-         assertEquals(2, bean2.getState());
-         
-         assertEquals(2, StatefulInterceptor.postConstructs);
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+      ProxyContainer<SimpleBean> container = new ProxyContainer<SimpleBean>("InterceptorInstancesTestCase", "InterceptorContainer", SimpleBean.class);
+      
+      assertEquals(0, StatefulInterceptor.postConstructs);
+      
+      StatefulInterceptorInterface bean1 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
+      StatefulInterceptorInterface bean2 = container.constructProxy(new Class[] { StatefulInterceptorInterface.class });
+      
+      bean1.setState(1);
+      bean2.setState(2);
+      
+      assertEquals(1, bean1.getState());
+      assertEquals(2, bean2.getState());
+      
+      assertEquals(2, StatefulInterceptor.postConstructs);
+
       log.info("======= Done");
    }
 }

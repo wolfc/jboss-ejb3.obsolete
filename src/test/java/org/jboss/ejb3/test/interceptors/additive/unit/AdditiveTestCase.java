@@ -27,7 +27,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.jboss.aop.AspectManager;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
@@ -112,6 +111,22 @@ public class AdditiveTestCase extends TestCase
       };
    }
 
+   
+   // FIXME: use the right jboss-aop.xml
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test() throws Throwable
    {
       log.info("======= Additive.test()");
@@ -120,43 +135,32 @@ public class AdditiveTestCase extends TestCase
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MySessionBean.class.getClassLoader());
       
-      // Bootstrap AOP
-      // FIXME: use the right jboss-aop.xml
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         log.info(deployer.deploy());
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("additive/META-INF/ejb-jar.xml");
+      assertNotNull("no ejb-jar.xml", url);
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MySessionBean");
+      assertNotNull(beanMetaData);
+      
+      MyContainer<MySessionBean> container = new MyContainer<MySessionBean>("MySessionBean", "Test", MySessionBean.class, beanMetaData);
+      
+      BeanContext<MySessionBean> bean = container.construct();
+      
+      List<Class<?>> visits = new ArrayList<Class<?>>();
+      container.invoke(bean, "doIt", visits);
+      
+      List<Class<?>> expected = new ArrayList<Class<?>>();
+      expected.add(MyInterceptor.class);
+      expected.add(XMLInterceptor.class);
+      expected.add(MySessionBean.class);
+      
+      assertEquals(expected, visits);
 
-         // Bootstrap metadata
-         UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
-         Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-         URL url = Thread.currentThread().getContextClassLoader().getResource("additive/META-INF/ejb-jar.xml");
-         assertNotNull("no ejb-jar.xml", url);
-         EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
-         JBoss50MetaData jbossMetaData = new JBoss50MetaData();
-         jbossMetaData.merge(null, metaData);
-         
-         JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MySessionBean");
-         assertNotNull(beanMetaData);
-         
-         MyContainer<MySessionBean> container = new MyContainer<MySessionBean>("MySessionBean", "Test", MySessionBean.class, beanMetaData);
-         
-         BeanContext<MySessionBean> bean = container.construct();
-         
-         List<Class<?>> visits = new ArrayList<Class<?>>();
-         container.invoke(bean, "doIt", visits);
-         
-         List<Class<?>> expected = new ArrayList<Class<?>>();
-         expected.add(MyInterceptor.class);
-         expected.add(XMLInterceptor.class);
-         expected.add(MySessionBean.class);
-         
-         assertEquals(expected, visits);
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
       log.info("======= Done");
    }
 }

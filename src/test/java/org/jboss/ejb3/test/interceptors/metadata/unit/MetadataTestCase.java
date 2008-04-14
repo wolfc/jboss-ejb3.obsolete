@@ -29,6 +29,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
+import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.BeanInterceptorMetaDataBridge;
@@ -39,6 +40,7 @@ import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.common.CommonInterceptor;
 import org.jboss.ejb3.test.interceptors.direct.DirectMethodInterceptor;
+import org.jboss.ejb3.test.interceptors.metadata.InterceptorOrderBean;
 import org.jboss.ejb3.test.interceptors.metadata.MetadataBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
@@ -114,68 +116,117 @@ public class MetadataTestCase extends TestCase
       };
    }
 
+   // FIXME: use the right jboss-aop.xml
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+      CommonInterceptor.aroundInvokes = 0;
+      CommonInterceptor.postConstructs = 0;
+      CommonInterceptor.preDestroys = 0;
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+   
    public void test() throws Throwable
    {
       log.info("======= MetaData.test()");
-//      AspectManager.verbose = true;
+      AspectManager.verbose = true;
       
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         // FIXME: use the right jboss-aop.xml
-         log.info(deployer.deploy());
-         
-         // Bootstrap metadata
-         UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
-         Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-         URL url = Thread.currentThread().getContextClassLoader().getResource("metadata/META-INF/ejb-jar.xml");
-         EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
-         JBoss50MetaData jbossMetaData = new JBoss50MetaData();
-         jbossMetaData.merge(null, metaData);
-         
-         JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MetadataBean");
-         assertNotNull(beanMetaData);
-         
-         assertEquals(0, CommonInterceptor.postConstructs);
-         
-         MyContainer<MetadataBean> container = new MyContainer<MetadataBean>("MetadataBean", "Test", MetadataBean.class, beanMetaData);
-         container.testAdvisor();
-         
-         BeanContext<MetadataBean> bean = container.construct();
-         
-         assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
-         
-         System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
-         System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));
-         String result = container.invoke(bean, "sayHi", "Test");
-         System.out.println(result);
-         
-         assertEquals("sayHi didn't invoke CommonInterceptor.aroundInvoke once", 1, CommonInterceptor.aroundInvokes);
-         assertEquals("sayHi didn't invoke MetadataBean.aroundInvoke once", 1, MetadataBean.aroundInvokes);
-         
-         container.invoke(bean, "intercept");
-         assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 1, DirectMethodInterceptor.aroundInvokes);
-         container.invoke(bean, "intercept");
-         assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 2, DirectMethodInterceptor.aroundInvokes);
-         
-         assertEquals("intercept didn't invoke CommonInterceptor.aroundInvoke", 3, CommonInterceptor.aroundInvokes);
-         assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
-         // 12.7 footnote 57
-         assertEquals("DirectMethodInterceptor.postConstruct must not have been called", 0, DirectMethodInterceptor.postConstructs);
-         
-         container.destroy(bean);
-         assertEquals(1, CommonInterceptor.preDestroys);
-         
-         bean = null;
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("metadata/META-INF/ejb-jar.xml");
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MetadataBean");
+      assertNotNull(beanMetaData);
+      
+      assertEquals(0, CommonInterceptor.postConstructs);
+      
+      MyContainer<MetadataBean> container = new MyContainer<MetadataBean>("MetadataBean", "Test", MetadataBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      BeanContext<MetadataBean> bean = container.construct();
+      
+      assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
+      
+      System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
+      System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));
+      String result = container.invoke(bean, "sayHi", "Test");
+      System.out.println(result);
+      
+      assertEquals("sayHi didn't invoke CommonInterceptor.aroundInvoke once", 1, CommonInterceptor.aroundInvokes);
+      assertEquals("sayHi didn't invoke MetadataBean.aroundInvoke once", 1, MetadataBean.aroundInvokes);
+      
+      container.invoke(bean, "intercept");
+      assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 1, DirectMethodInterceptor.aroundInvokes);
+      container.invoke(bean, "intercept");
+      assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 2, DirectMethodInterceptor.aroundInvokes);
+      
+      assertEquals("intercept didn't invoke CommonInterceptor.aroundInvoke", 3, CommonInterceptor.aroundInvokes);
+      assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
+      // 12.7 footnote 57
+      assertEquals("DirectMethodInterceptor.postConstruct must not have been called", 0, DirectMethodInterceptor.postConstructs);
+      
+      container.destroy(bean);
+      assertEquals(1, CommonInterceptor.preDestroys);
+      
+      bean = null;
       log.info("======= Done");
+   }
+   
+   public void testInterceptorOrder() throws Throwable
+   {
+      log.info("======= MetaData.testInterceptorOrder()");
+      // To make surefire happy
+      Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
+      
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("metadata/META-INF/ejb-jar.xml");
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("InterceptorOrderBean");
+      assertNotNull(beanMetaData);
+      
+      assertEquals(0, CommonInterceptor.postConstructs);
+      
+      MyContainer<InterceptorOrderBean> container = new MyContainer<InterceptorOrderBean>("InterceptorOrderBean", "Test", InterceptorOrderBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      BeanContext<InterceptorOrderBean> bean = container.construct();
+      
+      assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
+      
+      System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
+      System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));
+      String result = container.invoke(bean, "sayHi", "Test");
+      System.out.println(result);
+      
+      assertEquals("sayHi didn't invoke CommonInterceptor.aroundInvoke once", 1, CommonInterceptor.aroundInvokes);
+      
+      assertEquals("CommonInterceptor postConstruct must have been called once", 1, CommonInterceptor.postConstructs);
+      
+      container.destroy(bean);
+      assertEquals(1, CommonInterceptor.preDestroys);
+      
+      bean = null;
+      log.info("======= Done");
+
    }
 }

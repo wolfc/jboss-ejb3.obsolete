@@ -42,39 +42,34 @@ public class SuperMethodTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(SuperMethodTestCase.class);
 
+   AOPDeployer deployer = new AOPDeployer("supermethod/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test1() throws Throwable
    {
       log.info("======= SuperMethod.test1()");
       //AspectManager.verbose = true;
       
-//    // TODO: During inventory surefire boots up BasicTestSuite
-//    LinkedHashMap pointcuts = AspectManager.instance().getPointcuts();
-//    if(!pointcuts.isEmpty())
-//    {
-//       //System.err.println("AspectManager still contains: " + pointcuts);
-//       URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
-//       AspectXmlLoader.undeployXML(url);
-//    }
+      Thread.currentThread().setContextClassLoader(AroundInvokeIF.class.getClassLoader());
+      
+      ProxyContainer<AroundInvokeBean> container = new ProxyContainer<AroundInvokeBean>("SuperMethodTestCase", "InterceptorContainer", AroundInvokeBean.class);
+      
+      Class<?> interfaces[] = { AroundInvokeIF.class };
+      AroundInvokeIF proxy = container.constructProxy(interfaces);
+      
+      proxy.afterBeginTest();
 
-      AOPDeployer deployer = new AOPDeployer("supermethod/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         log.info(deployer.deploy());
-
-         Thread.currentThread().setContextClassLoader(AroundInvokeIF.class.getClassLoader());
-         
-         ProxyContainer<AroundInvokeBean> container = new ProxyContainer<AroundInvokeBean>("SuperMethodTestCase", "InterceptorContainer", AroundInvokeBean.class);
-         
-         Class<?> interfaces[] = { AroundInvokeIF.class };
-         AroundInvokeIF proxy = container.constructProxy(interfaces);
-         
-         proxy.afterBeginTest();
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
       log.info("======= Done");
    }
 }

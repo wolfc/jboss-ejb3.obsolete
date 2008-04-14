@@ -37,6 +37,7 @@ import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFa
 import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.metadata.MetadataBean;
 import org.jboss.ejb3.test.interceptors.order.InterceptorChainBean;
 import org.jboss.logging.Logger;
@@ -113,6 +114,22 @@ public class InterceptorChainTestCase extends TestCase
       };
    }
 
+   // FIXME: use the right jboss-aop.xml
+
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test() throws Throwable
    {
       AspectManager.verbose = true;
@@ -120,16 +137,10 @@ public class InterceptorChainTestCase extends TestCase
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
       
-      // Bootstrap AOP
-      // FIXME: use the right jboss-aop.xml
-      URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
-      log.info("deploying AOP from " + url);
-      AspectXmlLoader.deployXML(url);
-      
       // Bootstrap metadata
       UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
       Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-      url = Thread.currentThread().getContextClassLoader().getResource("order/META-INF/ejb-jar.xml");
+      URL url = Thread.currentThread().getContextClassLoader().getResource("order/META-INF/ejb-jar.xml");
       EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
       JBoss50MetaData jbossMetaData = new JBoss50MetaData();
       jbossMetaData.merge(null, metaData);
