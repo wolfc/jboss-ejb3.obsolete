@@ -69,7 +69,7 @@ public abstract class BaseStatelessRemoteProxyFactory extends BaseStatelessProxy
    
    // Functional Methods 
    
-   protected boolean bindHomeAndBusinessTogether(SessionContainer container)
+   protected boolean bindHomeAndEjb21ViewTogether(SessionContainer container)
    {
       String homeJndiName = ProxyFactoryHelper.getHomeJndiName(container);
       String remoteBusinessJndiName = ProxyFactoryHelper.getRemoteBusinessJndiName(container);

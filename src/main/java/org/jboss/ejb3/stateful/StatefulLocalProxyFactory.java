@@ -64,6 +64,17 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    {
       super(container, binding.jndiBinding());
    }
+   
+   /**
+    * Returns the interface type for Home
+    * 
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      return ProxyFactoryHelper.getLocalHomeInterface(this.getContainer());
+   }
 
    /**
     * Defines the access type for this Proxies created by this Factory
@@ -89,9 +100,15 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
 
    }
    
-   protected boolean bindHomeAndBusinessTogether(SessionContainer container)
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   @Override
+   protected boolean bindHomeAndBusinessTogether()
    {
-      return ProxyFactoryHelper.getLocalHomeJndiName(container).equals(jndiName);
+      return ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer()).equals(this.jndiName);
    }
 
    public void start() throws Exception
@@ -113,13 +130,13 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
 
       SessionContainer statefulContainer = (SessionContainer) getContainer();
       LocalHome localHome = this.getContainer().getAnnotation(LocalHome.class);
-      if (localHome != null && !bindHomeAndBusinessTogether(statefulContainer))
+      if (localHome != null && !bindHomeAndBusinessTogether())
       {
          Class<?>[] interfaces =
          {localHome.value()};
-         Object homeProxy = java.lang.reflect.Proxy.newProxyInstance(getContainer().getBeanClass().getClassLoader(),
-               interfaces, new StatefulLocalHomeProxy(getContainer()));
-         Util.rebind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()),
+         Object homeProxy = java.lang.reflect.Proxy.newProxyInstance(statefulContainer.getBeanClass().getClassLoader(),
+               interfaces, new StatefulLocalHomeProxy(statefulContainer));
+         Util.rebind(statefulContainer.getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(statefulContainer),
                homeProxy);
       }
    }
@@ -128,11 +145,11 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    {
       super.stop();
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
-      SessionContainer statefulContainer = (SessionContainer) getContainer();
+      SessionContainer statefulContainer = this.getContainer();
       LocalHome localHome = this.getContainer().getAnnotation(LocalHome.class);
-      if (localHome != null && !bindHomeAndBusinessTogether(statefulContainer))
+      if (localHome != null && !bindHomeAndBusinessTogether())
       {
-         Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()));
+         Util.unbind(statefulContainer.getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(statefulContainer));
       }
    }
 

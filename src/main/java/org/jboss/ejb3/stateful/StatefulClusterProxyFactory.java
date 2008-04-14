@@ -49,6 +49,7 @@ import org.jboss.ha.framework.interfaces.HAPartition;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
+import org.jboss.util.NotImplementedException;
 import org.jboss.util.naming.Util;
 
 
@@ -84,6 +85,17 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    }
    
    /**
+    * Returns the interface type for Home
+    * 
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      throw new NotImplementedException("Cluster Proxy Factories do not have Home interfaces");
+   }
+   
+   /**
     * Defines the access type for this Proxies created by this Factory
     * 
     * @return
@@ -91,6 +103,17 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    @Override
    protected ProxyAccessType getProxyAccessType(){
       return ProxyAccessType.REMOTE;
+   }
+   
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   @Override
+   protected boolean bindHomeAndBusinessTogether()
+   {
+      throw new NotImplementedException("Not Applicable for Cluster Proxy Factories");
    }
    
    protected void validateEjb21Views()

@@ -49,6 +49,18 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       super(container, binding.jndiBinding());
    }
    
+   /**
+    * Returns the interface type for Home
+    * 
+    * @param container
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      return ProxyFactoryHelper.getLocalHomeInterface(this.getContainer());
+   }
+   
    @Override
    protected ProxyAccessType getProxyAccessType()
    {
@@ -67,18 +79,24 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
             .getLocalInterfaces(container));
    }
    
-   protected boolean bindHomeAndBusinessTogether(EJBContainer container)
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   @Override
+   protected boolean bindHomeAndBusinessTogether()
    {
-      return ProxyFactoryHelper.getLocalHomeJndiName(container).equals(jndiName);
+      return ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer()).equals(jndiName);
    }
 
    @Override
    public void start() throws Exception
    {
       super.start();
-      EJBContainer statelessContainer = (EJBContainer) getContainer();
+      SessionSpecContainer statelessContainer = getContainer();
       LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
-      if (localHome != null && !bindHomeAndBusinessTogether(statelessContainer))
+      if (localHome != null && !bindHomeAndBusinessTogether())
       {
          Class<?>[] interfaces = {localHome.value()};
          Object homeProxy = java.lang.reflect.Proxy.newProxyInstance(getContainer().getBeanClass().getClassLoader(),
@@ -93,7 +111,7 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       super.stop();
       SessionSpecContainer statelessContainer = this.getContainer();
       LocalHome localHome = statelessContainer.getAnnotation(LocalHome.class);
-      if (localHome != null && !bindHomeAndBusinessTogether(statelessContainer))
+      if (localHome != null && !bindHomeAndBusinessTogether())
       {
          Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(getContainer()));
       }

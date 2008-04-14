@@ -52,8 +52,15 @@ public class StatelessRemoteProxyFactory extends BaseStatelessRemoteProxyFactory
       super(container, binding);
    }
    
-   protected boolean bindHomeAndBusinessTogether(SessionSpecContainer container)
+   /**
+    * Whether or not to bind the home and business interfaces together
+    * 
+    * @return
+    */
+   @Override
+   protected boolean bindHomeAndBusinessTogether()
    {
+      SessionSpecContainer container = this.getContainer();
       return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteBusinessJndiName(container));
    }
 
@@ -66,7 +73,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessRemoteProxyFactory
    {
       super.start();
       RemoteHome remoteHome = this.getContainer().getAnnotation(RemoteHome.class);
-      if (remoteHome != null && !bindHomeAndBusinessTogether(this.getContainer()))
+      if (remoteHome != null && !bindHomeAndEjb21ViewTogether(this.getContainer()))
       {
          Object homeProxy = createHomeProxy(remoteHome.value());
          String jndiName = ProxyFactoryHelper.getHomeJndiName(getContainer());
@@ -90,7 +97,7 @@ public class StatelessRemoteProxyFactory extends BaseStatelessRemoteProxyFactory
       super.stop();
       SessionSpecContainer statelessContainer = this.getContainer();
       RemoteHome remoteHome = this.getContainer().getAnnotation(RemoteHome.class);
-      if (remoteHome != null && !bindHomeAndBusinessTogether(statelessContainer))
+      if (remoteHome != null && !bindHomeAndEjb21ViewTogether(statelessContainer))
       {
          Util.unbind(getContainer().getInitialContext(), ProxyFactoryHelper.getHomeJndiName(getContainer()));
       }
@@ -118,6 +125,17 @@ public class StatelessRemoteProxyFactory extends BaseStatelessRemoteProxyFactory
       {
          throw new RuntimeException(e);
       }
+   }
+   
+   /**
+    * Returns the interface type for Home
+    * 
+    * @return
+    */
+   @Override
+   protected Class<?> getHomeType()
+   {
+      return ProxyFactoryHelper.getRemoteHomeInterface(this.getContainer());
    }
 
    @Override
