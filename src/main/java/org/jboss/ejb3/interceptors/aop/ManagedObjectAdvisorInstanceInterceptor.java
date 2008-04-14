@@ -56,7 +56,7 @@ public class ManagedObjectAdvisorInstanceInterceptor implements Interceptor
       InstanceAdvisorDelegate delegate = getInstanceAdvisorDelegate(invocation.getTargetObject(), advisor, advisor);
       try
       {
-         log.info("Puxhing ia delegate " + delegate + " for " + invocation.getTargetObject());
+         log.debug("Pushing ia delegate " + delegate + " for " + invocation.getTargetObject());
          advisor.pushThreadedInstanceAdvisorDelegate(delegate);
          return invocation.invokeNext();
       }
