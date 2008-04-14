@@ -40,38 +40,41 @@ public class ProxyTestCase extends TestCase
 {
    private static final Logger log = Logger.getLogger(ProxyTestCase.class);
 
+   AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      log.info(deployer.deploy());
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      log.info(deployer.undeploy());
+   }
+
    public void test1() throws Throwable
    {
       log.info("======= Proxy.test1()");
       //AspectManager.verbose = true;
       
-      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
-      try
-      {
-         // Bootstrap AOP
-         log.info(deployer.deploy());
-
-         Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
-         
-         ProxyContainer<ProxiedBean> container = new ProxyContainer<ProxiedBean>("ProxyTestCase", "InterceptorContainer", ProxiedBean.class);
-         
-         assertEquals(0, ProxiedInterceptor.postConstructs);
-         
-         Class<?> interfaces[] = { MyInterface.class };
-         MyInterface proxy = container.constructProxy(interfaces);
-         
-         assertEquals("ProxiedInterceptor postConstruct must have been called once", 1, ProxiedInterceptor.postConstructs);
-         
-         String result = proxy.sayHi("Me");
-         assertEquals("Hi Me", result);
-         
-         assertEquals("sayHi didn't invoke ProxiedInterceptor.aroundInvoke once", 1, ProxiedInterceptor.aroundInvokes);
-         assertEquals("sayHi didn't invoke ProxiedBean.aroundInvoke once", 1, ProxiedBean.aroundInvokes);
-      }
-      finally
-      {
-         log.info(deployer.undeploy());
-      }
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      ProxyContainer<ProxiedBean> container = new ProxyContainer<ProxiedBean>("ProxyTestCase", "InterceptorContainer", ProxiedBean.class);
+      
+      assertEquals(0, ProxiedInterceptor.postConstructs);
+      
+      Class<?> interfaces[] = { MyInterface.class };
+      MyInterface proxy = container.constructProxy(interfaces);
+      
+      assertEquals("ProxiedInterceptor postConstruct must have been called once", 1, ProxiedInterceptor.postConstructs);
+      
+      String result = proxy.sayHi("Me");
+      assertEquals("Hi Me", result);
+      
+      assertEquals("sayHi didn't invoke ProxiedInterceptor.aroundInvoke once", 1, ProxiedInterceptor.aroundInvokes);
+      assertEquals("sayHi didn't invoke ProxiedBean.aroundInvoke once", 1, ProxiedBean.aroundInvokes);
       log.info("======= Done");
    }
 }
