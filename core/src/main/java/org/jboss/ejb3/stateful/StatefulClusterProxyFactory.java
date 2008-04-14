@@ -92,7 +92,8 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    @Override
    protected Class<?> getHomeType()
    {
-      throw new NotImplementedException("Cluster Proxy Factories do not have Home interfaces");
+      // Not Supported
+      return null;
    }
    
    /**
@@ -113,7 +114,8 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    @Override
    protected boolean bindHomeAndBusinessTogether()
    {
-      throw new NotImplementedException("Not Applicable for Cluster Proxy Factories");
+      // Not Supported
+      return false;
    }
    
    protected void validateEjb21Views()

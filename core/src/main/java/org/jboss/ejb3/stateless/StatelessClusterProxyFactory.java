@@ -155,7 +155,8 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
     */
    @Override
    protected boolean bindHomeAndBusinessTogether(){
-      throw new NotImplementedException("Not Applicable for Cluster Proxy Factories");
+      // Not Supported
+      return false;
    }
    
    public synchronized void replicantsChanged (String key, 
@@ -188,7 +189,8 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
    @Override
    protected Class<?> getHomeType()
    {
-      throw new NotImplementedException("Cluster Proxy Factories do not have Home interfaces");
+      // Not Supported
+      return null;
    }
 
    @Override

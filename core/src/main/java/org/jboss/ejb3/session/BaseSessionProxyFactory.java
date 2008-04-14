@@ -318,7 +318,11 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
             // If binding home with local business 
             if(this.bindHomeAndBusinessTogether())
             {
-               intfs.add(this.getHomeType());
+               Class<?> home = this.getHomeType();
+               if (home != null)
+               {
+                  intfs.add(home);
+               }
             }
          }
          // If EJBLocalObject
@@ -348,7 +352,11 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
             // If binding home with remote business
             if(this.bindHomeAndBusinessTogether())
             {
-               intfs.add(this.getHomeType());
+               Class<?> home = this.getHomeType();
+               if (home != null)
+               {
+                  intfs.add(home);
+               }
             }
             
          }
