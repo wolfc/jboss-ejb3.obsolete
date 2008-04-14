@@ -333,7 +333,7 @@ public class ReferenceTestCase
       
       EJBMetaData metadata = home.getEJBMetaData();
       assertNotNull(metadata);
-      assertEquals("org.jboss.ejb3.test.reference21_30.Session30",metadata.getRemoteInterfaceClass().getName());
+      assertEquals(Session30.class.getName(),metadata.getRemoteInterfaceClass().getName());
       
       HomeHandle homeHandle = home.getHomeHandle();
       assertNotNull(homeHandle);
@@ -342,7 +342,7 @@ public class ReferenceTestCase
       assertNotNull(ejbHome);
       metadata = ejbHome.getEJBMetaData();
       assertNotNull(metadata);
-      assertEquals("org.jboss.ejb3.test.reference21_30.Session30",metadata.getRemoteInterfaceClass().getName());
+      assertEquals(Session30.class.getName(),metadata.getRemoteInterfaceClass().getName());
       
       Session30 session = (Session30)home.create();
       assertNotNull(session);

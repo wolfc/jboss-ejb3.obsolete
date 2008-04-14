@@ -44,7 +44,7 @@ public class Session21Bean implements javax.ejb.SessionBean
    {
       try {
          InitialContext jndiContext = new InitialContext();
-         Session30 session = (Session30)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/Session30");
+         Session30RemoteBusiness session = (Session30RemoteBusiness)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/Session30");
          return session.access();
       } catch (Exception e)
       {
