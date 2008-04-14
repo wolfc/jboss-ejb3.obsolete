@@ -52,7 +52,7 @@ import org.jboss.logging.Logger;
  * - there is always an instance advisor delegate
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends ClassAdvisor implements ExtendedAdvisor, InstanceAdvisor
 {
@@ -195,6 +195,10 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       return instanceAdvisorDelegate;
    }
    
+   public final void setInstanceAdvisorDelegate(InstanceAdvisorDelegate delegate)
+   {
+      instanceAdvisorDelegate = delegate;
+   }
    
    public void appendInterceptor(Interceptor interceptor)
    {

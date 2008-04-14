@@ -29,6 +29,7 @@ import org.jboss.aop.InstanceAdvised;
 import org.jboss.ejb3.test.interceptors.basic.BasicBean;
 import org.jboss.ejb3.test.interceptors.basic.BasicInterceptor;
 import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
+import org.jboss.logging.Logger;
 
 /**
  * This one must run within a domain class loader.
@@ -40,8 +41,11 @@ import org.jboss.ejb3.test.interceptors.basic.BasicMethodInterceptor;
  */
 public class BasicTestRunner extends TestCase
 {
+   private static final Logger log = Logger.getLogger(BasicTestRunner.class);
+
    public void test2() throws Exception
    {
+      log.info("======= Basic.test2()");
       assertEquals(0, BasicInterceptor.postConstructs);
       
       BasicBean bean = new BasicBean();
@@ -69,10 +73,12 @@ public class BasicTestRunner extends TestCase
       
       //((Destructable) bean)._preDestroy();
       bean = null;
+      log.info("======= Done");
    }
    
    public void testInstances() throws Exception
    {
+      log.info("======= Basic.testInstances()");
       BasicBean bean1 = new BasicBean();
       BasicBean bean2 = new BasicBean();
       
@@ -81,5 +87,6 @@ public class BasicTestRunner extends TestCase
       
       assertEquals(1, bean1.getState());
       assertEquals(2, bean2.getState());
+      log.info("======= Done");
    }
 }

@@ -21,16 +21,15 @@
  */
 package org.jboss.ejb3.test.interceptors.direct.unit;
 
-import java.net.URL;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
-import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.direct.DirectBean;
 import org.jboss.ejb3.test.interceptors.direct.DirectInterceptor;
 import org.jboss.ejb3.test.interceptors.direct.DirectMethodInterceptor;
@@ -62,49 +61,57 @@ public class DirectTestCase extends TestCase
          assertTrue(((ManagedObjectAdvisor<T, DirectContainer<T>>) getAdvisor()).getContainer() == this);
       }
    }
-   
+
    public void test() throws Throwable
    {
-      AspectManager.verbose = true;
+      log.info("======= Direct.test()");
+//      AspectManager.verbose = true;
       
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(DirectBean.class.getClassLoader());
       
-      // Bootstrap AOP
-      // FIXME: use the right jboss-aop.xml
-      URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
-      log.info("deploying AOP from " + url);
-      AspectXmlLoader.deployXML(url);
-      
-      assertEquals(0, DirectInterceptor.postConstructs);
-      
-      MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "Test", DirectBean.class);
-      container.testAdvisor();
-      
-      BeanContext<DirectBean> bean = container.construct();
-      
-      assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
-      assertEquals("DirectBean postConstruct must have been called once", 1, DirectBean.postConstructs);
-      
-      System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
-      System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));
-      String result = container.invoke(bean, "sayHi", "Test");
-      System.out.println(result);
-      
-      assertEquals("sayHi didn't invoke DirectInterceptor.aroundInvoke once", 1, DirectInterceptor.aroundInvokes);
-      assertEquals("sayHi didn't invoke DirectBean.aroundInvoke once", 1, DirectBean.aroundInvokes);
-      
-      container.invoke(bean, "intercept");
-      assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 1, DirectMethodInterceptor.aroundInvokes);
-      container.invoke(bean, "intercept");
-      assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 2, DirectMethodInterceptor.aroundInvokes);
-      
-      assertEquals("intercept didn't invoke DirectInterceptor.aroundInvoke", 3, DirectInterceptor.aroundInvokes);
-      assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
-      // 12.7 footnote 57
-      assertEquals("DirectMethodInterceptor.postConstruct must not have been called (12.7 footnote 57)", 0, DirectMethodInterceptor.postConstructs);
-      
-      //((Destructable) bean)._preDestroy();
-      bean = null;
+      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+      try
+      {
+         // Bootstrap AOP
+         // FIXME: use the right jboss-aop.xml
+         log.info(deployer.deploy());
+         
+         assertEquals(0, DirectInterceptor.postConstructs);
+         
+         MyContainer<DirectBean> container = new MyContainer<DirectBean>("DirectBean", "Test", DirectBean.class);
+         container.testAdvisor();
+         
+         BeanContext<DirectBean> bean = container.construct();
+         
+         assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
+         assertEquals("DirectBean postConstruct must have been called once", 1, DirectBean.postConstructs);
+         
+         System.out.println(bean.getClass() + " " + bean.getClass().getClassLoader());
+         System.out.println("  " + Arrays.toString(bean.getClass().getInterfaces()));
+         String result = container.invoke(bean, "sayHi", "Test");
+         System.out.println(result);
+         
+         assertEquals("sayHi didn't invoke DirectInterceptor.aroundInvoke once", 1, DirectInterceptor.aroundInvokes);
+         assertEquals("sayHi didn't invoke DirectBean.aroundInvoke once", 1, DirectBean.aroundInvokes);
+         
+         container.invoke(bean, "intercept");
+         assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 1, DirectMethodInterceptor.aroundInvokes);
+         container.invoke(bean, "intercept");
+         assertEquals("intercept didn't invoke DirectMethodInterceptor.aroundInvoke", 2, DirectMethodInterceptor.aroundInvokes);
+         
+         assertEquals("intercept didn't invoke DirectInterceptor.aroundInvoke", 3, DirectInterceptor.aroundInvokes);
+         assertEquals("DirectInterceptor postConstruct must have been called once", 1, DirectInterceptor.postConstructs);
+         // 12.7 footnote 57
+         assertEquals("DirectMethodInterceptor.postConstruct must not have been called (12.7 footnote 57)", 0, DirectMethodInterceptor.postConstructs);
+         
+         //((Destructable) bean)._preDestroy();
+         bean = null;
+      }
+      finally
+      {
+         log.info(deployer.undeploy());
+      }
+      log.info("======= Done");
    }
 }
