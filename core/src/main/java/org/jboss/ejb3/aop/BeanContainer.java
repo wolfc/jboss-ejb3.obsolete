@@ -36,6 +36,7 @@ import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.ejb3.interceptors.container.ContainerInterceptorFactory;
 import org.jboss.ejb3.interceptors.container.InterceptorFactoryRefImpl;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
 import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFactory;
@@ -199,20 +200,11 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       
       initializeAdvisor(name, domain, beanClass, annotations);
    }
-   
+
    @Override
-   protected void initializeAdvisor(String name, Domain domain, Class<? extends Object> beanClass, AnnotationRepository annotations)
+   protected ManagedObjectAdvisor<Object, BeanContainer> createAdvisor(String name, Domain domain, Class<? extends Object> beanClass, AnnotationRepository annotations)
    {
-      assert name != null : "name is null";
-      assert domain != null : "domain is null";
-      assert beanClass != null : "beanClass is null";
-      
-      // Decouple setting the advisor and initializing it, so interceptors
-      // can get it.
-      ExtendedManagedObjectAdvisor advisor = new ExtendedManagedObjectAdvisor(this, name, domain, annotations);
-      setAdvisor(advisor);
-      advisor.getAnnotations().addClassAnnotation(InterceptorFactoryRef.class, new InterceptorFactoryRefImpl(ContainerInterceptorFactory.class));
-      advisor.initialize(beanClass);
+      return new ExtendedManagedObjectAdvisor(this, name, domain, annotations);
    }
    
    /*
@@ -249,36 +241,6 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
          ((ExtendedManagedObjectAdvisor) getAdvisor()).reinitialize();
       }
       catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
-   
-   /**
-    * FIXME: Q&D hack
-    * @param advisor
-    */
-   private void setAdvisor(ExtendedManagedObjectAdvisor advisor)
-   {
-      try
-      {
-         Field field = AbstractContainer.class.getDeclaredField("advisor");
-         field.setAccessible(true);
-         field.set(this, advisor);
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (NoSuchFieldException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (SecurityException e)
       {
          throw new RuntimeException(e);
       }

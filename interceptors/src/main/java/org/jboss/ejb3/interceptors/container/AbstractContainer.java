@@ -147,7 +147,7 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       initializeAdvisor(name, domain, beanClass, null);
    }
    
-   protected void initializeAdvisor(String name, Domain domain, Class<? extends T> beanClass, AnnotationRepository annotations)
+   protected final void initializeAdvisor(String name, Domain domain, Class<? extends T> beanClass, AnnotationRepository annotations)
    {
       if(this.advisor != null) throw new IllegalStateException("advisor already set to " + advisor);
       
@@ -157,9 +157,19 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
       
       // Decouple setting the advisor and initializing it, so interceptors
       // can get it.
-      this.advisor = new ManagedObjectAdvisor<T, C>((C) this, name, domain, annotations);
+      createAndSetAdvisor(name, domain, beanClass, annotations);
       advisor.getAnnotations().addClassAnnotation(InterceptorFactoryRef.class, new InterceptorFactoryRefImpl(ContainerInterceptorFactory.class));
       advisor.initialize(beanClass);
+   }
+   
+   protected final void createAndSetAdvisor(String name, Domain domain, Class<? extends T> beanClass, AnnotationRepository annotations)
+   {
+      this.advisor = createAdvisor(name, domain, beanClass, annotations);
+   }
+   
+   protected ManagedObjectAdvisor<T, C> createAdvisor(String name, Domain domain, Class<? extends T> beanClass, AnnotationRepository annotations)
+   {
+      return new ManagedObjectAdvisor<T, C>((C) this, name, domain, annotations); 
    }
    
    protected final ManagedObjectAdvisor<T, C> getAdvisor()
