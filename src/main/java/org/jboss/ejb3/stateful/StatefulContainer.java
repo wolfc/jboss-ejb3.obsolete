@@ -898,9 +898,11 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
          Class<?> pkClass = Object.class;
          HomeHandleImpl homeHandle = null;
 
-         Remote remoteAnnotation = this.getAnnotation(Remote.class);
-         if (remoteAnnotation != null)
-            remote = remoteAnnotation.value()[0];
+         Class<?>[] remotes = ProxyFactoryHelper.getRemoteInterfaces(this);
+         if (remotes != null && remotes.length > 0)
+         {
+            remote = remotes[0];
+         }
          RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
          if (homeAnnotation != null)
             home = homeAnnotation.value();
