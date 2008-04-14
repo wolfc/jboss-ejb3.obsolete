@@ -28,7 +28,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
-import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
@@ -39,6 +38,7 @@ import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.interceptors.additive.MyInterceptor;
 import org.jboss.ejb3.test.interceptors.additive.MySessionBean;
 import org.jboss.ejb3.test.interceptors.additive.XMLInterceptor;
+import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -114,41 +114,49 @@ public class AdditiveTestCase extends TestCase
 
    public void test() throws Throwable
    {
-      AspectManager.verbose = true;
+      log.info("======= Additive.test()");
+//      AspectManager.verbose = true;
       
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MySessionBean.class.getClassLoader());
       
       // Bootstrap AOP
       // FIXME: use the right jboss-aop.xml
-      URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
-      log.info("deploying AOP from " + url);
-      AspectXmlLoader.deployXML(url);
-      
-      // Bootstrap metadata
-      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
-      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-      url = Thread.currentThread().getContextClassLoader().getResource("additive/META-INF/ejb-jar.xml");
-      assertNotNull("no ejb-jar.xml", url);
-      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
-      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
-      jbossMetaData.merge(null, metaData);
-      
-      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MySessionBean");
-      assertNotNull(beanMetaData);
-      
-      MyContainer<MySessionBean> container = new MyContainer<MySessionBean>("MySessionBean", "Test", MySessionBean.class, beanMetaData);
-      
-      BeanContext<MySessionBean> bean = container.construct();
-      
-      List<Class<?>> visits = new ArrayList<Class<?>>();
-      container.invoke(bean, "doIt", visits);
-      
-      List<Class<?>> expected = new ArrayList<Class<?>>();
-      expected.add(MyInterceptor.class);
-      expected.add(XMLInterceptor.class);
-      expected.add(MySessionBean.class);
-      
-      assertEquals(expected, visits);
+      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+      try
+      {
+         log.info(deployer.deploy());
+
+         // Bootstrap metadata
+         UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+         Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+         URL url = Thread.currentThread().getContextClassLoader().getResource("additive/META-INF/ejb-jar.xml");
+         assertNotNull("no ejb-jar.xml", url);
+         EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+         JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+         jbossMetaData.merge(null, metaData);
+         
+         JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MySessionBean");
+         assertNotNull(beanMetaData);
+         
+         MyContainer<MySessionBean> container = new MyContainer<MySessionBean>("MySessionBean", "Test", MySessionBean.class, beanMetaData);
+         
+         BeanContext<MySessionBean> bean = container.construct();
+         
+         List<Class<?>> visits = new ArrayList<Class<?>>();
+         container.invoke(bean, "doIt", visits);
+         
+         List<Class<?>> expected = new ArrayList<Class<?>>();
+         expected.add(MyInterceptor.class);
+         expected.add(XMLInterceptor.class);
+         expected.add(MySessionBean.class);
+         
+         assertEquals(expected, visits);
+      }
+      finally
+      {
+         log.info(deployer.undeploy());
+      }
+      log.info("======= Done");
    }
 }

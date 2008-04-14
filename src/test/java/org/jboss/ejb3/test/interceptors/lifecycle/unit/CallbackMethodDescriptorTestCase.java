@@ -28,7 +28,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
-import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.BeanInterceptorMetaDataBridge;
@@ -36,6 +35,7 @@ import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFa
 import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.lifecycle.SessionBeanCallbackBean;
 import org.jboss.ejb3.test.interceptors.metadata.MetadataBean;
 import org.jboss.logging.Logger;
@@ -104,39 +104,47 @@ public class CallbackMethodDescriptorTestCase extends TestCase
 
    public void test() throws Throwable
    {
-      AspectManager.verbose = true;
+      log.info("======= CallbackMethodDescriptor.test()");
+//      AspectManager.verbose = true;
       
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
       
-      // Bootstrap AOP
-      // FIXME: use the right jboss-aop.xml
-      URL url = Thread.currentThread().getContextClassLoader().getResource("proxy/jboss-aop.xml");
-      log.info("deploying AOP from " + url);
-      AspectXmlLoader.deployXML(url);
-      
-      // Bootstrap metadata
-      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
-      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
-      url = Thread.currentThread().getContextClassLoader().getResource("lifecycle/META-INF/ejb-jar.xml");
-      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
-      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
-      jbossMetaData.merge(null, metaData);
-      
-      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("SessionBeanCallbackBean");
-      assertNotNull(beanMetaData);
-      
-      assertEquals(0, SessionBeanCallbackBean.postConstructs);
-      
-      MyContainer<SessionBeanCallbackBean> container = new MyContainer<SessionBeanCallbackBean>("SessionBeanCallbackBean", "Test", SessionBeanCallbackBean.class, beanMetaData);
-      
-      BeanContext<SessionBeanCallbackBean> bean = container.construct();
-      
-      assertEquals("SessionBeanCallbackBean ejbCreate must have been called once", 1, SessionBeanCallbackBean.postConstructs);
-      
-      container.destroy(bean);
-      assertEquals(1, SessionBeanCallbackBean.preDestroys);
-      
-      bean = null;
+      AOPDeployer deployer = new AOPDeployer("proxy/jboss-aop.xml");
+      try
+      {
+         // Bootstrap AOP
+         // FIXME: use the right jboss-aop.xml
+         log.info(deployer.deploy());
+         
+         // Bootstrap metadata
+         UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+         Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+         URL url = Thread.currentThread().getContextClassLoader().getResource("lifecycle/META-INF/ejb-jar.xml");
+         EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+         JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+         jbossMetaData.merge(null, metaData);
+         
+         JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("SessionBeanCallbackBean");
+         assertNotNull(beanMetaData);
+         
+         assertEquals(0, SessionBeanCallbackBean.postConstructs);
+         
+         MyContainer<SessionBeanCallbackBean> container = new MyContainer<SessionBeanCallbackBean>("SessionBeanCallbackBean", "Test", SessionBeanCallbackBean.class, beanMetaData);
+         
+         BeanContext<SessionBeanCallbackBean> bean = container.construct();
+         
+         assertEquals("SessionBeanCallbackBean ejbCreate must have been called once", 1, SessionBeanCallbackBean.postConstructs);
+         
+         container.destroy(bean);
+         assertEquals(1, SessionBeanCallbackBean.preDestroys);
+         
+         bean = null;
+      }
+      finally
+      {
+         log.info(deployer.undeploy());
+      }
+      log.info("======= Done");
    }
 }

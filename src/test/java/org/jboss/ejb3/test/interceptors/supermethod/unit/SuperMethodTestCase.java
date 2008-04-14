@@ -21,14 +21,10 @@
  */
 package org.jboss.ejb3.test.interceptors.supermethod.unit;
 
-import java.net.URL;
-import java.util.LinkedHashMap;
-
 import junit.framework.TestCase;
 
-import org.jboss.aop.AspectManager;
-import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
+import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeBean;
 import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeIF;
 import org.jboss.logging.Logger;
@@ -40,7 +36,7 @@ import org.jboss.logging.Logger;
  * the afterBegintTest defined in AroundInvokeBase must contain SessionSynchronizationInterceptor.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SuperMethodTestCase extends TestCase
 {
@@ -48,29 +44,37 @@ public class SuperMethodTestCase extends TestCase
 
    public void test1() throws Throwable
    {
+      log.info("======= SuperMethod.test1()");
       //AspectManager.verbose = true;
       
-      // TODO: During inventory surefire boots up BasicTestSuite
-      LinkedHashMap pointcuts = AspectManager.instance().getPointcuts();
-      if(!pointcuts.isEmpty())
-      {
-         //System.err.println("AspectManager still contains: " + pointcuts);
-         URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
-         AspectXmlLoader.undeployXML(url);
-      }
-      
-      // Bootstrap AOP
-      URL url = Thread.currentThread().getContextClassLoader().getResource("supermethod/jboss-aop.xml");
-      log.info("deploying AOP from " + url);
-      AspectXmlLoader.deployXML(url);
+//    // TODO: During inventory surefire boots up BasicTestSuite
+//    LinkedHashMap pointcuts = AspectManager.instance().getPointcuts();
+//    if(!pointcuts.isEmpty())
+//    {
+//       //System.err.println("AspectManager still contains: " + pointcuts);
+//       URL url = Thread.currentThread().getContextClassLoader().getResource("basic/jboss-aop.xml");
+//       AspectXmlLoader.undeployXML(url);
+//    }
 
-      Thread.currentThread().setContextClassLoader(AroundInvokeIF.class.getClassLoader());
-      
-      ProxyContainer<AroundInvokeBean> container = new ProxyContainer<AroundInvokeBean>("SuperMethodTestCase", "InterceptorContainer", AroundInvokeBean.class);
-      
-      Class<?> interfaces[] = { AroundInvokeIF.class };
-      AroundInvokeIF proxy = container.constructProxy(interfaces);
-      
-      proxy.afterBeginTest();
+      AOPDeployer deployer = new AOPDeployer("supermethod/jboss-aop.xml");
+      try
+      {
+         // Bootstrap AOP
+         log.info(deployer.deploy());
+
+         Thread.currentThread().setContextClassLoader(AroundInvokeIF.class.getClassLoader());
+         
+         ProxyContainer<AroundInvokeBean> container = new ProxyContainer<AroundInvokeBean>("SuperMethodTestCase", "InterceptorContainer", AroundInvokeBean.class);
+         
+         Class<?> interfaces[] = { AroundInvokeIF.class };
+         AroundInvokeIF proxy = container.constructProxy(interfaces);
+         
+         proxy.afterBeginTest();
+      }
+      finally
+      {
+         log.info(deployer.undeploy());
+      }
+      log.info("======= Done");
    }
 }
