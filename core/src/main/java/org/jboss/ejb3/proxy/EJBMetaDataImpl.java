@@ -24,10 +24,10 @@ package org.jboss.ejb3.proxy;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 
-import javax.ejb.HomeHandle;
-import javax.ejb.EJBMetaData;
-import javax.ejb.EJBHome;
 import javax.ejb.EJBException;
+import javax.ejb.EJBHome;
+import javax.ejb.EJBMetaData;
+import javax.ejb.HomeHandle;
 
 /**
  * An implementation of the EJBMetaData interface which allows a
@@ -36,6 +36,7 @@ import javax.ejb.EJBException;
  * @author  Rickard Oberg (rickard.oberg@telkel.com)
  * @author  <a href="mailto:marc.fleury@telkel.com">Marc Fleury</a>
  * @author  <a href="mailto:jason@planet57.com">Jason Dillon</a>
+ * @author  <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision$
  */
 public class EJBMetaDataImpl
@@ -45,9 +46,9 @@ public class EJBMetaDataImpl
    private static final long serialVersionUID = -3698855455664391097L;
 
    // Attributes ----------------------------------------------------
-   private final Class remote;
-   private final Class home;
-   private final Class pkClass;
+   private final Class<?> remote;
+   private final Class<?> home;
+   private final Class<?> pkClass;
 
    private final boolean session;
    private final boolean statelessSession;
@@ -59,9 +60,9 @@ public class EJBMetaDataImpl
     * Construct an <tt>EJBMetaDataImpl</tt>.
     * this should only be accessible from the factory.
     */
-   public EJBMetaDataImpl(final Class remote,
-         final Class home,
-         final Class pkClass,
+   public EJBMetaDataImpl(final Class<?> remote,
+         final Class<?> home,
+         final Class<?> pkClass,
          final boolean session,
          final boolean statelessSession,
          final HomeHandle homeHandle)
@@ -107,7 +108,7 @@ public class EJBMetaDataImpl
    /**
     * Obtain the Class object for the enterprise Bean's home interface.
     */
-   public Class getHomeInterfaceClass()
+   public Class<?> getHomeInterfaceClass()
    {
       return home;
    }
@@ -115,7 +116,7 @@ public class EJBMetaDataImpl
    /**
     * Obtain the Class object for the enterprise Bean's remote interface.
     */
-   public Class getRemoteInterfaceClass()
+   public Class<?> getRemoteInterfaceClass()
    {
       return remote;
    }
@@ -123,7 +124,7 @@ public class EJBMetaDataImpl
    /**
     * Obtain the Class object for the enterprise Bean's primary key class.
     */
-   public Class getPrimaryKeyClass()
+   public Class<?> getPrimaryKeyClass()
    {
       if (session == true)
          throw new RuntimeException("A session bean does not have a primary key class");

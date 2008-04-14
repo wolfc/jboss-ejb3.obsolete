@@ -441,9 +441,11 @@ public abstract class BaseSessionProxyFactory implements ProxyFactory, Externali
       
       EJBContainer ejbContainer = (EJBContainer)container;
       
-      Remote remoteAnnotation = ejbContainer.getAnnotation(Remote.class);
-      if (remoteAnnotation != null)
-         remote = remoteAnnotation.value()[0];
+      Class<?>[] remotes = ProxyFactoryHelper.getRemoteInterfaces(this.getContainer());
+      if (remotes != null && remotes.length > 0)
+      {
+         remote = remotes[0];
+      }
       RemoteHome homeAnnotation = ejbContainer.getAnnotation(RemoteHome.class);
       if (homeAnnotation != null)
          home = homeAnnotation.value();
