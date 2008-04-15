@@ -55,7 +55,6 @@ import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.lang.ClassHelper;
-import org.jboss.ejb3.metadata.JBossMessageDrivenBeanGenericWrapper;
 import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
@@ -64,14 +63,15 @@ import org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanGenericWrapper;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
-import org.jboss.wsf.spi.deployment.integration.WebServiceDeployment;
 import org.jboss.wsf.spi.deployment.integration.WebServiceDeclaration;
+import org.jboss.wsf.spi.deployment.integration.WebServiceDeployment;
 
 /**
  * An EjbModule represents a collection of beans that are deployed as a unit.
