@@ -52,6 +52,7 @@ import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.ejb3.entity.SecondLevelCacheUtil;
 import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
+import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.lang.ClassHelper;
 import org.jboss.ejb3.metadata.JBossMessageDrivenBeanGenericWrapper;
@@ -309,6 +310,31 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    protected String getJaccContextId()
    {
       return unit.getShortName();
+   }
+
+   /**
+    * Get the deployment ejb container for the given ejb name.
+    * 
+    * @param ejbName the deployment unique ejb name
+    * @return the ejb container if found, null otherwise
+    * @throws IllegalStateException if the ejbName cannot be used to
+    *    for the container name.
+    */
+   public EJBContainer getEjbContainerForEjbName(String ejbName)
+   {
+      String ejbObjectName = JavaEEComponentHelper.createObjectName(this, ejbName);
+      EJBContainer container = null;
+      ObjectName ejbON;
+      try
+      {
+         ejbON = new ObjectName(ejbObjectName);
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException("Failed to ", e);
+      }
+      container = (EJBContainer) ejbContainers.get(ejbON);
+      return container;
    }
 
    public Container getContainer(ObjectName name)
