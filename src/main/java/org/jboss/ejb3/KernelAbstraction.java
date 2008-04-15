@@ -33,7 +33,7 @@ import javax.management.MBeanServer;
  */
 public interface KernelAbstraction extends ClientKernelAbstraction
 {
-   public void install(String name, DependencyPolicy dependencies, Object service);
+   public void install(String name, DependencyPolicy dependencies, DeploymentUnit unit, Object service);
 
    public void uninstall(String name);
 

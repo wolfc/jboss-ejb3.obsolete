@@ -31,6 +31,7 @@ import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -78,6 +79,7 @@ public class EJB3StandaloneDeployer
       private Hashtable jndiProperties;
       private InterceptorInfoRepository interceptorInfoRepository;
       private VirtualFile vfsRoot;
+      private Map<String, Object> attachments = new HashMap<String, Object>();
 
       public DeployerUnit(ClassLoader loader, URL url, Map defaultProps, Hashtable jndiProperties)
       {
@@ -108,11 +110,30 @@ public class EJB3StandaloneDeployer
          this.interceptorInfoRepository = new InterceptorInfoRepository(loader);
       }
 
+      public Object addAttachment(String name, Object attachment)
+      {
+         return attachments.put(name, attachment);
+      }
+      public Object getAttachment(String name)
+      {
+         return attachments.get(name);
+      }
+      public Object removeAttachment(String name)
+      {
+         return attachments.remove(name);
+      }
+
       public VirtualFile getRootFile()
       {
          return vfsRoot;
       }
       
+      public String getRelativePath()
+      {
+         // There are only root deployments in standalone
+         return "";
+      }
+
       public URL getRelativeURL(String jar)
       {
          URL url = null;

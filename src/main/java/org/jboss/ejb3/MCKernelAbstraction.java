@@ -112,7 +112,8 @@ public class MCKernelAbstraction
       return false;
    }
    
-   public void install(String name, DependencyPolicy dependencies, Object service)
+   public void install(String name, DependencyPolicy dependencies,
+         DeploymentUnit unit, Object service)
    {
       AbstractBeanMetaData bean = new AbstractBeanMetaData(name, service.getClass().getName());
       bean.setConstructor(new AlreadyInstantiated(service));
@@ -162,7 +163,7 @@ public class MCKernelAbstraction
       try
       {
          server.registerMBean(service, on);
-         install(on.getCanonicalName(), dependencies, service);
+         install(on.getCanonicalName(), dependencies, null, service);
          
          // EJBTHREE-606: emulate the ServiceController calls
          MBeanInfo info = server.getMBeanInfo(on); // redundant call for speed

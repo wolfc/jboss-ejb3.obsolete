@@ -402,7 +402,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       String name = on.getCanonicalName();
       DependencyPolicy dependsPolicy = container.getDependencyPolicy();
       dependsPolicy.addDependency("jboss.ejb:service=EJBTimerService");
-      kernelAbstraction.install(name, dependsPolicy, container);
+      kernelAbstraction.install(name, dependsPolicy, unit, container);
       mbeanServer.registerMBean(container.getMBean(), on);
       log.debug("Bound ejb3 container " + name);
    }
@@ -686,7 +686,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
          {
             DependencyPolicy policy = createDependencyPolicy(entityDeployment);
             entityDeployment.addDependencies(policy);
-            kernelAbstraction.install(entityDeployment.getKernelName(), policy, entityDeployment);
+            kernelAbstraction.install(entityDeployment.getKernelName(), policy, unit, entityDeployment);
          }
       }
    }
