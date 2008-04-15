@@ -41,7 +41,6 @@ import javax.ejb.EJBMetaData;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
