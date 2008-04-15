@@ -97,7 +97,8 @@ public class StatefulInstanceInterceptor extends AbstractInterceptor
       {
          container.popContext();
          StatefulBeanContext.currentBean.pop();
-         ejb.setBeanContext(null);
+         // FIXME: the bean context should really be disaccociated, but then the StatefulRemoveInterceptor will fail
+         //ejb.setBeanContext(null);
          synchronized (target)
          {
             target.setInInvocation(false);
