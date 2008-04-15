@@ -83,7 +83,6 @@ import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
-import org.jboss.iiop.CorbaORBService;
 import org.jboss.injection.DependsHandler;
 import org.jboss.injection.EJBHandler;
 import org.jboss.injection.EncInjector;
@@ -272,7 +271,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    {
       try
       {
-         Util.rebind(getEnc(), "ORB", new LinkRef("java:/" + CorbaORBService.ORB_NAME));
+         Util.rebind(getEnc(), "ORB", new LinkRef("java:/JBossCorbaORB"));
       }
       catch(NamingException e)
       {
