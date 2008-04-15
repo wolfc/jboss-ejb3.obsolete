@@ -21,19 +21,12 @@
  */
 package org.jboss.ejb3.stateless;
 
-import java.io.Serializable;
-import java.security.Identity;
-import java.security.Principal;
-import java.util.Properties;
-
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.SessionContext;
-import javax.ejb.TimerService;
-import javax.transaction.UserTransaction;
-import javax.xml.rpc.handler.MessageContext;
+
+import org.jboss.ejb3.session.SessionBeanContext;
+import org.jboss.ejb3.session.SessionContextDelegateBase;
 
 /**
  * A session context that is serializable.
@@ -44,108 +37,40 @@ import javax.xml.rpc.handler.MessageContext;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: 68144 $
  */
-public class StatelessSessionContextImpl implements Serializable, SessionContext
+public class StatelessSessionContextImpl extends SessionContextDelegateBase<StatelessContainer>
+      implements
+         SessionContext
 {
-   private static final long serialVersionUID = 1L;
-
-   private transient SessionContext delegate;
-
-   public StatelessSessionContextImpl(StatelessBeanContext beanContext)
+   public StatelessSessionContextImpl(SessionBeanContext<StatelessContainer> beanContext)
    {
-      assert beanContext != null : "beanContext is null";
-
-      this.delegate = new StatelessSessionContextDelegate(beanContext);
+      super(beanContext);
    }
 
-   public <T> T getBusinessObject(Class<T> businessInterface) throws IllegalStateException
-   {
-      return getDelegate().getBusinessObject(businessInterface);
-   }
-
-   protected SessionContext getDelegate()
-   {
-      return delegate;
-   }
-
+   @Override
    public EJBLocalObject getEJBLocalObject() throws IllegalStateException
    {
-      return getDelegate().getEJBLocalObject();
+      try
+      {
+         EJBLocalObject proxy = (EJBLocalObject) container.createProxyLocalEjb21();
+         return proxy;
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException(e);
+      }
    }
 
+   @Override
    public EJBObject getEJBObject() throws IllegalStateException
    {
-      return getDelegate().getEJBObject();
-   }
-
-   public Class<?> getInvokedBusinessInterface() throws IllegalStateException
-   {
-      return getDelegate().getInvokedBusinessInterface();
-   }
-
-   public MessageContext getMessageContext() throws IllegalStateException
-   {
-      return getDelegate().getMessageContext();
-   }
-
-   @SuppressWarnings("deprecation")
-   public Identity getCallerIdentity()
-   {
-      return getDelegate().getCallerIdentity();
-   }
-
-   public Principal getCallerPrincipal()
-   {
-      return getDelegate().getCallerPrincipal();
-   }
-
-   public EJBHome getEJBHome()
-   {
-      return getDelegate().getEJBHome();
-   }
-
-   public EJBLocalHome getEJBLocalHome()
-   {
-      return getDelegate().getEJBLocalHome();
-   }
-
-   public Properties getEnvironment()
-   {
-      return getDelegate().getEnvironment();
-   }
-
-   public boolean getRollbackOnly() throws IllegalStateException
-   {
-      return getDelegate().getRollbackOnly();
-   }
-
-   public TimerService getTimerService() throws IllegalStateException
-   {
-      return getDelegate().getTimerService();
-   }
-
-   public UserTransaction getUserTransaction() throws IllegalStateException
-   {
-      return getDelegate().getUserTransaction();
-   }
-
-   @SuppressWarnings("deprecation")
-   public boolean isCallerInRole(Identity role)
-   {
-      return getDelegate().isCallerInRole(role);
-   }
-
-   public boolean isCallerInRole(String roleName)
-   {
-      return getDelegate().isCallerInRole(roleName);
-   }
-
-   public Object lookup(String name)
-   {
-      return getDelegate().lookup(name);
-   }
-
-   public void setRollbackOnly() throws IllegalStateException
-   {
-      getDelegate().setRollbackOnly();
+      try
+      {
+         EJBObject proxy = (EJBObject) container.createProxyRemoteEjb21();
+         return proxy;
+      }
+      catch (Exception e)
+      {
+         throw new IllegalStateException(e);
+      }
    }
 }
