@@ -64,6 +64,18 @@ public class JmxDeploymentScopeImpl implements DeploymentScope
       return deployments.get(relativeShortName);
    }
 
+   public EJBContainer getEjbContainer(Class businessIntf, String vfsContext)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   public EJBContainer getEjbContainer(String ejbLink, Class businessIntf, String vfsContext)
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public String getName()
    {
       return shortName;

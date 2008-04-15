@@ -68,7 +68,8 @@ public class JmxKernelAbstraction
    }
 
 
-   public void install(String name, DependencyPolicy dependencies, Object service)
+   public void install(String name, DependencyPolicy dependencies,
+         DeploymentUnit unit, Object service)
    {
       if (!(service instanceof ServiceMBeanSupport) && !(service instanceof DynamicMBean))
       {

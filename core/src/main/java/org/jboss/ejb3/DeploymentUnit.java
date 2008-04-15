@@ -38,11 +38,53 @@ import org.jboss.virtual.VirtualFileFilter;
  */
 public interface DeploymentUnit
 {
+   /**
+    * Add attachment
+    *
+    * @param name the name of the attachment
+    * @param attachment the attachment
+    * @return any previous attachment
+    * @throws IllegalArgumentException for a null name or attachment
+    * @throws UnsupportedOperationException when not supported by the implementation
+    */
+   Object addAttachment(String name, Object attachment);
+   /**
+    * Get attachment
+    * 
+    * @param name the name of the attachment
+    * @return the attachment or null if not present
+    * @throws IllegalArgumentException for a null name
+    */
+   Object getAttachment(String name);
+   /**
+    * Remove attachment
+    * 
+    * @param name the name of the attachment
+    * @return the attachment or null if not present
+    * @throws IllegalArgumentException for a null name
+    * @throws UnsupportedOperationException when not supported by the implementation
+    */
+   Object removeAttachment(String name);
+
    ClassLoader getClassLoader();
 
    ClassLoader getResourceLoader();
 
+   /**
+    * Get the file name of the deployment root (x.ejb).
+    * 
+    * @return the file name of the deployment root
+    */
    String getShortName();
+
+   /**
+    * Get the relative path of this deployment in the complete
+    * deployment structure. The root deployment relative path will
+    * have "". An ejb jar(x.jar) in an ear (z.ear) would have a
+    * relative path of "x.jar".
+    * @return
+    */
+   String getRelativePath();
 
    List<VirtualFile> getResources(VirtualFileFilter filter);
 

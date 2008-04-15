@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class JmxDeploymentUnit implements DeploymentUnit
    private DeploymentInfo deploymentInfo;
    InterceptorInfoRepository interceptorInfoRepository = new InterceptorInfoRepository(null);
    private VirtualFile vfsRoot;
+   private Map<String, Object> attachments = new HashMap<String, Object>();
 
    public JmxDeploymentUnit(DeploymentInfo deploymentInfo)
    {
@@ -70,11 +72,30 @@ public class JmxDeploymentUnit implements DeploymentUnit
       }
    }
 
+   public Object addAttachment(String name, Object attachment)
+   {
+      return attachments.put(name, attachment);
+   }
+   public Object getAttachment(String name)
+   {
+      return attachments.get(name);
+   }
+   public Object removeAttachment(String name)
+   {
+      return attachments.remove(name);
+   }
+
    public VirtualFile getRootFile()
    {
       return vfsRoot;
    }
    
+   public String getRelativePath()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
    public URL getRelativeURL(String jar)
    {
       URL url = null;

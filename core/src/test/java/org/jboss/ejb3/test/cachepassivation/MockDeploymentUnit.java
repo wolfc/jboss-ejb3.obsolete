@@ -40,6 +40,19 @@ import org.jboss.virtual.VirtualFileFilter;
 public class MockDeploymentUnit implements DeploymentUnit
 {
 
+   public Object addAttachment(String name, Object attachment)
+   {
+      return null;
+   }
+   public Object getAttachment(String name)
+   {
+      return null;
+   }
+   public Object removeAttachment(String name)
+   {
+      return null;
+   }
+
    /* (non-Javadoc)
     * @see org.jboss.ejb3.DeploymentUnit#getClassLoader()
     */
@@ -160,6 +173,12 @@ public class MockDeploymentUnit implements DeploymentUnit
     */
    public String getShortName()
    {
+      return null;
+   }
+
+   public String getRelativePath()
+   {
+      // TODO Auto-generated method stub
       return null;
    }
 
