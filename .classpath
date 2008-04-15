@@ -50,7 +50,6 @@
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-aspects/5.0.0-SNAPSHOT/jboss-as-aspects-5.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-bootstrap/5.0.0-SNAPSHOT/jboss-as-bootstrap-5.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-connector/5.0.0-SNAPSHOT/jboss-as-connector-5.0.0-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-iiop/5.0.0-SNAPSHOT/jboss-as-iiop-5.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-j2se/5.0.0-SNAPSHOT/jboss-as-j2se-5.0.0-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-j2se/5.0.0-SNAPSHOT/jboss-as-j2se-5.0.0-SNAPSHOT-tests.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-jmx/5.0.0-SNAPSHOT/jboss-as-jmx-5.0.0-SNAPSHOT.jar"/>
