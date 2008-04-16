@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry excluding="**/*.java" kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" output="target/tests-classes" path="src/test/java"/>
+	<classpathentry excluding="**/*.java" kind="src" output="target/tests-classes" path="src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/security/jboss-security-spi/2.0.2.Beta5/jboss-security-spi-2.0.2.Beta5.jar" sourcepath="M2_REPO/org/jboss/security/jboss-security-spi/2.0.2.Beta5/jboss-security-spi-2.0.2.Beta5-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar" sourcepath="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/security/jaas/1.0.01/jaas-1.0.01.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/security/jacc/1.0/jacc-1.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javassist/javassist/3.4.GA/javassist-3.4.GA.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/javassist/3.6.0.GA/javassist-3.6.0.GA.jar" sourcepath="M2_REPO/org/jboss/javassist/3.6.0.GA/javassist-3.6.0.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/aop/jboss-aop/2.0.0.CR7/jboss-aop-2.0.0.CR7.jar" sourcepath="M2_REPO/org/jboss/aop/jboss-aop/2.0.0.CR7/jboss-aop-2.0.0.CR7-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/aop/jboss-aop-aspects/2.0.0.CR7/jboss-aop-aspects-2.0.0.CR7.jar" sourcepath="M2_REPO/org/jboss/aop/jboss-aop-aspects/2.0.0.CR7/jboss-aop-aspects-2.0.0.CR7-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/aop/jboss-aop-jboss4-jdk50/2.0.0.CR8/jboss-aop-jboss4-jdk50-2.0.0.CR8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/aop/jboss-aop-jdk50/2.0.0.CR8/jboss-aop-jdk50-2.0.0.CR8.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/jbossas/jboss-as-security/5.0.0-SNAPSHOT/jboss-as-security-5.0.0-SNAPSHOT.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/jboss-common-core/2.2.5.GA/jboss-common-core-2.2.5.GA.jar" sourcepath="M2_REPO/org/jboss/jboss-common-core/2.2.5.GA/jboss-common-core-2.2.5.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jboss-common-logging-log4j/2.0.4.GA/jboss-common-logging-log4j-2.0.4.GA.jar" sourcepath="M2_REPO/jboss/jboss-common-logging-log4j/2.0.4.GA/jboss-common-logging-log4j-2.0.4.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jboss-common-logging-spi/2.0.4.GA/jboss-common-logging-spi-2.0.4.GA.jar" sourcepath="M2_REPO/jboss/jboss-common-logging-spi/2.0.4.GA/jboss-common-logging-spi-2.0.4.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-javaee/5.0.0.Beta3/jboss-javaee-5.0.0.Beta3.jar" sourcepath="M2_REPO/org/jboss/javaee/jboss-javaee/5.0.0.Beta3/jboss-javaee-5.0.0.Beta3-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jboss-logging-log4j/2.0.2.GA/jboss-logging-log4j-2.0.2.GA.jar" sourcepath="M2_REPO/jboss/jboss-logging-log4j/2.0.2.GA/jboss-logging-log4j-2.0.2.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging-log4j/2.0.5.GA/jboss-logging-log4j-2.0.5.GA.jar" sourcepath="M2_REPO/org/jboss/logging/jboss-logging-log4j/2.0.5.GA/jboss-logging-log4j-2.0.5.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/jboss/jboss-logging-spi/2.0.3.GA/jboss-logging-spi-2.0.3.GA.jar" sourcepath="M2_REPO/jboss/jboss-logging-spi/2.0.3.GA/jboss-logging-spi-2.0.3.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/logging/jboss-logging-spi/2.0.5.GA/jboss-logging-spi-2.0.5.GA.jar" sourcepath="M2_REPO/org/jboss/logging/jboss-logging-spi/2.0.5.GA/jboss-logging-spi-2.0.5.GA-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/jboss/security/jbosssx/2.0.2.Beta5/jbosssx-2.0.2.Beta5.jar" sourcepath="M2_REPO/org/jboss/security/jbosssx/2.0.2.Beta5/jbosssx-2.0.2.Beta5-sources.jar"/>
+        <classpathentry kind="var" path="M2_REPO/org/jboss/metadata/jboss-metadata/1.0.0-SNAPSHOT/jboss-metadata-1.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/jboss/metadata/jboss-metadata/1.0.0.Beta7/jboss-metadata-1.0.0.Beta7-sources.jar"/>
+        <classpathentry kind="var" path="M2_REPO/org/jboss/ejb3/jboss-ejb3-ext-api/0.3/jboss-ejb3-ext-api-0.3.jar"/>
+       <classpathentry kind="var" path="M2_REPO/org/jboss/ejb3/jboss-ejb3-ext-api-impl/0.3-SNAPSHOT/jboss-ejb3-ext-api-impl-0.3-SNAPSHOT.jar"/> 
+        <classpathentry kind="var" path="M2_REPO/org/jboss/ejb3/jboss-ejb3-metadata/0.12.1/jboss-ejb3-metadata-0.12.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar" sourcepath="M2_REPO/junit/junit/4.4/junit-4.4-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/apache-log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/apache-log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar" sourcepath="M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/cache"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/interceptors"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
