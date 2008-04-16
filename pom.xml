@@ -286,6 +286,14 @@
         <artifactId>jboss-aop-aspects</artifactId>
         <version>${version.org.jboss.aop_jboss-aop-aspects}</version>
       </dependency>
+
+      <!-- Aspects Commons -->
+      <dependency>
+        <groupId>org.jboss.aspects</groupId>
+        <artifactId>jboss-aspects-common</artifactId>
+        <version>0.1-SNAPSHOT</version>
+        <scope>test</scope>
+      </dependency>
       
       <dependency>
         <groupId>org.jboss.javaee</groupId>
