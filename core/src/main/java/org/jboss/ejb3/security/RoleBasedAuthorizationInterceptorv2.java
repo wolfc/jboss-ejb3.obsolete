@@ -40,6 +40,7 @@ import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.security.helpers.AuthorizationHelper;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.remoting.InvokerLocator;
@@ -48,8 +49,7 @@ import org.jboss.security.NobodyPrincipal;
 import org.jboss.security.RunAs;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.integration.ejb.EJBAuthorizationHelper;
+import org.jboss.security.SimplePrincipal; 
 
 /**
  * The RoleBasedAuthorizationInterceptor checks that the caller principal is
@@ -137,7 +137,7 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
       
       try
       {
-         SecurityDomain domain = (SecurityDomain)container.resolveAnnotation(SecurityDomain.class);
+         SecurityDomain domain = (SecurityDomain)container.getAnnotation(SecurityDomain.class);
          
          boolean domainExists = domain != null && domain.value() != null 
          && domain.value().length() > 0;
@@ -175,7 +175,7 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
             
             RunAs callerRunAs = SecurityActions.peekRunAs();
             
-            EJBAuthorizationHelper helper = new EJBAuthorizationHelper(sc);
+            AuthorizationHelper helper = new AuthorizationHelper(sc);
             boolean isAuthorized = helper.authorize(ejbName, 
                              mi.getMethod(), 
                              sc.getUtil().getUserPrincipal(), 

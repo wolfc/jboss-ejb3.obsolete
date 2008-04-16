@@ -32,14 +32,11 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.security.helpers.AuthenticationHelper;
 import org.jboss.logging.Logger;
-import org.jboss.security.RunAs;
+import org.jboss.security.ISecurityManagement;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityUtil;
-import org.jboss.security.integration.JNDIBasedSecurityManagement;
-import org.jboss.security.integration.ejb.EJBAuthenticationHelper;
-
-//$Id$
 
 /**
  *  Authentication Interceptor
@@ -116,10 +113,10 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          SecurityActions.setSecurityContext(sc);
             
          //TODO: Need to get the SecurityManagement instance
-         sc.setSecurityManagement(new JNDIBasedSecurityManagement());
+         sc.setSecurityManagement(getSecurityManagement());
            
          //Check if there is a RunAs configured and can be trusted 
-         EJBAuthenticationHelper helper = new EJBAuthenticationHelper(sc);
+         AuthenticationHelper helper = new AuthenticationHelper(sc);
          boolean trustedCaller = helper.isTrusted();
          if(!trustedCaller)
          {
@@ -166,4 +163,14 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
       SecurityActions.setSubjectInfo(to, from.getSubjectInfo());
       SecurityActions.setIncomingRunAs(to, from.getOutgoingRunAs());
    }
+   
+   /**
+    * TODO: This needs to be injectable
+    * @return
+    * @throws Exception 
+    */
+   private ISecurityManagement getSecurityManagement() throws Exception
+   {
+      Class<?> clazz = SecurityActions.loadClass("org.jboss.security.integration.JNDIBasedSecurityManagement");
+      return (ISecurityManagement) clazz.newInstance();    }
 }

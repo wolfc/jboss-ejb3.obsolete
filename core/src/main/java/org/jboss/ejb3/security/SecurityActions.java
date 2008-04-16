@@ -392,4 +392,16 @@ class SecurityActions
          } 
       });
    } 
+   
+   static Class<?> loadClass(final String fqn) throws PrivilegedActionException
+   {
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<Class<?>>()
+      { 
+         public Class<?> run() throws Exception
+         {
+            ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+            return tcl.loadClass(fqn); 
+         }
+      });
+   }
 }
