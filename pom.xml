@@ -118,7 +118,7 @@
           <showWarnings>true</showWarnings>
           <optimize>true</optimize>
           <compilerVersion>1.5</compilerVersion>
-          <fork>false</fork>
+          <fork>true</fork>
         </configuration>
       </plugin>
 
