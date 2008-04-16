@@ -48,8 +48,7 @@ import org.jboss.ejb3.test.security.StatefulSession;
 import org.jboss.ejb3.test.security.StatelessSession;
 import org.jboss.logging.Logger;
 import org.jboss.security.SimplePrincipal;
-import org.jboss.security.auth.login.XMLLoginConfigImpl;
-import org.jboss.security.plugins.JaasSecurityManagerServiceMBean;
+import org.jboss.security.auth.login.XMLLoginConfigImpl; 
 import org.jboss.test.JBossTestCase;
 
 
@@ -88,6 +87,8 @@ protected void tearDown() throws Exception
 public void testSecurityDomain() throws Exception
 {
    log.info("+++ testSecurityDomain, domain=spec-test");
+   fail("THINK ABOUT THE AS DEPENDENCIES");
+   /**
    MBeanServerConnection conn = (MBeanServerConnection) getServer();
    ObjectName secMgrName = new ObjectName("jboss.security:service=JaasSecurityManager");
    JaasSecurityManagerServiceMBean secMgr = (JaasSecurityManagerServiceMBean)
@@ -133,6 +134,7 @@ public void testSecurityDomain() throws Exception
 
    isValid = secMgr.isValid(domain, user, "badpass".toCharArray());
    assertTrue("badpass is an invalid password for scott", isValid == false);
+   */
 }
 
 /** Test that:

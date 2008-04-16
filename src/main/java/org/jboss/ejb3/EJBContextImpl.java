@@ -43,6 +43,7 @@ import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.security.helpers.AuthorizationHelper;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.logging.Logger;
@@ -52,8 +53,6 @@ import org.jboss.security.RealmMapping;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRoleRef;
 import org.jboss.security.SimplePrincipal;
-import org.jboss.security.integration.ejb.EJBAuthorizationHelper;
-import org.jboss.security.plugins.SecurityContextAssociation;
 
 /**
  * EJB3 Enterprise Context Implementation
@@ -169,7 +168,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
          
          RealmMapping rm = container.getSecurityManager(RealmMapping.class); 
          
-         SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+         SecurityContext sc = SecurityActions.getSecurityContext();
          if(sc == null)
          {
             SecurityDomain domain =(SecurityDomain)ec.resolveAnnotation(SecurityDomain.class);
@@ -180,7 +179,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
          }
          else
          {
-            EJBAuthorizationHelper helper = new EJBAuthorizationHelper(sc); 
+            AuthorizationHelper helper = new AuthorizationHelper(sc); 
             callerPrincipal = helper.getCallerPrincipal(rm); 
          }
          
@@ -220,7 +219,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    public boolean isCallerInRole(String roleName)
    {
       EJBContainer ejbc = (EJBContainer)container;
-      SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+      SecurityContext sc = SecurityActions.getSecurityContext();
       if(sc == null)
       {
          SecurityDomain domain =(SecurityDomain)ejbc.resolveAnnotation(SecurityDomain.class);
@@ -250,62 +249,13 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
          srset.add(new SecurityRoleRef(srmd.getRoleName(),srmd.getRoleLink(),null));
       }
       Principal principal = getCallerPrincipal();
-      EJBAuthorizationHelper helper = new EJBAuthorizationHelper(sc);
+      AuthorizationHelper helper = new AuthorizationHelper(sc);
       return helper.isCallerInRole(roleName, 
                                    ejbc.getEjbName(), 
                                    principal, 
                                    srset);
    }
-
-   /*public boolean isCallerInRole(String roleName)
-   {
-      // TODO revert to aspects.security.SecurityContext impl when JBoss AOP 1.1 is out.
-      Principal principal = getCallerPrincipal();
-      
-      // Check the caller of this beans run-as identity
-      // todo use priveleged stuff in ejb class
-      RunAsIdentity runAsIdentity = SecurityActions.peekRunAsIdentity(1);
-
-      if (principal == null && runAsIdentity == null)
-         return false;
-
-      if (getRm() == null)
-      {
-         String msg = "isCallerInRole() called with no security context. "
-                      + "Check that a security-domain has been set for the application.";
-         throw new IllegalStateException(msg);
-      }
-      
-      //Ensure that you go through the security role references that may be configured
-      EJBContainer ejbc = (EJBContainer)container;
-      if(ejbc.getXml() != null)
-      {
-         Collection<SecurityRoleRef> securityRoleRefs = ejbc.getXml().getSecurityRoleRefs();
-         for(SecurityRoleRef roleRef: securityRoleRefs)
-         {
-            String refName = roleRef.getRoleName(); 
-            if(roleName.equals(refName))
-               roleName = roleRef.getRoleLink();
-         } 
-      } 
-
-      HashSet set = new HashSet();
-      set.add(new SimplePrincipal(roleName));
-
-      // This is work in progress - currently, getRm().doesUserHaveRole(principal, set)
-      // and getRm().getUserRoles(principal) ignores the principal parameter and is not
-      // using the principal from the pushed RunAsIdentity
-      boolean doesUserHaveRole = false;
-      if (runAsIdentity != null)
-         doesUserHaveRole = runAsIdentity.doesUserHaveRole(set);
-       
-      if (!doesUserHaveRole)
-         doesUserHaveRole = getRm().doesUserHaveRole(principal, set);
-      
-      java.util.Set roles = getRm().getUserRoles(principal);
-    
-      return doesUserHaveRole;
-   }*/
+ 
 
    public TimerService getTimerService() throws IllegalStateException
    {

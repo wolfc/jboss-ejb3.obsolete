@@ -24,12 +24,12 @@ package org.jboss.ejb3.embedded;
 
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.naming.BrainlessContext;
+import org.jboss.ejb3.security.embedded.plugins.SecurityDomainContext;
 import org.jboss.logging.Logger;
 import org.jboss.security.auth.callback.SecurityAssociationHandler;
 import org.jboss.security.auth.login.XMLLoginConfigImpl;
 import org.jboss.security.plugins.JBossAuthorizationManager;
-import org.jboss.security.plugins.JaasSecurityManager;
-import org.jboss.security.plugins.SecurityDomainContext;
+import org.jboss.security.plugins.auth.JaasSecurityManagerBase; 
 
 import javax.naming.*;
 import javax.naming.spi.ObjectFactory;
@@ -44,11 +44,12 @@ import java.util.Map;
 public class JaasSecurityManagerService
 {
    @SuppressWarnings("unused")
-   private static final Logger log = Logger.getLogger(JaasSecurityManager.class);
+   private static final Logger log = Logger.getLogger(JaasSecurityManagerBase.class);
 
    private static final String SECURITY_MGR_PATH = "java:/jaas";
 
-   private static Map<String, JaasSecurityManager> cache = new HashMap<String, JaasSecurityManager>();
+   private static Map<String, JaasSecurityManagerBase> cache = 
+	   new HashMap<String, JaasSecurityManagerBase>();
 
    private Hashtable initialContextProperties;
 
@@ -82,9 +83,9 @@ public class JaasSecurityManagerService
       ctx.rebind(SECURITY_MGR_PATH, ref);
    }
 
-   private static JaasSecurityManager getSecurityManager(String name)
+   private static JaasSecurityManagerBase getSecurityManager(String name)
    {
-      JaasSecurityManager manager = cache.get(name);
+	   JaasSecurityManagerBase manager = cache.get(name);
       if (manager != null)
       {
          //log.info("cache hit");
@@ -95,7 +96,7 @@ public class JaasSecurityManagerService
          if (manager != null)
             return manager;
 
-         manager = new JaasSecurityManager(name, new SecurityAssociationHandler());
+         manager = new JaasSecurityManagerBase(name, new SecurityAssociationHandler());
          cache.put(name, manager);
       }
       return manager;
