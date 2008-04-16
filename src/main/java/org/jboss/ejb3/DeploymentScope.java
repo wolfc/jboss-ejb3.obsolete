@@ -23,6 +23,8 @@ package org.jboss.ejb3;
 
 import java.util.Collection;
 
+import javax.naming.NameNotFoundException;
+
 import org.jboss.ejb3.javaee.JavaEEApplication;
 
 /**
@@ -44,6 +46,23 @@ public interface DeploymentScope extends JavaEEApplication
     * @return
     */
    Ejb3Deployment findRelativeDeployment(String relativeName);
+   /**
+    * Obtain the EJBContainer best matching the business interface
+    * @param businessIntf - the business interface to match
+    * @param vfsContext - the vfs path to the deploment initiating the request
+    * @return the matching EJBContainer if found, null otherwise.
+    */
+   EJBContainer getEjbContainer(Class businessIntf, String vfsContext)
+      throws NameNotFoundException;
+   /**
+    * Obtain the EJBContainer best matching the business interface
+    * @param ejbLink - the referencing ejb-link
+    * @param businessIntf - the business interface to match
+    * @param vfsContext - the vfs path to the deploment initiating the request
+    * @return the matching EJBContainer if found, null otherwise.
+    */
+   EJBContainer getEjbContainer(String ejbLink, Class businessIntf, String vfsContext);
+
    String getShortName();
    String getBaseName();
 }
