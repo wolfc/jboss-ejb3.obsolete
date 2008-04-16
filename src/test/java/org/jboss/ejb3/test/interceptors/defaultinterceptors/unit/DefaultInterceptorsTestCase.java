@@ -42,6 +42,8 @@ import org.jboss.ejb3.test.interceptors.defaultinterceptors.ClassInterceptor;
 import org.jboss.ejb3.test.interceptors.defaultinterceptors.DefaultInterceptor;
 import org.jboss.ejb3.test.interceptors.defaultinterceptors.Interceptions;
 import org.jboss.ejb3.test.interceptors.defaultinterceptors.MethodInterceptor;
+import org.jboss.ejb3.test.interceptors.defaultinterceptors.XMLBean;
+import org.jboss.ejb3.test.interceptors.defaultinterceptors.XMLOrderedBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -142,32 +144,58 @@ public class DefaultInterceptorsTestCase extends TestCase
       JBoss50MetaData jbossMetaData = new JBoss50MetaData();
       jbossMetaData.merge(null, metaData);
       
-      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("AnnotatedBean");
-      assertNotNull(beanMetaData);
-      
-      MyContainer<AnnotatedBean> container = new MyContainer<AnnotatedBean>("AnnotatedBean", "Test", AnnotatedBean.class, beanMetaData);
-      container.testAdvisor();
-      
-      BeanContext<AnnotatedBean> bean = container.construct();
+      JBossEnterpriseBeanMetaData annotatedBeanMetaData = jbossMetaData.getEnterpriseBean("AnnotatedBean");
+      assertNotNull(annotatedBeanMetaData);
+      MyContainer<AnnotatedBean> annotatedBeanContainer = new MyContainer<AnnotatedBean>("AnnotatedBean", "Test", AnnotatedBean.class, annotatedBeanMetaData);
+      annotatedBeanContainer.testAdvisor();
+      BeanContext<AnnotatedBean> annotatedBean = annotatedBeanContainer.construct();
+
+      JBossEnterpriseBeanMetaData xmlBeanMetaData = jbossMetaData.getEnterpriseBean("XMLBean");
+      assertNotNull(xmlBeanMetaData);
+      MyContainer<XMLBean> xmlBeanContainer = new MyContainer<XMLBean>("XMLBean", "Test", XMLBean.class, xmlBeanMetaData);
+      xmlBeanContainer.testAdvisor();
+      BeanContext<XMLBean> xmlBean = xmlBeanContainer.construct();
+
+      JBossEnterpriseBeanMetaData xmlOrderedBeanMetaData = jbossMetaData.getEnterpriseBean("XMLOrderedBean");
+      assertNotNull(xmlOrderedBeanMetaData);
+      MyContainer<XMLOrderedBean> xmlOrderedBeanContainer = new MyContainer<XMLOrderedBean>("XMLOrderedBean", "Test", XMLOrderedBean.class, xmlOrderedBeanMetaData);
+      xmlOrderedBeanContainer.testAdvisor();
+      BeanContext<XMLOrderedBean> xmlOrderedBean = xmlOrderedBeanContainer.construct();
 
       Interceptions.clear();
-      container.invoke(bean, "defaultOrderMethod", new Object[0]);
+      annotatedBeanContainer.invoke(annotatedBean, "defaultOrderMethod", new Object[0]);
       ArrayList<Class<?>> interceptions = Interceptions.getInterceptions();
-      assertEquals(4, interceptions.size());
+      assertEquals("Interceptions were " + interceptions, 4, interceptions.size());
       assertEquals(DefaultInterceptor.class, interceptions.get(0));
       assertEquals(ClassInterceptor.class, interceptions.get(1));
       assertEquals(MethodInterceptor.class, interceptions.get(2));
       assertEquals(AnnotatedBean.class, interceptions.get(3));
       
-
       Interceptions.clear();
-      container.invoke(bean, "xmlOrderedMethod", new Object[0]);
+      annotatedBeanContainer.invoke(annotatedBean, "xmlOrderedMethod", new Object[0]);
       interceptions = Interceptions.getInterceptions();
-      assertEquals(4, interceptions.size());      
+      assertEquals("Interceptions were " + interceptions, 4, interceptions.size());      
       assertEquals(MethodInterceptor.class, interceptions.get(0));
       assertEquals(ClassInterceptor.class, interceptions.get(1));
       assertEquals(DefaultInterceptor.class, interceptions.get(2));
       assertEquals(AnnotatedBean.class, interceptions.get(3));
+      
+      Interceptions.clear();
+      xmlBeanContainer.invoke(xmlBean, "method", new Object[0]);
+      interceptions = Interceptions.getInterceptions();
+      assertEquals("Interceptions were " + interceptions, 3, interceptions.size());
+      assertEquals(DefaultInterceptor.class, interceptions.get(0));
+      assertEquals(ClassInterceptor.class, interceptions.get(1));
+      assertEquals(XMLBean.class, interceptions.get(2));
+      
+      Interceptions.clear();
+      xmlOrderedBeanContainer.invoke(xmlOrderedBean, "method", new Object[0]);
+      interceptions = Interceptions.getInterceptions();
+      assertEquals("Interceptions were " + interceptions, 3, interceptions.size());      
+      assertEquals(ClassInterceptor.class, interceptions.get(0));
+      assertEquals(DefaultInterceptor.class, interceptions.get(1));
+      assertEquals(XMLOrderedBean.class, interceptions.get(2));
+      
       
       log.info("======= Done");
    }

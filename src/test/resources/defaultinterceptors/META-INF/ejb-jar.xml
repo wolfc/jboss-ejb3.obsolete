@@ -9,9 +9,21 @@
     <!-- Must define a bean here, because we have no annotation on it -->
     <!-- (Can't use @Stateless within ejb3-interceptors) -->
     <enterprise-beans>
-    	<session>
-    		<ejb-name>AnnotatedBean</ejb-name>
-    	</session>
+      <session>
+         <ejb-name>AnnotatedBean</ejb-name>
+      </session>
+      <session>
+         <ejb-name>XMLBean</ejb-name>
+         <around-invoke>
+            <method-name>aroundInvoke</method-name>
+         </around-invoke>
+      </session>
+      <session>
+         <ejb-name>XMLOrderedBean</ejb-name>
+         <around-invoke>
+            <method-name>aroundInvoke</method-name>
+         </around-invoke>
+      </session>
     </enterprise-beans>
     <assembly-descriptor>
       <interceptor-binding>
@@ -28,6 +40,17 @@
          <method>
             <method-name>xmlOrderedMethod</method-name>
          </method>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XMLBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.defaultinterceptors.ClassInterceptor</interceptor-class>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XMLOrderedBean</ejb-name>
+         <interceptor-order>
+            <interceptor-class>org.jboss.ejb3.test.interceptors.defaultinterceptors.ClassInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors.defaultinterceptors.DefaultInterceptor</interceptor-class>
+         </interceptor-order>
       </interceptor-binding>
     </assembly-descriptor>
 </ejb-jar>
