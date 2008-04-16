@@ -122,8 +122,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected DeploymentScope deploymentScope;
 
-   protected EjbModuleEjbResolver ejbRefResolver;
-
    protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
 
    protected MessageDestinationResolver messageDestinationResolver;
@@ -152,7 +150,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       {
          throw new RuntimeException(e);
       }
-      ejbRefResolver = new EjbModuleEjbResolver(deploymentScope, unit.getShortName(), ejbContainers, this);
       persistenceUnitResolver = new EjbModulePersistenceUnitResolver(persistenceUnitDeployments, deploymentScope,
             ejbContainers);
       MessageDestinationsMetaData destinations = null;
@@ -362,29 +359,32 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       return persistenceUnitDeployments;
    }
 
+
    public EJBContainer getEjbContainer(String ejbLink, Class businessIntf)
    {
-      return ejbRefResolver.getEjbContainer(ejbLink, businessIntf);
+      String relativePath = unit.getRelativePath();
+      EJBContainer container = deploymentScope.getEjbContainer(ejbLink, businessIntf, relativePath);
+      return container;
    }
 
    public String getEjbJndiName(String ejbLink, Class businessIntf)
    {
-      return ejbRefResolver.getEjbJndiName(ejbLink, businessIntf);
+      EJBContainer container = getEjbContainer(ejbLink, businessIntf);
+      String jndiName = ProxyFactoryHelper.getJndiName(container, businessIntf);
+      return jndiName;
    }
-
-   public EJBContainer getEjbContainer(Ejb3Deployment deployment, Class businessIntf) throws NameNotFoundException
+   public String getEjbJndiName(Class businessIntf)
+      throws NameNotFoundException
    {
-      return ejbRefResolver.getEjbContainer(deployment, businessIntf);
+      EJBContainer container = getEjbContainer(businessIntf);
+      String jndiName = ProxyFactoryHelper.getJndiName(container, businessIntf);
+      return jndiName;
    }
 
    public EJBContainer getEjbContainer(Class businessIntf) throws NameNotFoundException
    {
-      return ejbRefResolver.getEjbContainer(businessIntf);
-   }
-
-   public String getEjbJndiName(Class businessIntf) throws NameNotFoundException
-   {
-      return ejbRefResolver.getEjbJndiName(businessIntf);
+      String relativePath = unit.getRelativePath();
+      return deploymentScope.getEjbContainer(businessIntf, relativePath);
    }
 
    protected void processEJBContainerMetadata(Container container) throws Exception
