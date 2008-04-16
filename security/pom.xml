@@ -25,18 +25,61 @@
 
   <dependencies>
 
+    <!-- JBoss Security SPI -->
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jboss-security-spi</artifactId>
+      <version>2.0.2.Beta5</version>
+    </dependency>
+
+    <!-- JBoss Security Impl -->
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbosssx</artifactId>
+      <version>2.0.2.Beta5</version>
+    </dependency>
+
     <!-- EJB3 API -->
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>
 
-    <!-- GNU Trove -->
+    <!-- JACC API -->
     <dependency>
-      <groupId>trove</groupId>
-      <artifactId>trove</artifactId>
-      <scope>runtime</scope>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jacc-api</artifactId>
     </dependency>
+
+   <dependency>
+     <groupId>org.jboss.ejb3</groupId>
+     <artifactId>jboss-ejb3-ext-api</artifactId>
+     <version>0.3</version>
+   </dependency>
+   <dependency>
+     <groupId>org.jboss.ejb3</groupId>
+     <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+     <version>0.3-SNAPSHOT</version>
+   </dependency>
+
+   <!-- JBoss AOP -->
+   <dependency>
+     <groupId>org.jboss.aop</groupId>
+     <artifactId>jboss-aop</artifactId>
+   </dependency>
+
+   <!-- JBoss MetaData -->
+   <dependency>
+     <groupId>org.jboss.metadata</groupId>
+     <artifactId>jboss-metadata</artifactId>
+   </dependency>
+
+   <!-- EJB3 Metadata -->
+   <dependency>
+     <groupId>org.jboss.ejb3</groupId>
+     <artifactId>jboss-ejb3-metadata</artifactId>
+     <version>0.12.1</version>
+   </dependency>
 
     <!-- JBoss Common Core -->
     <dependency>
