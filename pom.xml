@@ -35,6 +35,7 @@
   <!-- Aggregate Modules -->
   <modules>
     <module>build</module>
+    <module>security</module>
     <module>core</module>
     <module>cache</module>
     <module>ext-api</module>
