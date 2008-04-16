@@ -77,8 +77,11 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          return;
 
       String mappedName = ref.getMappedName();
-     
-      if (mappedName != null && mappedName.equals("")) mappedName = null;
+      if (mappedName != null && mappedName.equals(""))
+         mappedName = null;
+      // See if the name has been resolved externally
+      if(mappedName == null && ref.getResolvedJndiName() != null)
+         mappedName = ref.getResolvedJndiName();
 
       String link = ref.getLink();
       if (link != null && link.trim().equals("")) link = null;
