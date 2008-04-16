@@ -177,11 +177,6 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
    protected void innerStart() throws Exception
    {
       log.debug("Initializing");
-
-      /*  See forum thread: http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4032454#4032454
-      if (getResourceAdaptorName().equals(JMS_ADAPTOR))
-         jmsCreate();
-         */
    }
 
    public ObjectName getJmxName()
@@ -359,51 +354,6 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
       if (property != null)
          return property.getValue();
       return null;
-   }
-
-   protected void jmsCreate() throws Exception
-   {
-      //    Get the JMS provider
-      // todo get rid of server module dependency
-      JMSProviderAdapter adapter = getJMSProviderAdapter();
-      log.debug("Provider adapter: " + adapter);
-  
-      // Connect to the JNDI server and get a reference to root context
-      Context context = adapter.getInitialContext();
-      log.debug("context: " + context);
-
-      // if we can't get the root context then exit with an exception
-      if (context == null)
-      {
-         throw new RuntimeException("Failed to get the root context");
-      }
-
-      // Unfortunately the destination is optional, so if we do not have one
-      // here we have to look it up if we have a destinationJNDI, else give it
-      // a default.
-      String destinationType = getDestinationType();
-      if (destinationType == null)
-      {
-         log.warn("No message-driven-destination given; using; guessing type");
-         destinationType = getDestinationType(context, getDestination());
-      }
-
-      if ("javax.jms.Topic".equals(destinationType))
-      {
-         innerCreateTopic(context);
-
-      }
-      else if ("javax.jms.Queue".equals(destinationType))
-      {
-         innerCreateQueue(context);
-
-      }
-      else
-         throw new DeploymentException("Unknown destination-type " + destinationType);
-
-      log.debug("Initialized with config " + toString());
-
-      context.close();
    }
    
    protected void innerCreateQueue(Context context)
