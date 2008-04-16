@@ -25,8 +25,8 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.ejbthree1215.GetMethodInterceptor;
 import org.jboss.ejb3.test.interceptors.ejbthree1215.Hello;
 import org.jboss.ejb3.test.interceptors.ejbthree1215.HelloBean;

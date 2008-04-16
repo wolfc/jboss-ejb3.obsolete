@@ -25,10 +25,10 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.direct.DirectBean;
 import org.jboss.ejb3.test.interceptors.direct.DirectInterceptor;
 import org.jboss.ejb3.test.interceptors.direct.DirectMethodInterceptor;

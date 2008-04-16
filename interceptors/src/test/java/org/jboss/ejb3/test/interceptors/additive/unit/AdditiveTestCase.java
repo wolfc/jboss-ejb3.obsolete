@@ -27,6 +27,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
@@ -37,7 +38,6 @@ import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.interceptors.additive.MyInterceptor;
 import org.jboss.ejb3.test.interceptors.additive.MySessionBean;
 import org.jboss.ejb3.test.interceptors.additive.XMLInterceptor;
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
