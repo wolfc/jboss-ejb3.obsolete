@@ -23,8 +23,8 @@ package org.jboss.ejb3.test.interceptors.supermethod.unit;
 
 import junit.framework.TestCase;
 
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeBean;
 import org.jboss.ejb3.test.interceptors.supermethod.AroundInvokeIF;
 import org.jboss.logging.Logger;

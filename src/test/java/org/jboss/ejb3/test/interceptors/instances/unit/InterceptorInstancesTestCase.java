@@ -23,8 +23,8 @@ package org.jboss.ejb3.test.interceptors.instances.unit;
 
 import junit.framework.TestCase;
 
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.interceptors.proxy.ProxyContainer;
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.instances.SimpleBean;
 import org.jboss.ejb3.test.interceptors.instances.StatefulInterceptor;
 import org.jboss.ejb3.test.interceptors.instances.StatefulInterceptorInterface;

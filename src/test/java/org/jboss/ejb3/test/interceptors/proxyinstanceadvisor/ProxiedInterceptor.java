@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.test.interceptors.proxyinstanceadvisor;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 

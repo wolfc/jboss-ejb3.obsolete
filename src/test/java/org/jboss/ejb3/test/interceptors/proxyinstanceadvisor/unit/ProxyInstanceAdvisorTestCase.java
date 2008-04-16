@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.unit;
 
 import junit.framework.TestCase;
 
-import org.jboss.ejb3.test.interceptors.common.AOPDeployer;
+import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.Interceptions;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.MyInterface;
 import org.jboss.ejb3.test.interceptors.proxyinstanceadvisor.PerInstanceInterceptor;
