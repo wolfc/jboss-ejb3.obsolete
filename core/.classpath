@@ -149,6 +149,7 @@
 	<classpathentry kind="var" path="M2_REPO/apache-xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.7.1/xml-apis-2.7.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/cache"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/security"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/interceptors"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
