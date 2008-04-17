@@ -24,6 +24,7 @@
       <includes>
         <include>ant-contrib:ant-contrib</include>
         <include>org.jboss.ejb3:jboss-ejb3-cache</include>
+        <include>org.jboss.ejb3:jboss-ejb3-security</include>
         <include>org.jboss.ejb3:jboss-ejb3-core:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api-impl</include>
