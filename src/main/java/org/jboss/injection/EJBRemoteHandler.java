@@ -35,6 +35,8 @@ import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.IgnoreDependency;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.javaee.spec.AbstractEJBReferenceMetaData;
+import org.jboss.metadata.javaee.spec.AnnotatedEJBReferenceMetaData;
+import org.jboss.metadata.javaee.spec.AnnotatedEJBReferencesMetaData;
 import org.jboss.metadata.javaee.spec.EJBReferenceMetaData;
 import org.jboss.metadata.javaee.spec.RemoteEnvironment;
 
@@ -79,7 +81,6 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       String mappedName = ref.getMappedName();
       if (mappedName != null && mappedName.equals(""))
          mappedName = null;
-      // See if the name has been resolved externally
       if(mappedName == null && ref.getResolvedJndiName() != null)
          mappedName = ref.getResolvedJndiName();
 
@@ -109,7 +110,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       }
       else
       {
-         ejbRefEncInjector(mappedName, encName, refClass, link, errorType, container);
+         ejbRefEncInjector(mappedName, encName, null, refClass, link, errorType, container);
          if (ref.getIgnoreDependency() != null)
          {
             log.debug("IGNORING <ejb-ref> DEPENDENCY: " + encName);
@@ -150,10 +151,26 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       }
    }
 
-   protected void ejbRefEncInjector(String mappedName, String encName, Class refClass, String link, String errorType, InjectionContainer container)
+   protected void ejbRefEncInjector(String mappedName, String encName, String fieldName, Class refClass, String link, String errorType, InjectionContainer container)
    {
-      if (refClass != null && (refClass.equals(Object.class) || refClass.equals(void.class))) refClass = null;
-      if (mappedName != null && mappedName.trim().equals("")) mappedName = null;
+      if (refClass != null && (refClass.equals(Object.class) || refClass.equals(void.class)))
+         refClass = null;
+      if (mappedName != null && mappedName.trim().equals(""))
+         mappedName = null;
+      if (mappedName == null)
+      {
+         //
+         AnnotatedEJBReferencesMetaData amds = container.getEnvironmentRefGroup().getAnnotatedEjbReferences();
+         AnnotatedEJBReferenceMetaData amd = amds.get(encName);
+         if(amd == null)
+            amd = amds.get(fieldName);
+         if(amd != null)
+         {
+            mappedName = amd.getMappedName();
+            if(mappedName == null)
+               mappedName = amd.getResolvedJndiName();
+         }
+      }
 
       EncInjector injector = null;
       
@@ -277,7 +294,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       encName = "env/" + encName;
 
       if (container.getEncInjectors().containsKey(encName)) return;
-      ejbRefEncInjector(ejb.mappedName(), encName, ejb.beanInterface(), ejb.beanName(), "@EJB", container);
+      ejbRefEncInjector(ejb.mappedName(), encName, null, ejb.beanInterface(), ejb.beanName(), "@EJB", container);
 
       // handle dependencies
 
@@ -297,7 +314,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          String encName = getEncName(ref, method);
          if (!container.getEncInjectors().containsKey(encName))
          {
-            ejbRefEncInjector(ref.mappedName(), encName, method.getParameterTypes()[0], ref.beanName(), "@EJB", container);
+            ejbRefEncInjector(ref.mappedName(), encName, method.getName().substring(0), method.getParameterTypes()[0], ref.beanName(), "@EJB", container);
             
             if (container.getAnnotation(IgnoreDependency.class, method) == null)
             {
@@ -327,7 +344,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
                else
                   ejbRefDependency(ref.mappedName(), ref.beanName(), container, field.getType(), "@EJB", encName);
             }
-            ejbRefEncInjector(ref.mappedName(), encName, field.getType(), ref.beanName(), "@EJB", container);
+            ejbRefEncInjector(ref.mappedName(), encName, field.getName(), field.getType(), ref.beanName(), "@EJB", container);
          }
          super.handleFieldAnnotations(field, container, injectors);
       }
