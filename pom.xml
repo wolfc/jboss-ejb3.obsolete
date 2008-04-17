@@ -35,7 +35,6 @@
   <!-- Aggregate Modules -->
   <modules>
     <module>build</module>
-    <module>security</module>
     <module>core</module>
     <module>cache</module>
     <module>ext-api</module>
@@ -48,6 +47,7 @@
     <module>plugin</module>
     <module>pool</module>
     <!-- module>sandbox</module -->
+    <module>security</module>
   </modules>
 
   <profiles>
