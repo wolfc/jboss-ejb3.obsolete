@@ -62,7 +62,7 @@
          <interceptor-class>org.jboss.ejb3.test.interceptors.XMLInterceptor</interceptor-class>
       </interceptor-binding>
       <interceptor-binding>
-         <ejb-name>org.jboss.ejb3.test.interceptors.MySessionBean</ejb-name>
+         <ejb-name>MySessionBean</ejb-name>
             <interceptor-order>
 		         <interceptor-class>org.jboss.ejb3.test.interceptors.MyInterceptor</interceptor-class>
 		         <interceptor-class>org.jboss.ejb3.test.interceptors.XMLInterceptor</interceptor-class>
