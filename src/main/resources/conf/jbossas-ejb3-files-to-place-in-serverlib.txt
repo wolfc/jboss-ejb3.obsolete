@@ -1,4 +1,5 @@
 jboss-ejb3-cache.jar
+jboss-ejb3-security.jar
 jboss-ejb3-core.jar
 jboss-ejb3-ext-api.jar
 jboss-ejb3-ext-api-impl.jar
