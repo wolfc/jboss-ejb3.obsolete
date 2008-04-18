@@ -22,9 +22,12 @@
 package org.jboss.ejb3.interceptors.metadata;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,6 +35,7 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
+import javax.interceptor.InvocationContext;
 
 import org.jboss.ejb3.interceptors.annotation.impl.InterceptorsImpl;
 import org.jboss.ejb3.interceptors.annotation.impl.PostActivateImpl;
@@ -42,10 +46,13 @@ import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptors;
 import org.jboss.ejb3.interceptors.aop.annotation.DefaultInterceptorsImpl;
 import org.jboss.ejb3.interceptors.aop.annotation.InterceptorOrder;
 import org.jboss.ejb3.interceptors.aop.annotation.InterceptorOrderImpl;
+import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.util.InterceptorCollection;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
@@ -54,6 +61,8 @@ import org.jboss.metadata.ejb.spec.InterceptorBindingsMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
 import org.jboss.metadata.ejb.spec.MethodParametersMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
+import org.jboss.metadata.spi.signature.MethodSignature;
+import org.jboss.metadata.spi.signature.Signature;
 
 /**
  * Comment
@@ -65,6 +74,46 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
 {
    private static final Logger log = Logger.getLogger(BeanInterceptorMetaDataBridge.class);
 
+   private volatile boolean initialisedBean;
+   
+   //Class level stuff
+   private DefaultInterceptors defaultInterceptors;
+   private Interceptors interceptors;
+   private InterceptorOrder interceptorOrder;
+   
+   //Method-level things
+   private Map<Signature, Interceptors> methodInterceptors = new HashMap<Signature, Interceptors>(); 
+   private Map<Signature, InterceptorOrder> methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
+   
+   
+   //Bean class methods
+   private Map<String, AroundInvoke> aroundInvokes;
+   private Map<String, PostConstruct> postConstructs;
+   private Map<String, PostActivate> postActivates;
+   private Map<String, PrePassivate> prePassivates;
+   private Map<String, PreDestroy> preDestroys;
+   
+   private Class<?> beanClass;
+   private ClassLoader classLoader;
+   private JBossEnterpriseBeanMetaData beanMetaData;
+
+   public static long time;
+   
+   public BeanInterceptorMetaDataBridge(Class<?> beanClass, ClassLoader classLoader, JBossEnterpriseBeanMetaData beanMetaData)
+   {
+      assert beanClass != null : "beanClass is null";
+      this.beanClass = beanClass;
+      this.classLoader = classLoader;
+      this.beanMetaData = beanMetaData;
+      
+      initialise();
+   }
+
+   protected Class<?> getBeanClass()
+   {
+      return beanClass;
+   }
+   
    private static boolean add(InterceptorCollection interceptors, ClassLoader classLoader, InterceptorBindingMetaData binding)
    {
       boolean result = false;
@@ -117,78 +166,322 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       }
    }
    
+   private synchronized void initialise()
+   {
+      if (initialisedBean)
+      {
+         return;
+      }
+      
+      List<InterceptorBindingMetaData> defaultInterceptorBindingMetaData = new ArrayList<InterceptorBindingMetaData>();
+      List<InterceptorBindingMetaData> classInterceptorBindingMetaData = new ArrayList<InterceptorBindingMetaData>();
+      List<InterceptorBindingMetaData> classInterceptorOrderMetaData = new ArrayList<InterceptorBindingMetaData>();
+      List<InterceptorBindingMetaData> methodInterceptorBindingMetaData = new ArrayList<InterceptorBindingMetaData>();
+      List<InterceptorBindingMetaData> methodInterceptorOrderMetaData = new ArrayList<InterceptorBindingMetaData>();
+      
+      
+      setupMetaDataLists(beanMetaData, 
+            defaultInterceptorBindingMetaData, 
+            classInterceptorBindingMetaData, 
+            classInterceptorOrderMetaData, 
+            methodInterceptorBindingMetaData, 
+            methodInterceptorOrderMetaData);
+
+      initialiseDefaultInterceptors(defaultInterceptorBindingMetaData);
+      initialiseInterceptors(classInterceptorBindingMetaData);
+      initialiseInterceptorOrder(classInterceptorOrderMetaData);
+
+      Map<String, List<Method>> methodMap = ClassHelper.getAllMethodsMap(beanClass);
+      MethodSignatures methodSignatures = new MethodSignatures();
+      initialiseMethodInterceptors(methodMap, methodSignatures, methodInterceptorBindingMetaData);
+      initialiseMethodInterceptorOrders(methodMap, methodSignatures, methodInterceptorOrderMetaData);
+
+      initialiseAroundInvoke(methodMap);
+   }
+   
+   private void setupMetaDataLists(JBossEnterpriseBeanMetaData beanMetaData,
+                                 List<InterceptorBindingMetaData> defaultInterceptorBindingMetaData, 
+                                 List<InterceptorBindingMetaData> classInterceptorBindingMetaData, 
+                                 List<InterceptorBindingMetaData> classInterceptorOrderMetaData, 
+                                 List<InterceptorBindingMetaData> methodInterceptorBindingMetaData,
+                                 List<InterceptorBindingMetaData> methodInterceptorOrderMetaData)
+   {
+      try
+      {
+         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
+
+         if (bindings != null)
+         {
+            String ejbName = beanMetaData.getEjbName();;
+            for (InterceptorBindingMetaData binding : bindings)
+            {
+               String bindingEjbName = binding.getEjbName();
+               checkBeanExistsInDeployment(beanMetaData, bindingEjbName);
+               if (bindingEjbName.equals("*")) 
+               {
+                  assert binding.getMethod() == null : "method binding not allowed on default interceptor";
+                  defaultInterceptorBindingMetaData.add(binding);
+                  continue;
+               }
+               if (bindingEjbName.equals(ejbName))
+               {
+                  if (binding.getMethod() == null)
+                  {
+                     if (binding.isTotalOrdering())
+                     {
+                        classInterceptorOrderMetaData.add(binding);
+                     }
+                     else
+                     {
+                        classInterceptorBindingMetaData.add(binding);
+                     }
+                  }
+                  else
+                  {
+                     if (binding.isTotalOrdering())
+                     {
+                        methodInterceptorOrderMetaData.add(binding);
+                     }
+                     else
+                     {
+                        methodInterceptorBindingMetaData.add(binding);
+                     }
+                  }
+               }
+            }
+         }
+      }
+      catch (NullPointerException e)
+      {
+         if (beanMetaData == null)
+         {
+            throw new IllegalStateException("Null beannMetaData", e);
+         }
+         else if (beanMetaData.getEjbJarMetaData() == null)
+         {
+            throw new IllegalStateException("Null ejbJarMetaData", e);
+         }
+         else if (beanMetaData.getEjbJarMetaData().getAssemblyDescriptor() == null)
+         {
+            throw new IllegalStateException("Null AssemblyDescriptor", e);
+         }
+         throw e;
+      }
+   }
+
+   
+   private void initialiseDefaultInterceptors(List<InterceptorBindingMetaData> bindings)
+   {
+      if (bindings != null && bindings.size() > 0)
+      {
+         List<Class<?>> classes = new ArrayList<Class<?>>();
+         for (InterceptorBindingMetaData binding : bindings)
+         {
+            add(classes, classLoader, binding);
+         }
+         if(!classes.isEmpty())
+            defaultInterceptors = new DefaultInterceptorsImpl(classes);
+      }
+   }
+   
+   private void initialiseInterceptors(List<InterceptorBindingMetaData> bindings)
+   {
+      if (bindings != null && bindings.size() > 0)
+      {
+         InterceptorsImpl interceptors = new InterceptorsImpl();
+         for (InterceptorBindingMetaData binding : bindings)
+         {
+            add(interceptors, classLoader, binding);
+         }
+         if(!interceptors.isEmpty())
+            this.interceptors = interceptors;
+      }
+   }
+   
+   private void initialiseInterceptorOrder(List<InterceptorBindingMetaData> bindings)
+   {
+      if (bindings != null && bindings.size() > 0)
+      {
+         InterceptorOrderImpl interceptors = new InterceptorOrderImpl();
+         for (InterceptorBindingMetaData binding : bindings)
+         {
+            add(interceptors, classLoader, binding);
+         }
+         if(!interceptors.isEmpty())
+            this.interceptorOrder = interceptors;
+      }
+   }
+
+   private void initialiseMethodInterceptors(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
+   {
+      if (bindings != null && bindings.size() > 0)
+      {
+         this.methodInterceptors = new HashMap<Signature, Interceptors>();
+         for (InterceptorBindingMetaData binding : bindings)
+         {
+            NamedMethodMetaData method = binding.getMethod();
+
+            // TODO: this is weird, it should have been caught earlier (invalid xml)
+            if(method.getMethodName() == null)
+               continue;
+            
+            List<Method> methods = methodMap.get(method.getMethodName());
+            for (Method refMethod : methods)
+            {
+               Signature signature = methodSignatures.getSignature(refMethod);
+               if (matchesMethod(signature, refMethod, method))
+               {
+                  InterceptorsImpl interceptors = (InterceptorsImpl)methodInterceptors.get(signature);
+                  if (interceptors == null)
+                  {
+                     interceptors = new InterceptorsImpl();
+                     methodInterceptors.put(signature, interceptors);
+                  }
+                  add(interceptors, classLoader, binding);
+               }
+            }
+         }
+      }
+   }
+   
+   private void initialiseMethodInterceptorOrders(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
+   {
+      if (bindings != null && bindings.size() > 0)
+      {
+         this.methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
+         for (InterceptorBindingMetaData binding : bindings)
+         {
+            NamedMethodMetaData method = binding.getMethod();
+
+            // TODO: this is weird, it should have been caught earlier (invalid xml)
+            if(method.getMethodName() == null)
+               continue;
+            
+            List<Method> methods = methodMap.get(method.getMethodName());
+            for (Method refMethod : methods)
+            {
+               Signature signature = methodSignatures.getSignature(refMethod);
+               if (matchesMethod(signature, refMethod, method))
+               {
+                  InterceptorOrderImpl interceptors = (InterceptorOrderImpl)methodInterceptors.get(signature);
+                  if (interceptors == null)
+                  {
+                     interceptors = new InterceptorOrderImpl();
+                     methodInterceptorOrders.put(signature, interceptors);
+                  }
+                  add(interceptors, classLoader, binding);
+               }
+            }
+         }
+      }
+   }
+   
+   private boolean matchesMethod(Signature sig, Method refMethod, NamedMethodMetaData method)
+   {
+      assert refMethod.getName().equals(method.getMethodName());
+      MethodParametersMetaData methodParams = method.getMethodParams();
+      if(methodParams == null)
+      {
+         return true;
+      }
+      else
+      {
+         if(Arrays.equals(methodParams.toArray(), sig.getParameters()))
+         {
+            return true;
+         }
+      }
+      
+      return false;      
+   }
+
+   private void initialiseAroundInvoke(Map<String, List<Method>> methodMap)
+   {
+      AroundInvokesMetaData aroundInvokes = null;
+//    if(beanMetaData instanceof JBossGenericBeanMetaData)
+//       aroundInvokes = ((JBossGenericBeanMetaData) beanMetaData).getAroundInvokes();
+      if(beanMetaData instanceof JBossMessageDrivenBeanMetaData)
+         aroundInvokes = ((JBossMessageDrivenBeanMetaData) beanMetaData).getAroundInvokes();
+      else if(beanMetaData instanceof JBossSessionBeanMetaData)
+         aroundInvokes = ((JBossSessionBeanMetaData) beanMetaData).getAroundInvokes();
+      if(aroundInvokes != null)
+      {
+         for (String methodName : methodMap.keySet())
+         {
+            AroundInvoke aroundInvoke = getAroundInvokeAnnotation(aroundInvokes, methodName);
+            if(aroundInvoke != null)
+            {
+               if (this.aroundInvokes == null)
+               {
+                  this.aroundInvokes = new HashMap<String, AroundInvoke>();
+               }
+               this.aroundInvokes.put(methodName, aroundInvoke);
+            }
+         }
+      }
+   }
+   
+   private void initialiseLifecycleAnnotations(Map<String, List<Method>> methodMap)
+   {
+      if(beanMetaData instanceof JBossSessionBeanMetaData)
+      {
+         for (String methodName : methodMap.keySet())
+         {
+            
+            PostConstruct postConstruct = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostConstructs(), PostConstructImpl.class, methodName);
+            if (postConstruct != null)
+            {
+               if (postConstructs == null)
+               {
+                  postConstructs = new HashMap<String, PostConstruct>();
+               }
+               postConstructs.put(methodName, postConstruct);
+            }
+            PostActivate postActivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, methodName);
+            if(postActivate != null)
+            {
+               if (postActivates == null)
+               {
+                  postActivates = new HashMap<String, PostActivate>();
+               }
+               postActivates.put(methodName, postActivate);
+            }
+            PrePassivate prePassivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPrePassivates(), PrePassivateImpl.class, methodName);
+            if(prePassivate != null)
+            {
+               if (prePassivates == null)
+               {
+                  prePassivates = new HashMap<String, PrePassivate>();
+               }
+               prePassivates.put(methodName, prePassivate);
+            }
+            PreDestroy preDestroy = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPreDestroys(), PreDestroyImpl.class, methodName);
+            if(preDestroy != null)
+            {
+               if (preDestroys == null)
+               {
+                  preDestroys = new HashMap<String, PreDestroy>();
+               }
+               preDestroys.put(methodName, preDestroy);
+            }
+         }
+      }
+   }
+
    @Override
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader)
    {
       if(annotationClass == DefaultInterceptors.class)
       {
-         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
-         if(bindings != null)
-         {
-            List<Class<?>> interceptors = new ArrayList<Class<?>>();
-            for(InterceptorBindingMetaData binding : bindings)
-            {
-               String bindingEjbName = binding.getEjbName();
-               if(bindingEjbName.equals("*"))
-               {
-                  assert binding.getMethod() == null : "method binding not allowed on default interceptor";
-                  
-                  add(interceptors, classLoader, binding);
-               }
-            }
-            if(!interceptors.isEmpty())
-               return annotationClass.cast(new DefaultInterceptorsImpl(interceptors));
-         }
+         return annotationClass.cast(defaultInterceptors);
       }
       else if(annotationClass == InterceptorOrder.class)
       {
-         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
-         if(bindings != null)
-         {
-            InterceptorOrderImpl interceptorOrder = new InterceptorOrderImpl();
-            for(InterceptorBindingMetaData binding : bindings)
-            {
-               // Only for specifying order
-               if(!binding.isTotalOrdering())
-                  continue;
-               
-               // For the method component
-               if(binding.getMethod() != null)
-                  continue;
-               
-               String ejbName = beanMetaData.getEjbName();
-               String bindingEjbName = binding.getEjbName();
-               if(bindingEjbName.equals(ejbName))
-                  add(interceptorOrder, classLoader, binding);
-            }
-            if(!interceptorOrder.isEmpty())
-               return annotationClass.cast(interceptorOrder);
-         }
+         return annotationClass.cast(interceptorOrder);
       }
       else if(annotationClass == Interceptors.class)
       {
-         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
-         if(bindings != null)
-         {
-            InterceptorsImpl interceptors = new InterceptorsImpl();
-            for(InterceptorBindingMetaData binding : bindings)
-            {
-               // Only for specifying order
-               if(binding.isTotalOrdering())
-                  continue;
-               
-               // For the method component
-               if(binding.getMethod() != null)
-                  continue;
-               
-               String ejbName = beanMetaData.getEjbName();
-               String bindingEjbName = binding.getEjbName();
-               if(bindingEjbName.equals(ejbName))
-                  add(interceptors, classLoader, binding);
-            }
-            if(!interceptors.isEmpty())
-               return annotationClass.cast(interceptors);
-         }
+         return annotationClass.cast(interceptors);
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader);
    }
@@ -198,132 +491,88 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    {
       if(annotationClass == AroundInvoke.class)
       {
-         AroundInvokesMetaData aroundInvokes = null;
-//         if(beanMetaData instanceof JBossGenericBeanMetaData)
-//            aroundInvokes = ((JBossGenericBeanMetaData) beanMetaData).getAroundInvokes();
-         if(beanMetaData instanceof JBossMessageDrivenBeanMetaData)
-            aroundInvokes = ((JBossMessageDrivenBeanMetaData) beanMetaData).getAroundInvokes();
-         else if(beanMetaData instanceof JBossSessionBeanMetaData)
-            aroundInvokes = ((JBossSessionBeanMetaData) beanMetaData).getAroundInvokes();
-         if(aroundInvokes != null)
+         if (parameterNames.length == 1 && parameterNames[0].equals(InvocationContext.class.getName()) && aroundInvokes != null)
          {
-            Annotation annotation = getAroundInvokeAnnotation(aroundInvokes, methodName);
-            if(annotation != null)
-               return annotationClass.cast(annotation);
+            return annotationClass.cast(aroundInvokes.get(methodName));
          }
+         return null;
       }
       else if(annotationClass == InterceptorOrder.class)
       {
-         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
-         if(bindings != null)
+         MethodSignature signature = new MethodSignature(methodName, parameterNames);
+         if (methodInterceptorOrders == null)
          {
-            InterceptorOrderImpl interceptorOrder = new InterceptorOrderImpl();
-            for(InterceptorBindingMetaData binding : bindings)
-            {
-               // Only for specifying order
-               if(!binding.isTotalOrdering())
-                  continue;
-               
-               // For the bean
-               if(binding.getMethod() == null)
-                  continue;
-               
-               NamedMethodMetaData method = binding.getMethod();
-               
-               // TODO: this is weird, it should have been caught earlier (invalid xml)
-               if(method.getMethodName() == null)
-                  continue;
-               
-               if(method.getMethodName().equals(methodName))
-               {
-                  MethodParametersMetaData methodParams = method.getMethodParams();
-                  if(methodParams == null)
-                     add(interceptorOrder, classLoader, binding);
-                  else
-                  {
-                     if(Arrays.equals(methodParams.toArray(), parameterNames))
-                        add(interceptorOrder, classLoader, binding);
-                  }
-               }
-            }
-            if(!interceptorOrder.isEmpty())
-               return annotationClass.cast(interceptorOrder);
+            return null;
          }
+         return annotationClass.cast(methodInterceptorOrders.get(signature));
       }
       else if(annotationClass == Interceptors.class)
       {
-         InterceptorBindingsMetaData bindings = beanMetaData.getEjbJarMetaData().getAssemblyDescriptor().getInterceptorBindings();
-         if(bindings != null)
+         MethodSignature signature = new MethodSignature(methodName, parameterNames);
+         if (methodInterceptors == null)
          {
-            InterceptorsImpl interceptors = new InterceptorsImpl();
-            for(InterceptorBindingMetaData binding : bindings)
-            {
-               // Only for specifying order
-               if(binding.isTotalOrdering())
-                  continue;
-               
-               // For the bean
-               if(binding.getMethod() == null)
-                  continue;
-               
-               NamedMethodMetaData method = binding.getMethod();
-               
-               // TODO: this is weird, it should have been caught earlier (invalid xml)
-               if(method.getMethodName() == null)
-                  continue;
-               
-               if(method.getMethodName().equals(methodName))
-               {
-                  MethodParametersMetaData methodParams = method.getMethodParams();
-                  if(methodParams == null)
-                     add(interceptors, classLoader, binding);
-                  else
-                  {
-                     if(Arrays.equals(methodParams.toArray(), parameterNames))
-                        add(interceptors, classLoader, binding);
-                  }
-               }
-            }
-            if(!interceptors.isEmpty())
-               return annotationClass.cast(interceptors);
+            return null;
          }
+         return annotationClass.cast(methodInterceptors.get(signature));
       }
       else if(annotationClass == PostActivate.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && postActivates != null) 
          {
-            PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, methodName);
-            if(lifeCycleAnnotation != null)
-               return annotationClass.cast(lifeCycleAnnotation);
+            return annotationClass.cast(postActivates.get(methodName));
          }
       }
       else if(annotationClass == PostConstruct.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && postConstructs != null) 
          {
-            PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostConstructs(), PostConstructImpl.class, methodName);
-            if(lifeCycleAnnotation != null)
-               return annotationClass.cast(lifeCycleAnnotation);
+            return annotationClass.cast(postConstructs.get(methodName));
          }
       }
       else if(annotationClass == PreDestroy.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && preDestroys != null) 
          {
-            PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPreDestroys(), PreDestroyImpl.class, methodName);
-            if(lifeCycleAnnotation != null)
-               return annotationClass.cast(lifeCycleAnnotation);
+            return annotationClass.cast(preDestroys.get(methodName));
          }
       }
       else if(annotationClass == PrePassivate.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData)
+         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && prePassivates != null) 
          {
-            PrePassivate lifeCycleAnnotation = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPrePassivates(), PrePassivateImpl.class, methodName);
-            if(lifeCycleAnnotation != null)
-               return annotationClass.cast(lifeCycleAnnotation);
+            return annotationClass.cast(prePassivates.get(methodName));
          }
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, methodName, parameterNames);
+   }
+   
+   private void checkBeanExistsInDeployment(JBossEnterpriseBeanMetaData beanMetaData, String ejbName)
+   {
+      if (ejbName.equals("*"))
+      {
+         return;
+      }
+      
+      JBossEnterpriseBeansMetaData beansMetaData = beanMetaData.getEnterpriseBeansMetaData();
+      if (beansMetaData.get(ejbName) == null)
+      {
+         throw new IllegalArgumentException("No bean with name specified in interceptor-binding: " + ejbName);
+      }
+   }
+   
+   private static class MethodSignatures
+   {
+      Map<Method, Signature> methodSignatures = new HashMap<Method, Signature>();
+      
+      Signature getSignature(Method m)
+      {
+         Signature s = methodSignatures.get(m);
+         if (s == null)
+         {
+            s = new MethodSignature(m);
+            methodSignatures.put(m, s);
+         }
+         return s;
+      }
    }
 }

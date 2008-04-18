@@ -37,18 +37,15 @@ import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
  * TODO: additivity is probably also a cross component function
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class AdditiveBeanInterceptorMetaDataBridge extends BeanInterceptorMetaDataBridge
 {
    private static final Logger log = Logger.getLogger(AdditiveBeanInterceptorMetaDataBridge.class);
    
-   private Class<?> beanClass;
-   
-   public AdditiveBeanInterceptorMetaDataBridge(Class<?> beanClass)
+   public AdditiveBeanInterceptorMetaDataBridge(Class<?> beanClass, ClassLoader classLoader, JBossEnterpriseBeanMetaData beanMetaData)
    {
-      assert beanClass != null : "beanClass is null";
-      this.beanClass = beanClass;
+      super(beanClass, classLoader, beanMetaData);
    }
    
    private static boolean isMetadataComplete(JBossEnterpriseBeanMetaData beanMetaData)
@@ -63,7 +60,7 @@ public class AdditiveBeanInterceptorMetaDataBridge extends BeanInterceptorMetaDa
       {
          InterceptorsImpl interceptors = new InterceptorsImpl();
          if(!isMetadataComplete(beanMetaData))
-            interceptors.add(beanClass.getAnnotation(Interceptors.class));
+            interceptors.add(getBeanClass().getAnnotation(Interceptors.class));
          
          interceptors.add(super.retrieveAnnotation(Interceptors.class, beanMetaData, classLoader));
          

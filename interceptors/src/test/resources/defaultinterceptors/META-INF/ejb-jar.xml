@@ -39,6 +39,10 @@
          </interceptor-order>
          <method>
             <method-name>xmlOrderedMethod</method-name>
+            <method-params>
+               <method-param>int</method-param>
+               <method-param>java.lang.String</method-param>
+            </method-params>
          </method>
       </interceptor-binding>
       <interceptor-binding>

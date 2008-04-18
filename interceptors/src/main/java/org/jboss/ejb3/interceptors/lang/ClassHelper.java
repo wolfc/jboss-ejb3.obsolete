@@ -23,13 +23,15 @@ package org.jboss.ejb3.interceptors.lang;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Methods which should have been in Class.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ClassHelper
 {
@@ -77,6 +79,34 @@ public class ClassHelper
       {
          throw new NoSuchMethodException("No method named " + methodName + " in " + cls + " (or super classes)");
       }
+   }
+   
+   /**
+    * Returns all public, private and package protected methods including
+    * inherited ones in a map indexed by name.
+    * 
+    * (Slow method)
+    * 
+    * @param cls
+    * @return
+    */
+   public static Map<String, List<Method>> getAllMethodsMap(Class<?> cls) 
+   {
+      Map<String, List<Method>> methodMap = new HashMap<String, List<Method>>();  
+      ArrayList<Method> list = new ArrayList<Method>();
+      populateAllMethods(cls, list);
+      
+      for (Method method : list)
+      {
+         List<Method> methods = methodMap.get(method.getName());
+         if (methods == null)
+         {
+            methods = new ArrayList<Method>();
+            methodMap.put(method.getName(), methods);
+         }
+         methods.add(method);
+      }
+      return methodMap;
    }
    
    /**

@@ -40,7 +40,7 @@ public class AnnotatedBean
    }
    
    @Interceptors(MethodInterceptor.class)
-   public int xmlOrderedMethod()
+   public int xmlOrderedMethod(int i, String s)
    {
       return 200;
    }
