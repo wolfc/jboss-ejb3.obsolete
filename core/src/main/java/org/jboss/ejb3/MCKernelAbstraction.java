@@ -224,7 +224,8 @@ public class MCKernelAbstraction
       try
       {
          log.info("uninstalling bean: " + name);
-         kernel.getController().uninstall(name);
+         if(kernel != null)
+            kernel.getController().uninstall(name);
       }
       catch (Exception e)
       {
