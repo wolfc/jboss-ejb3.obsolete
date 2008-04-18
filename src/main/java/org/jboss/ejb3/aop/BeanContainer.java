@@ -191,7 +191,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       List<MetaDataBridge<InterceptorMetaData>> interceptorBridges = new ArrayList<MetaDataBridge<InterceptorMetaData>>();
       interceptorBridges.add(new InterceptorMetaDataBridge());
       annotations.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
-      annotations.addMetaDataBridge(new AdditiveBeanInterceptorMetaDataBridge(beanClass));
+      annotations.addMetaDataBridge(new AdditiveBeanInterceptorMetaDataBridge(beanClass, classLoader, beanMetaData));
       
       //Add a security domain bridge
       annotations.addMetaDataBridge(new SecurityDomainMetaDataBridge());
