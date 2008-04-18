@@ -56,5 +56,16 @@
         <include>org/jboss/ejb3/ThreadLocalENCFactory.class</include>
       </includes>
     </fileSet>
+
+    <!-- Include the EJB3 Security Client classes -->
+    <fileSet>
+      <directory>../security/target/classes</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>org/jboss/ejb3/security/client/SecurityActions.class</include>
+        <include>org/jboss/ejb3/security/client/SecurityClientInterceptor.class</include>
+      </includes>
+    </fileSet>
+
   </fileSets>
 </assembly>
