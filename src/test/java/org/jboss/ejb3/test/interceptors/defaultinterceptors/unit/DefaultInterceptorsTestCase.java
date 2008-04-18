@@ -75,7 +75,7 @@ public class DefaultInterceptorsTestCase extends TestCase
          List<MetaDataBridge<InterceptorMetaData>> interceptorBridges = new ArrayList<MetaDataBridge<InterceptorMetaData>>();
          interceptorBridges.add(new InterceptorMetaDataBridge());
          annotations.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
-         annotations.addMetaDataBridge(new BeanInterceptorMetaDataBridge());
+         annotations.addMetaDataBridge(new BeanInterceptorMetaDataBridge(beanClass, classLoader, beanMetaData));
          
          initializeAdvisor(name, getDomain(domainName), beanClass, annotations);
       }
@@ -171,7 +171,7 @@ public class DefaultInterceptorsTestCase extends TestCase
       assertEquals(AnnotatedBean.class, interceptions.get(3));
       
       Interceptions.clear();
-      annotatedBeanContainer.invoke(annotatedBean, "xmlOrderedMethod", new Object[0]);
+      annotatedBeanContainer.invoke(annotatedBean, "xmlOrderedMethod", new Object[] {1, "Hello"});
       interceptions = Interceptions.getInterceptions();
       assertEquals("Interceptions were " + interceptions, 4, interceptions.size());      
       assertEquals(MethodInterceptor.class, interceptions.get(0));

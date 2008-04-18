@@ -75,7 +75,7 @@ public class InterceptorChainTestCase extends TestCase
          List<MetaDataBridge<InterceptorMetaData>> interceptorBridges = new ArrayList<MetaDataBridge<InterceptorMetaData>>();
          interceptorBridges.add(new InterceptorMetaDataBridge());
          annotations.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
-         annotations.addMetaDataBridge(new BeanInterceptorMetaDataBridge());
+         annotations.addMetaDataBridge(new BeanInterceptorMetaDataBridge(beanClass, classLoader, beanMetaData));
          
          initializeAdvisor(name, getDomain(domainName), beanClass, annotations);
       }
