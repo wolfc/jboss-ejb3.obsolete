@@ -161,14 +161,17 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       {
          //
          AnnotatedEJBReferencesMetaData amds = container.getEnvironmentRefGroup().getAnnotatedEjbReferences();
-         AnnotatedEJBReferenceMetaData amd = amds.get(encName);
-         if(amd == null)
-            amd = amds.get(fieldName);
-         if(amd != null)
+         if(amds != null)
          {
-            mappedName = amd.getMappedName();
-            if(mappedName == null)
-               mappedName = amd.getResolvedJndiName();
+            AnnotatedEJBReferenceMetaData amd = amds.get(encName);
+            if(amd == null)
+               amd = amds.get(fieldName);
+            if(amd != null)
+            {
+               mappedName = amd.getMappedName();
+               if(mappedName == null)
+                  mappedName = amd.getResolvedJndiName();
+            }
          }
       }
 
