@@ -47,6 +47,13 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
 {
    private static final Logger log = Logger.getLogger(InterceptorMetaDataBridge.class);
 
+   public InterceptorMetaDataBridge()
+   {
+      // FIXME InterceptorMetaDataBridge constructor
+      System.out.println("======> Creating interceptor metadata bridge");
+
+   }
+   
    @Override
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData metaData, ClassLoader classLoader)
    {
