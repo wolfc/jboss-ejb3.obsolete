@@ -24,7 +24,13 @@ package org.jboss.ejb3.interceptors.aop;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
@@ -42,6 +48,7 @@ public class LifecycleCallbacks
 {
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
+      HashSet<Class<?>> classes = new HashSet<Class<?>>();
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
       // 12.7 footnote 57: ignore method level interceptors
       // The lifecycle callbacks on the interceptors must be invoked in order
@@ -51,9 +58,14 @@ public class LifecycleCallbacks
          ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
          for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
          {
-            if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, lifecycleAnnotationType))
+            if (!ClassHelper.isOverridden(interceptorClass, interceptorMethod))
             {
-               interceptors.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, interceptorMethod));
+               //Only a candidate for a lifecycle method if not overridden 
+               if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, lifecycleAnnotationType)) //For Xml this returns true sometimes
+               {
+                  checkClass(classes, interceptorMethod, advisor, lifecycleAnnotationType);  
+                  interceptors.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, interceptorMethod));
+               }
             }
          }
       }
@@ -62,14 +74,44 @@ public class LifecycleCallbacks
       Class<?> beanClass = advisor.getClazz();
       for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
       {
-         if(advisor.hasAnnotation(beanMethod, lifecycleAnnotationType))
+         if (!ClassHelper.isOverridden(beanClass, beanMethod))
          {
-            interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
+            if(advisor.hasAnnotation(beanMethod, lifecycleAnnotationType))
+            {
+               checkClass(classes, beanMethod, advisor, lifecycleAnnotationType);  
+               interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
+            }
          }
       }
       
       interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
       
       return interceptors.toArray(new Interceptor[0]);
+   }
+   
+   private static void checkClass(HashSet<Class<?>> classes, Method m, Advisor advisor, Class<? extends Annotation> lifecycleAnnotationType)
+   {
+      if (classes.contains(m.getDeclaringClass()))
+      {
+         String type = null;
+         if (lifecycleAnnotationType == PostConstruct.class)
+         {
+            type = "post-construct";
+         }
+         else if (lifecycleAnnotationType == PreDestroy.class)
+         {
+            type = "pre-destroy";
+         } 
+         else if (lifecycleAnnotationType == PostActivate.class)
+         {
+            type = "post-activate";
+         }
+         else if (lifecycleAnnotationType == PrePassivate.class)
+         {
+            type = "pre-passivate";
+         }         
+         throw new RuntimeException("More than one '" + type + "' method in " + advisor.getName());
+      }
+      classes.add(m.getDeclaringClass());
    }
 }
