@@ -42,7 +42,7 @@ public class ClassInterceptor extends ClassBaseInterceptor
    }
 
    @PostConstruct
-   public static void postConstruct(InvocationContext ctx)
+   public void postConstruct(InvocationContext ctx)
    {
       try
       {
@@ -56,7 +56,7 @@ public class ClassInterceptor extends ClassBaseInterceptor
    }
    
    @PreDestroy
-   public static void preDestroy(InvocationContext ctx)
+   public void preDestroy(InvocationContext ctx)
    {
       try
       {
@@ -68,4 +68,4 @@ public class ClassInterceptor extends ClassBaseInterceptor
          throw new RuntimeException(e);
       }
    }
-   }
+}

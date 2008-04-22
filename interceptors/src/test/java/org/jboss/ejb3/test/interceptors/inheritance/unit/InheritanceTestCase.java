@@ -137,7 +137,6 @@ public class InheritanceTestCase extends TestCase
       log.info(deployer.undeploy());
    }
    
-   
    public void testAnnotatedInheritanceAroundInvoke() throws Throwable
    {
       Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
@@ -188,68 +187,69 @@ public class InheritanceTestCase extends TestCase
       assertEquals(XmlBase.class, interceptions.get(4));
       assertEquals(XmlBean.class, interceptions.get(5));            
    }
+
+   public void testAnnotatedInheritanceLifecycle() throws Throwable
+   {
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("AnnotatedBean");
+      
+      MyContainer<AnnotatedBean> container = new MyContainer<AnnotatedBean>("AnnotatedBean", "Test", AnnotatedBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      Interceptions.clear();
+
+      BeanContext<AnnotatedBean> bean = container.construct();
+      ArrayList<Class<?>> postConstructs = Interceptions.getPostConstructs();
+      assertEquals("Wrong number of interceptions " + postConstructs, 4, postConstructs.size());
+      assertEquals(ClassBaseInterceptor.class, postConstructs.get(0));
+      assertEquals(ClassInterceptor.class, postConstructs.get(1));
+      assertEquals(AnnotatedBase.class, postConstructs.get(2));
+      assertEquals(AnnotatedBean.class, postConstructs.get(3));
+      
+      container.invoke(bean, "method");
+      
+      container.destroy(bean);
+      ArrayList<Class<?>> preDestroy = Interceptions.getPreDestroys();
+      assertEquals("Wrong number of interceptions " + preDestroy, 4, preDestroy.size());
+      assertEquals(ClassBaseInterceptor.class, preDestroy.get(0));
+      assertEquals(ClassInterceptor.class, preDestroy.get(1));
+      assertEquals(AnnotatedBase.class, preDestroy.get(2));
+      assertEquals(AnnotatedBean.class, preDestroy.get(3));
+   }
    
-//
-//   public void testAnnotatedInheritanceLifecycle() throws Throwable
-//   {
-//      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
-//      
-//      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("AnnotatedBean");
-//      
-//      MyContainer<AnnotatedBean> container = new MyContainer<AnnotatedBean>("AnnotatedBean", "Test", AnnotatedBean.class, beanMetaData);
-//      container.testAdvisor();
-//      
-//      Interceptions.clear();
-//      BeanContext<AnnotatedBean> bean = container.construct();
-//
-//      
-//      ArrayList<Class<?>> postConstructs = Interceptions.getPostConstructs();
-//      assertEquals(4, postConstructs.size());
-//      
-//      ArrayList<Class<?>> interceptions = Interceptions.getAroundInvokes();
-//      assertEquals(0, interceptions.size());
-//      
-//      container.invoke(bean, "method");
-//      
-//      assertEquals("Wrong number of interceptions " + interceptions, 6,  interceptions.size());
-//      assertEquals(ClassBaseInterceptor.class, interceptions.get(0));
-//      assertEquals(ClassInterceptor.class, interceptions.get(1));
-//      assertEquals(MethodBaseInterceptor.class, interceptions.get(2));
-//      assertEquals(MethodInterceptor.class, interceptions.get(3));
-//      assertEquals(AnnotatedBase.class, interceptions.get(4));
-//      assertEquals(AnnotatedBean.class, interceptions.get(5));
-//
-//      container.destroy(bean);
-//   }
-//   
-//   public void testXmlInheritanceLifecycle() throws Throwable
-//   {
-//      AspectManager.verbose = true;
-//      
-//      // To make surefire happy
-//      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
-//      
-//      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("XmlBean");
-//      
-//      MyContainer<XmlBean> container = new MyContainer<XmlBean>("XmlBean", "Test", XmlBean.class, beanMetaData);
-//      container.testAdvisor();
-//      
-//      BeanContext<XmlBean> bean = container.construct();
-//      
-//      Interceptions.clear();
-//      container.invoke(bean, "method");
-//      
-//      ArrayList<Class<?>> interceptions = Interceptions.getAroundInvokes();
-//      assertEquals("Wrong number of interceptions " + interceptions, 6,  interceptions.size());  
-//      assertEquals(XmlClassBaseInterceptor.class, interceptions.get(0));
-//      assertEquals(XmlClassInterceptor.class, interceptions.get(1));
-//      assertEquals(XmlMethodBaseInterceptor.class, interceptions.get(2));
-//      assertEquals(XmlMethodInterceptor.class, interceptions.get(3));
-//      assertEquals(XmlBase.class, interceptions.get(4));
-//      assertEquals(XmlBean.class, interceptions.get(5));          
-//      
-//      container.destroy(bean);
-//   }
+   public void testXmlInheritanceLifecycle() throws Throwable
+   {
+      AspectManager.verbose = true;
+      
+      // To make surefire happy
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("XmlBean");
+      
+      MyContainer<XmlBean> container = new MyContainer<XmlBean>("XmlBean", "Test", XmlBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      Interceptions.clear();
+      
+      BeanContext<XmlBean> bean = container.construct();
+      ArrayList<Class<?>> postConstructs = Interceptions.getPostConstructs();
+      assertEquals("Wrong number of interceptions " + postConstructs, 4, postConstructs.size());
+      assertEquals(XmlClassBaseInterceptor.class, postConstructs.get(0));
+      assertEquals(XmlClassInterceptor.class, postConstructs.get(1));
+      assertEquals(XmlBase.class, postConstructs.get(2));
+      assertEquals(XmlBean.class, postConstructs.get(3));
+ 
+      container.invoke(bean, "method");
+      
+      container.destroy(bean);
+      ArrayList<Class<?>> preDestroy = Interceptions.getPreDestroys();
+      assertEquals("Wrong number of interceptions " + preDestroy, 4, preDestroy.size());
+      assertEquals(XmlClassBaseInterceptor.class, preDestroy.get(0));
+      assertEquals(XmlClassInterceptor.class, preDestroy.get(1));
+      assertEquals(XmlBase.class, preDestroy.get(2));
+      assertEquals(XmlBean.class, preDestroy.get(3));
+   }
    
    private JBossEnterpriseBeanMetaData getJBossEnterpriseBeanMetaData(String name) throws JBossXBException
    {

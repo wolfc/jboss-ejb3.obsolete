@@ -36,4 +36,14 @@ public class XmlBase
       Interceptions.addAroundInvoke(XmlBase.class);
       return ctx.proceed();
    }
-}
+   
+   public void basePreDestroy()
+   {
+      Interceptions.addPreDestroy(XmlBase.class);
+   }
+   
+   public void basePostConstruct()
+   {
+      Interceptions.addPostConstruct(XmlBase.class);
+   }
+   }

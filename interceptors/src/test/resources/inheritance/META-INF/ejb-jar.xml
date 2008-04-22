@@ -20,6 +20,18 @@
          <around-invoke>
             <method-name>around</method-name>
          </around-invoke>
+         <post-construct>
+            <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+         </post-construct>
+         <post-construct>
+            <lifecycle-callback-method>basePostConstruct</lifecycle-callback-method>
+         </post-construct>
+         <pre-destroy>
+            <lifecycle-callback-method>basePreDestroy</lifecycle-callback-method>
+         </pre-destroy>
+         <pre-destroy>
+            <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+         </pre-destroy>
       </session>
     </enterprise-beans>
     <interceptors>
@@ -31,18 +43,18 @@
          <around-invoke>
             <method-name>around</method-name>
          </around-invoke>
-         <!--
          <post-construct>
-            <method-name>postConstruct</method-name>
+            <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
          </post-construct>
          <post-construct>
-            <method-name>basePostConstruct</method-name>
+            <lifecycle-callback-method>basePostConstruct</lifecycle-callback-method>
          </post-construct>
-         <pre
-            basePreDestroy
-            
-            preDestroy            
-         -->
+         <pre-destroy>
+            <lifecycle-callback-method>basePreDestroy</lifecycle-callback-method>
+         </pre-destroy>
+         <pre-destroy>
+            <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+         </pre-destroy>
       </interceptor>    
       <interceptor>
          <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodInterceptor</interceptor-class>
