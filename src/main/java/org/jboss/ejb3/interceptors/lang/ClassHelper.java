@@ -82,6 +82,47 @@ public class ClassHelper
    }
    
    /**
+    * Returns the method with the specified method name and parameters.
+    * 
+    * @param cls
+    * @param methodName
+    * @param params
+    * @return
+    * @throws NoSuchMethodException 
+    */
+   public static Method getMethod(Class<?> cls, String methodName, Class<?> ... params) throws NoSuchMethodException
+   {
+      if(cls == null)
+      {
+         throw new NoSuchMethodException("Class is null " + methodName);
+      }
+
+      Method m = getDeclaredMethod(cls, methodName, params);
+      if (m == null)
+      {
+         throw new NoSuchMethodException("No method named " + methodName + " in " + cls + " (or super classes)");
+      }
+      return m;
+   }
+   
+   private static Method getDeclaredMethod(Class<?> cls, String methodName, Class<?> ... params)
+   {
+     try
+      {
+         return cls.getDeclaredMethod(methodName, params);
+      }
+      catch (NoSuchMethodException e1)
+      {
+      }
+
+      if (cls == Object.class)
+      {
+         return null;
+      }
+      
+      return getDeclaredMethod(cls.getSuperclass(), methodName, params);
+   }
+   /**
     * Returns all public, private and package protected methods including
     * inherited ones in a map indexed by name.
     * 
@@ -124,5 +165,22 @@ public class ClassHelper
       populateAllMethods(cls.getSuperclass(), methods);
       for(Method method : cls.getDeclaredMethods())
          methods.add(method);
+   }
+
+   public static boolean isOverridden(Class<?> icptr, Method method) 
+   {
+      try
+      {
+         Method bottomMethod = getMethod(icptr, method.getName(), method.getParameterTypes());
+         if (bottomMethod.getDeclaringClass() == method.getDeclaringClass())
+         {
+            return false;
+         }
+         return true;
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 }

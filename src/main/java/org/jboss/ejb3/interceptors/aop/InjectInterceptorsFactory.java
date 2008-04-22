@@ -93,10 +93,13 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
                   ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
                   for (Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
                   {
-                     if (interceptorAdvisor
-                           .isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                     if (!ClassHelper.isOverridden(interceptorClass, interceptorMethod))
                      {
-                        interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
+                        if (interceptorAdvisor
+                              .isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                        {
+                           interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
+                        }
                      }
                   }
                }
@@ -104,9 +107,12 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
             Class<?> beanClass = advisor.getClazz();
             for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
             {
-               if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
+               if (!ClassHelper.isOverridden(beanClass, beanMethod))
                {
-                  interceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
+                  if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
+                  {
+                     interceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
+                  }
                }
             }
             return new InterceptorSequencer(interceptors);

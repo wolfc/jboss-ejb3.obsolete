@@ -37,7 +37,9 @@ import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedBase;
 import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedBean;
+import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedOverrideBean;
 import org.jboss.ejb3.test.interceptors.inheritance.ClassBaseInterceptor;
+import org.jboss.ejb3.test.interceptors.inheritance.ClassOverrideInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.ClassInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.Interceptions;
 import org.jboss.ejb3.test.interceptors.inheritance.MethodBaseInterceptor;
@@ -47,8 +49,10 @@ import org.jboss.ejb3.test.interceptors.inheritance.XmlBase;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlBean;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlClassBaseInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlClassInterceptor;
+import org.jboss.ejb3.test.interceptors.inheritance.XmlClassOverrideInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlMethodBaseInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlMethodInterceptor;
+import org.jboss.ejb3.test.interceptors.inheritance.XmlOverrideBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -249,6 +253,58 @@ public class InheritanceTestCase extends TestCase
       assertEquals(XmlClassInterceptor.class, preDestroy.get(1));
       assertEquals(XmlBase.class, preDestroy.get(2));
       assertEquals(XmlBean.class, preDestroy.get(3));
+   }
+   
+   public void testAnnotatedOverriddenMethods() throws Throwable
+   {
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("AnnotatedOverrideBean");
+      
+      MyContainer<AnnotatedOverrideBean> container = new MyContainer<AnnotatedOverrideBean>("AnnotatedOverrideBean", "Test", AnnotatedOverrideBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      Interceptions.clear();
+
+      BeanContext<AnnotatedOverrideBean> bean = container.construct();
+      ArrayList<Class<?>> postConstructs = Interceptions.getPostConstructs();
+      assertEquals("Wrong number of interceptions " + postConstructs, 2, postConstructs.size());
+      assertEquals(ClassOverrideInterceptor.class, postConstructs.get(0));
+      assertEquals(AnnotatedOverrideBean.class, postConstructs.get(1));
+      
+      container.invoke(bean, "method");
+      
+      container.destroy(bean);
+      ArrayList<Class<?>> preDestroy = Interceptions.getPreDestroys();
+      assertEquals("Wrong number of interceptions " + preDestroy, 2, preDestroy.size());
+      assertEquals(ClassOverrideInterceptor.class, postConstructs.get(0));
+      assertEquals(AnnotatedOverrideBean.class, postConstructs.get(1));
+   }
+   
+   public void testXmlOverriddenMethods() throws Throwable
+   {
+      Thread.currentThread().setContextClassLoader(MyInterface.class.getClassLoader());
+      
+      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("XmlOverrideBean");
+      
+      MyContainer<XmlOverrideBean> container = new MyContainer<XmlOverrideBean>("XmlOverrideBean", "Test", XmlOverrideBean.class, beanMetaData);
+      container.testAdvisor();
+      
+      Interceptions.clear();
+
+      BeanContext<XmlOverrideBean> bean = container.construct();
+      ArrayList<Class<?>> postConstructs = Interceptions.getPostConstructs();
+      assertEquals("Wrong number of interceptions " + postConstructs, 2, postConstructs.size());
+      assertEquals(XmlClassOverrideInterceptor.class, postConstructs.get(0));
+      assertEquals(XmlOverrideBean.class, postConstructs.get(1));
+      
+      container.invoke(bean, "method");
+      
+      container.destroy(bean);
+      ArrayList<Class<?>> preDestroy = Interceptions.getPreDestroys();
+      assertEquals("Wrong number of interceptions " + preDestroy, 2, preDestroy.size());
+      assertEquals(XmlClassOverrideInterceptor.class, postConstructs.get(0));
+      assertEquals(XmlOverrideBean.class, postConstructs.get(1));
    }
    
    private JBossEnterpriseBeanMetaData getJBossEnterpriseBeanMetaData(String name) throws JBossXBException

@@ -13,6 +13,9 @@
          <ejb-name>AnnotatedBean</ejb-name>
       </session>
       <session>
+         <ejb-name>AnnotatedOverrideBean</ejb-name>
+      </session>
+      <session>
          <ejb-name>XmlBean</ejb-name>
          <around-invoke>
             <method-name>baseAround</method-name>
@@ -29,6 +32,21 @@
          <pre-destroy>
             <lifecycle-callback-method>basePreDestroy</lifecycle-callback-method>
          </pre-destroy>
+         <pre-destroy>
+            <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+         </pre-destroy>
+      </session>
+      <session>
+         <ejb-name>XmlOverrideBean</ejb-name>
+         <around-invoke>
+            <method-name>baseAround</method-name>
+         </around-invoke>
+         <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+         <post-construct>
+            <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+         </post-construct>
          <pre-destroy>
             <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
          </pre-destroy>
@@ -65,6 +83,27 @@
             <method-name>around</method-name>
          </around-invoke>
       </interceptor>    
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlClassOverrideInterceptor</interceptor-class>
+          <around-invoke>
+            <method-name>baseAround</method-name>
+         </around-invoke>
+         <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+         <post-construct>
+            <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+         </post-construct>
+         <pre-destroy>
+            <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+         </pre-destroy>
+      </interceptor>    
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodOverrideInterceptor</interceptor-class>
+       <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+      </interceptor>    
     </interceptors>
     <assembly-descriptor>
       <interceptor-binding>
@@ -74,6 +113,17 @@
       <interceptor-binding>
          <ejb-name>XmlBean</ejb-name>
          <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodInterceptor</interceptor-class>
+         <method>
+            <method-name>method</method-name>
+         </method>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XmlOverrideBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlClassOverrideInterceptor</interceptor-class>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XmlOverrideBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodOverrideInterceptor</interceptor-class>
          <method>
             <method-name>method</method-name>
          </method>
