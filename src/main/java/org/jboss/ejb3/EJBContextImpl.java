@@ -23,11 +23,7 @@ package org.jboss.ejb3;
 
 import java.security.Identity;
 import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
@@ -43,16 +39,11 @@ import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.security.helpers.AuthorizationHelper;
+import org.jboss.ejb3.security.helpers.EJBContextHelper;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
-import org.jboss.metadata.javaee.spec.SecurityRoleRefMetaData;
 import org.jboss.security.RealmMapping;
-import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityRoleRef;
-import org.jboss.security.SimplePrincipal;
 
 /**
  * EJB3 Enterprise Context Implementation
@@ -67,6 +58,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    protected transient T container;
    protected transient RealmMapping rm;
    protected B beanContext;
+   protected EJBContextHelper ejbContextHelper;
    
    /** Principal for the bean associated with the call **/
    private Principal beanPrincipal;
@@ -78,6 +70,8 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
       this.beanContext = beanContext;
       this.container = beanContext.getContainer();
       this.rm = container.getSecurityManager(RealmMapping.class);
+      this.ejbContextHelper = new EJBContextHelper();
+      
    }
 
    protected T getContainer()
@@ -136,70 +130,19 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    {
       throw new IllegalStateException("deprecated");
    }
-
-   /*public Principal getCallerPrincipal()
-   {
-      Principal principal = null;
-      
-      RunAsIdentity runAsIdentity = SecurityActions.peekRunAsIdentity(1);
-    
-      principal = SecurityAssociation.getCallerPrincipal();
-      
-      if (getRm() != null)
-      {
-         principal = getRm().getPrincipal(principal);
-      }
-      
-      // This method never returns null.
-      if (principal == null)
-         throw new java.lang.IllegalStateException("No valid security context for the caller identity");
-
-      return principal;
-   }
-*/
    
+   /**
+    * @see EJBContext#getCallerPrincipal()
+    */
    public Principal getCallerPrincipal()
    {
       if(beanPrincipal == null)
       {
          EJBContainer ec = (EJBContainer) container;
-         
-         Principal callerPrincipal = null;
-         
-         RealmMapping rm = container.getSecurityManager(RealmMapping.class); 
-         
-         SecurityContext sc = SecurityActions.getSecurityContext();
-         if(sc == null)
-         {
-            SecurityDomain domain =(SecurityDomain)ec.resolveAnnotation(SecurityDomain.class);
-            String unauth = domain.unauthenticatedPrincipal();
-            if(unauth != null && unauth.length() > 0)
-            if(domain.unauthenticatedPrincipal() != null)
-              callerPrincipal = new SimplePrincipal(unauth);             
-         }
-         else
-         {
-            AuthorizationHelper helper = new AuthorizationHelper(sc); 
-            callerPrincipal = helper.getCallerPrincipal(rm); 
-         }
-         
-         if(callerPrincipal == null)
-         {
-            //try the incoming principal
-            callerPrincipal = sc.getUtil().getUserPrincipal();
-            if(rm != null)
-               callerPrincipal = rm.getPrincipal(callerPrincipal);
-         } 
-         
-         if(callerPrincipal == null)
-         {
-            SecurityDomain domain =(SecurityDomain)ec.resolveAnnotation(SecurityDomain.class);
-            String unauth = domain.unauthenticatedPrincipal();
-            if(unauth != null && unauth.length() > 0)
-            if(domain.unauthenticatedPrincipal() != null)
-              callerPrincipal = new SimplePrincipal(unauth);
-         }
-         
+         SecurityDomain domain = ec.getAnnotation(SecurityDomain.class);
+         Principal callerPrincipal = ejbContextHelper.getCallerPrincipal(SecurityActions.getSecurityContext(), 
+               rm, domain); 
+                 
          // This method never returns null.
          if (callerPrincipal == null)
             throw new java.lang.IllegalStateException("No valid security context for the caller identity");
@@ -216,44 +159,18 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
       throw new IllegalStateException("deprecated");
    }
    
+   /**
+    * @see EJBContext#isCallerInRole(String)
+    */
    public boolean isCallerInRole(String roleName)
    {
-      EJBContainer ejbc = (EJBContainer)container;
-      SecurityContext sc = SecurityActions.getSecurityContext();
-      if(sc == null)
-      {
-         SecurityDomain domain =(SecurityDomain)ejbc.resolveAnnotation(SecurityDomain.class);
-         try
-         {
-            sc = SecurityActions.createSecurityContext(domain.value());
-         }
-         catch (PrivilegedActionException e)
-         {
-            throw new RuntimeException(e);
-         }              
-      }
-      // TODO: this is to slow
-      Set<SecurityRoleRefMetaData> roleRefs = new HashSet<SecurityRoleRefMetaData>();
-      JBossEnterpriseBeanMetaData eb = ejbc.getXml();
-      if(eb != null)
-      {
-         Collection<SecurityRoleRefMetaData> srf = eb.getSecurityRoleRefs(); 
-         if(srf != null)
-            roleRefs.addAll(srf);   
-      } 
-      
-      //TODO: Get rid of this conversion asap
-      Set<SecurityRoleRef> srset = new HashSet<SecurityRoleRef>();
-      for(SecurityRoleRefMetaData srmd: roleRefs)
-      {
-         srset.add(new SecurityRoleRef(srmd.getRoleName(),srmd.getRoleLink(),null));
-      }
-      Principal principal = getCallerPrincipal();
-      AuthorizationHelper helper = new AuthorizationHelper(sc);
-      return helper.isCallerInRole(roleName, 
-                                   ejbc.getEjbName(), 
-                                   principal, 
-                                   srset);
+      EJBContainer ejbc = (EJBContainer)container; 
+      return ejbContextHelper.isCallerInRole(SecurityActions.getSecurityContext(), 
+            ejbc.getAnnotation(SecurityDomain.class), 
+            rm, 
+            ejbc.getXml(), 
+            roleName, 
+            ejbc.getEjbName()); 
    }
  
 
