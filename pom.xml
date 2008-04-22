@@ -100,9 +100,7 @@
           <descriptors>
             <descriptor>jboss-ejb3-client.xml</descriptor>
           </descriptors>
-          <finalName>jboss-ejb3-client</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <attach>false</attach>
+          <attach>true</attach>
         </configuration>
         <inherited>false</inherited>
       </plugin>
