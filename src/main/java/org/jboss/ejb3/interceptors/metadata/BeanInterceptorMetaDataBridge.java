@@ -326,6 +326,12 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                continue;
             
             List<Method> methods = methodMap.get(method.getMethodName());
+            
+            if (methods == null)
+            {
+               throw new IllegalStateException("Bean class " + beanClass.getName() + " does not have a method called '" + method.getMethodName() + "'. This method name was used in an interceptor-binding entry.");
+            }
+            
             for (Method refMethod : methods)
             {
                Signature signature = methodSignatures.getSignature(refMethod);

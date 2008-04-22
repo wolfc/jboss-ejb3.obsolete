@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+    <display-name>InterceptorsTest</display-name>
+    <!-- Must define a bean here, because we have no annotation on it -->
+    <!-- (Can't use @Stateless within ejb3-interceptors) -->
+    <enterprise-beans>
+      <session>
+         <ejb-name>AnnotatedBean</ejb-name>
+      </session>
+      <session>
+         <ejb-name>XmlBean</ejb-name>
+         <around-invoke>
+            <method-name>baseAround</method-name>
+         </around-invoke>
+         <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+      </session>
+    </enterprise-beans>
+    <interceptors>
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlClassInterceptor</interceptor-class>
+          <around-invoke>
+            <method-name>baseAround</method-name>
+         </around-invoke>
+         <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+         <!--
+         <post-construct>
+            <method-name>postConstruct</method-name>
+         </post-construct>
+         <post-construct>
+            <method-name>basePostConstruct</method-name>
+         </post-construct>
+         <pre
+            basePreDestroy
+            
+            preDestroy            
+         -->
+      </interceptor>    
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodInterceptor</interceptor-class>
+          <around-invoke>
+            <method-name>baseAround</method-name>
+         </around-invoke>
+         <around-invoke>
+            <method-name>around</method-name>
+         </around-invoke>
+      </interceptor>    
+    </interceptors>
+    <assembly-descriptor>
+      <interceptor-binding>
+         <ejb-name>XmlBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlClassInterceptor</interceptor-class>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XmlBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.inheritance.XmlMethodInterceptor</interceptor-class>
+         <method>
+            <method-name>method</method-name>
+         </method>
+      </interceptor-binding>
+    </assembly-descriptor>    
+</ejb-jar>
