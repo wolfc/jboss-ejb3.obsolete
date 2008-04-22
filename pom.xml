@@ -48,6 +48,7 @@
     <module>pool</module>
     <!-- module>sandbox</module -->
     <module>security</module>
+    <module>transactions</module>
   </modules>
 
   <profiles>
