@@ -62,8 +62,11 @@
       <directory>../security/target/classes</directory>
       <outputDirectory></outputDirectory>
       <includes>
-        <include>org/jboss/ejb3/security/client/SecurityActions.class</include>
-        <include>org/jboss/ejb3/security/client/SecurityClientInterceptor.class</include>
+        <include>org/jboss/ejb3/security/client/**/*.class</include>
+        <include>org/jboss/ejb3/security/helpers/**/*.class</include>
+        <include>org/jboss/ejb3/security/embedded/**/*.class</include>
+        <include>org/jboss/ejb3/security/bridge/**/*.class</include>
+        <include>org/jboss/ejb3/security/SecurityDomainManager.class</include>
       </includes>
     </fileSet>
 
