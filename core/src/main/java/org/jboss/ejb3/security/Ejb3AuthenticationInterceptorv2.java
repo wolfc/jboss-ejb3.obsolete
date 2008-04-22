@@ -32,11 +32,12 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.security.helpers.AuthenticationHelper;
 import org.jboss.logging.Logger;
 import org.jboss.security.ISecurityManagement;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityUtil;
+import org.jboss.security.javaee.EJBAuthenticationHelper;
+import org.jboss.security.javaee.SecurityHelperFactory;
 
 /**
  *  Authentication Interceptor
@@ -116,7 +117,15 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          sc.setSecurityManagement(getSecurityManagement());
            
          //Check if there is a RunAs configured and can be trusted 
-         AuthenticationHelper helper = new AuthenticationHelper(sc);
+         EJBAuthenticationHelper helper = null;
+         try
+         {
+            helper = SecurityHelperFactory.getEJBAuthenticationHelper(sc);
+         }
+         catch(Exception e)
+         {
+            throw new RuntimeException(e);
+         } 
          boolean trustedCaller = helper.isTrusted();
          if(!trustedCaller)
          {

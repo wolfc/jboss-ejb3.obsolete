@@ -404,4 +404,18 @@ class SecurityActions
          }
       });
    }
+   
+   static RunAsIdentity popRunAs()
+   {     
+      return AccessController.doPrivileged(new PrivilegedAction<RunAsIdentity>() 
+      { 
+         public RunAsIdentity run()
+         {
+            SecurityContext sc = getSecurityContext();
+            RunAsIdentity ra = (RunAsIdentity) sc.getOutgoingRunAs();
+            sc.setOutgoingRunAs(null);
+            return ra;
+         }
+      }); 
+   }
 }

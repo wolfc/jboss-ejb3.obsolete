@@ -34,6 +34,7 @@ import javax.security.jacc.PolicyContextException;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
+import org.jboss.security.SecurityContextFactory;
 
 
 /**
@@ -43,8 +44,7 @@ import org.jboss.security.SecurityContextAssociation;
  *  @version $Revision$
  */
 class SecurityActions
-{
-   
+{ 
    static Principal getCallerPrincipal(final SecurityContext securityContext)
    {
       return AccessController.doPrivileged(new PrivilegedAction<Principal>()
@@ -101,4 +101,15 @@ class SecurityActions
          }
       });    
    } 
+   
+   static SecurityContext createSecurityContext(final String securityDomain) 
+   throws PrivilegedActionException
+   {
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()
+      { 
+         public SecurityContext run() throws Exception
+         {
+            return SecurityContextFactory.createSecurityContext(securityDomain);
+         }});
+   }
 }

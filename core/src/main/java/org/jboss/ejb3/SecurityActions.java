@@ -138,26 +138,26 @@ public class SecurityActions
       return previousID;
    }
 
-   public static RunAsIdentity peekRunAsIdentity(int depth)
+   static RunAsIdentity peekRunAsIdentity(int depth)
    {
       PrivilegedAction action = new PeekRunAsRoleAction(depth);
       RunAsIdentity principal = (RunAsIdentity) AccessController.doPrivileged(action);
       return principal;
    }
    
-   public static Subject getActiveSubject()
+   static Subject getActiveSubject()
    {
       Subject subject = (Subject) AccessController.doPrivileged(GetSubjectAction.ACTION);
       return subject;
    }
    
-   public static void pushRunAsIdentity(RunAsIdentity runAsIdentity)
+   static void pushRunAsIdentity(RunAsIdentity runAsIdentity)
    {     
       PrivilegedAction action = new PushRunAsIdentityAction(runAsIdentity);
       AccessController.doPrivileged(action);
    }
    
-   public static void pushRunAs(final RunAsIdentity runAsIdentity)
+   static void pushRunAs(final RunAsIdentity runAsIdentity)
    {  
       AccessController.doPrivileged(new PrivilegedAction() 
       { 
@@ -170,7 +170,7 @@ public class SecurityActions
       }); 
    }
    
-   public static SecurityContext getSecurityContext()
+   static SecurityContext getSecurityContext()
    {
       return (SecurityContext) AccessController.doPrivileged(new PrivilegedAction() 
       {
@@ -183,12 +183,12 @@ public class SecurityActions
       });
    }
    
-   public static RunAsIdentity popRunAsIdentity()
+   static RunAsIdentity popRunAsIdentity()
    {     
       return (RunAsIdentity)AccessController.doPrivileged(PopRunAsIdentityAction.ACTION);
    }
    
-   public static RunAsIdentity popRunAs()
+   static RunAsIdentity popRunAs()
    {     
       return (RunAsIdentity)AccessController.doPrivileged(new PrivilegedAction() 
       { 
@@ -315,11 +315,11 @@ public class SecurityActions
       void setContextClassLoader(Thread thread, ClassLoader cl);
    }
    
-   public static SecurityContext createSecurityContext(final String securityDomain) throws PrivilegedActionException
+   static SecurityContext createSecurityContext(final String securityDomain) throws PrivilegedActionException
    {
-      return (SecurityContext) AccessController.doPrivileged(new PrivilegedExceptionAction()
+      return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>()
       { 
-         public Object run() throws Exception
+         public SecurityContext run() throws Exception
          {
             return SecurityContextFactory.createSecurityContext(securityDomain);
          }});

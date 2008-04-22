@@ -40,7 +40,6 @@ import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.security.helpers.AuthorizationHelper;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.remoting.InvokerLocator;
@@ -49,7 +48,10 @@ import org.jboss.security.NobodyPrincipal;
 import org.jboss.security.RunAs;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityRolesAssociation;
-import org.jboss.security.SimplePrincipal; 
+import org.jboss.security.SimplePrincipal;
+import org.jboss.security.identity.plugins.SimpleRoleGroup;
+import org.jboss.security.javaee.AbstractEJBAuthorizationHelper;
+import org.jboss.security.javaee.SecurityHelperFactory;
 
 /**
  * The RoleBasedAuthorizationInterceptor checks that the caller principal is
@@ -175,7 +177,15 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
             
             RunAs callerRunAs = SecurityActions.peekRunAs();
             
-            AuthorizationHelper helper = new AuthorizationHelper(sc);
+            AbstractEJBAuthorizationHelper helper = null;
+            try
+            {
+               helper = SecurityHelperFactory.getEJBAuthorizationHelper(sc); 
+            }
+            catch(Exception e)
+            {
+               throw new RuntimeException(e);
+            } 
             boolean isAuthorized = helper.authorize(ejbName, 
                              mi.getMethod(), 
                              sc.getUtil().getUserPrincipal(), 
@@ -183,7 +193,8 @@ public final class RoleBasedAuthorizationInterceptorv2 implements Interceptor
                              ejbCS, 
                              sc.getUtil().getSubject(), 
                              callerRunAs, 
-                             methodRoles);
+                             contextID,
+                             new SimpleRoleGroup(methodRoles));
             if(!isAuthorized)
                throw new EJBAccessException("Caller unauthorized");
          }  
