@@ -37,4 +37,29 @@ public class XmlClassBaseInterceptor
       return ctx.proceed();
    }
 
+   public void basePostConstruct(InvocationContext ctx)
+   {
+      try
+      {
+         Interceptions.addPostConstruct(XmlClassBaseInterceptor.class);
+         ctx.proceed();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+   
+   public void basePreDestroy(InvocationContext ctx)
+   {
+      try
+      {
+         Interceptions.addPreDestroy(XmlClassBaseInterceptor.class);
+         ctx.proceed();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
 }

@@ -35,7 +35,7 @@ import javax.interceptor.InvocationContext;
 public class ClassBaseInterceptor
 {
    @PostConstruct
-   public static void basePostConstruct(InvocationContext ctx)
+   public void basePostConstruct(InvocationContext ctx)
    {
       try
       {
@@ -49,7 +49,7 @@ public class ClassBaseInterceptor
    }
    
    @PreDestroy
-   public static void basePreDestroy(InvocationContext ctx)
+   public void basePreDestroy(InvocationContext ctx)
    {
       try
       {

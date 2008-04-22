@@ -72,6 +72,9 @@ public class LifecycleCallbackBeanMethodInterceptor implements Interceptor
          {
             method.setAccessible(accessible);
          }
+         //Call invocation.invokeNext() since bean class callback methods don't call 
+         //InvocationContext.proceed(), and there may be sub-class methods
+         invocation.invokeNext();
          return null;
       }
       catch(InvocationTargetException e)

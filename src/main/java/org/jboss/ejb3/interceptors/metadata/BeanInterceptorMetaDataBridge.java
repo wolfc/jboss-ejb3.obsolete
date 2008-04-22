@@ -50,7 +50,6 @@ import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.util.InterceptorCollection;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;

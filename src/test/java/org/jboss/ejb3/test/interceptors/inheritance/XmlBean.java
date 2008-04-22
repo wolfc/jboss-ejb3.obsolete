@@ -41,4 +41,14 @@ public class XmlBean extends XmlBase
       Interceptions.addAroundInvoke(XmlBean.class);
       return ctx.proceed();
    }
+
+   public void postConstruct()
+   {
+      Interceptions.addPostConstruct(XmlBean.class);
+   }
+   
+   public void preDestroy()
+   {
+      Interceptions.addPreDestroy(XmlBean.class);
+   }
 }
