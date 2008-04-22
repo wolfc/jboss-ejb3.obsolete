@@ -21,7 +21,7 @@
 */ 
 package org.jboss.ejb3.test.interceptors.inheritance;
 
-import javax.annotation.PostConstruct;
+import javax.interceptor.AroundInvoke;
 import javax.interceptor.InvocationContext;
 
 
@@ -32,17 +32,10 @@ import javax.interceptor.InvocationContext;
  */
 public class MethodBaseInterceptor
 {
-   @PostConstruct
-   public static void basePostConstruct(InvocationContext ctx)
+   @AroundInvoke
+   public Object baseAround(InvocationContext ctx) throws Exception
    {
-      try
-      {
-         Interceptions.addPostConstruct(MethodBaseInterceptor.class);
-         ctx.proceed();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+      Interceptions.addAroundInvoke(MethodBaseInterceptor.class);
+      return ctx.proceed();
    }
 }
