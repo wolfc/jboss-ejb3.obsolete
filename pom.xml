@@ -42,7 +42,7 @@
     <module>injection</module>
     <module>installer</module>
     <module>interceptors</module>
-    <module>locator</module>
+    <!-- <module>locator</module> -->
     <module>metadata</module>
     <module>plugin</module>
     <module>pool</module>
