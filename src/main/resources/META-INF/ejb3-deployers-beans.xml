@@ -5,8 +5,6 @@
 -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
-   <!-- TODO this should be removed later on when ENC gets changed -->
-   <bean name="java:comp/Initializer" class="org.jboss.ejb3.embedded.JavaCompInitializer"/>
    <bean name="DefaultPersistenceProperties" class="org.jboss.ejb3.DefaultPersistenceProperties"/>
 
    <bean name="Ejb3Deployer" class="org.jboss.ejb3.deployers.Ejb3Deployer">

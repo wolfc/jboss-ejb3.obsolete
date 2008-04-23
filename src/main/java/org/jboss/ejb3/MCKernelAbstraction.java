@@ -37,7 +37,6 @@ import org.jboss.beans.metadata.plugins.AbstractDemandMetaData;
 import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.spi.DemandMetaData;
 import org.jboss.beans.metadata.spi.SupplyMetaData;
-import org.jboss.ejb3.embedded.resource.RARDeployment;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.spi.registry.KernelRegistryEntry;
 import org.jboss.logging.Logger;
@@ -240,21 +239,13 @@ public class MCKernelAbstraction
       if (entry != null)
       {
          Object target = entry.getTarget();
-         if (target instanceof RARDeployment)
+         Class[] types = new Class[signature.length];
+         for (int i = 0; i < signature.length; ++i)
          {
-            RARDeployment deployment = (RARDeployment)target;
-            return deployment.invoke(operationName, params, signature);
-         } 
-         else
-         {
-            Class[] types = new Class[signature.length];
-            for (int i = 0; i < signature.length; ++i)
-            {
-               types[i] = Thread.currentThread().getContextClassLoader().loadClass(signature[i]);
-            }
-            Method method = target.getClass().getMethod(operationName, types);
-            return method.invoke(target, params);
+            types[i] = Thread.currentThread().getContextClassLoader().loadClass(signature[i]);
          }
+         Method method = target.getClass().getMethod(operationName, types);
+         return method.invoke(target, params);
       }
       return null;
    }
