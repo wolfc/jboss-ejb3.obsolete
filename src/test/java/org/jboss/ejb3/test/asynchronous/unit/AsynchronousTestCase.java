@@ -34,8 +34,8 @@ import junit.framework.Test;
 
 import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.asynch.Future;
-import org.jboss.ejb3.JBossProxy;
 import org.jboss.ejb3.asynchronous.Asynch;
+import org.jboss.ejb3.proxy.JBossProxy;
 import org.jboss.ejb3.test.asynchronous.SecuredStatelessRemote;
 import org.jboss.ejb3.test.asynchronous.ServiceRemote;
 import org.jboss.ejb3.test.asynchronous.StatefulClusteredRemote;

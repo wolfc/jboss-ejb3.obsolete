@@ -45,12 +45,19 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.BeanContextLifecycleCallback;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.ProxyFactoryHelper;
-import org.jboss.ejb3.ProxyUtils;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.StatefulProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateless.BaseStatelessRemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory;
 import org.jboss.ejb3.session.SessionSpecContainer;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.lang.reflect.BeanProperty;
@@ -153,17 +160,17 @@ public class StatelessContainer extends SessionSpecContainer
     * @throws Exception
     */
    @Override
-   public Object createProxyLocalEjb21(LocalBinding binding) throws Exception
+   public Object createProxyLocalEjb21(LocalBinding binding, String businessInterfaceType) throws Exception
    {
       StatelessLocalProxyFactory proxyFactory = this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb21();
+      return proxyFactory.createProxyEjb21(businessInterfaceType);
    }
    
    @Override
-   public Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception
+   public Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception
    {
       BaseStatelessRemoteProxyFactory proxyFactory = this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb21();
+      return proxyFactory.createProxyEjb21(businessInterfaceType);
    }
    
    public Object createSession(Class<?> initTypes[], Object initArgs[])
@@ -455,22 +462,42 @@ public class StatelessContainer extends SessionSpecContainer
          return null;
       }
    }
+   
+   /**
+    * Provides implementation for this bean's EJB 2.1 Home.create() method 
+    * 
+    * @param factory
+    * @param unadvisedMethod
+    * @param args
+    * @return
+    * @throws Exception
+    */
+   @Override
+   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+         throws Exception
+   {   
+
+      Object proxy = factory.createProxyBusiness(unadvisedMethod.getReturnType().getName());
+
+      return proxy;
+   }
 
    public Object localHomeInvoke(Method method, Object[] args) throws Throwable
    {
       if (method.getName().equals("create"))
       {
          LocalBinding binding = this.getAnnotation(LocalBinding.class);
-         
+
          // FIXME: why this binding? Could be another one. (there is only one local binding, but that's another bug)
-         
+
          StatelessLocalProxyFactory factory = this.getProxyFactory(binding);
 
-         Object proxy = factory.createProxyEjb21();
+         Object proxy = factory.createProxyEjb21(method.getReturnType().getName());
 
          return proxy;
       }
-      else // remove
+      else
+      // remove
       {
          return null;
       }
@@ -482,12 +509,13 @@ public class StatelessContainer extends SessionSpecContainer
       if (unadvisedMethod.getName().equals("create"))
       {
          RemoteBinding binding = this.getRemoteBinding();
-         
+
          BaseStatelessRemoteProxyFactory factory = this.getProxyFactory(binding);
-         
-         return factory.createProxyEjb21();
+
+         return factory.createProxyEjb21(unadvisedMethod.getReturnType().getName());
       }
-      else // remove
+      else
+      // remove
       {
          return null;
       }

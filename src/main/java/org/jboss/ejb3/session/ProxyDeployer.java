@@ -28,8 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.ejb3.ProxyFactory;
-import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
@@ -37,7 +35,9 @@ import org.jboss.ejb3.annotation.defaults.RemoteBindingDefaults;
 import org.jboss.ejb3.annotation.impl.LocalBindingImpl;
 import org.jboss.ejb3.annotation.impl.RemoteBindingImpl;
 import org.jboss.ejb3.annotation.impl.RemoteBindingsImpl;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.logging.Logger;
 
 /**

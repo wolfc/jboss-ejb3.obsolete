@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.mdb;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Hashtable;
 
@@ -34,15 +33,13 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.JndiProxyFactory;
-import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.annotation.MessageProperties;
 import org.jboss.ejb3.annotation.Producer;
 import org.jboss.ejb3.annotation.Producers;
-import org.jboss.ejb3.annotation.impl.MessagePropertiesImpl;
 import org.jboss.ejb3.annotation.impl.ProducerImpl;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.JndiSessionProxyObjectFactory;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
 
@@ -55,19 +52,20 @@ public abstract class ProducerFactory implements ProxyFactory
 {
    private static final Logger log = Logger.getLogger(ProducerFactory.class);
    
-   protected Class producer;
+   protected Class<?> producer;
    protected MessageProperties props;
    protected Destination dest;
-   protected HashMap methodMap;
+   protected HashMap<?,?> methodMap;
    protected ProducerImpl pImpl;
    protected String jndiName;
    protected InitialContext ctx;
-   protected Hashtable initialContextProperties;
+   protected Hashtable<?,?> initialContextProperties;
 
    public static final String PROXY_FACTORY_NAME = "PRODUCER_FACTORY";
 
 
-   protected ProducerFactory(ConsumerContainer container, Class producer, MessageProperties props, Destination dest, InitialContext ctx, Hashtable ctxProperties)
+   protected ProducerFactory(ConsumerContainer container, Class<?> producer, MessageProperties props, Destination dest,
+         InitialContext ctx, Hashtable<?, ?> ctxProperties)
    {
       this.producer = producer;
       this.props = props;
@@ -134,8 +132,8 @@ public abstract class ProducerFactory implements ProxyFactory
       Name name = baseCtx.getNameParser("").parse(jndiName);
       baseCtx = Util.createSubcontext(baseCtx, name.getPrefix(name.size() - 1));
       String atom = name.get(name.size() - 1);
-      RefAddr refAddr = new StringRefAddr(JndiProxyFactory.FACTORY, atom + PROXY_FACTORY_NAME);
-      Reference ref = new Reference("java.lang.Object", refAddr, JndiProxyFactory.class.getName(), null);
+      RefAddr refAddr = new StringRefAddr(JndiSessionProxyObjectFactory.REF_ADDR_NAME_JNDI_BINDING_DELEGATE_PROXY_FACTORY, atom + PROXY_FACTORY_NAME);
+      Reference ref = new Reference("java.lang.Object", refAddr, JndiSessionProxyObjectFactory.class.getName(), null);
      
       try
       {

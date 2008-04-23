@@ -36,12 +36,12 @@ public abstract class SessionSpecContainer extends SessionContainer
     * @return
     * @throws Exception
     */
-   public Object createProxyRemoteEjb21() throws Exception
+   public Object createProxyRemoteEjb21(String businessInterfaceType) throws Exception
    {
       RemoteBinding binding = this.getRemoteBinding();
-      return this.createProxyRemoteEjb21(binding);
+      return this.createProxyRemoteEjb21(binding, businessInterfaceType);
    }
-   
+
    /**
     * Create a remote proxy (EJBObject) for an enterprise bean identified by id on a given binding
     * 
@@ -50,8 +50,8 @@ public abstract class SessionSpecContainer extends SessionContainer
     * @return
     * @throws Exception
     */
-   public abstract Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception;
-   
+   public abstract Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception;
+
    /**
     * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id
     * 
@@ -59,12 +59,12 @@ public abstract class SessionSpecContainer extends SessionContainer
     * @return
     * @throws Exception
     */
-   public Object createProxyLocalEjb21() throws Exception
+   public Object createProxyLocalEjb21(String businessInterfaceType) throws Exception
    {
       LocalBinding binding = this.getAnnotation(LocalBinding.class);
-      return this.createProxyLocalEjb21(binding);
+      return this.createProxyLocalEjb21(binding, businessInterfaceType);
    }
-   
+
    /**
     * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id, with
     * the specified LocalBinding
@@ -73,5 +73,5 @@ public abstract class SessionSpecContainer extends SessionContainer
     * @return
     * @throws Exception
     */
-   public abstract Object createProxyLocalEjb21(LocalBinding binding) throws Exception;
+   public abstract Object createProxyLocalEjb21(LocalBinding binding, String businessInterfaceType) throws Exception;
 }

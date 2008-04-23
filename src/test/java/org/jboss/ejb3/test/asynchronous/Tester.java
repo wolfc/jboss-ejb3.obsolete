@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.asynchronous;
 
 import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.asynch.Future;
-import org.jboss.ejb3.JBossProxy;
+import org.jboss.ejb3.proxy.JBossProxy;
 import org.jboss.tm.TransactionManagerLocator;
 
 import javax.naming.InitialContext;

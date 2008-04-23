@@ -41,7 +41,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
    {
       super(beanContext);
    }
-   
+
    @Override
    public EJBLocalObject getEJBLocalObject() throws IllegalStateException
    {
@@ -51,7 +51,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
          EJBLocalObject proxy = null;
          try
          {
-               proxy = (EJBLocalObject) container.createProxyLocalEjb21(id);
+            proxy = (EJBLocalObject) container.createProxyLocalEjb21(id, null);
          }
          // Proxy does not implement EJBLocalObject
          catch (ClassCastException cce)
@@ -70,7 +70,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
          throw new IllegalStateException(e);
       }
    }
-   
+
    @Override
    public EJBObject getEJBObject() throws IllegalStateException
    {
@@ -80,7 +80,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
          EJBObject proxy = null;
          try
          {
-            proxy = (EJBObject) container.createProxyRemoteEjb21(id);
+            proxy = (EJBObject) container.createProxyRemoteEjb21(id, null);
          }
          // Proxy does not implement EJBObject
          catch (ClassCastException cce)

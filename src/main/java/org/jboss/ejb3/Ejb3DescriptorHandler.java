@@ -135,6 +135,7 @@ import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.lang.ClassHelper;
 import org.jboss.ejb3.mdb.ConsumerContainer;
 import org.jboss.ejb3.mdb.MDB;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;

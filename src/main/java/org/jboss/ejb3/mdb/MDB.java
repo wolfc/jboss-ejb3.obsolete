@@ -35,8 +35,8 @@ import javax.management.ObjectName;
 
 import org.jboss.aop.Domain;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.annotation.DefaultActivationSpecs;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 

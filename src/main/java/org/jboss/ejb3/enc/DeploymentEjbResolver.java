@@ -24,9 +24,9 @@ package org.jboss.ejb3.enc;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.DeploymentScope;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.logging.Logger;
 
 import javax.naming.NameNotFoundException;

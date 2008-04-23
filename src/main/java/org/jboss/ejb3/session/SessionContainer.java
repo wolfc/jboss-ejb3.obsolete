@@ -46,15 +46,16 @@ import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Module;
-import org.jboss.ejb3.ProxyFactory;
-import org.jboss.ejb3.ProxyFactoryHelper;
-import org.jboss.ejb3.ProxyUtils;
 import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
@@ -382,7 +383,7 @@ public abstract class SessionContainer extends EJBContainer
     * @param args       the arguments for the method
     * @param provider   for asynchronous usage
     */
-   public Object invoke(ProxyFactory factory, Object id, Method method, Object args[], FutureHolder provider) throws Throwable
+   public Object invoke(SessionProxyFactory factory, Object id, Method method, Object args[], FutureHolder provider) throws Throwable
    {
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       pushEnc();
@@ -436,25 +437,15 @@ public abstract class SessionContainer extends EJBContainer
    
    /**
     * TODO: work in progress (refactor both invokeHomeMethod's, localHomeInvoke)
+    * TODO: Move this to SessionSpecContainer
     */
-   private Object invokeHomeMethod(ProxyFactory factory, MethodInfo info, Object args[]) throws Exception
+   //TODO
+   private Object invokeHomeMethod(SessionProxyFactory factory, MethodInfo info, Object args[]) throws Exception
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("create"))
       {
-         Class<?>[] initParameterTypes = {};
-         Object[] initParameterValues = {};
-         if (unadvisedMethod.getParameterTypes().length > 0)
-         {
-            initParameterTypes = unadvisedMethod.getParameterTypes();
-            initParameterValues = args;
-         }
-
-         Object id = createSession(initParameterTypes, initParameterValues);
-         
-         Object proxy = factory.createProxyBusiness(id);
-
-         return proxy;
+         return this.invokeHomeCreate(factory, unadvisedMethod, args);
       }
       else if (unadvisedMethod.getName().equals("remove"))
       {
@@ -470,6 +461,19 @@ public abstract class SessionContainer extends EJBContainer
          throw new IllegalArgumentException("illegal home method " + unadvisedMethod);
       }
    }
+   
+   /**
+    * Provides implementation for this bean's EJB 2.1 Home.create() method 
+    * 
+    * @param factory
+    * @param unadvisedMethod
+    * @param args
+    * @return
+    * @throws Exception
+    */
+   //TODO Move this to SessionSpecContainer
+   protected abstract Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+         throws Exception;
    
    /**
     * Create session to an EJB bean.

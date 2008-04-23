@@ -31,7 +31,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision: 67628 $
  */
-public class StatefulRemoteProxyFactory extends org.jboss.ejb3.stateful.StatefulRemoteProxyFactory
+public class StatefulRemoteProxyFactory extends org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(StatefulRemoteProxyFactory.class);

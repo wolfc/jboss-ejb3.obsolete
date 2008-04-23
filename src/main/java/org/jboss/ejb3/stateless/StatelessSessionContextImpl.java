@@ -51,7 +51,7 @@ public class StatelessSessionContextImpl extends SessionContextDelegateBase<Stat
    {
       try
       {
-         EJBLocalObject proxy = (EJBLocalObject) container.createProxyLocalEjb21();
+         EJBLocalObject proxy = (EJBLocalObject) container.createProxyLocalEjb21(null);
          return proxy;
       }
       catch (Exception e)
@@ -65,7 +65,7 @@ public class StatelessSessionContextImpl extends SessionContextDelegateBase<Stat
    {
       try
       {
-         EJBObject proxy = (EJBObject) container.createProxyRemoteEjb21();
+         EJBObject proxy = (EJBObject) container.createProxyRemoteEjb21(null);
          return proxy;
       }
       catch (Exception e)

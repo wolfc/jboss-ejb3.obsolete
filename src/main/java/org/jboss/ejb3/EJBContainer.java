@@ -80,6 +80,7 @@ import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
