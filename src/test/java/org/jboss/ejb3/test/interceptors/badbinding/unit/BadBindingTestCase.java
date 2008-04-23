@@ -34,6 +34,7 @@ import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFa
 import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.test.interceptors.badbinding.ChildLifecycleBean;
 import org.jboss.ejb3.test.interceptors.common.CommonInterceptor;
 import org.jboss.ejb3.test.interceptors.metadata.MetadataBean;
 import org.jboss.logging.Logger;
@@ -207,7 +208,39 @@ public class BadBindingTestCase extends TestCase
       testBinding("badbinding/goodbean-interceptor-order-binding-with-method/META-INF/ejb-jar.xml");
    }
 
-   private MyContainer<MetadataBean> testBinding(String ejbJarXml) throws Throwable
+   
+   public void testBadBeanBeanOverriddenLifecycle() throws Throwable
+   {
+      try
+      {
+         MyContainer container = testBinding("badbinding/badbean-bean-overridden-lifecycle/META-INF/ejb-jar.xml", ChildLifecycleBean.class, "ChildLifecycleBean");
+         container.construct();
+         fail("Only the child lifecycle method should have been chosen");
+      }
+      catch(Exception expected)
+      {
+      }
+   }
+   
+   public void testBadBeanInterceptorOverriddenLifecycle() throws Throwable
+   {
+      try
+      {
+         MyContainer container = testBinding("badbinding/badbean-interceptor-overridden-lifecycle/META-INF/ejb-jar.xml", ChildLifecycleBean.class, "ChildLifecycleBean");
+         container.construct();
+         fail("Only the child lifecycle method should have been chosen");
+      }
+      catch(Exception expected)
+      {
+      }
+   }
+
+   private MyContainer testBinding(String ejbJarXml) throws Throwable
+   {
+      return testBinding(ejbJarXml, MetadataBean.class, "MetadataBean");
+   }
+   
+   private MyContainer testBinding(String ejbJarXml, Class<?> clazz, String name) throws Throwable
    {
       // To make surefire happy
       Thread.currentThread().setContextClassLoader(MetadataBean.class.getClassLoader());
@@ -220,12 +253,12 @@ public class BadBindingTestCase extends TestCase
       JBoss50MetaData jbossMetaData = new JBoss50MetaData();
       jbossMetaData.merge(null, metaData);
       
-      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("MetadataBean");
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean(name);
       assertNotNull(beanMetaData);
       
       assertEquals(0, CommonInterceptor.postConstructs);
       
-      MyContainer<MetadataBean> container = new MyContainer<MetadataBean>("MetadataBean", "Test", MetadataBean.class, beanMetaData);
+      MyContainer container = new MyContainer(name, "Test", clazz, beanMetaData);
 
       container.testAdvisor();
       
