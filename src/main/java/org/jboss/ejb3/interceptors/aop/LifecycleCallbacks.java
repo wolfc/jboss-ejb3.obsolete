@@ -48,7 +48,6 @@ public class LifecycleCallbacks
 {
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
-      HashSet<Class<?>> classes = new HashSet<Class<?>>();
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
       // 12.7 footnote 57: ignore method level interceptors
       // The lifecycle callbacks on the interceptors must be invoked in order
@@ -56,6 +55,7 @@ public class LifecycleCallbacks
       {
          Object interceptor = component.getInterceptor(interceptorClass);
          ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor, interceptor);
+         HashSet<Class<?>> classes = null;
          for(Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
          {
             if (!ClassHelper.isOverridden(interceptorClass, interceptorMethod))
@@ -63,7 +63,7 @@ public class LifecycleCallbacks
                //Only a candidate for a lifecycle method if not overridden 
                if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, lifecycleAnnotationType)) //For Xml this returns true sometimes
                {
-                  checkClass(classes, interceptorMethod, advisor, lifecycleAnnotationType);  
+                  classes = checkClass(classes, interceptorMethod, advisor, lifecycleAnnotationType);  
                   interceptors.add(new LifecycleCallbackInterceptorMethodInterceptor(interceptor, interceptorMethod));
                }
             }
@@ -72,13 +72,14 @@ public class LifecycleCallbacks
       
       // Bean lifecycle callbacks
       Class<?> beanClass = advisor.getClazz();
+      HashSet<Class<?>> classes = null;
       for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
       {
          if (!ClassHelper.isOverridden(beanClass, beanMethod))
          {
             if(advisor.hasAnnotation(beanMethod, lifecycleAnnotationType))
             {
-               checkClass(classes, beanMethod, advisor, lifecycleAnnotationType);  
+               classes = checkClass(classes, beanMethod, advisor, lifecycleAnnotationType);  
                interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
             }
          }
@@ -89,29 +90,37 @@ public class LifecycleCallbacks
       return interceptors.toArray(new Interceptor[0]);
    }
    
-   private static void checkClass(HashSet<Class<?>> classes, Method m, Advisor advisor, Class<? extends Annotation> lifecycleAnnotationType)
+   private static HashSet<Class<?>> checkClass(HashSet<Class<?>> classes, Method m, Advisor advisor, Class<? extends Annotation> lifecycleAnnotationType)
    {
-      if (classes.contains(m.getDeclaringClass()))
+      if (classes != null)
       {
-         String type = null;
-         if (lifecycleAnnotationType == PostConstruct.class)
+         if (classes.contains(m.getDeclaringClass()))
          {
-            type = "post-construct";
+            String type = null;
+            if (lifecycleAnnotationType == PostConstruct.class)
+            {
+               type = "post-construct";
+            }
+            else if (lifecycleAnnotationType == PreDestroy.class)
+            {
+               type = "pre-destroy";
+            } 
+            else if (lifecycleAnnotationType == PostActivate.class)
+            {
+               type = "post-activate";
+            }
+            else if (lifecycleAnnotationType == PrePassivate.class)
+            {
+               type = "pre-passivate";
+            }         
+            throw new RuntimeException("More than one '" + type + "' method in " + advisor.getName());
          }
-         else if (lifecycleAnnotationType == PreDestroy.class)
-         {
-            type = "pre-destroy";
-         } 
-         else if (lifecycleAnnotationType == PostActivate.class)
-         {
-            type = "post-activate";
-         }
-         else if (lifecycleAnnotationType == PrePassivate.class)
-         {
-            type = "pre-passivate";
-         }         
-         throw new RuntimeException("More than one '" + type + "' method in " + advisor.getName());
+      }
+      else
+      {
+         classes = new HashSet<Class<?>>();
       }
       classes.add(m.getDeclaringClass());
+      return classes;
    }
 }
