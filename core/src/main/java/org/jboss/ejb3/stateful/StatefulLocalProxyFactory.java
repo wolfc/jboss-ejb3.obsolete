@@ -31,9 +31,12 @@ import javax.ejb.LocalHome;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.ProxyFactoryHelper;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulProxyFactory;
+import org.jboss.ejb3.proxy.handler.stateful.StatefulLocalHomeProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.stateful.StatefulLocalProxyInvocationHandler;
 import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
@@ -135,7 +138,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
          Class<?>[] interfaces =
          {localHome.value()};
          Object homeProxy = java.lang.reflect.Proxy.newProxyInstance(statefulContainer.getBeanClass().getClassLoader(),
-               interfaces, new StatefulLocalHomeProxy(statefulContainer));
+               interfaces, new StatefulLocalHomeProxyInvocationHandler(statefulContainer));
          Util.rebind(statefulContainer.getInitialContext(), ProxyFactoryHelper.getLocalHomeJndiName(statefulContainer),
                homeProxy);
       }
@@ -159,42 +162,54 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
       Object id = sfsb.createSession();
       return this.createProxyBusiness(id);
    }
-
-   public EJBLocalObject createProxyEjb21()
+   
+   public EJBLocalObject createProxyEjb21(String businessInterfaceType)
    {
       Object id = getContainer().createSession();
-      return this.createProxyEjb21(id);
+      return this.createProxyEjb21(id, businessInterfaceType);
+   }
+   
+   public Object createProxyBusiness(String businessInterfaceType)
+   {
+      return this.createProxyBusiness(null, businessInterfaceType);
    }
 
    public Object createProxyBusiness(Object id)
    {
-      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
+      return this.createProxyBusiness(id, null);
+   }
+
+   public Object createProxyBusiness(Object id, String businessInterfaceType)
+   {
+      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS, businessInterfaceType);
    }
 
    @SuppressWarnings("unchecked")
-   public <T extends EJBLocalObject> T createProxyEjb21(Object id)
+   public <T extends EJBLocalObject> T createProxyEjb21(Object id, String businessInterfaceType)
    {
-      return (T)this.createProxy(id, SpecificationInterfaceType.EJB21);
+      return (T) this.createProxy(id, SpecificationInterfaceType.EJB21, null);
    }
 
-   private Object createProxy(Object id, SpecificationInterfaceType type)
+   private Object createProxy(Object id, SpecificationInterfaceType type, String businessInterfaceType)
    {
-      StatefulLocalProxy proxy = new StatefulLocalProxy(this.getContainer(), id, vmid);
+      StatefulLocalProxyInvocationHandler proxy = new StatefulLocalProxyInvocationHandler(this.getContainer(), id,
+            vmid, businessInterfaceType);
       return type.equals(SpecificationInterfaceType.EJB30_BUSINESS) ? this.constructProxyBusiness(proxy) : this
             .constructEjb21Proxy(proxy);
    }
-   
+
    public Object createProxy(Class<?>[] initTypes, Object[] initValues)
    {
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession(initTypes, initValues);
-      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS);
+      return this.createProxy(id, SpecificationInterfaceType.EJB30_BUSINESS, null);
    }
-   
-   public Object createProxyEjb21(Class<?>[] initTypes, Object[] initValues){
+
+   public Object createProxyEjb21(Class<?>[] initTypes, Object[] initValues, String businessInterfaceType)
+   {
       SessionContainer sfsb = (SessionContainer) getContainer();
       Object id = sfsb.createSession(initTypes, initValues);
-      return this.createProxy(id, SpecificationInterfaceType.EJB21);
+      return this.createProxyEjb21(id, businessInterfaceType);
    }
 
    protected StatefulHandleImpl createHandle()

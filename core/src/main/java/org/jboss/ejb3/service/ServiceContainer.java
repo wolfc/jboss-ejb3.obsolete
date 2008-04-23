@@ -51,19 +51,23 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
+import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
+import org.jboss.util.NotImplementedException;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -524,6 +528,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    protected Object invokeEJBObjectMethod(ProxyFactory factory, Object id, MethodInfo info, Object[] args) throws Exception
    {
       throw new RuntimeException("NYI");
+   }
+   
+
+   //TODO This shouldn't be required of @Service
+   @Override
+   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+         throws Exception
+   {
+      throw new NotImplementedException("Invalid for " + ServiceContainer.class.getName());
    }
 
    public MBeanInfo getMBeanInfo()

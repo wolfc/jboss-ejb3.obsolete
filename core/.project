@@ -1,10 +1,7 @@
 <projectDescription>
   <name>jboss-ejb3-core</name>
   <comment>JBoss EJB 3.0 Core</comment>
-  <projects>
-    <project>jboss-ejb3-cache</project>
-    <project>jboss-ejb3-interceptors</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>

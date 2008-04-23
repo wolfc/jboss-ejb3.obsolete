@@ -41,7 +41,6 @@ import javax.ejb.NoSuchEJBException;
 import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.RemoveException;
 import javax.ejb.TimerService;
@@ -58,9 +57,6 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.ProxyFactory;
-import org.jboss.ejb3.ProxyFactoryHelper;
-import org.jboss.ejb3.ProxyUtils;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
@@ -73,8 +69,16 @@ import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
 import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
-import org.jboss.ejb3.proxy.EJBMetaDataImpl;
-import org.jboss.ejb3.proxy.handle.HomeHandleImpl;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulRemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.StatefulProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory;
+import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
+import org.jboss.ejb3.proxy.impl.HomeHandleImpl;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.injection.Injector;
@@ -136,42 +140,42 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       return factory;
    }
    
-   public Object createProxyLocalEjb21(Object id, LocalBinding binding) throws Exception
+   public Object createProxyLocalEjb21(Object id, LocalBinding binding, String businessInterfaceType) throws Exception
    {
       StatefulLocalProxyFactory proxyFactory = this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb21(id);
+      return proxyFactory.createProxyEjb21(id,businessInterfaceType);
    }
    
-   public Object createProxyRemoteEjb21(Object id) throws Exception
+   public Object createProxyRemoteEjb21(Object id, String businessInterfaceType) throws Exception
    {
       RemoteBinding binding = this.getRemoteBinding();
-      return this.createProxyRemoteEjb21(id,binding);
+      return this.createProxyRemoteEjb21(id,binding, businessInterfaceType);
    }
 
-   public Object createProxyRemoteEjb21(Object id, RemoteBinding binding) throws Exception
+   public Object createProxyRemoteEjb21(Object id, RemoteBinding binding, String businessInterfaceType) throws Exception
    { 
       BaseStatefulRemoteProxyFactory proxyFactory = this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb21(id);
+      return proxyFactory.createProxyEjb21(id, businessInterfaceType);
    }
    
-   public Object createProxyLocalEjb21(Object id) throws Exception
+   public Object createProxyLocalEjb21(Object id, String businessInterfaceType) throws Exception
    {
       LocalBinding binding = this.getAnnotation(LocalBinding.class);
-      return this.createProxyLocalEjb21(id,binding);
+      return this.createProxyLocalEjb21(id,binding, businessInterfaceType);
    }
    
    @Override
-   public Object createProxyLocalEjb21(LocalBinding binding) throws Exception
+   public Object createProxyLocalEjb21(LocalBinding binding, String businessInterfaceType) throws Exception
    {
       Object id = this.createSession();
-      return this.createProxyLocalEjb21(id,binding);
+      return this.createProxyLocalEjb21(id,binding, businessInterfaceType);
    }
 
    @Override
-   public Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception
+   public Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception
    {
       Object id = this.createSession();
-      return this.createProxyRemoteEjb21(id, binding);
+      return this.createProxyRemoteEjb21(id, binding, businessInterfaceType);
    }
    
    @Override
@@ -796,7 +800,7 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
          factory.init();
 
          Object proxy = factory.createProxyEjb21(initParameterTypes,
-                 initParameterValues);
+                 initParameterValues, unadvisedMethod.getReturnType().getName());
 
          return proxy;
       }
@@ -831,7 +835,7 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       factory.init();
 
       if (id != null)
-         return factory.createProxyBusiness(id);
+         return factory.createProxyBusiness(id,null);
       else
          return factory.createProxyBusiness();
    }
@@ -872,10 +876,11 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
          factory.init();
 
          Object proxy = null;
+         String businessInterfaceType = unadvisedMethod.getReturnType().getName();
          if (newStatefulInvocation.getId() != null)
-            proxy = factory.createProxyEjb21(newStatefulInvocation.getId());
+            proxy = factory.createProxyEjb21(newStatefulInvocation.getId(), businessInterfaceType);
          else
-            proxy = factory.createProxyEjb21();
+            proxy = factory.createProxyEjb21(businessInterfaceType);
 
          InvocationResponse response = marshallResponse(statefulInvocation, proxy, newStatefulInvocation.getResponseContextInfo());
          if (newStatefulInvocation.getId() != null)
@@ -935,6 +940,51 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
          return null;
       }
    }
+   
+   /**
+    * Provides implementation for this bean's EJB 2.1 Home.create() method 
+    * 
+    * @param factory
+    * @param unadvisedMethod
+    * @param args
+    * @return
+    * @throws Exception
+    */
+   @Override
+   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+         throws Exception
+   {
+      
+      // Cast
+      String errorMessage = "Specified factory " + factory.getClass().getName() + " is not of type "
+            + StatefulProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName();
+      assert factory instanceof StatefulProxyFactory : errorMessage;
+      StatefulProxyFactory statefulFactory = null;
+      try
+      {
+         statefulFactory = (StatefulProxyFactory) factory;
+      }
+      catch (ClassCastException cce)
+      {
+         throw new ClassCastException(errorMessage);
+      }
+      
+      Class<?>[] initParameterTypes =
+      {};
+      Object[] initParameterValues =
+      {};
+      if (unadvisedMethod.getParameterTypes().length > 0)
+      {
+         initParameterTypes = unadvisedMethod.getParameterTypes();
+         initParameterValues = args;
+      }
+
+      Object id = createSession(initParameterTypes, initParameterValues);
+
+      Object proxy = statefulFactory.createProxyBusiness(id, unadvisedMethod.getReturnType().getName());
+
+      return proxy;
+   }
 
    protected InvocationResponse invokeEJBObjectMethod(MethodInfo info,
                                                       StatefulRemoteInvocation statefulInvocation) throws Throwable
@@ -947,7 +997,7 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
 
          ProxyFactory proxyFactory = this.getProxyFactory(this.getAnnotation(RemoteBinding.class));
          BaseStatefulRemoteProxyFactory statefulRemoteProxyFactory = (BaseStatefulRemoteProxyFactory) proxyFactory;
-         EJBObject proxy = (EJBObject) statefulRemoteProxyFactory.createProxyEjb21(newStatefulInvocation.getId());
+         EJBObject proxy = (EJBObject) statefulRemoteProxyFactory.createProxyEjb21(newStatefulInvocation.getId(), null);
          StatefulHandleRemoteImpl handle = new StatefulHandleRemoteImpl(proxy);
          InvocationResponse response = marshallResponse(statefulInvocation, handle, null);
          return response;
@@ -1093,11 +1143,11 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       {
          if (isRemote && factory instanceof StatefulRemoteProxyFactory)
          {
-            return ((StatefulRemoteProxyFactory) factory).createProxyBusiness(ctx.getId());
+            return ((StatefulRemoteProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
          }
          else if (!isRemote && factory instanceof StatefulLocalProxyFactory)
          {
-            return ((StatefulLocalProxyFactory) factory).createProxyBusiness(ctx.getId());
+            return ((StatefulLocalProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
          }
       }
       throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");

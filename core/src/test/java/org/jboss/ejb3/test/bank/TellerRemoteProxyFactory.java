@@ -31,7 +31,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-public class TellerRemoteProxyFactory extends org.jboss.ejb3.stateless.StatelessRemoteProxyFactory
+public class TellerRemoteProxyFactory extends org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory
 {
    private static final Logger log = Logger.getLogger(TellerRemoteProxyFactory.class);
    

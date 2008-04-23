@@ -32,9 +32,9 @@ import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.Remoting;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.ProxyFactory;
 import org.jboss.ejb3.annotation.MessageProperties;
-import org.jboss.ejb3.remoting.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.util.naming.Util;
 
 /**

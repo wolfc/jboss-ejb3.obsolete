@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.asynchronous;
 
-import org.jboss.ejb3.JBossProxy;
+import org.jboss.ejb3.proxy.JBossProxy;
 import org.jboss.aspects.asynch.Future;
 import org.jboss.aspects.asynch.AsynchProvider;
 
