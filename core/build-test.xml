@@ -677,14 +677,6 @@
          </fileset>
       </copy>
 
-      <copy todir="${build.lib}/embeddable/standalone">
-         <fileset dir="${build.lib}">
-            <include name="jmsinflowmdb.jar"/>
-            <include name="jcainflowmdb.jar"/>
-            <include name="quartzmdb.jar"/>
-         </fileset>
-      </copy>
-
       <copy todir="${build.ejb3.lib}/embeddable/lib">
          <fileset dir="${build.lib}">
             <include name="jcainflow.jar"/>
@@ -3136,11 +3128,6 @@
          </fileset>
       </copy>
 
-      <copy todir="${build.lib}/embeddable/standalone">
-         <fileset dir="${build.lib}">
-            <include name="mdb-test.jar"/>
-         </fileset>
-      </copy>
    </target>
 
    <target name="mdbtopic"
@@ -3164,14 +3151,6 @@
          </fileset>
          -->
       </jar>
-
-      <!--
-      <copy todir="${build.lib}/embeddable/standalone">
-         <fileset dir="${build.lib}">
-            <include name="mdbtopic-test.jar"/>
-         </fileset>
-      </copy>
-      -->
    </target>
 
    <target name="concurrent"
@@ -4183,7 +4162,7 @@
       aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
-      exception, dd/override, stateless, standalone-jar, dd/mdb, bank, dd, longlived, xmlcfg, hbm, pkg, regressionHHH275,
+      exception, dd/override, stateless, dd/mdb, bank, dd, longlived, xmlcfg, hbm, pkg, regressionHHH275,
       entityexception, asynchronous, consumer, clusteredentity, secondary, stateful, service, lob, cache, initial,
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
@@ -4462,116 +4441,6 @@
       </junit>
    </target>
 
-   <target name="standalone-jar"
-      description="Builds all jar files.">
-
-      <mkdir dir="${build.lib}/embeddable/standalone"/>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/standalone.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/*.class"/>
-            <include name="org/jboss/ejb3/test/standalone/unit/*.class"/>
-         </fileset>
-         <fileset dir="${build.resources}/test/standaloneWar">
-            <include name="marker.txt"/>
-         </fileset>
-         <fileset dir="${build.resources}/test/standalone">
-            <include name="deployer.xml"/>
-            <include name="kernel-test.xml"/>
-         </fileset>
-         <fileset dir="${resources}/test/standalone">
-            <include name="META-INF/persistence.xml"/>
-            <include name="META-INF/ejb-jar.xml"/>
-         </fileset>
-      </jar>
-
-      <war warfile="${build.lib}/standalone.war"
-         webxml="${build.resources}/test/standaloneWar/WEB-INF/web.xml">
-         <lib dir="${module.output}/lib/embeddable/lib">
-            <include name="*.jar"/>
-         </lib>
-         <!--lib dir="${module.output}/lib/embeddable/conf/">
-            <include name="standalone.jar"/>
-         </lib-->
-         <lib dir="${build.lib}/embeddable/standalone">
-            <include name="*.jar"/>
-         </lib>
-         <!--classes dir="${module.output}/lib/embeddable/conf">
-            <include name="*.xml"/>
-            <include name="default.persistence.properties"/>
-         </classes-->
-         <fileset dir="${source.java}">
-            <include name="EmbeddedEJB3.jsp"/>
-         </fileset>
-      </war>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/jms.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/jms/*.class"/>
-            <include name="org/jboss/ejb3/test/standalone/jms/unit/*.class"/>
-         </fileset>
-      </jar>
-
-      <mkdir dir="${build.lib}/embeddable/standalone/standard"/>
-      <copy todir="${build.lib}/embeddable/standalone/standard" file="${build.resources}/test/standalone/standard/testjms.xml"/>
-      <copy todir="${build.lib}/embeddable/standalone/standard" file="${build.resources}/test/standalone/standard/jca-inflowmdb-beans.xml"/>
-
-      <mkdir dir="${build.lib}/embeddable/standalone/embeddedjms"/>
-      <copy todir="${build.lib}/embeddable/standalone/embeddedjms" file="${build.resources}/test/standalone/embeddedjms/testjms.xml"/>
-      <jar jarfile="${build.lib}/embeddable/standalone/mdb.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/embeddedjms/*.class"/>
-            <include name="org/jboss/ejb3/test/standalone/embeddedjms/unit/*.class"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/flushmodenever-session1.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/flushmodenever/*1*.class"/>
-            <include name="org/jboss/ejb3/test/standalone/flushmodenever/unit/*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/standalone/flushmodenever/session1">
-            <include name="META-INF/persistence.xml"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/flushmodenever-session2.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/flushmodenever/*2*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/standalone/flushmodenever/session2">
-            <include name="META-INF/persistence.xml"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/flushmodenever-util.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/flushmodenever/Util.class"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/embedded-security.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/security/**/*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/standalone/security/">
-            <include name="*.properties"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/embeddable/standalone/embedded-servicepojo.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/standalone/servicepojo/**/*.class"/>
-         </fileset>
-         <!--
-         <fileset dir="${resources}/test/standalone/servicepojo/">
-            <include name="*.properties"/>
-         </fileset>
-         -->
-      </jar>
-
-   </target>
-
    <target name="client14-tests" depends="init"
       description="Execute all tests for Java1.4 client compatibility.">
       <mkdir dir="${build.reports}"/>
@@ -4658,116 +4527,6 @@
    </target>
 
 
-   <target name="standalone-test" depends="init" if="test"
-      description="Execute all tests in the given test directory.">
-      <mkdir dir="${build.reports}"/>
-      <mkdir dir="${build.testlog}"/>
-      <!-- Remove the test.log so each run has a fresh log -->
-      <delete file="${build.testlog}/test.log"/>
-      <path id="standalone.classpath">
-         <fileset dir="${module.output}/lib/embeddable/lib">
-            <include name="*.jar"/>
-         </fileset>
-         <pathelement location="${module.output}/lib/embeddable/conf"/>
-         <pathelement location="${module.output}/lib/embeddable/lib"/>
-         <pathelement location="${build.lib}/embeddable/standalone"/>
-         <pathelement location="${build.lib}/embeddable/standalone/standard"/>
-         <!-- TODO: deployment should take care of adding jars to classpath -->
-         <fileset dir="${build.lib}/embeddable/standalone">
-            <include name="*.jar"/>
-         </fileset>
-      </path>
-      <junit dir="${module.output}"
-         printsummary="yes"
-         haltonerror="false"
-         haltonfailure="false"
-         fork="true">
-
-         <jvmarg value="-Dorg.jboss.jms.asf.useold=true"/>
-
-         <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
-         <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
-         <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
-         <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
-         <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
-
-         <classpath>
-            <path refid="standalone.classpath"/>
-            <path refid="jboss.test.classpath"/>
-            <path refid="jboss.jmx.classpath"/>
-         </classpath>
-
-         <formatter type="plain" usefile="true"/>
-         <formatter type="xml" usefile="true"/>
-
-         <batchtest todir="${build.reports}"
-            haltonerror="false"
-            haltonfailure="false"
-            fork="true">
-
-            <fileset dir="${build.classes}">
-               <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
-            </fileset>
-         </batchtest>
-      </junit>
-   </target>
-
-   <target name="test-standalone-with-jboss" if="test">
-      <!-- For use when we're doing a standalone test with jboss -->
-
-      <mkdir dir="${build.reports}"/>
-      <mkdir dir="${build.testlog}"/>
-      <!-- Remove the test.log so each run has a fresh log -->
-      <delete file="${build.testlog}/test.log"/>
-      <path id="standalone.classpath">
-         <fileset dir="${module.output}/lib/embeddable/lib">
-            <include name="*.jar"/>
-         </fileset>
-         <pathelement location="${module.output}/lib/embeddable/conf"/>
-         <fileset dir="${build.lib}/embeddable/${test}">
-            <include name="*.jar"/>
-         </fileset>
-      </path>
-      <junit dir="${module.output}"
-         printsummary="yes"
-         haltonerror="false"
-         haltonfailure="false"
-         fork="true">
-
-         <sysproperty key="jbosstest.deploy.dir" value="${build.lib}"/>
-         <sysproperty key="build.testlog" value="${build.testlog}"/>
-         <sysproperty key="log4j.configuration" value="file:${location.resources.test}/test/log4j.xml"/>
-         <sysproperty key="jbosstest.threadcount" value="${jbosstest.threadcount}"/>
-         <sysproperty key="jbosstest.iterationcount" value="${jbosstest.iterationcount}"/>
-         <sysproperty key="jbosstest.beancount" value="${jbosstest.beancount}"/>
-         <sysproperty key="java.security.auth.login.config" value="${resources}/test/security/auth.conf"/>
-
-         <classpath>
-            <path refid="standalone.classpath"/>
-            <path refid="jboss.test.classpath"/>
-            <path refid="hsqldb.hsqldb.classpath"/>
-            <!-- this must come last -->
-            <pathelement location="${build.classes}"/>
-            <pathelement location="${resources}/test"/>
-            <path refid="javac.classpath"/>
-         </classpath>
-
-         <formatter type="plain" usefile="true"/>
-         <formatter type="xml" usefile="true"/>
-
-         <batchtest todir="${build.reports}"
-            haltonerror="false"
-            haltonfailure="false"
-            fork="true">
-
-            <fileset dir="${build.classes}">
-               <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
-            </fileset>
-         </batchtest>
-      </junit>
-   </target>
-
    <target name="run-clusteredentity" depends="init"
       description="Runs the clusteredentity stuff in a cluster">
 
@@ -4803,7 +4562,6 @@
    </target>
 
    <target name="tests" depends="init" description="Execute all tests">
-      <!--antcall target="standalone-tests" inheritRefs="true"/-->
       <antcall target="simple-tests" inheritRefs="true"/>
       <antcall target="ejb-tests" inheritRefs="true"/>
       <antcall target="entity-tests" inheritRefs="true"/>
@@ -4822,30 +4580,11 @@
    </target>
 
    <target name="no-start-jboss-tests" depends="init" description="Execute all tests">
-      <!--antcall target="standalone-tests" inheritRefs="true"/-->
       <antcall target="no-start-jboss-ejb-tests" inheritRefs="true"/>
       <antcall target="no-start-jboss-entity-tests" inheritRefs="true"/>
       <antcall target="no-start-jboss-iiop-tests" inheritRefs="true"/>
    </target>
 
-   <target name="standalone-tests" depends="init">
-      <antcall target="standalone-test" inheritRefs="true">
-         <param name="test" value="standalone"/>
-      </antcall>
-      <antcall target="standalone-test" inheritRefs="true">
-         <param name="test" value="standalone/flushmodenever"/>
-      </antcall>
-      <antcall target="standalone-test" inheritRefs="true">
-         <param name="test" value="standalone/embeddedjms"/>
-      </antcall>
-      <antcall target="standalone-test" inheritRefs="true">
-         <param name="test" value="standalone/security"/>
-      </antcall>
-      <antcall target="standalone-test" inheritRefs="true">
-         <param name="test" value="standalone/servicepojo"/>
-      </antcall>
-   </target>
-   
    <target name="simple-tests" depends="init">
       <antcall target="test" inheritRefs="true">
          <param name="test" value="cachepassivation"/>
