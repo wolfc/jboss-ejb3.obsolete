@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.1-SNAPSHOT</version>
+    <version>0.13.3-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -55,7 +55,6 @@
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-jaspi-api</artifactId>
-      <version>1.0.0.Beta3Update1</version>
     </dependency>
 
    <dependency>
@@ -63,6 +62,7 @@
      <artifactId>jboss-ejb3-ext-api</artifactId>
      <version>0.3</version>
    </dependency>
+   
    <dependency>
      <groupId>org.jboss.ejb3</groupId>
      <artifactId>jboss-ejb3-ext-api-impl</artifactId>
