@@ -267,9 +267,9 @@
       </dependency>
       
       <dependency>
-        <groupId>org.jboss</groupId>
+        <groupId>org.jboss.naming</groupId>
         <artifactId>jnpserver</artifactId>
-        <version>5.0.0.Beta4</version>
+        <version>5.0.0.CR1</version>
         <scope>test</scope>
       </dependency>
       

@@ -53,7 +53,7 @@
       <version>2.2.1.GA</version>
     </dependency>
     <dependency>
-      <groupId>org.jboss</groupId>
+      <groupId>org.jboss.naming</groupId>
       <artifactId>jnpserver</artifactId>
       <scope>test</scope>
     </dependency>
