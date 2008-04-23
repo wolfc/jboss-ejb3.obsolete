@@ -39,22 +39,10 @@
       <version>2.0.2.Beta6</version>
     </dependency>
 
-    <!-- EJB3 API -->
-    <dependency>
-      <groupId>org.jboss.javaee</groupId>
-      <artifactId>jboss-ejb-api</artifactId>
-    </dependency>
-
     <!-- JACC API -->
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-jacc-api</artifactId>
-    </dependency>
-
-    <!-- JASPI API -->
-    <dependency>
-      <groupId>org.jboss.javaee</groupId>
-      <artifactId>jboss-jaspi-api</artifactId>
     </dependency>
 
    <dependency>
@@ -73,6 +61,16 @@
    <dependency>
      <groupId>org.jboss.aop</groupId>
      <artifactId>jboss-aop</artifactId>
+     <exclusions>
+       <exclusion>
+         <groupId>jboss</groupId>
+         <artifactId>jboss-common-logging-spi</artifactId>
+       </exclusion>
+       <exclusion>
+         <groupId>jboss</groupId>
+         <artifactId>jboss-logging-spi</artifactId>
+       </exclusion>       
+     </exclusions>
    </dependency>
 
    <!-- JBoss MetaData -->
@@ -94,19 +92,18 @@
       <artifactId>jboss-common-core</artifactId>
     </dependency>
 
-    <!-- JBoss Common Logging -->
+    <!-- JBoss Logging SPI -->
     <dependency>
       <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-      <scope>runtime</scope>
+      <artifactId>jboss-logging-spi</artifactId>
     </dependency>
 
-    <!-- JUnit -->
+    <!-- JUnit 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
+    </dependency> -->
 
   </dependencies>
 </project>
