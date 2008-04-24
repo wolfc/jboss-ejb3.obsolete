@@ -23,7 +23,6 @@ package org.jboss.ejb3.mdb.inflow;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -160,7 +159,7 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
 
    public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException
    {
-      TransactionManagementType mtype = TxUtil.getTransactionManagementType(container);
+      TransactionManagementType mtype = TxUtil.getTransactionManagementType(container.getAdvisor());
       if (mtype == javax.ejb.TransactionManagementType.BEAN) return false;
 
 

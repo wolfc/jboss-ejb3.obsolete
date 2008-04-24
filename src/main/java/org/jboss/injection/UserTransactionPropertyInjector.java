@@ -25,6 +25,7 @@ import javax.ejb.TransactionManagementType;
 import javax.transaction.UserTransaction;
 
 import org.jboss.ejb3.Container;
+import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.injection.lang.reflect.BeanProperty;
@@ -42,9 +43,9 @@ public class UserTransactionPropertyInjector extends AbstractPropertyInjector
    {
       super(property);
       
-      if (container instanceof Container)
+      if (container instanceof EJBContainer)
       {
-         TransactionManagementType type = TxUtil.getTransactionManagementType(((Container) container));
+         TransactionManagementType type = TxUtil.getTransactionManagementType(((EJBContainer) container).getAdvisor());
          if (type != TransactionManagementType.BEAN)
             throw new IllegalStateException("Container " + ((Container) container).getEjbName() + ": it is illegal to inject UserTransaction into a CMT bean");
       }
