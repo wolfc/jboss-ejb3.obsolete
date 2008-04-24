@@ -125,6 +125,19 @@
                   <groupId>org.jboss.test</groupId>
                   <artifactId>jboss-test</artifactId>
                 </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-build-scripts2</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
                 <artifactItem>
                   <groupId>org.jboss.jbossas</groupId>
                   <artifactId>jboss-server-manager</artifactId>
@@ -133,7 +146,7 @@
               <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
             </configuration>
-          </execution>
+          </execution>          
 
           <!--  Copy jboss-test JAR -->
           <execution>
@@ -151,7 +164,7 @@
                 <artifactItem>
                   <groupId>org.jboss.jbossas</groupId>
                   <artifactId>jboss-server-manager</artifactId>
-                </artifactItem>                 
+                </artifactItem>
               </artifactItems>
               <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
               <overWriteIfNewer>true</overWriteIfNewer>
