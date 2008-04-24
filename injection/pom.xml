@@ -94,7 +94,7 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.jboss</groupId>
+      <groupId>org.jboss.test</groupId>
       <artifactId>jboss-test</artifactId>
       <scope>test</scope>
     </dependency>

@@ -354,12 +354,18 @@
 
       <!-- JBoss Test -->
       <dependency>
-        <groupId>org.jboss</groupId>
+        <groupId>org.jboss.test</groupId>
         <artifactId>jboss-test</artifactId>
-        <version>1.0.5.GA</version>
-        <!-- TODO: was 1.0.6-SNAPSHOT -->
+        <version>1.1.0.GA</version>
+        <scope>test</scope>
       </dependency>
 
+      <dependency>
+        <groupId>org.jboss.jbossas</groupId>
+        <artifactId>jboss-server-manager</artifactId>
+        <version>0.1.0.GA</version>
+      </dependency>  
+      
       <!-- JUnit -->
       <dependency>
         <groupId>junit</groupId>
