@@ -161,8 +161,6 @@ public class BankDeploymentDescriptorTestCase
       sc.setSimple(new SimplePrincipal("rolefail"), "password".toCharArray());
       sc.login();
       
-      String customerId = "CustomerId";
-      String greeting;
       Teller teller = (Teller) jndiContext.lookup(Teller.JNDI_NAME);
       assertNotNull(teller);
       
@@ -400,6 +398,14 @@ public class BankDeploymentDescriptorTestCase
          assertEquals("failed", state);
       } catch (Exception e){
       }
+   }
+
+   public void testSessionContextForEjb21() throws Exception
+   {
+      InitialContext jndiContext = new InitialContext();
+      Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME + "21");
+      assertNotNull(bank);
+      assertTrue("setSessionContext(ctx) should have been invoked", bank.hasSessionContext());
    }
 
    public static Test suite() throws Exception

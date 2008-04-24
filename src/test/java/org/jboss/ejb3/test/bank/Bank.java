@@ -45,7 +45,9 @@ public interface Bank
    public String retrieveCustomerId() throws RemoteException;
    
    public String interceptCustomerId(String customerId) throws RemoteException;
-   
+
+   public boolean hasSessionContext() throws RemoteException;
+
    public void testResource() throws Exception;
    
    public void remove();
@@ -53,7 +55,7 @@ public interface Bank
    public String isInitialized();
    
    public String isActivated();
-   
+
    public void testTransactionTimeout();
    
    public String getTransactionState();
