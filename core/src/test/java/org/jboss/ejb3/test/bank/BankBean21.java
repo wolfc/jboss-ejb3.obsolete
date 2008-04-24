@@ -24,22 +24,16 @@ package org.jboss.ejb3.test.bank;
 import java.rmi.*;
 import java.sql.Connection;
 
-import javax.naming.*;
 import javax.ejb.Init;
-import javax.ejb.SessionContext;
 import javax.sql.DataSource;
-
-import org.jboss.logging.Logger;
 
 /**
  * @see <related>
  * @author $Author$
  * @version $Revision$
  */
-public class BankBean21 implements javax.ejb.SessionBean
+public class BankBean21 extends BankBean21Base
 {
-   private static final Logger log = Logger.getLogger(BankBean21.class);
-   
    public DataSource customerDb;
    
    static final String ID = "java:comp/env/id";
@@ -52,10 +46,6 @@ public class BankBean21 implements javax.ejb.SessionBean
 
    static long nextCustomerId = System.currentTimeMillis();
    
-   String initialized = "";
-   
-   private String activated = "";
-
    public String getId()
    {
       return id;
@@ -92,10 +82,9 @@ public class BankBean21 implements javax.ejb.SessionBean
       Connection connection = customerDb.getConnection();
       connection.close();
    }
-   
+
    public void remove()
-   {
-      
+   {      
    }
    
    @Init
@@ -107,41 +96,6 @@ public class BankBean21 implements javax.ejb.SessionBean
    public void init()
    {
       initialized += "YES";
-   }
-   
-   public String isInitialized()
-   {
-      return initialized;
-   }
-   
-   public String isActivated()
-   {
-      return activated;
-   }
-   
-   public void ejbCreate()
-   {
-      activated += "_CREATED";
-   }
-   
-   public void ejbActivate()
-   {
-      activated += "_ACTIVATED";
-   }
-   
-   public void ejbPassivate()
-   {
-      
-   }
-   
-   public void ejbRemove()
-   {
-      
-   }
-   
-   public void setSessionContext(SessionContext context)
-   {
-      
    }
 }
 

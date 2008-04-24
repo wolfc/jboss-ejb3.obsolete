@@ -925,54 +925,50 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
     */
    private void addEjb21Annotations(EJBContainer container, boolean isStateful) throws Exception
    {
-      Class<?>[] interfaces = ejbClass.getInterfaces();
-      for (Class<?> beanInterface : interfaces)
+      if(javax.ejb.SessionBean.class.isAssignableFrom(ejbClass))
       {
-         if (beanInterface.equals(javax.ejb.SessionBean.class))
+         MethodMetaData method = new MethodMetaData();
+         method.setEjbName(container.getEjbName());
+
+         Annotation annotation;
+         Class<? extends Annotation> annotationClass;
+         // EJB3 4.6.2: The class may implement the ejbCreate method(s).
+         // EJB3 4.6.4: The method must be declared as public.
+         if(hasPublicMethod(ejbClass, "ejbCreate"))
          {
-            MethodMetaData method = new MethodMetaData();
-            method.setEjbName(container.getEjbName());
-
-            Annotation annotation;
-            Class<? extends Annotation> annotationClass;
-            // EJB3 4.6.2: The class may implement the ejbCreate method(s).
-            // EJB3 4.6.4: The method must be declared as public.
-            if(hasPublicMethod(ejbClass, "ejbCreate"))
+            if(isStateful)
             {
-               if(isStateful)
-               {
-                  annotation = new InitImpl();
-               }
-               else
-               {
-                  annotation = new PostConstructImpl();
-               }
-               annotationClass = annotation.annotationType();
-               method.setMethodName("ejbCreate");
-               addAnnotations(annotationClass, annotation, container, method);
+               annotation = new InitImpl();
             }
-
-            annotation = new PostActivateImpl();
-            annotationClass = javax.ejb.PostActivate.class;
-            method.setMethodName("ejbActivate");
-            addAnnotations(annotationClass, annotation, container, method);
-
-            annotation = new PrePassivateImpl();
-            annotationClass = javax.ejb.PrePassivate.class;
-            method.setMethodName("ejbPassivate");
-            addAnnotations(annotationClass, annotation, container, method);
-
-            annotation = new PreDestroyImpl();
-            annotationClass = javax.annotation.PreDestroy.class;
-            method.setMethodName("ejbRemove");
-            addAnnotations(annotationClass, annotation, container, method);
-            
-            annotation = new ResourceImpl();
-            annotationClass = Resource.class;
-            method.setMethodName("setSessionContext");
-            // TODO: set param?
+            else
+            {
+               annotation = new PostConstructImpl();
+            }
+            annotationClass = annotation.annotationType();
+            method.setMethodName("ejbCreate");
             addAnnotations(annotationClass, annotation, container, method);
          }
+
+         annotation = new PostActivateImpl();
+         annotationClass = javax.ejb.PostActivate.class;
+         method.setMethodName("ejbActivate");
+         addAnnotations(annotationClass, annotation, container, method);
+
+         annotation = new PrePassivateImpl();
+         annotationClass = javax.ejb.PrePassivate.class;
+         method.setMethodName("ejbPassivate");
+         addAnnotations(annotationClass, annotation, container, method);
+
+         annotation = new PreDestroyImpl();
+         annotationClass = javax.annotation.PreDestroy.class;
+         method.setMethodName("ejbRemove");
+         addAnnotations(annotationClass, annotation, container, method);
+            
+         annotation = new ResourceImpl();
+         annotationClass = Resource.class;
+         method.setMethodName("setSessionContext");
+         // TODO: set param?
+         addAnnotations(annotationClass, annotation, container, method);
       }
    }
 

@@ -27,13 +27,10 @@ import java.sql.Connection;
 import javax.annotation.Resource;
 import javax.ejb.EJBException;
 import javax.ejb.Init;
-import javax.ejb.Remove;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
-import javax.transaction.UserTransaction;
 
-import org.jboss.logging.Logger;
 import org.jboss.ejb3.Container;
 
 /**
@@ -43,8 +40,6 @@ import org.jboss.ejb3.Container;
  */
 public class BankBean implements Bank, Serializable, javax.ejb.SessionSynchronization
 {
-   private static final Logger log = Logger.getLogger(BankBean.class);
-
    transient public DataSource customerDb;
 
    static final String ID = Container.ENC_CTX_NAME + "/env/org.jboss.ejb3.test.bank/id";
@@ -63,7 +58,6 @@ public class BankBean implements Bank, Serializable, javax.ejb.SessionSynchroniz
    
    private String transactionState = "failed";
    private String rollbackState;
-   private boolean beforeCalled = false;
 
    public String getId()
    {
@@ -152,6 +146,11 @@ public class BankBean implements Bank, Serializable, javax.ejb.SessionSynchroniz
       }
    }
    
+   public boolean hasSessionContext()
+   {
+      return false;
+   }
+   
    public void afterBegin() throws EJBException, RemoteException
    {
       rollbackState = transactionState;
@@ -159,7 +158,6 @@ public class BankBean implements Bank, Serializable, javax.ejb.SessionSynchroniz
 
    public void beforeCompletion() throws EJBException, RemoteException
    {
-      beforeCalled = true;
    }
 
    public void afterCompletion(boolean committed) throws EJBException, RemoteException

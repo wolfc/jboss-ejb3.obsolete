@@ -23,25 +23,19 @@ package org.jboss.ejb3.test.bank;
 
 import javax.interceptor.InvocationContext;
 
-import org.jboss.logging.Logger;
-
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @version $Revision$
  */
-public class SecondInterceptor {
-   
-   private static final Logger log = Logger
-   .getLogger(SecondInterceptor.class);
-
+public class SecondInterceptor
+{
    public Object twoMethod(InvocationContext ctx) throws Exception
    {
-      String concat = "";
+      Object result = ctx.proceed();
       if (ctx.getMethod().getName().equals("interceptCustomerId"))
       {
-         concat = "_SecondInterceptor";
+         result = result + "_SecondInterceptor";
       }
-      Object result = ctx.proceed() + concat;
       return result;
    }
 }
