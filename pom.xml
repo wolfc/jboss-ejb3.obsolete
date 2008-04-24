@@ -22,6 +22,35 @@
   <name>JBoss EJB 3.0 Security</name>
   <url>http://labs.jboss.com/jbossejb3/</url>
   <description>The JBoss EJB 3.0 Security classes</description>
+  
+  <build>
+  
+    <plugins>
+    
+      <!-- Assembly Plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id><!-- this is used for inheritance merges -->
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- JBoss EJB3 Client JAR -->
+          <descriptors>
+            <descriptor>jboss-ejb3-security-client.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+    
+    </plugins>
+  
+  </build>
 
   <dependencies>
 
