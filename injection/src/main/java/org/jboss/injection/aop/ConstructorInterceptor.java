@@ -21,8 +21,21 @@
  */
 package org.jboss.injection.aop;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.injection.Injection;
+import org.jboss.injection.Injector;
+import org.jboss.injection.InjectorProcessor;
+import org.jboss.injection.MapInjectorFactory;
+import org.jboss.injection.PostConstructProcessor;
+import org.jboss.injection.Processor;
+import org.jboss.injection.ResourceClassProcessor;
+import org.jboss.logging.Logger;
 
 /**
  * Intercepts construction of new objects and fires up injection.
@@ -35,6 +48,8 @@ import org.jboss.aop.joinpoint.Invocation;
  */
 public class ConstructorInterceptor implements Interceptor
 {
+   private static final Logger log = Logger.getLogger(ConstructorInterceptor.class);
+   
    public String getName()
    {
       return "ConstructorInterceptor";
@@ -42,8 +57,20 @@ public class ConstructorInterceptor implements Interceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      System.err.println("here");
-      //InjectorProcessor.process(invocation.getTargetObject());
+      log.info("here");
+      Class<?> cls = invocation.getTargetObject().getClass();
+      
+      Map<String, Object> env = InjectionEnvironment.getCurrent();
+      
+      Collection<Processor<Class<?>, Collection<Injector>>> handlers = new ArrayList<Processor<Class<?>, Collection<Injector>>>();
+      handlers.add(new ResourceClassProcessor(new MapInjectorFactory(env)));
+      Collection<Injector> injectors = Injection.doIt(cls, handlers);
+      
+      Collection<Processor<Class<?>, Collection<Method>>> postConstructProcessors = new ArrayList<Processor<Class<?>, Collection<Method>>>();
+      postConstructProcessors.add(new PostConstructProcessor());
+      Collection<Method> postConstructs = Injection.doIt(cls, postConstructProcessors);
+      
+      InjectorProcessor.process(invocation.getTargetObject(), injectors, postConstructs);
       return invocation.invokeNext();
    }
 }

@@ -21,6 +21,9 @@
  */
 package org.jboss.injection.test.simple;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
 import org.jboss.injection.test.common.Counter;
 
 /**
@@ -31,6 +34,7 @@ import org.jboss.injection.test.common.Counter;
  */
 public class InjectedBean
 {
+   @Resource
    private String value;
    
    public InjectedBean()
@@ -45,6 +49,7 @@ public class InjectedBean
          throw new IllegalStateException("value must not be null");
    }
    
+   @PostConstruct
    public void postConstruct()
    {
       if(value == null)

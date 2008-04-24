@@ -23,41 +23,65 @@
   <name>JBoss EJB 3.0 Injection</name>
   <url>http://labs.jboss.com/jbossejb3/</url>
   <description>JBoss POJO Injection Framework</description>
-
-  <!--
-    
-    Should be moved to parent Build POM if necessary
-    
-    <build>
+  
+  <!-- TODO: we could remove the execution and use the default, this is a blatant copy out of mc -->
+  <build>
     <plugins>
-    <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-surefire-plugin</artifactId>
-    <configuration>
-    <argLine>-ea</argLine>
-    doesn't work either
-    <argLine>-Djava.system.class.loader=org.jboss.aop.standalone.SystemClassLoader -cp ${localRepository}</argLine>
-    
-    <excludes>
-    exclude simple because it requires AOP
-    <exclude>org/jboss/injection/test/simple/unit/SimpleTestCase.java</exclude>
-    </excludes>
-    doesn't work
-    <systemProperties>
-    <property>
-    <name>java.system.class.loader</name>
-    <value>org.jboss.aop.standalone.SystemClassLoader</value>
-    </property>
-    </systemProperties>
-    
-    </configuration>
-    </plugin>
-    
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>weave</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>false</skip>
+              <includes>
+                <include>org/jboss/injection/test/**/*TestCase.java</include>
+              </includes>
+              <useSystemClassLoader>true</useSystemClassLoader>
+              <argLine>-Djava.system.class.loader=org.jboss.aop.standalone.SystemClassLoader</argLine>
+              <!-- we want to have the default report directory, so directive removed -->
+              <systemProperties>
+                <property>
+                  <name>jboss.aop.exclude</name>
+                  <value>org.jboss.,org.apache.</value>
+                </property>
+                <property>
+                  <name>jboss.aop.include</name>
+                  <value>org.jboss.injection.test.</value>
+                </property>
+                <property>
+                  <name>jboss-junit-configuration</name>
+                  <value>weave</value>
+                </property>
+                <property>
+                  <name>build.testlog</name>
+                  <value>target/log</value>
+                </property>
+                <property>
+                  <name>jboss.aop.verbose</name>
+                  <value>true</value>
+                </property>
+              </systemProperties>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <testFailureIgnore>true</testFailureIgnore>
+          <forkMode>always</forkMode>
+          <!-- redirect output so folks are not scared by the many warnings flying around :-) -->
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <skip>true</skip>
+          <trimStackTrace>false</trimStackTrace>
+        </configuration>
+      </plugin>
     </plugins>
-    </build>
+  </build>
     
-  -->
-
   <!-- Dependencies -->
 
   <!-- 
@@ -69,6 +93,12 @@
 
   <dependencies>
 
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
     <!-- JavaEE EJB3 -->
     <dependency>
       <groupId>org.jboss.javaee</groupId>

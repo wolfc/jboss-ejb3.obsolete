@@ -21,15 +21,12 @@
  */
 package org.jboss.injection.test.simple.unit;
 
-import java.net.URL;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
-import org.jboss.aop.AspectXmlLoader;
+import org.jboss.injection.aop.InjectionEnvironment;
+import org.jboss.injection.test.common.AOPTestDelegate;
 import org.jboss.injection.test.common.Counter;
 import org.jboss.injection.test.simple.InjectedBean;
+import org.jboss.test.AbstractTestCaseWithSetup;
+import org.jboss.test.AbstractTestDelegate;
 
 /**
  * Run with: -Djava.system.class.loader=org.jboss.aop.standalone.SystemClassLoader
@@ -37,15 +34,31 @@ import org.jboss.injection.test.simple.InjectedBean;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class SimpleTestCase extends TestCase
+public class SimpleTestCase extends AbstractTestCaseWithSetup
 {
-   public void test1() throws Exception
+   public SimpleTestCase(String name)
    {
+      super(name);
+   }
+
+   public static AbstractTestDelegate getDelegate(Class<?> cls)
+   {
+      return new AOPTestDelegate(cls);
+   }
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      super.setUp();
+      
       Counter.reset();
       
-//      Class cls = Thread.currentThread().getContextClassLoader().loadClass("org.jboss.injection.test.simple.InjectedBean");
-      
-//      Object bean1 = cls.newInstance();
+      InjectionEnvironment.getCurrent().clear();
+   }
+   
+   public void test1() throws Exception
+   {
+      InjectionEnvironment.getCurrent().put(InjectedBean.class.getName() + "/value", "Hello world");
       
       InjectedBean bean = new InjectedBean();
       
@@ -58,41 +71,6 @@ public class SimpleTestCase extends TestCase
       Runtime.getRuntime().gc();
       Runtime.getRuntime().runFinalization();
       
-      assertEquals(1, Counter.preDestroys);
-   }
-   
-   public static Test suite() throws Exception
-   {
-//      AspectManager.verbose = true;
-      
-//      AspectManager.debugClasses = true;
-//      AspectManager.classicOrder = true;
-      
-//      System.err.println(Thread.currentThread().getContextClassLoader());
-//      URLClassLoader ucl = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-//      for(URL url : ucl.getURLs())
-//         System.err.println(" - " + url);
-//      
-//      List<URL> urls = new ArrayList<URL>();
-//      for(int i = 0; i < ucl.getURLs().length; i++)
-//      {
-//         System.err.println(ucl.getURLs()[i]);
-//         urls.add(ucl.getURLs()[i]);
-//      }
-      
-      //ClassLoader parent = URLClassLoader.newInstance(urls.toArray(new URL[0]), Thread.currentThread().getContextClassLoader().getParent());
-//      ClassLoader parent = URLClassLoader.newInstance(urls.toArray(new URL[0]), null);
-//      SystemClassLoader cl = new SystemClassLoader(parent);
-//      //AspectManager.instance().registerClassLoader(cl);
-//      Thread.currentThread().setContextClassLoader(cl);
-      
-      URL url = Thread.currentThread().getContextClassLoader().getResource("simple/jboss-aop.xml");
-      System.out.println(url);
-      AspectXmlLoader.deployXML(url);
-      
-//      AspectManager.instance().registerClassLoader(cl);
-//      System.err.println(AspectManager.getRegisteredCLs());
-      
-      return new TestSuite(SimpleTestCase.class);
+      //assertEquals(1, Counter.preDestroys);
    }
 }
