@@ -94,6 +94,7 @@
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
   <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate3.jar"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
+  <property name="location.dependencies.lib.org.jboss.jbossas:server-manager" value="${location.dependencies.lib}/jboss-server-manager.jar"/>
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
   <property name="location.dependencies.lib.hsqldb:hsqldb" value="${location.dependencies.lib}/hsqldb.jar"/>
   <property name="location.dependencies.lib.apache-httpclient:commons-httpclient" value="${location.dependencies.lib}/commons-httpclient.jar"/>
@@ -121,6 +122,7 @@
   <!-- Define the Path to Server Task Definitions, used by the JBoss Server Run targets -->
   <path id="server.taskdef.classpath">  
      <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}"/>
+     <pathelement path="${location.dependencies.lib.org.jboss.jbossas:server-manager}"/>
   </path>
 
   <!-- Import the jboss server run targets -->
