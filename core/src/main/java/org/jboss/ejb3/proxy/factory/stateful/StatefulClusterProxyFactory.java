@@ -46,10 +46,10 @@ import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.framework.interfaces.ClusteringTargetsRepository;
 import org.jboss.ha.framework.interfaces.DistributedReplicantManager;
 import org.jboss.ha.framework.interfaces.HAPartition;
+import org.jboss.ha.framework.server.HAPartitionLocator;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
-import org.jboss.util.NotImplementedException;
 import org.jboss.util.naming.Util;
 
 
@@ -141,8 +141,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       SessionContainer container = this.getContainer();
       String partitionName = container.getPartitionName();
       proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
-      HAPartition partition = (HAPartition) this.getContainer().getInitialContext().lookup(
-            "/HAPartition/" + partitionName);
+      HAPartition partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
       container.getClusterFamilies().put(proxyFamilyName, hatarget);
