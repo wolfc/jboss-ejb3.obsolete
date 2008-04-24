@@ -43,10 +43,10 @@ import org.jboss.ha.client.loadbalance.RandomRobin;
 import org.jboss.ha.framework.interfaces.ClusteringTargetsRepository;
 import org.jboss.ha.framework.interfaces.DistributedReplicantManager;
 import org.jboss.ha.framework.interfaces.HAPartition;
+import org.jboss.ha.framework.server.HAPartitionLocator;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
-import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -86,12 +86,12 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
    {
       String clientBindUrl = ProxyFactoryHelper.getClientBindUrl(binding);
       locator = new InvokerLocator(clientBindUrl);
-      String partitionName = ((StatelessContainer) getContainer()).getPartitionName();
-      proxyFamilyName = ((StatelessContainer) getContainer()).getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
-      HAPartition partition = (HAPartition) getContainer().getInitialContext().lookup("/HAPartition/" + partitionName);
+      StatelessContainer container = (StatelessContainer) getContainer();
+      String partitionName = container.getPartitionName();
+      proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
+      HAPartition partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
-      StatelessContainer container = (StatelessContainer) getContainer();
       
       container.getClusterFamilies().put(proxyFamilyName, hatarget);
       
