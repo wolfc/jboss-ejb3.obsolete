@@ -109,7 +109,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.0</version>
         <executions>
 
           <!-- Unpack requisite build scripts -->
@@ -130,23 +129,6 @@
               <overWriteIfNewer>true</overWriteIfNewer>
             </configuration>
           </execution>
-          <execution>
-            <id>unpack-build-scripts2</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.jboss.jbossas</groupId>
-                  <artifactId>jboss-server-manager</artifactId>
-                </artifactItem>                
-              </artifactItems>
-              <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
-              <overWriteIfNewer>true</overWriteIfNewer>
-            </configuration>
-          </execution>          
 
           <!--  Copy jboss-test JAR -->
           <execution>
@@ -502,6 +484,10 @@
         <exclusion>
           <groupId>org.jboss.jbossas</groupId>
           <artifactId>jboss-as-main</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.deployers</groupId>
+          <artifactId>jboss-deployers-structure-spi</artifactId>
         </exclusion>        
       </exclusions>
     </dependency>
