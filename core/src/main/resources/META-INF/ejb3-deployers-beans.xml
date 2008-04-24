@@ -188,7 +188,7 @@
    </bean>
    
    <!-- Remoting Proxy Factory Registry -->
-   <bean name="EJB3RemoteProxyFactoryRegistry" class="org.jboss.ejb3.remoting.RemoteProxyFactoryRegistry">
+   <bean name="EJB3RemoteProxyFactoryRegistry" class="org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry">
       <property name="factories">
          <!-- Define each of the registered factories -->
          <map class="java.util.HashMap" keyClass="java.lang.String"
@@ -196,7 +196,7 @@
             <!-- RemoteProxyFactory -->
             <entry>
                <key>RemoteProxyFactory</key>
-               <value>org.jboss.ejb3.remoting.RemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.RemoteProxyFactory</value>
             </entry>
             <!-- IORFactory -->
             <entry>
@@ -206,27 +206,27 @@
             <!-- ServiceRemoteProxyFactory -->
             <entry>
                <key>ServiceRemoteProxyFactory</key>
-               <value>org.jboss.ejb3.service.ServiceRemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory</value>
             </entry>
             <!-- StatefulClusterProxyFactory -->
             <entry>
                <key>StatefulClusterProxyFactory</key>
-               <value>org.jboss.ejb3.stateful.StatefulClusterProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory</value>
             </entry>
             <!-- StatefulRemoteProxyFactory -->
             <entry>
                <key>StatefulRemoteProxyFactory</key>
-               <value>org.jboss.ejb3.stateful.StatefulRemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory</value>
             </entry>
             <!-- StatelessClusterProxyFactory -->
             <entry>
                <key>StatelessClusterProxyFactory</key>
-               <value>org.jboss.ejb3.stateless.StatelessClusterProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory</value>
             </entry>
             <!-- StatelessRemoteProxyFactory -->
             <entry>
                <key>StatelessRemoteProxyFactory</key>
-               <value>org.jboss.ejb3.stateless.StatelessRemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory</value>
             </entry>            
          </map>
       </property>
