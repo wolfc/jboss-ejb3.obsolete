@@ -58,7 +58,7 @@ import org.jboss.util.id.GUID;
  * 
  * @version $Revision$
  */
-public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContainer> implements Identifiable, Serializable
+public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContainer> implements Identifiable, Serializable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;

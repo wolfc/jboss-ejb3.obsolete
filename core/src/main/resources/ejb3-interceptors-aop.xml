@@ -64,6 +64,7 @@
       <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
    </stack>
 
+   <interceptor class="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor" scope="PER_VM"/>
    <interceptor class="org.jboss.ejb3.asynchronous.AsynchronousInterceptor" scope="PER_CLASS"/>
    <interceptor class="org.jboss.ejb3.ENCPropagationInterceptor" scope="PER_VM"/>
    <interceptor name="Basic Authorization" factory="org.jboss.ejb3.security.RoleBasedAuthorizationInterceptorFactory" scope="PER_CLASS"/>
@@ -77,7 +78,8 @@
    <interceptor class="org.jboss.ejb3.service.ServiceSingletonInterceptor" scope="PER_VM"/>
    <interceptor class="org.jboss.ejb3.cache.StatefulReplicationInterceptor" scope="PER_VM"/>
    <interceptor factory="org.jboss.ejb3.stateful.StatefulRemoveFactory" scope="PER_CLASS_JOINPOINT"/>
-   <interceptor factory="org.jboss.ejb3.tx.TxInterceptorFactory" scope="PER_CLASS_JOINPOINT"/>
+   <interceptor factory="org.jboss.ejb3.tx.BMTTxInterceptorFactory" scope="PER_CLASS_JOINPOINT"/>
+   <interceptor factory="org.jboss.ejb3.tx.CMTTxInterceptorFactory" scope="PER_CLASS_JOINPOINT"/>
    <!-- interceptor factory="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory" scope="PER_CLASS_JOINPOINT"/ -->
    <interceptor factory="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory" scope="PER_CLASS"/>
    <interceptor class="org.jboss.ejb3.AllowedOperationsInterceptor" scope="PER_VM"/>
@@ -138,6 +140,10 @@
          <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
          <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
       </stack>
+      
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
+      </bind>
    </domain>
    
    
@@ -158,9 +164,10 @@
          <interceptor-ref name="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
@@ -190,9 +197,10 @@
          <interceptor-ref name="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
@@ -225,9 +233,10 @@
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulRemoveFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
       </bind>
       <bind pointcut="execution(public * $instanceof{javax.ejb.SessionSynchronization}->*(..))">
@@ -295,9 +304,10 @@
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulRemoveFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
       </bind>
       <bind pointcut="execution(public * $instanceof{javax.ejb.SessionSynchronization}->*(..))">
@@ -358,8 +368,9 @@
       </bind>
       <!-- TODO: Authorization? -->
       <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
@@ -378,8 +389,9 @@
          <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.stateless.StatelessInstanceInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
       </bind>
@@ -414,7 +426,8 @@
       </bind>
       <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
       </bind>
@@ -443,7 +456,8 @@
       </bind>
       <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.TxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
       </bind>

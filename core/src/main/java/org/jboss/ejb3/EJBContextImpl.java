@@ -30,18 +30,13 @@ import javax.ejb.EJBException;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.TimerService;
-import javax.ejb.TransactionManagementType;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.security.helpers.EJBContextHelper;
 import org.jboss.ejb3.tx.TxUtil;
-import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.logging.Logger;
 import org.jboss.security.RealmMapping;
 
@@ -181,10 +176,7 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
 
    public UserTransaction getUserTransaction() throws IllegalStateException
    {
-      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
-      if (type != TransactionManagementType.BEAN) throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to inject UserTransaction into a CMT bean");
-
-      return new UserTransactionImpl();
+      return TxUtil.getUserTransaction(beanContext);
    }
 
    public EJBHome getEJBHome()
@@ -204,53 +196,11 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
 
    public void setRollbackOnly() throws IllegalStateException
    {
-      // EJB1.1 11.6.1: Must throw IllegalStateException if BMT
-      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
-      if (type != TransactionManagementType.CONTAINER) throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to call setRollbackOnly from BMT: " + type);
-
-      try
-      {
-         TransactionManager tm = TxUtil.getTransactionManager();
-
-         // The getRollbackOnly and setRollBackOnly method of the SessionContext interface should be used
-         // only in the session bean methods that execute in the context of a transaction.
-         if (tm.getTransaction() == null)
-            throw new IllegalStateException("setRollbackOnly() not allowed without a transaction.");
-
-         tm.setRollbackOnly();
-      }
-      catch (SystemException e)
-      {
-         log.warn("failed to set rollback only; ignoring", e);
-      }
+      TxUtil.setRollbackOnly();
    }
 
    public boolean getRollbackOnly() throws IllegalStateException
    {
-      // EJB1.1 11.6.1: Must throw IllegalStateException if BMT
-      TransactionManagementType type = TxUtil.getTransactionManagementType(getContainer());
-      if (type != TransactionManagementType.CONTAINER)
-         throw new IllegalStateException("Container " + getContainer().getEjbName() + ": it is illegal to call getRollbackOnly from BMT: " + type);
-
-      try
-      {
-         TransactionManager tm = TxUtil.getTransactionManager();
-
-         // The getRollbackOnly and setRollBackOnly method of the SessionContext interface should be used
-         // only in the session bean methods that execute in the context of a transaction.
-         if (tm.getTransaction() == null)
-            throw new IllegalStateException("getRollbackOnly() not allowed without a transaction.");
-
-         // EJBTHREE-805, consider an asynchronous rollback due to timeout
-         int status = tm.getStatus();
-         return status == Status.STATUS_MARKED_ROLLBACK
-             || status == Status.STATUS_ROLLING_BACK
-             || status == Status.STATUS_ROLLEDBACK;
-      }
-      catch (SystemException e)
-      {
-         log.warn("failed to get tx manager status; ignoring", e);
-         return true;
-      }
+      return TxUtil.getRollbackOnly();
    }
 }
