@@ -6,6 +6,7 @@ client/jboss-ejb3-impl-javadoc.jar
 client/jboss-ejb3-ext-api.jar
 client/jboss-ha-client.jar
 client/jboss-ejb3-core-client.jar
+client/jboss-ejb3-security-client.jar
 server/default/lib/jboss-ejb3-impl.jar
 server/default/lib/jboss-ejb3-cache.jar
 server/default/lib/jboss-ejb3-ext-api.jar
