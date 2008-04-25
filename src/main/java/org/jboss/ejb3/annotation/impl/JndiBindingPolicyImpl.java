@@ -24,7 +24,7 @@ package org.jboss.ejb3.annotation.impl;
 import java.lang.annotation.Annotation;
 
 import org.jboss.ejb3.annotation.JndiBindingPolicy;
-import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
 
 /**
  * Implementation of JndiBindingPolicy annotation
