@@ -56,8 +56,6 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.annotation.impl.LocalImpl;
 import org.jboss.ejb3.annotation.impl.RemoteImpl;
-import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
-import org.jboss.ejb3.jndipolicy.Ejb3DeploymentSummary;
 import org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy;
 import org.jboss.ejb3.lang.ClassHelper;
 import org.jboss.ejb3.service.ServiceContainer;
@@ -65,6 +63,8 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 
 /**
  * Comment
@@ -506,7 +506,7 @@ public class ProxyFactoryHelper
                + businessInterface.getName());
 
          // Set JNDI name
-         Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
+         EjbDeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
          summary.setHome(isHome);
          summary.setLocal(isLocal);
          jndiName = ProxyFactoryHelper.getJndiBindingPolicy(container).getJndiName(summary);
@@ -927,7 +927,7 @@ public class ProxyFactoryHelper
    {
       if (container.getAnnotation(Local.class) != null)
       {
-         Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
+         EjbDeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
          String localJndiName = ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultLocalJndiName(summary);
          String remoteJndiName = ProxyFactoryHelper.getJndiBindingPolicy(container).getDefaultRemoteJndiName(summary);
          String ejbName = container.getEjbName();
@@ -981,7 +981,7 @@ public class ProxyFactoryHelper
       DefaultJndiBindingPolicy policy = ProxyFactoryHelper.getJndiBindingPolicy(container);
 
       // Obtain Deployment Summary
-      Ejb3DeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
+      EjbDeploymentSummary summary = ProxyFactoryHelper.getDeploymentSummaryFromContainer(container);
 
       // Return the policy's default remote name for this summary
       return policy.getDefaultRemoteJndiName(summary);
@@ -1036,15 +1036,15 @@ public class ProxyFactoryHelper
       }
    }
 
-   private static Ejb3DeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
+   private static EjbDeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
    {
       // Construct Deployment Summary
-      Ejb3DeploymentSummary summary = new Ejb3DeploymentSummary();
+      EjbDeploymentSummary summary = new EjbDeploymentSummary();
       summary.setEjbName(container.getEjbName());
       summary.setService(container instanceof ServiceContainer);
       summary.setStateful(container instanceof StatefulContainer);
       summary.setDeploymentName(container.getDeployment().getName());
-      summary.setBeanClass(container.getBeanClass());
+      summary.setBeanClassName(container.getBeanClass().getName());
       DeploymentScope scope = container.getDeployment().getEar();
       if (scope != null)
       {
