@@ -455,43 +455,6 @@
       <artifactId>jboss-jca-api</artifactId>
     </dependency>
 
-    <!-- this needs to be removed -->
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-connector</artifactId>
-      <version>${version.org.jboss.jboss-as}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-server</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-profileservice</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-system-jmx</artifactId>
-        </exclusion> 
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-system</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-j2se</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-main</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.deployers</groupId>
-          <artifactId>jboss-deployers-structure-spi</artifactId>
-        </exclusion>        
-      </exclusions>
-    </dependency>
-    
     <!-- those needs to be removed -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
