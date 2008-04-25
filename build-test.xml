@@ -129,7 +129,7 @@
   <import file="${location.dependencies.unpacked.jboss-test:jboss.test}/server-config.xml" /> 
 
   <!-- Define common JVM Arguments for all EJB3 JBossAS Runtimes -->
-  <property name="ejb3.jboss.jvmargs" value="-Xmx512m -Djava.net.preferIPv4Stack=true"/>
+  <property name="ejb3.jboss.jvmargs" value="-Xmx512m -XX:MaxPermSize=256m -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true"/>
   
   <!-- Define JVM Arguments for specific EJB3 JBossAS Runtimes -->
   <property name="ssl-args" value="-Djavax.net.ssl.keyStore=${jboss.dist}/server/ejb3-ssl/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource"/>
@@ -3063,47 +3063,6 @@
       </jar>
    </target>
 	
-   <target name="mdbsessionpoolclear"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/mdbsessionpoolclear-test.ejb3">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/mdbsessionpoolclear/TestStatus*.class"/>
-			<include name="org/jboss/ejb3/test/mdbsessionpoolclear/Ejb3*.class"/>
-         </fileset>
-      </jar>
-	
-	  <jar jarfile="${build.lib}/mdbsessionpoolclear-test.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/mdbsessionpoolclear/Ejb21*.class"/>
-	        <include name="org/jboss/ejb3/test/mdbsessionpoolclear/TestStatus.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/mdbsessionpoolclear">
-            <include name="META-INF/ejb-jar.xml"/>
-	        <include name="META-INF/jboss.xml"/>
-         </fileset>
-      </jar>
-	
-	  <jar jarfile="${build.lib}/mdbsessionpoolclear-test-jms-ra.jar">
-         <fileset dir="${build.classes}">
-	        <include name="org/jboss/ejb3/test/mdbsessionpoolclear/adapter/**/*.class"/>
-         </fileset>
-      </jar>
-	
-	  <jar jarfile="${build.lib}/mdbsessionpoolclear-test-jms-ra.rar">
-         <fileset dir="${build.lib}">
-	        <include name="mdbsessionpoolclear-test-jms-ra.jar"/>
-         </fileset>
-	     <fileset dir="${resources}/test/mdbsessionpoolclear">
-            <include name="META-INF/ra.xml"/>
-         </fileset>
-      </jar>
-   </target>
-
-
    <target name="mdb"
       description="Builds all jar files."
       >
@@ -4144,7 +4103,7 @@
 	  </jar>
    </target>
    
-   <target name="jars" depends="statefulproxyfactoryoverride, mdbsessionpoolclear, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
+   <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
       circulardependency, jsp, timerdependency, servicedependency, servlet, stateless14, webservices, ear, ejbthree440,
       ejbthree454, ejbthree471, 
@@ -4713,9 +4672,6 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="mdb"/>
-      </antcall>
-	  <antcall target="test" inheritRefs="true">
-         <param name="test" value="mdbsessionpoolclear"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="invalidtxmdb"/>

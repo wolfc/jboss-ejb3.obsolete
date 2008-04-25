@@ -75,7 +75,6 @@
         <test name="arjuna" />
         <test name="asynchronous" />
         <test name="mdb" />
-        <test name="mdbsessionpoolclear" />
         <test name="invalidtxmdb" />
         <test name="mdbtransactions" />
         <test name="consumer" />
