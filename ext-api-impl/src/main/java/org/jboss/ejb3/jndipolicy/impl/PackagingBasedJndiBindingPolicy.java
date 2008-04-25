@@ -21,8 +21,9 @@
  */
 package org.jboss.ejb3.jndipolicy.impl;
 
-import org.jboss.ejb3.jndipolicy.DefaultJndiBindingPolicy;
-import org.jboss.ejb3.jndipolicy.Ejb3DeploymentSummary;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
+
 
 /**
  * The JBoss Default JNDI Binding Policy
@@ -47,7 +48,7 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
 
    // Required Implementations
 
-   public String getJndiName(Ejb3DeploymentSummary summary)
+   public String getJndiName(EjbDeploymentSummary summary)
    {
       // If Remote / Remote Business
       if (!summary.isLocal())
@@ -77,7 +78,7 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
       }
    }
 
-   public String getDefaultRemoteJndiName(Ejb3DeploymentSummary summary)
+   public String getDefaultRemoteJndiName(EjbDeploymentSummary summary)
    {
 
       String name = summary.getEjbName() + PackagingBasedJndiBindingPolicy.JNDI_SUFFIX_REMOTE;
@@ -86,17 +87,17 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
       return name;
    }
 
-   public String getDefaultRemoteHomeJndiName(Ejb3DeploymentSummary summary)
+   public String getDefaultRemoteHomeJndiName(EjbDeploymentSummary summary)
    {
       return summary.getEjbName() + PackagingBasedJndiBindingPolicy.JNDI_SUFFIX_REMOTE_HOME;
    }
 
-   public String getDefaultLocalHomeJndiName(Ejb3DeploymentSummary summary)
+   public String getDefaultLocalHomeJndiName(EjbDeploymentSummary summary)
    {
       return summary.getEjbName() + PackagingBasedJndiBindingPolicy.JNDI_SUFFIX_LOCAL_HOME;
    }
 
-   public String getDefaultLocalJndiName(Ejb3DeploymentSummary summary)
+   public String getDefaultLocalJndiName(EjbDeploymentSummary summary)
    {
       String name = summary.getEjbName() + PackagingBasedJndiBindingPolicy.JNDI_SUFFIX_LOCAL;
       if (summary.getDeploymentScopeBaseName() != null)
