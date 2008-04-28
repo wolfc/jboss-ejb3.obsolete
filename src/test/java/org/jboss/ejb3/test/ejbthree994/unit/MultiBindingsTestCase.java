@@ -54,6 +54,16 @@ public class MultiBindingsTestCase extends JBossTestCase
       InvokerLocator locator = (InvokerLocator) f.get(handler);
       return locator.getOriginalURI();
    }
+
+   private static String getBindingName()
+   {
+      String bindingName = System.getProperty("jboss.bind.address");
+      if (bindingName == null)
+      {
+         bindingName = "127.0.0.1";
+      }
+      return bindingName;
+   }
    
    public void test1() throws Exception
    {
@@ -63,7 +73,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 123 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://127.0.0.1:3873/");
+         assertEquals(proxyUri, "socket://" + getBindingName() + ":3873/");
       }
 
       {
@@ -72,7 +82,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 456 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://127.0.0.1:3874/");
+         assertEquals(proxyUri, "socket://" + getBindingName() + ":3874/");
       }
       
       {
@@ -81,7 +91,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 789 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://127.0.0.1:3875/");
+         assertEquals(proxyUri, "socket://" + getBindingName() + ":3875/");
       }
 
    }
