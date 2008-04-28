@@ -476,11 +476,6 @@
       <artifactId>jboss-as-mbeans</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.jbossas</groupId>
-      <artifactId>jboss-as-j2se</artifactId>
-      <version>${version.org.jboss.jboss-as}</version>
-    </dependency>     
     
     <!-- this needs to be removed -->
     <dependency>
