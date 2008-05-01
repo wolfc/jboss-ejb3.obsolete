@@ -377,13 +377,49 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.0.Beta1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.aspects</groupId>
+          <artifactId>jboss-remoting-aspects</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>jboss.remoting</groupId>
+          <artifactId>jboss-remoting</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.aop</groupId>
+          <artifactId>jboss-aop</artifactId>            
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
-      <version>1.1.0-SNAPSHOT</version>
+      <version>1.1.0.Beta1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-common-core</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-core</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-pojo</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>jgroups</groupId>
+          <artifactId>jgroups</artifactId>            
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
