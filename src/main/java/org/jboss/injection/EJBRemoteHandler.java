@@ -157,6 +157,8 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          refClass = null;
       if (mappedName != null && mappedName.trim().equals(""))
          mappedName = null;
+      
+      // mappedName can be null, because an annotation has not been augmented with resolvedJndiName
       if (mappedName == null)
       {
          //
@@ -164,7 +166,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          if(amds != null)
          {
             AnnotatedEJBReferenceMetaData amd = amds.get(encName);
-            if(amd == null)
+            if(amd == null && fieldName != null)
                amd = amds.get(fieldName);
             if(amd != null)
             {
@@ -175,10 +177,15 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          }
       }
 
+      // The MappedDeploymentEndpointResolver should have put resolvedJndiName everywhere.
+      // If no mappedName is know by now, we have a bug.
+      assert mappedName == null : "mappedName for enc " + encName + " is null (container.environmentRefGroup.annotatedEjbReferences = " + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
+      
       EncInjector injector = null;
       
       if (mappedName == null)
       {
+         // legacy
          injector = new EjbEncInjector(encName, refClass, link, errorType);
       }
       else
