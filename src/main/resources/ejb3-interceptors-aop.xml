@@ -229,12 +229,14 @@
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.Clustered->*(..))">
          <interceptor-ref name="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory"/>
       </bind>
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+      </bind>
       <bind pointcut="execution(public * *->@javax.ejb.Remove(..))">
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulRemoveFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
@@ -300,12 +302,14 @@
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.Clustered->*(..))">
          <interceptor-ref name="org.jboss.ejb3.remoting.ReplicantsManagerInterceptorFactory"/>
       </bind>
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
+      </bind>
       <bind pointcut="execution(public * *->@javax.ejb.Remove(..))">
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulRemoveFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.aspects.tx.TxPropagationInterceptor"/>
-         <interceptor-ref name="org.jboss.ejb3.tx.CMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.stateful.StatefulInstanceInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.tx.BMTTxInterceptorFactory"/>
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
