@@ -1065,28 +1065,14 @@
          </fileset>
       </jar>
 
-      <jar jarfile="${build.lib}/jsr181.jar">
+      <jar jarfile="${build.lib}/webservices-ejb3-client.jar">
          <fileset dir="${build.classes}">
-         	<include name="org/jboss/ejb3/test/webservices/jsr181/EJB3*.class"/>
-         	<include name="org/jboss/ejb3/test/webservices/jsr181/*HomeInterface.class"/>
-            <include name="org/jboss/ejb3/test/webservices/jsr181/Stateless*.class"/>
-         	<include name="org/jboss/ejb3/test/webservices/jsr181/Narrowable*.class"/>
+            <include name="org/jboss/ejb3/test/webservices/*.class"/>
          </fileset>
-         <fileset dir="${resources}/test/webservices">
-         	<include name="META-INF/ejb-jar.xml"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/jsr181-client.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/webservices/jsr181/EndpointInterface.class"/>
-			<include name="org/jboss/ejb3/test/webservices/jsr181/NarrowableEndpointInterface.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/webservices">
-            <include name="META-INF/application-client.xml"/>
-            <include name="META-INF/jaxrpc-mapping.xml"/>
-            <include name="META-INF/jboss-client.xml"/>
+         <fileset dir="${resources}/test/webservices">            
+            <include name="META-INF/*.xml"/>
             <include name="META-INF/wsdl/*.wsdl"/>
+            <include name="META-INF/wsdl/*.xml"/>
          </fileset>
       </jar>
    </target>
