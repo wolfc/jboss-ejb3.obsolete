@@ -21,31 +21,11 @@
  */
 package org.jboss.ejb3;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import javassist.bytecode.ClassFile;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.naming.InitialContext;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
-import javax.persistence.Entity;
-import javax.security.jacc.PolicyConfiguration;
-
 import org.hibernate.ejb.packaging.PersistenceMetadata;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
-import org.jboss.ejb3.enc.EjbModuleEjbResolver;
 import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
 import org.jboss.ejb3.enc.MessageDestinationResolver;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
@@ -62,17 +42,22 @@ import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanGenericWrapper;
-import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.*;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
-import org.jboss.wsf.spi.deployment.integration.WebServiceDeclaration;
-import org.jboss.wsf.spi.deployment.integration.WebServiceDeployment;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.persistence.Entity;
+import javax.security.jacc.PolicyConfiguration;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * An EjbModule represents a collection of beans that are deployed as a unit.
@@ -82,7 +67,7 @@ import org.jboss.wsf.spi.deployment.integration.WebServiceDeployment;
  * @version $Revision$
  */
 public abstract class Ejb3Deployment extends ServiceMBeanSupport
-  implements JavaEEModule, Ejb3DeploymentMBean, WebServiceDeployment
+  implements JavaEEModule, Ejb3DeploymentMBean
 {
    private static final Logger log = Logger.getLogger(Ejb3Deployment.class);
 
@@ -883,40 +868,5 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    public String getName()
    {
       return unit.getShortName();
-   }
-
-   public List<WebServiceDeclaration> getServiceEndpoints()
-   {
-      List<WebServiceDeclaration> webServiceDeclarations = new ArrayList<WebServiceDeclaration>();
-
-      Iterator<Container> it = this.getEjbContainers().values().iterator();
-      while(it.hasNext())
-      {
-         final EJBContainer c = (EJBContainer)it.next();
-         webServiceDeclarations.add(
-           new WebServiceDeclaration()
-           {
-
-              public <T extends java.lang.annotation.Annotation> T getAnnotation(Class<T> t)
-              {
-                 return c.getAnnotation(t);
-              }
-
-
-              public String getComponentName()
-              {
-                 return c.getEjbName();
-              }
-
-              public String getComponentClassName()
-              {
-                 return c.getBeanClassName();
-              }
-           }
-
-         );
-      }
-      return webServiceDeclarations;
-
    }
 }
