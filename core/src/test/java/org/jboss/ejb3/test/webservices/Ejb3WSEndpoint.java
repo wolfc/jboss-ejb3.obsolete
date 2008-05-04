@@ -21,24 +21,15 @@
  */
 package org.jboss.ejb3.test.webservices;
 
-import javax.ejb.Stateless;
-import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.ejb.Remote;
 
 /**
- * Comment
- *
- * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
- * @version $Revision$
+ * @author Heiko.Braun <heiko.braun@jboss.com>
  */
-@Stateless
-@WebService(endpointInterface = "org.jboss.ejb3.test.webservices.SomeEndpointInterface")
-public class SomeBean implements SomeEndpointInterface
+@Remote
+@WebService
+public interface Ejb3WSEndpoint
 {
-   
-   @WebMethod
-   public String echo(String echo)
-   {
-      return echo;
-   }
+   String echo(String msg);
 }

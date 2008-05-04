@@ -19,32 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.webservices.jsr181;
-
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.Stateless;
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
+package org.jboss.ejb3.test.webservices;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
 
+import javax.ejb.Stateless;
+import javax.jws.WebService;
+
 /**
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version $Revision$
+ * @author Heiko.Braun <heiko.braun@jboss.com>
  */
-@WebService(name = "EndpointInterface", targetNamespace = "http://www.openuri.org/2004/04/HelloWorld", serviceName = "TestService")
-@SOAPBinding(style = SOAPBinding.Style.RPC)
-@Remote({EJB3RemoteBusinessInterface.class,EJB3RemoteInterface.class})
-@RemoteBinding(jndiBinding = "/ejb3/EJB3EndpointInterface")
-@RemoteHome(RemoteHomeInterface.class)
 @Stateless
-public class EJB3Bean implements EJB3RemoteBusinessInterface
+@RemoteBinding(jndiBinding = "Ejb3WSEndpoint")
+@WebService(endpointInterface = "org.jboss.ejb3.test.webservices.Ejb3WSEndpoint")
+public class Ejb3WSEndpointImpl implements Ejb3WSEndpoint
 {
-   @WebMethod
-   public String echo(String input)
+   
+   public String echo(String msg)
    {
-      return input;
+      return msg;
    }
 }
