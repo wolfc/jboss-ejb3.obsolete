@@ -25,7 +25,6 @@ import org.w3c.dom.Element;
 
 import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.WebServiceException;
 import javax.xml.ws.handler.MessageContext;
 import java.security.Principal;
 
@@ -79,7 +78,7 @@ public class WebServiceContextProxy implements WebServiceContext
 
    private static final class DefaultDelagate implements WebServiceContext
    {
-      private final RuntimeException EX = new WebServiceException("WebServiceContext not available");
+      private final RuntimeException EX = new IllegalStateException("WebServiceContext not available");
 
       public MessageContext getMessageContext()
       {
