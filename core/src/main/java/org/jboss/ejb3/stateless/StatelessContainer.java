@@ -22,17 +22,6 @@
 package org.jboss.ejb3.stateless;
 
 
-import java.lang.reflect.Method;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.ejb.EJBContext;
-import javax.ejb.EJBException;
-import javax.ejb.Handle;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
-import javax.naming.NamingException;
-
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
@@ -51,27 +40,30 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateful.StatefulProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.BaseStatelessRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory;
 import org.jboss.ejb3.session.SessionSpecContainer;
-import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
-import org.jboss.injection.lang.reflect.BeanProperty;
+import org.jboss.injection.WebServiceContextProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
-import org.jboss.wsf.spi.SPIProvider;
-import org.jboss.wsf.spi.SPIProviderResolver;
-import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
-import org.jboss.wsf.spi.invocation.InvocationType;
-import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
 import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
 import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
+
+import javax.ejb.EJBException;
+import javax.ejb.Handle;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
+import javax.naming.NamingException;
+import javax.xml.ws.WebServiceContext;
+import java.lang.reflect.Method;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -562,45 +554,17 @@ public class StatelessContainer extends SessionSpecContainer
     */
    public Object invokeEndpoint(Method method, Object[] args, InvocationContextCallback invocationContextCallback) throws Throwable
    {
-      WSCallbackImpl callback = new WSCallbackImpl(invocationContextCallback);
-      return this.localInvoke(method, args, null, callback);
+      //  WebServiceContext association
+      WebServiceContextProxy.associateMessageContext(
+        invocationContextCallback.get( WebServiceContext.class )
+      );
+      
+      return this.localInvoke(method, args, null, null);
    }
 
-   static class WSCallbackImpl implements BeanContextLifecycleCallback
+   public String getContainerName()
    {
-      private javax.xml.ws.handler.MessageContext jaxwsMessageContext;
-      private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
-
-      public WSCallbackImpl(InvocationContextCallback epInv)
-      {
-         jaxrpcMessageContext = epInv.get( javax.xml.rpc.handler.MessageContext.class );
-         jaxwsMessageContext = epInv.get( javax.xml.ws.handler.MessageContext.class );
-      }
-
-      public void attached(BeanContext beanCtx)
-      {
-         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
-         sbc.setMessageContextJAXRPC(jaxrpcMessageContext);
-
-         BeanProperty beanProp = sbc.getWebServiceContextProperty();
-         if (beanProp != null)
-         {
-            EJBContext ejbCtx = beanCtx.getEJBContext();
-            SPIProvider spiProvider = SPIProviderResolver.getInstance().getProvider();
-            ExtensibleWebServiceContext wsContext = spiProvider.getSPI(WebServiceContextFactory.class).newWebServiceContext(InvocationType.JAXWS_EJB3, jaxwsMessageContext);
-            wsContext.addAttachment(EJBContext.class, ejbCtx);
-            beanProp.set(beanCtx.getInstance(), wsContext);
-         }
-      }
-
-      public void released(BeanContext beanCtx)
-      {
-         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
-         sbc.setMessageContextJAXRPC(null);
-
-         BeanProperty beanProp = sbc.getWebServiceContextProperty();
-         if (beanProp != null)
-            beanProp.set(beanCtx.getInstance(), null);
-      }
+      String name = this.getObjectName() != null ? this.getObjectName().getCanonicalName() : null;
+      return name;
    }
 }
