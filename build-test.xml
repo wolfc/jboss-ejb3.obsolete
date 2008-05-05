@@ -326,16 +326,22 @@
 	
 	  <!-- Apache Codec -->
     <pathelement path="${location.dependencies.lib.apache-codec:commons-codec}" />
-    
-    <!-- JBossWS Client -->
-    <pathelement path="${location.client.lib.jbossws-client}" />
-    
+
     <!-- JBoss MDR -->
     <pathelement path="${location.client.lib.jboss-mdr}" />
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
-    
+
+    <!-- webservice tests -->
+
+    <pathelement location="${env.JBOSS_HOME}/client/jbossws-client.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jboss-jaxws.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jaxb-api.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/lib/endorsed/xercesImpl.jar"/>
+
+
+
   </path>
   
   
@@ -4289,7 +4295,8 @@
    <!-- Single unit test -->
    <target name="one-test-with-jvmargs" if="test">
       <!-- For use when we need to pass in special jvmargs -->
-
+      
+      
       <mkdir dir="${build.reports}"/>
       <mkdir dir="${build.testlog}"/>
       <!-- Remove the test.log so each run has a fresh log -->
