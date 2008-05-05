@@ -48,19 +48,21 @@ import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.WebServiceContextProxy;
+import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
+import org.jboss.wsf.spi.SPIProvider;
+import org.jboss.wsf.spi.SPIProviderResolver;
+import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
+import org.jboss.wsf.spi.invocation.InvocationType;
+import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
 import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
 import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
 
-import javax.ejb.EJBException;
-import javax.ejb.Handle;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
+import javax.ejb.*;
 import javax.naming.NamingException;
-import javax.xml.ws.WebServiceContext;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.Map;
@@ -548,23 +550,74 @@ public class StatelessContainer extends SessionSpecContainer
     * WS Integration
     * @param method
     * @param args
-    * @param invocationContextCallback
+    * @param invCtxCallback
     * @return
     * @throws Throwable
     */
-   public Object invokeEndpoint(Method method, Object[] args, InvocationContextCallback invocationContextCallback) throws Throwable
+   public Object invokeEndpoint(Method method, Object[] args, InvocationContextCallback invCtxCallback) throws Throwable
    {
-      //  WebServiceContext association
-      WebServiceContextProxy.associateMessageContext(
-        invocationContextCallback.get( WebServiceContext.class )
+      // JAX-RPC message context
+      javax.xml.rpc.handler.MessageContext jaxrpcContext = invCtxCallback.get(javax.xml.rpc.handler.MessageContext.class);
+
+      // JAX-WS webservice context
+      SPIProvider spiProvider = SPIProviderResolver.getInstance().getProvider();
+      WebServiceContextFactory contextFactory = spiProvider.getSPI(WebServiceContextFactory.class);
+      ExtensibleWebServiceContext jaxwsContext = contextFactory.newWebServiceContext(
+        InvocationType.JAXWS_EJB3,
+        invCtxCallback.get(javax.xml.ws.handler.MessageContext.class)
       );
-      
-      return this.localInvoke(method, args, null, null);
+
+      // ThreadLocal association
+      WebServiceContextProxy.associateMessageContext(jaxwsContext);
+
+      // EJB3 Injection Callbacks
+      WSCallbackImpl ejb3Callback = new WSCallbackImpl( jaxrpcContext, jaxwsContext );
+
+      // Actual invocation
+      return this.localInvoke(method, args, null, ejb3Callback);
    }
 
    public String getContainerName()
    {
       String name = this.getObjectName() != null ? this.getObjectName().getCanonicalName() : null;
       return name;
+   }
+   
+   static class WSCallbackImpl implements BeanContextLifecycleCallback
+   {
+      private ExtensibleWebServiceContext jaxwsContext;
+      private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
+
+      public WSCallbackImpl(javax.xml.rpc.handler.MessageContext jaxrpc, ExtensibleWebServiceContext jaxws)
+      {
+         jaxrpcMessageContext = jaxrpc;
+         jaxwsContext = jaxws;
+      }
+
+      public void attached(BeanContext beanCtx)
+      {
+         // JAX-RPC MessageContext
+         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
+         sbc.setMessageContextJAXRPC(jaxrpcMessageContext);
+
+         // JAX-WS MessageContext
+         BeanProperty beanProp = sbc.getWebServiceContextProperty();
+         if (beanProp != null)
+         {
+            EJBContext ejbCtx = beanCtx.getEJBContext();            
+            jaxwsContext.addAttachment(EJBContext.class, ejbCtx);
+            beanProp.set(beanCtx.getInstance(), jaxwsContext);
+         }
+      }
+
+      public void released(BeanContext beanCtx)
+      {
+         StatelessBeanContext sbc = (StatelessBeanContext)beanCtx;
+         sbc.setMessageContextJAXRPC(null);
+
+         BeanProperty beanProp = sbc.getWebServiceContextProperty();
+         if (beanProp != null)
+            beanProp.set(beanCtx.getInstance(), null);
+      }      
    }
 }

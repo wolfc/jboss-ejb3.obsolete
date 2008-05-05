@@ -30,9 +30,8 @@ import javax.jws.WebService;
  * @author Heiko.Braun <heiko.braun@jboss.com>
  */
 @Stateless
-@RemoteBinding(jndiBinding = "Ejb3WSEndpoint")
 @WebService(endpointInterface = "org.jboss.ejb3.test.webservices.Ejb3WSEndpoint")
-public class Ejb3WSEndpointImpl implements Ejb3WSEndpoint
+public class SimpleEndpoint implements Ejb3WSEndpoint
 {
    
    public String echo(String msg)

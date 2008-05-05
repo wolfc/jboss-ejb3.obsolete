@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.webservices.unit;
 import junit.framework.Test;
 import org.jboss.test.JBossTestCase;
 import org.jboss.ejb3.test.webservices.Ejb3WSEndpoint;
+import org.jboss.ejb3.test.webservices.BusinessInterface;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -37,9 +38,9 @@ import java.net.URL;
  * @author Heiko.Braun@jboss.com
  * @version $Revision$
  */
-public class Ejb3WSTestCase extends JBossTestCase
+public class WebServiceTestCase extends JBossTestCase
 {
-   public Ejb3WSTestCase(String name)
+   public WebServiceTestCase(String name)
    {
       super(name);
    }
@@ -47,35 +48,62 @@ public class Ejb3WSTestCase extends JBossTestCase
    public void testRemoteAccess() throws Exception
    {
       InitialContext iniCtx = getInitialContext();
-      Ejb3WSEndpoint ejb3Remote = (Ejb3WSEndpoint)iniCtx.lookup("/Ejb3WSEndpoint");
+      Ejb3WSEndpoint ejb3Remote = (Ejb3WSEndpoint)iniCtx.lookup("/webservices-ejb3/SimpleEndpoint/remote");
 
       String helloWorld = "Hello world!";
       Object retObj = ejb3Remote.echo(helloWorld);
       assertEquals(helloWorld, retObj);
    }
 
+   /**
+    * Simple web service test coverage
+    * @throws Exception
+    */
    public void testWebService() throws Exception
    {
       Service service = Service.create(
-        new URL("http://"+getServerHost()+":8080/webservices-ejb3/Ejb3WSEndpointImpl?wsdl"),
-        new QName("http://webservices.test.ejb3.jboss.org/","Ejb3WSEndpointImplService")
+        new URL("http://"+getServerHost()+":8080/webservices-ejb3/SimpleEndpoint?wsdl"),
+        new QName("http://webservices.test.ejb3.jboss.org/","SimpleEndpointService")
       );
 
+      String msg = "testWebService";
       Ejb3WSEndpoint port = service.getPort(Ejb3WSEndpoint.class);
-      String response = port.echo("Hello");
-      assertEquals("Hello", response);            
+      String response = port.echo(msg);
+      assertEquals(msg, response);
    }
-   
+
+   /**
+    * Test web service context injection
+    * @throws Exception
+    */
+   public void testWebServiceContext() throws Exception
+   {
+      Service service = Service.create(
+        new URL("http://"+getServerHost()+":8080/webservices-ejb3/WebServiceContextEndpoint?wsdl"),
+        new QName("http://webservices.test.ejb3.jboss.org/","WebServiceContextEndpointService")
+      );
+
+      String msg = "testWebServiceContext";
+      Ejb3WSEndpoint port = service.getPort(Ejb3WSEndpoint.class);
+      String response = port.echo(msg);
+      assertNotNull(response);
+   }
+
    public void testWebServiceRef() throws Exception
    {
-                  
+      InitialContext iniCtx = getInitialContext();
+      BusinessInterface ejb3Remote = (BusinessInterface)iniCtx.lookup("/webservices-ejb3/WebServiceRefBean/remote");
+
+      String msg = "testWebServiceRef";
+      Object retObj = ejb3Remote.echo(msg);
+      assertEquals(msg, retObj);
    }
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(Ejb3WSTestCase.class, "webservices-ejb3.jar, webservices-ejb3-client.jar");
+      return getDeploySetup(WebServiceTestCase.class, "webservices-ejb3.jar, webservices-ejb3-client.jar");
    }
-   
+
    protected InitialContext getInitialContext(String clientName) throws NamingException
    {
       InitialContext iniCtx = new InitialContext();
@@ -91,7 +119,7 @@ public class Ejb3WSTestCase extends JBossTestCase
    {
       return getInitialContext("jbossws-client");
    }
-   
+
    public String getServerHost()
    {
       String hostName = System.getProperty("jbosstest.server.host", "localhost");
