@@ -179,7 +179,7 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
 
       // The MappedDeploymentEndpointResolver should have put resolvedJndiName everywhere.
       // If no mappedName is know by now, we have a bug.
-      assert mappedName == null : "mappedName for enc " + encName + " is null (container.environmentRefGroup.annotatedEjbReferences = " + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
+      assert mappedName != null : "mappedName for enc " + encName + " is null (container.environmentRefGroup.annotatedEjbReferences = " + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
       
       EncInjector injector = null;
       
