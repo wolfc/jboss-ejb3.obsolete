@@ -99,6 +99,23 @@ public class WebServiceTestCase extends JBossTestCase
       assertEquals(msg, retObj);
    }
 
+   /**
+    * Test web service context ibjection into JAX-WS handler
+    * @throws Exception
+    */
+   public void testHandlerContext() throws Exception
+   {
+      Service service = Service.create(
+        new URL("http://"+getServerHost()+":8080/webservices-ejb3/HandlerContextEndpoint?wsdl"),
+        new QName("http://webservices.test.ejb3.jboss.org/","HandlerContextEndpointService")
+      );
+
+      String msg = "testHandlerContext";
+      Ejb3WSEndpoint port = service.getPort(Ejb3WSEndpoint.class);
+      String response = port.echo(msg);
+      assertNotNull(response);
+   }
+
    public static Test suite() throws Exception
    {
       return getDeploySetup(WebServiceTestCase.class, "webservices-ejb3.jar, webservices-ejb3-client.jar");
