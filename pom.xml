@@ -310,6 +310,12 @@
     <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.javaee</groupId>
+          <artifactId>jboss-javaee</artifactId>
+        </exclusion>
+      </exclusions>      
     </dependency>
     
     <dependency>
@@ -491,6 +497,16 @@
       <artifactId>jboss-jca-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jms-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-servlet-api</artifactId>
+    </dependency>
+    
     <!-- those needs to be removed -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
