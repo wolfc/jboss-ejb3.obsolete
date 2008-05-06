@@ -158,6 +158,9 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if (mappedName != null && mappedName.trim().equals(""))
          mappedName = null;
       
+      // Initialize the lookupName to the encName
+      String lookupName = encName;
+      
       // mappedName can be null, because an annotation has not been augmented with resolvedJndiName
       if (mappedName == null)
       {
@@ -165,21 +168,26 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
          AnnotatedEJBReferencesMetaData amds = container.getEnvironmentRefGroup().getAnnotatedEjbReferences();
          if(amds != null)
          {
-            AnnotatedEJBReferenceMetaData amd = amds.get(encName);
-            if(amd == null && fieldName != null)
-               amd = amds.get(fieldName);
-            if(amd != null)
+            AnnotatedEJBReferenceMetaData amd = amds.get(lookupName);
+            if (amd == null && fieldName != null)
+            {
+               lookupName = fieldName;
+               amd = amds.get(lookupName);
+            }
+            if (amd != null)
             {
                mappedName = amd.getMappedName();
-               if(mappedName == null)
+               if (mappedName == null)
                   mappedName = amd.getResolvedJndiName();
             }
          }
       }
 
       // The MappedDeploymentEndpointResolver should have put resolvedJndiName everywhere.
-      // If no mappedName is know by now, we have a bug.
-      assert mappedName != null : "mappedName for enc " + encName + " is null (container.environmentRefGroup.annotatedEjbReferences = " + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
+      // If no mappedName is known by now, we have a bug.
+      assert mappedName != null : "mappedName for enc \"" + encName + "\", field \"" + fieldName
+            + "\" is null (container.environmentRefGroup.annotatedEjbReferences = "
+            + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
       
       EncInjector injector = null;
       
