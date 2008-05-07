@@ -66,8 +66,12 @@ public class PassivationSucceedsUnitTestCase extends JBossTestCase
       TestCase.assertEquals("Returned result was not expected", TestPassivationRemote.EXPECTED_RESULT, remote
             .returnTrueString());
 
-      // Ensure the bean was passivated during the client sleep
-      TestCase.assertTrue("SFSB was not passivated, check CacheConfig and client sleep time", remote
+      // Ensure that @PostActivate was called during client sleep
+      TestCase.assertTrue("@PostActivate not called, check CacheConfig and client sleep time", remote
+            .hasBeenActivated());
+
+      // Ensure that @PrePassivate was called during the client sleep
+      TestCase.assertTrue("@PrePassivate not called, check CacheConfig and client sleep time", remote
             .hasBeenPassivated());
    }
 }

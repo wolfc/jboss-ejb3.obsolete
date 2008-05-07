@@ -60,4 +60,11 @@ public interface TestPassivationRemote
     * @return
     */
    boolean hasBeenPassivated();
+   
+   /**
+    * Returns whether or not this instance has been activated
+    * 
+    * @return
+    */
+   boolean hasBeenActivated();
 }
