@@ -27,10 +27,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJBHome;
@@ -46,10 +44,7 @@ import javax.ejb.RemoveException;
 import javax.ejb.TimerService;
 
 import org.jboss.aop.Domain;
-import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
@@ -62,13 +57,10 @@ import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
-import org.jboss.ejb3.aop.LifeCycleInvocation;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
-import org.jboss.ejb3.interceptors.aop.InterceptorsFactory;
-import org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
@@ -564,41 +556,14 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
             }
          }
       }
-      // FIXME: this is just a hack, use an interceptor stack
-      try
-      {
-         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), PostActivate.class));
-         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
-         
-         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
-         invocation.setAdvisor(getAdvisor());
-         invocation.setTargetObject(beanContext.getInstance());
-         invocation.invokeNext();
-      }
-      catch(Throwable t)
-      {
-         throw new RuntimeException(t);
-      }
+      
+      this.invokeCallback(beanContext, PostActivate.class);
    }
 
    @Override
    public void invokePrePassivate(BeanContext beanContext)
    {
-      // FIXME: this is just a hack, use an interceptor stack
-      try
-      {
-         List<Interceptor> interceptors = new ArrayList<Interceptor>(InterceptorsFactory.getLifeCycleInterceptors((InstanceAdvisor) getAdvisor(), PrePassivate.class));
-         interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
-         
-         LifeCycleInvocation invocation = new LifeCycleInvocation(interceptors.toArray(new Interceptor[0]));
-         invocation.setAdvisor(getAdvisor());
-         invocation.setTargetObject(beanContext.getInstance());
-         invocation.invokeNext();
-      }
-      catch(Throwable t)
-      {
-         throw new RuntimeException(t);
-      }
+      this.invokeCallback(beanContext, PrePassivate.class);
    }
 
    /*
