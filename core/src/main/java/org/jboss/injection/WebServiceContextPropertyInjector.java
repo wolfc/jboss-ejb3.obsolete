@@ -21,8 +21,6 @@
  */
 package org.jboss.injection;
 
-import javax.ejb.EJBContext;
-
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.stateless.StatelessBeanContext;
 import org.jboss.injection.lang.reflect.BeanProperty;
@@ -52,6 +50,8 @@ public class WebServiceContextPropertyInjector implements Injector
 
    public void inject(BeanContext ctx)
    {
+      property.set(ctx.getInstance(), new WebServiceContextProxy());
+      
       if(!(ctx instanceof StatelessBeanContext))
          throw new RuntimeException("Can only inject on stateless bean context");
       

@@ -25,6 +25,7 @@ import javax.ejb.EJBContext;
 
 import org.jboss.ejb3.session.SessionSpecBeanContext;
 import org.jboss.injection.lang.reflect.BeanProperty;
+import org.jboss.logging.Logger;
 
 
 /**
@@ -35,6 +36,8 @@ import org.jboss.injection.lang.reflect.BeanProperty;
  */
 public class StatelessBeanContext extends SessionSpecBeanContext<StatelessContainer>
 {
+   private static final Logger log = Logger.getLogger(StatelessBeanContext.class);
+   
    private javax.xml.rpc.handler.MessageContext jaxrpcMessageContext;
    private BeanProperty webServiceContextProperty;
    
@@ -53,11 +56,19 @@ public class StatelessBeanContext extends SessionSpecBeanContext<StatelessContai
       this.jaxrpcMessageContext = rpcMessageContext;
    }
 
+   /**
+    * As of EJBTHREE-1337 this method is deprecated, it'll be removed. The
+    * WebServiceContext should already have been injected by the WebServiceContextPropertyInjector.
+    * @return the bean property which holds the WebServiceContext
+    */
+   @Deprecated
    public BeanProperty getWebServiceContextProperty()
    {
+      log.warn("EJBTHREE-1337: do not get WebServiceContext property from stateless bean context, it should already have been injected");
       return webServiceContextProperty;
    }
 
+   @Deprecated
    public void setWebServiceContextProperty(BeanProperty webServiceContextProperty)
    {
       this.webServiceContextProperty = webServiceContextProperty;
