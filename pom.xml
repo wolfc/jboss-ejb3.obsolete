@@ -28,7 +28,7 @@
   <!-- Properties -->
 
   <properties>
-    <version.org.jboss.jboss-as>5.0.0-SNAPSHOT</version.org.jboss.jboss-as>
+    <version.org.jboss.jboss-as>5.0.0.Beta4</version.org.jboss.jboss-as>
   </properties>
 
   <!-- Build Information -->
@@ -281,6 +281,7 @@
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.7</version> <!-- Only used here, for Unit Tests -->
+      <scope>test</scope>
     </dependency>
     
     <dependency>
@@ -343,7 +344,7 @@
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-vfs</artifactId>
-      <version>2.0.0.Beta8</version>
+      <version>2.0.0.Beta11</version>
     </dependency>
     
     <dependency>
@@ -354,6 +355,12 @@
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>        
+      </exclusions>      
     </dependency>
     
     <dependency>
@@ -475,6 +482,7 @@
       <artifactId>jboss-ejb3-transactions</artifactId>
       <version>0.13.0-SNAPSHOT</version>
     </dependency>
+    
     <dependency>
       <groupId>org.jboss.embedded</groupId>
       <artifactId>jboss-embedded</artifactId>
@@ -507,7 +515,17 @@
       <artifactId>jboss-servlet-api</artifactId>
     </dependency>
     
-    <!-- those needs to be removed -->
+    <!-- those needs to be removed - EJBTHREE-1340 -->
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-main</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+    </dependency>  
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-system</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+    </dependency>      
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system-jmx</artifactId>
@@ -517,38 +535,32 @@
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-mbeans</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-test</artifactId>
+        </exclusion>        
+      </exclusions>      
     </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-j2se</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+    </dependency>    
     
     <!-- this needs to be removed -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-server</artifactId>
-      <version>${version.org.jboss.jboss-as}</version>
+      <version>5.0.0-SNAPSHOT</version>
       <exclusions>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-system-jmx</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-system</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.jbossas</groupId>
-          <artifactId>jboss-as-j2se</artifactId>
-        </exclusion>
         <exclusion>
           <groupId>org.jboss.jbossas</groupId>
           <artifactId>jboss-as-security</artifactId>
         </exclusion>        
       </exclusions>      
     </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-container</artifactId>
-    </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
