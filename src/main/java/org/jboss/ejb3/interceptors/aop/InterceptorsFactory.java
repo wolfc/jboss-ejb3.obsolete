@@ -115,7 +115,7 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
    {
       if(advisor instanceof ManagedObjectAdvisor)
       {
-         log.warn("EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the container");
+         log.warn("EJBTHREE-1246: Do not use InterceptorsFactory with a ManagedObjectAdvisor, InterceptorRegistry should be used via the bean container");
          return new NopInterceptor();
       }
       
