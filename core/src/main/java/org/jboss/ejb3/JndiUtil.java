@@ -53,6 +53,26 @@ public class JndiUtil
       
       return object;
    }
+
+   public static Object lookupLink(Context jndiContext, String binding)
+      throws NamingException
+   {
+      Object object = null;
+   
+      try
+      {
+         object = jndiContext.lookupLink(binding);
+      }
+      catch (NameNotFoundException e)
+      {
+         Context haCtx = InitialContextFactory.getHAContext(jndiContext);
+         if(haCtx == null)
+            throw e;
+         object = haCtx.lookupLink(binding);
+      }
+      
+      return object;
+   }
 }
 
 

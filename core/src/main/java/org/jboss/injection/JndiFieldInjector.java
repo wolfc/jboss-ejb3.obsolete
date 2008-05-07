@@ -22,13 +22,11 @@
 package org.jboss.injection;
 
 import java.lang.reflect.Field;
+
 import javax.naming.Context;
-import javax.naming.NamingException;
 
+import org.jboss.injection.lang.reflect.FieldBeanProperty;
 import org.jboss.logging.Logger;
-
-import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.JndiUtil;
 
 /**
  * Comment
@@ -37,93 +35,17 @@ import org.jboss.ejb3.JndiUtil;
  * @version $Revision$
  * @deprecated  use JndiPropertyInjector
  */
-public class JndiFieldInjector implements Injector, PojoInjector
+public class JndiFieldInjector extends JndiPropertyInjector
 {
    private static final Logger log = Logger.getLogger(JndiFieldInjector.class);
    
-   private Field field;
-   private String jndiName;
-   private Context ctx;
-
    public JndiFieldInjector(Field field, String jndiName, Context ctx)
    {
-      this.field = field;
-      this.field.setAccessible(true);
-      this.jndiName = jndiName;
-      this.ctx = ctx;
+      super(new FieldBeanProperty(field), jndiName, ctx);
    }
 
    public JndiFieldInjector(Field field, Context ctx)
    {
       this(field, field.getName(), ctx);
-   }
-
-   public void inject(BeanContext bctx)
-   {
-      inject(bctx, bctx.getInstance());
-   }
-
-   public Class getInjectionClass()
-   {
-      return field.getType();
-   }
-
-   public Field getField()
-   {
-      return field;
-   }
-
-   protected Object lookup(String jndiName, Class field)
-   {
-      Object dependency = null;
-
-      try
-      {
-         dependency = JndiUtil.lookup(ctx, jndiName);
-      }
-      catch (NamingException e)
-      {
-         e.printStackTrace();
-         throw new RuntimeException("Unable to inject jndi dependency: " + jndiName + " into field " + field, e);
-      }
-      
-      return dependency;
-   }
-   
-   public void inject(BeanContext bctx, Object instance)
-   {
-      inject(instance);
-   }
-
-   public void inject(Object instance)
-   {
-      
-      Object dependency = lookup(jndiName, field.getType());
-      
-      try
-      {
-         field.set(instance, dependency);
-      }
-      catch (IllegalArgumentException e)
-      {
-         String type = "UNKNOWN";
-         String interfaces = "";
-         if (dependency != null)
-         {
-            type = dependency.getClass().getName();
-            Class[] intfs = dependency.getClass().getInterfaces();
-            for (Class intf : intfs) interfaces += ", " + intf.getName();
-         }
-         throw new RuntimeException("Non matching type for inject of field: " + field + " for type: " + type + " of jndiName " + jndiName + "\nintfs: " + interfaces, e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
-   
-   public String toString()
-   {
-      return super.toString() + "{field=" + field + ",jndiName=" + jndiName + "}";
    }
 }
