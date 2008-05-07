@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.ejbthree1339;
 
 import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 
@@ -57,6 +58,11 @@ public class TestPassivationBean implements TestPassivationRemote
     */
    private boolean beenPassivated = false;
 
+   /**
+    * Whether the bean has yet been activated
+    */
+   private boolean beenActivated = false;
+
    // ---------------------------------------------------------------------------||
    // Functional Methods --------------------------------------------------------||
    // ---------------------------------------------------------------------------||
@@ -81,6 +87,16 @@ public class TestPassivationBean implements TestPassivationRemote
       return this.beenPassivated;
    }
 
+   /**
+    * Returns whether or not this instance has been activated
+    * 
+    * @return
+    */
+   public boolean hasBeenActivated()
+   {
+      return this.beenActivated;
+   }
+
    // ---------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------||
    // ---------------------------------------------------------------------------||
@@ -88,10 +104,17 @@ public class TestPassivationBean implements TestPassivationRemote
    /**
     * Sets the passivation flag before reactivation
     */
-   @PostActivate
+   @PrePassivate
    public void setPassivateFlag()
    {
-      log.info(this.toString() + " Activated");
+      log.info(this.toString() + " PrePassivation...");
       this.beenPassivated = true;
+   }
+
+   @PostActivate
+   public void setActivateFlag()
+   {
+      log.info(this.toString() + " Activated.");
+      this.beenActivated = true;
    }
 }
