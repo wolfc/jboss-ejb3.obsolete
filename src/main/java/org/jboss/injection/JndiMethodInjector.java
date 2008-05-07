@@ -21,12 +21,11 @@
  */
 package org.jboss.injection;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
 import javax.naming.Context;
-import javax.naming.NamingException;
-import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.JndiUtil;
+
+import org.jboss.injection.lang.reflect.MethodBeanProperty;
 import org.jboss.logging.Logger;
 
 /**
@@ -36,76 +35,13 @@ import org.jboss.logging.Logger;
  * @version $Revision$
  * @deprecated use JndiPropertyInjector
  */
-public class JndiMethodInjector implements Injector, PojoInjector
+public class JndiMethodInjector extends JndiPropertyInjector
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(JndiMethodInjector.class);
    
-   private Method setMethod;
-   private String jndiName;
-   private Context ctx;
-
    public JndiMethodInjector(Method setMethod, String jndiName, Context ctx)
    {
-      this.setMethod = setMethod;
-      setMethod.setAccessible(true);
-      this.jndiName = jndiName;
-      this.ctx = ctx;
-   }
-
-   public void inject(BeanContext bctx)
-   {
-      inject(bctx, bctx.getInstance());
-   }
-   
-   public Class getInjectionClass()
-   {
-      return setMethod.getParameterTypes()[0];
-   }
-   
-   protected Object lookup(String jndiName, Class param)
-   {
-      Object dependency = null;
-      
-      try
-      {
-         dependency = JndiUtil.lookup(ctx, jndiName);
-      }
-      catch (NamingException e)
-      {
-         e.printStackTrace();
-         throw new RuntimeException("Unable to @Inject jndi dependency: " + jndiName + " into method " + setMethod, e);
-      }
-      return dependency;
-   }
-   
-   public void inject(BeanContext bctx, Object instance)
-   {
-      inject(instance);
-   }
-
-   public void inject(Object instance)
-   {
-      Object dependency = lookup(jndiName, setMethod.getParameterTypes()[0]);
-
-      Object[] args = {dependency};
-      try
-      {
-         setMethod.invoke(instance, args);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (IllegalArgumentException e)
-      {
-         String type = "UNKNOWN";
-         if (dependency != null) type = dependency.getClass().getName();
-         throw new RuntimeException("Non matching type for @Inject of setter: " + setMethod + " for type: " + type, e);  //To change body of catch statement use Options | File Templates.
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new RuntimeException(e.getCause());  //To change body of catch statement use Options | File Templates.
-      }
+      super(new MethodBeanProperty(setMethod), jndiName, ctx);
    }
 }

@@ -21,7 +21,10 @@
  */
 package org.jboss.injection;
 
+import java.util.Arrays;
+
 import javax.naming.Context;
+import javax.naming.LinkRef;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.BeanContext;
@@ -88,6 +91,29 @@ public class JndiPropertyInjector extends AbstractPropertyInjector implements Po
    {
       Object value = lookup(jndiName);
       log.trace("injecting " + value + " from " + jndiName + " into " + property + " of " + instance);
-      property.set(instance, value);
+      try
+      {
+         property.set(instance, value);
+      }
+      catch(IllegalArgumentException e)
+      {
+         // We found something to inject, but it happened to be the wrong thing
+         String realJndiName;
+         try
+         {
+            // TODO: check whether it's a real link beforehand
+            Object link = JndiUtil.lookupLink(ctx, jndiName);
+            realJndiName = jndiName + (link instanceof LinkRef ? " (link -> " + ((LinkRef) link).getLinkName() + ")" : "");
+         }
+         catch(NamingException ne)
+         {
+            log.trace("Failed to obtain the real JNDI name", ne);
+            realJndiName = jndiName;
+         }
+         Class<?> interfaces[] = value.getClass().getInterfaces();
+         String interfacesStr = (interfaces.length > 0 ? " (implements " + Arrays.toString(interfaces) + ")" : "");
+         String msg = "failed to inject " + value + interfacesStr + " from " + realJndiName + " into " + property + " of " + instance;
+         throw new IllegalArgumentException(msg, e);
+      }
    }
 }
