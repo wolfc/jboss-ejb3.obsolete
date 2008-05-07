@@ -150,7 +150,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
             else if (ORB.class.getName().equals(envRef.getType()))
             {
                encName = "java:comp/ORB";
-            }
+            }            
             else
             {
                throw new RuntimeException("mapped-name is required for " + envRef.getResourceRefName() + " of deployment " + container.getIdentifier());
@@ -213,6 +213,23 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                {
                   mappedName = "java:comp/ORB";
                   continue;
+               }
+               else if(WebServiceContext.class.getName().equals(envRef.getType()))
+               {
+                  // JBAS-5359
+                  InjectorFactory<?> factory = new InjectorFactory<WebServiceContextPropertyInjector>()
+                  {
+                     public WebServiceContextPropertyInjector create(BeanProperty property)
+                     {
+                        return new WebServiceContextPropertyInjector(property);
+                     }
+                  };
+                  if(envRef.getInjectionTargets() != null)
+                  {
+                     InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                     continue;
+                  }
+
                }
             }
          }
