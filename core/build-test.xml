@@ -4106,6 +4106,48 @@
 	      </fileset>
 	  </jar>
    </target>
+
+   <target name="externalrefscoped" description="Builds externalrefscoped jar files.">
+      <mkdir dir="${build.lib}"/>
+
+      <jar jarfile="${build.lib}/externalrefscoped-first-client-view.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/externalrefscoped/First.class"/>
+         </fileset>
+      </jar>
+      <jar jarfile="${build.lib}/externalrefscoped-first-ejb.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/externalrefscoped/FirstBean.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/externalrefscoped/first-ejb-jar"/>
+      </jar>
+      <jar jarfile="${build.lib}/externalrefscoped-second-client-view.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/externalrefscoped/Second.class"/>
+         </fileset>
+      </jar>
+      <jar jarfile="${build.lib}/externalrefscoped-second-ejb.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/externalrefscoped/SecondBean.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/externalrefscoped/second-ejb-jar"/>
+      </jar>
+      <jar jarfile="${build.lib}/externalrefscoped-first.ear">
+         <fileset dir="${resources}/test/externalrefscoped/first-ear"/>
+         <fileset dir="${build.lib}">
+            <include name="externalrefscoped-first-client-view.jar"/>
+            <include name="externalrefscoped-second-client-view.jar"/>
+            <include name="externalrefscoped-first-ejb.jar"/>
+         </fileset>
+      </jar>
+      <jar jarfile="${build.lib}/externalrefscoped-second.ear">
+         <fileset dir="${resources}/test/externalrefscoped/second-ear"/>
+         <fileset dir="${build.lib}">
+            <include name="externalrefscoped-second-client-view.jar"/>
+            <include name="externalrefscoped-second-ejb.jar"/>
+         </fileset>
+      </jar>
+   </target>
    
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
@@ -4131,7 +4173,7 @@
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
-      statelesscreation, changexml"/>
+      statelesscreation, changexml, externalrefscoped"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
