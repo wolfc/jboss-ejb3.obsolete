@@ -44,7 +44,7 @@
             initial state (ie. the contents of the cache) are retrieved from
             existing members in a clustered environment
       -->
-      <property name="initialStateRetrievalTimeout">15000</property>
+      <property name="stateRetrievalTimeout">15000</property>
 
       <!--    Number of milliseconds to wait until all responses for a
               synchronous call have been received.
