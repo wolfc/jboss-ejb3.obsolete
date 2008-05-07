@@ -278,9 +278,21 @@ public class InterceptorsFactory extends AbstractInterceptorFactory
       return (Map<Class<? extends Annotation>, List<Interceptor>>) instanceAdvisor.getMetaData().getMetaData(InterceptorsFactory.class, "lifeCycleInterceptors");
    }
    
-   public static List<Interceptor> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor, Class<? extends Annotation> lifeCycleAnnotationClass)
+   public static List<Interceptor> getLifeCycleInterceptors(InstanceAdvisor instanceAdvisor,
+         Class<? extends Annotation> lifeCycleAnnotationClass)
    {
-      return getLifeCycleInterceptors(instanceAdvisor).get(lifeCycleAnnotationClass);
+      // Obtain lifecycle interceptors
+      Map<Class<? extends Annotation>, List<Interceptor>> lifecycleInterceptors = getLifeCycleInterceptors(instanceAdvisor);
+
+      // If there are no lifecycle interceptors
+      if (lifecycleInterceptors == null)
+      {
+         // Return an empty list
+         return new ArrayList<Interceptor>();
+      }
+      
+      // Return the interceptors for this lifecycle annotation class
+      return lifecycleInterceptors.get(lifeCycleAnnotationClass);
    }
    
    /**
