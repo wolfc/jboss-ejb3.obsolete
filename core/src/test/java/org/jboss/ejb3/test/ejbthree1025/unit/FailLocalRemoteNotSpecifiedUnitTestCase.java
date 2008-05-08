@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.ejbthree1025.unit;
 
 import junit.framework.Test;
 
-import org.jboss.deployment.DeploymentException;
+import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.test.JBossTestCase;
 
 /**
