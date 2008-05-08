@@ -46,6 +46,7 @@
     <module>metadata</module>
     <module>plugin</module>
     <module>pool</module>
+    <module>proxy</module>
     <!-- module>sandbox</module -->
     <module>security</module>
     <module>transactions</module>
