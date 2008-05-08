@@ -115,49 +115,49 @@ public class ProxyTargetsUnitTestCase extends JBossClusteredTestCase
       getLog().debug("================================================");
       
       getLog().debug("Checking ClusteredStatelessRemote on node 0");
-      ClusteredStatelessRemote csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredStateless/remote");
+      ClusteredStatelessRemote csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredsession-test/clusteredStateless/remote");
       confirmTargetCount(getFamilyName(SLSB), 2);
       
       getLog().debug("Checking ClusteredStatelessRemote on node 1");
-      csr = (ClusteredStatelessRemote) getInitialContext(1).lookup("clusteredStateless/remote");
+      csr = (ClusteredStatelessRemote) getInitialContext(1).lookup("clusteredsession-test/clusteredStateless/remote");
       confirmTargetCount(getFamilyName(SLSB), 2);
       
       getLog().debug("Checking StatefulRemote on node 0");
-      StatefulRemote sr = (StatefulRemote) getInitialContext(0).lookup("testStateful/remote");
+      StatefulRemote sr = (StatefulRemote) getInitialContext(0).lookup("clusteredsession-test/testStateful/remote");
       confirmTargetCount(getFamilyName(SFSB), 2);
       
       getLog().debug("Checking StatefulRemote on node 1");
-      sr = (StatefulRemote) getInitialContext(1).lookup("testStateful/remote");
+      sr = (StatefulRemote) getInitialContext(1).lookup("clusteredsession-test/testStateful/remote");
       confirmTargetCount(getFamilyName(SFSB), 2);
 
       // Undeploy on node 1
       undeploy();
 
       getLog().debug("Checking ClusteredStatelessRemote on node 0 after undeploy");
-      csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredStateless/remote");
+      csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredsession-test/clusteredStateless/remote");
       confirmTargetCount(getFamilyName(SLSB), 1);
       
       getLog().debug("Checking StatefulRemote on node 0 after undeploy");
-      sr = (StatefulRemote) getInitialContext(0).lookup("testStateful/remote");
+      sr = (StatefulRemote) getInitialContext(0).lookup("clusteredsession-test/testStateful/remote");
       confirmTargetCount(getFamilyName(SFSB), 1);
       
       // Redeploy on node1
       deploy();
       
       getLog().debug("Checking ClusteredStatelessRemote on node 0 after redeploy");
-      csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredStateless/remote");
+      csr = (ClusteredStatelessRemote) getInitialContext(0).lookup("clusteredsession-test/clusteredStateless/remote");
       confirmTargetCount(getFamilyName(SLSB), 2);
       
       getLog().debug("Checking ClusteredStatelessRemote on node 1 after redeploy");
-      csr = (ClusteredStatelessRemote) getInitialContext(1).lookup("clusteredStateless/remote");
+      csr = (ClusteredStatelessRemote) getInitialContext(1).lookup("clusteredsession-test/clusteredStateless/remote");
       confirmTargetCount(getFamilyName(SLSB), 2);
       
       getLog().debug("Checking StatefulRemote on node 0 after redeploy");
-      sr = (StatefulRemote) getInitialContext(0).lookup("testStateful/remote");
+      sr = (StatefulRemote) getInitialContext(0).lookup("clusteredsession-test/testStateful/remote");
       confirmTargetCount(getFamilyName(SFSB), 2);
       
       getLog().debug("Checking StatefulRemote on node 1 after redeploy");
-      sr = (StatefulRemote) getInitialContext(1).lookup("testStateful/remote");
+      sr = (StatefulRemote) getInitialContext(1).lookup("clusteredsession-test/testStateful/remote");
       confirmTargetCount(getFamilyName(SFSB), 2);
       
       getLog().debug("ok");
