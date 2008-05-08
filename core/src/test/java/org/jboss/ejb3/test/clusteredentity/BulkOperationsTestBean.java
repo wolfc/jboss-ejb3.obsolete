@@ -33,12 +33,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.FlushModeType;
 import javax.persistence.PersistenceContext;
 
+import org.jboss.ejb3.annotation.RemoteBinding;
+
 /**
  * @author Brian Stansberry
  * @version $Revision$
  */
 @Stateless
 @Remote(BulkOperationsTest.class)
+@RemoteBinding(jndiBinding="BulkOperationsTestBean/remote")
 public class BulkOperationsTestBean implements BulkOperationsTest
 {
    @PersistenceContext
