@@ -104,5 +104,9 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
          name = summary.getDeploymentScopeBaseName() + "/" + name;
       return name;
    }
-
+   // TODO: complete implementation
+   public String getJndiName(EjbDeploymentSummary summary, String iface)
+   {
+      return getJndiName(summary);
+   }
 }
