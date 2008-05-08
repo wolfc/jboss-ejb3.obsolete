@@ -548,7 +548,7 @@
       <version>${version.org.jboss.jboss-as}</version>
     </dependency>    
     
-    <!-- this needs to be removed -->
+    <!-- this needs to be removed - EJBTHREE-1343 -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-server</artifactId>
