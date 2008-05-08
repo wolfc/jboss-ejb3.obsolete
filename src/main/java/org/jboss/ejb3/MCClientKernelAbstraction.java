@@ -42,6 +42,8 @@ public class MCClientKernelAbstraction implements ClientKernelAbstraction
 
    public MCClientKernelAbstraction(Kernel kernel)
    {
+      assert kernel != null : "kernel is null";
+      
       this.kernel = kernel;
    }
 

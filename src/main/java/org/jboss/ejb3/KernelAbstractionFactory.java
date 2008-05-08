@@ -44,12 +44,7 @@ public class KernelAbstractionFactory
       if (kernelAbstraction == null)
       {
          MBeanServer mbeanServer = (MBeanServer)getMBeanServer();
-         if (kernel != null)
-            kernelAbstraction = new MCKernelAbstraction(kernel, mbeanServer);
-         else
-         {
-            kernelAbstraction = new JmxKernelAbstraction(mbeanServer);
-         }
+         kernelAbstraction = new MCKernelAbstraction(kernel, mbeanServer);
       }
      
      return kernelAbstraction;
@@ -59,15 +54,7 @@ public class KernelAbstractionFactory
    {
       if (clientKernelAbstraction == null)
       {
-         if (kernel != null)
-         {
-            clientKernelAbstraction = new MCClientKernelAbstraction(kernel);
-         }
-         else
-         {
-            MBeanServerConnection mbeanServer = (MBeanServerConnection)getMBeanServer();
-            clientKernelAbstraction = new JmxClientKernelAbstraction(mbeanServer);
-         }
+         clientKernelAbstraction = new MCClientKernelAbstraction(kernel);
       }
      
      return clientKernelAbstraction;
