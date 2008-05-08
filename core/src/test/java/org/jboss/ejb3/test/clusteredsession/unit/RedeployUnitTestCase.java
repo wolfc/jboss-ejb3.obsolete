@@ -136,7 +136,7 @@ public class RedeployUnitTestCase extends JBossClusteredTestCase
       // VMIDTrackerBean is not clustered, so once we have it's VMID
       // we can keep creating SFSBs until we get one we want
       getLog().debug("Looking up VMTrackerBean...");
-      VMTracker tracker = (VMTracker) getInitialContext(0).lookup("VMTrackerBean/remote");
+      VMTracker tracker = (VMTracker) getInitialContext(0).lookup("clusteredsession-test/VMTrackerBean/remote");
       VMID monitorVM = tracker.getVMID();
       
       NodeAnswer node0 = null;
@@ -144,7 +144,7 @@ public class RedeployUnitTestCase extends JBossClusteredTestCase
       for (int i = 0; i < 10 && !vmMatch; i++)
       {
          getLog().debug("Looking up testStateful/remote... Attempt " + i +1);
-         stateful = (StatefulRemote) ctx.lookup("testStateful/remote");
+         stateful = (StatefulRemote) ctx.lookup("clusteredsession-test/testStateful/remote");
          
          node0 = stateful.getNodeState();
          vmMatch = monitorVM.equals(node0.getNodeId());
