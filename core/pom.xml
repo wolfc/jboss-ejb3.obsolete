@@ -520,12 +520,12 @@
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-main</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
-    </dependency>  
+    </dependency>     
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
-    </dependency>      
+    </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system-jmx</artifactId>
@@ -552,7 +552,7 @@
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-server</artifactId>
-      <version>5.0.0-SNAPSHOT</version>
+      <version>${version.org.jboss.jboss-as}</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.jbossas</groupId>
@@ -560,7 +560,7 @@
         </exclusion>        
       </exclusions>      
     </dependency>
-
+    
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
