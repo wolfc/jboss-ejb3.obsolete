@@ -33,6 +33,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,6 +44,7 @@ import org.jboss.logging.Logger;
  */
 @Stateful
 @Remote(EmbeddedIdTest.class)
+@RemoteBinding(jndiBinding="EmbeddedIdTestBean/remote")
 public class EmbeddedIdTestBean implements EmbeddedIdTest
 {
    private static final Logger log = Logger.getLogger(EmbeddedIdTestBean.class);
