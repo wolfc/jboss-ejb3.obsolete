@@ -38,14 +38,13 @@ import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.xa.XAResource;
 
-import org.jboss.deployment.DeploymentException;
+import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.KernelAbstractionFactory;
 import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.ActivationConfigPropertyMetaData;
-import org.jboss.mx.util.JMXExceptionDecoder;
 
 /**
  * EJBProxyFactory for inflow message driven beans
@@ -289,7 +288,6 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       }
       catch (Throwable t)
       {
-         t = JMXExceptionDecoder.decode(t);
          DeploymentException.rethrowAsDeploymentException("Unable to create activation spec ra=" + resourceAdapterObjectName + 
                " messaging-type=" + messagingTypeClass.getName() + " properties=" + container.getActivationConfigProperties(), t);
       }
@@ -309,7 +307,6 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       }
       catch (Throwable t)
       {
-         t = JMXExceptionDecoder.decode(t);
          DeploymentException.rethrowAsDeploymentException("Endpoint activation failed ra=" + resourceAdapterObjectName + 
                " activationSpec=" + activationSpec, t);
       }
@@ -327,7 +324,6 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       }
       catch (Throwable t)
       {
-         t = JMXExceptionDecoder.decode(t);
          log.warn("Endpoint activation failed ra=" + resourceAdapterObjectName + 
                " activationSpec=" + activationSpec, t);
       }

@@ -39,7 +39,7 @@ import javax.naming.NamingException;
 
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
-import org.jboss.deployment.DeploymentException;
+import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.EJBContainerInvocation;
