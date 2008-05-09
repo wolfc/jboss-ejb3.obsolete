@@ -4116,6 +4116,9 @@
          </fileset>
       </jar>
       <jar jarfile="${build.lib}/externalrefscoped-first-ejb.jar">
+         <manifest>
+            <attribute name="Class-Path" value="externalrefscoped-first-client-view.jar externalrefscoped-second-client-view.jar"/>
+         </manifest>
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/externalrefscoped/FirstBean.class"/>
          </fileset>
@@ -4127,6 +4130,9 @@
          </fileset>
       </jar>
       <jar jarfile="${build.lib}/externalrefscoped-second-ejb.jar">
+         <manifest>
+            <attribute name="Class-Path" value="externalrefscoped-second-client-view.jar"/>
+         </manifest>
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/externalrefscoped/SecondBean.class"/>
          </fileset>
