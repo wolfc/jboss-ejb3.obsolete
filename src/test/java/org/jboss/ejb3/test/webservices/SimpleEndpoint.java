@@ -31,6 +31,7 @@ import javax.jws.WebService;
  */
 @Stateless
 @WebService(endpointInterface = "org.jboss.ejb3.test.webservices.Ejb3WSEndpoint")
+@RemoteBinding(jndiBinding = "/test-webservices/SimpleEndpoint")
 public class SimpleEndpoint implements Ejb3WSEndpoint
 {
    
