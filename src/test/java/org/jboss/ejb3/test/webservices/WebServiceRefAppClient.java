@@ -21,17 +21,27 @@
  */
 package org.jboss.ejb3.test.webservices;
 
-import javax.xml.ws.handler.MessageContext;
+import javax.naming.InitialContext;
+import javax.xml.ws.WebServiceException;
+import javax.xml.ws.WebServiceRef;
 
-/**
- * @author Heiko.Braun <heiko.braun@jboss.com>
- */
-public class ContextAccessingHandler extends GenericSOAPHandler
-{  
-   protected boolean handleInbound(MessageContext msgContext)
+public class WebServiceRefAppClient
+{   
+   @WebServiceRef(name = "TestService", wsdlLocation = "http://localhost:8080/webservices-ejb3/SimpleEndpoint?wsdl")
+   static Ejb3WSEndpoint serviceRef;
+
+   public static InitialContext iniCtx;
+   public static String retStr;
+
+   public static void main(String[] args)
    {
-      msgContext.put("invoked", "ContextAccessingHandler:handleInbound()");
-      msgContext.setScope("invoked", MessageContext.Scope.APPLICATION);
-      return true;
+      String inStr = args[0];
+
+      String outStr = serviceRef.echo(inStr);
+      if (inStr.equals(outStr) == false)
+         throw new WebServiceException("Invalid echo return: " + inStr);
+
+      retStr = inStr;
    }
 }
+

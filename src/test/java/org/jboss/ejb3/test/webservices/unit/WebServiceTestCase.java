@@ -22,17 +22,17 @@
 package org.jboss.ejb3.test.webservices.unit;
 
 import junit.framework.Test;
-import org.jboss.test.JBossTestCase;
-import org.jboss.ejb3.test.webservices.Ejb3WSEndpoint;
 import org.jboss.ejb3.test.webservices.BusinessInterface;
+import org.jboss.ejb3.test.webservices.Ejb3WSEndpoint;
+import org.jboss.test.JBossTestCase;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.xml.ws.Service;
 import javax.xml.namespace.QName;
-import java.util.Hashtable;
+import javax.xml.ws.Service;
 import java.net.URL;
+import java.util.Hashtable;
 
 /**
  * @author Heiko.Braun@jboss.com
@@ -114,6 +114,17 @@ public class WebServiceTestCase extends JBossTestCase
       Ejb3WSEndpoint port = service.getPort(Ejb3WSEndpoint.class);
       String response = port.echo(msg);
       assertNotNull(response);
+   }
+
+   public void testAppClientServiceRef() throws Exception
+   {         
+      /*String msg = "testAppClientServiceRef";
+      WebServiceRefAppClient.iniCtx = getInitialContext();
+
+      new ClientLauncher().launch(WebServiceRefAppClient.class.getName(), "jbossws-client", new String[] { msg });
+      assertEquals(msg, WebServiceRefAppClient.retStr);*/
+
+      System.out.println("FIXME: Make ClientLauncher available in core test cases");
    }
 
    public static Test suite() throws Exception
