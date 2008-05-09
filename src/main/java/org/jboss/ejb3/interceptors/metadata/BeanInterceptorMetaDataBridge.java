@@ -34,6 +34,7 @@ import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
+import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
@@ -85,6 +86,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    //Method-level things
    private Map<Signature, Interceptors> methodInterceptors = new HashMap<Signature, Interceptors>(); 
    private Map<Signature, InterceptorOrder> methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
+   private Map<Signature, ExcludeDefaultInterceptors> methodExcludeDefaultInterceptors = new HashMap<Signature, ExcludeDefaultInterceptors>();
    
    
    //Bean class methods
@@ -293,7 +295,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          for (InterceptorBindingMetaData binding : bindings)
          {
             add(interceptors, classLoader, binding);
-            checkExcludeDefaultInterceptors(binding);
+            checkClassLevelExcludeDefaultInterceptors(binding);
          }
          if(!interceptors.isEmpty())
             this.interceptors = interceptors;
@@ -308,23 +310,42 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          for (InterceptorBindingMetaData binding : bindings)
          {
             add(interceptors, classLoader, binding);
-            checkExcludeDefaultInterceptors(binding);
+            checkClassLevelExcludeDefaultInterceptors(binding);
          }
          if(!interceptors.isEmpty())
             this.interceptorOrder = interceptors;
       }
    }
 
-   private void checkExcludeDefaultInterceptors(InterceptorBindingMetaData binding)
+   private void checkClassLevelExcludeDefaultInterceptors(InterceptorBindingMetaData binding)
+   {
+      ExcludeDefaultInterceptors exDefaultInterceptors = checkExcludeDefaultInterceptors(binding);
+      if (exDefaultInterceptors != null)
+      {
+         excludeDefaultInterceptors = exDefaultInterceptors;
+      }
+   }
+   
+   private ExcludeDefaultInterceptors checkExcludeDefaultInterceptors(InterceptorBindingMetaData binding)
    {
       if (binding.isExcludeDefaultInterceptors())
       {
-         excludeDefaultInterceptors = new ExcludeDefaultInterceptors() {
+         return new ExcludeDefaultInterceptors() {
 
             public Class<? extends Annotation> annotationType()
             {
                return ExcludeDefaultInterceptors.class;
             }};
+      }
+      return null;
+   }
+   
+   private void addMethodLevelExclusions(Signature sig, InterceptorBindingMetaData binding)
+   {
+      ExcludeDefaultInterceptors exDefaultInterceptors = checkExcludeDefaultInterceptors(binding);
+      if (exDefaultInterceptors != null)
+      {
+         methodExcludeDefaultInterceptors.put(sig, exDefaultInterceptors);
       }
    }
    
@@ -360,6 +381,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                      methodInterceptors.put(signature, interceptors);
                   }
                   add(interceptors, classLoader, binding);
+                  addMethodLevelExclusions(signature, binding);
                }
             }
          }
@@ -540,6 +562,11 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             return null;
          }
          return annotationClass.cast(methodInterceptors.get(signature));
+      }
+      else if (annotationClass == ExcludeDefaultInterceptors.class)
+      {
+         MethodSignature signature = new MethodSignature(methodName, parameterNames);
+         return annotationClass.cast(methodExcludeDefaultInterceptors.get(signature));
       }
       else if(annotationClass == PostActivate.class)
       {
