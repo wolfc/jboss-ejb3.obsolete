@@ -37,7 +37,7 @@ import javax.xml.ws.WebServiceContext;
 @HandlerChain(file = "handlerchain.xml")
 public class HandlerContextEndpoint implements Ejb3WSEndpoint
 {
-   @Resource(mappedName = "webservice-context")
+   @Resource
    WebServiceContext wsCtx;
 
    public String echo(String msg)

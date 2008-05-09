@@ -39,7 +39,7 @@ import javax.xml.ws.WebServiceException;
 public class WebServiceContextEndpoint implements Ejb3WSEndpoint
 {
 
-   @Resource(mappedName = "webservice-context")
+   @Resource
    WebServiceContext wsCtx;
 
    @PostConstruct

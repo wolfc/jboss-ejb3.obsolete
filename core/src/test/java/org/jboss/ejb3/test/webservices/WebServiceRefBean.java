@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.webservices;
 
+import org.jboss.ejb3.annotation.RemoteBinding;
+
 import javax.ejb.Stateless;
 import javax.xml.ws.WebServiceRef;
 
@@ -30,6 +32,7 @@ import javax.xml.ws.WebServiceRef;
  * @author Heiko.Braun <heiko.braun@jboss.com>
  */
 @Stateless
+@RemoteBinding(jndiBinding = "/test-webservices/WebServiceRefBean")
 public class WebServiceRefBean implements BusinessInterface
 {
    @WebServiceRef(wsdlLocation = "http://localhost:8080/webservices-ejb3/SimpleEndpoint?wsdl")

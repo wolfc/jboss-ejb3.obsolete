@@ -48,7 +48,7 @@ public class WebServiceTestCase extends JBossTestCase
    public void testRemoteAccess() throws Exception
    {
       InitialContext iniCtx = getInitialContext();
-      Ejb3WSEndpoint ejb3Remote = (Ejb3WSEndpoint)iniCtx.lookup("/webservices-ejb3/SimpleEndpoint/remote");
+      Ejb3WSEndpoint ejb3Remote = (Ejb3WSEndpoint)iniCtx.lookup("/test-webservices/SimpleEndpoint");
 
       String helloWorld = "Hello world!";
       Object retObj = ejb3Remote.echo(helloWorld);
@@ -92,7 +92,7 @@ public class WebServiceTestCase extends JBossTestCase
    public void testWebServiceRef() throws Exception
    {
       InitialContext iniCtx = getInitialContext();
-      BusinessInterface ejb3Remote = (BusinessInterface)iniCtx.lookup("/webservices-ejb3/WebServiceRefBean/remote");
+      BusinessInterface ejb3Remote = (BusinessInterface)iniCtx.lookup("/test-webservices/WebServiceRefBean");
 
       String msg = "testWebServiceRef";
       Object retObj = ejb3Remote.echo(msg);
