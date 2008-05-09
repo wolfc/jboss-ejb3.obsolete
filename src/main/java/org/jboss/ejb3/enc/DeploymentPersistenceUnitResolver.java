@@ -127,7 +127,7 @@ public class DeploymentPersistenceUnitResolver
          if (deployment.isScoped()) continue;
          if (deployment.getEntityManagerName().equals(unitName))
          {
-            if (deploymentScope == null || deployment.getKernelName().contains(deploymentScope.getBaseName())) return deployment; 
+            if (deploymentScope == null || deploymentScope.getBaseName() == null || deployment.getKernelName().contains(deploymentScope.getBaseName())) return deployment; 
          }
       }
       return rtn;
