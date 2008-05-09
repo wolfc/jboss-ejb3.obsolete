@@ -1,1 +1,0 @@
-Class-Path: externalrefscoped-second-client-view.jar
