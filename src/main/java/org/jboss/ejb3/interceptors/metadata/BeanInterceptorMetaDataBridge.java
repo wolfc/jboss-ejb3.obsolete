@@ -34,6 +34,7 @@ import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.interceptor.AroundInvoke;
+import javax.interceptor.ExcludeDefaultInterceptors;
 import javax.interceptor.Interceptors;
 import javax.interceptor.InvocationContext;
 
@@ -79,6 +80,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    private DefaultInterceptors defaultInterceptors;
    private Interceptors interceptors;
    private InterceptorOrder interceptorOrder;
+   private ExcludeDefaultInterceptors excludeDefaultInterceptors;
    
    //Method-level things
    private Map<Signature, Interceptors> methodInterceptors = new HashMap<Signature, Interceptors>(); 
@@ -291,6 +293,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          for (InterceptorBindingMetaData binding : bindings)
          {
             add(interceptors, classLoader, binding);
+            checkExcludeDefaultInterceptors(binding);
          }
          if(!interceptors.isEmpty())
             this.interceptors = interceptors;
@@ -305,12 +308,26 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          for (InterceptorBindingMetaData binding : bindings)
          {
             add(interceptors, classLoader, binding);
+            checkExcludeDefaultInterceptors(binding);
          }
          if(!interceptors.isEmpty())
             this.interceptorOrder = interceptors;
       }
    }
 
+   private void checkExcludeDefaultInterceptors(InterceptorBindingMetaData binding)
+   {
+      if (binding.isExcludeDefaultInterceptors())
+      {
+         excludeDefaultInterceptors = new ExcludeDefaultInterceptors() {
+
+            public Class<? extends Annotation> annotationType()
+            {
+               return ExcludeDefaultInterceptors.class;
+            }};
+      }
+   }
+   
    private void initialiseMethodInterceptors(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
    {
       if (bindings != null && bindings.size() > 0)
@@ -487,6 +504,10 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       else if(annotationClass == Interceptors.class)
       {
          return annotationClass.cast(interceptors);
+      }
+      else if (annotationClass == ExcludeDefaultInterceptors.class)
+      {
+         return annotationClass.cast(excludeDefaultInterceptors);
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader);
    }
