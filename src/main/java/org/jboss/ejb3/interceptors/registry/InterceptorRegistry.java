@@ -110,7 +110,10 @@ public class InterceptorRegistry
       log.debug("Found default interceptors " + defaultInterceptorClasses);
 //      interceptorClasses.addAll(defaultInterceptorClasses);
       List<Class<?>> lifecycleInterceptorClasses = new ArrayList<Class<?>>();
-      lifecycleInterceptorClasses.addAll(defaultInterceptorClasses);
+      if (!isExcludedDefaultInterceptors(advisor))
+      {
+         lifecycleInterceptorClasses.addAll(defaultInterceptorClasses);
+      }
       
       Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
       List<Class<?>> classInterceptorClasses = new ArrayList<Class<?>>();
@@ -196,6 +199,11 @@ public class InterceptorRegistry
    
    private static final boolean isExcludeDefaultInterceptors(Advisor advisor, Method method)
    {
-      return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
+      return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || isExcludedDefaultInterceptors(advisor);
    } 
+   
+   private static final boolean isExcludedDefaultInterceptors(Advisor advisor)
+   {
+      return advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
+   }
 }
