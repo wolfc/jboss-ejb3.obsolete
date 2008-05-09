@@ -546,7 +546,7 @@
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-j2se</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
-    </dependency>    
+    </dependency>
     
     <!-- this needs to be removed - EJBTHREE-1343 -->
     <dependency>
