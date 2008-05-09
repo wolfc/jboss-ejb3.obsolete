@@ -27,7 +27,6 @@
       <session>
          <ejb-name>AnnotatedExcludeClassAndDefaultForMethodBean</ejb-name>
       </session>
-<!--
       <session>
          <ejb-name>XmlAllInterceptorsBean</ejb-name>
          <around-invoke>
@@ -100,14 +99,13 @@
             <lifecycle-callback-method>lifecycle</lifecycle-callback-method>
          </pre-destroy>
       </session>
--->      
     </enterprise-beans>
     <assembly-descriptor>
       <interceptor-binding>
          <ejb-name>*</ejb-name>
          <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.DefaultInterceptor</interceptor-class>
       </interceptor-binding>
-<!--      
+
       <interceptor-binding>
          <ejb-name>XmlAllInterceptorsBean</ejb-name>
          <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.ClassInterceptor</interceptor-class>
@@ -119,6 +117,7 @@
             <method-name>method</method-name>
          </method>
       </interceptor-binding>
+
       <interceptor-binding>
          <ejb-name>XmlExcludeDefaultBean</ejb-name>
          <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.ClassInterceptor</interceptor-class>
@@ -131,6 +130,19 @@
             <method-name>method</method-name>
          </method>
       </interceptor-binding>
--->
+
+      <interceptor-binding>
+         <ejb-name>XmlExcludeDefaultForMethodBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.ClassInterceptor</interceptor-class>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XmlExcludeDefaultForMethodBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.MethodInterceptor</interceptor-class>
+         <exclude-default-interceptors>true</exclude-default-interceptors>
+         <method>
+            <method-name>method</method-name>
+         </method>
+      </interceptor-binding>
+
     </assembly-descriptor>        
 </ejb-jar>
