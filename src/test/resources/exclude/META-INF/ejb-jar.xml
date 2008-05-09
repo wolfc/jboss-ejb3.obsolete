@@ -144,5 +144,18 @@
          </method>
       </interceptor-binding>
 
+      <interceptor-binding>
+         <ejb-name>XmlExcludeClassBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.ClassInterceptor</interceptor-class>
+      </interceptor-binding>
+      <interceptor-binding>
+         <ejb-name>XmlExcludeClassBean</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.exclude.MethodInterceptor</interceptor-class>
+         <exclude-class-interceptors>true</exclude-class-interceptors>
+         <method>
+            <method-name>method</method-name>
+         </method>
+      </interceptor-binding>
+
     </assembly-descriptor>        
 </ejb-jar>

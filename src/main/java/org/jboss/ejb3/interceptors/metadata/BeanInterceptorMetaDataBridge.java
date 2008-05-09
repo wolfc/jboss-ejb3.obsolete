@@ -87,6 +87,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    private Map<Signature, Interceptors> methodInterceptors = new HashMap<Signature, Interceptors>(); 
    private Map<Signature, InterceptorOrder> methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
    private Map<Signature, ExcludeDefaultInterceptors> methodExcludeDefaultInterceptors = new HashMap<Signature, ExcludeDefaultInterceptors>();
+   private Map<Signature, ExcludeClassInterceptors> methodExcludeClassInterceptors = new HashMap<Signature, ExcludeClassInterceptors>();
    
    
    //Bean class methods
@@ -347,6 +348,15 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       {
          methodExcludeDefaultInterceptors.put(sig, exDefaultInterceptors);
       }
+      if (binding.isExcludeClassInterceptors())
+      {
+         methodExcludeClassInterceptors.put(sig, new ExcludeClassInterceptors() {
+
+            public Class<? extends Annotation> annotationType()
+            {
+               return ExcludeClassInterceptors.class;
+            }});
+      }
    }
    
    private void initialiseMethodInterceptors(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
@@ -567,6 +577,11 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       {
          MethodSignature signature = new MethodSignature(methodName, parameterNames);
          return annotationClass.cast(methodExcludeDefaultInterceptors.get(signature));
+      }
+      else if (annotationClass == ExcludeClassInterceptors.class)
+      {
+         MethodSignature signature = new MethodSignature(methodName, parameterNames);
+         return annotationClass.cast(methodExcludeClassInterceptors.get(signature));
       }
       else if(annotationClass == PostActivate.class)
       {
