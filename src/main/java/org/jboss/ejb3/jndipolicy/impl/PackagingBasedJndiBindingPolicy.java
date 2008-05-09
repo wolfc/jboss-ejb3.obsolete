@@ -23,6 +23,7 @@ package org.jboss.ejb3.jndipolicy.impl;
 
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.KnownInterfaces.KnownInterfaceType;
 
 
 /**
@@ -105,7 +106,8 @@ public class PackagingBasedJndiBindingPolicy implements DefaultJndiBindingPolicy
       return name;
    }
    // TODO: complete implementation
-   public String getJndiName(EjbDeploymentSummary summary, String iface)
+   public String getJndiName(EjbDeploymentSummary summary, String iface,
+         KnownInterfaceType ifaceType)
    {
       return getJndiName(summary);
    }
