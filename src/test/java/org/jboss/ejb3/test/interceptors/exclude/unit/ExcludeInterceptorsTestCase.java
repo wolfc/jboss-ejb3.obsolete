@@ -47,6 +47,8 @@ import org.jboss.ejb3.test.interceptors.exclude.DefaultInterceptor;
 import org.jboss.ejb3.test.interceptors.exclude.Interceptions;
 import org.jboss.ejb3.test.interceptors.exclude.MethodInterceptor;
 import org.jboss.ejb3.test.interceptors.exclude.XmlAllInterceptorsBean;
+import org.jboss.ejb3.test.interceptors.exclude.XmlExcludeClassAndDefaultBean;
+import org.jboss.ejb3.test.interceptors.exclude.XmlExcludeClassAndDefaultForMethodBean;
 import org.jboss.ejb3.test.interceptors.exclude.XmlExcludeClassBean;
 import org.jboss.ejb3.test.interceptors.exclude.XmlExcludeDefaultBean;
 import org.jboss.ejb3.test.interceptors.exclude.XmlExcludeDefaultForMethodBean;
@@ -634,6 +636,104 @@ public class ExcludeInterceptorsTestCase extends TestCase
       assertEquals(DefaultInterceptor.class, interceptions.get(0));
       assertEquals(ClassInterceptor.class, interceptions.get(1));
       assertEquals(XmlExcludeClassBean.class, interceptions.get(2));
+      
+      log.info("======= Done");
+   }
+   
+   public void testXmlExcludeClassAndDefaultInterceptors() throws Throwable
+   {
+     AspectManager.verbose = true;
+      
+      // To make surefire happy
+      Thread.currentThread().setContextClassLoader(XmlExcludeClassAndDefaultBean.class.getClassLoader());
+      
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("exclude/META-INF/ejb-jar.xml");
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("XmlExcludeClassAndDefaultBean");
+      assertNotNull(beanMetaData);
+      MyContainer<XmlExcludeClassAndDefaultBean> container = new MyContainer<XmlExcludeClassAndDefaultBean>("XmlExcludeClassAndDefaultBean", "Test", XmlExcludeClassAndDefaultBean.class, beanMetaData);
+      container.testAdvisor();
+
+      Interceptions.clear();
+      ArrayList<Class<?>> interceptions = Interceptions.getInterceptions();
+      assertEquals(0, interceptions.size());
+      BeanContext<XmlExcludeClassAndDefaultBean> bean = container.construct();
+      assertEquals(2,  interceptions.size());
+      assertEquals(ClassInterceptor.class, interceptions.get(0));
+      assertEquals(XmlExcludeClassAndDefaultBean.class, interceptions.get(1));
+ 
+      Interceptions.clear();
+      interceptions = Interceptions.getInterceptions();
+      assertEquals(0, interceptions.size());
+      
+      String ret = container.invoke(bean, "method");
+      assertEquals(XmlExcludeClassAndDefaultBean.class.getName(), ret);
+      assertEquals(2,  interceptions.size());
+      assertEquals(MethodInterceptor.class, interceptions.get(0));
+      assertEquals(XmlExcludeClassAndDefaultBean.class, interceptions.get(1));
+      
+      Interceptions.clear();
+      assertEquals(0, interceptions.size());
+      container.destroy(bean);
+      assertEquals(2,  interceptions.size());
+      assertEquals(ClassInterceptor.class, interceptions.get(0));
+      assertEquals(XmlExcludeClassAndDefaultBean.class, interceptions.get(1));
+      
+      log.info("======= Done");
+   }
+   
+   public void testXmlExcludeClassAndDefaultInterceptorsForMethod() throws Throwable
+   {
+     AspectManager.verbose = true;
+      
+      // To make surefire happy
+      Thread.currentThread().setContextClassLoader(XmlExcludeClassAndDefaultForMethodBean.class.getClassLoader());
+      
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("exclude/META-INF/ejb-jar.xml");
+      EjbJar30MetaData metaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData jbossMetaData = new JBoss50MetaData();
+      jbossMetaData.merge(null, metaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = jbossMetaData.getEnterpriseBean("XmlExcludeClassAndDefaultForMethodBean");
+      assertNotNull(beanMetaData);
+      MyContainer<XmlExcludeClassAndDefaultForMethodBean> container = new MyContainer<XmlExcludeClassAndDefaultForMethodBean>("XmlExcludeClassAndDefaultForMethodBean", "Test", XmlExcludeClassAndDefaultForMethodBean.class, beanMetaData);
+      container.testAdvisor();
+
+      Interceptions.clear();
+      ArrayList<Class<?>> interceptions = Interceptions.getInterceptions();
+      assertEquals(0, interceptions.size());
+      BeanContext<XmlExcludeClassAndDefaultForMethodBean> bean = container.construct();
+      assertEquals(3,  interceptions.size());
+      assertEquals(DefaultInterceptor.class, interceptions.get(0));
+      assertEquals(ClassInterceptor.class, interceptions.get(1));
+      assertEquals(XmlExcludeClassAndDefaultForMethodBean.class, interceptions.get(2));
+ 
+      Interceptions.clear();
+      interceptions = Interceptions.getInterceptions();
+      assertEquals(0, interceptions.size());
+      
+      String ret = container.invoke(bean, "method");
+      assertEquals(XmlExcludeClassAndDefaultForMethodBean.class.getName(), ret);
+      assertEquals(2,  interceptions.size());
+      assertEquals(MethodInterceptor.class, interceptions.get(0));
+      assertEquals(XmlExcludeClassAndDefaultForMethodBean.class, interceptions.get(1));
+      
+      Interceptions.clear();
+      assertEquals(0, interceptions.size());
+      container.destroy(bean);
+      assertEquals(3,  interceptions.size());
+      assertEquals(DefaultInterceptor.class, interceptions.get(0));
+      assertEquals(ClassInterceptor.class, interceptions.get(1));
+      assertEquals(XmlExcludeClassAndDefaultForMethodBean.class, interceptions.get(2));
       
       log.info("======= Done");
    }
