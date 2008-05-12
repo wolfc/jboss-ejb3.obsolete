@@ -1,13 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Define Parent -->
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.3-SNAPSHOT</version>
+    <version>0.13.3</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -17,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-security</artifactId>
-  <version>0.13.0-SNAPSHOT</version>
+  <version>0.13.0</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Security</name>
   <url>http://labs.jboss.com/jbossejb3/</url>
@@ -83,7 +80,7 @@
    <dependency>
      <groupId>org.jboss.ejb3</groupId>
      <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-     <version>0.3-SNAPSHOT</version>
+     <version>0.3</version>
    </dependency>
 
    <!-- JBoss AOP -->
@@ -135,4 +132,10 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-security-0.13.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-security-0.13.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-security-0.13.0</url>
+  </scm>
 </project>
