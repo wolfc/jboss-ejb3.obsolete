@@ -10,7 +10,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.3-SNAPSHOT</version>
+    <version>0.13.3</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -438,37 +438,37 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-async</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-cache</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-security</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
@@ -480,13 +480,13 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.embedded</groupId>
       <artifactId>jboss-embedded</artifactId>
-      <version>beta3-SNAPSHOT</version>
+      <version>beta3</version>
       <scope>test</scope>
     </dependency>
     
