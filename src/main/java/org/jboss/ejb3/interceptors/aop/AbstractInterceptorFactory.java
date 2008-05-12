@@ -30,7 +30,7 @@ import org.jboss.aop.joinpoint.Joinpoint;
  * An aspect factory that can do nothing.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public abstract class AbstractInterceptorFactory implements AspectFactory
 {
@@ -59,7 +59,7 @@ public abstract class AbstractInterceptorFactory implements AspectFactory
       throw new IllegalStateException("Per vm scope not supported");
    }
    
-   public String getName()
+   public final String getName()
    {
       return getClass().getName();
    }
