@@ -183,9 +183,4 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
    {
       return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
    }
-   
-   public String getName()
-   {
-      return "InjectInterceptorsFactory";
-   }
 }
