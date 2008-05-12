@@ -54,6 +54,10 @@ public abstract class TransactionalCacheFactory
       
    }
    
+   public abstract void start();
+   
+   public abstract void stop();
+   
    /**
     * Construct and configure the Cache representation of a named cache region.
     *

@@ -2,17 +2,17 @@ package org.jboss.ejb3.entity;
 
 import java.util.Properties;
 
-import javax.management.ObjectName;
-
 import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
-import org.jboss.cache.jmx.CacheJmxWrapperMBean;
+import org.jboss.cache.CacheManager;
+import org.jboss.cache.CacheStatus;
 import org.jboss.ejb3.tx.TxUtil;
-import org.jboss.mx.util.MBeanProxyExt;
-import org.jboss.mx.util.MBeanServerLocator;
+import org.jboss.ha.framework.server.CacheManagerLocator;
 
 class JBCCacheFactory extends TransactionalCacheFactory
 {
+   private CacheManager cacheManager;
+   private String cacheName;
    private org.jboss.cache.Cache cache;
    private boolean optimistic;
    
@@ -25,20 +25,49 @@ class JBCCacheFactory extends TransactionalCacheFactory
    {
        try
        {
-          String cacheName = (String) hibernateConfig.get(TreeCacheProviderHook.HIBERNATE_CACHE_OBJECT_NAME_PROPERTY);
+          cacheManager = CacheManagerLocator.getCacheManagerLocator().getCacheManager(null);
+          
+          cacheName = (String) hibernateConfig.get(TreeCacheProviderHook.HIBERNATE_CACHE_CONFIG_NAME_PROPERTY);
+          if (cacheName == null)
+          {
+             cacheName = (String) hibernateConfig.get(TreeCacheProviderHook.HIBERNATE_CACHE_OBJECT_NAME_PROPERTY);
+          }
           if (cacheName == null)
           {
              cacheName = TreeCacheProviderHook.DEFAULT_MBEAN_OBJECT_NAME;
-          }
-          ObjectName mbeanObjectName = new ObjectName(cacheName);
-          CacheJmxWrapperMBean mbean = (CacheJmxWrapperMBean) MBeanProxyExt.create(CacheJmxWrapperMBean.class, mbeanObjectName, MBeanServerLocator.locateJBoss());
-          cache = mbean.getCache();
-          optimistic = cache.getConfiguration().isNodeLockingOptimistic();
+          }          
        }
        catch (Exception e)
        {
           throw new CacheException(e);
        }      
+   }
+   
+   public void start()
+   {
+      try
+      {
+         cache = cacheManager.getCache(cacheName, true);
+         optimistic = cache.getConfiguration().isNodeLockingOptimistic();
+         if (cache.getCacheStatus() != CacheStatus.STARTED)
+         {
+            if (cache.getCacheStatus() != CacheStatus.CREATED)
+            {
+               cache.create();
+            }
+            
+            if (cache.getConfiguration().getRuntimeConfig().getTransactionManager() == null
+                  && cache.getConfiguration().getTransactionManagerLookupClass() == null)
+            {
+               cache.getConfiguration().getRuntimeConfig().setTransactionManager(TxUtil.getTransactionManager());
+            }
+            cache.start();
+         }
+      }
+      catch (Exception e)
+      {
+         throw new CacheException("Problem accessing cache " + cacheName, e);
+      }
    }
    
    public Cache buildCache(String regionName, Properties properties) throws CacheException
@@ -54,6 +83,12 @@ class JBCCacheFactory extends TransactionalCacheFactory
          return new JBCCache(cache, regionName, regionPrefix,
                              TxUtil.getTransactionManager());
       }
+   }
+   
+   public void stop()
+   {
+      if (cache != null)
+         cacheManager.releaseCache(cacheName);
    }
    
    public boolean isOptimistic()

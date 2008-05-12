@@ -42,7 +42,7 @@ public class OptimisticEntityUnitTestCase extends EntityUnitTestCase
    public static Test suite() throws Exception
    {
       return getDeploySetup(OptimisticEntityUnitTestCase.class, 
-            "optimistic-entity-cache-beans.xml, clusteredentity-optimistic-test.jar");
+            "clusteredentity-optimistic-test.jar");
    }
 
    @Override

@@ -24,8 +24,6 @@ package org.jboss.ejb3.test.clusteredentity.unit;
 import java.util.Properties;
 import javax.naming.InitialContext;
 
-import org.hibernate.cache.StandardQueryCache;
-import org.jboss.ejb3.entity.SecondLevelCacheUtil;
 import org.jboss.ejb3.test.clusteredentity.classloader.AccountHolderPK;
 import org.jboss.ejb3.test.clusteredentity.classloader.EntityQueryTest;
 import org.jboss.test.JBossClusteredTestCase;
@@ -43,6 +41,7 @@ extends JBossClusteredTestCase
    public static final String EAR_NAME = "clusteredentity-classloader-test";
    public static final String JAR_NAME = "clusteredentity-classloader-test";
    public static final String PERSISTENCE_UNIT_NAME = "tempdb";
+   public static final String STD_QUERY_CACHE_NAME = "org.hibernate.cache.StandardQueryCache";
    
    protected org.jboss.logging.Logger log = getLog();
 
@@ -88,7 +87,7 @@ extends JBossClusteredTestCase
       InitialContext ctx1 = new InitialContext(prop1);
    
       log.info("Lookup sfsb from " + nodeJNDIAddress);
-      EntityQueryTest eqt = (EntityQueryTest)ctx1.lookup(getEarName() + "/EntityQueryTestBean/remote");
+      EntityQueryTest eqt = (EntityQueryTest)ctx1.lookup("EntityQueryTestBean/remote");
       eqt.getCache(isOptimistic());
       
       return eqt;
@@ -138,7 +137,7 @@ extends JBossClusteredTestCase
    
    protected void resetRegionUsageState()
    {  
-      String stdName = createRegionName(StandardQueryCache.class.getName());
+      String stdName = createRegionName(STD_QUERY_CACHE_NAME);
       String acctName = createRegionName("AccountRegion");
       
       sfsb0.getSawRegionModification(stdName);
@@ -204,7 +203,7 @@ extends JBossClusteredTestCase
       
       // Initial ops on node 0
       
-      String regionName = createRegionName(useNamedRegion ? "AccountRegion" : StandardQueryCache.class.getName());
+      String regionName = createRegionName(useNamedRegion ? "AccountRegion" : STD_QUERY_CACHE_NAME);
       
       // Query on post code count
       assertEquals("63088 has correct # of accounts", 6, sfsb0.getCountForBranch("63088", useNamedQuery, useNamedRegion));

@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.ejbthree1136;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.CacheException;
+import org.jboss.cache.CacheManager;
 import org.jboss.cache.Fqn;
 
 /**
@@ -37,7 +38,11 @@ public interface SFSBCacheManipulatorMBean
 {
    Cache getClusteredBeanCache();
 
-   void setClusteredBeanCache(Cache clusteredBeanCache);
+   void setCacheManager(CacheManager cacheManager);
+   
+   String getCacheConfigName();
+   
+   void setCacheConfigName(String name);
 
    String getRegionRoot();
 

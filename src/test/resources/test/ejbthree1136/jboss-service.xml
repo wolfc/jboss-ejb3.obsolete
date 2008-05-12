@@ -5,7 +5,9 @@
    <mbean code="org.jboss.ejb3.test.ejbthree1136.SFSBCacheManipulator"
       name="jboss.test:service=Ejb3SFSBCacheManipulator">
 
-      <depends optional-attribute-name="ClusteredBeanCache" proxy-type="attribute"><inject bean="EJB3SFSBClusteredCache" property="cache"/></depends>
+      <attribute name="CacheManager"><inject bean="CacheManager"/></attribute>
+      
+      <attribute name="CacheConfigName">sfsb-cache</attribute>
 
       <attribute name="RegionRoot">/jboss:j2ee:jar=ejbthree1136.jar,name=DoNothingBean,service=EJB3</attribute>
    </mbean>

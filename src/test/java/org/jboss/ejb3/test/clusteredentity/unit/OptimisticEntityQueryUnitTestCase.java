@@ -48,7 +48,6 @@ public class OptimisticEntityQueryUnitTestCase extends EntityQueryUnitTestCase
       TestSuite suite = new TestSuite();
       // Deploy an optimistic cache before the ear
       Test t1 = getDeploySetup(OptimisticEntityQueryUnitTestCase.class, 
-                               "optimistic-entity-cache-beans.xml, " + 
                                EAR_NAME + ".ear");
 
       suite.addTest(t1);

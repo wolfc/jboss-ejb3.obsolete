@@ -24,6 +24,8 @@ package org.jboss.ejb3.test.ejbthree1136;
 
 import org.jboss.cache.Cache;
 import org.jboss.cache.CacheException;
+import org.jboss.cache.CacheManager;
+import org.jboss.cache.CacheStatus;
 import org.jboss.cache.Fqn;
 
 /**
@@ -38,18 +40,30 @@ public class SFSBCacheManipulator implements SFSBCacheManipulatorMBean
    public static final String VALUE = "VALUE";
    
    private Cache clusteredBeanCache;
+   private CacheManager cacheManager;
+   private String cacheConfigName;
    private String regionRoot;
    
    public Cache getClusteredBeanCache()
    {
       return clusteredBeanCache;
+   } 
+      
+   public String getCacheConfigName()
+   {
+      return cacheConfigName;
    }
 
-   public void setClusteredBeanCache(Cache clusteredBeanCache)
+   public void setCacheConfigName(String name)
    {
-      this.clusteredBeanCache = clusteredBeanCache;
+      cacheConfigName = name;      
    }
-   
+
+   public void setCacheManager(CacheManager cacheManager)
+   {
+      this.cacheManager = cacheManager;      
+   }
+
    public String getRegionRoot()
    {
       return regionRoot;
@@ -68,6 +82,10 @@ public class SFSBCacheManipulator implements SFSBCacheManipulatorMBean
 
    public void start() throws Exception
    {
+      clusteredBeanCache = cacheManager.getCache(cacheConfigName, true);
+      if (clusteredBeanCache.getCacheStatus() != CacheStatus.STARTED)
+         clusteredBeanCache.start();
+      
       Fqn fqn = getTestFqn();
       clusteredBeanCache.getInvocationContext().getOptionOverrides().setCacheModeLocal(true);
       clusteredBeanCache.put(fqn, "key", VALUE);
@@ -79,6 +97,8 @@ public class SFSBCacheManipulator implements SFSBCacheManipulatorMBean
    {
       clusteredBeanCache.getInvocationContext().getOptionOverrides().setCacheModeLocal(true);
       clusteredBeanCache.removeNode(getTestFqn());
+      
+      cacheManager.releaseCache(cacheConfigName);
    }
    
    public Object getFromBeanCache() throws CacheException

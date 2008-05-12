@@ -39,14 +39,5 @@
                <load-balance-policy>org.jboss.ha.framework.interfaces.FirstAvailableIdenticalAllProxies</load-balance-policy>
             </cluster-config>
          </session>
-         <session>
-            <ejb-name>NonClusteredStateful</ejb-name>
-            <jndi-name>NonClusteredStatefulRemote</jndi-name>
-            <clustered>false</clustered>
-            <cache-config>
-               <cache-max-size>1000</cache-max-size>
-               <idle-timeout-seconds>100</idle-timeout-seconds>
-            </cache-config>
-         </session>
       </enterprise-beans>
    </jboss>

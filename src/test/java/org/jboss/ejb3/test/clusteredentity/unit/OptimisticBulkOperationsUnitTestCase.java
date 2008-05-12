@@ -43,7 +43,7 @@ public class OptimisticBulkOperationsUnitTestCase
    public static Test suite() throws Exception
    {
       return getDeploySetup(OptimisticBulkOperationsUnitTestCase.class, 
-            "optimistic-entity-cache-beans.xml, clusteredentity-optimistic-test.jar");
+                            "clusteredentity-optimistic-test.jar");
    }
 
 }
