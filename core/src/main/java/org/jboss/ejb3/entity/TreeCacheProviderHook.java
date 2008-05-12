@@ -45,7 +45,16 @@ public class TreeCacheProviderHook implements CacheProvider
 {
    /**
     * Name of the Hibernate configuration property used to provide
+    * the name of the JBoss Cache instance.
+    */
+   public static final String HIBERNATE_CACHE_CONFIG_NAME_PROPERTY = 
+      "hibernate.cache.jbc2.config.name";
+   
+   /**
+    * Name of the Hibernate configuration property used to provide
     * the ObjectName of the JBoss Cache instance.
+    * 
+    * @deprecated use {@link #HIBERNATE_CACHE_CONFIG_NAME_PROPERTY}
     */
    public static final String HIBERNATE_CACHE_OBJECT_NAME_PROPERTY = 
       "hibernate.treecache.mbean.object_name";
@@ -85,7 +94,7 @@ public class TreeCacheProviderHook implements CacheProvider
    }
 
    /**
-    * Find the underlying JBoss Cache TreeCache instance.
+    * Find the underlying JBoss Cache instance.
     *
     * @param properties  All current config settings. 
     *                    If {@link #HIBERNATE_CACHE_OBJECT_NAME_PROPERTY} is provided,
@@ -97,10 +106,13 @@ public class TreeCacheProviderHook implements CacheProvider
    public void start(Properties properties)
    {
       cacheFactory = TransactionalCacheFactory.getFactory(properties);
+      cacheFactory.start();
    }
 
    public void stop()
    {
+      if (cacheFactory != null)
+         cacheFactory.stop();
    }
    
    protected TransactionalCacheFactory getCacheFactory()

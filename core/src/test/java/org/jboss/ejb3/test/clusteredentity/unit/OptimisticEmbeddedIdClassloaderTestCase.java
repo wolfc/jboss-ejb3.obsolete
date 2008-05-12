@@ -49,7 +49,7 @@ public class OptimisticEmbeddedIdClassloaderTestCase extends EmbeddedIdClassload
       TestSuite suite = new TestSuite();
       // Deploy an optimistic cache before the ear
       Test t1 = getDeploySetup(OptimisticEmbeddedIdClassloaderTestCase.class, 
-                               "optimistic-entity-cache-beans.xml, clusteredentity-embeddedid-optimistic-test.ear");
+                               "clusteredentity-embeddedid-optimistic-test.ear");
 
       suite.addTest(t1);
 

@@ -20,12 +20,5 @@
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>
       </session>
-      <session>
-         <ejb-name>NonClusteredStateful</ejb-name>
-         <remote>org.jboss.ejb3.test.clusteredsession.OverrideStatefulRemote</remote>
-         <ejb-class>org.jboss.ejb3.test.clusteredsession.OverrideStatefulBean</ejb-class>
-         <session-type>Stateful</session-type>
-         <transaction-type>Container</transaction-type>
-      </session>
    </enterprise-beans>
 </ejb-jar>

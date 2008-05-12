@@ -4,7 +4,7 @@
       <jta-data-source>java:/ClusteredEntityTestDS</jta-data-source>
       <properties>
          <property name="hibernate.cache.provider_class" value="org.jboss.ejb3.entity.TreeCacheProviderHook"/>
-         <property name="hibernate.treecache.mbean.object_name" value="jboss.cache:service=EJB3EntityTreeCache"/>
+         <property name="hibernate.cache.jbc2.config.name" value="pessimistic-shared"/>
          <!-- Must use "update" here as we do a test of redeployment and don't want to drop the db -->
          <property name="hibernate.hbm2ddl.auto" value="update"/>
          <property name="hibernate.cache.use_query_cache" value="true"/>

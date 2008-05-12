@@ -101,7 +101,7 @@ extends JBossClusteredTestCase
       InitialContext ctx1 = new InitialContext(prop1);
    
       log.info("Lookup sfsb from " + nodeJNDIAddress);
-      return (EmbeddedIdTest) ctx1.lookup(getEarName() + "/EmbeddedIdTestBean/remote");
+      return (EmbeddedIdTest) ctx1.lookup("EmbeddedIdTestBean/remote");
       
    }
    

@@ -1,2 +1,1 @@
-ejb3-clustered-sfsbcache-beans.xml
-ejb3-entity-cache-beans.xml
+nonexistent-but-satisfies-ant.txt

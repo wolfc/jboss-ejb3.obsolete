@@ -29,20 +29,18 @@ import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.Stateless;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jboss.cache.Cache;
+import org.jboss.cache.CacheManager;
 import org.jboss.cache.Fqn;
-import org.jboss.cache.jmx.CacheJmxWrapperMBean;
 import org.jboss.cache.notifications.annotation.CacheListener;
 import org.jboss.cache.notifications.annotation.NodeVisited;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ha.framework.server.CacheManagerLocator;
 import org.jboss.logging.Logger;
-import org.jboss.mx.util.MBeanProxyExt;
-import org.jboss.mx.util.MBeanServerLocator;
 
 /**
  * Comment
@@ -52,6 +50,7 @@ import org.jboss.mx.util.MBeanServerLocator;
  */
 @Stateless
 @Remote(EntityTest.class)
+@RemoteBinding(jndiBinding="EntityTestBean/remote")
 public class EntityTestBean implements EntityTest
 {
    private static final Logger log = Logger.getLogger(EntityTestBean.class);
@@ -59,7 +58,7 @@ public class EntityTestBean implements EntityTest
    @PersistenceContext
    private EntityManager manager;
    
-   private String cacheObjectName;
+   private String cacheConfigName;
    
    private transient Cache cache;
    
@@ -72,9 +71,9 @@ public class EntityTestBean implements EntityTest
    public void getCache(boolean optimistic)
    {
       if (optimistic)
-         cacheObjectName = "jboss.cache:service=OptimisticEJB3EntityTreeCache";
+         cacheConfigName = "optimistic-shared";
       else
-         cacheObjectName = "jboss.cache:service=EJB3EntityTreeCache";
+         cacheConfigName = "pessimistic-shared";
 
       try
       {
@@ -220,15 +219,25 @@ public class EntityTestBean implements EntityTest
       {
          log.error("Caught exception in cleanup", e);
       }
+      
+      try
+      {
+         if (cache != null)
+            CacheManagerLocator.getCacheManagerLocator().getCacheManager(null).releaseCache(cacheConfigName);
+      }
+      catch (Exception e)
+      {
+         log.error("Caught exception releasing cache", e);
+      }
    }
 
    private Cache getCache() throws Exception
    {
-      if (cache == null && cacheObjectName != null)
+      if (cache == null && cacheConfigName != null)
       {
-         MBeanServer server = MBeanServerLocator.locateJBoss();
-         CacheJmxWrapperMBean proxy = (CacheJmxWrapperMBean)MBeanProxyExt.create(CacheJmxWrapperMBean.class, new ObjectName(cacheObjectName), server);
-         cache = proxy.getCache();
+         CacheManager cm = CacheManagerLocator.getCacheManagerLocator().getCacheManager(null);
+         cache = cm.getCache(cacheConfigName, true);
+         cache.start();
       }
       return cache;
    }

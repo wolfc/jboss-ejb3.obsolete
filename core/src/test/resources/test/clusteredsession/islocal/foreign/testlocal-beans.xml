@@ -5,41 +5,26 @@
    <bean name="Ejb3IsLocalTestPartition"
    		 class="org.jboss.ha.framework.server.ClusterPartition">
    		 
-    <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.ClusterPartitionMBean.class)</annotation>
+      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.ClusterPartitionMBean.class)</annotation>
       
-   	<constructor>
-   	   <parameter>
-            <bean name="Ejb3IsLocalTestPartition-ClusterPartitionConfig" 
-                  class="org.jboss.ha.framework.server.ClusterPartitionConfig">   
-               
-               <!-- ClusterPartition requires a Cache for state management -->
-               <property name="clusteredCache">
-                  <inject bean="DefaultPartition-HAPartitionCache" property="cache"/>
-               </property>
-               
-               <!--property name="distributedState"><inject bean="DistributedState"/></property-->
+   	<!-- ClusterPartition requires a Cache for state management -->
+      <property name="cacheManager"><inject bean="CacheManager"/></property>
+      <property name="cacheConfigName">ha-partition</property>               
                 
-               <!-- Name of the partition being built -->
-               <property name="partitionName">Ejb3IsLocalTestPartition</property>
+      <!-- Name of the partition being built -->
+      <property name="partitionName">Ejb3IsLocalTestPartition</property>
          
-               <!-- The address used to determine the node name -->
-               <property name="nodeAddress">${jboss.bind.address}</property>
-         
-               <!-- Inject the naming service port as an aid in creating a nodeUniqueId.  Not needed if nodeUniqueId is set -->
-               <property name="namingServicePort"><inject bean="jboss:service=Naming" property="Port"/></property>
+      <!-- The address used to determine the node name -->
+      <property name="nodeAddress">${jboss.bind.address}</property>
                
-               <!-- Determine if deadlock detection is enabled -->
-               <property name="deadlockDetection">false</property>
+      <!-- Determine if deadlock detection is enabled -->
+      <property name="deadlockDetection">false</property>
               
-               <!-- Max time (in ms) to wait for state transfer to complete. Increase for large states -->
-               <property name="stateTransferTimeout">30000</property>
+      <!-- Max time (in ms) to wait for state transfer to complete. Increase for large states -->
+      <property name="stateTransferTimeout">30000</property>
               
-               <!-- Max time (in ms) to wait for RPC calls to complete. -->
-               <property name="methodCallTimeout">60000</property>            
-               
-            </bean>
-         </parameter>
-      </constructor>
+      <!-- Max time (in ms) to wait for RPC calls to complete. -->
+      <property name="methodCallTimeout">60000</property> 
       
       <property name="distributedReplicantManagerImpl">
          <bean name="Ejb3IsLocalTestDistributedReplicantManager"

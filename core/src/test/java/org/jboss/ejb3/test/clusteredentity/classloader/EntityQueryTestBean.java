@@ -30,15 +30,13 @@ import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.Stateful;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.jboss.cache.Cache;
+import org.jboss.cache.CacheManager;
 import org.jboss.cache.Fqn;
-import org.jboss.cache.jmx.CacheJmxWrapperMBean;
 import org.jboss.cache.notifications.annotation.CacheListener;
 import org.jboss.cache.notifications.annotation.NodeCreated;
 import org.jboss.cache.notifications.annotation.NodeModified;
@@ -46,9 +44,9 @@ import org.jboss.cache.notifications.annotation.NodeVisited;
 import org.jboss.cache.notifications.event.NodeCreatedEvent;
 import org.jboss.cache.notifications.event.NodeModifiedEvent;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ha.framework.server.CacheManagerLocator;
 import org.jboss.logging.Logger;
-import org.jboss.mx.util.MBeanProxyExt;
-import org.jboss.mx.util.MBeanServerLocator;
 
 /**
  * Comment
@@ -58,6 +56,7 @@ import org.jboss.mx.util.MBeanServerLocator;
  */
 @Stateful
 @Remote(EntityQueryTest.class)
+@RemoteBinding(jndiBinding="EntityQueryTestBean/remote")
 public class EntityQueryTestBean implements EntityQueryTest
 {
    private static final Logger log = Logger.getLogger(EntityQueryTestBean.class);
@@ -65,7 +64,9 @@ public class EntityQueryTestBean implements EntityQueryTest
    @PersistenceContext
    private EntityManager manager;
    
-   private String cacheObjectName;
+   private String cacheConfigName;
+   
+   private transient Cache cache;
    
    private MyListener listener;
 
@@ -76,9 +77,9 @@ public class EntityQueryTestBean implements EntityQueryTest
    public void getCache(boolean optimistic)
    {
       if (optimistic)
-         cacheObjectName = "jboss.cache:service=OptimisticEJB3EntityTreeCache";
+         cacheConfigName = "optimistic-shared";
       else
-         cacheObjectName = "jboss.cache:service=EJB3EntityTreeCache";
+         cacheConfigName = "pessimistic-shared";
 
       try
       {
@@ -295,14 +296,26 @@ public class EntityQueryTestBean implements EntityQueryTest
       {
         log.error("Caught exception in remove", e);
       }
+      
+      try
+      {
+         if (cache != null)
+            CacheManagerLocator.getCacheManagerLocator().getCacheManager(null).releaseCache(cacheConfigName);
+      }
+      catch (Exception e)
+      {
+         log.error("Caught exception releasing cache", e);
+      }
    }
 
    private Cache getCache() throws Exception
    {
-      MBeanServer server = MBeanServerLocator.locateJBoss();
-      CacheJmxWrapperMBean proxy = (CacheJmxWrapperMBean)MBeanProxyExt.create(CacheJmxWrapperMBean.class, new ObjectName(cacheObjectName), server);
-      Cache cache = proxy.getCache();
-      
+      if (cache == null && cacheConfigName != null)
+      {
+         CacheManager cm = CacheManagerLocator.getCacheManagerLocator().getCacheManager(null);
+         cache = cm.getCache(cacheConfigName, true);
+         cache.start();
+      }
       return cache;
    }
 
