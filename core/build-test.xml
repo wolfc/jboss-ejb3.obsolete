@@ -215,18 +215,50 @@
       <jvmarg value="${ejb3.jboss.jvmargs}" />
       <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
     </server>
-    
-    <!-- clustered-ejb3-noBR-0 -->
-    <server name="clustered-ejb3-noBR-0" host="${node0}">
-      <jvmarg value="${ejb3.jboss.jvmargs}" />
-      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
-    </server>
-    
-    <!-- clustered-ejb3-noBR-1 -->
-    <server name="clustered-ejb3-noBR-1" host="${node1}">
+  	
+  	 <!-- clustered-ejb3-totalrep-0 -->
+    <server name="clustered-ejb3-totalrep-0" host="${node0}">
       <jvmarg value="${ejb3.jboss.jvmargs}" />
       <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
+      <jvmarg value="-Dsun.lang.ClassLoader.allowArraySyntax=true" />
+      <jvmarg value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed" />
+      <jvmarg value="-Dresolve.dns=false" />
+      <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
+      <jvmarg value="-Djboss.messaging.ServerPeerID=0" />
     </server>
+   
+    <!-- clustered-ejb3-totalrep-1 -->
+    <server name="clustered-ejb3-totalrep-1" host="${node1}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
+      <jvmarg value="-Dsun.lang.ClassLoader.allowArraySyntax=true" />
+      <jvmarg value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed" />
+      <jvmarg value="-Dresolve.dns=false" />
+      <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
+      <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
+   </server>
+   
+    <!-- clustered-ejb3-BR-0 -->
+    <server name="clustered-ejb3-BR-0" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node0.jgroups.bind_addr}" />
+      <jvmarg value="-Dsun.lang.ClassLoader.allowArraySyntax=true" />
+      <jvmarg value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed" />
+      <jvmarg value="-Dresolve.dns=false" />
+      <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
+      <jvmarg value="-Djboss.messaging.ServerPeerID=0" />
+    </server>
+   
+    <!-- clustered-ejb3-BR-1 -->
+    <server name="clustered-ejb3-BR-1" host="${node1}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+      <jvmarg value="-Djgroups.bind_addr=${node1.jgroups.bind_addr}" />
+      <jvmarg value="-Dsun.lang.ClassLoader.allowArraySyntax=true" />
+      <jvmarg value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed" />
+      <jvmarg value="-Dresolve.dns=false" />
+      <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
+      <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
+   </server>
 
   </server:config>
 
@@ -5131,20 +5163,20 @@
 
    <target name="clustered-tests" depends="init, clusteredsession, clusteredentity, ejbthree921">
      
-     <create-cluster-node conf="node0"/>
-     <create-cluster-node conf="node1"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
           
-     <server:start name="node0" />
-     <server:start name="node1" />
+     <server:start name="clustered-ejb3-totalrep-0" />
+     <server:start name="clustered-ejb3-totalrep-1" />
 
      <antcall target="test-clustered-entity"/>
      <antcall target="test-cluster-session"/>
 
-     <server:stop name="node0"/>
-     <server:stop name="node1"/>
+     <server:stop name="clustered-ejb3-totalrep-0"/>
+     <server:stop name="clustered-ejb3-totalrep-1"/>
    
-     <!-- Rerun the tests with buddy replication turned off -->  
-     <antcall target="clustered-no-buddyrepl-test"/>
+     <!-- Rerun the tests with buddy replication turned on -->  
+     <antcall target="clustered-buddyrepl-test"/>
 
    </target>
 
@@ -5283,7 +5315,7 @@
 
    <target name="test-cluster-session">
          
-      <property name="buddy-replication-extension" value="BR-enabled"/> 
+      <property name="buddy-replication-extension" value="BR-disabled"/> 
    
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="clusteredsession"/>
@@ -5405,35 +5437,42 @@
      <server:stop name="clusteredjms2" />
    </target>
 
-   <!-- A macro for turning off buddy replication in a node -->
+   <!-- A macro for turning on buddy replication in a node -->
    <macrodef name="buddy-repl-config-change">
       <attribute name="conf"/>
-      <attribute name="useBuddyRepl" default="false"/>
+      <attribute name="useBuddyRepl" default="true"/>
       <sequential>
-         <echo message="Disabling EJB3 SFSB buddy replication in ${jboss.dist}/server/@{conf}"/>
-         <!-- Toggle buddy replication in ejb3-clustered-sfsbcache-beans.xml -->
-         <replace file="${jboss.dist}/server/@{conf}/deploy/cluster/ejb3-clustered-sfsbcache-beans.xml"
-            token="&lt;property name=&quot;enabled&quot;&gt;true" value="&lt;property name=&quot;enabled&quot;&gt;@{useBuddyRepl}"/>
+         <echo message="Enabling EJB3 SFSB buddy replication in ${jboss.dist}/server/@{conf}"/>
+         <!-- If we're using a sar -->
+         <replaceregexp flags="g"
+         	file="${jboss.dist}/server/@{conf}/deploy/cluster/jboss-cache-manager.sar/META-INF/jboss-cache-configs.xml"
+            match="&lt;buddyReplicationEnabled&gt;false" 
+         	replace="&lt;buddyReplicationEnabled&gt;@{useBuddyRepl}"/>
+         <!-- If we're using a plain beans.xml -->
+         <replaceregexp flags="g"
+         	file="${jboss.dist}/server/@{conf}/deploy/cluster/jboss-cache-manager-beans.xml"
+            match="&lt;property name=&quot;enabled&quot;&gt;false" 
+         	replace="&lt;property name=&quot;enabled&quot;&gt;@{useBuddyRepl}"/>         
       </sequential>
    </macrodef>
 
-   <target name="clustered-no-buddyrepl-test">
+   <target name="clustered-buddyrepl-test">
      
-      <create-cluster-node conf="clustered-ejb3-noBR-0"/>
-      <create-cluster-node conf="clustered-ejb3-noBR-1"/>
+      <create-cluster-node conf="clustered-ejb3-BR-0"/>
+      <create-cluster-node conf="clustered-ejb3-BR-1"/>
 
-      <buddy-repl-config-change conf="clustered-ejb3-noBR-0"/>
-      <buddy-repl-config-change conf="clustered-ejb3-noBR-1"/>
+      <buddy-repl-config-change conf="clustered-ejb3-BR-0"/>
+      <buddy-repl-config-change conf="clustered-ejb3-BR-1"/>
      
-      <server:start name="clustered-ejb3-noBR-0" />
-      <server:start name="clustered-ejb3-noBR-1" />
+      <server:start name="clustered-ejb3-BR-0" />
+      <server:start name="clustered-ejb3-BR-1" />
 
       <antcall target="test-cluster-session" inheritRefs="true">
-         <param name="buddy-replication-extension" value="BR-disabled"/>
+         <param name="buddy-replication-extension" value="BR-enabled"/>
       </antcall>
 
-     <server:stop name="clustered-ejb3-noBR-0" />
-     <server:stop name="clustered-ejb3-noBR-1" />
+     <server:stop name="clustered-ejb3-BR-0" />
+     <server:stop name="clustered-ejb3-BR-1" />
 
    </target>
 
