@@ -75,7 +75,7 @@ public class PassivationUnitTestCase extends JBossClusteredTestCase
       getLog().debug("==================================");
       getLog().debug(++PassivationUnitTestCase.test +"- "
               +"Looking up testStateful...");
-      StatefulRemote remote = (StatefulRemote) ctx.lookup("clusteredsession-test/testStateful/remote");
+      StatefulRemote remote = (StatefulRemote) ctx.lookup("testStateful/remote");
 
       int invCount = 0;
       
@@ -112,7 +112,7 @@ public class PassivationUnitTestCase extends JBossClusteredTestCase
       getLog().debug("==================================");
       getLog().debug(++PassivationUnitTestCase.test +"- "
               +"Looking up testIgnoreReplicationStateful...");
-      StatefulRemote remote = (StatefulRemote) ctx.lookup("clusteredsession-test/testIgnoreReplicationStateful/remote");
+      StatefulRemote remote = (StatefulRemote) ctx.lookup("testIgnoreReplicationStateful/remote");
 
       remote.reset();
       remote.setState("hello");
@@ -140,7 +140,7 @@ public class PassivationUnitTestCase extends JBossClusteredTestCase
       getLog().debug("==================================");
       getLog().debug(++PassivationUnitTestCase.test +"- "
               +"Looking up testOptimizedStateful...");
-      StatefulRemote remote = (StatefulRemote) ctx.lookup("clusteredsession-test/testOptimizedStateful/remote");
+      StatefulRemote remote = (StatefulRemote) ctx.lookup("testOptimizedStateful/remote");
 
       int invCount = 0;
       remote.reset();
@@ -178,7 +178,7 @@ public class PassivationUnitTestCase extends JBossClusteredTestCase
       getLog().debug("==================================");
       getLog().debug(++PassivationUnitTestCase.test +"- "
               +"Looking up testStateful...");
-      StatefulRemote stateful = (StatefulRemote) ctx.lookup("clusteredsession-test/testStateful/remote");
+      StatefulRemote stateful = (StatefulRemote) ctx.lookup("testStateful/remote");
 
       stateful.reset();
       

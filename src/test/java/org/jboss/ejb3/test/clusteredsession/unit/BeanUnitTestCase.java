@@ -78,25 +78,25 @@ public class BeanUnitTestCase extends JBossClusteredTestCase
    public void testBasic()
    throws Exception
    {
-      basicTest("clusteredsession-test/testStateful/remote");
+      basicTest("testStateful/remote");
    }
 
    public void testBasicWithoutAnnotation()
    throws Exception
    {
-      basicTest("clusteredsession-test/NonAnnotationStateful/remote");
+      basicTest("NonAnnotationStateful/remote");
    }
 
    public void testBasicWithXMLOverride()
    throws Exception
    {
-      basicTest("clusteredsession-test/OverrideAnnotationStateful/remote");
+      basicTest("OverrideAnnotationStateful/remote");
    }
 
    public void testBasicWithEjbJarXMLOverride()
    throws Exception
    {
-      basicTest("clusteredsession-test/EjbJarOverrideAnnotationStateful/remote");
+      basicTest("EjbJarOverrideAnnotationStateful/remote");
    }
    
    private void basicTest(String jndiBinding) throws Exception
@@ -129,25 +129,25 @@ public class BeanUnitTestCase extends JBossClusteredTestCase
    public void testStatefulBeanCounterFailover()
    throws Exception
    {
-      statefulBeanCounterFailoverTest("clusteredsession-test/testStateful/remote");
+      statefulBeanCounterFailoverTest("testStateful/remote");
    }
 
    public void testStatefulBeanCounterFailoverWithoutAnnotation()
    throws Exception
    {
-      statefulBeanCounterFailoverTest("clusteredsession-test/NonAnnotationStateful/remote");
+      statefulBeanCounterFailoverTest("NonAnnotationStateful/remote");
    }
 
    public void testStatefulBeanCounterFailoverWithXMLOverride()
    throws Exception
    {
-      statefulBeanCounterFailoverTest("clusteredsession-test/OverrideAnnotationStateful/remote");
+      statefulBeanCounterFailoverTest("OverrideAnnotationStateful/remote");
    }
 
    public void testStatefulBeanCounterFailoverWithEjbJarXMLOverride()
    throws Exception
    {
-      statefulBeanCounterFailoverTest("clusteredsession-test/EjbJarOverrideAnnotationStateful/remote");
+      statefulBeanCounterFailoverTest("EjbJarOverrideAnnotationStateful/remote");
    }
    
    private void statefulBeanCounterFailoverTest(String jndiBinding) 
@@ -194,25 +194,25 @@ public class BeanUnitTestCase extends JBossClusteredTestCase
    public void testStatefulBeanFailover()
    throws Exception
    {
-      statefulBeanFailoverTest("clusteredsession-test/testStateful/remote");
+      statefulBeanFailoverTest("testStateful/remote");
    }
 
    public void testStatefulBeanFailoverWithoutAnnotation()
    throws Exception
    {
-      statefulBeanFailoverTest("clusteredsession-test/NonAnnotationStateful/remote");
+      statefulBeanFailoverTest("NonAnnotationStateful/remote");
    }
 
    public void testStatefulBeanFailoverWithXMLOverride()
    throws Exception
    {
-      statefulBeanFailoverTest("clusteredsession-test/OverrideAnnotationStateful/remote");
+      statefulBeanFailoverTest("OverrideAnnotationStateful/remote");
    }
 
    public void testStatefulBeanFailoverWithEjbJarXMLOverride()
    throws Exception
    {
-      statefulBeanFailoverTest("clusteredsession-test/EjbJarOverrideAnnotationStateful/remote");
+      statefulBeanFailoverTest("EjbJarOverrideAnnotationStateful/remote");
    }
    
    private void statefulBeanFailoverTest(String jndiBinding) 
