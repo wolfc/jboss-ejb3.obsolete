@@ -1,16 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  vi:ts=2:sw=2:expandtab:
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.3-SNAPSHOT</version>
+    <version>0.13.3</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -20,7 +14,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-core</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <name>JBoss EJB 3.0 Core</name>
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
@@ -438,37 +432,37 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-async</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-cache</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-security</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-      <version>0.4-SNAPSHOT</version>
+      <version>0.4</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
@@ -480,13 +474,13 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
-      <version>0.13.0-SNAPSHOT</version>
+      <version>0.13.0</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.embedded</groupId>
       <artifactId>jboss-embedded</artifactId>
-      <version>beta3-SNAPSHOT</version>
+      <version>beta3</version>
       <scope>test</scope>
     </dependency>
     
@@ -601,4 +595,10 @@
     
   </dependencies>
 
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.0</url>
+  </scm>
 </project>
