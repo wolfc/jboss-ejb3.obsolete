@@ -59,7 +59,7 @@
         </executions>
       </plugin>
       
-      <!-- EJB3 TestRunner Configuration -->
+      <!-- EJB3 TestRunner Configuration 
       <plugin>
         <groupId>org.jboss.maven.plugins</groupId>
         <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
@@ -71,7 +71,7 @@
               <goal>run-testsuite</goal>
             </goals>
             <phase>integration-test</phase>
-            <!-- <phase>validate</phase>  For testing only-->
+                <phase>validate</phase>  For testing only
             <configuration>
               <jvmArgs>
                 <jvmArg>-Xmx512M</jvmArg>
@@ -80,7 +80,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
 
       <!-- Assembly Plugin -->
       <plugin>
