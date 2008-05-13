@@ -130,7 +130,7 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
       return homeJndiName.equals(remoteBusinessJndiName);
    }
    
-   Object createProxy(Object id,SpecificationInterfaceType type, String businessInterfaceType)
+   protected Object createProxy(Object id,SpecificationInterfaceType type, String businessInterfaceType)
    {
       String stackName = this.getStackNameInterceptors();
       RemoteBinding binding = this.getBinding();
