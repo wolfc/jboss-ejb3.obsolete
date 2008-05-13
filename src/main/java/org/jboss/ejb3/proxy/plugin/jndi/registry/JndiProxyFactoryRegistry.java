@@ -33,6 +33,7 @@ import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.SetBackedProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.naming.Util;
+import org.jboss.util.naming.NonSerializableFactory;
 
 /**
  * JndiProxyFactoryRegistry
@@ -107,7 +108,7 @@ public class JndiProxyFactoryRegistry extends SetBackedProxyFactoryRegistry<Hash
       // Bind to JNDI at the specified key
       try
       {
-         Util.rebind(context, key, value);
+         NonSerializableFactory.rebind(context, key, value);
       }
       catch (NamingException ne)
       {
@@ -138,13 +139,20 @@ public class JndiProxyFactoryRegistry extends SetBackedProxyFactoryRegistry<Hash
     */
    public void deregisterProxyFactory(String key) throws ProxyFactoryNotRegisteredException
    {
-      // Deregister
-      super.deregisterProxyFactoryFromBackingSet(key);
+      // See if registered
+      if (!this.isRegistered(key))
+      {
+         throw new ProxyFactoryNotRegisteredException("No " + ProxyFactory.class.getSimpleName()
+               + " is registered under key \"" + key + "\" in " + this);
+      }
 
       // Obtain
       ProxyFactory factory = this.getProxyFactory(key);
       assert factory != null : ProxyFactory.class.getSimpleName() + " at key \"" + key
             + "\" found as registered, but was null when obtained";
+
+      // Deregister
+      super.deregisterProxyFactoryFromBackingSet(key);
 
       // Remove from JNDI
       try
