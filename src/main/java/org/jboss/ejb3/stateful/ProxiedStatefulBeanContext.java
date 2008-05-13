@@ -63,12 +63,8 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
       
       this.delegate = delegate;
       oid = delegate.getId();
-      containerId = delegate.getContainer().getObjectName().getCanonicalName();
+      containerId = container.getObjectName().getCanonicalName();
       parentRef = new StatefulBeanContextReference(delegate.getContainedIn());
-      
-      // HACK!! Clear superclass fields
-      this.container = null;
-      this.bean = null;
    }
 
    protected StatefulBeanContext getDelegate()
@@ -98,8 +94,6 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    }
 
    public void writeExternal(ObjectOutput out) throws IOException
-//   private void writeObject(java.io.ObjectOutputStream out)
-//         throws IOException
    {
       out.writeObject(oid);
       out.writeUTF(containerId);
@@ -108,8 +102,6 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
 
    public void readExternal(ObjectInput in) throws IOException,
          ClassNotFoundException
-//   private void readObject(java.io.ObjectInputStream in)
-//         throws IOException, ClassNotFoundException
    {
       oid = in.readObject();
       containerId = in.readUTF();
@@ -426,25 +418,5 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    {
       // ignore
    }
-
-   @Override
-   public Object getInvokedMethodKey()
-   {
-      return getDelegate().getInvokedMethodKey();
-   }
-
-   @Override
-   public Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException
-   {
-      return getDelegate().getInterceptor(interceptorClass);
-   }
-
-   @Override
-   public void initialiseInterceptorInstances()
-   {
-      getDelegate().initialiseInterceptorInstances();
-   }
-   
-   
 
 }
