@@ -23,9 +23,11 @@ package org.jboss.ejb3.test.proxy.common;
 
 import java.net.URL;
 
+import org.jboss.dependency.spi.ControllerContext;
+import org.jboss.dependency.spi.ControllerState;
 import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
-import org.jboss.kernel.plugins.deployment.AbstractKernelDeployer;
 import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
+import org.jboss.kernel.spi.dependency.KernelController;
 import org.jboss.logging.Logger;
 
 /**
@@ -52,6 +54,8 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
    // --------------------------------------------------------------------------------||
 
    private BasicXMLDeployer deployer;
+   
+   private Thread shutdownHook;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
@@ -92,7 +96,8 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       this.setDeployer(new BasicXMLDeployer(this.getKernel()));
 
       // Add a shutdown hook
-      Runtime.getRuntime().addShutdownHook(new ShutdownDeployerThread(this.getDeployer()));
+      shutdownHook = new ShutdownDeployerThread();
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
    }
 
    // --------------------------------------------------------------------------------||
@@ -152,6 +157,26 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       this.deploy(testClass.getClassLoader(), this.getDeployableXmlUrl(testClass, filename));
    }
 
+   /**
+    * @param name
+    */
+   public <T> T lookup(String name, Class<T> expectedType) throws Throwable
+   {
+      KernelController controller = getKernel().getController();
+      ControllerContext context = controller.getContext(name, null);
+      controller.change(context, ControllerState.INSTALLED);
+      if(context.getError() != null)
+         throw context.getError();
+      
+      if(context.getState() != ControllerState.INSTALLED) {
+         System.err.println(context.getDependencyInfo().getUnresolvedDependencies(null));
+      }
+      // TODO: it can be stalled because of dependencies
+      assert context.getState() == ControllerState.INSTALLED;
+      
+      return expectedType.cast(context.getTarget());
+   }
+   
    /**
     * Undeploys the specified URL
     * 
@@ -233,20 +258,12 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
     */
    protected final class ShutdownDeployerThread extends Thread
    {
-      private AbstractKernelDeployer deployer;
-
-      public ShutdownDeployerThread(AbstractKernelDeployer deployer)
-      {
-         this.deployer = deployer;
-      }
-
       @Override
       public void run()
       {
          super.run();
-         log.debug("Shutting down " + this.deployer + "...");
-         getDeployer().shutdown();
-         log.info("Shut down: " + getDeployer());
+         
+         shutdownHook();
       }
 
    }
@@ -301,5 +318,24 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
          throw new RuntimeException("Resource \"" + resource + "\" could not be obtained from current classloader");
       }
       return url;
+   }
+   
+   /**
+    * Perform a clean shutdown. 
+    */
+   public void shutdown()
+   {
+      // remove the hook
+      Runtime.getRuntime().removeShutdownHook(shutdownHook);
+      
+      // and call it.
+      shutdownHook();
+   }
+   
+   private void shutdownHook()
+   {
+      log.debug("Shutting down " + this.deployer + "...");
+      getDeployer().shutdown();
+      log.info("Shut down: " + getDeployer());      
    }
 }
