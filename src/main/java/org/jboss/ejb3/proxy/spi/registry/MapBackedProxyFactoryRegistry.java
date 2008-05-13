@@ -42,8 +42,8 @@ public abstract class MapBackedProxyFactoryRegistry<T extends Map<String, ProxyF
          ProxyFactoryRegistry
 {
    // --------------------------------------------------------------------------------||
-   // Class Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------|
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(MapBackedProxyFactoryRegistry.class);
 

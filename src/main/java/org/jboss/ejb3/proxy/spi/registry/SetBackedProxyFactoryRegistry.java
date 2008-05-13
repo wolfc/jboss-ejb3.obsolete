@@ -40,8 +40,8 @@ import org.jboss.logging.Logger;
 public abstract class SetBackedProxyFactoryRegistry<T extends Set<String>> implements ProxyFactoryRegistry
 {
    // --------------------------------------------------------------------------------||
-   // Class Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------|
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(SetBackedProxyFactoryRegistry.class);
 
