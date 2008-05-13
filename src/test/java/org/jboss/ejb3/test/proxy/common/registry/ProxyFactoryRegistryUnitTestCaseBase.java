@@ -311,8 +311,68 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
 
    }
 
+   @Test
+   public void testRegistryInvokesProxyFactoryLifecycle() throws Throwable
+   {
+      // Initialize
+      String key = ProxyFactoryRegistryUnitTestCaseBase.REGISTRY_KEY_PREFIX + UUID.randomUUID();
+
+      // Create a new Proxy Factory
+      MockLifecycleSessionProxyFactory factory = new MockLifecycleSessionProxyFactory();
+
+      // Get the registry
+      ProxyFactoryRegistry registry = this.getProxyFactoryRegistry();
+
+      // Test Lifecycle Created
+      TestCase.assertEquals("Lifecycle of " + factory + " should be " + MockLifecycleSessionProxyFactory.State.CREATED
+            + " before registered", MockLifecycleSessionProxyFactory.State.CREATED, factory.getState());
+
+      // Register
+      try
+      {
+         registry.registerProxyFactory(key, factory);
+         log.info(factory + " stored into " + registry + " under key " + key);
+      }
+      catch (ProxyFactoryAlreadyRegisteredException e)
+      {
+         log.error(e);
+         TestCase.fail(factory + " should be able to be registered with " + registry + " under key " + key);
+      }
+
+      // Lookup
+      ProxyFactory lookup = null;
+      try
+      {
+         lookup = registry.getProxyFactory(key);
+         log.info(lookup + " obtained from  " + registry + " under key " + key);
+      }
+      catch (ProxyFactoryNotRegisteredException e)
+      {
+         log.error(e);
+         TestCase.fail(factory + " should have been found in " + registry + " under key " + key + ", but instead "
+               + e.getClass().getName() + " was encountered with message:\n" + e.getMessage());
+      }
+
+      // Ensure the reference looked up and the reference placed in have state of STARTED
+      TestCase.assertEquals("Lifecycle of " + lookup + " should be " + MockLifecycleSessionProxyFactory.State.STARTED
+            + " before registered", MockLifecycleSessionProxyFactory.State.STARTED,
+            MockLifecycleSessionProxyFactory.class.cast(lookup).getState());
+      TestCase.assertEquals("Lifecycle of " + factory + " should be " + MockLifecycleSessionProxyFactory.State.STARTED
+            + " before registered", MockLifecycleSessionProxyFactory.State.STARTED, factory.getState());
+      
+      // Deregister
+      registry.deregisterProxyFactory(key);
+      
+      // Ensure the reference looked up and the reference placed in have state of STOPPED
+      TestCase.assertEquals("Lifecycle of " + lookup + " should be " + MockLifecycleSessionProxyFactory.State.STOPPED
+            + " before registered", MockLifecycleSessionProxyFactory.State.STOPPED,
+            MockLifecycleSessionProxyFactory.class.cast(lookup).getState());
+      TestCase.assertEquals("Lifecycle of " + factory + " should be " + MockLifecycleSessionProxyFactory.State.STOPPED
+            + " before registered", MockLifecycleSessionProxyFactory.State.STOPPED, factory.getState());
+   }
+
    // --------------------------------------------------------------------------------||
-   // Helper Methods --------------------------------------------------------------||
+   // Helper Methods -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
@@ -320,7 +380,8 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     */
    private ProxyFactoryRegistry getProxyFactoryRegistry() throws Throwable
    {
-      ProxyFactoryRegistry registry = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().lookup(ProxyFactoryRegistryUnitTestCaseBase.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
+      ProxyFactoryRegistry registry = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().lookup(
+            ProxyFactoryRegistryUnitTestCaseBase.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
       return registry;
    }
 
