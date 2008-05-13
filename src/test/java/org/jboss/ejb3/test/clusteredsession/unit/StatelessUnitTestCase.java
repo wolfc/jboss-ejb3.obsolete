@@ -74,7 +74,7 @@ public class StatelessUnitTestCase extends JBossClusteredTestCase
       NodeAnswer node1 = stateless.getNodeState ();
       getLog ().debug ("Node 1 ID: " +node1);
 
-      stateless = (ClusteredStatelessRemote) ctx.lookup("clusteredsession-test/clusteredStateless/remote");
+      stateless = (ClusteredStatelessRemote) ctx.lookup("clusteredStateless/remote");
       NodeAnswer node2 = stateless.getNodeState ();
       getLog ().debug ("Node 2 ID : " +node2);
 
