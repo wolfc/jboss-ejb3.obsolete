@@ -4,25 +4,24 @@
 -->
 
 <!-- 
-
+  
   JBoss EJB3 Proxy Component
-
- -->
+  
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
-    <!-- Parent -->
+
+  <!-- Parent -->
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
     <version>0.13.3-SNAPSHOT</version>
-    <relativePath>../build/pom.xml</relativePath>
   </parent>
-  
-    <!-- Model Version -->
+
+  <!-- Model Version -->
   <modelVersion>4.0.0</modelVersion>
-  
+
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-proxy</artifactId>
@@ -30,15 +29,60 @@
   <name>JBoss EJB 3.0 Proxy</name>
   <description>JBoss EJB3 Proxy Component</description>
   <url>http://www.jboss.org/jbossejb3</url>
-  
+
   <!-- Build Configuration -->
   <build>
-  
+
+    <plugins>
+      <!-- Surefire -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <printSummary>true</printSummary>
+          <testFailureIgnore>false</testFailureIgnore>
+          <includes>
+            <include>**/*TestCase.java</include>
+            <include>**/*TestSuite.java</include>
+          </includes>
+          <forkMode>always</forkMode>
+          <argLine>-ea</argLine>
+          <!-- 
+            <argLine>-Djboss.aop.verbose=true</argLine>
+            <argLine>
+            -javaagent:${project.build.directory}/dependencies/lib/jboss-aop-jdk50.jar
+            </argLine>  -->
+        </configuration>
+      </plugin>
+
+    </plugins>
+
   </build>
-  
+
   <!-- Dependencies -->
   <dependencies>
-  
+
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.naming</groupId>
+      <artifactId>jnpserver</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+
   </dependencies>
-  
+
 </project>
