@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.3-SNAPSHOT</version>
+    <version>0.13.3</version>
   </parent>
 
   <!-- Model Version -->
@@ -34,6 +34,15 @@
   <build>
 
     <plugins>
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerArgument>-verbose</compilerArgument>
+        </configuration>
+      </plugin>
+      -->
       <!-- Surefire -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -59,6 +68,17 @@
 
   </build>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- Because of a bug in m2eclipse the version of reflect must be explicitly defined -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-reflect</artifactId>
+        <version>2.0.0.Beta12</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
   <!-- Dependencies -->
   <dependencies>
 
@@ -66,22 +86,6 @@
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-kernel</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.naming</groupId>
-      <artifactId>jnpserver</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.metadata</groupId>
-      <artifactId>jboss-metadata</artifactId>
     </dependency>
 
     <dependency>
@@ -93,6 +97,31 @@
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-log4j</artifactId>
       <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+      <version>2.0.0.Beta13</version>
+    </dependency>
+    
+    <!-- MC doesn't declare this as a proper dependency -->
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-managed</artifactId>
+      <version>2.0.0.Beta10</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.naming</groupId>
+      <artifactId>jnpserver</artifactId>
+      <scope>compile</scope>
     </dependency>
     
   </dependencies>
