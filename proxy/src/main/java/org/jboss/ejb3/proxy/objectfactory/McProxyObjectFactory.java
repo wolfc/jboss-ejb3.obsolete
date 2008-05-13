@@ -39,13 +39,24 @@ import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
  */
 public abstract class McProxyObjectFactory extends ProxyObjectFactory implements ObjectFactory, Serializable
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 7854430641125529016L;
+   
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    //TODO
    // Inject from MC via AOP upon instanciation
    private ProxyFactoryRegistry proxyFactoryRegistry;
 
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+   
    @Override
    protected ProxyFactoryRegistry getProxyFactoryRegistry()
    {
