@@ -5165,6 +5165,10 @@
      
      <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
      <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
+     	
+     <!-- For now use REPL_SYNC -->
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-0"/>
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-1"/>
           
      <server:start name="clustered-ejb3-totalrep-0" />
      <server:start name="clustered-ejb3-totalrep-1" />
@@ -5436,6 +5440,25 @@
      <server:stop name="clusteredjms" />
      <server:stop name="clusteredjms2" />
    </target>
+
+   <!-- A macro for converting a cache to REPL_SYNC from REPL_ASYNC -->
+   <macrodef name="cache-mode-config-change">
+      <attribute name="conf"/>
+      <attribute name="cacheMode" default="REPL_SYNC"/>
+      <sequential>
+         <echo message="Setting CacheMode to ${cacheMode} in ${jboss.dist}/server/@{conf}"/>
+         <!-- If we're using a sar -->
+         <replaceregexp flags="g"
+            file="${jboss.dist}/server/@{conf}/deploy/cluster/jboss-cache-manager.sar/META-INF/jboss-cache-configs.xml"
+         	match="&lt;attribute name=&quot;CacheMode&quot;&gt;REPL_ASYNC" 
+         	replace="&lt;attribute name=&quot;CacheMode&quot;&gt;@{cacheMode}"/>
+         <!-- If we're using a plain beans.xml -->
+         <replaceregexp flags="g"
+            file="${jboss.dist}/server/@{conf}/deploy/cluster/jboss-cache-manager-beans.xml"
+         	match="&lt;property name=&quot;cacheMode&quot;&gt;REPL_ASYNC" 
+         	replace="&lt;property name=&quot;cacheMode&quot;&gt;@{cacheMode}"/>        
+      </sequential>
+   </macrodef>
 
    <!-- A macro for turning on buddy replication in a node -->
    <macrodef name="buddy-repl-config-change">
