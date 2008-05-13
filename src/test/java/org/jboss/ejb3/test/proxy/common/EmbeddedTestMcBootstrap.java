@@ -23,6 +23,8 @@ package org.jboss.ejb3.test.proxy.common;
 
 import java.net.URL;
 
+import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
+import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
 import org.jboss.dependency.spi.ControllerContext;
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
@@ -318,6 +320,15 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
          throw new RuntimeException("Resource \"" + resource + "\" could not be obtained from current classloader");
       }
       return url;
+   }
+   
+   public void installInstance(String name, Object instance) throws Throwable
+   {
+      AbstractBeanMetaData bmd = new AbstractBeanMetaData(name, instance.getClass().getName());
+      AbstractConstructorMetaData cmd = new AbstractConstructorMetaData();
+      cmd.setValueObject(instance);
+      bmd.setConstructor(cmd);
+      getKernel().getController().install(bmd);
    }
    
    /**
