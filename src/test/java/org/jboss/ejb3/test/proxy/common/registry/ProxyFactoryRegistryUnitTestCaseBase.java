@@ -25,7 +25,6 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 
-import org.jboss.dependency.spi.ControllerContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
@@ -69,7 +68,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     * via MC.
     */
    @Test
-   public void testJndiProxyFactoryRegistryInstall()
+   public void testJndiProxyFactoryRegistryInstall() throws Throwable
    {
       ProxyFactoryRegistry registry = this.getProxyFactoryRegistry();
       TestCase.assertNotNull(registry);
@@ -81,7 +80,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     * referencially equal to the object registered.
     */
    @Test
-   public void testRegistrationAndLookup()
+   public void testRegistrationAndLookup() throws Throwable
    {
       // Initialize
       String key = ProxyFactoryRegistryUnitTestCaseBase.REGISTRY_KEY_PREFIX + UUID.randomUUID();
@@ -141,7 +140,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     * as expected
     */
    @Test
-   public void testRegistrationAndDeregistration()
+   public void testRegistrationAndDeregistration() throws Throwable
    {
       // Initialize
       String key = ProxyFactoryRegistryUnitTestCaseBase.REGISTRY_KEY_PREFIX + UUID.randomUUID();
@@ -195,7 +194,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     * fails as expected
     */
    @Test
-   public void testDuplicateKeyRegistrationFails()
+   public void testDuplicateKeyRegistrationFails() throws Throwable
    {
       // Initialize
       String key = ProxyFactoryRegistryUnitTestCaseBase.REGISTRY_KEY_PREFIX + UUID.randomUUID();
@@ -242,7 +241,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
     * 2 different keys
     */
    @Test
-   public void testDuplicateFactoryRegistrationOK()
+   public void testDuplicateFactoryRegistrationOK() throws Throwable
    {
       // Initialize
       String key1 = ProxyFactoryRegistryUnitTestCaseBase.REGISTRY_KEY_PREFIX + UUID.randomUUID();
@@ -319,11 +318,9 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
    /**
     * Obtains the ProxyFactoryRegistry from the MC
     */
-   private ProxyFactoryRegistry getProxyFactoryRegistry()
+   private ProxyFactoryRegistry getProxyFactoryRegistry() throws Throwable
    {
-      ControllerContext context = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().getKernel().getController()
-            .getInstalledContext(ProxyFactoryRegistryUnitTestCaseBase.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY);
-      ProxyFactoryRegistry registry = (ProxyFactoryRegistry) context.getTarget();
+      ProxyFactoryRegistry registry = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().lookup(ProxyFactoryRegistryUnitTestCaseBase.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
       return registry;
    }
 
