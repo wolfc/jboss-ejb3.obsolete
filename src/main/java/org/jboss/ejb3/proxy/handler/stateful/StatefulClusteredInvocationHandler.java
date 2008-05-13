@@ -64,23 +64,25 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
 
 
    public StatefulClusteredInvocationHandler(Container container, Interceptor[] interceptors, FamilyWrapper family,
-         LoadBalancePolicy lb, String partitionName, String businessInterfaceClassName)
+         LoadBalancePolicy lb, String partitionName, Object id, String businessInterfaceType)
    {
-      super(container, interceptors, businessInterfaceClassName);
+      super(container, interceptors, businessInterfaceType);
       this.family = family;
       this.lbPolicy = lb;
       this.partitionName = partitionName;
+      this.id = id;
    }
 
    public StatefulClusteredInvocationHandler(AsynchProvider provider, String containerId, String containerGuid,
          Interceptor[] interceptors, FamilyWrapper family, LoadBalancePolicy lb, String partitionName,
-         String businessInterfaceClassName)
+         Object id, String businessInterfaceType)
    {
-      super(containerId, containerGuid, interceptors, businessInterfaceClassName);
+      super(containerId, containerGuid, interceptors, businessInterfaceType);
       this.provider = provider;
       this.family = family;
       this.lbPolicy = lb;
       this.partitionName = partitionName;
+      this.id = id;
    }
 
    protected StatefulClusteredInvocationHandler()
@@ -144,7 +146,7 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
          AsynchMixin mixin = new AsynchMixin();
          Interceptor[] newInterceptors = ProxyUtils.addAsynchProxyInterceptor(mixin, interceptors);
          StatefulClusteredInvocationHandler handler = new StatefulClusteredInvocationHandler(mixin, containerId,
-               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.getBusinessInterfaceType());
+               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.id, this.getBusinessInterfaceType());
          return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, handler);
       }
 

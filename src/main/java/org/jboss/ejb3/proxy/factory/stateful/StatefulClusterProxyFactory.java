@@ -27,9 +27,12 @@ import java.util.List;
 import javax.ejb.RemoteHome;
 import javax.naming.NamingException;
 
+import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
+import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.Remoting;
+import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.defaults.ClusteredDefaults;
@@ -37,6 +40,7 @@ import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
+import org.jboss.ejb3.proxy.handler.stateful.StatefulClusteredInvocationHandler;
 import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
@@ -72,6 +76,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    private DistributedReplicantManager drm;
    private HATarget hatarget;
    private String proxyFamilyName;
+   private String partitionName;
    private LoadBalancePolicy lbPolicy;
    private FamilyWrapper wrapper;
 
@@ -139,7 +144,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       RemoteBinding binding = this.getBinding();
       InvokerLocator locator = this.getLocator();
       SessionContainer container = this.getContainer();
-      String partitionName = container.getPartitionName();
+      partitionName = container.getPartitionName();
       proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
       HAPartition partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
@@ -195,10 +200,29 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    {
       return StatefulClusterProxyFactory.STACK_NAME_CLUSTERED_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
    }
-
-   public Object createProxyBusiness(Object id)
+   
+   @Override
+   protected Object createProxy(Object id,SpecificationInterfaceType type, String businessInterfaceType)
    {
-      throw new RuntimeException("NYI");
+      String stackName = this.getStackNameInterceptors();
+      RemoteBinding binding = this.getBinding();
+      if (binding.interceptorStack() != null && !binding.interceptorStack().trim().equals(""))
+      {
+         stackName = binding.interceptorStack();
+      }
+      AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
+      if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
+      StatefulClusteredInvocationHandler handler = new StatefulClusteredInvocationHandler(getContainer(), stack.createInterceptors(getContainer()
+            .getAdvisor(), null), this.wrapper, this.lbPolicy, partitionName, id, businessInterfaceType);
+      
+      if(type.equals(SpecificationInterfaceType.EJB21))
+      {
+         return this.constructEjb21Proxy(handler);
+      }
+      else
+      {
+         return this.constructProxyBusiness(handler);
+      }
    }
    
    public void stop() throws Exception
