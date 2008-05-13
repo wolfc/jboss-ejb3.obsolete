@@ -108,7 +108,7 @@ public abstract class MapBackedProxyFactoryRegistry<T extends Map<String, ProxyF
     */
    public ProxyFactory getProxyFactory(String key) throws ProxyFactoryNotRegisteredException
    {
-      // Check is exists
+      // Check if exists
       boolean registered = this.isRegistered(key);
 
       // Ensure a ProxyFactory was found for this key
