@@ -311,6 +311,12 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
 
    }
 
+   /**
+    * Tests that the registry properly calls the lifecycle methods of
+    * the ProxyFactory on registration/deregistration
+    * 
+    * @throws Throwable
+    */
    @Test
    public void testRegistryInvokesProxyFactoryLifecycle() throws Throwable
    {
