@@ -58,13 +58,18 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    private StatefulBeanContextReference parentRef;
 
    public ProxiedStatefulBeanContext(StatefulBeanContext delegate)
-   {
-      super(delegate.getContainer(), delegate.getInstance());
-      
+   {      
       this.delegate = delegate;
       oid = delegate.getId();
-      containerId = container.getObjectName().getCanonicalName();
+      containerId = delegate.getContainer().getObjectName().getCanonicalName();
       parentRef = new StatefulBeanContextReference(delegate.getContainedIn());
+   }
+   
+   /**
+    * Only for externalization.
+    */
+   public ProxiedStatefulBeanContext()
+   {      
    }
 
    protected StatefulBeanContext getDelegate()
@@ -418,5 +423,25 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    {
       // ignore
    }
+
+   @Override
+   public Object getInvokedMethodKey()
+   {
+      return getDelegate().getInvokedMethodKey();
+   }
+
+   @Override
+   public Object getInterceptor(Class<?> interceptorClass) throws IllegalArgumentException
+   {
+      return getDelegate().getInterceptor(interceptorClass);
+   }
+
+   @Override
+   public void initialiseInterceptorInstances()
+   {
+      getDelegate().initialiseInterceptorInstances();
+   }
+   
+   
 
 }

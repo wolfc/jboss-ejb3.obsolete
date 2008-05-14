@@ -41,5 +41,15 @@ public abstract class SessionSpecBeanContext<T extends SessionSpecContainer>
    {
       super(container, bean);
    }
+   
+   /**
+    * Only for externalization use by subclass ProxiedStatefulBeanContext; do not use elsewhere.
+    *
+    * @deprecated
+    */
+   protected SessionSpecBeanContext()
+   {
+      
+   }
 
 }

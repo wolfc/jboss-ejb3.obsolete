@@ -49,6 +49,16 @@ public abstract class SessionBeanContext<T extends SessionContainer> extends Bas
       super(container, bean);
    }
    
+   /**
+    * Only for externalization use by subclass StatefulBeanContext; do not use elsewhere.
+    *
+    * @deprecated
+    */
+   protected SessionBeanContext()
+   {
+      
+   }
+   
    public abstract EJBContext getEJBContext();
 
 }
