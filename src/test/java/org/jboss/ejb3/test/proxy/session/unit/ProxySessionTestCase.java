@@ -37,11 +37,14 @@ import org.jboss.ejb3.test.proxy.session.MyStatelessLocal;
 import org.jboss.ejb3.test.proxy.session.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.session.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.session.MyStatelessRemoteHome;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.annotation.creator.ejb.EjbJar30Creator;
 import org.jboss.metadata.annotation.finder.AnnotationFinder;
 import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -54,6 +57,8 @@ import org.junit.Test;
 public class ProxySessionTestCase
 {
    private static EmbeddedTestMcBootstrap bootstrap;
+   
+   private static final Logger log = Logger.getLogger(ProxySessionTestCase.class);
    
    /**
     * @throws java.lang.Exception
@@ -75,11 +80,46 @@ public class ProxySessionTestCase
       JBossMetaData mergedMetaData = new JBossMetaData();
       mergedMetaData.merge(null, metaData);
       
-      JBossSessionBeanMetaData beanMetaData = (JBossSessionBeanMetaData) mergedMetaData.getEnterpriseBean("MyStatelessBean");
+      JBossSessionBeanMetaData beanMetaData = (JBossSessionBeanMetaData) mergedMetaData
+            .getEnterpriseBean("MyStatelessBean");
+
+      // Set a deployment summary (mock the resolver deployer)
+      ClassLoader loader = MyStatelessBean.class.getClassLoader(); //TODO was: unit.getClassLoader()
+      EjbDeploymentSummary summary = new EjbDeploymentSummary();
+      summary.setBeanMD(beanMetaData);
+      summary.setBeanClassName(beanMetaData.getEjbClass());
+      summary.setDeploymentName(MyStatelessBean.class.getSimpleName()); //TODO was: unit.getShortName()
+      String baseName = MyStatelessBean.class.getSimpleName(); //TODO was: unit.getRootFile().getName()
+      summary.setDeploymentScopeBaseName(baseName);
+      summary.setEjbName(beanMetaData.getEjbName());
+      summary.setLoader(loader);
+      summary.setLocal(beanMetaData.isMessageDriven());
+      if (beanMetaData instanceof JBossSessionBeanMetaData)
+      {
+         JBossSessionBeanMetaData sbeanMD = (JBossSessionBeanMetaData) beanMetaData;
+         summary.setStateful(sbeanMD.isStateful());
+      }
+      summary.setService(beanMetaData.isService());
       
-      System.out.println(beanMetaData.determineJndiName());         // MyStatelessBean/remote
-      System.out.println(beanMetaData.determineLocalJndiName());    // MyStatelessBean/local
-      
+      // Set the deployment summary
+      mergedMetaData.setDeploymentSummary(summary);
+
+      // Log out JNDI Names
+      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // MyStatelessBean/remote
+      for (String businessInterface : beanMetaData.getBusinessRemotes())
+      {
+         log.info("Business Remote JNDI Name for " + businessInterface + ": "
+               + beanMetaData.determineResolvedJndiName(businessInterface));
+      }
+      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // MyStatelessBean/local
+      for (String businessInterface : beanMetaData.getBusinessLocals())
+      {
+         log.info("Business Local JNDI Name for " + businessInterface + ": "
+               + beanMetaData.determineResolvedJndiName(businessInterface));
+      }
+      log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getLocalHome()));
+      log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getHome()));
+
       StatelessContainer container = new StatelessContainer(beanMetaData);
       
       bootstrap.installInstance("jboss.j2ee:service=EJB3,name=" + beanMetaData.getEjbName(), container);
