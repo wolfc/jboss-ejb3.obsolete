@@ -444,7 +444,8 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    public void prePassivate()
    {
       if (!removed && !passivated)
-      {
+      {  
+         getInstance(); // make sure we're unmarshalled
          getContainer().invokePrePassivate(this);
          passivated = true;
       }
@@ -467,7 +468,8 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    public void postActivate()
    {
       if (!removed && passivated)
-      {
+      {  
+         getInstance(); // make sure we're unmarshalled
          getContainer().invokePostActivate(this);
          passivated = false;
       }
@@ -554,7 +556,8 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    public void preReplicate()
    {
       if (!removed && replicationIsPassivation && !passivated)
-      {
+      {  
+         getInstance(); // make sure we're unmarshalled
          getContainer().invokePrePassivate(this);
          passivated = true;
       }
@@ -582,7 +585,8 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
       // We may not have been replicated, so only invoke @PostActivate
       // if we are marked as passivated
       if (!removed && passivated)
-      {
+      {  
+         getInstance(); // make sure we're unmarshalled
          getContainer().invokePostActivate(this);
          passivated = false;
       }
