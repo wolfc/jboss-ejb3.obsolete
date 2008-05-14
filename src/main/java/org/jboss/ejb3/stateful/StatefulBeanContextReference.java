@@ -21,10 +21,6 @@
  */
 package org.jboss.ejb3.stateful;
 
-import java.io.Externalizable;
-import java.io.ObjectInput;
-import java.io.IOException;
-import java.io.ObjectOutput;
 import java.io.Serializable;
 
 import org.jboss.ejb3.Ejb3Registry;
@@ -38,25 +34,13 @@ import org.jboss.ejb3.Ejb3Registry;
 public class StatefulBeanContextReference implements Serializable
 {
    /** The serialVersionUID */
-   private static final long serialVersionUID = 2644760020735482423L;
+   private static final long serialVersionUID = -7622266426902284032L;
    
    private transient StatefulBeanContext beanContext;
    private Object oid;
    private String containerGuid;
    private String containerClusterUid;
    private boolean isClustered = false;
-   
-   private static class Serialized implements Serializable
-   {
-      private Object oid;
-      private String containerGuid;
-      private String containerClusterUid;
-      private boolean isClustered = false;
-      
-      private Serialized(StatefulBeanContextReference ref)
-      {
-      }
-   }
    
    public StatefulBeanContextReference(StatefulBeanContext beanContext)
    {
@@ -68,18 +52,6 @@ public class StatefulBeanContextReference implements Serializable
       containerClusterUid = Ejb3Registry.clusterUid(beanContext.getContainer());
       isClustered = beanContext.getContainer().isClustered();
    }
-
-//   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
-//   {
-//      containerId = in.readUTF();
-//      oid = in.readObject();
-//   }
-//
-//   public void writeExternal(ObjectOutput out) throws IOException
-//   {
-//      out.writeUTF(containerId);
-//      out.writeObject(oid);
-//   }
 
    public StatefulBeanContext getBeanContext()
    {
@@ -95,10 +67,5 @@ public class StatefulBeanContextReference implements Serializable
          assert beanContext != null : "beanContext no longer in cache";
       }
       return beanContext;
-   }
-   
-   private Object writeReplace()
-   {
-      return new Serialized(this);
    }
 }

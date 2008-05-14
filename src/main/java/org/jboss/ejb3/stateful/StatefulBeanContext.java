@@ -21,7 +21,10 @@
  */
 package org.jboss.ejb3.stateful;
 
+import java.io.Externalizable;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -58,46 +61,46 @@ import org.jboss.util.id.GUID;
  * 
  * @version $Revision$
  */
-public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContainer> implements Identifiable, Serializable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
+public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContainer> implements Identifiable, Externalizable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;
 
-   private static class Serialized implements Serializable
-   {
-      private static final long serialVersionUID = 1L;
-      
-      private String containerClusterUid;
-      private String containerGuid;
-      private boolean isClustered = false;
-      private Object id;
-      private SimpleMetaData metadata;
-      private long lastUsed;
-      private MarshalledObject beanMO;
-      private boolean removed;
-      private boolean replicationIsPassivation;
-      
-      private Object readResolve() throws ObjectStreamException
-      {
-         StatefulContainer container = (StatefulContainer)Ejb3Registry.findContainer(containerGuid);
-          
-         if (isClustered && container == null)
-            container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
-         
-         if(container == null)
-            throw new IllegalStateException("Can't find container " + containerGuid);
-         
-         StatefulBeanContext context = new StatefulBeanContext(container, beanMO);
-         context.id = this.id;
-         context.metadata = this.metadata;
-         context.lastUsed = this.lastUsed;
-         context.removed = this.removed;
-         context.replicationIsPassivation = this.replicationIsPassivation;
-         // I'm deserializing, so I was passivated
-         context.passivated = true;
-         return context;
-      }
-   }
+//   private static class Serialized implements Serializable
+//   {
+//      private static final long serialVersionUID = 1L;
+//      
+//      private String containerClusterUid;
+//      private String containerGuid;
+//      private boolean isClustered = false;
+//      private Object id;
+//      private SimpleMetaData metadata;
+//      private long lastUsed;
+//      private MarshalledObject beanMO;
+//      private boolean removed;
+//      private boolean replicationIsPassivation;
+//      
+//      private Object readResolve() throws ObjectStreamException
+//      {
+//         StatefulContainer container = (StatefulContainer)Ejb3Registry.findContainer(containerGuid);
+//          
+//         if (isClustered && container == null)
+//            container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
+//         
+//         if(container == null)
+//            throw new IllegalStateException("Can't find container " + containerGuid);
+//         
+//         StatefulBeanContext context = new StatefulBeanContext(container, beanMO);
+//         context.id = this.id;
+//         context.metadata = this.metadata;
+//         context.lastUsed = this.lastUsed;
+//         context.removed = this.removed;
+//         context.replicationIsPassivation = this.replicationIsPassivation;
+//         // I'm deserializing, so I was passivated
+//         context.passivated = true;
+//         return context;
+//      }
+//   }
    
    protected Object id;
 
@@ -165,6 +168,16 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
       this.containerGuid = Ejb3Registry.guid(container);
       this.isClustered = container.isClustered();
       this.id = new GUID();
+   }
+   
+   /**
+    * Only for use by externalization; do not use elsewhere.
+    *
+    * @deprecated
+    */
+   public StatefulBeanContext()
+   {
+      
    }
 
    public List<StatefulBeanContext> getContains()
@@ -886,65 +899,10 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
       }
    }
 
-   private Object writeReplace() throws ObjectStreamException
-   {
-      Serialized state = new Serialized();
-      if (this.beanMO == null)
-      {
-         Object[] beanAndInterceptors = new Object[4];
-         beanAndInterceptors[0] = bean;
-         beanAndInterceptors[1] = persistenceContexts;
-         if (interceptorInstances != null && interceptorInstances.size() > 0)
-         {
-            ArrayList list = new ArrayList();
-            list.addAll(interceptorInstances.values());
-            beanAndInterceptors[2] = list;
-         }
-         beanAndInterceptors[3] = contains;
-         
-         // BES 2007/02/12 Previously we were trying to hold a ref to
-         // beanMO after we created it, but that exposes the risk of
-         // two different versions of the constituent state that
-         // can fall out of sync.  So now we just write a local variable.
-         
-         try
-         {
-            MarshalledObject mo = new MarshalledObject(beanAndInterceptors);
-            state.beanMO = mo;
-         }
-         catch(IOException e)
-         {
-            throw new RuntimeException("Marshalling of bean " + bean + " failed", e);
-         }
-      }
-      else
-      {
-         // We've been deserialized and are now being re-serialized, but
-         // extractBeanAndInterceptors hasn't been called in between.
-         // This can happen if a passivated session is involved in a 
-         // JBoss Cache state transfer to a newly deployed node.
-         state.beanMO = this.beanMO;
-      }
-
-      state.containerClusterUid = this.containerClusterUid;
-      state.containerGuid = this.containerGuid;
-      state.isClustered = this.isClustered;
-      state.id = this.id;
-      state.lastUsed = this.lastUsed;
-      state.metadata = this.metadata;
-      state.removed = this.removed;
-      state.replicationIsPassivation = this.replicationIsPassivation;
-      return state;
-   }
-   
-//   public void writeExternal(ObjectOutput out) throws IOException
+//   private Object writeReplace() throws ObjectStreamException
 //   {
-//      out.writeUTF(containerName);
-//      out.writeObject(id);
-//      out.writeObject(metadata);
-//      out.writeLong(lastUsed);
-//      
-//      if (beanMO == null)
+//      Serialized state = new Serialized();
+//      if (this.beanMO == null)
 //      {
 //         Object[] beanAndInterceptors = new Object[4];
 //         beanAndInterceptors[0] = bean;
@@ -962,8 +920,15 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
 //         // two different versions of the constituent state that
 //         // can fall out of sync.  So now we just write a local variable.
 //         
-//         MarshalledObject mo = new MarshalledObject(beanAndInterceptors);
-//         out.writeObject(mo);         
+//         try
+//         {
+//            MarshalledObject mo = new MarshalledObject(beanAndInterceptors);
+//            state.beanMO = mo;
+//         }
+//         catch(IOException e)
+//         {
+//            throw new RuntimeException("Marshalling of bean " + bean + " failed", e);
+//         }
 //      }
 //      else
 //      {
@@ -971,29 +936,87 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
 //         // extractBeanAndInterceptors hasn't been called in between.
 //         // This can happen if a passivated session is involved in a 
 //         // JBoss Cache state transfer to a newly deployed node.
-//         out.writeObject(beanMO);
+//         state.beanMO = this.beanMO;
 //      }
-//      
 //
-//      out.writeBoolean(removed);
-//      out.writeBoolean(replicationIsPassivation);
+//      state.containerClusterUid = this.containerClusterUid;
+//      state.containerGuid = this.containerGuid;
+//      state.isClustered = this.isClustered;
+//      state.id = this.id;
+//      state.lastUsed = this.lastUsed;
+//      state.metadata = this.metadata;
+//      state.removed = this.removed;
+//      state.replicationIsPassivation = this.replicationIsPassivation;
+//      return state;
 //   }
-//
-//   public void readExternal(ObjectInput in) throws IOException,
-//           ClassNotFoundException
-//   {
-//      containerName = in.readUTF();
-//      id = in.readObject();
-//      metadata = (SimpleMetaData) in.readObject();
-//      lastUsed = in.readLong();
-//      
-//      beanMO = (MarshalledObject) in.readObject();
-//      removed = in.readBoolean();
-//      replicationIsPassivation = in.readBoolean();
-//      
-//      // If we've just been deserialized, we are passivated
-//      passivated = true;
-//   }
+   
+   public void writeExternal(ObjectOutput out) throws IOException
+   {         
+      out.writeUTF(containerClusterUid);
+      out.writeUTF(containerGuid);
+      out.writeBoolean(isClustered);
+      out.writeObject(id);
+      out.writeLong(lastUsed);
+      out.writeObject(metadata);      
+      out.writeBoolean(removed);
+      out.writeBoolean(replicationIsPassivation);
+      
+      if (beanMO == null)
+      {
+         Object[] beanAndInterceptors = new Object[4];
+         beanAndInterceptors[0] = bean;
+         beanAndInterceptors[1] = persistenceContexts;
+         if (interceptorInstances != null && interceptorInstances.size() > 0)
+         {
+            ArrayList list = new ArrayList();
+            list.addAll(interceptorInstances.values());
+            beanAndInterceptors[2] = list;
+         }
+         beanAndInterceptors[3] = contains;
+         
+         // BES 2007/02/12 Previously we were trying to hold a ref to
+         // beanMO after we created it, but that exposes the risk of
+         // two different versions of the constituent state that
+         // can fall out of sync.  So now we just write a local variable.
+         
+         MarshalledObject mo = new MarshalledObject(beanAndInterceptors);
+         out.writeObject(mo);         
+      }
+      else
+      {
+         // We've been deserialized and are now being re-serialized, but
+         // extractBeanAndInterceptors hasn't been called in between.
+         // This can happen if a passivated session is involved in a 
+         // JBoss Cache state transfer to a newly deployed node.
+         out.writeObject(beanMO);
+      }
+   }
+
+   public void readExternal(ObjectInput in) throws IOException,
+           ClassNotFoundException
+   {
+      containerClusterUid = in.readUTF();
+      containerGuid = in.readUTF();
+      isClustered = in.readBoolean();
+      
+      container = (StatefulContainer)Ejb3Registry.findContainer(containerGuid);    
+      if (isClustered && container == null)
+         container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
+   
+      if(container == null)
+         throw new IllegalStateException("Can't find container " + containerGuid);
+      
+      id = in.readObject();
+      lastUsed = in.readLong();
+      metadata = (SimpleMetaData) in.readObject();
+      removed = in.readBoolean();
+      replicationIsPassivation = in.readBoolean();
+      
+      beanMO = (MarshalledObject) in.readObject();
+      
+      // If we've just been deserialized, we are passivated
+      passivated = true;
+   }
 
    public Object getInvokedMethodKey()
    {

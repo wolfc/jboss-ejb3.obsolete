@@ -67,6 +67,16 @@ public abstract class BaseContext<T extends Container> implements BeanContext<T>
       this.bean = bean;
    }
    
+   /**
+    * Only for externalization use by subclass StatefulBeanContext; do not use elsewhere.
+    *
+    * @deprecated
+    */
+   protected BaseContext()
+   {
+      
+   }
+   
    public Object getId()
    {
       return null;

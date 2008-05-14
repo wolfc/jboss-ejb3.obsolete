@@ -32,7 +32,6 @@ import javax.persistence.EntityManager;
 
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.session.SessionSpecContainer;
 
 /**
  * Overrides superclass to not use MarshalledValue in externalization,
@@ -55,10 +54,17 @@ public class NestedStatefulBeanContext extends StatefulBeanContext implements Ex
       super(container, bean);
    }
    
+   /**
+    * Only for externalization.
+    */
+   public NestedStatefulBeanContext()
+   {      
+   }
+   
    public void writeExternal(ObjectOutput out) throws IOException
    {
-      out.writeUTF(Ejb3Registry.clusterUid(getContainer()));
-      out.writeUTF(Ejb3Registry.guid(getContainer()));
+      out.writeUTF(containerClusterUid);
+      out.writeUTF(containerGuid);
       out.writeObject(id);
       out.writeBoolean(isClustered);
       out.writeObject(metadata);
@@ -98,6 +104,10 @@ public class NestedStatefulBeanContext extends StatefulBeanContext implements Ex
       
       // If we've just been deserialized, we are passivated
       passivated = true;
+      
+      container = (StatefulContainer)Ejb3Registry.findContainer(containerGuid);      
+      if (isClustered && container == null)
+         container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
    }
 
 }
