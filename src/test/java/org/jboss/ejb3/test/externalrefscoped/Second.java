@@ -31,5 +31,5 @@ package org.jboss.ejb3.test.externalrefscoped;
 
 public interface Second
 {
-   void execute();
+   String execute();
 }

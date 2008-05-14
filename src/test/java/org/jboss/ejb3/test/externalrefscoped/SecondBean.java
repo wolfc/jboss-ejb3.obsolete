@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.externalrefscoped;
 
+
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
@@ -35,7 +36,8 @@ import javax.ejb.Stateless;
 @Remote(Second.class)
 public class SecondBean implements Second
 {
-   public void execute()
+   public String execute()
    {
+      return "Second.execute()";
    }
 }
