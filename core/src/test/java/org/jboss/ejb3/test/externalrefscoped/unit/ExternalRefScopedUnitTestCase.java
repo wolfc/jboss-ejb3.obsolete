@@ -46,7 +46,7 @@ public class ExternalRefScopedUnitTestCase extends JBossTestCase
    {
       InitialContext ic = new InitialContext();
       First first = (First) ic.lookup("externalrefscoped/First");
-      first.invokeSecond();
+      assertEquals("Second.execute()", first.invokeSecond());
    }
    
    /**

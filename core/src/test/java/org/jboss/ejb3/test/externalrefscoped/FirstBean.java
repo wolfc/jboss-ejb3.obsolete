@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.externalrefscoped;
 
+
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -39,8 +40,8 @@ public class FirstBean implements First
    @EJB(mappedName="externalrefscoped/Second")
    private Second second;
    
-   public void invokeSecond()
+   public String invokeSecond()
    {
-      second.execute();
+      return second.execute();
    }
 }
