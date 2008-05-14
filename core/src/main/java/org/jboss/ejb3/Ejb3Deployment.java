@@ -21,31 +21,17 @@
  */
 package org.jboss.ejb3;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import javassist.bytecode.ClassFile;
-import org.hibernate.ejb.packaging.PersistenceMetadata;
-import org.jboss.deployers.spi.DeploymentException;
-import org.jboss.ejb3.cache.CacheFactoryRegistry;
-import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
-import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
-import org.jboss.ejb3.enc.MessageDestinationResolver;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
-import org.jboss.ejb3.entity.SecondLevelCacheUtil;
-import org.jboss.ejb3.javaee.JavaEEApplication;
-import org.jboss.ejb3.javaee.JavaEEComponent;
-import org.jboss.ejb3.javaee.JavaEEComponentHelper;
-import org.jboss.ejb3.javaee.JavaEEModule;
-import org.jboss.ejb3.lang.ClassHelper;
-import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
-import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
-import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
-import org.jboss.ejb3.pool.PoolFactoryRegistry;
-import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
-import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.*;
-import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
-import org.jboss.system.ServiceMBeanSupport;
-import org.jboss.virtual.VirtualFile;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -54,10 +40,36 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.persistence.Entity;
 import javax.security.jacc.PolicyConfiguration;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.InputStream;
-import java.util.*;
+
+import org.hibernate.ejb.packaging.PersistenceMetadata;
+import org.jboss.deployers.spi.DeploymentException;
+import org.jboss.ejb3.cache.CacheFactoryRegistry;
+import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
+import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
+import org.jboss.ejb3.enc.MessageDestinationResolver;
+import org.jboss.ejb3.entity.PersistenceUnitDeployment;
+import org.jboss.ejb3.entity.SecondLevelCacheUtil;
+import org.jboss.ejb3.javaee.JavaEEApplication;
+import org.jboss.ejb3.javaee.JavaEEComponent;
+import org.jboss.ejb3.javaee.JavaEEComponentHelper;
+import org.jboss.ejb3.javaee.JavaEEModule;
+import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
+import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
+import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
+import org.jboss.ejb3.pool.PoolFactoryRegistry;
+import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
+import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanGenericWrapper;
+import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
+import org.jboss.system.ServiceMBeanSupport;
+import org.jboss.virtual.VirtualFile;
 
 /**
  * An EjbModule represents a collection of beans that are deployed as a unit.
