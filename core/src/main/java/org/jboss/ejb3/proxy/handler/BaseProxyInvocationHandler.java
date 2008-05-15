@@ -21,16 +21,17 @@
  */
 package org.jboss.ejb3.proxy.handler;
 
-
 /**
- * BaseProxy
+ * BaseProxyInvocationHandler
  * 
  * Abstract base upon which all Proxy InvocationHandlers
  * may extend
  * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
+ * @deprecated Has moved to EJB3 Proxy Component as ProxyInvocationHandlerBase
  */
+@Deprecated
 public abstract class BaseProxyInvocationHandler implements ProxyInvocationHandler
 {
    // ------------------------------------------------------------------------------||

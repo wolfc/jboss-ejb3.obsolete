@@ -30,7 +30,9 @@ package org.jboss.ejb3.proxy.handler;
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision$
+ * @deprecated Has moved to EJB3 Proxy Component
  */
+@Deprecated
 public interface ProxyInvocationHandler
 {
    /**
@@ -39,6 +41,6 @@ public interface ProxyInvocationHandler
    String toString();
 
    Object getAsynchronousProxy(Object proxy);
-   
+
    String getBusinessInterfaceType();
 }
