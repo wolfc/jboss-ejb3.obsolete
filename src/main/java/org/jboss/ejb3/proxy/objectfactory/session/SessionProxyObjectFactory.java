@@ -237,6 +237,9 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
          throw new RuntimeException(errorMessage);
       }
 
+      // Set 
+      hasBusiness = hasLocalBusiness || hasRemoteBusiness;
+
       // Return
       return hasBusiness;
 
