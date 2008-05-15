@@ -38,14 +38,14 @@ import org.jboss.logging.Logger;
 /**
  * SessionProxyObjectFactory
  * 
- * A JNDI Object Factory responsible for parsing metadata
+ * A Base JNDI Object Factory responsible for parsing metadata
  * obtained from Reference Address information, and
  * returning the appropriate Session Proxy
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class SessionProxyObjectFactory extends McProxyObjectFactory
+public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
 {
 
    // --------------------------------------------------------------------------------||
@@ -59,24 +59,11 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
    // --------------------------------------------------------------------------------||
    // Required Implementations  ------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
-   /*
-    * TODO
-    * 
-    * This implementation simply creates a new proxy upon each lookup.  We should
-    * improve performance by providing an additional implementation for SLSB
-    * which employs a caching mechanism to cache:
-    * 
-    * Home
-    * Business
-    * One per interface-specific business
-    */
 
    @Override
    protected Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses)
    {
       // Initialize
-
       Object proxy = null;
 
       // Determine if a home is defined here
@@ -92,7 +79,15 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
       // Obtain Proxy Factory
       SessionProxyFactory factory = null;
       Object pFactory = null;
-      String proxyFactoryRegistryKey = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY;
+      List<String> proxyFactoryRegistryKeys = referenceAddresses
+            .get(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
+      assert proxyFactoryRegistryKeys != null : "Required " + RefAddr.class.getSimpleName() + " of type "
+            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
+            + " is required present in JNDI at " + name.toString() + " but was not found";
+      assert proxyFactoryRegistryKeys.size() == 1 : "Exactly one " + RefAddr.class.getSimpleName() + " of type "
+            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
+            + " should be defined but instead found " + proxyFactoryRegistryKeys;
+      String proxyFactoryRegistryKey = proxyFactoryRegistryKeys.get(0);
       assert proxyFactoryRegistryKey != null && !proxyFactoryRegistryKey.equals("") : "Required "
             + RefAddr.class.getSimpleName() + " of type "
             + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
@@ -100,8 +95,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
       try
       {
          // Get the Factory
-         pFactory = registry
-               .getProxyFactory(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
+         pFactory = registry.getProxyFactory(proxyFactoryRegistryKey);
          // Cast into a SessionProxyFactory
          factory = SessionProxyFactory.class.cast(pFactory);
          log.debug("Using: " + factory + " as specified from JNDI reference " + name.toString());
@@ -177,7 +171,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
    }
 
    // --------------------------------------------------------------------------------||
-   // Internal Helper Methods  -------------------------------------------------------||
+   // Helper Methods -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
@@ -189,7 +183,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
     * @param referenceAddresses
     * @return
     */
-   private boolean hasHome(Name name, Map<String, List<String>> referenceAddresses)
+   protected boolean hasHome(Name name, Map<String, List<String>> referenceAddresses)
    {
       // Initialize
       boolean hasHome = false;
@@ -225,7 +219,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
     * @param referenceAddresses
     * @return
     */
-   private boolean hasBusiness(Name name, Map<String, List<String>> referenceAddresses)
+   protected boolean hasBusiness(Name name, Map<String, List<String>> referenceAddresses)
    {
       // Initialize
       boolean hasBusiness = false;
@@ -254,7 +248,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
     * @param referenceAddresses
     * @return
     */
-   private boolean hasLocalBusiness(Map<String, List<String>> referenceAddresses)
+   protected boolean hasLocalBusiness(Map<String, List<String>> referenceAddresses)
    {
       return referenceAddresses
             .containsKey(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL);
@@ -266,7 +260,7 @@ public class SessionProxyObjectFactory extends McProxyObjectFactory
     * @param referenceAddresses
     * @return
     */
-   private boolean hasRemoteBusiness(Map<String, List<String>> referenceAddresses)
+   protected boolean hasRemoteBusiness(Map<String, List<String>> referenceAddresses)
    {
       return referenceAddresses
             .containsKey(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE);

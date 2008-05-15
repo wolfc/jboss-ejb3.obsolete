@@ -37,25 +37,25 @@ public class MockLifecycleSessionProxyFactory implements SessionProxyFactory
    // --------------------------------------------------------------------------------||
    // Class Members  -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    /**
     * The valid states for this Proxy Factory, to be set
     * properly by the lifecycle methods
     */
-   public enum State{
+   public enum State {
       CREATED, STARTED, STOPPED
    }
-   
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    private State state;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    public MockLifecycleSessionProxyFactory()
    {
       this.setState(State.CREATED);
@@ -80,11 +80,11 @@ public class MockLifecycleSessionProxyFactory implements SessionProxyFactory
    {
       this.setState(State.STOPPED);
    }
-   
+
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    public State getState()
    {
       return state;
@@ -130,6 +130,12 @@ public class MockLifecycleSessionProxyFactory implements SessionProxyFactory
     * @see org.jboss.ejb3.proxy.factory.session.SessionProxyFactory#createProxyHome()
     */
    public Object createProxyHome()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   public Object createProxyEjb2x()
    {
       // TODO Auto-generated method stub
       return null;

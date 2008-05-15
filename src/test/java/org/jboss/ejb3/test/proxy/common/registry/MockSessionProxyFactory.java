@@ -89,4 +89,10 @@ public class MockSessionProxyFactory implements SessionProxyFactory
 
    }
 
+   public Object createProxyEjb2x()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
 }

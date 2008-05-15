@@ -19,71 +19,92 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.objectfactory;
+package org.jboss.ejb3.proxy.factory;
 
-import java.io.Serializable;
-
-import javax.naming.spi.ObjectFactory;
-
-import org.jboss.ejb3.proxy.plugin.inmemory.registry.InMemoryProxyFactoryRegistry;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
 /**
- * McProxyObjectFactory
- *
- * A Proxy Object Factory using an underlying 
- * Proxy Factory Registry intended to be obtained
- * as a managed object from the MicroContainer
+ * ProxyFactoryBase
+ * 
+ * A Base upon which Proxy Factory Implementations may build
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class McProxyObjectFactory extends ProxyObjectFactory implements ObjectFactory, Serializable
+public abstract class ProxyFactoryBase implements ProxyFactory
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = 7854430641125529016L;
-
-   private static final Logger log = Logger.getLogger(McProxyObjectFactory.class);
+   private static final Logger log = Logger.getLogger(ProxyFactoryBase.class);
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   //TODO
-   // Inject from MC, must be configurable
-   private ProxyFactoryRegistry proxyFactoryRegistry;
+   private ClassLoader classloader;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public McProxyObjectFactory()
+   /**
+    * Constructor
+    * 
+    * @param classloader The ClassLoader associated with the EJBContainer
+    *       for which this ProxyFactory is to generate Proxies
+    */
+   public ProxyFactoryBase(final ClassLoader classloader)
    {
-      //TODO This should not be hardcoded, rather injected, see:
-      // http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515
-      this.setProxyFactoryRegistry(new InMemoryProxyFactoryRegistry());
-      // Log warning along with a stacktrace
-      log.warn(new RuntimeException(ProxyFactoryRegistry.class.getName() + " should be injected, not hardcoded, "
-            + "see http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515"));
+      this.setClassLoader(classloader);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * before the ProxyFactory is able to service requests
+    * 
+    *  @throws Exception
+    */
+   public void start() throws Exception
+   {
+      // Log
+      log.debug("Started: " + this);
+
+      //TODO
+   }
+
+   /**
+    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * before the ProxyFactory is taken out of service, 
+    * possibly GC'd
+    * 
+    * @throws Exception
+    */
+   public void stop() throws Exception
+   {
+      // Log
+      log.debug("Stopped: " + this);
+
+      //TODO
    }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   @Override
-   protected ProxyFactoryRegistry getProxyFactoryRegistry()
+   public ClassLoader getClassLoader()
    {
-      return this.proxyFactoryRegistry;
+      return classloader;
    }
 
-   public void setProxyFactoryRegistry(ProxyFactoryRegistry proxyFactoryRegistry)
+   protected void setClassLoader(final ClassLoader classloader)
    {
-      this.proxyFactoryRegistry = proxyFactoryRegistry;
+      this.classloader = classloader;
    }
 
 }

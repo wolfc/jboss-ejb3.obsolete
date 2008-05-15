@@ -43,7 +43,6 @@ import org.jboss.metadata.annotation.finder.AnnotationFinder;
 import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
 import org.junit.AfterClass;
