@@ -52,7 +52,7 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
    // Class Members  -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = 7446415796335133868L;
+   private static final long serialVersionUID = 1L;
 
    private static final Logger log = Logger.getLogger(SessionProxyObjectFactory.class);
 

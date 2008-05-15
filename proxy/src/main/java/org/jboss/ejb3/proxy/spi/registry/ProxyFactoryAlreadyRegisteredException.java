@@ -36,7 +36,7 @@ public class ProxyFactoryAlreadyRegisteredException extends Exception
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = -1536631857330661692L;
+   private static final long serialVersionUID = 1L;
 
    // --------------------------------------------------------------------------------||
    // Constructors----- --------------------------------------------------------------||

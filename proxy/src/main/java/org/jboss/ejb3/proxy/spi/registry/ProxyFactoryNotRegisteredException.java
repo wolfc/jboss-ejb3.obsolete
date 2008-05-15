@@ -36,7 +36,7 @@ public class ProxyFactoryNotRegisteredException extends Exception
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = -3768826545180525184L;
+   private static final long serialVersionUID = 1L;
 
    // --------------------------------------------------------------------------------||
    // Constructors----- --------------------------------------------------------------||
