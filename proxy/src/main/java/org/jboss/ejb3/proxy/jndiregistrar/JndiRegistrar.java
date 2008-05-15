@@ -35,6 +35,9 @@ import javax.naming.spi.ObjectFactory;
 import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -59,6 +62,23 @@ public class JndiRegistrar
 
    private static final Logger log = Logger.getLogger(JndiRegistrar.class);
 
+   /**
+    * The value appended to the key used to bind proxy factories to the registry
+    */
+   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY = "/ProxyFactory";
+
+   /**
+    * The value appended to the key used to bind local proxy factories to the registry
+    */
+   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY_LOCAL = JndiRegistrar.KEY_SUFFIX_PROXY_FACTORY_REGISTRY
+         + "/local";
+
+   /**
+    * The value appended to the key used to bind local remote factories to the registry
+    */
+   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY_REMOTE = JndiRegistrar.KEY_SUFFIX_PROXY_FACTORY_REGISTRY
+         + "/remote";
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -74,19 +94,7 @@ public class JndiRegistrar
    private ProxyFactoryRegistry registry;
 
    /**
-    * Class of the SLSB Local Proxy Factory
-    */
-   private Class<?> statelessSessionLocalProxyFactoryClass;
-
-   /**
-    * Class of the SLSB Remote Proxy Factory
-    */
-   private Class<?> statelessSessionRemoteProxyFactoryClass;
-
-   //TODO MDB, @Service, SFSB Local/Remote
-
-   /**
-    * Full-qualified class name of the JNDI Object Factory to Reference for SLSBs
+    * Fully-qualified class name of the JNDI Object Factory to Reference for SLSBs
     */
    private String statelessSessionProxyObjectFactoryType;
 
@@ -102,58 +110,31 @@ public class JndiRegistrar
     * 
     * @param context The JNDI Context into which Objects will be bound
     * @param registry The ProxyFactoryRegistry with which ProxyFactories will be registered
-    * @param statelessSessionLocalProxyFactoryType String representation of the SLSB Local Proxy Factory Class
-    * @param statelessSessionRemoteProxyFactoryType String representation of the SLSB Remote Proxy Factory Class
     * @param statelessSessionProxyObjectFactoryType String representation of the JNDI Object Factory to use for SLSBs
     */
    public JndiRegistrar(final Context context, final ProxyFactoryRegistry registry,
-         final String statelessSessionLocalProxyFactoryType, final String statelessSessionRemoteProxyFactoryType,
-         final String statelessSessionProxyObjectFactoryType)
+         String statelessSessionProxyObjectFactoryType)
    {
       // Set the Context
       assert context != null : this + " may not be configured with null  " + Context.class.getName();
       this.setContext(context);
-      log.debug(this + " has configured " + context);
+      log.debug("Using  " + Context.class.getName() + ": " + context);
 
       // Set the ProxyFactoryRegistry
       assert registry != null : this + " may not be configured with null  " + ProxyFactoryRegistry.class.getName();
       this.setRegistry(registry);
-      log.debug(this + " using " + registry);
+      log.debug("Using " + ProxyFactoryRegistry.class.getSimpleName() + ": " + registry);
 
       /*
        * Perform some assertions and logging
        */
 
-      // SLSB Local
-      assert statelessSessionLocalProxyFactoryType != null && !statelessSessionLocalProxyFactoryType.equals("") : "Stateless Session Local Proxy Factory Type must be specified.";
-      log.debug(this + " has configured as SLSB Local Proxy Factory: " + statelessSessionLocalProxyFactoryType);
-
-      // SLSB Remote
-      assert statelessSessionRemoteProxyFactoryType != null && !statelessSessionRemoteProxyFactoryType.equals("") : "Stateless Session Remote Proxy Factory Type must be specified.";
-      log.debug(this + " has configured as SLSB Remote Proxy Factory: " + statelessSessionRemoteProxyFactoryType);
-
-      //TODO MBD, @Service, SFSB Local/Remote
-
-      try
-      {
-         // Set Proxy Factory Classes
-         this.setStatelessSessionLocalProxyFactoryClass(this.getClass().getClassLoader().loadClass(
-               statelessSessionLocalProxyFactoryType));
-         this.setStatelessSessionRemoteProxyFactoryClass(this.getClass().getClassLoader().loadClass(
-               statelessSessionRemoteProxyFactoryType));
-
-         //TODO MDB, @Service
-      }
-      catch (ClassNotFoundException cce)
-      {
-         throw new RuntimeException("A configured " + ProxyFactory.class.getSimpleName() + " could not be loaded by "
-               + this, cce);
-      }
-
       // Set the SLSB Proxy Object Factory Type
       assert statelessSessionProxyObjectFactoryType != null && !statelessSessionProxyObjectFactoryType.equals("") : "SLSB Proxy "
             + ObjectFactory.class.getSimpleName() + " must be specified.";
       this.setStatelessSessionProxyObjectFactoryType(statelessSessionProxyObjectFactoryType);
+      log.debug(this + " has configured SLSB JNDI " + ObjectFactory.class.getSimpleName() + ": "
+            + this.getStatelessSessionProxyObjectFactoryType());
    }
 
    // --------------------------------------------------------------------------------||
@@ -167,9 +148,9 @@ public class JndiRegistrar
     * implementations required by the EJB
     * 
     * @param md
-    * @param containerCl The CL of the Container
+    * @param cl The CL of the Container
     */
-   public void bindEjb(JBossEnterpriseBeanMetaData md, ClassLoader containerCl)
+   public void bindEjb(JBossEnterpriseBeanMetaData md, ClassLoader cl)
    {
       // If we've got a SessionBean
       if (md.isSession())
@@ -190,7 +171,7 @@ public class JndiRegistrar
 
          // Delegate out to session-specific handling
          log.debug("Found Session Bean: " + smd.getEjbName());
-         this.bindSessionEjb(smd);
+         this.bindSessionEjb(smd, cl);
       }
 
       // If this is a MDB
@@ -220,8 +201,10 @@ public class JndiRegistrar
     * described by the specified metadata
     * 
     * @param smd
+    * @param cl The classloader associated with the Container 
+    *   described by the specified metadata 
     */
-   protected void bindSessionEjb(JBossSessionBeanMetaData smd)
+   protected void bindSessionEjb(JBossSessionBeanMetaData smd, ClassLoader cl)
    {
       // If Stateful
       if (smd.isStateful())
@@ -244,19 +227,34 @@ public class JndiRegistrar
          String remoteHome = StringUtils.adjustWhitespaceStringToNull(smd.getHome());
 
          // Determine if there are local/remote views
-         boolean hasLocalView = localHome != null & businessLocals.size() < 1;
-         boolean hasRemoteView = remoteHome != null & businessRemotes.size() < 1;
-         
+         boolean hasLocalView = (localHome != null || businessLocals.size() < 1);
+         boolean hasRemoteView = (remoteHome != null || businessRemotes.size() < 1);
+
          // If no local or remote views
-         if(!hasLocalView && !hasRemoteView)
+         if (!hasLocalView && !hasRemoteView)
          {
             throw new RuntimeException("EJB " + smd.getEjbName() + " has no local or remote views defined.");
          }
 
-         // Create and register Proxy Factories
-         //if()
-         
-         //TODO Left off here
+         /*
+          * Create and register Proxy Factories
+          */
+
+         // If there's a local view
+         if (hasLocalView)
+         {
+            // Create and register a local proxy factory
+            ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl);
+            this.registerProxyFactory(factory, smd, true);
+         }
+
+         // If there's a remote view
+         if (hasRemoteView)
+         {
+            // Create and register a local proxy factory
+            ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl);
+            this.registerProxyFactory(factory, smd, false);
+         }
 
          // Bind OF to remote default (and possibly home)
 
@@ -284,6 +282,37 @@ public class JndiRegistrar
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+
+   /**
+    * Returns the name of the unique key under which a Proxy Factory will 
+    * be registered.  Will follow form:
+    * 
+    * ejbName/ProxyFactory/(local|remote)
+    * 
+    * ...depending upon the specified "isLocal" flag
+    * 
+    * @param md
+    * @param isLocal
+    */
+   protected String getProxyFactoryRegistryKey(JBossEnterpriseBeanMetaData md, boolean isLocal)
+   {
+      // Initialize
+      String suffix = null;
+
+      // Set Suffix
+      if (isLocal)
+      {
+         suffix = JndiRegistrar.KEY_SUFFIX_PROXY_FACTORY_REGISTRY_LOCAL;
+      }
+      else
+      {
+         suffix = JndiRegistrar.KEY_SUFFIX_PROXY_FACTORY_REGISTRY_REMOTE;
+      }
+
+      // Assemble and return
+      String key = md.getEjbName() + suffix;
+      return key;
+   }
 
    /**
     * Obtains the return types declared by the "create" methods for the specified home interface.
@@ -358,6 +387,44 @@ public class JndiRegistrar
       return types;
    }
 
+   /**
+    * Registers the specified proxy factory into the registry 
+    * 
+    * @param factory
+    * @param smd Metadata describing the EJB
+    * @param isLocal
+    */
+   protected void registerProxyFactory(ProxyFactory factory, JBossEnterpriseBeanMetaData smd, boolean isLocal)
+   {
+      // Get a unique key
+      String key = this.getProxyFactoryRegistryKey(smd, isLocal);
+      assert !this.getRegistry().isRegistered(key) : "Attempting to register " + factory + " with "
+            + this.getRegistry() + " an already registered key, \"" + key + "\"";
+
+      /*
+       * Note on registry key collisions:
+       * 
+       * Indicates that either the keys created are not unique or that we're attempting to redeploy 
+       * an EJB that was not properly deregistered.  Either way, this is a programmatic problem
+       * and not the fault of the application developer/deployer
+       */
+
+      // Log
+      log.debug("Registering " + factory + " into " + ProxyFactoryRegistry.class.getSimpleName() + " under key \""
+            + key + "\"...");
+
+      // Register
+      try
+      {
+         this.getRegistry().registerProxyFactory(key, factory);
+      }
+      catch (ProxyFactoryAlreadyRegisteredException e)
+      {
+         throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + key
+               + "\", with " + this.getRegistry(), e);
+      }
+   }
+
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -370,26 +437,6 @@ public class JndiRegistrar
    public void setRegistry(ProxyFactoryRegistry registry)
    {
       this.registry = registry;
-   }
-
-   public Class<?> getStatelessSessionLocalProxyFactoryClass()
-   {
-      return statelessSessionLocalProxyFactoryClass;
-   }
-
-   public void setStatelessSessionLocalProxyFactoryClass(Class<?> statelessSessionLocalProxyFactoryClass)
-   {
-      this.statelessSessionLocalProxyFactoryClass = statelessSessionLocalProxyFactoryClass;
-   }
-
-   public Class<?> getStatelessSessionRemoteProxyFactoryClass()
-   {
-      return statelessSessionRemoteProxyFactoryClass;
-   }
-
-   public void setStatelessSessionRemoteProxyFactoryClass(Class<?> statelessSessionRemoteProxyFactoryClass)
-   {
-      this.statelessSessionRemoteProxyFactoryClass = statelessSessionRemoteProxyFactoryClass;
    }
 
    public Context getContext()

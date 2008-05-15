@@ -19,72 +19,74 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.objectfactory;
+package org.jboss.ejb3.proxy.factory.session.stateless;
 
-import java.io.Serializable;
-
-import javax.naming.spi.ObjectFactory;
-
-import org.jboss.ejb3.proxy.plugin.inmemory.registry.InMemoryProxyFactoryRegistry;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
- * McProxyObjectFactory
- *
- * A Proxy Object Factory using an underlying 
- * Proxy Factory Registry intended to be obtained
- * as a managed object from the MicroContainer
+ * StatelessSessionRemoteProxyFactory
+ * 
+ * A SLSB Proxy Factory for Remote Views
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class McProxyObjectFactory extends ProxyObjectFactory implements ObjectFactory, Serializable
+public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFactoryBase implements SessionProxyFactory
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = 7854430641125529016L;
-
-   private static final Logger log = Logger.getLogger(McProxyObjectFactory.class);
-
-   // --------------------------------------------------------------------------------||
-   // Instance Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   //TODO
-   // Inject from MC, must be configurable
-   private ProxyFactoryRegistry proxyFactoryRegistry;
+   private static final Logger logger = Logger.getLogger(StatelessSessionRemoteProxyFactory.class);
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public McProxyObjectFactory()
+   /**
+    * Constructor
+    * 
+    * @param metadata The metadata representing this SLSB
+    * @param classloader The ClassLoader associated with the StatelessContainer
+    *       for which this ProxyFactory is to generate Proxies
+    */
+   public StatelessSessionRemoteProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
-      //TODO This must not be hardcoded, rather injected, see:
-      // http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515
-      this.setProxyFactoryRegistry(new InMemoryProxyFactoryRegistry());
-      // Log warning along with a stacktrace
-      log.warn(new RuntimeException(ProxyFactoryRegistry.class.getName()
-            + " must be injected or looked up, not hardcoded as new instance, "
-            + "see http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515"));
+      // Call Super
+      super(metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
-   // Accessors / Mutators -----------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   /**
+    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * before the ProxyFactory is able to service requests
+    * 
+    *  @throws Exception
+    */
    @Override
-   protected ProxyFactoryRegistry getProxyFactoryRegistry()
+   public void start() throws Exception
    {
-      return this.proxyFactoryRegistry;
+      super.start();
+      //TODO
    }
 
-   public void setProxyFactoryRegistry(ProxyFactoryRegistry proxyFactoryRegistry)
+   /**
+    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * before the ProxyFactory is taken out of service, 
+    * possibly GC'd
+    * 
+    * @throws Exception
+    */
+   @Override
+   public void stop() throws Exception
    {
-      this.proxyFactoryRegistry = proxyFactoryRegistry;
+      super.stop();
+      //TODO
    }
 
 }
