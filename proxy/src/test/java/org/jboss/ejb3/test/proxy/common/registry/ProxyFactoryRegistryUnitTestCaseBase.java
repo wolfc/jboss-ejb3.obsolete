@@ -26,6 +26,7 @@ import java.util.UUID;
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
@@ -52,8 +53,6 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
    // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(ProxyFactoryRegistryUnitTestCaseBase.class);
-
-   public static final String MC_BEAN_NAME_PROXY_FACTORY_REGISTRY = "org.jboss.ejb3.ProxyFactoryRegistry";
 
    private static final String REGISTRY_KEY_PREFIX = "TestRegistrationKey-";
 
@@ -365,10 +364,10 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
             MockLifecycleSessionProxyFactory.class.cast(lookup).getState());
       TestCase.assertEquals("Lifecycle of " + factory + " should be " + MockLifecycleSessionProxyFactory.State.STARTED
             + " before registered", MockLifecycleSessionProxyFactory.State.STARTED, factory.getState());
-      
+
       // Deregister
       registry.deregisterProxyFactory(key);
-      
+
       // Ensure the reference looked up and the reference placed in have state of STOPPED
       TestCase.assertEquals("Lifecycle of " + lookup + " should be " + MockLifecycleSessionProxyFactory.State.STOPPED
             + " before registered", MockLifecycleSessionProxyFactory.State.STOPPED,
@@ -387,7 +386,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
    private ProxyFactoryRegistry getProxyFactoryRegistry() throws Throwable
    {
       ProxyFactoryRegistry registry = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().lookup(
-            ProxyFactoryRegistryUnitTestCaseBase.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
+            MicrocontainerBindings.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
       return registry;
    }
 

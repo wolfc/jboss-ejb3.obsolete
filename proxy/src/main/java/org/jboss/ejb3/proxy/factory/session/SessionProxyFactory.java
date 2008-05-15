@@ -71,4 +71,11 @@ public interface SessionProxyFactory extends ProxyFactory
     * @return
     */
    Object createProxyBusiness(String businessInterfaceName);
+
+   /**
+    * Create an EJB2.x Proxy 
+    * 
+    * @return
+    */
+   Object createProxyEjb2x();
 }
