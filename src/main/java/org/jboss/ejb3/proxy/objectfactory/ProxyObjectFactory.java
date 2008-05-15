@@ -122,7 +122,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
       // Return the proxy returned from the ProxyFactory
       Object proxy = this.getProxy(proxyFactory, name, refAddrs);
-      assert proxy != null : "Proxy factory returned from " + proxyFactory + " was null.";
+      assert proxy != null : "Proxy returned from " + proxyFactory + " was null.";
       return proxy;
    }
 
