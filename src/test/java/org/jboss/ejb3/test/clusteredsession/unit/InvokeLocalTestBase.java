@@ -95,6 +95,7 @@ public abstract class InvokeLocalTestBase extends JBossClusteredTestCase
       VMID remoteID = remote.getVMID();
       assertNotNull("Got the remote VMID", remoteID);
       
+      // Pass the proxy back to the server and invoke getVMID() on it
       VMID passThroughID = tester.getVMIDFromRemote(remote);
       assertNotNull("Got the remote VMID", passThroughID);
       
@@ -103,6 +104,7 @@ public abstract class InvokeLocalTestBase extends JBossClusteredTestCase
       else
          assertFalse("Call went remote", local.equals(passThroughID));
       
+      // Tell the server to look up a proxy from node1 and invoke getVMID() on it
       passThroughID = tester.getVMIDFromRemoteLookup(jndiURLs[1], jndiName);
       assertNotNull("Got the remote VMID", passThroughID);
       
