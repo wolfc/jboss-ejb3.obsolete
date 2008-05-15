@@ -119,7 +119,9 @@ public class ProxySessionTestCase
       log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getLocalHome()));
       log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getHome()));
 
-      StatelessContainer container = new StatelessContainer(beanMetaData);
+      // Make a Container
+      //TODO Kernel shouldn't be constructor argument
+      StatelessContainer container = new StatelessContainer(beanMetaData, bootstrap.getKernel());
       
       bootstrap.installInstance("jboss.j2ee:service=EJB3,name=" + beanMetaData.getEjbName(), container);
    }
