@@ -176,6 +176,11 @@ public class StatelessContainer extends SessionSpecContainer
       return null;
    }
    
+   public boolean isClustered()
+   {
+      return isAnnotationPresent(Clustered.class);
+   }
+   
    public Object getMBean()
    {
       return mbean;
