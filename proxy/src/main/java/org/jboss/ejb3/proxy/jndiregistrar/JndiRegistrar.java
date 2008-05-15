@@ -21,22 +21,22 @@
  */
 package org.jboss.ejb3.proxy.jndiregistrar;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
 import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.RefAddr;
+import javax.naming.Reference;
+import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.objectfactory.hack.Hack;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
@@ -44,6 +44,8 @@ import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
+import org.jboss.naming.Util;
+import org.jboss.util.NotImplementedException;
 
 /**
  * JndiRegistrar
@@ -78,6 +80,8 @@ public class JndiRegistrar
     */
    private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY_REMOTE = JndiRegistrar.KEY_SUFFIX_PROXY_FACTORY_REGISTRY
          + "/remote";
+
+   private static final String OBJECT_FACTORY_CLASSNAME_PREFIX = "Proxy for: ";
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -125,6 +129,11 @@ public class JndiRegistrar
       this.setRegistry(registry);
       log.debug("Using " + ProxyFactoryRegistry.class.getSimpleName() + ": " + registry);
 
+      //TODO Remove
+      Hack.PROXY_FACTORY_REGISTRY = this.getRegistry();
+      log.warn("Remove the " + Hack.class.getName() + " to make the " + ProxyFactoryRegistry.class.getSimpleName()
+            + " available to unmanaged beans.");
+
       /*
        * Perform some assertions and logging
        */
@@ -133,7 +142,7 @@ public class JndiRegistrar
       assert statelessSessionProxyObjectFactoryType != null && !statelessSessionProxyObjectFactoryType.equals("") : "SLSB Proxy "
             + ObjectFactory.class.getSimpleName() + " must be specified.";
       this.setStatelessSessionProxyObjectFactoryType(statelessSessionProxyObjectFactoryType);
-      log.debug(this + " has configured SLSB JNDI " + ObjectFactory.class.getSimpleName() + ": "
+      log.debug("Using SLSB JNDI " + ObjectFactory.class.getSimpleName() + ": "
             + this.getStatelessSessionProxyObjectFactoryType());
    }
 
@@ -210,10 +219,18 @@ public class JndiRegistrar
       if (smd.isStateful())
       {
          //TODO Implement SFSB
+         throw new NotImplementedException("ALR");
       }
       // If Stateless
       else if (smd.isStateless())
       {
+         //TODO
+         /*
+          * Externalize most of this logic in another
+          * method such that it may be reused for SFSB; this 
+          * is gross :)
+          */
+
          // Get Business Locals
          BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
 
@@ -237,36 +254,190 @@ public class JndiRegistrar
          }
 
          /*
-          * Create and register Proxy Factories
+          * Create and Register Proxy Factories
           */
 
          // If there's a local view
+         String localProxyFactoryKey = null;
          if (hasLocalView)
          {
             // Create and register a local proxy factory
             ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl);
-            this.registerProxyFactory(factory, smd, true);
+            localProxyFactoryKey = this.registerProxyFactory(factory, smd, true);
          }
 
          // If there's a remote view
+         String remoteProxyFactoryKey = null;
          if (hasRemoteView)
          {
             // Create and register a local proxy factory
             ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl);
-            this.registerProxyFactory(factory, smd, false);
+            remoteProxyFactoryKey = this.registerProxyFactory(factory, smd, false);
          }
 
-         // Bind OF to remote default (and possibly home)
+         /*
+          * Bind Remote ObjectFactories to JNDI
+          */
 
-         // Bind OF to home (if not bound together)
+         if (hasRemoteView)
+         {
 
-         // Bind OF to each remote business
+            // Initialize Reference Addresses to attach to default remote JNDI Reference
+            List<RefAddr> refAddrsForDefaultRemote = new ArrayList<RefAddr>();
 
-         // Bind OF to local default (and possibly localHome)
+            // For each of the remote business interfaces, make a Reference Address
+            for (String businessRemote : businessRemotes)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
+               refAddrsForDefaultRemote.add(refAddr);
+            }
 
-         // Bind OF to localHome (if not bound together)
+            // Determine if remote home and business remotes are bound to same JNDI Address
+            boolean bindRemoteAndHomeTogether = this.isHomeAndBusinessBoundTogether(smd, false);
+            if (bindRemoteAndHomeTogether)
+            {
+               // Add a Reference Address for the Remote Home
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, smd.getHome());
+               refAddrsForDefaultRemote.add(refAddr);
+            }
+            // Bind Home (not bound together) if exists
+            else if (smd.getHome() != null && !smd.getHome().equals(""))
+            {
+               String homeType = smd.getHome();
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, homeType);
+               Reference homeRef = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX + homeType, this
+                     .getStatelessSessionProxyObjectFactoryType(), null);
+               homeRef.add(refAddr);
+               String homeAddress = smd.determineResolvedJndiName(homeType);
+               log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + homeAddress
+                     + "\"");
+               this.bind(homeRef, homeAddress, remoteProxyFactoryKey);
+            }
 
-         // Bind OF to each local business
+            /*
+             * Bind ObjectFactory for default remote businesses (and home if bound together)
+             */
+
+            // Get Classname to set for Reference
+            String defaultRemoteClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultRemote);
+
+            // Create a Reference
+            Reference defaultRemoteRef = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX
+                  + defaultRemoteClassName, this.getStatelessSessionProxyObjectFactoryType(), null);
+
+            // Add all Reference Addresses for Default Remote Reference
+            for (RefAddr refAddr : refAddrsForDefaultRemote)
+            {
+               log.debug("Adding " + RefAddr.class.getSimpleName() + " to Default Remote "
+                     + Reference.class.getSimpleName() + ": Type \"" + refAddr.getType() + "\", Content \""
+                     + refAddr.getContent() + "\"");
+               defaultRemoteRef.add(refAddr);
+            }
+
+            // Bind the Default Remote Reference to JNDI
+            String defaultRemoteAddress = smd.determineJndiName();
+            log.debug("Default Remote View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+                  + defaultRemoteAddress + "\"");
+            this.bind(defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey);
+
+            // Bind ObjectFactory specific to each Remote Business Interface
+            for (String businessRemote : businessRemotes)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
+               Reference ref = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote, this
+                     .getStatelessSessionProxyObjectFactoryType(), null);
+               ref.add(refAddr);
+               String address = smd.determineResolvedJndiName(businessRemote);
+               log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
+                     + " to be bound into JNDI at \"" + address + "\"");
+               this.bind(ref, address, remoteProxyFactoryKey);
+
+            }
+         }
+
+         if (hasLocalView)
+         {
+            // Initialize Reference Addresses to attach to default local JNDI Reference
+            List<RefAddr> refAddrsForDefaultLocal = new ArrayList<RefAddr>();
+
+            // For each of the local business interfaces, make a Reference Address
+            for (String businessLocal : businessLocals)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
+               refAddrsForDefaultLocal.add(refAddr);
+            }
+
+            // Determine if local home and business locals are bound to same JNDI Address
+            boolean bindLocalAndLocalHomeTogether = this.isHomeAndBusinessBoundTogether(smd, true);
+            if (bindLocalAndLocalHomeTogether)
+            {
+               // Add a Reference Address for the Local Home
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_LOCAL, smd
+                           .getLocalHome());
+               refAddrsForDefaultLocal.add(refAddr);
+            }
+            // Bind Local Home (not bound together) if exists
+            else if (smd.getLocalHome() != null && !smd.getLocalHome().equals(""))
+            {
+               String localHomeType = smd.getLocalHome();
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_LOCAL, localHomeType);
+               Reference localHomeRef = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX + localHomeType,
+                     this.getStatelessSessionProxyObjectFactoryType(), null);
+               localHomeRef.add(refAddr);
+               String localHomeAddress = smd.determineResolvedJndiName(localHomeType);
+               log.debug("Local Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+                     + localHomeAddress + "\"");
+               this.bind(localHomeRef, localHomeAddress, localProxyFactoryKey);
+            }
+
+            /*
+             * Bind ObjectFactory for default local businesses (and LocalHome if bound together)
+             */
+
+            // Get Classname to set for Reference
+            String defaultLocalClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultLocal);
+
+            // Create a Reference
+            Reference defaultLocalRef = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX
+                  + defaultLocalClassName, this.getStatelessSessionProxyObjectFactoryType(), null);
+
+            // Add all Reference Addresses for Default Local Reference
+            for (RefAddr refAddr : refAddrsForDefaultLocal)
+            {
+               log.debug("Adding " + RefAddr.class.getSimpleName() + " to Default Local "
+                     + Reference.class.getSimpleName() + ": Type \"" + refAddr.getType() + "\", Content \""
+                     + refAddr.getContent() + "\"");
+               defaultLocalRef.add(refAddr);
+            }
+
+            // Bind the Default Local Reference to JNDI
+            String defaultLocalAddress = smd.determineLocalJndiName();
+            log.debug("Default Local View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+                  + defaultLocalAddress + "\"");
+            this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey);
+
+            // Bind ObjectFactory specific to each Local Business Interface
+            for (String businessLocal : businessLocals)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
+               Reference ref = new Reference(JndiRegistrar.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal, this
+                     .getStatelessSessionProxyObjectFactoryType(), null);
+               ref.add(refAddr);
+               String address = smd.determineResolvedJndiName(businessLocal);
+               log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
+                     + " to be bound into JNDI at \"" + address + "\"");
+               this.bind(ref, address, localProxyFactoryKey);
+
+            }
+         }
 
       }
       // Not SLSB or SFSB, error
@@ -282,6 +453,64 @@ public class JndiRegistrar
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+
+   /**
+    * Binds the specified Reference into JNDI at the specified address, adding 
+    * the requisite key for the ProxyFactory within the Registry 
+    * 
+    * @param ref
+    * @param address
+    * @param proxyFactoryRegistryKey The key under which the proxy factory 
+    *   for this reference is stored in the proxy factory registry
+    */
+   protected void bind(Reference ref, String address, String proxyFactoryRegistryKey)
+   {
+      // Add the Proxy Factory Registry key for this Reference
+      RefAddr refAddr = new StringRefAddr(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY,
+            proxyFactoryRegistryKey);
+      ref.add(refAddr);
+
+      // Bind
+      try
+      {
+         Util.rebind(this.getContext(), address, ref);
+         log.debug("Bound " + ref.getClass().getName() + " into JNDI at \"" + address + "\"");
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException("Could not bind " + ref + " into JNDI at \"" + address + "\"", e);
+      }
+   }
+
+   /**
+    * Returns whether the business interfaces and EJB2.x Home should be bound to 
+    * the same JNDI Name 
+    * 
+    * @param smd
+    * @param isLocal
+    * @return
+    */
+   protected boolean isHomeAndBusinessBoundTogether(JBossSessionBeanMetaData smd, boolean isLocal)
+   {
+      // Initialize
+      boolean bindTogether = false;
+
+      // If local
+      if (isLocal)
+      {
+         // Bind together if Local Default JNDI Name == Local Home JNDI Name
+         bindTogether = smd.determineLocalJndiName().equals(smd.getLocalHomeJndiName());
+      }
+      // If Remote
+      else
+      {
+         // Bind together if Local Default JNDI Name == Local Home JNDI Name
+         bindTogether = smd.determineJndiName().equals(smd.getHomeJndiName());
+      }
+
+      // Return
+      return bindTogether;
+   }
 
    /**
     * Returns the name of the unique key under which a Proxy Factory will 
@@ -315,76 +544,30 @@ public class JndiRegistrar
    }
 
    /**
-    * Obtains the return types declared by the "create" methods for the specified home interface.
-    *  
-    * @param homeInterface
-    * @param isStateless Flag to indicate whether this is for a Stateful or Stateless container
+    * Makes a comma-delimited list of interfaces bound for setting the 
+    * Classname of the Reference.  This will show up in JNDIView and make 
+    * it clear to application developers what will be castable from the lookup result
+    * 
+    * @param refAddrs
     * @return
     */
-   protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface, boolean isStateless)
+   protected String getHumanReadableListOfInterfacesInRefAddrs(List<RefAddr> refAddrs)
    {
-      // Ensure we've been passed a Home or LocalHome interface
-      assert (EJBHome.class.isAssignableFrom(homeInterface) || EJBLocalHome.class.isAssignableFrom(homeInterface));
-      if (!EJBHome.class.isAssignableFrom(homeInterface) && !EJBLocalHome.class.isAssignableFrom(homeInterface))
+      // Make a Comma-delimited list of interfaces bound for setting the Classname of the Reference
+      // This will show up in JNDIView and make it clear to application developers
+      // what will be castable from the lookup result
+      StringBuffer defaultRemotes = new StringBuffer();
+      int remotesCount = 0;
+      for (RefAddr refAddr : refAddrs)
       {
-         throw new RuntimeException("Declared EJB 2.1 Home Interface " + homeInterface.getName() + " does not extend "
-               + EJBHome.class.getName() + " or " + EJBLocalHome.class.getName()
-               + " as required by EJB 3.0 Core Specification 4.6.8 and 4.6.10");
-      }
-
-      // Initialize
-      Set<Class<?>> types = new HashSet<Class<?>>();
-      List<Method> createMethods = null;
-
-      // If for a Stateless Container
-      if (isStateless)
-      {
-         // Initialize error message
-         String specViolationErrorMessage = "EJB 3.0 Specification Violation (4.6.8 Bullet 4, 4.6.10 Bullet 4): \""
-               + "A stateless session bean must define exactly one create method with no arguments." + "\"; found in "
-               + homeInterface.getName();
-
-         // Get all methods with signature "create"
-         createMethods = new ArrayList<Method>();
-         try
+         remotesCount++;
+         defaultRemotes.append(refAddr.getContent());
+         if (remotesCount < refAddrs.size())
          {
-            createMethods.add(homeInterface.getMethod("create", new Class<?>[]
-            {}));
-         }
-         // EJB 3.0 Specification 4.6.8 Bullet 4 Violation
-         // EJBTHREE-1156
-         catch (NoSuchMethodException e)
-         {
-            throw new RuntimeException(specViolationErrorMessage);
-         }
-
-         // Ensure only one create method is defined
-         // EJB 3.0 Specification 4.6.8 Bullet 4 Violation
-         // EJBTHREE-1156
-         if (createMethods.size() > 1)
-         {
-            throw new RuntimeException(specViolationErrorMessage);
+            defaultRemotes.append(", ");
          }
       }
-      else
-      {
-         // Obtain all "create<METHOD>" methods
-         createMethods = ClassHelper.getAllMethodsByPrefix(homeInterface, "create");
-      }
-      if (createMethods.size() == 0)
-      {
-         throw new RuntimeException("EJB 3.0 Core Specification Violation (4.6.8 Bullet 5): EJB2.1 Home Interface "
-               + homeInterface + " does not declare a \'create<METHOD>\' method");
-      }
-
-      // Add all return types
-      for (Method method : createMethods)
-      {
-         types.add(method.getReturnType());
-      }
-
-      // Return
-      return types;
+      return defaultRemotes.toString();
    }
 
    /**
@@ -393,8 +576,9 @@ public class JndiRegistrar
     * @param factory
     * @param smd Metadata describing the EJB
     * @param isLocal
+    * @return The key under which the ProxyFactory was registered
     */
-   protected void registerProxyFactory(ProxyFactory factory, JBossEnterpriseBeanMetaData smd, boolean isLocal)
+   protected String registerProxyFactory(ProxyFactory factory, JBossEnterpriseBeanMetaData smd, boolean isLocal)
    {
       // Get a unique key
       String key = this.getProxyFactoryRegistryKey(smd, isLocal);
@@ -423,6 +607,9 @@ public class JndiRegistrar
          throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + key
                + "\", with " + this.getRegistry(), e);
       }
+
+      // Return the key
+      return key;
    }
 
    // --------------------------------------------------------------------------------||
