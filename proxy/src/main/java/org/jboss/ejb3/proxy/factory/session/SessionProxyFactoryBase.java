@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.util.NotImplementedException;
 
 /**
  * SessionProxyFactoryBase
@@ -99,9 +100,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyHome()
    {
-      //return this.getConstructorProxyHome().newInstance(INVOCATION_HANDLER);
-      //TODO Make InvocationHandlers
-      return null;
+      throw new NotImplementedException("ALR");
    }
 
    /**
@@ -114,7 +113,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyBusiness()
    {
-      return null;//TODO
+      throw new NotImplementedException("ALR");
    }
 
    /**
@@ -126,7 +125,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyBusinessAndHome()
    {
-      return null;//TODO
+      throw new NotImplementedException("ALR");
    }
 
    /**
@@ -140,7 +139,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyBusiness(String businessInterfaceName)
    {
-      return null;//TODO
+      throw new NotImplementedException("ALR");
    }
 
    /**
@@ -150,7 +149,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyEjb2x()
    {
-      return null;//TODO
+      throw new NotImplementedException("ALR");
    }
 
    // --------------------------------------------------------------------------------||
