@@ -5113,11 +5113,15 @@
 
    <target name="clustered-test" depends="init">
      
-     <create-cluster-node conf="node0"/>
-     <create-cluster-node conf="node1"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
+      
+     <!-- For now use REPL_SYNC -->
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-0"/>
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-1"/>
           
-     <server:start name="node0" />
-     <server:start name="node1" />
+     <server:start name="clustered-ejb3-totalrep-0" />
+     <server:start name="clustered-ejb3-totalrep-1" />
 
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="jvmargs" value=""/>
@@ -5127,18 +5131,22 @@
          -->
       </antcall>
 
-      <server:stop name="node0"/>
-      <server:stop name="node1"/>
+      <server:stop name="clustered-ejb3-totalrep-0"/>
+      <server:stop name="clustered-ejb3-totalrep-1"/>
        
    </target>
 
    <target name="clustered-one-test" depends="init, clusteredsession, clusteredentity">
 
-     <create-cluster-node conf="node0"/>
-     <create-cluster-node conf="node1"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
+     <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
+      
+     <!-- For now use REPL_SYNC -->
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-0"/>
+     <cache-mode-config-change conf="clustered-ejb3-totalrep-1"/>
           
-     <server:start name="node0" />
-     <server:start name="node1" />
+     <server:start name="clustered-ejb3-totalrep-0" />
+     <server:start name="clustered-ejb3-totalrep-1" />
 
       <antcall target="one-test-with-jvmargs" inheritRefs="true">
          <!--param name="test" value="clusteredsession"/-->
@@ -5148,16 +5156,8 @@
                 value="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=/dt_socket,address=8787,server=n,suspend=n"/>
          -->
       </antcall>
-
-      <!--
-         Test in test-cluster-session shuts down both nodes. It needs to shut down one
-         anyway as part of the tests, so simplest is to shut down the other from within
-         the test rather than figure out what to shut down here.
-      -->
-<!--
--->
-       <server:stop name="node0"/>
-       <server:stop name="node1"/>
+       <server:stop name="clustered-ejb3-totalrep-0"/>
+       <server:stop name="clustered-ejb3-totalrep-1"/>
 
    </target>
 
