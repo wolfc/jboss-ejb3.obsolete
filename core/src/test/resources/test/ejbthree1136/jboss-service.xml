@@ -9,7 +9,8 @@
       
       <attribute name="CacheConfigName">sfsb-cache</attribute>
 
-      <attribute name="RegionRoot">/jboss:j2ee:jar=ejbthree1136.jar,name=DoNothingBean,service=EJB3</attribute>
+      <!-- Remove the 'ear=ejbthree1136.jar' part if the object name changes -->ejbthree
+      <attribute name="RegionRoot">/sfsb/ear=ejbthree1136.jar,jar=ejbthree1136.jar,name=DoNothingBean,service=EJB3</attribute>
    </mbean>
 
 </server>
