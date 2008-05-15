@@ -96,9 +96,11 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       // Obtain the key used for looking up the appropriate ProxyFactory in the Registry
       List<String> proxyFactoryRegistryKeys = refAddrs
             .get(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
-      assert proxyFactoryRegistryKeys.size() == 1 : "Exactly one Reference Address of type \""
+      String assertionErrorMessage = "Exactly one Reference Address of type \""
             + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY + "\" is required, found "
             + proxyFactoryRegistryKeys;
+      assert proxyFactoryRegistryKeys != null : assertionErrorMessage;
+      assert proxyFactoryRegistryKeys.size() == 1 : assertionErrorMessage;
       String proxyFactoryRegistryKey = proxyFactoryRegistryKeys.get(0);
 
       // Obtain Proxy Factory Registry
@@ -127,7 +129,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    // --------------------------------------------------------------------------------||
    // Specifications -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    protected abstract Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses);
 
    protected abstract ProxyFactoryRegistry getProxyFactoryRegistry();

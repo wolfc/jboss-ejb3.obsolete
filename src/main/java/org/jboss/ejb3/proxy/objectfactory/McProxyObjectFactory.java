@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.proxy.plugin.inmemory.registry.InMemoryProxyFactoryRegistry;
+import org.jboss.ejb3.proxy.objectfactory.hack.Hack;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
@@ -65,11 +65,10 @@ public abstract class McProxyObjectFactory extends ProxyObjectFactory implements
    {
       //TODO This must not be hardcoded, rather injected, see:
       // http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515
-      this.setProxyFactoryRegistry(new InMemoryProxyFactoryRegistry());
-      // Log warning along with a stacktrace
-      log.warn(new RuntimeException(ProxyFactoryRegistry.class.getName()
-            + " must be injected or looked up, not hardcoded as new instance, "
-            + "see http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515"));
+      this.setProxyFactoryRegistry(Hack.PROXY_FACTORY_REGISTRY);
+      // Log warning
+      log.warn(ProxyFactoryRegistry.class.getName() + " must be injected or looked up, not hardcoded as new instance, "
+            + "see http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515");
    }
 
    // --------------------------------------------------------------------------------||
