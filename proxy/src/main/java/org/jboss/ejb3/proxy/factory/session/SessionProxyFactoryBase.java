@@ -36,9 +36,9 @@ import javax.ejb.EJBLocalHome;
 import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.util.NotImplementedException;
 
 /**
  * SessionProxyFactoryBase
@@ -121,32 +121,47 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyHome()
    {
-      throw new NotImplementedException("ALR");
+      // Initialize an error message; why not be pessimistic? ;)
+      String errorMessage = "Could not create Home Proxy for " + this.getMetadata().getEjbName();
+
+      try
+      {
+         // Create a new Proxy instance and return it
+         return this.getConstructorProxyHome().newInstance(this.getInvocationHandlerConstructor().newInstance());
+      }
+      catch (Throwable t)
+      {
+         // Throw a descriptive error message along with the originating Throwable 
+         throw new RuntimeException(errorMessage, t);
+      }
    }
 
    /**
     * Create an EJB3 Business proxy with no 
     * specific target business interface.  The 
     * returned proxy will implement all appropriate
-    * business interfaces. 
+    * business interfaces.  Additionally, if
+    * the Home interface is bound alongside 
+    * the Default (same JNDI Name), this 
+    * Proxy will implement the Home interface as well.
     * 
     * @return
     */
-   public Object createProxyBusiness()
+   public Object createProxyDefault()
    {
-      throw new NotImplementedException("ALR");
-   }
+      // Initialize an error message
+      String errorMessage = "Could not create the Default Proxy for " + this.getMetadata().getEjbName();
 
-   /**
-    * Create a Proxy for both EJB2.x Home and 
-    * Business Views, used when both the Home and Business
-    * interfaces are bound together
-    * 
-    * @return
-    */
-   public Object createProxyBusinessAndHome()
-   {
-      throw new NotImplementedException("ALR");
+      try
+      {
+         // Create a new Proxy instance and return it
+         return this.getConstructorProxyDefault().newInstance(this.getInvocationHandlerConstructor().newInstance());
+      }
+      catch (Throwable t)
+      {
+         // Throw a descriptive error message along with the originating Throwable 
+         throw new RuntimeException(errorMessage, t);
+      }
    }
 
    /**
@@ -154,13 +169,36 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * target business interface name (expressed as 
     * a fully-qualified class name)
     * 
-    * @param id
     * @param businessInterfaceName
     * @return
     */
-   public Object createProxyBusiness(String businessInterfaceName)
+   public Object createProxyBusiness(final String businessInterfaceName)
    {
-      throw new NotImplementedException("ALR");
+      // Initialize an error message
+      String errorMessage = "Could not create the EJB3 Business Proxy implementing \"" + businessInterfaceName
+            + "\" for " + this.getMetadata().getEjbName();
+
+      try
+      {
+         // Ensure businessInterfaceName is specified
+         assert businessInterfaceName != null && !businessInterfaceName.equals("") : "Required business interface type name was not specified";
+
+         // Obtain the correct business proxy constructor
+         Constructor<?> constructor = this.getConstructorsProxySpecificBusinessInterface().get(
+               businessInterfaceName.trim());
+
+         // Ensure the constructor was found
+         assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
+               + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
+
+         // Create a new Proxy instance and return it
+         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(businessInterfaceName));
+      }
+      catch (Throwable t)
+      {
+         // Throw a descriptive error message along with the originating Throwable 
+         throw new RuntimeException(errorMessage, t);
+      }
    }
 
    /**
@@ -170,7 +208,19 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyEjb2x()
    {
-      throw new NotImplementedException("ALR");
+      // Initialize an error message
+      String errorMessage = "Could not create the EJB2.x Proxy for " + this.getMetadata().getEjbName();
+
+      try
+      {
+         // Create a new Proxy instance and return it
+         return this.getConstructorProxyEjb2x().newInstance(this.getInvocationHandlerConstructor().newInstance());
+      }
+      catch (Throwable t)
+      {
+         // Throw a descriptive error message along with the originating Throwable 
+         throw new RuntimeException(errorMessage, t);
+      }
    }
 
    // --------------------------------------------------------------------------------||
@@ -511,6 +561,14 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @return
     */
    protected abstract Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface);
+
+   /**
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
+    * 
+    * @return
+    */
+   protected abstract Constructor<? extends SessionProxyInvocationHandler> getInvocationHandlerConstructor();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

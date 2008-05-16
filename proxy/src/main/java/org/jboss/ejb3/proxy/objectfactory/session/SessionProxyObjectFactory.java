@@ -115,7 +115,7 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
       // If home and business are bound together
       if (hasHome && hasBusiness)
       {
-         proxy = factory.createProxyBusinessAndHome();
+         proxy = factory.createProxyDefault();
          log.debug("Created Proxy " + proxy + " for both EJB2.x and EJB3 Business Interfaces.");
       }
       // If bound to home only
@@ -155,7 +155,7 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
          else
          {
             // Use a general-purpose proxy for all business interfaces
-            proxy = factory.createProxyBusiness();
+            proxy = factory.createProxyDefault();
             log.debug("Created Proxy " + proxy + " for EJB3 Business Interfaces: " + businessInterfaces);
          }
       }
