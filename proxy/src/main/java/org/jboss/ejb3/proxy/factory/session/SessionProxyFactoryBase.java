@@ -22,9 +22,21 @@
 package org.jboss.ejb3.proxy.factory.session;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+
+import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.NotImplementedException;
 
@@ -39,6 +51,12 @@ import org.jboss.util.NotImplementedException;
  */
 public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implements SessionProxyFactory
 {
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(SessionProxyFactoryBase.class);
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -85,8 +103,11 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       // Call Super
       super(classloader);
 
-      // Set metadata
+      // Set Metadata
       this.setMetadata(metadata);
+
+      // Instanciate backing Map for interface-specific business proxies
+      this.setConstructorsProxySpecificBusinessInterface(new HashMap<String, Constructor<?>>());
    }
 
    // --------------------------------------------------------------------------------||
@@ -165,8 +186,187 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    @Override
    public void start() throws Exception
    {
+      // Call Super
       super.start();
-      //TODO
+
+      /*
+       * TODO:
+       * 
+       * Yet another method that should be broken apart
+       * and analyzed for re-use.
+       */
+
+      /*
+       * Make Proxies for EJB3 Business Interfaces
+       */
+
+      // Obtain Business Interface Types
+      Set<String> businessInterfaceTypes = this.getBusinessInterfaceTypes();
+
+      // Initialize
+      Set<Class<?>> businessInterfaceClasses = new HashSet<Class<?>>();
+
+      // Determine if business interfaces are defined
+      boolean hasBusinessInterfaces = businessInterfaceTypes != null && businessInterfaceTypes.size() > 0;
+
+      // If there are business interfaces
+      if (hasBusinessInterfaces)
+      {
+         // For all business interface types
+         for (String businessInterfaceType : businessInterfaceTypes)
+         {
+            Class<?> businessInterface = null;
+            try
+            {
+               // Load
+               businessInterface = this.getClassLoader().loadClass(businessInterfaceType);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+               throw new RuntimeException("Could not find specified Session Bean Business Interface \""
+                     + businessInterfaceType + "\" in " + ClassLoader.class.getSimpleName() + " for EJB "
+                     + this.getMetadata().getEjbName(), cnfe);
+            }
+
+            // Add business interface to classes
+            businessInterfaceClasses.add(businessInterface);
+
+            // Make Proxy specific to the business interface
+            Constructor<?> businessInterfaceConstructor = this.createProxyConstructor(new Class<?>[]
+            {businessInterface}, this.getClassLoader());
+            log.debug("Created Session Bean Business Interface-Specific Proxy Constructor implementing \""
+                  + businessInterfaceType + "\"");
+
+            // Set
+            this.getConstructorsProxySpecificBusinessInterface().put(businessInterfaceType,
+                  businessInterfaceConstructor);
+
+         }
+      }
+
+      /*
+       * Make Constructor for Home
+       */
+
+      // Obtain Home Interface Type
+      String homeInterfaceType = this.getHomeType();
+
+      // Determine if Home is defined
+      boolean hasHomeInterface = homeInterfaceType != null && !homeInterfaceType.equals("");
+
+      // Ensure Home ad/or Business is defined
+      if (!hasHomeInterface && !hasBusinessInterfaces)
+      {
+         // Throw bean provider descriptive error
+         throw new RuntimeException("Cannot deploy EJB " + this.getMetadata().getEjbName()
+               + " as it has no EJB3 (Business Interface) or EJB2.x (Home Interface) Views Defined.");
+      }
+
+      // Initialize Home Interface Class
+      Class<?> homeInterfaceClass = null;
+
+      // If Home is defined
+      if (hasHomeInterface)
+      {
+         try
+         {
+            // Load the Home class
+            homeInterfaceClass = this.getClassLoader().loadClass(homeInterfaceType);
+         }
+         catch (ClassNotFoundException cnfe)
+         {
+            throw new RuntimeException("Could not find specified Session Bean Home Interface \"" + homeInterfaceType
+                  + "\" in " + ClassLoader.class.getSimpleName() + " for EJB " + this.getMetadata().getEjbName(), cnfe);
+         }
+
+         // Make the Home Proxy Constructor
+         Constructor<?> homeConstructor = this.createProxyConstructor(new Class<?>[]
+         {homeInterfaceClass}, this.getClassLoader());
+         log.debug("Created Session Bean Home Proxy Constructor implementing \"" + homeInterfaceType + "\"");
+
+         // Set the Home Proxy Constructor
+         this.setConstructorProxyHome(homeConstructor);
+      }
+
+      /*
+       * Make Default Proxy
+       */
+
+      // Create a Set to hold all relevant interfaces
+      Set<Class<?>> defaultProxyInterfaces = new HashSet<Class<?>>();
+
+      // Add all business interfaces
+      if (hasBusinessInterfaces)
+      {
+         defaultProxyInterfaces.addAll(businessInterfaceClasses);
+      }
+
+      // If there's a home defined and its bound to the same binding as the default
+      if (hasHomeInterface && this.getMetadata().determineJndiName().equals(this.getMetadata().getHomeJndiName()))
+      {
+         defaultProxyInterfaces.add(homeInterfaceClass);
+      }
+
+      // Make the Default Business Interfaces Proxy Constructor
+      Constructor<?> businessInterfacesConstructor = this.createProxyConstructor(defaultProxyInterfaces
+            .toArray(new Class<?>[]
+            {}), this.getClassLoader());
+      log.debug("Created Session Bean Default EJB3 Business Proxy Constructor implementing " + defaultProxyInterfaces);
+
+      // Set
+      this.setConstructorProxyDefault(businessInterfacesConstructor);
+
+      /*
+       * Make Constructor for EJB2.x Views
+       */
+
+      // EJB2.x Views may exist only if there is a Home
+      if (hasHomeInterface)
+      {
+         // Initialize Set of EJB2.x Interfaces 
+         Set<Class<?>> ejb2xInterfaces = new HashSet<Class<?>>();
+
+         // Get return types of create methods (EJB3 Core Specification 3.6.2.1)
+         //TODO Should be handled by metadata, see @Deprecated on the method below
+         Set<Class<?>> homeReturnTypes = this.getReturnTypesFromCreateMethods(homeInterfaceClass);
+         if (homeReturnTypes != null)
+         {
+            ejb2xInterfaces.addAll(homeReturnTypes);
+
+         }
+
+         // Get explicitly-defined EJB2x interface type
+         String ejb2xDeclaredType = StringUtils.adjustWhitespaceStringToNull(this.getEjb2xInterfaceType());
+
+         // If there is an explicitly-defined EJB2.x interface
+         if (ejb2xDeclaredType != null)
+         {
+            Class<?> ejb2xInterface = null;
+            try
+            {
+               // Load
+               ejb2xInterface = this.getClassLoader().loadClass(ejb2xDeclaredType);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+               throw new RuntimeException("Could not find specified Session Bean EJB2.x Interface \""
+                     + ejb2xDeclaredType + "\" in " + ClassLoader.class.getSimpleName() + " for EJB "
+                     + this.getMetadata().getEjbName(), cnfe);
+            }
+
+            // Add
+            ejb2xInterfaces.add(ejb2xInterface);
+         }
+
+         // Make the EJB2.x Proxy Constructor
+         Constructor<?> ejb2xConstructor = this.createProxyConstructor(ejb2xInterfaces.toArray(new Class<?>[]
+         {}), this.getClassLoader());
+         log.debug("Created Session Bean EJB2x Proxy Constructor implementing " + ejb2xInterfaces);
+
+         // Set the EJB2.x Proxy Constructor
+         this.setConstructorProxyEjb2x(ejb2xConstructor);
+      }
+
    }
 
    /**
@@ -182,6 +382,135 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       super.stop();
       //TODO
    }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the return types declared by the "create" methods for the specified home interface.
+    * 
+    * EJB3 Core Specification 3.6.2.1
+    * JIRA: EJBTHREE-1127
+    *  
+    * @param homeInterface
+    * @param isStateless Flag to indicate whether this is for a Stateful or Stateless container
+    * @return
+    * @deprecated http://jira.jboss.com/jira/browse/JBMETA-41
+    */
+   @Deprecated
+   protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface, boolean isStateless)
+   {
+      /*
+       * TODO
+       * 
+       * Kill the "isStateless" argument, centralize logic as appropriate, 
+       * and use polymorphsm to properly implement this method.
+       * 
+       * The current structure with the "isStateless" was born out of
+       * this function originating as a static utility from EJB3 Core.
+       * 
+       * Note: Perhaps this is a moot point, given the @Deprecated tag 
+       * and that jboss-metadata should be implementing this.
+       */
+
+      // Ensure we've been passed a Home or LocalHome interface (Developers only)
+      assert (EJBHome.class.isAssignableFrom(homeInterface) || EJBLocalHome.class.isAssignableFrom(homeInterface));
+
+      // Ensure we've been passed a Home or LocalHome interface (End-User)
+      if (!EJBHome.class.isAssignableFrom(homeInterface) && !EJBLocalHome.class.isAssignableFrom(homeInterface))
+      {
+         throw new RuntimeException("Declared EJB 2.1 Home Interface " + homeInterface.getName() + " does not extend "
+               + EJBHome.class.getName() + " or " + EJBLocalHome.class.getName()
+               + " as required by EJB 3.0 Core Specification 4.6.8 and 4.6.10");
+      }
+
+      // Initialize
+      Set<Class<?>> types = new HashSet<Class<?>>();
+      List<Method> createMethods = null;
+
+      // If for a Stateless Container
+      if (isStateless)
+      {
+         // Initialize error message
+         String specViolationErrorMessage = "EJB 3.0 Specification Violation (4.6.8 Bullet 4, 4.6.10 Bullet 4): \""
+               + "A stateless session bean must define exactly one create method with no arguments." + "\"; found in "
+               + homeInterface.getName();
+
+         // Get all methods with signature "create"
+         createMethods = new ArrayList<Method>();
+         try
+         {
+            createMethods.add(homeInterface.getMethod("create", new Class<?>[]
+            {}));
+         }
+         // EJB 3.0 Specification 4.6.8 Bullet 4 Violation
+         // EJBTHREE-1156
+         catch (NoSuchMethodException e)
+         {
+            throw new RuntimeException(specViolationErrorMessage);
+         }
+
+         // Ensure only one create method is defined
+         // EJB 3.0 Specification 4.6.8 Bullet 4 Violation
+         // EJBTHREE-1156
+         if (createMethods.size() > 1)
+         {
+            throw new RuntimeException(specViolationErrorMessage);
+         }
+      }
+      else
+      {
+         // Obtain all "create<METHOD>" methods
+         createMethods = ClassHelper.getAllMethodsByPrefix(homeInterface, "create");
+      }
+      if (createMethods.size() == 0)
+      {
+         throw new RuntimeException("EJB 3.0 Core Specification Violation (4.6.8 Bullet 5): EJB2.1 Home Interface "
+               + homeInterface + " does not declare a \'create<METHOD>\' method");
+      }
+
+      // Add all return types
+      for (Method method : createMethods)
+      {
+         types.add(method.getReturnType());
+      }
+
+      // Return
+      return types;
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Contracts ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Returns the a Set of String representations of the Business Interface Types
+    * 
+    *  @return
+    */
+   protected abstract Set<String> getBusinessInterfaceTypes();
+
+   /**
+    * Returns the String representation of the Home Interface Type
+    * @return
+    */
+   protected abstract String getHomeType();
+
+   /**
+    * Returns the String representation of the EJB2.x Interface Types
+    * 
+    *  @return
+    */
+   protected abstract String getEjb2xInterfaceType();
+
+   /**
+    * Obtains the return types declared by the "create" methods for the specified home interface.
+    *  
+    * @param homeInterface
+    * @return
+    */
+   protected abstract Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface);
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

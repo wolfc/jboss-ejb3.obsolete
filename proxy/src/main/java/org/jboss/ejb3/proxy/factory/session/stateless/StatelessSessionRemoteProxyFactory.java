@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateless;
 
+import java.util.Set;
+
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -56,6 +58,42 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    {
       // Call Super
       super(metadata, classloader);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Returns the a Set of String representations of the Business Interface Types
+    * 
+    *  @return
+    */
+   @Override
+   protected Set<String> getBusinessInterfaceTypes()
+   {
+      return this.getMetadata().getBusinessRemotes();
+   }
+
+   /**
+    * Returns the String representation of the Home Interface Type
+    * @return
+    */
+   @Override
+   protected String getHomeType()
+   {
+      return this.getMetadata().getHome();
+   }
+
+   /**
+    * Returns the String representation of the EJB2.x Interface Type
+    * 
+    *  @return
+    */
+   @Override
+   protected String getEjb2xInterfaceType()
+   {
+      return this.getMetadata().getRemote();
    }
 
    // --------------------------------------------------------------------------------||
