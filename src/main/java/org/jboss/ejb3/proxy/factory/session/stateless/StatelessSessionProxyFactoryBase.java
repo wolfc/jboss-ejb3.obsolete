@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateless;
 
+import java.util.Set;
+
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -50,6 +52,24 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
    {
       // Call Super
       super(metadata, classloader);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the return types declared by the "create" methods for the specified home interface.
+    *  
+    * @param homeInterface
+    * @return
+    * @deprecated http://jira.jboss.com/jira/browse/JBMETA-41
+    */
+   @Deprecated
+   @Override
+   protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
+   {
+      return this.getReturnTypesFromCreateMethods(homeInterface, true);
    }
 
    // --------------------------------------------------------------------------------||

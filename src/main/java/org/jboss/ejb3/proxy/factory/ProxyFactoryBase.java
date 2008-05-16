@@ -21,6 +21,10 @@
  */
 package org.jboss.ejb3.proxy.factory;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+
 import org.jboss.logging.Logger;
 
 /**
@@ -58,6 +62,33 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    public ProxyFactoryBase(final ClassLoader classloader)
    {
       this.setClassLoader(classloader);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Create a Proxy Constructor for the specified interfaces, using the specified CL
+    * 
+    * @param interfaces
+    * @param cl
+    * @return
+    * @throws Exception
+    */
+   protected Constructor<?> createProxyConstructor(Class<?>[] interfaces, ClassLoader cl)
+   {
+      Class<?> proxyClass = Proxy.getProxyClass(cl, interfaces);
+      Constructor<?> proxyConstructor = null;
+      try
+      {
+         proxyConstructor = proxyClass.getConstructor(InvocationHandler.class);
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException(e);
+      }
+      return proxyConstructor;
    }
 
    // --------------------------------------------------------------------------------||
