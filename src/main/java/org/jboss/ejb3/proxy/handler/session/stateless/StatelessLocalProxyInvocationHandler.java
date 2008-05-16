@@ -48,7 +48,7 @@ public class StatelessLocalProxyInvocationHandler extends SessionSpecProxyInvoca
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   protected StatelessLocalProxyInvocationHandler(String businessInterfaceType)
+   public StatelessLocalProxyInvocationHandler(String businessInterfaceType)
    {
       super(businessInterfaceType);
    }

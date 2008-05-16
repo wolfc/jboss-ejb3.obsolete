@@ -38,7 +38,7 @@ public class MockSessionProxyFactory implements SessionProxyFactory
    /* (non-Javadoc)
     * @see org.jboss.ejb3.proxy.factory.session.SessionProxyFactory#createProxyBusiness()
     */
-   public Object createProxyBusiness()
+   public Object createProxyDefault()
    {
       // TODO Auto-generated method stub
       return null;

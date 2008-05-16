@@ -46,20 +46,14 @@ public interface SessionProxyFactory extends ProxyFactory
     * Create an EJB3 Business proxy with no 
     * specific target business interface.  The 
     * returned proxy will implement all appropriate
-    * business interfaces. 
+    * business interfaces.  Additionally, if
+    * the Home interface is bound alongside 
+    * the Default (same JNDI Name), this 
+    * Proxy will implement the Home interface as well. 
     * 
     * @return
     */
-   Object createProxyBusiness();
-
-   /**
-    * Create a Proxy for both EJB2.x Home and 
-    * Business Views, used when both the Home and Business
-    * interfaces are bound together
-    * 
-    * @return
-    */
-   Object createProxyBusinessAndHome();
+   Object createProxyDefault();
 
    /**
     * Create an EJB3 Business Proxy specific to the specified

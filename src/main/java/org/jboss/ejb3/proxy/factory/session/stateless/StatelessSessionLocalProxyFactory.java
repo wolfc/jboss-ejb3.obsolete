@@ -21,9 +21,12 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateless;
 
+import java.lang.reflect.Constructor;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateless.StatelessLocalProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -94,6 +97,27 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
    protected String getEjb2xInterfaceType()
    {
       return this.getMetadata().getLocal();
+   }
+
+   /**
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
+    * 
+    * @return
+    */
+   @Override
+   protected Constructor<? extends SessionProxyInvocationHandler> getInvocationHandlerConstructor()
+   {
+      try
+      {
+         return StatelessLocalProxyInvocationHandler.class.getConstructor(new Class[]
+         {String.class});
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException("Could not find Constructor with one String argument for "
+               + StatelessLocalProxyInvocationHandler.class.getName(), e);
+      }
    }
 
    // --------------------------------------------------------------------------------||
