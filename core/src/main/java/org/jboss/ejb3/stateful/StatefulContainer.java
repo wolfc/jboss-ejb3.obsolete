@@ -53,6 +53,7 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.Cache;
+import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -99,9 +100,44 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
 
    public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues)
    {
-      // FIXME: this method is not finished. In the old setup the call would go
-      // through Pool which would call the init method.
-      return (StatefulBeanContext) createBeanContext();
+      StatefulBeanContext sfctx = (StatefulBeanContext) createBeanContext();
+      // Tell context how to handle replication
+      CacheConfig config = getAnnotation(CacheConfig.class);
+      if (config != null)
+      {
+         sfctx.setReplicationIsPassivation(config.replicationIsPassivation());
+      }
+
+      // this is for propagated extended PC's
+      sfctx = sfctx.pushContainedIn();
+      
+      pushContext(sfctx);
+      try
+      {
+         if (injectors != null)
+         {
+            for (Injector injector : injectors)
+            {
+               injector.inject(sfctx);
+            }
+         }
+
+         sfctx.initialiseInterceptorInstances();
+
+      }
+      finally
+      {
+         popContext();
+         // this is for propagated extended PC's
+         sfctx.popContainedIn();
+      }
+      
+      invokePostConstruct(sfctx, initValues);
+      
+      //TODO This needs to be reimplemented as replacement for create() on home interface
+      invokeInit(sfctx.getInstance(), initTypes, initValues);
+      
+      return sfctx;
    }
    
    @Override
@@ -202,9 +238,16 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       return factory;
    }
    
-   public void destroy(StatefulBeanContext obj)
+   public void destroy(StatefulBeanContext ctx)
    {
-      invokePreDestroy(obj);
+      try
+      {
+         invokePreDestroy(ctx);
+      }
+      finally
+      {
+         ctx.remove();
+      }
    }
    
    public Object getMBean()
@@ -258,8 +301,8 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
 
    public void stop() throws Exception
    {
-      if (cache != null) cache.stop();
       super.stop();
+      if (cache != null) cache.stop();
    }
 
    public StatefulCache getCache()

@@ -41,6 +41,7 @@ import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.cache.Identifiable;
+import org.jboss.ejb3.cache.Optimized;
 import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
 import org.jboss.ejb3.session.SessionSpecBeanContext;
@@ -59,7 +60,9 @@ import org.jboss.util.id.GUID;
  * 
  * @version $Revision$
  */
-public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContainer> implements Identifiable, Externalizable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
+public class StatefulBeanContext 
+   extends SessionSpecBeanContext<StatefulContainer> 
+   implements Identifiable, Externalizable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;
@@ -366,6 +369,14 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
          nested.replicationIsPassivation = replicationIsPassivation;
          containedIn.addContains(nested);
          thisPtr = new ProxiedStatefulBeanContext(nested);
+         
+         if (log.isTraceEnabled())
+         {
+            log.trace("Created ProxiedStatefulBeanContext for " + 
+                      containerGuid + "/" + id + " contained in " + 
+                      containedIn.getContainer().getIdentifier() + "/" + 
+                      containedIn.getId());
+         }
       }
       propagatedContainedIn.push(thisPtr);
       return thisPtr;
@@ -406,8 +417,10 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    public void prePassivate()
    {
       if (!removed && !passivated)
-      {  
-         extractBeanAndInterceptors(); // make sure we're unmarshalled
+      {   
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePrePassivate(this);
          passivated = true;
       }
@@ -431,7 +444,9 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    {
       if (!removed && passivated)
       {  
-         extractBeanAndInterceptors(); // make sure we're unmarshalled
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePostActivate(this);
          passivated = false;
       }
@@ -459,7 +474,9 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    {
       if (!removed && !passivated)
       {  
-         extractBeanAndInterceptors(); // make sure we're unmarshalled
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePrePassivate(this);
          passivated = true;
       }
@@ -484,8 +501,10 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    public void activateAfterReplication()
    {
       if (!removed && passivated)
-      {         
-         extractBeanAndInterceptors(); // make sure we're unmarshalled
+      {  
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePostActivate(this);
          passivated = false;
       }
@@ -519,7 +538,9 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    {
       if (!removed && replicationIsPassivation && !passivated)
       {  
-         getInstance(); // make sure we're unmarshalled
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePrePassivate(this);
          passivated = true;
       }
@@ -548,7 +569,9 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
       // if we are marked as passivated
       if (!removed && passivated)
       {  
-         extractBeanAndInterceptors(); // make sure we're unmarshalled
+         // make sure we're unmarshalled
+         if (bean == null)
+            extractBeanAndInterceptors(); 
          getContainer().invokePostActivate(this);
          passivated = false;
       }
@@ -791,6 +814,16 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
       }
       assert bean != null : "bean is null";
       return bean;
+   }   
+
+   public boolean isModified()
+   {
+      Object ourBean = getInstance();
+      if (ourBean instanceof Optimized)
+      {
+         return ((Optimized) ourBean).isModified();
+      }
+      return true;
    }
 
    @Override
@@ -946,6 +979,30 @@ public class StatefulBeanContext extends SessionSpecBeanContext<StatefulContaine
    {
       return this.getId();
    }
+
+//   @Override
+//   public boolean equals(Object obj)
+//   {
+//      if (this == obj)
+//         return true;
+//      
+//      // Don't use instanceof check here as subclasses w/ same id are not equal
+//      if (obj != null && obj.getClass() == getClass())
+//      {
+//         StatefulBeanContext other = (StatefulBeanContext) obj;
+//         return (containerClusterUid.equals(other.containerClusterUid) && id.equals(other.id));
+//      }
+//      return false;
+//   }
+//
+//   @Override
+//   public int hashCode()
+//   {
+//      int result = 11;
+//      result = 29 * result + containerClusterUid.hashCode();
+//      result = 29 * result + id.hashCode();
+//      return result;
+//   }
    
    private static class XPCCloseSynchronization implements Synchronization
    {
