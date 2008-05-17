@@ -980,29 +980,29 @@ public class StatefulBeanContext
       return this.getId();
    }
 
-//   @Override
-//   public boolean equals(Object obj)
-//   {
-//      if (this == obj)
-//         return true;
-//      
-//      // Don't use instanceof check here as subclasses w/ same id are not equal
-//      if (obj != null && obj.getClass() == getClass())
-//      {
-//         StatefulBeanContext other = (StatefulBeanContext) obj;
-//         return (containerClusterUid.equals(other.containerClusterUid) && id.equals(other.id));
-//      }
-//      return false;
-//   }
-//
-//   @Override
-//   public int hashCode()
-//   {
-//      int result = 11;
-//      result = 29 * result + containerClusterUid.hashCode();
-//      result = 29 * result + id.hashCode();
-//      return result;
-//   }
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      
+      // Don't use instanceof check here as subclasses w/ same id are not equal
+      if (obj != null && obj.getClass() == getClass())
+      {
+         StatefulBeanContext other = (StatefulBeanContext) obj;
+         return (containerClusterUid.equals(other.containerClusterUid) && id.equals(other.id));
+      }
+      return false;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = 11;
+      result = 29 * result + containerClusterUid.hashCode();
+      result = 29 * result + id.hashCode();
+      return result;
+   }
    
    private static class XPCCloseSynchronization implements Synchronization
    {

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.ejb.EJBContext;
+import javax.ejb.NoSuchEJBException;
 import javax.persistence.EntityManager;
 
 import org.jboss.aop.metadata.SimpleMetaData;
@@ -61,6 +62,9 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    {      
       this.delegate = delegate;
       oid = delegate.getId();
+      
+      assert oid != null : "delegate.getId() is null";
+      
       containerId = delegate.getContainer().getObjectName().getCanonicalName();
       parentRef = new StatefulBeanContextReference(delegate.getContainedIn());
    }
@@ -274,7 +278,19 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    @Override
    public void remove()
    {
-      getDelegate().remove();
+      StatefulBeanContext del = null;
+      try
+      {
+         del = getDelegate();
+      }
+      catch (NoSuchEJBException gone)
+      {
+         // Assume this is due to EJBTHREE-1367/8 where an invalid 
+         // proxy is left sitting around in InfinitePool
+         return;
+      }
+      
+      del.remove();
    }
 
 //   @Override
@@ -388,6 +404,9 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    public boolean getCanRemoveFromCache()
    {
       return getDelegate().getCanRemoveFromCache();
+      // Always return true if  we've had remove called -- a proxy 
+      // that's had remove called is useless
+//      return isRemoved();
    }
 
    @Override
@@ -441,7 +460,28 @@ public class ProxiedStatefulBeanContext extends StatefulBeanContext implements E
    {
       getDelegate().initialiseInterceptorInstances();
    }
-   
-   
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      
+      if (obj instanceof ProxiedStatefulBeanContext)
+      {
+         ProxiedStatefulBeanContext other = (ProxiedStatefulBeanContext) obj;
+         return (containerId.equals(other.containerId) && oid.equals(other.oid));
+      }
+      return false;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      int result = 11;
+      result = 29 * result + containerId.hashCode();
+      result = 29 * result + oid.hashCode();
+      return result;
+   }
 
 }
