@@ -36,14 +36,47 @@ public interface MicrocontainerBindings
    // Constants ----------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   String MC_EJB3_NAMESPACE = "org.jboss.ejb3.";
+   /*
+    * The following are Namespaces used by EJB3
+    */
+
+   /**
+    * Namespace for all MC Beans for EJB3
+    */
+   String MC_NAMESPACE_EJB3 = "org.jboss.ejb3.";
+
+   /**
+    * Namespace of all EJB Containers, should not be used directly but 
+    * instead precedes namespaces for SLSB, SFSB, MDB, and @Service
+    */
+   String MC_NAMESPACE_EJBCONTAINER = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "EJBContainer.";
+
+   /**
+    * Namespace for SFSB Containers
+    */
+   String MC_NAMESPACE_EJBCONTAINER_STATEFUL = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatefulSession.";
+
+   /**
+    * Namespace for SLSB Containers
+    */
+   String MC_NAMESPACE_CONTAINER_STATELESS = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatelessSession.";
+
+   /**
+    * Namespace for @Service Containers
+    */
+   String MC_NAMESPACE_CONTAINER_SERVICE = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "Service.";
+
+   /**
+    * Namespace for MDB Containers
+    */
+   String MC_NAMESPACE_CONTAINER_MDB = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "MDB.";
 
    /*
     * The following are Bindings used as MC Bean Names
     */
 
-   String MC_BEAN_NAME_PROXY_FACTORY_REGISTRY = MicrocontainerBindings.MC_EJB3_NAMESPACE + "ProxyFactoryRegistry";
+   String MC_BEAN_NAME_PROXY_FACTORY_REGISTRY = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "ProxyFactoryRegistry";
 
-   String MC_BEAN_NAME_JNDI_REGISTRAR = MicrocontainerBindings.MC_EJB3_NAMESPACE + "JndiRegistrar";
-   
+   String MC_BEAN_NAME_JNDI_REGISTRAR = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "JndiRegistrar";
+
 }

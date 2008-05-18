@@ -97,11 +97,13 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @param metadata The metadata representing this Session Bean
     * @param classloader The ClassLoader associated with the SessionContainer
     *       for which this ProxyFactory is to generate Proxies
+    * @param containerName The name under which the target container is registered
     */
-   public SessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public SessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
+         final String containerName)
    {
       // Call Super
-      super(classloader);
+      super(classloader, containerName);
 
       // Set Metadata
       this.setMetadata(metadata);
@@ -126,8 +128,10 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
 
       try
       {
-         // Create a new Proxy instance and return it
-         return this.getConstructorProxyHome().newInstance(this.getInvocationHandlerConstructor().newInstance());
+         // Create a new Proxy instance, and return
+         return this.getConstructorProxyHome().newInstance(
+               this.getInvocationHandlerConstructor().newInstance(this.getContainerName()));
+
       }
       catch (Throwable t)
       {
@@ -154,8 +158,9 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
 
       try
       {
-         // Create a new Proxy instance and return it
-         return this.getConstructorProxyDefault().newInstance(this.getInvocationHandlerConstructor().newInstance());
+         // Create a new Proxy instance, and return
+         return this.getConstructorProxyDefault().newInstance(
+               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(), null));
       }
       catch (Throwable t)
       {
@@ -191,8 +196,9 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
                + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
 
-         // Create a new Proxy instance and return it
-         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(businessInterfaceName));
+         // Create a new Proxy instance, and return
+         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),
+               businessInterfaceName));
       }
       catch (Throwable t)
       {
@@ -213,8 +219,9 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
 
       try
       {
-         // Create a new Proxy instance and return it
-         return this.getConstructorProxyEjb2x().newInstance(this.getInvocationHandlerConstructor().newInstance());
+         // Create a new Proxy instance, and return
+         return this.getConstructorProxyEjb2x().newInstance(
+               this.getInvocationHandlerConstructor().newInstance(this.getContainerName()));
       }
       catch (Throwable t)
       {

@@ -23,7 +23,11 @@ package org.jboss.ejb3.proxy.handler.session.stateless;
 
 import java.lang.reflect.Method;
 
+import org.jboss.ejb3.common.string.StringUtils;
+import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.kernel.spi.registry.KernelBus;
 import org.jboss.util.NotImplementedException;
 
 /**
@@ -44,13 +48,14 @@ public class StatelessRemoteProxyInvocationHandler extends SessionSpecProxyInvoc
    /**
     * Constructor
     * 
+    * @param containerName The name under which the target container is registered
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessRemoteProxyInvocationHandler(String businessInterfaceType)
+   public StatelessRemoteProxyInvocationHandler(String containerName, String businessInterfaceType)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -65,7 +70,20 @@ public class StatelessRemoteProxyInvocationHandler extends SessionSpecProxyInvoc
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      throw new NotImplementedException("ALR");
+      // Set the invoked method
+      this.setInvokedMethod(new SerializableMethod(method));
+
+      // Obtain the correct container from MC
+      //TODO This won't fly for remote, MC would be on another Process
+      KernelBus bus = Hack.BOOTSTRAP.getKernel().getBus();
+
+      // Obtain container name
+      String containerName = StringUtils.adjustWhitespaceStringToNull(this.getContainerName());
+      assert containerName != null : "Container name for invocation must be specified";
+
+      // Inoke
+      return bus.invoke(this.getContainerName(), this.getInvokedMethod().getName(), args, new String[]
+      {});
    }
 
    /* (non-Javadoc)

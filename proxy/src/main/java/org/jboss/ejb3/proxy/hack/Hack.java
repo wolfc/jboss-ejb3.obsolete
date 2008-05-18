@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.objectfactory.hack;
+package org.jboss.ejb3.proxy.hack;
 
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
+import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
 
 /**
  * Hack
  * 
- * This hack is in place such that the ProxyFactoryRegistry 
+ * This hack is in place such that the Bootstrap 
  * used can be globally accessed from unmanaged beans
  * without a hook into the MC Kernel.
  * 
@@ -39,5 +39,5 @@ import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 @Deprecated
 public class Hack
 {
-   public static ProxyFactoryRegistry PROXY_FACTORY_REGISTRY;
+   public static BasicBootstrap BOOTSTRAP;
 }

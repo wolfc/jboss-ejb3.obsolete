@@ -95,4 +95,10 @@ public class MockSessionProxyFactory implements SessionProxyFactory
       return null;
    }
 
+   public String getContainerName()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
 }

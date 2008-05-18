@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,34 +19,59 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session;
-
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
+package org.jboss.ejb3.proxy.handler;
 
 /**
- * SessionProxyInvocationHandlerBase
+ * NotEligibleForDirectInvocationException
  * 
- * Abstract base from which all JBoss Session Proxy InvocationHandlers
- * may extend
- * 
+ * Thrown when attempting to handle an invocation
+ * directly within the InvocationHandler when 
+ * the invocation should instead be delegated 
+ * back to the Container
+ *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationHandlerBase
-      implements
-         SessionProxyInvocationHandler
+public class NotEligibleForDirectInvocationException extends Exception
 {
    // ------------------------------------------------------------------------------||
-   // Constructor ------------------------------------------------------------------||
+   // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   /**
-    * Constructor
-    * 
-    * @param containerName The name under which the target container is registered 
-    */
-   protected SessionProxyInvocationHandlerBase(String containerName)
+   private static final long serialVersionUID = 1L;
+
+   // ------------------------------------------------------------------------------||
+   // Constructors -----------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   public NotEligibleForDirectInvocationException()
    {
-      super(containerName);
+
    }
+
+   /**
+    * @param message
+    */
+   public NotEligibleForDirectInvocationException(String message)
+   {
+      super(message);
+   }
+
+   /**
+    * @param cause
+    */
+   public NotEligibleForDirectInvocationException(Throwable cause)
+   {
+      super(cause);
+   }
+
+   /**
+    * @param message
+    * @param cause
+    */
+   public NotEligibleForDirectInvocationException(String message, Throwable cause)
+   {
+      super(message, cause);
+   }
+
 }

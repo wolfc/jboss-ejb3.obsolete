@@ -32,7 +32,9 @@ import org.jboss.ejb3.proxy.factory.ProxyFactory;
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
+ * @deprecated To be replaced by using the MC itself as the ProxyFactoryRegistry
  */
+@Deprecated
 public interface ProxyFactoryRegistry
 {
    /**
@@ -42,7 +44,7 @@ public interface ProxyFactoryRegistry
     * @return
     */
    boolean isRegistered(String key);
-   
+
    /**
     * Obtains the ProxyFactory registered with the specified key
     * 

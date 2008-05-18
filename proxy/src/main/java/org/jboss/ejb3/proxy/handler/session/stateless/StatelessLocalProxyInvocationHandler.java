@@ -23,7 +23,10 @@ package org.jboss.ejb3.proxy.handler.session.stateless;
 
 import java.lang.reflect.Method;
 
+import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
 
 /**
@@ -38,19 +41,26 @@ public class StatelessLocalProxyInvocationHandler extends SessionSpecProxyInvoca
 {
 
    // ------------------------------------------------------------------------------||
+   // Class Members ----------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(StatelessLocalProxyInvocationHandler.class);
+
+   // ------------------------------------------------------------------------------||
    // Constructors -----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
    /**
     * Constructor
     * 
+    * @param containerName The name under which the target container is registered
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessLocalProxyInvocationHandler(String businessInterfaceType)
+   public StatelessLocalProxyInvocationHandler(String containerName, String businessInterfaceType)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -65,7 +75,23 @@ public class StatelessLocalProxyInvocationHandler extends SessionSpecProxyInvoca
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
+      // Set the invoked method
+      this.setInvokedMethod(new SerializableMethod(method));
+
+      // Attempt to handle directly
+      try
+      {
+         return this.handleInvocationDirectly(proxy, args);
+      }
+      // Ignore this, we just couldn't handle here
+      catch (NotEligibleForDirectInvocationException nefdie)
+      {
+         log.debug(nefdie.getMessage());
+      }
+
+      //TODO
       throw new NotImplementedException("ALR");
+
    }
 
    /* (non-Javadoc)

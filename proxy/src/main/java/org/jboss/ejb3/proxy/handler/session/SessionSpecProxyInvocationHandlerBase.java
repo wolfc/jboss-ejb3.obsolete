@@ -52,13 +52,14 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    /**
     * Constructor
     * 
+    * @param containerName The name under which the target container is registered
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   protected SessionSpecProxyInvocationHandlerBase(String businessInterfaceType)
+   protected SessionSpecProxyInvocationHandlerBase(String containerName, String businessInterfaceType)
    {
-      super();
+      super(containerName);
       this.setBusinessInterfaceType(businessInterfaceType);
    }
 

@@ -23,8 +23,7 @@ package org.jboss.ejb3.test.proxy.common;
 
 import java.net.URL;
 
-import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
-import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
+import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.dependency.spi.ControllerContext;
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
@@ -56,7 +55,7 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
    // --------------------------------------------------------------------------------||
 
    private BasicXMLDeployer deployer;
-   
+
    private Thread shutdownHook;
 
    // --------------------------------------------------------------------------------||
@@ -167,18 +166,19 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       KernelController controller = getKernel().getController();
       ControllerContext context = controller.getContext(name, null);
       controller.change(context, ControllerState.INSTALLED);
-      if(context.getError() != null)
+      if (context.getError() != null)
          throw context.getError();
-      
-      if(context.getState() != ControllerState.INSTALLED) {
-         System.err.println(context.getDependencyInfo().getUnresolvedDependencies(null));
+
+      if (context.getState() != ControllerState.INSTALLED)
+      {
+         log.error(context.getDependencyInfo().getUnresolvedDependencies(null));
       }
       // TODO: it can be stalled because of dependencies
       assert context.getState() == ControllerState.INSTALLED;
-      
+
       return expectedType.cast(context.getTarget());
    }
-   
+
    /**
     * Undeploys the specified URL
     * 
@@ -264,7 +264,7 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       public void run()
       {
          super.run();
-         
+
          shutdownHook();
       }
 
@@ -321,16 +321,15 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       }
       return url;
    }
-   
+
    public void installInstance(String name, Object instance) throws Throwable
    {
-      AbstractBeanMetaData bmd = new AbstractBeanMetaData(name, instance.getClass().getName());
-      AbstractConstructorMetaData cmd = new AbstractConstructorMetaData();
-      cmd.setValueObject(instance);
-      bmd.setConstructor(cmd);
-      getKernel().getController().install(bmd);
+      BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(name, instance.getClass().getName())
+            .setConstructorValue(instance);
+      this.getKernel().getController().install(bmdb.getBeanMetaData());
+      log.info("Installed in MC at \"" + name + "\": " + instance);
    }
-   
+
    /**
     * Perform a clean shutdown. 
     */
@@ -338,15 +337,15 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
    {
       // remove the hook
       Runtime.getRuntime().removeShutdownHook(shutdownHook);
-      
+
       // and call it.
       shutdownHook();
    }
-   
+
    private void shutdownHook()
    {
       log.debug("Shutting down " + this.deployer + "...");
       getDeployer().shutdown();
-      log.info("Shut down: " + getDeployer());      
+      log.info("Shut down: " + getDeployer());
    }
 }
