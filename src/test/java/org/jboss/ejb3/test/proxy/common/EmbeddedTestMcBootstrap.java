@@ -324,9 +324,8 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
 
    public void installInstance(String name, Object instance) throws Throwable
    {
-      BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(name, instance.getClass().getName())
-            .setConstructorValue(instance);
-      this.getKernel().getController().install(bmdb.getBeanMetaData());
+      BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(name, instance.getClass().getName());
+      this.getKernel().getController().install(bmdb.getBeanMetaData(),instance);
       log.info("Installed in MC at \"" + name + "\": " + instance);
    }
 
