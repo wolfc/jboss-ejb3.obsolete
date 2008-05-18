@@ -21,21 +21,30 @@
  */
 package org.jboss.ejb3.proxy.container;
 
-import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
+import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
 
 /**
- * StatefulSessionInvocableContext
+ * InvokableContext
  * 
- * Represents an object capable of carrying out 
- * EJB3 SFSB Invocations as described by an 
- * Invocation descriptor
+ * Represents any object capable of carrying out 
+ * generic Invocations as described by a 
+ * ContainerMethodInvocation descriptor
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionInvocableContext<T extends StatefulSessionContainerMethodInvocation>
-      extends
-         InvocableContext<StatefulSessionContainerMethodInvocation>
+public interface InvokableContext<T extends ContainerMethodInvocation>
 {
-
+   /**
+    * Invokes the method described by the specified serializable method
+    * as called from the specified proxy, using the specified arguments
+    * 
+    * @param proxy The proxy making the invocation
+    * @param method The method to be invoked
+    * @param args The arguments to the invocation
+    * @throws Throwable A possible exception thrown by the invocation
+    * @return
+    */
+   Object invoke(Object proxy, SerializableMethod method, Object... args) throws Throwable;
 }
