@@ -24,7 +24,7 @@ package org.jboss.ejb3.proxy.container;
 import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
 
 /**
- * StatefulSessionInvokableContext
+ * StatefulSessionInvocableContext
  * 
  * Represents an object capable of carrying out 
  * EJB3 SFSB Invocations as described by an 
@@ -33,7 +33,7 @@ import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionInvokableContext<T extends StatefulSessionContainerMethodInvocation>
+public interface StatefulSessionInvocableContext<T extends StatefulSessionContainerMethodInvocation>
       extends
          InvocableContext<StatefulSessionContainerMethodInvocation>
 {
