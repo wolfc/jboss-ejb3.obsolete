@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * InvokedMethod
+ * SerializableMethod
  * 
  * A Serializable view of an Invoked Method, providing
  * overridden implementations of hashCode, equals, and toString
@@ -38,7 +38,7 @@ import java.util.List;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class InvokedMethod implements Serializable
+public class SerializableMethod implements Serializable
 {
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
@@ -79,7 +79,7 @@ public class InvokedMethod implements Serializable
     * 
     * @param Method The method this view represents
     */
-   public InvokedMethod(Method method)
+   public SerializableMethod(Method method)
    {
       // Set properties
       this.setName(method.getName());
@@ -105,15 +105,15 @@ public class InvokedMethod implements Serializable
    @Override
    public boolean equals(Object obj)
    {
-      // If not an instance of InvokedMethod
-      if (!(obj instanceof InvokedMethod))
+      // If not an instance of SerializableMethod
+      if (!(obj instanceof SerializableMethod))
       {
          // Different types, we can't be equal
          return false;
       }
 
       // Cast
-      InvokedMethod other = InvokedMethod.class.cast(obj);
+      SerializableMethod other = SerializableMethod.class.cast(obj);
 
       // We're equal if all properties are equal
       return this.getClassName().equals(other.getClassName()) && this.getName().equals(other.getName())
