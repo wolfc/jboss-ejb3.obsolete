@@ -28,7 +28,7 @@ import java.util.List;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
-import org.jboss.ejb3.proxy.container.InvocableContext;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiRegistrar;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
@@ -43,7 +43,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class StatelessContainer implements InvocableContext<ContainerMethodInvocation>
+public class StatelessContainer implements InvokableContext<ContainerMethodInvocation>
 {
    private static final Logger log = Logger.getLogger(StatelessContainer.class);
 
