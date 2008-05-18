@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,34 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session;
+package org.jboss.ejb3.proxy.container;
 
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
+import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
 
 /**
- * SessionProxyInvocationHandlerBase
+ * InvocableContext
  * 
- * Abstract base from which all JBoss Session Proxy InvocationHandlers
- * may extend
- * 
+ * Represents any object capable of carrying out 
+ * generic Invocations as described by a 
+ * ContainerMethodInvocation descriptor
+ *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationHandlerBase
-      implements
-         SessionProxyInvocationHandler
+public interface InvocableContext<T extends ContainerMethodInvocation>
 {
-   // ------------------------------------------------------------------------------||
-   // Constructor ------------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
    /**
-    * Constructor
+    * Invokes the method described by the specified serializable method
+    * as called from the specified proxy, using the specified arguments
     * 
-    * @param containerName The name under which the target container is registered 
+    * @param proxy The proxy making the invocation
+    * @param method The method to be invoked
+    * @param args The arguments to the invocation
+    * @throws Throwable A possible exception thrown by the invocation
+    * @return
     */
-   protected SessionProxyInvocationHandlerBase(String containerName)
-   {
-      super(containerName);
-   }
+   Object invoke(Object proxy, SerializableMethod method, Object... args) throws Throwable;
 }

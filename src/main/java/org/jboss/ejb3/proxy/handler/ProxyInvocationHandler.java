@@ -24,6 +24,8 @@ package org.jboss.ejb3.proxy.handler;
 
 import java.lang.reflect.InvocationHandler;
 
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
+
 /**
  * ProxyInvocationHandler
  * 
@@ -41,4 +43,13 @@ public interface ProxyInvocationHandler extends InvocationHandler
    String toString();
 
    Object getAsynchronousProxy(Object proxy);
+
+   SerializableMethod getInvokedMethod();
+
+   /**
+    * Obtain the name under which the target container is registered
+    * 
+    * @return
+    */
+   String getContainerName();
 }

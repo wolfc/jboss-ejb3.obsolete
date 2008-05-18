@@ -36,7 +36,6 @@ import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
-import org.jboss.ejb3.proxy.objectfactory.hack.Hack;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
@@ -129,11 +128,6 @@ public class JndiRegistrar
       this.setRegistry(registry);
       log.debug("Using " + ProxyFactoryRegistry.class.getSimpleName() + ": " + registry);
 
-      //TODO Remove
-      Hack.PROXY_FACTORY_REGISTRY = this.getRegistry();
-      log.warn("Remove the " + Hack.class.getName() + " to make the " + ProxyFactoryRegistry.class.getSimpleName()
-            + " available to unmanaged beans.");
-
       /*
        * Perform some assertions and logging
        */
@@ -158,8 +152,9 @@ public class JndiRegistrar
     * 
     * @param md
     * @param cl The CL of the Container
+    * @param containerName The name under which the target container is registered
     */
-   public void bindEjb(JBossEnterpriseBeanMetaData md, ClassLoader cl)
+   public void bindEjb(final JBossEnterpriseBeanMetaData md, final ClassLoader cl, final String containerName)
    {
       // If we've got a SessionBean
       if (md.isSession())
@@ -180,7 +175,7 @@ public class JndiRegistrar
 
          // Delegate out to session-specific handling
          log.debug("Found Session Bean: " + smd.getEjbName());
-         this.bindSessionEjb(smd, cl);
+         this.bindSessionEjb(smd, cl, containerName);
       }
 
       // If this is a MDB
@@ -211,9 +206,10 @@ public class JndiRegistrar
     * 
     * @param smd
     * @param cl The classloader associated with the Container 
-    *   described by the specified metadata 
+    *   described by the specified metadata
+    * @param The name under which the target container is registered 
     */
-   protected void bindSessionEjb(JBossSessionBeanMetaData smd, ClassLoader cl)
+   protected void bindSessionEjb(JBossSessionBeanMetaData smd, ClassLoader cl, String containerName)
    {
       // If Stateful
       if (smd.isStateful())
@@ -262,7 +258,7 @@ public class JndiRegistrar
          if (hasLocalView)
          {
             // Create and register a local proxy factory
-            ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl);
+            ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl, containerName);
             localProxyFactoryKey = this.registerProxyFactory(factory, smd, true);
          }
 
@@ -271,7 +267,7 @@ public class JndiRegistrar
          if (hasRemoteView)
          {
             // Create and register a local proxy factory
-            ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl);
+            ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl, containerName);
             remoteProxyFactoryKey = this.registerProxyFactory(factory, smd, false);
          }
 

@@ -25,7 +25,8 @@ import java.io.Serializable;
 
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.proxy.objectfactory.hack.Hack;
+import org.jboss.ejb3.proxy.hack.Hack;
+import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
@@ -63,12 +64,11 @@ public abstract class McProxyObjectFactory extends ProxyObjectFactory implements
 
    public McProxyObjectFactory()
    {
-      //TODO This must not be hardcoded, rather injected, see:
-      // http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515
-      this.setProxyFactoryRegistry(Hack.PROXY_FACTORY_REGISTRY);
-      // Log warning
-      log.warn(ProxyFactoryRegistry.class.getName() + " must be injected or looked up, not hardcoded as new instance, "
-            + "see http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4150515");
+      // Set the ProxyFactoryRegistry as obtained from MC
+      //TODO ProxyFactoryRegistry will be replaced by MC itself
+      //TODO This hack will be replaced when we have some way of getting at MC Kernel
+      this.setProxyFactoryRegistry((ProxyFactoryRegistry) Hack.BOOTSTRAP.getKernel().getController()
+            .getInstalledContext(MicrocontainerBindings.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY).getTarget());
    }
 
    // --------------------------------------------------------------------------------||
