@@ -149,39 +149,39 @@ public class ProxySessionTestCase
    @Test
    public void testLocal() throws Exception
    {
-//      InitialContext ctx = new InitialContext();
-//
-//      Object bean = ctx.lookup("MyStatelessBean/local");
-//      assertTrue(bean instanceof MyStatelessLocal);
-//
-//      String result = ((MyStatelessLocal) bean).sayHi("testLocal");
-//      assertEquals("Hi testLocal", result);
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/local");
+      assertTrue(bean instanceof MyStatelessLocal);
+
+      String result = ((MyStatelessLocal) bean).sayHi("testLocal");
+      assertEquals("Hi testLocal", result);
    }
 
    @Test
    public void testLocalHome() throws Exception
    {
-//      InitialContext ctx = new InitialContext();
-//
-//      Object bean = ctx.lookup("MyStatelessBean/localHome");
-//      assertTrue(bean instanceof MyStatelessLocalHome);
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/localHome");
+      assertTrue(bean instanceof MyStatelessLocalHome);
    }
 
    @Test
    public void testRemote() throws Exception
    {
-//      InitialContext ctx = new InitialContext();
-//
-//      Object bean = ctx.lookup("MyStatelessBean/remote");
-//      assertTrue(bean instanceof MyStatelessRemote);
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/remote");
+      assertTrue(bean instanceof MyStatelessRemote);
    }
 
    @Test
    public void testRemoteHome() throws Exception
    {
-//      InitialContext ctx = new InitialContext();
-//
-//      Object bean = ctx.lookup("MyStatelessBean/home");
-//      assertTrue(bean instanceof MyStatelessRemoteHome);
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/home");
+      assertTrue(bean instanceof MyStatelessRemoteHome);
    }
 }
