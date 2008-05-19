@@ -37,7 +37,7 @@ import javax.ejb.Stateless;
 @Remote(First.class)
 public class FirstBean implements First
 {
-   @EJB(mappedName="externalrefscoped/Second")
+   @EJB(mappedName="jnp://localhost:1099/externalrefscoped/Second")
    private Second second;
    
    public String invokeSecond()
