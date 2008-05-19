@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
-import javax.ejb.Stateless;
+import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -48,7 +48,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-@Stateless
+@Stateful
 @Remote(EntityTest.class)
 @RemoteBinding(jndiBinding="EntityTestBean/remote")
 public class EntityTestBean implements EntityTest
@@ -62,7 +62,7 @@ public class EntityTestBean implements EntityTest
    
    private transient Cache cache;
    
-   static MyListener listener;
+   private transient MyListener listener;
 
    public EntityTestBean()
    {
@@ -193,6 +193,7 @@ public class EntityTestBean implements EntityTest
             Cache c = getCache();
             if (c != null)
                c.removeCacheListener(listener);
+            listener = null;
          }
       }
       catch (Exception e)
