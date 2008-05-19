@@ -130,7 +130,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       {
          // Create a new Proxy instance, and return
          return this.getConstructorProxyHome().newInstance(
-               this.getInvocationHandlerConstructor().newInstance(this.getContainerName()));
+               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),null));
 
       }
       catch (Throwable t)

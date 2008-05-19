@@ -68,7 +68,7 @@ public class StatelessContainer implements InvokableContext<ContainerMethodInvoc
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object... args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       // Get the types from the arguments
       List<Class<?>> types = new ArrayList<Class<?>>();
@@ -112,9 +112,6 @@ public class StatelessContainer implements InvokableContext<ContainerMethodInvoc
    public void start() throws Throwable
    {
       log.info("Starting " + this);
-
-      // TODO: a lot
-      log.fatal("StatelessContainer.start doesn't really do what's really supposed to happen");
 
       // Carlo's original code
       //      InitialContext ctx = new InitialContext();

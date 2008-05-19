@@ -181,7 +181,7 @@ public class ProxySessionTestCase
    {
       InitialContext ctx = new InitialContext();
 
-      Object bean = ctx.lookup("MyStatelessBean/home");
+      Object bean = ctx.lookup("MyStatelessBean/remoteHome"); // "home" or "remoteHome"?
       assertTrue(bean instanceof MyStatelessRemoteHome);
    }
 }

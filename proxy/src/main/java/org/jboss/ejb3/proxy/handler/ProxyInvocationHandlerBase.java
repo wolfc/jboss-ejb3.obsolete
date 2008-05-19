@@ -128,17 +128,17 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       // equals
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS))
       {
-         return new Boolean(proxy.equals(args[0]));
+         return new Boolean(this.equals(args[0]));
       }
       // toString
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING))
       {
-         return proxy.toString();
+         return this.toString();
       }
       // hashCode
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE))
       {
-         return new Integer(proxy.hashCode());
+         return new Integer(this.hashCode());
       }
 
       // If no eligible methods were invoked
