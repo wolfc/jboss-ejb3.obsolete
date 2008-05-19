@@ -74,12 +74,6 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
    // Required Implementations -----------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   //TODO
-
-   // ------------------------------------------------------------------------------||
-   // TO BE IMPLEMENTED ------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       // Set the invoked method
@@ -123,6 +117,10 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
             {}), InvokableContext.METHOD_SIGNATURE_INVOKE);
 
    }
+
+   // ------------------------------------------------------------------------------||
+   // TO BE IMPLEMENTED ------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.proxy.handler.ProxyInvocationHandler#getAsynchronousProxy(java.lang.Object)
