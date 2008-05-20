@@ -60,7 +60,6 @@ public class ClusteredMetaDataBridge implements MetaDataBridge<JBossEnterpriseBe
    
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData metaData, ClassLoader classLoader)
    {
-      if(log.isTraceEnabled()) log.trace("retrieve annotation " + annotationClass + " on " + metaData);
       if (annotationClass == Clustered.class && isClustered(metaData))
       {
          ClusteredImpl impl = createAnnotationImpl();
@@ -99,18 +98,5 @@ public class ClusteredMetaDataBridge implements MetaDataBridge<JBossEnterpriseBe
          return ((JBossSessionBeanMetaData) metaData).getClusterConfig();
       }
       return null;
-   }
-   
-   @SuppressWarnings("unchecked")
-   private static <A extends LoadBalancePolicy> Class<A> loadClass(ClassLoader classLoader, String name)
-   {
-      try
-      {
-         return (Class<A>) classLoader.loadClass(name);
-      }
-      catch (ClassNotFoundException e)
-      {
-         throw new RuntimeException(e);
-      }
    }
 }
