@@ -62,6 +62,11 @@ public class OptimisticEntityQueryUnitTestCase extends EntityQueryUnitTestCase
    {
       return EAR_NAME;      
    }
+            
+   protected String getJarName()
+   {
+      return EAR_NAME;
+   }
 
    @Override
    protected boolean isOptimistic()

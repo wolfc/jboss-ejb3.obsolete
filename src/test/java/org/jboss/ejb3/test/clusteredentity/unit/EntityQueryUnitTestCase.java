@@ -45,7 +45,7 @@ extends EntityClassloaderTestBase
    public void testManualQueryDefaultRegion() throws Exception
    {
       log.info("+++ start testManualQueryDefaultRegion");
-      queryTest(true, false, false, false);
+      queryTest(true, false, false, false, false);
       log.info("+++ end testManualQueryDefaultRegion");
    }
    
@@ -54,7 +54,7 @@ extends EntityClassloaderTestBase
       log.info("+++ start testManualQueryNamedRegion");
       try
       {
-         queryTest(true, false, true, firstNamedRegionTest);
+         queryTest(true, false, true, firstNamedRegionTest, false);
       }
       finally
       {
@@ -66,7 +66,7 @@ extends EntityClassloaderTestBase
    public void testNamedQueryDefaultRegion() throws Exception
    {    
       log.info("+++ start testNamedQueryDefaultRegion");
-      queryTest(true, true, false, false);
+      queryTest(true, true, false, false, false);
       log.info("+++ end testNamedQueryDefaultRegion");
    }
    
@@ -75,7 +75,7 @@ extends EntityClassloaderTestBase
       log.info("+++ start testNamedQueryNamedRegion");
       try
       {
-         queryTest(true, true, true, firstNamedRegionTest);
+         queryTest(true, true, true, firstNamedRegionTest, false);
       }
       finally
       {

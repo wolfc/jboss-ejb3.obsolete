@@ -66,7 +66,7 @@ public class EntityQueryTestBean implements EntityQueryTest
    
    private String cacheConfigName;
    
-   private transient Cache cache;
+   private transient Cache<Object, Object> cache;
    
    private MyListener listener;
 
@@ -84,7 +84,7 @@ public class EntityQueryTestBean implements EntityQueryTest
       try
       {
          //Just to initialise the cache with a listener
-         Cache cache = getCache();
+         Cache<Object, Object> cache = getCache();
          listener = new MyListener();
          cache.addCacheListener(listener);         
       }
@@ -243,7 +243,7 @@ public class EntityQueryTestBean implements EntityQueryTest
             saw = true;
          }
       }
-   return saw;
+      return saw;
       
    }
    
@@ -276,21 +276,24 @@ public class EntityQueryTestBean implements EntityQueryTest
    
    @PreDestroy
    @Remove
-   public void remove()
+   public void remove(boolean removeEntities)
    {
-      try
+      if (removeEntities)
       {
-         internalCleanup();
-      }
-      catch (Exception e)
-      {
-         log.error("Caught exception in remove", e);
+         try
+         {
+            internalCleanup();
+         }
+         catch (Exception e)
+         {
+            log.error("Caught exception in remove", e);
+         }
       }
       
       try
       {
          listener.clear();
-         getCache().removeCacheListener(listener);
+         getCache().removeCacheListener(listener);         
       }
       catch (Exception e)
       {
@@ -308,7 +311,7 @@ public class EntityQueryTestBean implements EntityQueryTest
       }
    }
 
-   private Cache getCache() throws Exception
+   private Cache<Object, Object> getCache() throws Exception
    {
       if (cache == null && cacheConfigName != null)
       {

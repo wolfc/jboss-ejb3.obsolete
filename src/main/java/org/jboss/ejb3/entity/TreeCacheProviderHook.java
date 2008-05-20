@@ -103,7 +103,7 @@ public class TreeCacheProviderHook implements CacheProvider
     * @throws org.hibernate.cache.CacheException
     *          Indicates a problem preparing cache for use.
     */
-   public void start(Properties properties)
+   public void start(Properties properties) throws CacheException
    {
       cacheFactory = TransactionalCacheFactory.getFactory(properties);
       cacheFactory.start();

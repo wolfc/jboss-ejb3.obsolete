@@ -46,19 +46,22 @@ extends EntityClassloaderTestBase
    public void testRedeploy() throws Exception
    {
       // Set things up with the default region
-      queryTest(true, true, false, false);
+      queryTest(true, true, false, false, false);
       // Now get the named query regions active
-      queryTest(false, true, true, true);
+      queryTest(false, true, true, true, false);
       
       redeploy();
       
       // Redo the test, but no entity creation
-      queryTest(false, true, false, false);
-      queryTest(false, true, true, true);
+      queryTest(false, true, false, false, false);
+      queryTest(false, true, true, true, false);
    }
    
    private void redeploy() throws Exception
    {
+      // Get rid of our old sfsb and make sure its listener is removed from cache
+      sfsb1.remove(false);
+      
       MBeanServerConnection[] adaptors = getAdaptors();
       undeploy(adaptors[1], getEarName() + ".ear");
       

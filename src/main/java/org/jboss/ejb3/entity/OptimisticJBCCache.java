@@ -21,27 +21,24 @@
  */
 package org.jboss.ejb3.entity;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.Comparator;
+import java.util.Properties;
+
+import javax.transaction.Transaction;
+import javax.transaction.TransactionManager;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.OptimisticCache;
 import org.hibernate.cache.OptimisticCacheSource;
-import org.hibernate.cache.StandardQueryCache;
-import org.hibernate.cache.UpdateTimestampsCache;
+import org.hibernate.cache.QueryKey;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.Node;
-import org.jboss.cache.Region;
+import org.jboss.cache.NodeSPI;
 import org.jboss.cache.optimistic.DataVersion;
-import org.jboss.cache.config.Configuration;
 import org.jboss.cache.config.Option;
 import org.jboss.cache.lock.TimeoutException;
+import org.jboss.logging.Logger;
 
 /**
  * Represents a particular region within the given JBossCache TreeCache
@@ -52,54 +49,59 @@ import org.jboss.cache.lock.TimeoutException;
  * @author Steve Ebersole
  * @author Brian Stansberry
  */
-public class OptimisticJBCCache implements OptimisticCache {
+public class OptimisticJBCCache extends JBCCacheBase implements OptimisticCache 
+{
 
-	// todo : eventually merge this with TreeCache and just add optional opt-lock support there.
+   private static final Logger log = Logger.getLogger(OptimisticJBCCache.class);
+   
+   private OptimisticCacheSource source;
 
-	private static final Log log = LogFactory.getLog( OptimisticJBCCache.class);
+   public OptimisticJBCCache(org.jboss.cache.Cache<Object, Object> cache, 
+         String regionName, String regionPrefix, 
+         TransactionManager transactionManager,
+         Properties properties) 
+   throws CacheException {
+      super(cache, regionName, regionPrefix, transactionManager, properties);
+   }
 
-	private static final String ITEM = "item";
+   @Override
+   protected void establishRegionRootNode()
+   {
+      // Don't hold a transactional lock for this 
+      Transaction tx = suspend();
+      Node<Object, Object> newRoot = null;
+      try {
+         // Make sure the root node for the region exists and 
+         // has a DataVersion that never complains
+         newRoot = createRegionRootNode();
+      }
+      finally {
+         resume(tx);
+         regionRoot = newRoot;
+      }
+   }
 
-	private org.jboss.cache.Cache cache;
-	private final String regionName;
-	private final Fqn regionFqn;
-	private OptimisticCacheSource source;
-    private boolean localWritesOnly;
+   @Override
+   protected Node<Object, Object> createRegionRootNode()
+   {
+      Node<Object, Object> root = cache.getRoot();
+      Node<Object, Object> targetNode = root.getChild( regionFqn );
+      if (targetNode == null || !targetNode.isValid()) {
+         cache.getInvocationContext().getOptionOverrides().setDataVersion(NonLockingDataVersion.INSTANCE);          
+         targetNode = root.addChild( regionFqn );    
+      }
+      else if (targetNode instanceof NodeSPI) {
+         // FIXME Hacky workaround to JBCACHE-1202
+         if ( !( ( ( NodeSPI ) targetNode ).getVersion() instanceof NonLockingDataVersion ) ) {
+              ((NodeSPI) targetNode).setVersion(NonLockingDataVersion.INSTANCE);
+         }
+      }
 
-	public OptimisticJBCCache(org.jboss.cache.Cache cache, 
-                              String regionName, String regionPrefix)
-	throws CacheException {
-		this.cache = cache;
-		this.regionName = regionName;
-        this.regionFqn = Fqn.fromString(SecondLevelCacheUtil.createRegionFqn(regionName, regionPrefix));
-        Configuration config = cache.getConfiguration();
-        if (config.isUseRegionBasedMarshalling())
-        {           
-           localWritesOnly = StandardQueryCache.class.getName().equals(regionName);
-           
-           boolean fetchState = config.isFetchInMemoryState();
-           try
-           {
-              // We don't want a state transfer for the StandardQueryCache,
-              // as it can include classes from multiple scoped classloaders
-              if (localWritesOnly)
-                 config.setFetchInMemoryState(false);
-              
-              // We always activate
-              activateCacheRegion(regionFqn.toString());
-           }
-           finally
-           {
-              // Restore the normal state transfer setting
-              if (localWritesOnly)
-                 config.setFetchInMemoryState(fetchState);              
-           }
-        }
-        else
-        {
-           log.debug("TreeCache is not configured for region based marshalling");
-        }
-	}
+      // Never evict this node
+      targetNode.setResident(true);
+
+      return targetNode;
+   }
 
 
 	// OptimisticCache impl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,14 +114,18 @@ public class OptimisticJBCCache implements OptimisticCache {
 		writeUpdate( key, value, currentVersion, null );
 	}
 
+	@SuppressWarnings("unchecked")
 	public void writeUpdate(Object key, Object value, Object currentVersion, Object previousVersion) {
 		try {
+            ensureRegionRootExists();
+            
 			Option option = new Option();
 			DataVersion dv = ( source != null && source.isVersioned() )
 			                 ? new DataVersionAdapter( currentVersion, previousVersion, source.getVersionComparator(), source.toString() )
 			                 : NonLockingDataVersion.INSTANCE;
 			option.setDataVersion( dv );
-            option.setCacheModeLocal(localWritesOnly);
+			if (localOnlyQueries && key instanceof QueryKey)
+               option.setCacheModeLocal(true);
             cache.getInvocationContext().setOptionOverrides(option);
 			cache.put( new Fqn( regionFqn, key ), ITEM, value );
 		}
@@ -128,48 +134,86 @@ public class OptimisticJBCCache implements OptimisticCache {
 		}
 	}
 
-	public void writeLoad(Object key, Object value, Object currentVersion) {
-		try {
-			Option option = new Option();
-			option.setFailSilently( true );
-			option.setDataVersion( NonLockingDataVersion.INSTANCE );
-            option.setCacheModeLocal(localWritesOnly);
-            cache.getInvocationContext().setOptionOverrides(option);
-			cache.remove( new Fqn( regionFqn, key ), "ITEM" );
+	@SuppressWarnings("unchecked")
+    public void writeLoad(Object key, Object value, Object currentVersion) {
+	   Transaction tx = null;
+	   try {
+	      Option option = new Option();
+	      DataVersion dv = ( source != null && source.isVersioned() )
+	                           ? new DataVersionAdapter( currentVersion, currentVersion, source.getVersionComparator(), source.toString() )
+	                           : NonLockingDataVersion.INSTANCE;
+	      option.setDataVersion( dv );
 
-			option = new Option();
-			option.setFailSilently( true );
-			DataVersion dv = ( source != null && source.isVersioned() )
-			                 ? new DataVersionAdapter( currentVersion, currentVersion, source.getVersionComparator(), source.toString() )
-			                 : NonLockingDataVersion.INSTANCE;
-			option.setDataVersion( dv );
-            option.setCacheModeLocal(localWritesOnly);
-            cache.getInvocationContext().setOptionOverrides(option);
-			cache.put( new Fqn( regionFqn, key ), ITEM, value );
-		}
-		catch (Exception e) {
-			throw SecondLevelCacheUtil.convertToHibernateException(e);
-		}
+	      if (forTimestamps) 
+	      {
+	         tx = suspend();
+
+	         ensureRegionRootExists();
+
+	         // Timestamps don't use putForExternalRead, but are async
+	         if (forceAsync)
+	            option.setForceAsynchronous(true);
+	         cache.getInvocationContext().setOptionOverrides(option);
+	         cache.put(new Fqn( regionFqn, key ), ITEM, value);               
+	      }
+	      else if (key instanceof QueryKey) 
+	      {
+	         ensureRegionRootExists();
+
+	         option.setCacheModeLocal(localOnlyQueries);
+             option.setLockAcquisitionTimeout(2);
+	         cache.getInvocationContext().setOptionOverrides(option);
+	         cache.put( new Fqn( regionFqn, key ), ITEM, value );
+	      }
+	      else
+	      {
+	         ensureRegionRootExists();
+	         cache.getInvocationContext().setOptionOverrides(option);
+	         cache.putForExternalRead( new Fqn( regionFqn, key ), ITEM, value );
+	      }
+	   }
+	   catch (TimeoutException te) {
+	      if (!(key instanceof QueryKey))
+	         throw SecondLevelCacheUtil.convertToHibernateException(te);
+	   } 
+	   catch (Exception e) {
+	      throw SecondLevelCacheUtil.convertToHibernateException(e);
+	   }
+	   finally {
+	      resume(tx);
+	   }
 	}
 
 
 	// Cache impl ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	public Object get(Object key) throws CacheException {
-		try {
-			Option option = new Option();
-			option.setFailSilently( true );
-//			option.setDataVersion( NonLockingDataVersion.INSTANCE );
-            cache.getInvocationContext().setOptionOverrides(option);
+	    Transaction tx = suspend();
+	    try {
+	        ensureRegionRootExists();
+		    if (key instanceof QueryKey)
+		    {		       
+		       cache.getInvocationContext().getOptionOverrides().setLockAcquisitionTimeout(0);		       
+		    }
+		    
 			return cache.get( new Fqn( regionFqn, key ), ITEM );
+		}
+		catch (TimeoutException e) {
+		   if (key instanceof QueryKey)
+		      return null;
+		   throw SecondLevelCacheUtil.convertToHibernateException(e);
 		}
 		catch (Exception e) {
 			throw SecondLevelCacheUtil.convertToHibernateException(e);
+		}
+		finally {
+		   resume(tx);
 		}
 	}
 
 	public Object read(Object key) throws CacheException {
 		try {
+            ensureRegionRootExists();
 			return cache.get( new Fqn( regionFqn, key ), ITEM );
 		}
 		catch (Exception e) {
@@ -179,9 +223,11 @@ public class OptimisticJBCCache implements OptimisticCache {
 
 	public void update(Object key, Object value) throws CacheException {
 		try {
+            ensureRegionRootExists();
 			Option option = new Option();
 			option.setDataVersion( NonLockingDataVersion.INSTANCE );
-            option.setCacheModeLocal(localWritesOnly);
+            if (localOnlyQueries && key instanceof QueryKey)
+               option.setCacheModeLocal(true);
             cache.getInvocationContext().setOptionOverrides(option);
 			cache.put( new Fqn( regionFqn, key ), ITEM, value );
 		}
@@ -191,51 +237,67 @@ public class OptimisticJBCCache implements OptimisticCache {
 	}
 
 	public void put(Object key, Object value) throws CacheException {
+	    Transaction tx = null;
 		try {
-			log.trace( "performing put() into region [" + regionName + "]" );
-			// do the put outside the scope of the JTA txn
-			Option option = new Option();
-			option.setFailSilently( true );
-			option.setDataVersion( NonLockingDataVersion.INSTANCE );
-            option.setCacheModeLocal(localWritesOnly);
-            cache.getInvocationContext().setOptionOverrides(option);
-			cache.put( new Fqn( regionFqn, key ), ITEM, value );
+            Option option = new Option();
+            option.setDataVersion( NonLockingDataVersion.INSTANCE );
+            if (forTimestamps) {
+               tx = suspend();
+
+               ensureRegionRootExists();
+               
+               // Timestamps don't use putForExternalRead, but are async
+               if (forceAsync)
+                  option.setForceAsynchronous(true);
+               cache.getInvocationContext().setOptionOverrides(option);
+               cache.put(new Fqn( regionFqn, key ), ITEM, value);               
+            }
+            else if (key instanceof QueryKey) { 
+               
+               ensureRegionRootExists();
+               
+               option.setCacheModeLocal(localOnlyQueries);
+               option.setLockAcquisitionTimeout(2);
+               cache.getInvocationContext().setOptionOverrides(option);
+               cache.put(new Fqn( regionFqn, key ), ITEM, value); 
+            }
+            else {
+               ensureRegionRootExists();
+               cache.getInvocationContext().setOptionOverrides(option);
+   			   cache.putForExternalRead( new Fqn( regionFqn, key ), ITEM, value );
+            }
 		}
 		catch (TimeoutException te) {
-			//ignore!
-			log.debug("ignoring write lock acquisition failure");
+			if (!(key instanceof QueryKey))
+	            throw SecondLevelCacheUtil.convertToHibernateException(te);
 		}
 		catch (Exception e) {
 			throw SecondLevelCacheUtil.convertToHibernateException(e);
+		}
+		finally {
+		   resume(tx);
 		}
 	}
 
 	public void remove(Object key) throws CacheException {
-		try {
-			// tree cache in optimistic mode seems to have as very difficult
-			// time with remove calls on non-existent nodes (NPEs)...
-			if ( cache.get( new Fqn( regionFqn, key ), ITEM ) != null ) {
-				Option option = new Option();
-				option.setDataVersion( NonLockingDataVersion.INSTANCE );
-                option.setCacheModeLocal(localWritesOnly);
-                cache.getInvocationContext().setOptionOverrides(option);
-				cache.removeNode( new Fqn( regionFqn, key ) );
-			}
-			else {
-				log.trace( "skipping remove() call as the underlying node did not seem to exist" );
-			}
-		}
-		catch (Exception e) {
-			throw SecondLevelCacheUtil.convertToHibernateException(e);
-		}
+	   try {
+	      ensureRegionRootExists();
+
+	      Option option = new Option();
+	      option.setDataVersion( NonLockingDataVersion.INSTANCE );
+	      if (localOnlyQueries && key instanceof QueryKey)
+	         option.setCacheModeLocal(true);
+	      cache.getInvocationContext().setOptionOverrides(option);
+	      cache.removeNode( new Fqn( regionFqn, key ) );
+	   }
+	   catch (Exception e) {
+	      throw SecondLevelCacheUtil.convertToHibernateException(e);
+	   }
 	}
 
 	public void clear() throws CacheException {
 		try {
-			Option option = new Option();
-			option.setDataVersion( NonLockingDataVersion.INSTANCE );
-            option.setCacheModeLocal(localWritesOnly);
-            cache.getInvocationContext().setOptionOverrides(option);
+			cache.getInvocationContext().getOptionOverrides().setDataVersion( NonLockingDataVersion.INSTANCE );
 			cache.removeNode( regionFqn );
 		}
 		catch (Exception e) {
@@ -247,13 +309,12 @@ public class OptimisticJBCCache implements OptimisticCache {
 		try {
 			Option option = new Option();
 			option.setCacheModeLocal( true );
-			option.setFailSilently( true );
 			option.setDataVersion( NonLockingDataVersion.INSTANCE );
             cache.getInvocationContext().setOptionOverrides(option);
 			cache.removeNode( regionFqn );
             
             if (cache.getConfiguration().isUseRegionBasedMarshalling() 
-                  && !isSharedClassLoaderRegion(regionName))
+                  && !SecondLevelCacheUtil.isSharedClassLoaderRegion(regionName))
             {
                inactivateCacheRegion();
             }
@@ -263,134 +324,19 @@ public class OptimisticJBCCache implements OptimisticCache {
 		}
 	}
 
-	public void lock(Object key) throws CacheException {
-		throw new UnsupportedOperationException( "TreeCache is a fully transactional cache" + regionName );
-	}
-
-	public void unlock(Object key) throws CacheException {
-		throw new UnsupportedOperationException( "TreeCache is a fully transactional cache: " + regionName );
-	}
-
-	public long nextTimestamp() {
-		return System.currentTimeMillis() / 100;
-	}
-
-	public int getTimeout() {
-		return 600; //60 seconds
-	}
-
-	public String getRegionName() {
-		return regionName;
-	}
-
-	public long getSizeInMemory() {
-		return -1;
-	}
-
-	public long getElementCountInMemory() {
-		try {
-			Set children = getChildrenNames();
-			return children == null ? 0 : children.size();
-		}
-		catch (Exception e) {
-			throw SecondLevelCacheUtil.convertToHibernateException(e);
-		}
-	}
-
-	public long getElementCountOnDisk() {
-		return 0;
-	}
-
-	public Map toMap() {
-		try {
-			Map result = new HashMap();
-			Set childrenNames = getChildrenNames();
-			if (childrenNames != null) {
-				Iterator iter = childrenNames.iterator();
-				while ( iter.hasNext() ) {
-					Object key = iter.next();
-					result.put(
-							key,
-					        cache.get( new Fqn( regionFqn, key ), ITEM )
-						);
-				}
-			}
-			return result;
-		}
-		catch (Exception e) {
-			throw SecondLevelCacheUtil.convertToHibernateException(e);
-		}
-	}
-    
-    private Set getChildrenNames()
-    {
-       try {
-          Node base = cache.getRoot().getChild( regionFqn );
-          return base == null ? null : base.getChildrenNames();
-       }
-       catch (Exception e) {
-          throw SecondLevelCacheUtil.convertToHibernateException(e);
-       }   
-    }
-
 	public String toString() {
-		return "OptimisticTreeCache(" + regionName + ')';
+		return "OptimisticJBCCache(" + regionName + ')';
 	}
-       
-    private boolean isSharedClassLoaderRegion(String regionName)
-    {
-       return (StandardQueryCache.class.getName().equals(regionName) 
-                || UpdateTimestampsCache.class.getName().equals(regionName));
-    }
-    
-    private void activateCacheRegion(String regionName) throws CacheException
-    {
-       Region region = cache.getRegion(regionFqn, true);
-       if (region.isActive() == false)
-       {
-          try
-          {
-             // Only register the classloader if it's not a shared region.  
-             // If it's shared, no single classloader is valid
-             if (!isSharedClassLoaderRegion(regionName))
-             {
-                region.registerContextClassLoader(Thread.currentThread().getContextClassLoader());
-             }
-             region.activate();
-          }
-          catch (Exception e)
-          {
-             throw SecondLevelCacheUtil.convertToHibernateException(e);
-          }
-       }
-    }
-    
-    private void inactivateCacheRegion() throws CacheException
-    {
-       Region region = cache.getRegion(regionFqn, false);
-       if (region != null && region.isActive())
-       {
-          try
-          {
-             region.deactivate();
-             region.unregisterContextClassLoader();
-          }
-          catch (Exception e)
-          {
-             throw SecondLevelCacheUtil.convertToHibernateException(e);
-          }
-       }        
-    }
 
 	public static class DataVersionAdapter implements DataVersion 
     {
         private static final long serialVersionUID = 5564692336076405571L;
 		private final Object currentVersion;
 		private final Object previousVersion;
-		private final Comparator versionComparator;
+		private final Comparator<Object> versionComparator;
 		private final String sourceIdentifer;
 
-		public DataVersionAdapter(Object currentVersion, Object previousVersion, Comparator versionComparator, String sourceIdentifer) {
+		public DataVersionAdapter(Object currentVersion, Object previousVersion, Comparator<Object> versionComparator, String sourceIdentifer) {
 			this.currentVersion = currentVersion;
 			this.previousVersion = previousVersion;
 			this.versionComparator = versionComparator;
