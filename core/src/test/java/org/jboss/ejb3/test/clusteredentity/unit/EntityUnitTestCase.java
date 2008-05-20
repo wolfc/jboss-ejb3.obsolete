@@ -45,13 +45,46 @@ extends JBossClusteredTestCase
    static boolean deployed = false;
    static int test = 0;
 
+   private EntityTest tester0;
+   private EntityTest tester1;
+   
    public EntityUnitTestCase(String name)
    {
-
       super(name);
-
    }
    
+   
+   @Override
+   protected void tearDown() throws Exception
+   {
+      super.tearDown();
+      
+      if (tester0 != null)
+      {
+         try
+         {
+            tester0.cleanup();
+         }
+         catch (Exception e)
+         {
+            log.error("Problem cleaning up tester0", e);
+         }
+      }
+      
+      if (tester1 != null)
+      {
+         try
+         {
+            tester1.cleanup();
+         }
+         catch (Exception e)
+         {
+            log.error("Problem cleaning up tester1", e);
+         }
+      }
+   }
+
+
    public void testAll() throws Exception
    {
       System.out.println("*** testServerFound()");
@@ -78,63 +111,56 @@ extends JBossClusteredTestCase
       InitialContext ctx0 = new InitialContext(prop0);
       
       System.out.println("Create node 0");
-      EntityTest tester0 = (EntityTest)ctx0.lookup("EntityTestBean/remote");
-
+      tester0 = (EntityTest)ctx0.lookup("EntityTestBean/remote");
+      System.out.println("Lookup node 1");
+      InitialContext ctx1 = new InitialContext(prop1);
+      tester1 = (EntityTest)ctx1.lookup("EntityTestBean/remote");
+      
+      tester0.getCache(isOptimistic());
+      
+      Customer customer = tester0.createCustomer();
+      
+      //Call finder twice since Hibernate seems to not actually save collections 
+      //into cache on persist(), so make sure it is put into cache on find.       
+      System.out.println("Find node 0");
+      customer = tester0.findByCustomerId(customer.getId());
+      System.out.println("Find(2) node 0");
+      customer = tester0.findByCustomerId(customer.getId());
+      
+      //Check everything was in cache
+      System.out.println("Check cache 0");
       try
       {
-         tester0.getCache(isOptimistic());
-         
-         Customer customer = tester0.createCustomer();
-         
-         //Call finder twice since Hibernate seems to not actually save collections 
-         //into cache on persist(), so make sure it is put into cache on find.       
-         System.out.println("Find node 0");
-         customer = tester0.findByCustomerId(customer.getId());
-         System.out.println("Find(2) node 0");
-         customer = tester0.findByCustomerId(customer.getId());
-         
-         //Check everything was in cache
-         System.out.println("Check cache 0");
-         try
-         {
-            tester0.loadedFromCache();
-         }
-         catch (Exception e)
-         {
-            log.info("Call to tester0 failed", e);
-            fail(e.getMessage());
-         }
-   
-         // The above placement of the collection in the cache is replicated async
-         // so pause a bit before checking node 1
-         sleep(SLEEP_TIME);
-         
-         //Now connect to cache on node2 and make sure it is all there
-         System.out.println("Lookup node 1");
-         InitialContext ctx1 = new InitialContext(prop1);
-         
-         EntityTest tester1 = (EntityTest)ctx1.lookup("EntityTestBean/remote");
-         tester1.getCache(isOptimistic());
-         
-         System.out.println("Find node 1");
-         customer = tester1.findByCustomerId(customer.getId());
-   
-         //Check everything was in cache
-         System.out.println("Check cache 1");
-         try
-         {
-            tester1.loadedFromCache();
-         }
-         catch (Exception e)
-         {
-            log.info("Call to tester1 failed", e);
-            fail(e.getMessage());
-         }
+         tester0.loadedFromCache();
       }
-      finally
+      catch (Exception e)
       {
-         // cleanup the db so we can run this test multiple times w/o restarting the cluster
-         tester0.cleanup();
+         log.info("Call to tester0 failed", e);
+         fail(e.getMessage());
+      }
+
+      // The above placement of the collection in the cache is replicated async
+      // so pause a bit before checking node 1
+      sleep(SLEEP_TIME);
+      
+      //Now connect to cache on node2 and make sure it is all there
+      
+      
+      tester1.getCache(isOptimistic());
+      
+      System.out.println("Find node 1");
+      customer = tester1.findByCustomerId(customer.getId());
+
+      //Check everything was in cache
+      System.out.println("Check cache 1");
+      try
+      {
+         tester1.loadedFromCache();
+      }
+      catch (Exception e)
+      {
+         log.info("Call to tester1 failed", e);
+         fail(e.getMessage());
       }
    }
 

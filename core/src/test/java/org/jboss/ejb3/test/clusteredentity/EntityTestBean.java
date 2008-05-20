@@ -60,7 +60,7 @@ public class EntityTestBean implements EntityTest
    
    private String cacheConfigName;
    
-   private transient Cache cache;
+   private transient Cache<Object, Object> cache;
    
    private transient MyListener listener;
 
@@ -78,7 +78,7 @@ public class EntityTestBean implements EntityTest
       try
       {
          //Just to initialise the cache with a listener
-         Cache cache = getCache();
+         Cache<Object, Object> cache = getCache();
          if (listener == null)
          {
             listener = new MyListener();
@@ -193,7 +193,6 @@ public class EntityTestBean implements EntityTest
             Cache c = getCache();
             if (c != null)
                c.removeCacheListener(listener);
-            listener = null;
          }
       }
       catch (Exception e)
@@ -232,7 +231,7 @@ public class EntityTestBean implements EntityTest
       }
    }
 
-   private Cache getCache() throws Exception
+   private Cache<Object, Object> getCache() throws Exception
    {
       if (cache == null && cacheConfigName != null)
       {

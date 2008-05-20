@@ -99,7 +99,7 @@ extends JBossClusteredTestCase
       {
          try
          {
-            sfsb0.remove();
+            sfsb0.remove(true);
          }
          catch (Exception e) {}
       }
@@ -107,7 +107,7 @@ extends JBossClusteredTestCase
       {
          try
          {
-            sfsb1.remove();
+            sfsb1.remove(true);
          }
          catch (Exception e) {}
       }
@@ -191,8 +191,9 @@ extends JBossClusteredTestCase
     *                                <code>false</code> if it should be assumed
     *                                the region is activated and able to 
     *                                receive replication events.
+    * @param localOnly TODO
     */
-   protected void queryTest(boolean setupEntities, boolean useNamedQuery, boolean useNamedRegion, boolean expectInactivatedRegion)
+   protected void queryTest(boolean setupEntities, boolean useNamedQuery, boolean useNamedRegion, boolean expectInactivatedRegion, boolean localOnly)
    {
       if (setupEntities)
          standardEntitySetup();
@@ -219,31 +220,31 @@ extends JBossClusteredTestCase
       // Sleep a bit to allow async repl to happen
       sleep(SLEEP_TIME);
       
-      // If region isn't activated yet, should not have been modified      
-      if (expectInactivatedRegion)
+      // If region is activated and cache isn't localOnly, replication should have been modified
+      boolean modifiedRemotely = sfsb1.getSawRegionModification(regionName);
+      assertEquals("Query cache remotely modified " + regionName, 
+                   !expectInactivatedRegion && !localOnly,
+                   modifiedRemotely);
+      // Clear the access state
+      sfsb1.getSawRegionAccess(regionName);
+      
+      assertEquals("63088 has correct # of accounts", 6, sfsb1.getCountForBranch("63088", useNamedQuery, useNamedRegion));
+      
+      if (!modifiedRemotely)
       {
-         assertFalse("Query cache remotely modified " + regionName, 
+         // If not replicated before, local query should have cached it
+         assertTrue("Query cache modified " + regionName,
                       sfsb1.getSawRegionModification(regionName));
          // Clear the access state
          sfsb1.getSawRegionAccess(regionName);
       }
-      else //if (useNamedRegion)
+      else
       {
-         assertTrue("Query cache remotely modified " + regionName, 
-                    sfsb1.getSawRegionModification(regionName));
-         // Clear the access state
-         sfsb1.getSawRegionAccess(regionName);         
-      }
-      
-      assertEquals("63088 has correct # of accounts", 6, sfsb1.getCountForBranch("63088", useNamedQuery, useNamedRegion));
-      
-      if (expectInactivatedRegion)
-      {
-         // Query should have activated the region and then been inserted
-         assertTrue("Query cache modified " + regionName, 
-                    sfsb1.getSawRegionModification(regionName));
-         // Clear the access state
-         sfsb1.getSawRegionAccess(regionName);
+         // Hibernate may change the query SQL slightly, so we could either
+         // have a modification or an access; either are OK
+         boolean modified = sfsb1.getSawRegionModification(regionName);
+         boolean accessed = sfsb1.getSawRegionAccess(regionName);
+         assertTrue("Query cache used " + regionName, modified || accessed);
       }
       
       log.info("First query on node 1 done");
@@ -272,9 +273,9 @@ extends JBossClusteredTestCase
       // Do it again from node 1
       
       // First check if the previous queries replicated (if the region is replicable)
-      
-      assertTrue("Query cache remotely modified " + regionName, 
-                 sfsb1.getSawRegionModification(regionName));
+      modifiedRemotely = sfsb1.getSawRegionModification(regionName);
+      assertEquals("Query cache remotely modified " + regionName,
+                   !localOnly, modifiedRemotely);
       // Clear the access state
       sfsb1.getSawRegionAccess(regionName);
       
@@ -282,11 +283,22 @@ extends JBossClusteredTestCase
       
       assertEquals("Correct high balances for Jones", 40, sfsb1.getTotalBalance(JONES, useNamedQuery, useNamedRegion));
       
-      // Should be no change; query was already there
-      assertFalse("Query cache modified " + regionName, 
-                  sfsb1.getSawRegionModification(regionName));
-      assertTrue("Query cache accessed " + regionName, 
-                 sfsb1.getSawRegionAccess(regionName));
+      if (!modifiedRemotely)
+      {
+         // If not replicated before, local query should have cached it
+         assertTrue("Query cache modified " + regionName,
+                      sfsb1.getSawRegionModification(regionName));
+         // Clear the access state
+         sfsb1.getSawRegionAccess(regionName);
+      }
+      else
+      {
+         // Hibernate may change the query SQL slightly, so we could either
+         // have a modification or an access; either are OK
+         boolean modified = sfsb1.getSawRegionModification(regionName);
+         boolean accessed = sfsb1.getSawRegionAccess(regionName);
+         assertTrue("Query cache used " + regionName, modified || accessed);
+      }
       
       log.info("Second set of queries on node1 done");
       

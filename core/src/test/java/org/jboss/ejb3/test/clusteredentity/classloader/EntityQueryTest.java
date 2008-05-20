@@ -52,6 +52,6 @@ public interface EntityQueryTest
    
    public abstract void cleanup();
    
-   public abstract void remove();
+   public abstract void remove(boolean removeEntities);
 
 }
