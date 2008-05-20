@@ -1,4 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
@@ -520,16 +526,19 @@
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-main</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
     </dependency>     
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system-jmx</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
@@ -541,11 +550,13 @@
           <artifactId>jboss-test</artifactId>
         </exclusion>        
       </exclusions>      
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-j2se</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
     </dependency>
     
     <!-- this needs to be removed - EJBTHREE-1343 -->
@@ -559,6 +570,7 @@
           <artifactId>jboss-as-security</artifactId>
         </exclusion>        
       </exclusions>      
+      <scope>provided</scope>
     </dependency>
     
     <dependency>
