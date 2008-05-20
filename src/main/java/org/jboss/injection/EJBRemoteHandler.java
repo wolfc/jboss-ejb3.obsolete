@@ -161,6 +161,10 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       // Initialize the lookupName to the encName
       String lookupName = encName;
       
+      // EJBTHREE-1289: this code should be enabled, but MappedDeploymentEndpointResolver is broken
+//      assert lookupName.startsWith("env/") : "encName used to start with 'env/'";
+//      lookupName = lookupName.substring(4);
+      
       // mappedName can be null, because an annotation has not been augmented with resolvedJndiName
       if (mappedName == null)
       {
@@ -193,6 +197,10 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       
       if (mappedName == null)
       {
+         // TODO: remove this block, see previous comments
+         log.warn("EJBTHREE-1289: Using legacy EjbEncInjector, because mappedName for enc \"" + encName + "\", field \"" + fieldName
+            + "\" is null (container.environmentRefGroup.annotatedEjbReferences = "
+            + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")");
          // legacy
          injector = new EjbEncInjector(encName, refClass, link, errorType);
       }
