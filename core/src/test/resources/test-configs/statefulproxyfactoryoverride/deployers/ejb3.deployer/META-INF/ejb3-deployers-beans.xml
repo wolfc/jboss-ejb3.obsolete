@@ -114,9 +114,6 @@
       </property>
       <depends>AspectLibrary</depends>
    </bean>
-   <bean name="EJBStage2Deployer" class="org.jboss.ejb3.deployers.EJBStage2Deployer">
-      <depends>AspectLibrary</depends>
-   </bean>
    
    <bean name="AppClientParsingDeployer" class="org.jboss.ejb3.deployers.AppClientParsingDeployer">
       <property name="type">car</property>
