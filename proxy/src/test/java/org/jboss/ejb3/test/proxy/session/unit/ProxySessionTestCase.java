@@ -33,18 +33,20 @@ import javax.naming.InitialContext;
 import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
 import org.jboss.ejb3.test.proxy.common.EmbeddedTestMcBootstrap;
-import org.jboss.ejb3.test.proxy.common.StatelessContainer;
-import org.jboss.ejb3.test.proxy.session.MyStatelessBean;
-import org.jboss.ejb3.test.proxy.session.MyStatelessLocal;
-import org.jboss.ejb3.test.proxy.session.MyStatelessLocalHome;
-import org.jboss.ejb3.test.proxy.session.MyStatelessRemote;
-import org.jboss.ejb3.test.proxy.session.MyStatelessRemoteHome;
+import org.jboss.ejb3.test.proxy.common.Utils;
+import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.annotation.creator.ejb.EjbJar30Creator;
 import org.jboss.metadata.annotation.finder.AnnotationFinder;
 import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionPolicyDecorator;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
 import org.junit.AfterClass;
@@ -75,64 +77,11 @@ public class ProxySessionTestCase
 
       bootstrap.deploy(ProxySessionTestCase.class);
 
-      // emulate annotation deployer
-      AnnotationFinder<AnnotatedElement> finder = new DefaultAnnotationFinder<AnnotatedElement>();
-      Collection<Class<?>> classes = new HashSet<Class<?>>();
-      classes.add(MyStatelessBean.class);
-      EjbJar30MetaData metaData = new EjbJar30Creator(finder).create(classes);
-
-      // emulate merge deployer
-      JBossMetaData mergedMetaData = new JBossMetaData();
-      mergedMetaData.merge(null, metaData);
-
-      JBossSessionBeanMetaData beanMetaData = (JBossSessionBeanMetaData) mergedMetaData
-            .getEnterpriseBean("MyStatelessBean");
-
-      // Set a deployment summary (mock the resolver deployer)
-      ClassLoader loader = MyStatelessBean.class.getClassLoader(); //TODO was: unit.getClassLoader()
-      EjbDeploymentSummary summary = new EjbDeploymentSummary();
-      summary.setBeanMD(beanMetaData);
-      summary.setBeanClassName(beanMetaData.getEjbClass());
-      summary.setDeploymentName(MyStatelessBean.class.getSimpleName()); //TODO was: unit.getShortName()
-      String baseName = MyStatelessBean.class.getSimpleName(); //TODO was: unit.getRootFile().getName()
-      summary.setDeploymentScopeBaseName(baseName);
-      summary.setEjbName(beanMetaData.getEjbName());
-      summary.setLoader(loader);
-      summary.setLocal(beanMetaData.isMessageDriven());
-      if (beanMetaData instanceof JBossSessionBeanMetaData)
-      {
-         JBossSessionBeanMetaData sbeanMD = (JBossSessionBeanMetaData) beanMetaData;
-         summary.setStateful(sbeanMD.isStateful());
-      }
-      summary.setService(beanMetaData.isService());
-
-      // Set the deployment summary
-      mergedMetaData.setDeploymentSummary(summary);
-
-      // Log out JNDI Names
-      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // MyStatelessBean/remote
-      for (String businessInterface : beanMetaData.getBusinessRemotes())
-      {
-         log.info("Business Remote JNDI Name for " + businessInterface + ": "
-               + beanMetaData.determineResolvedJndiName(businessInterface));
-      }
-      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // MyStatelessBean/local
-      for (String businessInterface : beanMetaData.getBusinessLocals())
-      {
-         log.info("Business Local JNDI Name for " + businessInterface + ": "
-               + beanMetaData.determineResolvedJndiName(businessInterface));
-      }
-      log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getLocalHome()));
-      log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getHome()));
-
-      // Create a unique container name
-      String containerName = MicrocontainerBindings.MC_NAMESPACE_CONTAINER_STATELESS + beanMetaData.getEjbName();
-
-      // Make a Container
-      StatelessContainer container = new StatelessContainer(containerName, beanMetaData);
+      // Create a SLSB
+      StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
 
       // Install into MC
-      bootstrap.installInstance(containerName, container);
+      bootstrap.installInstance(container.getName(), container);
    }
 
    /**
@@ -181,7 +130,7 @@ public class ProxySessionTestCase
    {
       InitialContext ctx = new InitialContext();
 
-      Object bean = ctx.lookup("MyStatelessBean/remoteHome"); // "home" or "remoteHome"?
+      Object bean = ctx.lookup("MyStatelessBean/home");
       assertTrue(bean instanceof MyStatelessRemoteHome);
    }
 }

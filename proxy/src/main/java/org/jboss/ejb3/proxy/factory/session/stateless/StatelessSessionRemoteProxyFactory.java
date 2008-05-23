@@ -46,6 +46,8 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
 
    private static final Logger logger = Logger.getLogger(StatelessSessionRemoteProxyFactory.class);
 
+   private static final String STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS = "StatelessSessionClientInterceptors";
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -117,9 +119,21 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
       }
       catch (NoSuchMethodException e)
       {
-         throw new RuntimeException("Could not find Constructor with one String argument for "
+         throw new RuntimeException("Could not find Constructor with two String arguments for "
                + StatelessProxyInvocationHandler.class.getName(), e);
       }
+   }
+
+   /**
+    * Return the name of the interceptor stack to apply to 
+    * proxies created by this proxy factory
+    * 
+    * @return
+    */
+   @Override
+   protected String getInterceptorStackName()
+   {
+      return StatelessSessionRemoteProxyFactory.STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS;
    }
 
    // --------------------------------------------------------------------------------||

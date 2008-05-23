@@ -130,7 +130,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       {
          // Create a new Proxy instance, and return
          return this.getConstructorProxyHome().newInstance(
-               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),null));
+               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(), null));
 
       }
       catch (Throwable t)
@@ -153,19 +153,21 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyDefault()
    {
-      // Initialize an error message
-      String errorMessage = "Could not create the Default Proxy for " + this.getMetadata().getEjbName();
+      // Obtain Constructor to Default Proxy
+      Constructor<?> constructor = this.getConstructorProxyDefault();
+      assert constructor != null : "Constructor for Default Proxy was null; perhaps the "
+            + SessionProxyFactory.class.getSimpleName() + " was not properly started?";
 
       try
       {
          // Create a new Proxy instance, and return
-         return this.getConstructorProxyDefault().newInstance(
-               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(), null));
+         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),
+               null));
       }
       catch (Throwable t)
       {
          // Throw a descriptive error message along with the originating Throwable 
-         throw new RuntimeException(errorMessage, t);
+         throw new RuntimeException("Could not create the Default Proxy for " + this.getMetadata().getEjbName(), t);
       }
    }
 
@@ -179,10 +181,6 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyBusiness(final String businessInterfaceName)
    {
-      // Initialize an error message
-      String errorMessage = "Could not create the EJB3 Business Proxy implementing \"" + businessInterfaceName
-            + "\" for " + this.getMetadata().getEjbName();
-
       try
       {
          // Ensure businessInterfaceName is specified
@@ -203,7 +201,8 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       catch (Throwable t)
       {
          // Throw a descriptive error message along with the originating Throwable 
-         throw new RuntimeException(errorMessage, t);
+         throw new RuntimeException("Could not create the EJB3 Business Proxy implementing \"" + businessInterfaceName
+               + "\" for " + this.getMetadata().getEjbName(), t);
       }
    }
 
@@ -214,9 +213,6 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyEjb2x()
    {
-      // Initialize an error message
-      String errorMessage = "Could not create the EJB2.x Proxy for " + this.getMetadata().getEjbName();
-
       try
       {
          // Create a new Proxy instance, and return
@@ -226,7 +222,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       catch (Throwable t)
       {
          // Throw a descriptive error message along with the originating Throwable 
-         throw new RuntimeException(errorMessage, t);
+         throw new RuntimeException("Could not create the EJB2.x Proxy for " + this.getMetadata().getEjbName(), t);
       }
    }
 

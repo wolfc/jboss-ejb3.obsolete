@@ -19,15 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.session;
-
-import javax.ejb.EJBLocalHome;
+package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface MyStatelessLocalHome extends EJBLocalHome
+public interface MyStateless
 {
-   MyStateless21Local create();
+   String sayHi(String name);
 }
