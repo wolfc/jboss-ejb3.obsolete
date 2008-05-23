@@ -22,16 +22,7 @@
 
 package org.jboss.ejb3.test.clusteredsession.unit;
 
-import java.rmi.dgc.VMID;
-import java.util.Properties;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
 import junit.framework.Test;
-
-import org.jboss.ejb3.test.clusteredsession.islocal.VMTester;
-import org.jboss.test.JBossClusteredTestCase;
 
 /**
  * @author Brian Stansberry *
