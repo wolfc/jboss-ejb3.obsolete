@@ -59,23 +59,25 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
    private Object id;
    protected FamilyWrapper family;
    protected LoadBalancePolicy lbPolicy;
-   AsynchProvider provider;
+   protected AsynchProvider provider;
    protected String partitionName;
+   protected Object originTarget;
 
 
    public StatefulClusteredInvocationHandler(Container container, Interceptor[] interceptors, FamilyWrapper family,
-         LoadBalancePolicy lb, String partitionName, Object id, String businessInterfaceType)
+         LoadBalancePolicy lb, String partitionName, Object originTarget, Object id, String businessInterfaceType)
    {
       super(container, interceptors, businessInterfaceType);
       this.family = family;
       this.lbPolicy = lb;
       this.partitionName = partitionName;
       this.id = id;
+      this.originTarget = originTarget;
    }
 
    public StatefulClusteredInvocationHandler(AsynchProvider provider, String containerId, String containerGuid,
          Interceptor[] interceptors, FamilyWrapper family, LoadBalancePolicy lb, String partitionName,
-         Object id, String businessInterfaceType)
+         Object originTarget, Object id, String businessInterfaceType)
    {
       super(containerId, containerGuid, interceptors, businessInterfaceType);
       this.provider = provider;
@@ -83,6 +85,7 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
       this.lbPolicy = lb;
       this.partitionName = partitionName;
       this.id = id;
+      this.originTarget = originTarget;
    }
 
    protected StatefulClusteredInvocationHandler()
@@ -108,10 +111,11 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
       sri.setArguments(args);
       sri.setInstanceResolver(metadata);
       sri.getMetaData().addMetaData(Dispatcher.DISPATCHER, Dispatcher.OID, containerId, PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.CLUSTER_FAMILY_WRAPPER, family, PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.LOADBALANCE_POLICY, lbPolicy, PayloadKey.AS_IS);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.CLUSTER_FAMILY_WRAPPER, family, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.LOADBALANCE_POLICY, lbPolicy, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.HA_TARGET, originTarget, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.PARTITION_NAME, partitionName, PayloadKey.TRANSIENT);
       sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.SUBSYSTEM, "AOP", PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusteredIsLocalInterceptor.PARTITION_NAME, ClusteredIsLocalInterceptor.PARTITION_NAME, partitionName, PayloadKey.TRANSIENT);
       sri.getMetaData().addMetaData(IsLocalInterceptor.IS_LOCAL, IsLocalInterceptor.GUID, containerGuid, PayloadKey.AS_IS);
       
       if (provider != null)
@@ -146,7 +150,8 @@ public class StatefulClusteredInvocationHandler extends org.jboss.ejb3.proxy.han
          AsynchMixin mixin = new AsynchMixin();
          Interceptor[] newInterceptors = ProxyUtils.addAsynchProxyInterceptor(mixin, interceptors);
          StatefulClusteredInvocationHandler handler = new StatefulClusteredInvocationHandler(mixin, containerId,
-               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.id, this.getBusinessInterfaceType());
+               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.originTarget, this.id, 
+               this.getBusinessInterfaceType());
          return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, handler);
       }
 
