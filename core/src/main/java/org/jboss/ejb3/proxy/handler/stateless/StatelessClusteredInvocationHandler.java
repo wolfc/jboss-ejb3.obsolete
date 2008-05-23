@@ -34,7 +34,6 @@ import org.jboss.aspects.remoting.ClusterConstants;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
 import org.jboss.ejb3.proxy.JBossProxy;
 import org.jboss.ejb3.proxy.ProxyUtils;
@@ -56,27 +55,30 @@ public class StatelessClusteredInvocationHandler extends BaseProxyInvocationHand
 
    protected FamilyWrapper family;
    protected LoadBalancePolicy lbPolicy;
-   AsynchProvider provider;
+   protected AsynchProvider provider;
    protected String partitionName;
+   protected Object originTarget;
 
    public StatelessClusteredInvocationHandler(Container container, Interceptor[] interceptors, FamilyWrapper family,
-         LoadBalancePolicy lbPolicy, String partitionName, String businessInterfaceClassName)
+         LoadBalancePolicy lbPolicy, String partitionName, Object originTarget, String businessInterfaceClassName)
    {
       super(container, interceptors, businessInterfaceClassName);
       this.family = family;
       this.lbPolicy = lbPolicy;
       this.partitionName = partitionName;
+      this.originTarget = originTarget;
    }
 
    public StatelessClusteredInvocationHandler(AsynchProvider provider, String containerId, String containerGuid,
          Interceptor[] interceptors, FamilyWrapper family, LoadBalancePolicy lbPolicy, String partitionName,
-         String businessInterfaceClassName)
+         Object originTarget, String businessInterfaceClassName)
    {
       super(containerId, containerGuid, interceptors, businessInterfaceClassName);
       this.provider = provider;
       this.family = family;
       this.lbPolicy = lbPolicy;
       this.partitionName = partitionName;
+      this.originTarget = originTarget;
    }
 
    public StatelessClusteredInvocationHandler()
@@ -102,10 +104,11 @@ public class StatelessClusteredInvocationHandler extends BaseProxyInvocationHand
       sri.setArguments(args);
       sri.setInstanceResolver(metadata);
       sri.getMetaData().addMetaData(Dispatcher.DISPATCHER, Dispatcher.OID, containerId, PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.CLUSTER_FAMILY_WRAPPER, family, PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.LOADBALANCE_POLICY, lbPolicy, PayloadKey.AS_IS);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.CLUSTER_FAMILY_WRAPPER, family, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.LOADBALANCE_POLICY, lbPolicy, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.HA_TARGET, originTarget, PayloadKey.TRANSIENT);
+      sri.getMetaData().addMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.PARTITION_NAME, partitionName, PayloadKey.TRANSIENT);
       sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.SUBSYSTEM, "AOP", PayloadKey.AS_IS);
-      sri.getMetaData().addMetaData(ClusteredIsLocalInterceptor.PARTITION_NAME, ClusteredIsLocalInterceptor.PARTITION_NAME, partitionName, PayloadKey.TRANSIENT);
       sri.getMetaData().addMetaData(IsLocalInterceptor.IS_LOCAL, IsLocalInterceptor.GUID, containerGuid, PayloadKey.AS_IS);
       
       if (provider != null)
@@ -124,7 +127,7 @@ public class StatelessClusteredInvocationHandler extends BaseProxyInvocationHand
          AsynchMixin mixin = new AsynchMixin();
          Interceptor[] newInterceptors = ProxyUtils.addAsynchProxyInterceptor(mixin, interceptors);
          StatelessClusteredInvocationHandler handler = new StatelessClusteredInvocationHandler(mixin, containerId,
-               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.getBusinessInterfaceType());
+               containerGuid, newInterceptors, family, lbPolicy, partitionName, this.originTarget, this.getBusinessInterfaceType());
          return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(), interfaces, handler);
       }
 
