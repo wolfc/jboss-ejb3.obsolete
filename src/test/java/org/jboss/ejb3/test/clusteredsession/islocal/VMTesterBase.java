@@ -38,10 +38,17 @@ public class VMTesterBase
 {
    private static final Logger log = Logger.getLogger(VMTesterBase.class);
    
+   private final VMID creatorVMID = VMTester.VMID;
+   
    public VMID getVMID()
    {
       log.debug("Ignore; just a stack trace", new Exception("Ignore; just a stack trace"));
       return VMTester.VMID;
+   }
+   
+   public VMID getCreatorVMID()
+   {
+      return creatorVMID;
    }
 
    public VMID getVMIDFromRemoteLookup(String jndiURL, String name)

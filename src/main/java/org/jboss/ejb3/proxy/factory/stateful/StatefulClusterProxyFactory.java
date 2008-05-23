@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.factory.stateful;
 
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +31,11 @@ import javax.naming.NamingException;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.AdviceStack;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.ClusterChooserInterceptor;
+import org.jboss.aspects.remoting.ClusteredPojiProxy;
 import org.jboss.aspects.remoting.FamilyWrapper;
-import org.jboss.aspects.remoting.Remoting;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -41,12 +45,14 @@ import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
 import org.jboss.ejb3.proxy.handler.stateful.StatefulClusteredInvocationHandler;
+import org.jboss.ejb3.remoting.ClusteredIsLocalInterceptor;
 import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
 import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
-import org.jboss.ha.client.loadbalance.FirstAvailable;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
+import org.jboss.ha.client.loadbalance.RoundRobin;
+import org.jboss.ha.client.loadbalance.aop.FirstAvailable;
 import org.jboss.ha.framework.interfaces.ClusteringTargetsRepository;
 import org.jboss.ha.framework.interfaces.DistributedReplicantManager;
 import org.jboss.ha.framework.interfaces.HAPartition;
@@ -77,6 +83,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    private HATarget hatarget;
    private String proxyFamilyName;
    private String partitionName;
+   private HAPartition partition;
    private LoadBalancePolicy lbPolicy;
    private FamilyWrapper wrapper;
 
@@ -141,12 +148,12 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    {
       this.init();
       
-      RemoteBinding binding = this.getBinding();
       InvokerLocator locator = this.getLocator();
       SessionContainer container = this.getContainer();
       partitionName = container.getPartitionName();
       proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
-      HAPartition partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
+      partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
+      drm = partition.getDistributedReplicantManager();
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
       container.getClusterFamilies().put(proxyFamilyName, hatarget);
@@ -171,14 +178,44 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       }
       wrapper = new FamilyWrapper(proxyFamilyName, hatarget.getReplicants());
       
-      this.drm = partition.getDistributedReplicantManager();
       drm.registerListener(proxyFamilyName, this);
       
       super.start();
       
+      // Set up the proxy to ourself. Needs to be clustered so it can load 
+      // balance requests (EJBTHREE-1375). We use the home load balance policy.
+      
+      LoadBalancePolicy factoryLBP = null;
+      if (clustered.homeLoadBalancePolicy() == null || clustered.homeLoadBalancePolicy().equals(ClusteredDefaults.LOAD_BALANCE_POLICY_DEFAULT))
+      {
+         factoryLBP = new RoundRobin();
+      }
+      else
+      {
+         String policyClass = clustered.homeLoadBalancePolicy();
+         try
+         {
+            RemoteProxyFactoryRegistry registry = container.getDeployment().getRemoteProxyFactoryRegistry();
+            Class<LoadBalancePolicy> policy = registry.getLoadBalancePolicy(policyClass);
+            policyClass = policy.getName();
+         }
+         catch (LoadBalancePolicyNotRegisteredException e){}
+         
+         factoryLBP = (LoadBalancePolicy)Thread.currentThread().getContextClassLoader().loadClass(policyClass)
+               .newInstance();
+      }
+      
       Class<?>[] interfaces = {ProxyFactory.class};
       String targetId = getTargetId();
-      Object factoryProxy = Remoting.createPojiProxy(targetId, interfaces, ProxyFactoryHelper.getClientBindUrl(binding));
+      Interceptor[] interceptors = { new ClusteredIsLocalInterceptor(), 
+                                     new ClusterChooserInterceptor(), 
+                                     InvokeRemoteInterceptor.singleton
+      };
+      
+      // We can use the same FamilyWrapper as we use for the bean
+      ClusteredPojiProxy proxy = new ClusteredPojiProxy(targetId, locator, interceptors, wrapper, 
+                                                        factoryLBP, partitionName, null);
+      Object factoryProxy =  Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, proxy);
       try
       {
          Util.rebind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME, factoryProxy);
@@ -213,7 +250,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       AdviceStack stack = AspectManager.instance().getAdviceStack(stackName);
       if (stack == null) throw new RuntimeException("unable to find interceptor stack: " + stackName);
       StatefulClusteredInvocationHandler handler = new StatefulClusteredInvocationHandler(getContainer(), stack.createInterceptors(getContainer()
-            .getAdvisor(), null), this.wrapper, this.lbPolicy, partitionName, id, businessInterfaceType);
+            .getAdvisor(), null), this.wrapper, this.lbPolicy, partitionName, getLocator(), id, businessInterfaceType);
       
       if(type.equals(SpecificationInterfaceType.EJB21))
       {
@@ -254,7 +291,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       {
          // Update the FamilyClusterInfo with the new targets
          ArrayList targets = new ArrayList(newReplicants);
-         wrapper.get().updateClusterInfo(targets, newReplicantsViewId); 
+         wrapper.get().updateClusterInfo(targets, newReplicantsViewId);
       }
       catch (Exception e)
       {

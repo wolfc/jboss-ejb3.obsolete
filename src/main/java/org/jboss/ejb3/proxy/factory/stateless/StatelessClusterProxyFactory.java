@@ -90,6 +90,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       String partitionName = container.getPartitionName();
       proxyFamilyName = container.getDeploymentQualifiedName() + locator.getProtocol() + partitionName;
       HAPartition partition = HAPartitionLocator.getHAPartitionLocator().getHAPartition(partitionName, container.getInitialContextProperties());
+      drm = partition.getDistributedReplicantManager();
       hatarget = new HATarget(partition, proxyFamilyName, locator, HATarget.ENABLE_INVOCATIONS);
       ClusteringTargetsRepository.initTarget(proxyFamilyName, hatarget.getReplicants());
       
@@ -115,7 +116,6 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       }
       wrapper = new FamilyWrapper(proxyFamilyName, hatarget.getReplicants());
       
-      this.drm = partition.getDistributedReplicantManager();
       drm.registerListener(proxyFamilyName, this);
       
       super.start();
@@ -132,7 +132,6 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
 
    public Object createProxyBusiness(String businessInterfaceClassName)
    {
-      Object containerId = getContainer().getObjectName().getCanonicalName();
       String stackName = this.getStackNameInterceptors();
       if (binding.interceptorStack() != null && !binding.interceptorStack().equals(""))
       {
@@ -146,7 +145,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       String partitionName = ((StatelessContainer) getContainer()).getPartitionName();
 
       proxy = constructProxy(new StatelessClusteredInvocationHandler(getContainer(), stack.createInterceptors(
-            getContainer().getAdvisor(), null), wrapper, lbPolicy, partitionName, businessInterfaceClassName),
+            getContainer().getAdvisor(), null), wrapper, lbPolicy, partitionName, getLocator(), businessInterfaceClassName),
             SpecificationInterfaceType.EJB30_BUSINESS);
       return proxy;
    }
@@ -162,6 +161,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       return false;
    }
    
+   @SuppressWarnings("unchecked")
    public synchronized void replicantsChanged (String key, 
          List newReplicants, 
          int newReplicantsViewId,
@@ -170,7 +170,7 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       try
       {
          // Update the FamilyClusterInfo with the new targets
-         ArrayList targets = new ArrayList(newReplicants);
+         ArrayList<Object> targets = new ArrayList<Object>(newReplicants);
          wrapper.get().updateClusterInfo(targets, newReplicantsViewId);
          
          // Rebind the proxy as the old one has been serialized
