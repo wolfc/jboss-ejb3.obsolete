@@ -384,7 +384,7 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
-      <version>1.1.0.Beta1</version>
+      <version>1.1.0.Beta2</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.aspects</groupId>
@@ -404,7 +404,7 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
-      <version>1.1.0.Beta1</version>
+      <version>1.1.0.Beta2</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss</groupId>
