@@ -95,18 +95,23 @@ public abstract class ProxyFactoryBase implements ProxyFactory
       }
       return proxyConstructor;
    }
-   
+
    // --------------------------------------------------------------------------------||
    // Contracts ----------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    /**
     * Return the name of the interceptor stack to apply to 
-    * proxies created by this proxy factory
+    * proxies created by this proxy factory, or null 
+    * if no interceptors should be applied
     * 
     * @return
     */
-   protected abstract String getInterceptorStackName();
+   protected String getInterceptorStackName()
+   {
+      // Apply no interceptors by default
+      return null;
+   }
 
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||

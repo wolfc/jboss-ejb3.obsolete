@@ -59,17 +59,17 @@ public interface MicrocontainerBindings
    /**
     * Namespace for SLSB Containers
     */
-   String MC_NAMESPACE_CONTAINER_STATELESS = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatelessSession.";
+   String MC_NAMESPACE_EJBCONTAINER_STATELESS = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatelessSession.";
 
    /**
     * Namespace for @Service Containers
     */
-   String MC_NAMESPACE_CONTAINER_SERVICE = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "Service.";
+   String MC_NAMESPACE_EJBCONTAINER_SERVICE = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "Service.";
 
    /**
     * Namespace for MDB Containers
     */
-   String MC_NAMESPACE_CONTAINER_MDB = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "MDB.";
+   String MC_NAMESPACE_EJBCONTAINER_MDB = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "MDB.";
 
    /*
     * The following are Bindings used as MC Bean Names

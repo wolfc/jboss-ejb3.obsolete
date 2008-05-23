@@ -27,19 +27,21 @@ import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
- * A simple stateless container that binds proxies and can be invoked.
+ * StatefulContainer
  * 
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * A Mock SFSB Container for use in Testing
+ *
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessContainer extends SessionSpecContainer implements InvokableContext<ContainerMethodInvocation>
+public class StatefulContainer extends SessionSpecContainer implements InvokableContext<ContainerMethodInvocation>
 {
-   public StatelessContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
+   public StatefulContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
    {
       super(metaData, classLoader);
 
       // Create and set Container Name 
-      String containerName = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATELESS + metaData.getEjbName();
+      String containerName = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATEFUL + metaData.getEjbName();
       this.setName(containerName);
 
    }

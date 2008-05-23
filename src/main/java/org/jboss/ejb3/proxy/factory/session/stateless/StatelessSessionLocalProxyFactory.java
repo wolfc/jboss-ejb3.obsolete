@@ -21,12 +21,9 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateless;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.session.stateless.StatelessProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -75,7 +72,7 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
     *  @return
     */
    @Override
-   protected Set<String> getBusinessInterfaceTypes()
+   protected final Set<String> getBusinessInterfaceTypes()
    {
       return this.getMetadata().getBusinessLocals();
    }
@@ -85,7 +82,7 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
     * @return
     */
    @Override
-   protected String getHomeType()
+   protected final String getHomeType()
    {
       return this.getMetadata().getLocalHome();
    }
@@ -96,74 +93,8 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
     *  @return
     */
    @Override
-   protected String getEjb2xInterfaceType()
+   protected final String getEjb2xInterfaceType()
    {
       return this.getMetadata().getLocal();
    }
-
-   /**
-    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
-    * instanciating new handlers to specify in Proxy Creation
-    * 
-    * @return
-    */
-   @Override
-   protected Constructor<? extends SessionProxyInvocationHandler> getInvocationHandlerConstructor()
-   {
-      try
-      {
-         return StatelessProxyInvocationHandler.class.getConstructor(new Class[]
-         {String.class, String.class});
-      }
-      catch (NoSuchMethodException e)
-      {
-         throw new RuntimeException("Could not find Constructor with two String arguments for "
-               + StatelessProxyInvocationHandler.class.getName(), e);
-      }
-   }
-
-   /**
-    * Return the name of the interceptor stack to apply to 
-    * proxies created by this proxy factory
-    * 
-    * @return
-    */
-   @Override
-   protected String getInterceptorStackName()
-   {
-      // No client-side interceptors for remote
-      return null;
-   }
-
-   // --------------------------------------------------------------------------------||
-   // Lifecycle Methods --------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   /**
-    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
-    * before the ProxyFactory is able to service requests
-    * 
-    *  @throws Exception
-    */
-   @Override
-   public void start() throws Exception
-   {
-      super.start();
-      //TODO
-   }
-
-   /**
-    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
-    * before the ProxyFactory is taken out of service, 
-    * possibly GC'd
-    * 
-    * @throws Exception
-    */
-   @Override
-   public void stop() throws Exception
-   {
-      super.stop();
-      //TODO
-   }
-
 }

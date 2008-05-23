@@ -25,8 +25,8 @@ import java.lang.reflect.AnnotatedElement;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.annotation.creator.ejb.EjbJar30Creator;
 import org.jboss.metadata.annotation.finder.AnnotationFinder;
@@ -65,37 +65,8 @@ public class Utils
     */
    public static StatelessContainer createSlsb(Class<?> slsbImplementationClass) throws Throwable
    {
-      // emulate annotation deployer
-      AnnotationFinder<AnnotatedElement> finder = new DefaultAnnotationFinder<AnnotatedElement>();
-      Collection<Class<?>> classes = new HashSet<Class<?>>();
-      classes.add(MyStatelessBean.class);
-      EjbJar30MetaData metaData = new EjbJar30Creator(finder).create(classes);
-
-      // emulate merge deployer
-      JBossMetaData mergedMetaData = new JBossMetaData();
-      mergedMetaData.merge(null, metaData);
-
-      JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) mergedMetaData
-            .getEnterpriseBean(MyStatelessBean.class.getSimpleName());
-
-      // Use a Session JNDI Binding Policy for the metadata
-      JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate);
-
-      // Log out JNDI Names
-      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // MyStatelessBean/remote
-      for (String businessInterface : beanMetaData.getBusinessRemotes())
-      {
-         log.info("Business Remote JNDI Name for " + businessInterface + ": "
-               + beanMetaData.determineResolvedJndiName(businessInterface));
-      }
-      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // MyStatelessBean/local
-      for (String businessInterface : beanMetaData.getBusinessLocals())
-      {
-         log.info("Business Local JNDI Name for " + businessInterface + ": "
-               + beanMetaData.determineResolvedJndiName(businessInterface));
-      }
-      log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getLocalHome()));
-      log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getHome()));
+      // Get Metadata
+      JBossSessionBeanMetaData beanMetaData = Utils.getMetadataFromBeanImplClass(slsbImplementationClass);
 
       // Make a Container
       StatelessContainer container = new StatelessContainer(beanMetaData, Thread.currentThread()
@@ -104,4 +75,68 @@ public class Utils
       // Return
       return container;
    }
+
+   /**
+    * Creates and returns a SLSB Container for the SLSB Implementation Class specified
+    * 
+    * @param sfsbImplementationClass
+    * @return
+    * @throws Throwable
+    */
+   public static StatefulContainer createSfsb(Class<?> sfsbImplementationClass) throws Throwable
+   {
+      // Get Metadata
+      JBossSessionBeanMetaData beanMetaData = Utils.getMetadataFromBeanImplClass(sfsbImplementationClass);
+
+      // Make a Container
+      StatefulContainer container = new StatefulContainer(beanMetaData, Thread.currentThread().getContextClassLoader());
+
+      // Return
+      return container;
+   }
+
+   /**
+    * Mock the appropriate deployers and populate metadata for the EJB with the
+    * specified implementation class
+    * 
+    * @param beanImplClass
+    * @return
+    */
+   private static JBossSessionBeanMetaData getMetadataFromBeanImplClass(Class<?> beanImplClass)
+   {
+      // emulate annotation deployer
+      AnnotationFinder<AnnotatedElement> finder = new DefaultAnnotationFinder<AnnotatedElement>();
+      Collection<Class<?>> classes = new HashSet<Class<?>>();
+      classes.add(beanImplClass);
+      EjbJar30MetaData metaData = new EjbJar30Creator(finder).create(classes);
+
+      // emulate merge deployer
+      JBossMetaData mergedMetaData = new JBossMetaData();
+      mergedMetaData.merge(null, metaData);
+
+      JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) mergedMetaData
+            .getEnterpriseBean(beanImplClass.getSimpleName());
+
+      // Use a Session JNDI Binding Policy for the metadata
+      JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate);
+
+      // Log out JNDI Names
+      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // MyStatefulBean/remote
+      for (String businessInterface : beanMetaData.getBusinessRemotes())
+      {
+         log.info("Business Remote JNDI Name for " + businessInterface + ": "
+               + beanMetaData.determineResolvedJndiName(businessInterface));
+      }
+      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // MyStatefulBean/local
+      for (String businessInterface : beanMetaData.getBusinessLocals())
+      {
+         log.info("Business Local JNDI Name for " + businessInterface + ": "
+               + beanMetaData.determineResolvedJndiName(businessInterface));
+      }
+      log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getLocalHome()));
+      log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(beanMetaData.getHome()));
+
+      return beanMetaData;
+   }
+
 }
