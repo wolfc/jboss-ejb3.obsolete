@@ -19,32 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.session.stateless;
+package org.jboss.ejb3.proxy.factory.session.stateful;
 
+import java.lang.reflect.Constructor;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.logging.Logger;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
- * StatelessSessionRemoteProxyFactory
+ * StatefulSessionProxyFactoryBase
  * 
- * A SLSB Proxy Factory for Remote Views
+ * Base upon which SFSB Proxy Factories may build
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFactoryBase implements SessionProxyFactory
+public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactoryBase implements SessionProxyFactory
 {
-   // --------------------------------------------------------------------------------||
-   // Class Members ------------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   private static final Logger logger = Logger.getLogger(StatelessSessionRemoteProxyFactory.class);
-
-   private static final String STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS = "StatelessSessionClientInterceptors";
-
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -52,12 +46,12 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    /**
     * Constructor
     * 
-    * @param metadata The metadata representing this SLSB
+    * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param containerName The name under which the target container is registered
     */
-   public StatelessSessionRemoteProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
+   public StatefulSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
          final String containerName)
    {
       // Call Super
@@ -69,46 +63,37 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    // --------------------------------------------------------------------------------||
 
    /**
-    * Returns the a Set of String representations of the Business Interface Types
-    * 
-    *  @return
-    */
-   @Override
-   protected final Set<String> getBusinessInterfaceTypes()
-   {
-      return this.getMetadata().getBusinessRemotes();
-   }
-
-   /**
-    * Returns the String representation of the Home Interface Type
+    * Obtains the return types declared by the "create" methods for the specified home interface.
+    *  
+    * @param homeInterface
     * @return
+    * @deprecated http://jira.jboss.com/jira/browse/JBMETA-41
     */
+   @Deprecated
    @Override
-   protected final String getHomeType()
+   protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
    {
-      return this.getMetadata().getHome();
+      return this.getReturnTypesFromCreateMethods(homeInterface, true);
    }
 
    /**
-    * Returns the String representation of the EJB2.x Interface Type
-    * 
-    *  @return
-    */
-   @Override
-   protected final String getEjb2xInterfaceType()
-   {
-      return this.getMetadata().getRemote();
-   }
-
-   /**
-    * Return the name of the interceptor stack to apply to 
-    * proxies created by this proxy factory
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
     * 
     * @return
     */
    @Override
-   protected String getInterceptorStackName()
+   protected final Constructor<StatefulProxyInvocationHandler> getInvocationHandlerConstructor()
    {
-      return StatelessSessionRemoteProxyFactory.STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS;
+      try
+      {
+         return StatefulProxyInvocationHandler.class.getConstructor(new Class[]
+         {String.class, String.class});
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException("Could not find Constructor with two String arguments for "
+               + StatefulProxyInvocationHandler.class.getName(), e);
+      }
    }
 }

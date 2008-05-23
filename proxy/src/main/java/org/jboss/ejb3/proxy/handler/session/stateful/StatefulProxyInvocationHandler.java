@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.stateless;
+package org.jboss.ejb3.proxy.handler.session.stateful;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -37,21 +37,21 @@ import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
 
 /**
- * StatelessProxyInvocationHandler
+ * StatefulProxyInvocationHandler
  * 
- * Implementation of a SLSB Proxy Invocation Handler 
+ * Implementation of a SFSB Proxy Invocation Handler 
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
+public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
 {
 
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   private static final Logger log = Logger.getLogger(StatelessProxyInvocationHandler.class);
+   private static final Logger log = Logger.getLogger(StatefulProxyInvocationHandler.class);
 
    // ------------------------------------------------------------------------------||
    // Constructors -----------------------------------------------------------------||
@@ -62,7 +62,7 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
     * 
     * @param containerName The name under which the target container is registered
     */
-   public StatelessProxyInvocationHandler(String containerName)
+   public StatefulProxyInvocationHandler(String containerName)
    {
       this(containerName, null);
    }
@@ -75,7 +75,7 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessProxyInvocationHandler(String containerName, String businessInterfaceType)
+   public StatefulProxyInvocationHandler(String containerName, String businessInterfaceType)
    {
       super(containerName, businessInterfaceType);
    }
@@ -86,6 +86,12 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
+      //TODO 
+      /*
+       * THE FOLLOWING IS A COPY OF THE SLSB IMPLEMENTATION, MUST IMPLEMENT FOR SFSB
+       */
+      log.warn(StatefulProxyInvocationHandler.class.getSimpleName() + " is using SLSB Implementation Copy.");
+
       // Set the invoked method
       SerializableMethod invokedMethod = new SerializableMethod(method);
       this.setInvokedMethod(invokedMethod);

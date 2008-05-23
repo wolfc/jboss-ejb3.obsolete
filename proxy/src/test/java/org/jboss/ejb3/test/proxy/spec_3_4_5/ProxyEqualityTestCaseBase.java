@@ -53,7 +53,7 @@ public abstract class ProxyEqualityTestCaseBase
    /**
     * Name of the SLSB Container for these tests
     */
-   private static String slsbContainerName;
+   private static String containerName;
 
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
@@ -67,12 +67,8 @@ public abstract class ProxyEqualityTestCaseBase
    @Test
    public void testSameLocalProxyEqual() throws Throwable
    {
-      // Get the Container
-      SessionContainer container = this.getContainer();
-
       // Make a Local Proxy Factory
-      SessionProxyFactory factory = this.createSessionLocalProxyFactory(container);
-      factory.start();
+      SessionProxyFactory factory = this.createSessionLocalProxyFactory();
 
       // Create Proxy
       Object proxy = factory.createProxyDefault();
@@ -92,12 +88,8 @@ public abstract class ProxyEqualityTestCaseBase
    @Test
    public void testSameRemoteProxyEqual() throws Throwable
    {
-      // Get the Session Container
-      SessionContainer container = this.getContainer();
-
       // Make a Local Proxy Factory
-      SessionProxyFactory factory = this.createSessionLocalProxyFactory(container);
-      factory.start();
+      SessionProxyFactory factory = this.createSessionLocalProxyFactory();
 
       // Create Proxy
       Object proxy = factory.createProxyDefault();
@@ -148,18 +140,18 @@ public abstract class ProxyEqualityTestCaseBase
    /**
     * Creates a Proxy Factory for local Proxies
     * 
-    * @param container
     * @return
+    * @throws Throwable
     */
-   protected abstract SessionProxyFactory createSessionLocalProxyFactory(SessionContainer container);
+   protected abstract SessionProxyFactory createSessionLocalProxyFactory() throws Throwable;
 
    /**
     * Creates a Proxy Factory for remote Proxies
     * 
-    * @param container
     * @return
+    * @throws Throwable
     */
-   protected abstract SessionProxyFactory createSessionRemoteProxyFactory(SessionContainer container);
+   protected abstract SessionProxyFactory createSessionRemoteProxyFactory() throws Throwable;
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
@@ -175,13 +167,13 @@ public abstract class ProxyEqualityTestCaseBase
       ProxyEqualityTestCaseBase.bootstrap = bootstrap;
    }
 
-   protected static String getSlsbContainerName()
+   protected static String getContainerName()
    {
-      return slsbContainerName;
+      return containerName;
    }
 
-   protected static void setSlsbContainerName(String slsbContainerName)
+   protected static void setContainerName(String containerName)
    {
-      ProxyEqualityTestCaseBase.slsbContainerName = slsbContainerName;
+      ProxyEqualityTestCaseBase.containerName = containerName;
    }
 }

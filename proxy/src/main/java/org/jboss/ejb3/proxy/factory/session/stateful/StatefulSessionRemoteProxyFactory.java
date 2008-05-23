@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.session.stateless;
+package org.jboss.ejb3.proxy.factory.session.stateful;
 
 import java.util.Set;
 
@@ -28,22 +28,22 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
- * StatelessSessionRemoteProxyFactory
+ * StatefulSessionRemoteProxyFactory
  * 
- * A SLSB Proxy Factory for Remote Views
+ * A SFSB Proxy Factory for Remote Views
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFactoryBase implements SessionProxyFactory
+public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFactoryBase implements SessionProxyFactory
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger logger = Logger.getLogger(StatelessSessionRemoteProxyFactory.class);
+   private static final Logger logger = Logger.getLogger(StatefulSessionRemoteProxyFactory.class);
 
-   private static final String STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS = "StatelessSessionClientInterceptors";
+   private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -52,12 +52,12 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    /**
     * Constructor
     * 
-    * @param metadata The metadata representing this SLSB
+    * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param containerName The name under which the target container is registered
     */
-   public StatelessSessionRemoteProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
+   public StatefulSessionRemoteProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
          final String containerName)
    {
       // Call Super
@@ -109,6 +109,6 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    @Override
    protected String getInterceptorStackName()
    {
-      return StatelessSessionRemoteProxyFactory.STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS;
+      return StatefulSessionRemoteProxyFactory.STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
    }
 }

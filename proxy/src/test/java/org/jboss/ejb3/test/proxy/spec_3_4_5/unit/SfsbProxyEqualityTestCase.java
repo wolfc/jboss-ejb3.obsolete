@@ -23,84 +23,84 @@ package org.jboss.ejb3.test.proxy.spec_3_4_5.unit;
 
 import junit.framework.TestCase;
 
-import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
 import org.jboss.ejb3.test.proxy.common.Utils;
-import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
-import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
+import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
+import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
 import org.jboss.ejb3.test.proxy.spec_3_4_5.ProxyEqualityTestCaseBase;
 import org.jboss.logging.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * SlsbProxyEqualityTestCase
+ * SfsbProxyEqualityTestCase
  * 
- * Test Cases to ensure that SLSB Proxies properly implement
+ * Test Cases to ensure that SFSB Proxies properly implement
  * the notion of object equality described by 
- * EJB3 Core Specification 3.4.5.2
+ * EJB3 Core Specification 3.4.5.1
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
+public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger log = Logger.getLogger(SlsbProxyEqualityTestCase.class);
+   private static final Logger log = Logger.getLogger(SfsbProxyEqualityTestCase.class);
 
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * EJB 3.0 Core Specification 3.4.5.2
+    * EJB 3.0 Core Specification 3.4.5.1
     * 
-    * Tests that two local proxies to the same SLSB are equal by value
+    * Tests that two local proxies to the same SFSB are not equal by value
     */
    @Test
-   public void testDifferentSlsbLocalProxiesEqual() throws Throwable
+   public void testDifferentSlsbLocalProxiesNotEqual() throws Throwable
    {
       // Make a Local Proxy Factory
-      StatelessSessionLocalProxyFactory factory = this.createSessionLocalProxyFactory();
+      StatefulSessionLocalProxyFactory factory = this.createSessionLocalProxyFactory();
 
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
 
-      // Ensure they're equal to one another
+      // Ensure they're not equal to one another
       TestCase
             .assertTrue(
-                  "EJB 3.0 Core Specification 3.4.5.2 Violation: Different local proxies to same SLSB should be equal by value",
-                  proxy1.equals(proxy2));
-      TestCase.assertTrue("Hash Codes for equal Proxies should be equal", proxy1.hashCode() == proxy2.hashCode());
+                  "EJB 3.0 Core Specification 3.4.5.1 Violation: Different local proxies to same SFSB should not be equal by value",
+                  !proxy1.equals(proxy2));
+      TestCase.assertTrue("Hash Codes for unequal Proxies should (most likely) not be equal",
+            proxy1.hashCode() != proxy2.hashCode());
    }
 
    /**
-    * EJB 3.0 Core Specification 3.4.5.2
+    * EJB 3.0 Core Specification 3.4.5.1
     * 
-    * Tests that two remote proxies to the same SLSB are equal by value
+    * Tests that two remote proxies to the same SFSB are not equal by value
     */
    @Test
-   public void testDifferentSlsbRemoteProxiesEqual() throws Throwable
+   public void testDifferentSlsbRemoteProxiesNotEqual() throws Throwable
    {
       // Make a Remote Proxy Factory
-      StatelessSessionRemoteProxyFactory factory = this.createSessionRemoteProxyFactory();
-      factory.start();
+      StatefulSessionRemoteProxyFactory factory = this.createSessionRemoteProxyFactory();
 
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
 
-      // Ensure they're equal to one another
+      // Ensure they're not equal to one another
       TestCase
             .assertTrue(
-                  "EJB 3.0 Core Specification 3.4.5.2 Violation: Different remote proxies to same SLSB should be equal by value",
-                  proxy1.equals(proxy2));
-      TestCase.assertTrue("Hash Codes for equal Proxies should be equal", proxy1.hashCode() == proxy2.hashCode());
+                  "EJB 3.0 Core Specification 3.4.5.1 Violation: Different remote proxies to same SFSB should not be equal by value",
+                  !proxy1.equals(proxy2));
+      TestCase.assertTrue("Hash Codes for unequal Proxies should (most likely) not be equal",
+            proxy1.hashCode() != proxy2.hashCode());
    }
 
    // --------------------------------------------------------------------------------||
@@ -113,13 +113,13 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Call Super
       ProxyEqualityTestCaseBase.beforeClass();
 
-      // Create a SLSB Container
-      StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
-      log.info("Created SLSB Container: " + container.getName());
-      SlsbProxyEqualityTestCase.setContainerName(container.getName());
+      // Create a SFSB Container
+      StatefulContainer container = Utils.createSfsb(MyStatefulBean.class);
+      log.info("Created SFSB Container: " + container.getName());
+      SfsbProxyEqualityTestCase.setContainerName(container.getName());
 
       // Install into MC
-      SlsbProxyEqualityTestCase.getBootstrap().installInstance(container.getName(), container);
+      SfsbProxyEqualityTestCase.getBootstrap().installInstance(container.getName(), container);
    }
 
    // --------------------------------------------------------------------------------||
@@ -132,26 +132,26 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
     * @return
     */
    @Override
-   protected StatelessContainer getContainer()
+   protected StatefulContainer getContainer()
    {
-      return this.getSlsb();
+      return this.getSfsb();
    }
 
    /**
     * Creates a Proxy Factory for local Proxies
     * 
+    * @param container
     * @return
-    * @throws Throwable
     */
    @Override
-   protected StatelessSessionLocalProxyFactory createSessionLocalProxyFactory() throws Throwable
+   protected StatefulSessionLocalProxyFactory createSessionLocalProxyFactory() throws Throwable
    {
-      // Get Container
-      SessionContainer container = this.getContainer();
+      // Get the SFSB Container
+      StatefulContainer sfsb = this.getContainer();
 
-      // Create the Factory
-      StatelessSessionLocalProxyFactory factory = new StatelessSessionLocalProxyFactory(container.getMetaData(),
-            container.getClassLoader(), container.getName());
+      // Make a Local Proxy Factory
+      StatefulSessionLocalProxyFactory factory = new StatefulSessionLocalProxyFactory(sfsb.getMetaData(), sfsb
+            .getClassLoader(), sfsb.getName());
 
       // Start
       factory.start();
@@ -163,18 +163,18 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
    /**
     * Creates a Proxy Factory for remote Proxies
     * 
+    * @param container
     * @return
-    * @throws Throwable
     */
    @Override
-   protected StatelessSessionRemoteProxyFactory createSessionRemoteProxyFactory() throws Throwable
+   protected StatefulSessionRemoteProxyFactory createSessionRemoteProxyFactory() throws Throwable
    {
-      // Get Container
-      SessionContainer container = this.getContainer();
+      // Get the SFSB Container
+      StatefulContainer sfsb = this.getContainer();
 
-      // Create the Factory
-      StatelessSessionRemoteProxyFactory factory = new StatelessSessionRemoteProxyFactory(container.getMetaData(),
-            container.getClassLoader(), container.getName());
+      // Make a Remote Proxy Factory
+      StatefulSessionRemoteProxyFactory factory = new StatefulSessionRemoteProxyFactory(sfsb.getMetaData(), sfsb
+            .getClassLoader(), sfsb.getName());
 
       // Start
       factory.start();
@@ -192,10 +192,10 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
     * 
     * @return
     */
-   protected StatelessContainer getSlsb()
+   protected StatefulContainer getSfsb()
    {
-      return (StatelessContainer) SlsbProxyEqualityTestCase.getBootstrap().getKernel().getController()
-            .getInstalledContext(SlsbProxyEqualityTestCase.getContainerName()).getTarget();
+      return (StatefulContainer) SfsbProxyEqualityTestCase.getBootstrap().getKernel().getController()
+            .getInstalledContext(SfsbProxyEqualityTestCase.getContainerName()).getTarget();
    }
 
 }

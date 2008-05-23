@@ -19,29 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.common.container;
+package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import javax.ejb.EJBLocalObject;
+
 
 /**
- * A simple stateless container that binds proxies and can be invoked.
- * 
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * MyStateful21Local
+ *
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessContainer extends SessionSpecContainer implements InvokableContext<ContainerMethodInvocation>
+public interface MyStateful21Local extends EJBLocalObject, MyStateful
 {
-   public StatelessContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
-   {
-      super(metaData, classLoader);
-
-      // Create and set Container Name 
-      String containerName = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATELESS + metaData.getEjbName();
-      this.setName(containerName);
-
-   }
 
 }
