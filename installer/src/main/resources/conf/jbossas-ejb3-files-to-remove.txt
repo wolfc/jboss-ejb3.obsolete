@@ -4,13 +4,11 @@ client/jboss-ejb3-client.jar
 client/ejb3-persistence.jar
 client/jboss-ejb3-impl-javadoc.jar
 client/jboss-ejb3-ext-api.jar
-client/jboss-ha-client.jar
 client/jboss-ejb3-core-client.jar
 client/jboss-ejb3-security-client.jar
 server/default/lib/jboss-ejb3-impl.jar
 server/default/lib/jboss-ejb3-cache.jar
 server/default/lib/jboss-ejb3-ext-api.jar
-server/default/lib/jboss-ha-client.jar
 server/default/deployers/ejb3.deployer/jboss-annotations-ejb3.jar
 server/default/deployers/ejb3.deployer/META-INF/ejb3-deployers-beans.xml
 server/default/deployers/ejb3.deployer/META-INF/persistence.properties
@@ -23,7 +21,6 @@ server/default/deploy/ejb3-timer-service.xml
 server/all/lib/jboss-ejb3-impl.jar
 server/all/lib/jboss-ejb3-cache.jar
 server/all/lib/jboss-ejb3-ext-api.jar
-server/all/lib/jboss-ha-client.jar
 server/all/deployers/ejb3.deployer/jboss-annotations-ejb3.jar
 server/all/deployers/ejb3.deployer/META-INF/ejb3-deployers-beans.xml
 server/all/deployers/ejb3.deployer/META-INF/persistence.properties
@@ -33,5 +30,3 @@ server/all/deployers/ejb3.deployer
 server/all/deploy/ejb3-interceptors-aop.xml
 server/all/deploy/ejb3-connectors-service.xml
 server/all/deploy/ejb3-timer-service.xml
-server/all/deploy/cluster/ejb3-clustered-sfsbcache-beans.xml
-server/all/deploy/cluster/ejb3-entity-cache-beans.xml
