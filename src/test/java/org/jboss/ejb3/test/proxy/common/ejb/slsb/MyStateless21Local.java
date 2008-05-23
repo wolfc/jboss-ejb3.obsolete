@@ -19,15 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.session;
+package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
-import javax.ejb.EJBObject;
+import javax.ejb.EJBLocalObject;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface MyStateless21Remote extends EJBObject, MyStateless
+public interface MyStateless21Local extends EJBLocalObject, MyStateless
 {
 
 }

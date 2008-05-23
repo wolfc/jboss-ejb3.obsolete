@@ -19,16 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.session;
+package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
-import javax.ejb.Remote;
+import javax.ejb.LocalHome;
+import javax.ejb.RemoteHome;
+import javax.ejb.Stateless;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Remote
-public interface MyStatelessRemote extends MyStateless
+@Stateless
+@LocalHome(MyStatelessLocalHome.class)
+@RemoteHome(MyStatelessRemoteHome.class)
+public class MyStatelessBean implements MyStatelessLocal, MyStatelessRemote
 {
-
+   public String sayHi(String name)
+   {
+      return "Hi " + name;
+   }
 }

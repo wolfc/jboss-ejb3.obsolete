@@ -117,9 +117,22 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
       }
       catch (NoSuchMethodException e)
       {
-         throw new RuntimeException("Could not find Constructor with one String argument for "
+         throw new RuntimeException("Could not find Constructor with two String arguments for "
                + StatelessProxyInvocationHandler.class.getName(), e);
       }
+   }
+
+   /**
+    * Return the name of the interceptor stack to apply to 
+    * proxies created by this proxy factory
+    * 
+    * @return
+    */
+   @Override
+   protected String getInterceptorStackName()
+   {
+      // No client-side interceptors for remote
+      return null;
    }
 
    // --------------------------------------------------------------------------------||
