@@ -39,6 +39,8 @@ public interface VMTester
    
    VMID getVMID();
    
+   VMID getCreatorVMID();
+   
    VMID getVMIDFromRemote(VMTester remote) throws NamingException;
    
    VMID getVMIDFromRemoteLookup(String jndiURL, String name) throws NamingException;

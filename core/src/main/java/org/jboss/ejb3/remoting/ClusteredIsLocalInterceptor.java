@@ -23,6 +23,7 @@ package org.jboss.ejb3.remoting;
 
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aspects.remoting.ClusterConstants;
 import org.jboss.logging.Logger;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
@@ -42,8 +43,6 @@ public class ClusteredIsLocalInterceptor extends IsLocalInterceptor
    private static final long serialVersionUID = 5765933584762500725L;
 
    private static final Logger log = Logger.getLogger(ClusteredIsLocalInterceptor.class);
-
-   public static final String PARTITION_NAME = "PARTITION_NAME";
    
    public Object invoke(Invocation invocation) throws Throwable
    {
@@ -58,7 +57,7 @@ public class ClusteredIsLocalInterceptor extends IsLocalInterceptor
    private Container findLocalContainer(Invocation invocation)
    {
       String guid = (String)invocation.getMetaData(IS_LOCAL, GUID);
-      String partitionName = (String) invocation.getMetaData(PARTITION_NAME, PARTITION_NAME);
+      String partitionName = (String) invocation.getMetaData(ClusterConstants.CLUSTERED_REMOTING, ClusterConstants.PARTITION_NAME);
       
       Container container = null;
       try
