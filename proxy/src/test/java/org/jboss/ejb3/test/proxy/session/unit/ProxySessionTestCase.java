@@ -24,15 +24,9 @@ package org.jboss.ejb3.test.proxy.session.unit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.AnnotatedElement;
-import java.util.Collection;
-import java.util.HashSet;
-
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.proxy.hack.Hack;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
-import org.jboss.ejb3.test.proxy.common.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.Utils;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
@@ -41,14 +35,7 @@ import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.annotation.creator.ejb.EjbJar30Creator;
-import org.jboss.metadata.annotation.finder.AnnotationFinder;
-import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
-import org.jboss.metadata.ejb.jboss.JBossMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionPolicyDecorator;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
-import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
+import org.jboss.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
