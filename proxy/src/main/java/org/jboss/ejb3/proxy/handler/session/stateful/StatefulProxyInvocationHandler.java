@@ -175,6 +175,20 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    @Override
    protected boolean invokeEquals(Object proxy, Object argument)
    {
+      /*
+       * EJB 3.0 Core Specification 3.4.5.1: 
+       * 
+       * A stateful session object has a unique identity that is assigned by the 
+       * container at the time the object is created. A client of the stateful 
+       * session bean business interface can determine if two business interface 
+       * references refer to the same session object by use of the equals method.
+       * 
+       * All stateful session bean references to the same business interface for 
+       * the same stateful session bean instance will be equal. Stateful session 
+       * bean references to different interface types or to different session bean 
+       * instances will not have the same identity.
+       */
+
       // If these objects are not of the same type
       if (!argument.getClass().equals(proxy.getClass()))
       {
@@ -186,15 +200,27 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
          return false;
       }
 
-      // Ensure InvocationHandler is of expected type
-      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulSessionProxy : InvocationHandler.class.getSimpleName() + " " + handler
-            + " must be of type " + StatefulSessionProxy.class.getName() + " but instead was: "
-            + handler.getClass().getInterfaces();
+      // Get Invocation Handlers
+      InvocationHandler proxyHandler = this.getInvocationHandler(proxy);
+      InvocationHandler argumentHandler = Proxy.getInvocationHandler(argument);
+
+      // If argument handler is not SLSB Handler
+      if (!(argumentHandler instanceof StatefulProxyInvocationHandler))
+      {
+         return false;
+      }
 
       // Cast
-      StatefulSessionProxy sHandler = (StatefulSessionProxy) handler;
-      StatefulSessionProxy sArgument = (StatefulSessionProxy) Proxy.getInvocationHandler(argument);
+      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) proxyHandler;
+      StatefulProxyInvocationHandler sArgument = (StatefulProxyInvocationHandler) argumentHandler;
+
+      // Ensure target containers are equal
+      String proxyContainerName = sHandler.getContainerName();
+      assert proxyContainerName != null : "Container Name for " + sHandler + " was not set and is required";
+      if (!proxyContainerName.equals(sArgument.getContainerName()))
+      {
+         return false;
+      }
 
       // Equal if Session IDs are equal
       Object sessionId = sHandler.getSessionId();
@@ -205,6 +231,37 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
       log.debug("SFSB Equality Check for " + sHandler.getSessionId() + " and " + sArgument.getSessionId() + " ="
             + equal);
       return equal;
+   }
+
+   /**
+    * Handles invocation of "hashCode()" upon the proxy
+    * 
+    * @param proxy
+    * @return
+    */
+   protected int invokeHashCode(Object proxy)
+   {
+      // Get the InvocationHandler
+      StatefulProxyInvocationHandler handler = this.getInvocationHandler(proxy);
+
+      // Generate unique String by value according to rules in "invokeEquals"; 
+      // Destination Container, Session ID, and Business Interface
+      String unique = handler.getContainerName() + handler.getBusinessInterfaceType() + handler.getSessionId();
+
+      // Hash the String
+      return unique.hashCode();
+   }
+
+   // ------------------------------------------------------------------------------||
+   // Internal Helper Methods ------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   protected StatefulProxyInvocationHandler getInvocationHandler(Object proxy)
+   {
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof StatefulProxyInvocationHandler : "Expected " + InvocationHandler.class.getSimpleName()
+            + " of type " + StatefulProxyInvocationHandler.class.getName() + ", but instead was " + handler;
+      return (StatefulProxyInvocationHandler) handler;
    }
 
    // ------------------------------------------------------------------------------||
