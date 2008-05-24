@@ -25,7 +25,7 @@ import java.util.UUID;
 
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -79,7 +79,7 @@ public class StatefulContainer extends SessionSpecContainer
     */
    protected final String createContainerName()
    {
-      return MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATEFUL + this.getMetaData().getEjbName() + "/"
+      return ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER_STATEFUL + this.getMetaData().getEjbName() + "/"
             + UUID.randomUUID();
    }
 

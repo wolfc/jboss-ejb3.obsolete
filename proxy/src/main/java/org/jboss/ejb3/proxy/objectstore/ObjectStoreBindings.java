@@ -19,18 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.mc;
+package org.jboss.ejb3.proxy.objectstore;
 
 /**
- * MicrocontainerBindings
+ * ObjectStoreBindings
  * 
  * Defines constants used in binding POJOs to
- * Microcontainer
+ * the Object Store
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface MicrocontainerBindings
+public interface ObjectStoreBindings
 {
    // --------------------------------------------------------------------------------||
    // Constants ----------------------------------------------------------------------||
@@ -41,42 +41,46 @@ public interface MicrocontainerBindings
     */
 
    /**
-    * Namespace for all MC Beans for EJB3
+    * Namespace for all Beans for EJB3
     */
-   String MC_NAMESPACE_EJB3 = "org.jboss.ejb3.";
+   String OBJECTSTORE_NAMESPACE_EJB3 = "org.jboss.ejb3.";
 
    /**
     * Namespace of all EJB Containers, should not be used directly but 
     * instead precedes namespaces for SLSB, SFSB, MDB, and @Service
     */
-   String MC_NAMESPACE_EJBCONTAINER = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "EJBContainer.";
+   String OBJECTSTORE_NAMESPACE_EJBCONTAINER = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3 + "EJBContainer.";
 
    /**
     * Namespace for SFSB Containers
     */
-   String MC_NAMESPACE_EJBCONTAINER_STATEFUL = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatefulSession.";
+   String OBJECTSTORE_NAMESPACE_EJBCONTAINER_STATEFUL = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER
+         + "StatefulSession.";
 
    /**
     * Namespace for SLSB Containers
     */
-   String MC_NAMESPACE_EJBCONTAINER_STATELESS = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "StatelessSession.";
+   String OBJECTSTORE_NAMESPACE_EJBCONTAINER_STATELESS = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER
+         + "StatelessSession.";
 
    /**
     * Namespace for @Service Containers
     */
-   String MC_NAMESPACE_EJBCONTAINER_SERVICE = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "Service.";
+   String OBJECTSTORE_NAMESPACE_EJBCONTAINER_SERVICE = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER
+         + "Service.";
 
    /**
     * Namespace for MDB Containers
     */
-   String MC_NAMESPACE_EJBCONTAINER_MDB = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER + "MDB.";
+   String OBJECTSTORE_NAMESPACE_EJBCONTAINER_MDB = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER + "MDB.";
 
    /*
-    * The following are Bindings used as MC Bean Names
+    * The following are Bindings used as Object Store Bean Names
     */
 
-   String MC_BEAN_NAME_PROXY_FACTORY_REGISTRY = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "ProxyFactoryRegistry";
+   String OBJECTSTORE_BEAN_NAME_PROXY_FACTORY_REGISTRY = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3
+         + "ProxyFactoryRegistry";
 
-   String MC_BEAN_NAME_JNDI_REGISTRAR = MicrocontainerBindings.MC_NAMESPACE_EJB3 + "JndiRegistrar";
+   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3 + "JndiRegistrar";
 
 }

@@ -25,22 +25,23 @@ import java.io.Serializable;
 
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.proxy.hack.Hack;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
 /**
- * McProxyObjectFactory
+ * Ejb3RegistrarProxyObjectFactory
  *
  * A Proxy Object Factory using an underlying 
  * Proxy Factory Registry intended to be obtained
- * as a managed object from the MicroContainer
+ * as a managed object from the Object Store
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class McProxyObjectFactory extends ProxyObjectFactory implements ObjectFactory, Serializable
+public abstract class Ejb3RegistrarProxyObjectFactory extends ProxyObjectFactory implements ObjectFactory, Serializable
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -48,27 +49,36 @@ public abstract class McProxyObjectFactory extends ProxyObjectFactory implements
 
    private static final long serialVersionUID = 1L;
 
-   private static final Logger log = Logger.getLogger(McProxyObjectFactory.class);
+   private static final Logger log = Logger.getLogger(Ejb3RegistrarProxyObjectFactory.class);
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    //TODO
-   // Inject from MC, must be configurable
+   // Inject via IoC, must be configurable
    private ProxyFactoryRegistry proxyFactoryRegistry;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public McProxyObjectFactory()
+   public Ejb3RegistrarProxyObjectFactory()
    {
-      // Set the ProxyFactoryRegistry as obtained from MC
-      //TODO ProxyFactoryRegistry will be replaced by MC itself
-      //TODO This hack will be replaced when we have some way of getting at MC Kernel
-      this.setProxyFactoryRegistry((ProxyFactoryRegistry) Hack.BOOTSTRAP.getKernel().getController()
-            .getInstalledContext(MicrocontainerBindings.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY).getTarget());
+      // Set the ProxyFactoryRegistry as obtained from the EJB3 Registrar
+      //TODO ProxyFactoryRegistry will be replaced by IoC itself
+      ProxyFactoryRegistry registry = null;
+      try
+      {
+         registry = (ProxyFactoryRegistry) Ejb3RegistrarLocator.locateRegistrar().lookup(
+               ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_PROXY_FACTORY_REGISTRY);
+      }
+      catch (NotBoundException e)
+      {
+         throw new RuntimeException(ProxyFactoryRegistry.class.getSimpleName()
+               + " is required to be bound in the Object Store, but was not", e);
+      }
+      this.setProxyFactoryRegistry(registry);
    }
 
    // --------------------------------------------------------------------------------||

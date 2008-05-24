@@ -25,12 +25,13 @@ import java.lang.reflect.Proxy;
 
 import junit.framework.TestCase;
 
+import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
+import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
 import org.jboss.logging.Logger;
-import org.jboss.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -78,7 +79,7 @@ public abstract class ProxyEqualityTestCaseBase
 
       // Create Proxy
       Object proxy = this.createProxyDefault(factory);
-      
+
       // Manually set the target container
       this.setContainerNameOnProxy(proxy);
 
@@ -102,7 +103,7 @@ public abstract class ProxyEqualityTestCaseBase
 
       // Create Proxy
       Object proxy = this.createProxyDefault(factory);
-      
+
       // Manually set the target container
       this.setContainerNameOnProxy(proxy);
 
@@ -123,8 +124,8 @@ public abstract class ProxyEqualityTestCaseBase
       // Create and set a new MC Bootstrap
       ProxyEqualityTestCaseBase.setBootstrap(EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap());
 
-      //TODO Remove Hack
-      Hack.BOOTSTRAP = bootstrap;
+      // Bind the Ejb3Registrar
+      Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
    }
 
    @AfterClass
@@ -135,7 +136,6 @@ public abstract class ProxyEqualityTestCaseBase
 
       // Set Bootstrap to null
       ProxyEqualityTestCaseBase.setBootstrap(null);
-      Hack.BOOTSTRAP = null;
    }
 
    // --------------------------------------------------------------------------------||

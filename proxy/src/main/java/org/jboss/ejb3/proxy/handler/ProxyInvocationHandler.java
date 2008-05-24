@@ -33,17 +33,18 @@ import org.jboss.ejb3.proxy.lang.SerializableMethod;
  * Invocation Handler
  * 
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision$
  */
 public interface ProxyInvocationHandler extends InvocationHandler
 {
-   /**
-    * For use in hashCode, toString() and equals() *
-    */
-   String toString();
-
    Object getAsynchronousProxy(Object proxy);
 
+   /**
+    * Obtain the method invoked upon the proxy
+    * 
+    * @return
+    */
    SerializableMethod getInvokedMethod();
 
    /**

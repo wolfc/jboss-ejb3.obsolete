@@ -27,11 +27,11 @@ import java.util.List;
 
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
-import org.jboss.dependency.spi.ControllerContext;
-import org.jboss.ejb3.proxy.hack.Hack;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiRegistrar;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -92,7 +92,7 @@ public abstract class SessionContainer
 
       // Set CL
       this.setClassLoader(classLoader);
-      
+
       // Set name
       this.setName(this.createContainerName());
 
@@ -194,19 +194,23 @@ public abstract class SessionContainer
    protected JndiRegistrar getJndiRegistrar()
    {
       // Lookup
-      ControllerContext context = Hack.BOOTSTRAP.getKernel().getController().getInstalledContext(
-            MicrocontainerBindings.MC_BEAN_NAME_JNDI_REGISTRAR);
+      Object obj = null;
 
-      // If not installed, warn and continue
-      if (context == null)
+      try
+      {
+         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR);
+      }
+      // If not installed, warn and return null
+      catch (NotBoundException e)
       {
          log.warn("No " + JndiRegistrar.class.getName() + " was found installed in MC at "
-               + MicrocontainerBindings.MC_BEAN_NAME_JNDI_REGISTRAR);
+               + ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR);
          return null;
+
       }
 
       // Cast
-      JndiRegistrar registrar = (JndiRegistrar) context.getTarget();
+      JndiRegistrar registrar = (JndiRegistrar) obj;
 
       // Return
       return registrar;

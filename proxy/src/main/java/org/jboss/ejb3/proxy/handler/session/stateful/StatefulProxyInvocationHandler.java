@@ -27,13 +27,14 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.kernel.Kernel;
 import org.jboss.kernel.spi.registry.KernelBus;
 import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
@@ -120,7 +121,9 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
 
       // Obtain the correct container from MC
       //TODO This won't fly for remote, MC would be on another Process
-      KernelBus bus = Hack.BOOTSTRAP.getKernel().getBus();
+      //TODO This breaks contract, so provide mechanism to invoke over commons Ejb3Registry
+      Kernel kernel = (Kernel)Ejb3RegistrarLocator.locateRegistrar().getProvider();
+      KernelBus bus = kernel.getBus();
 
       // Obtain container name
       String containerName = StringUtils.adjustWhitespaceStringToNull(this.getContainerName());

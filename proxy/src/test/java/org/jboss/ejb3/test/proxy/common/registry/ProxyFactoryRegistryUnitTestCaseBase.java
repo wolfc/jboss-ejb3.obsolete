@@ -26,12 +26,12 @@ import java.util.UUID;
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
 import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
+import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.logging.Logger;
-import org.jboss.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -386,7 +386,7 @@ public abstract class ProxyFactoryRegistryUnitTestCaseBase
    private ProxyFactoryRegistry getProxyFactoryRegistry() throws Throwable
    {
       ProxyFactoryRegistry registry = ProxyFactoryRegistryUnitTestCaseBase.getBootstrap().lookup(
-            MicrocontainerBindings.MC_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
+            ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_PROXY_FACTORY_REGISTRY, ProxyFactoryRegistry.class);
       return registry;
    }
 

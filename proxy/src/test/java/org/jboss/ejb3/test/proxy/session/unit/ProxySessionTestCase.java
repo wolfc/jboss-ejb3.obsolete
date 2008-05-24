@@ -26,7 +26,9 @@ import static org.junit.Assert.assertTrue;
 
 import javax.naming.InitialContext;
 
-import org.jboss.ejb3.proxy.hack.Hack;
+import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.Utils;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
@@ -35,7 +37,6 @@ import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.logging.Logger;
-import org.jboss.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -59,8 +60,8 @@ public class ProxySessionTestCase
       bootstrap = new EmbeddedTestMcBootstrap();
       bootstrap.run();
 
-      //TODO Remove Hack
-      Hack.BOOTSTRAP = bootstrap;
+      // Bind the Registrar
+      Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
       bootstrap.deploy(ProxySessionTestCase.class);
 
