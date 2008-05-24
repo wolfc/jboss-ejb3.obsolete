@@ -445,12 +445,14 @@ public class JndiRegistrar
 
    /**
     * Binds the specified Reference into JNDI at the specified address, adding 
-    * the requisite key for the ProxyFactory within the Registry 
+    * the requisite key for the ProxyFactory within the Registry and the requisite
+    * target EJB Container Name as ReferenceAddresses
     * 
     * @param ref
     * @param address
     * @param proxyFactoryRegistryKey The key under which the proxy factory 
     *   for this reference is stored in the proxy factory registry
+    * @param containerName The target container to be used in invocations from Proxies obtained from this address
     */
    protected void bind(Reference ref, String address, String proxyFactoryRegistryKey, String containerName)
    {

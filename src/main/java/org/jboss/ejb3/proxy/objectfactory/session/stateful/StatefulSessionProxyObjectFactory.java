@@ -25,15 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
-import javax.naming.RefAddr;
 
-import org.jboss.dependency.spi.ControllerContext;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
-import org.jboss.kernel.Kernel;
 
 /**
  * StatefulSessionProxyObjectFactory
@@ -74,12 +72,16 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
       String containerName = this.getContainerName(name, referenceAddresses);
 
       // Get the Container
-      Kernel kernel = Hack.BOOTSTRAP.getKernel();
-      ControllerContext context = kernel.getController().getInstalledContext(containerName);
-      assert context != null && context.getTarget() != null : "EJB Container could not be found at " + containerName
-            + "; perhaps it has not been properly registered or the " + RefAddr.class.getSimpleName()
-            + " is incorrect?";
-      Object obj = context.getTarget();
+      Object obj = null;
+      try
+      {
+         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
+      }
+      catch (NotBoundException e)
+      {
+         throw new RuntimeException("Found reference to EJB Container with name " + containerName
+               + " but it could not be found in the object store", e);
+      }
       assert obj instanceof StatefulSessionInvokableContext : "Object found registered under name " + containerName
             + " must be of type " + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
       StatefulSessionInvokableContext<?> container = (StatefulSessionInvokableContext<?>) obj;

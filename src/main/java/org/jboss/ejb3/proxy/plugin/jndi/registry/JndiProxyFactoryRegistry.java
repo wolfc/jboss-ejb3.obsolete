@@ -60,7 +60,7 @@ public class JndiProxyFactoryRegistry extends SetBackedProxyFactoryRegistry<Hash
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   //TODO Inject from MC
+   //TODO Inject from Ioc
    private Context context;
 
    // --------------------------------------------------------------------------------||

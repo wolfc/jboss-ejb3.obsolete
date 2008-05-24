@@ -31,7 +31,7 @@ import javax.naming.Name;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.objectfactory.McProxyObjectFactory;
+import org.jboss.ejb3.proxy.objectfactory.Ejb3RegistrarProxyObjectFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.logging.Logger;
 
@@ -45,7 +45,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
+public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObjectFactory
 {
 
    // --------------------------------------------------------------------------------||

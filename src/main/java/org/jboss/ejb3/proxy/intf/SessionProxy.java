@@ -30,7 +30,7 @@ package org.jboss.ejb3.proxy.intf;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface SessionProxy
+public interface SessionProxy extends EjbProxy
 {
 
 }
