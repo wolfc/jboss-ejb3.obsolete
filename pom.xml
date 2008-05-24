@@ -50,6 +50,7 @@
     <module>proxy</module>
     <!-- module>sandbox</module -->
     <module>security</module>
+    <module>test</module>
     <module>transactions</module>
   </modules>
 
