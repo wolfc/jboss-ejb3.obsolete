@@ -126,6 +126,29 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       return proxy;
    }
 
+   /**
+    * Obtains the container name bound as a reference address to the JNDI Name specified
+    * 
+    * @param name
+    * @param referenceAddresses
+    * @return
+    */
+   protected String getContainerName(Name name, Map<String, List<String>> referenceAddresses)
+   {
+      // Get the Container Name
+      String refAddrType = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME;
+      List<String> containerNames = referenceAddresses.get(refAddrType);
+      assert containerNames != null : RefAddr.class.getSimpleName() + " type of " + refAddrType
+            + " is required to find the EJB Container associated with the " + Reference.class.getSimpleName()
+            + " for JNDI Name " + name;
+      assert containerNames.size() == 1 : "Only one " + RefAddr.class.getSimpleName() + " of type " + refAddrType
+            + " may be defined, instead found: " + containerNames;
+      String containerName = containerNames.get(0);
+
+      // Return
+      return containerName;
+   }
+
    // --------------------------------------------------------------------------------||
    // Specifications -----------------------------------------------------------------||
    // --------------------------------------------------------------------------------||

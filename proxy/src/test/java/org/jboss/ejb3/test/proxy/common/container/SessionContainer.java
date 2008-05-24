@@ -92,6 +92,9 @@ public abstract class SessionContainer
 
       // Set CL
       this.setClassLoader(classLoader);
+      
+      // Set name
+      this.setName(this.createContainerName());
 
       // Set Bean Class
       String beanClassName = this.getMetaData().getEjbClass();
@@ -208,6 +211,17 @@ public abstract class SessionContainer
       // Return
       return registrar;
    }
+
+   // --------------------------------------------------------------------------------||
+   // contracts ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Creates a unique name for this container
+    * 
+    * @return
+    */
+   protected abstract String createContainerName();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

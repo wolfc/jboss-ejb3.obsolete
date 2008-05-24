@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.handler.session.stateful;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.hack.Hack;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
 import org.jboss.kernel.spi.registry.KernelBus;
 import org.jboss.logging.Logger;
@@ -45,6 +47,8 @@ import org.jboss.util.NotImplementedException;
  * @version $Revision: $
  */
 public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
+      implements
+         StatefulSessionProxy
 {
 
    // ------------------------------------------------------------------------------||
@@ -54,30 +58,36 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    private static final Logger log = Logger.getLogger(StatefulProxyInvocationHandler.class);
 
    // ------------------------------------------------------------------------------||
+   // Instance Members -------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   /**
+    * The Session ID of the SFSB Instance to which this ProxyHandler will delegate
+    */
+   private Object sessionId;
+
+   // ------------------------------------------------------------------------------||
    // Constructors -----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
    /**
     * Constructor
-    * 
-    * @param containerName The name under which the target container is registered
     */
-   public StatefulProxyInvocationHandler(String containerName)
+   public StatefulProxyInvocationHandler()
    {
-      this(containerName, null);
+      this(null);
    }
 
    /**
     * Constructor
     * 
-    * @param containerName The name under which the target container is registered
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatefulProxyInvocationHandler(String containerName, String businessInterfaceType)
+   public StatefulProxyInvocationHandler(String businessInterfaceType)
    {
-      super(containerName, businessInterfaceType);
+      super(businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -134,6 +144,69 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
 
    }
 
+   /**
+    * Obtains the Session ID for this SFSB instance
+    * 
+    * @return
+    */
+   public Object getSessionId()
+   {
+      return this.sessionId;
+   }
+
+   /**
+    * Sets the Session ID for this SFSB instance
+    * 
+    * @param sessionId
+    */
+   public void setSessionId(Object sessionId)
+   {
+      this.sessionId = sessionId;
+   }
+
+   /**
+    * EJB 3.0 Core Specification 3.4.5.1
+    * 
+    * Determines Equality for SFSB Proxies
+    * 
+    * @param proxy
+    * @param argument
+    */
+   @Override
+   protected boolean invokeEquals(Object proxy, Object argument)
+   {
+      // If these objects are not of the same type
+      if (!argument.getClass().equals(proxy.getClass()))
+      {
+         // Not equal
+         if (log.isTraceEnabled())
+         {
+            log.trace(argument + " is not equal to " + proxy + " as they are different types");
+         }
+         return false;
+      }
+
+      // Ensure InvocationHandler is of expected type
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof StatefulSessionProxy : InvocationHandler.class.getSimpleName() + " " + handler
+            + " must be of type " + StatefulSessionProxy.class.getName() + " but instead was: "
+            + handler.getClass().getInterfaces();
+
+      // Cast
+      StatefulSessionProxy sHandler = (StatefulSessionProxy) handler;
+      StatefulSessionProxy sArgument = (StatefulSessionProxy) Proxy.getInvocationHandler(argument);
+
+      // Equal if Session IDs are equal
+      Object sessionId = sHandler.getSessionId();
+      assert sessionId != null : "Required Session ID is not present in " + proxy;
+      boolean equal = sessionId.equals(sArgument.getSessionId());
+
+      // Return
+      log.debug("SFSB Equality Check for " + sHandler.getSessionId() + " and " + sArgument.getSessionId() + " ="
+            + equal);
+      return equal;
+   }
+
    // ------------------------------------------------------------------------------||
    // TO BE IMPLEMENTED ------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -145,5 +218,4 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    {
       throw new NotImplementedException("ALR");
    }
-
 }

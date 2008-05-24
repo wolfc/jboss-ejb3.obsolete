@@ -49,13 +49,11 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
-    * @param containerName The name under which the target container is registered
     */
-   public StatelessSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
-         final String containerName)
+   public StatelessSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader, containerName);
+      super(metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
@@ -88,11 +86,11 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
       try
       {
          return StatelessProxyInvocationHandler.class.getConstructor(new Class[]
-         {String.class, String.class});
+         {String.class});
       }
       catch (NoSuchMethodException e)
       {
-         throw new RuntimeException("Could not find Constructor with two String arguments for "
+         throw new RuntimeException("Could not find Constructor with one String argument for "
                + StatelessProxyInvocationHandler.class.getName(), e);
       }
    }

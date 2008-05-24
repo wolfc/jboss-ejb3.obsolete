@@ -151,7 +151,7 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 
       // Create the Factory
       StatelessSessionLocalProxyFactory factory = new StatelessSessionLocalProxyFactory(container.getMetaData(),
-            container.getClassLoader(), container.getName());
+            container.getClassLoader());
 
       // Start
       factory.start();
@@ -174,7 +174,7 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 
       // Create the Factory
       StatelessSessionRemoteProxyFactory factory = new StatelessSessionRemoteProxyFactory(container.getMetaData(),
-            container.getClassLoader(), container.getName());
+            container.getClassLoader());
 
       // Start
       factory.start();

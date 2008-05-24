@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
+import java.util.UUID;
+
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.mc.MicrocontainerBindings;
@@ -37,11 +39,16 @@ public class StatelessContainer extends SessionSpecContainer implements Invokabl
    public StatelessContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
    {
       super(metaData, classLoader);
-
-      // Create and set Container Name 
-      String containerName = MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATELESS + metaData.getEjbName();
-      this.setName(containerName);
-
    }
 
+   /**
+    * Creates a unique name for this container
+    * 
+    * @return
+    */
+   protected final String createContainerName()
+   {
+      return MicrocontainerBindings.MC_NAMESPACE_EJBCONTAINER_STATELESS + this.getMetaData().getEjbName() + "/"
+            + UUID.randomUUID();
+   }
 }

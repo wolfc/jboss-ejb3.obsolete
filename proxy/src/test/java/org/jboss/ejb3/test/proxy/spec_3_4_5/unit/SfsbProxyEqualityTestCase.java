@@ -21,10 +21,15 @@
  */
 package org.jboss.ejb3.test.proxy.spec_3_4_5.unit;
 
+import java.lang.reflect.Proxy;
+import java.util.UUID;
+
 import junit.framework.TestCase;
 
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.test.proxy.common.Utils;
 import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
@@ -61,7 +66,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
     * Tests that two local proxies to the same SFSB are not equal by value
     */
    @Test
-   public void testDifferentSlsbLocalProxiesNotEqual() throws Throwable
+   public void testDifferentSfsbLocalProxiesNotEqual() throws Throwable
    {
       // Make a Local Proxy Factory
       StatefulSessionLocalProxyFactory factory = this.createSessionLocalProxyFactory();
@@ -69,6 +74,10 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
+
+      // Manually Set Session IDs
+      this.setSessionIdOnProxy(proxy1, new Integer(1));
+      this.setSessionIdOnProxy(proxy2, new Integer(2));
 
       // Ensure they're not equal to one another
       TestCase
@@ -85,7 +94,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
     * Tests that two remote proxies to the same SFSB are not equal by value
     */
    @Test
-   public void testDifferentSlsbRemoteProxiesNotEqual() throws Throwable
+   public void testDifferentSfsbRemoteProxiesNotEqual() throws Throwable
    {
       // Make a Remote Proxy Factory
       StatefulSessionRemoteProxyFactory factory = this.createSessionRemoteProxyFactory();
@@ -94,6 +103,10 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
 
+      // Manually Set Session IDs
+      this.setSessionIdOnProxy(proxy1, new Integer(1));
+      this.setSessionIdOnProxy(proxy2, new Integer(2));
+
       // Ensure they're not equal to one another
       TestCase
             .assertTrue(
@@ -101,6 +114,35 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
                   !proxy1.equals(proxy2));
       TestCase.assertTrue("Hash Codes for unequal Proxies should (most likely) not be equal",
             proxy1.hashCode() != proxy2.hashCode());
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Helper Methods -----------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Sets the specified ID on the specified proxy
+    */
+   private void setSessionIdOnProxy(Object proxy, Object id)
+   {
+      // Get the InvocationHander for the Proxy
+      StatefulSessionProxy handler = (StatefulSessionProxy) Proxy.getInvocationHandler(proxy);
+      handler.setSessionId(id);
+   }
+
+   /**
+    * Creates a default proxy for the specified Session ProxyFactory
+    */
+   protected Object createProxyDefault(SessionProxyFactory factory)
+   {
+      // Get Proxy
+      Object proxy = super.createProxyDefault(factory);
+
+      // Set a unique ID
+      this.setSessionIdOnProxy(proxy, UUID.randomUUID());
+
+      // Return
+      return proxy;
    }
 
    // --------------------------------------------------------------------------------||
@@ -151,7 +193,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 
       // Make a Local Proxy Factory
       StatefulSessionLocalProxyFactory factory = new StatefulSessionLocalProxyFactory(sfsb.getMetaData(), sfsb
-            .getClassLoader(), sfsb.getName());
+            .getClassLoader());
 
       // Start
       factory.start();
@@ -174,7 +216,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 
       // Make a Remote Proxy Factory
       StatefulSessionRemoteProxyFactory factory = new StatefulSessionRemoteProxyFactory(sfsb.getMetaData(), sfsb
-            .getClassLoader(), sfsb.getName());
+            .getClassLoader());
 
       // Start
       factory.start();

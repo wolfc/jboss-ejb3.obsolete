@@ -59,25 +59,22 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
 
    /**
     * Constructor
-    * 
-    * @param containerName The name under which the target container is registered
     */
-   public StatelessProxyInvocationHandler(String containerName)
+   public StatelessProxyInvocationHandler()
    {
-      this(containerName, null);
+      this(null);
    }
 
    /**
     * Constructor
     * 
-    * @param containerName The name under which the target container is registered
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessProxyInvocationHandler(String containerName, String businessInterfaceType)
+   public StatelessProxyInvocationHandler(String businessInterfaceType)
    {
-      super(containerName, businessInterfaceType);
+      super(businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -125,6 +122,38 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
       return bus.invoke(this.getContainerName(), InvokableContext.METHOD_NAME_INVOKE, invocationArguments
             .toArray(new Object[]
             {}), InvokableContext.METHOD_SIGNATURE_INVOKE);
+
+   }
+
+   /**
+    * Handles invocation of "equals(Object)" upon a SLSB Proxy
+    * 
+    * EJB 3.0 Specification 3.4.5.2
+    * 
+    * @param proxy
+    * @param args
+    * @return
+    */
+   protected boolean invokeEquals(Object proxy, Object argument)
+   {
+      // If these are not of the same type
+      if (!proxy.getClass().equals(argument.getClass()))
+      {
+         // Return false
+         return false;
+      }
+
+      //TODO
+
+      /*
+       * EJB3 3.4.5.2: "Session bean references to either different business interface types
+       * or different session beans will not be equal."
+       * 
+       * See if we must test these conditions as well for Complicance
+       */
+
+      // Same type, SLSB, so return true
+      return true;
 
    }
 

@@ -35,7 +35,10 @@ import org.junit.Test;
 /**
  * ProxyEqualityTestCaseBase
  * 
- * Support for Proxy Equality Test Cases
+ * Support for Proxy Equality Test Cases as 
+ * defined by:
+ * 
+ * EJB 3.0 Core Specification 3.4.5
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
@@ -71,7 +74,7 @@ public abstract class ProxyEqualityTestCaseBase
       SessionProxyFactory factory = this.createSessionLocalProxyFactory();
 
       // Create Proxy
-      Object proxy = factory.createProxyDefault();
+      Object proxy = this.createProxyDefault(factory);
 
       // Ensure equal to itself by value
       TestCase
@@ -92,7 +95,7 @@ public abstract class ProxyEqualityTestCaseBase
       SessionProxyFactory factory = this.createSessionLocalProxyFactory();
 
       // Create Proxy
-      Object proxy = factory.createProxyDefault();
+      Object proxy = this.createProxyDefault(factory);
 
       // Ensure equal to itself by value
       TestCase
@@ -124,6 +127,18 @@ public abstract class ProxyEqualityTestCaseBase
       // Set Bootstrap to null
       ProxyEqualityTestCaseBase.setBootstrap(null);
       Hack.BOOTSTRAP = null;
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Helper Methods -----------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Creates a default proxy for the specified Session ProxyFactory
+    */
+   protected Object createProxyDefault(SessionProxyFactory factory)
+   {
+      return factory.createProxyDefault();
    }
 
    // --------------------------------------------------------------------------------||

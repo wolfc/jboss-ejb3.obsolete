@@ -53,13 +53,11 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
-    * @param containerName The name under which the target container is registered
     */
-   public StatelessSessionLocalProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
-         final String containerName)
+   public StatelessSessionLocalProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader, containerName);
+      super(metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||

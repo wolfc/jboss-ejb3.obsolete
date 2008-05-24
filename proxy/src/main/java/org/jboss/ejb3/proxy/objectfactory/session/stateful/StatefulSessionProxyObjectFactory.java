@@ -21,7 +21,19 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session.stateful;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.Name;
+import javax.naming.RefAddr;
+
+import org.jboss.dependency.spi.ControllerContext;
+import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
+import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.hack.Hack;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
+import org.jboss.kernel.Kernel;
 
 /**
  * StatefulSessionProxyObjectFactory
@@ -40,4 +52,52 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
 
    private static final long serialVersionUID = 1L;
 
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * SFSB Object Factories must always create a new SFSB Proxy with every lookup, 
+    * set a new Session ID as obtained by the SFSB Container, and return.
+    * 
+    * @param proxyFactory The ProxyFactory to use
+    * @param name The JNDI name looked up
+    * @param referenceAddresses
+    */
+   @Override
+   protected Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses)
+   {
+      // Get the Proxy from the Super Implementation
+      Object proxy = this.createProxy(proxyFactory, name, referenceAddresses);
+
+      // Get the Container Name
+      String containerName = this.getContainerName(name, referenceAddresses);
+
+      // Get the Container
+      Kernel kernel = Hack.BOOTSTRAP.getKernel();
+      ControllerContext context = kernel.getController().getInstalledContext(containerName);
+      assert context != null && context.getTarget() != null : "EJB Container could not be found at " + containerName
+            + "; perhaps it has not been properly registered or the " + RefAddr.class.getSimpleName()
+            + " is incorrect?";
+      Object obj = context.getTarget();
+      assert obj instanceof StatefulSessionInvokableContext : "Object found registered under name " + containerName
+            + " must be of type " + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
+      StatefulSessionInvokableContext<?> container = (StatefulSessionInvokableContext<?>) obj;
+
+      // Create a Session ID from the Container
+      Object sessionId = container.createSession();
+
+      // Ensure Proxy is of expected type
+      assert proxy instanceof StatefulSessionProxy : "Proxy " + proxy + " must be of type "
+            + StatefulSessionProxy.class.getName();
+
+      // Cast
+      StatefulSessionProxy sProxy = (StatefulSessionProxy) proxy;
+
+      // Set the Session ID
+      sProxy.setSessionId(sessionId);
+
+      // Return
+      return proxy;
+   }
 }

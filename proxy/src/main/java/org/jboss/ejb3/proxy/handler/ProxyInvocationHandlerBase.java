@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.handler;
 
+import java.lang.reflect.Proxy;
+
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
 
 /**
@@ -95,12 +97,9 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
 
    /**
     * Constructor
-    * 
-    * @param containerName The name under which the target container is registered 
     */
-   protected ProxyInvocationHandlerBase(String containerName)
+   protected ProxyInvocationHandlerBase()
    {
-      this.setContainerName(containerName);
    }
 
    // ------------------------------------------------------------------------------||
@@ -120,7 +119,6 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
    protected Object handleInvocationDirectly(Object proxy, Object[] args)
          throws NotEligibleForDirectInvocationException
    {
-
       // Obtain the invoked method
       SerializableMethod invokedMethod = this.getInvokedMethod();
       assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
@@ -128,7 +126,10 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       // equals
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS))
       {
-         return new Boolean(this.equals(args[0]));
+         assert args.length == 1 : "Invocation for 'equals' should have exactly one argument, instead was: "
+               + invokedMethod;
+         Object argument = args[0];
+         return new Boolean(this.invokeEquals(proxy, argument));
       }
       // toString
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING))
@@ -138,13 +139,26 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       // hashCode
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE))
       {
-         return new Integer(this.hashCode());
+         return new Integer(Proxy.getInvocationHandler(proxy).hashCode());
       }
 
       // If no eligible methods were invoked
       throw new NotEligibleForDirectInvocationException("Current invocation \"" + this.getInvokedMethod()
             + "\" is not eligible for direct handling by " + this);
    }
+
+   // ------------------------------------------------------------------------------||
+   // Contracts --------------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   /**
+    * Handles invocation of "equals(Object)" upon the Proxy 
+    * 
+    * @param proxy
+    * @param args
+    * @return
+    */
+   protected abstract boolean invokeEquals(Object proxy, Object argument);
 
    // ------------------------------------------------------------------------------||
    // Accessors / Mutators ---------------------------------------------------------||

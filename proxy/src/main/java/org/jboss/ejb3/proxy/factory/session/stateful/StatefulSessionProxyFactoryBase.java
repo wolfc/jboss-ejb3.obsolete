@@ -27,6 +27,7 @@ import java.util.Set;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -49,13 +50,11 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
-    * @param containerName The name under which the target container is registered
     */
-   public StatefulSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
-         final String containerName)
+   public StatefulSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader, containerName);
+      super(metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
@@ -88,12 +87,31 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       try
       {
          return StatefulProxyInvocationHandler.class.getConstructor(new Class[]
-         {String.class, String.class});
+         {String.class});
       }
       catch (NoSuchMethodException e)
       {
-         throw new RuntimeException("Could not find Constructor with two String arguments for "
+         throw new RuntimeException("Could not find Constructor with one String argument for "
                + StatefulProxyInvocationHandler.class.getName(), e);
       }
+   }
+
+   /**
+    * Returns Proxy interfaces common to all Proxies generated
+    * by this ProxyFactory
+    * 
+    * @return
+    */
+   @Override
+   protected Set<Class<?>> getProxyInterfaces()
+   {
+      // Initialize
+      Set<Class<?>> interfaces = super.getProxyInterfaces();
+
+      // Add
+      interfaces.add(StatefulSessionProxy.class);
+
+      // Return
+      return interfaces;
    }
 }
