@@ -27,7 +27,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.ejb3.proxy.intf.JbossProxy;
+import org.jboss.ejb3.proxy.intf.EjbProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -111,7 +111,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
       Set<Class<?>> interfaces = new HashSet<Class<?>>();
 
       // Add all Proxy Interfaces
-      interfaces.add(JbossProxy.class);
+      interfaces.add(EjbProxy.class);
 
       // Return
       return interfaces;

@@ -22,7 +22,7 @@
 package org.jboss.ejb3.proxy.intf;
 
 /**
- * JbossProxy
+ * EjbProxy
  * 
  * Defines the contract for all methods required
  * of JBoss EJB3 Proxies
@@ -30,7 +30,7 @@ package org.jboss.ejb3.proxy.intf;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface JbossProxy
+public interface EjbProxy
 {
 
 }
