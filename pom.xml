@@ -106,19 +106,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-kernel</artifactId>
-      <version>2.0.0.Beta13</version>
-    </dependency>
-    
-    <!-- MC doesn't declare this as a proper dependency -->
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-managed</artifactId>
-      <version>2.0.0.Beta10</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.jboss.naming</groupId>
       <artifactId>jnpserver</artifactId>
       <scope>compile</scope>
@@ -141,6 +128,28 @@
       <artifactId>jboss-ejb3-test</artifactId>
       <version>0.1.0-SNAPSHOT</version>
       <scope>test</scope>
+    </dependency>
+    
+    
+    <!-- 
+    
+    Dependencies below this line must be removed
+    once Proxy is completely agnostic to 
+    the Object Store Provider
+    
+     -->
+    
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+      <version>2.0.0.Beta13</version>
+    </dependency>
+    
+    <!-- MC doesn't declare this as a proper dependency -->
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-managed</artifactId>
+      <version>2.0.0.Beta10</version>
     </dependency>
     
   </dependencies>
