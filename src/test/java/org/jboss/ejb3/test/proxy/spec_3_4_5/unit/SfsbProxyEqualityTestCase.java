@@ -79,6 +79,10 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       this.setSessionIdOnProxy(proxy1, new Integer(1));
       this.setSessionIdOnProxy(proxy2, new Integer(2));
 
+      // Manually set the target container
+      this.setContainerNameOnProxy(proxy1);
+      this.setContainerNameOnProxy(proxy2);
+
       // Ensure they're not equal to one another
       TestCase
             .assertTrue(
@@ -107,6 +111,10 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       this.setSessionIdOnProxy(proxy1, new Integer(1));
       this.setSessionIdOnProxy(proxy2, new Integer(2));
 
+      // Manually set the target container
+      this.setContainerNameOnProxy(proxy1);
+      this.setContainerNameOnProxy(proxy2);
+
       // Ensure they're not equal to one another
       TestCase
             .assertTrue(
@@ -122,6 +130,9 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
 
    /**
     * Sets the specified ID on the specified proxy
+    * 
+    * @param proxy
+    * @param id
     */
    private void setSessionIdOnProxy(Object proxy, Object id)
    {

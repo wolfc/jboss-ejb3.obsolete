@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.proxy.handler;
 
-import java.lang.reflect.Proxy;
-
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
 
 /**
@@ -129,7 +127,7 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
          assert args.length == 1 : "Invocation for 'equals' should have exactly one argument, instead was: "
                + invokedMethod;
          Object argument = args[0];
-         return new Boolean(this.invokeEquals(proxy, argument));
+         return this.invokeEquals(proxy, argument);
       }
       // toString
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING))
@@ -139,7 +137,7 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       // hashCode
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE))
       {
-         return new Integer(Proxy.getInvocationHandler(proxy).hashCode());
+         return this.invokeHashCode(proxy);
       }
 
       // If no eligible methods were invoked
@@ -159,6 +157,14 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     * @return
     */
    protected abstract boolean invokeEquals(Object proxy, Object argument);
+
+   /**
+    * Handles invocation of "hashCode()" upon the proxy
+    * 
+    * @param proxy
+    * @return
+    */
+   protected abstract int invokeHashCode(Object proxy);
 
    // ------------------------------------------------------------------------------||
    // Accessors / Mutators ---------------------------------------------------------||
