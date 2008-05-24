@@ -21,6 +21,12 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session.stateless;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.naming.Name;
+
+import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
 
 /**
@@ -39,7 +45,7 @@ public class StatelessSessionProxyObjectFactory extends SessionProxyObjectFactor
    // --------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 1L;
-   
+
    /*
     * TODO
     * 
@@ -50,5 +56,20 @@ public class StatelessSessionProxyObjectFactory extends SessionProxyObjectFactor
     * Business
     * One per interface-specific business
     */
+   /**
+    * SLSB Object Factories must always create a new SLSB Proxy if one is not
+    * available in the internal cache, otherwise use the cached one and return
+    * 
+    * @param proxyFactory The ProxyFactory to use
+    * @param name The JNDI name looked up
+    * @param referenceAddresses
+    */
+   @Override
+   protected Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses)
+   {
+      //TODO Implement caching
+      // Just create a new Proxy instance for now
+      return this.createProxy(proxyFactory, name, referenceAddresses);
+   }
 
 }

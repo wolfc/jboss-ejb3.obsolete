@@ -178,13 +178,6 @@ public class JndiRegistrar
          this.bindSessionEjb(smd, cl, containerName);
       }
 
-      // If this is a MDB
-      else if (md.isMessageDriven())
-      {
-         //TODO MDB Impl
-         return;
-      }
-
       //TODO If this is @Service
       else if (md.isService())
       {
@@ -258,7 +251,7 @@ public class JndiRegistrar
          if (hasLocalView)
          {
             // Create and register a local proxy factory
-            ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl, containerName);
+            ProxyFactory factory = new StatelessSessionLocalProxyFactory(smd, cl);
             localProxyFactoryKey = this.registerProxyFactory(factory, smd, true);
          }
 
@@ -267,7 +260,7 @@ public class JndiRegistrar
          if (hasRemoteView)
          {
             // Create and register a local proxy factory
-            ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl, containerName);
+            ProxyFactory factory = new StatelessSessionRemoteProxyFactory(smd, cl);
             remoteProxyFactoryKey = this.registerProxyFactory(factory, smd, false);
          }
 
@@ -310,7 +303,7 @@ public class JndiRegistrar
                String homeAddress = smd.determineResolvedJndiName(homeType);
                log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + homeAddress
                      + "\"");
-               this.bind(homeRef, homeAddress, remoteProxyFactoryKey);
+               this.bind(homeRef, homeAddress, remoteProxyFactoryKey, containerName);
             }
 
             /*
@@ -337,7 +330,7 @@ public class JndiRegistrar
             String defaultRemoteAddress = smd.determineJndiName();
             log.debug("Default Remote View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                   + defaultRemoteAddress + "\"");
-            this.bind(defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey);
+            this.bind(defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
 
             // Bind ObjectFactory specific to each Remote Business Interface
             for (String businessRemote : businessRemotes)
@@ -350,7 +343,7 @@ public class JndiRegistrar
                String address = smd.determineResolvedJndiName(businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(ref, address, remoteProxyFactoryKey);
+               this.bind(ref, address, remoteProxyFactoryKey, containerName);
 
             }
          }
@@ -390,7 +383,7 @@ public class JndiRegistrar
                String localHomeAddress = smd.determineResolvedJndiName(localHomeType);
                log.debug("Local Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                      + localHomeAddress + "\"");
-               this.bind(localHomeRef, localHomeAddress, localProxyFactoryKey);
+               this.bind(localHomeRef, localHomeAddress, localProxyFactoryKey, containerName);
             }
 
             /*
@@ -417,7 +410,7 @@ public class JndiRegistrar
             String defaultLocalAddress = smd.determineLocalJndiName();
             log.debug("Default Local View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                   + defaultLocalAddress + "\"");
-            this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey);
+            this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
 
             // Bind ObjectFactory specific to each Local Business Interface
             for (String businessLocal : businessLocals)
@@ -430,7 +423,7 @@ public class JndiRegistrar
                String address = smd.determineResolvedJndiName(businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(ref, address, localProxyFactoryKey);
+               this.bind(ref, address, localProxyFactoryKey, containerName);
 
             }
          }
@@ -459,12 +452,17 @@ public class JndiRegistrar
     * @param proxyFactoryRegistryKey The key under which the proxy factory 
     *   for this reference is stored in the proxy factory registry
     */
-   protected void bind(Reference ref, String address, String proxyFactoryRegistryKey)
+   protected void bind(Reference ref, String address, String proxyFactoryRegistryKey, String containerName)
    {
       // Add the Proxy Factory Registry key for this Reference
-      RefAddr refAddr = new StringRefAddr(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY,
-            proxyFactoryRegistryKey);
-      ref.add(refAddr);
+      RefAddr proxyFactoryRefAddr = new StringRefAddr(
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY, proxyFactoryRegistryKey);
+      ref.add(proxyFactoryRefAddr);
+
+      // Add the Container name for this Reference
+      RefAddr containerRefAddr = new StringRefAddr(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME,
+            containerName);
+      ref.add(containerRefAddr);
 
       // Bind
       try

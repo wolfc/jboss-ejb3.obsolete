@@ -21,18 +21,18 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
 import javax.naming.Name;
-import javax.naming.RefAddr;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.objectfactory.McProxyObjectFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
 /**
@@ -60,8 +60,15 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
    // Required Implementations  ------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   @Override
-   protected Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses)
+   /**
+    * Creates an proxy from the appropriate ProxyFactory as determined by 
+    * metadata in the specified reference addresses
+    * 
+    * @param name The JNDI Name looked up
+    * @param referenceAddresses A Map of RefAddr instances in form key = type and 
+    *       value = List of values for this type
+    */
+   protected Object createProxy(ProxyFactory factory, Name name, Map<String, List<String>> referenceAddresses)
    {
       // Initialize
       Object proxy = null;
@@ -72,56 +79,22 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
       // Determine if a business interface is defined here
       boolean hasBusiness = this.hasBusiness(name, referenceAddresses);
 
-      // Obtain Proxy Factory Registry
-      ProxyFactoryRegistry registry = this.getProxyFactoryRegistry();
-      assert registry != null : ProxyFactoryRegistry.class.getSimpleName() + " is required but found null reference";
-
-      // Obtain Proxy Factory
-      SessionProxyFactory factory = null;
-      Object pFactory = null;
-      List<String> proxyFactoryRegistryKeys = referenceAddresses
-            .get(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
-      assert proxyFactoryRegistryKeys != null : "Required " + RefAddr.class.getSimpleName() + " of type "
-            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
-            + " is required present in JNDI at " + name.toString() + " but was not found";
-      assert proxyFactoryRegistryKeys.size() == 1 : "Exactly one " + RefAddr.class.getSimpleName() + " of type "
-            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
-            + " should be defined but instead found " + proxyFactoryRegistryKeys;
-      String proxyFactoryRegistryKey = proxyFactoryRegistryKeys.get(0);
-      assert proxyFactoryRegistryKey != null && !proxyFactoryRegistryKey.equals("") : "Required "
-            + RefAddr.class.getSimpleName() + " of type "
-            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY
-            + " is required present in JNDI at " + name.toString() + " but was not found";
-      try
-      {
-         // Get the Factory
-         pFactory = registry.getProxyFactory(proxyFactoryRegistryKey);
-         // Cast into a SessionProxyFactory
-         factory = SessionProxyFactory.class.cast(pFactory);
-         log.debug("Using: " + factory + " as specified from JNDI reference " + name.toString());
-      }
-      catch (ProxyFactoryNotRegisteredException e)
-      {
-         throw new RuntimeException("Expected " + SessionProxyFactory.class.getName() + " in " + registry
-               + " under key \"" + proxyFactoryRegistryKey + "\" but found none", e);
-      }
-      catch (ClassCastException cce)
-      {
-         throw new RuntimeException("Found Proxy Factory in " + registry + " under key \"" + proxyFactoryRegistryKey
-               + "\", but was of type " + pFactory.getClass().getName() + " instead of expected "
-               + SessionProxyFactory.class.getName(), cce);
-      }
+      // Cast
+      assert factory instanceof SessionProxyFactory : ProxyFactory.class.getSimpleName() + " used in "
+            + SessionProxyObjectFactory.class.getSimpleName() + " must be of type "
+            + SessionProxyFactory.class.getName();
+      SessionProxyFactory sFactory = (SessionProxyFactory) factory;
 
       // If home and business are bound together
       if (hasHome && hasBusiness)
       {
-         proxy = factory.createProxyDefault();
+         proxy = sFactory.createProxyDefault();
          log.debug("Created Proxy " + proxy + " for both EJB2.x and EJB3 Business Interfaces.");
       }
       // If bound to home only
       else if (hasHome)
       {
-         proxy = factory.createProxyHome();
+         proxy = sFactory.createProxyHome();
          log.debug("Created Proxy " + proxy + " for EJB2.x Home Interface(s)");
       }
       // If bound to business only
@@ -149,13 +122,13 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
          {
             // Obtain a proxy specific to this business interface
             String businessInterface = businessInterfaces.get(0);
-            proxy = factory.createProxyBusiness(businessInterface);
+            proxy = sFactory.createProxyBusiness(businessInterface);
             log.debug("Created Proxy " + proxy + " for EJB3 Business Interface: " + businessInterface);
          }
          else
          {
             // Use a general-purpose proxy for all business interfaces
-            proxy = factory.createProxyDefault();
+            proxy = sFactory.createProxyDefault();
             log.debug("Created Proxy " + proxy + " for EJB3 Business Interfaces: " + businessInterfaces);
          }
       }
@@ -165,6 +138,19 @@ public abstract class SessionProxyObjectFactory extends McProxyObjectFactory
          throw new RuntimeException(factory + " found associated with JNDI Binding " + name.toString()
                + " is not bound to create/return any valid EJB2.x Home or EJB3 Business Interfaces");
       }
+
+      // Obtain the target container name
+      String containerName = this.getContainerName(name, referenceAddresses);
+
+      // Get the proxy's invocation handler
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+
+      // Set the target Container Name
+      assert handler instanceof SessionProxyInvocationHandler : InvocationHandler.class.getSimpleName()
+            + " must be of type " + SessionProxyInvocationHandler.class.getName() + " but instead was assignable to "
+            + proxy.getClass().getInterfaces();
+      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+      sHandler.setContainerName(containerName);
 
       // Return
       return proxy;

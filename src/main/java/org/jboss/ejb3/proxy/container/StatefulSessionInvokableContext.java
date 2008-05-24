@@ -37,5 +37,10 @@ public interface StatefulSessionInvokableContext<T extends StatefulSessionContai
       extends
          InvokableContext<StatefulSessionContainerMethodInvocation>
 {
-
+   /**
+    * Creates a new user session and returns the unique Session ID
+    * 
+    * @return
+    */
+   Object createSession();
 }

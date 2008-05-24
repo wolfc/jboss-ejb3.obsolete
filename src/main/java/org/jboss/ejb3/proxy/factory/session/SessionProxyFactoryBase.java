@@ -37,6 +37,7 @@ import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -97,13 +98,11 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @param metadata The metadata representing this Session Bean
     * @param classloader The ClassLoader associated with the SessionContainer
     *       for which this ProxyFactory is to generate Proxies
-    * @param containerName The name under which the target container is registered
     */
-   public SessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
-         final String containerName)
+   public SessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(classloader, containerName);
+      super(classloader);
 
       // Set Metadata
       this.setMetadata(metadata);
@@ -130,7 +129,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       {
          // Create a new Proxy instance, and return
          return this.getConstructorProxyHome().newInstance(
-               this.getInvocationHandlerConstructor().newInstance(this.getContainerName(), null));
+               this.getInvocationHandlerConstructor().newInstance((String) null));
 
       }
       catch (Throwable t)
@@ -161,8 +160,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       try
       {
          // Create a new Proxy instance, and return
-         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),
-               null));
+         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance((String) null));
       }
       catch (Throwable t)
       {
@@ -195,8 +193,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
                + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
 
          // Create a new Proxy instance, and return
-         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(this.getContainerName(),
-               businessInterfaceName));
+         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(businessInterfaceName));
       }
       catch (Throwable t)
       {
@@ -216,8 +213,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       try
       {
          // Create a new Proxy instance, and return
-         return this.getConstructorProxyEjb2x().newInstance(
-               this.getInvocationHandlerConstructor().newInstance(this.getContainerName()));
+         return this.getConstructorProxyEjb2x().newInstance(this.getInvocationHandlerConstructor().newInstance());
       }
       catch (Throwable t)
       {
@@ -231,7 +227,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    // --------------------------------------------------------------------------------||
 
    /**
-    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * Lifecycle callback to be invoked 
     * before the ProxyFactory is able to service requests
     * 
     *  @throws Exception
@@ -285,8 +281,10 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
             businessInterfaceClasses.add(businessInterface);
 
             // Make Proxy specific to the business interface
-            Constructor<?> businessInterfaceConstructor = this.createProxyConstructor(new Class<?>[]
-            {businessInterface}, this.getClassLoader());
+            Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
+            businessInterfaces.add(businessInterface);
+            Constructor<?> businessInterfaceConstructor = this.createProxyConstructor(businessInterfaces, this
+                  .getClassLoader());
             log.debug("Created Session Bean Business Interface-Specific Proxy Constructor implementing \""
                   + businessInterfaceType + "\"");
 
@@ -333,8 +331,9 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          }
 
          // Make the Home Proxy Constructor
-         Constructor<?> homeConstructor = this.createProxyConstructor(new Class<?>[]
-         {homeInterfaceClass}, this.getClassLoader());
+         Set<Class<?>> homeInterfaces = new HashSet<Class<?>>();
+         homeInterfaces.add(homeInterfaceClass);
+         Constructor<?> homeConstructor = this.createProxyConstructor(homeInterfaces, this.getClassLoader());
          log.debug("Created Session Bean Home Proxy Constructor implementing \"" + homeInterfaceType + "\"");
 
          // Set the Home Proxy Constructor
@@ -361,9 +360,8 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       }
 
       // Make the Default Business Interfaces Proxy Constructor
-      Constructor<?> businessInterfacesConstructor = this.createProxyConstructor(defaultProxyInterfaces
-            .toArray(new Class<?>[]
-            {}), this.getClassLoader());
+      Constructor<?> businessInterfacesConstructor = this.createProxyConstructor(defaultProxyInterfaces, this
+            .getClassLoader());
       log.debug("Created Session Bean Default EJB3 Business Proxy Constructor implementing " + defaultProxyInterfaces);
 
       // Set
@@ -412,8 +410,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          }
 
          // Make the EJB2.x Proxy Constructor
-         Constructor<?> ejb2xConstructor = this.createProxyConstructor(ejb2xInterfaces.toArray(new Class<?>[]
-         {}), this.getClassLoader());
+         Constructor<?> ejb2xConstructor = this.createProxyConstructor(ejb2xInterfaces, this.getClassLoader());
          log.debug("Created Session Bean EJB2x Proxy Constructor implementing " + ejb2xInterfaces);
 
          // Set the EJB2.x Proxy Constructor
@@ -434,6 +431,25 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    {
       super.stop();
       //TODO
+   }
+
+   /**
+    * Returns Proxy interfaces common to all Proxies generated
+    * by this ProxyFactory
+    * 
+    * @return
+    */
+   @Override
+   protected Set<Class<?>> getProxyInterfaces()
+   {
+      // Initialize
+      Set<Class<?>> interfaces = super.getProxyInterfaces();
+
+      // Add
+      interfaces.add(SessionProxy.class);
+
+      // Return
+      return interfaces;
    }
 
    // --------------------------------------------------------------------------------||

@@ -24,7 +24,10 @@ package org.jboss.ejb3.proxy.factory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.jboss.ejb3.proxy.intf.JbossProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -49,8 +52,6 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    private ClassLoader classloader;
 
-   private String containerName;
-
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -60,13 +61,11 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     * 
     * @param classloader The ClassLoader associated with the EJBContainer
     *       for which this ProxyFactory is to generate Proxies
-    * @param containerName The name under which the target container is registered
     */
-   public ProxyFactoryBase(final ClassLoader classloader, final String containerName)
+   public ProxyFactoryBase(final ClassLoader classloader)
    {
       // Set properties
       this.setClassLoader(classloader);
-      this.setContainerName(containerName);
    }
 
    // --------------------------------------------------------------------------------||
@@ -81,9 +80,13 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     * @return
     * @throws Exception
     */
-   protected Constructor<?> createProxyConstructor(Class<?>[] interfaces, ClassLoader cl)
+   protected Constructor<?> createProxyConstructor(Set<Class<?>> interfaces, ClassLoader cl)
    {
-      Class<?> proxyClass = Proxy.getProxyClass(cl, interfaces);
+      // Add interfaces common to all proxies
+      interfaces.addAll(this.getProxyInterfaces());
+
+      Class<?> proxyClass = Proxy.getProxyClass(cl, interfaces.toArray(new Class<?>[]
+      {}));
       Constructor<?> proxyConstructor = null;
       try
       {
@@ -94,6 +97,24 @@ public abstract class ProxyFactoryBase implements ProxyFactory
          throw new RuntimeException(e);
       }
       return proxyConstructor;
+   }
+
+   /**
+    * Returns Proxy interfaces common to all Proxies generated
+    * by this ProxyFactory
+    * 
+    * @return
+    */
+   protected Set<Class<?>> getProxyInterfaces()
+   {
+      // Initialize
+      Set<Class<?>> interfaces = new HashSet<Class<?>>();
+
+      // Add all Proxy Interfaces
+      interfaces.add(JbossProxy.class);
+
+      // Return
+      return interfaces;
    }
 
    // --------------------------------------------------------------------------------||
@@ -158,16 +179,6 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    protected void setClassLoader(final ClassLoader classloader)
    {
       this.classloader = classloader;
-   }
-
-   public String getContainerName()
-   {
-      return containerName;
-   }
-
-   protected void setContainerName(String containerName)
-   {
-      this.containerName = containerName;
    }
 
 }

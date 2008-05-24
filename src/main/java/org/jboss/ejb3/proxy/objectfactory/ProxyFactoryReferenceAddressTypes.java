@@ -76,4 +76,10 @@ public interface ProxyFactoryReferenceAddressTypes
     */
    String REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY = ProxyFactoryRegistry.class.getSimpleName() + "Key";
    
+   /*
+    * The following are ReferenceAddress types denoting the Name of the EJB Container associated 
+    * with a Reference
+    */
+   String REF_ADDR_TYPE_EJBCONTAINER_NAME = "EJB Container Name";
+   
 }
