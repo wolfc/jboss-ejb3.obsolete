@@ -78,9 +78,6 @@ public interface ObjectStoreBindings
     * The following are Bindings used as Object Store Bean Names
     */
 
-   String OBJECTSTORE_BEAN_NAME_PROXY_FACTORY_REGISTRY = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3
-         + "ProxyFactoryRegistry";
-
    String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3 + "JndiRegistrar";
 
 }
