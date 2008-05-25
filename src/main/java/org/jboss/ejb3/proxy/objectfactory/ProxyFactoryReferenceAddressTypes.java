@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.proxy.objectfactory;
 
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
-
 /**
  * ProxyFactoryReferenceAddressTypes
  * 
@@ -38,48 +36,48 @@ public interface ProxyFactoryReferenceAddressTypes
    // --------------------------------------------------------------------------------||
    // Constants ----------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    /*
     * The following are Reference Address Types denoting the type of interface
     * represented by the contents, which should be the fully-qualified class
     * name of the interface
     */
-   
+
    /**
     * Reference Address Type for EJB3 Remote Business Interfaces
     */
    String REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE = "Remote Business Interface";
-   
+
    /**
     * Reference Address Type for EJB3 Local Business Interfaces
     */
    String REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL = "Local Business Interface";
-   
+
    /**
     * Reference Address Type for EJB2.x Remote Home Interfaces
     */
    String REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE = "EJB 2.x Remote Home Interface";
-   
+
    /**
     * Reference Address Type for EJB2.x Local Home Interfaces
     */
    String REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_LOCAL = "EJB 2.x Local Home Interface";
-   
+
    /*
     * The following are Reference Address Types denoting metadata
     * used for interaction with the ProxyFactoryRegistry
     */
-   
+
    /**
     * Reference Address Type for the key to which the desired ProxyFactory
-    * is bound in the ProxyFactoryRegistry
+    * is bound 
     */
-   String REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY = ProxyFactoryRegistry.class.getSimpleName() + "Key";
-   
+   String REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY = "ProxyFactoryKey";
+
    /*
     * The following are ReferenceAddress types denoting the Name of the EJB Container associated 
     * with a Reference
     */
    String REF_ADDR_TYPE_EJBCONTAINER_NAME = "EJB Container Name";
-   
+
 }

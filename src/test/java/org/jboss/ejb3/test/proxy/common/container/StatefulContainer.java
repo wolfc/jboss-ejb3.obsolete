@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
@@ -45,13 +47,23 @@ public class StatefulContainer extends SessionSpecContainer
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   /**
+    * Cache of SFSB instances in key = sessionId and value = instance
+    */
+   private Map<Object, Object> cache;
+
    // --------------------------------------------------------------------------------||
-   // Constructor ---------------------------------------------------------------||
+   // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    public StatefulContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
    {
+      // Call super
       super(metaData, classLoader);
+
+      // Instanciate Cache
+      this.setCache(new HashMap<Object, Object>());
+
    }
 
    // --------------------------------------------------------------------------------||
@@ -65,11 +77,25 @@ public class StatefulContainer extends SessionSpecContainer
     */
    public Object createSession()
    {
-      /* 
-       * Just create a UUID, in practice this would create a new instance and 
-       * associate it with an ID in the cache 
-       */
-      return UUID.randomUUID();
+      // Create a new Session ID
+      Object sessionId = UUID.randomUUID();
+
+      // Create a new Instance
+      Object instance = null;
+      try
+      {
+         instance = this.getBeanClass().newInstance();
+      }
+      catch (Throwable t)
+      {
+         throw new RuntimeException("Error in creating new instance of " + this.getBeanClass(), t);
+      }
+
+      // Place in cache
+      this.getCache().put(sessionId, instance);
+
+      // Return
+      return sessionId;
    }
 
    /**
@@ -81,6 +107,20 @@ public class StatefulContainer extends SessionSpecContainer
    {
       return ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER_STATEFUL + this.getMetaData().getEjbName() + "/"
             + UUID.randomUUID();
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   protected Map<Object, Object> getCache()
+   {
+      return cache;
+   }
+
+   protected void setCache(Map<Object, Object> cache)
+   {
+      this.cache = cache;
    }
 
 }

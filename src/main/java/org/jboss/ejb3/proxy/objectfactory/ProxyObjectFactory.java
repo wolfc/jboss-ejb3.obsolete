@@ -35,9 +35,9 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryNotRegisteredException;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
 /**
@@ -103,22 +103,21 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       assert proxyFactoryRegistryKeys.size() == 1 : assertionErrorMessage;
       String proxyFactoryRegistryKey = proxyFactoryRegistryKeys.get(0);
 
-      // Obtain Proxy Factory Registry
-      ProxyFactoryRegistry registry = this.getProxyFactoryRegistry();
-      assert registry != null : "Returned null " + ProxyFactoryRegistry.class.getName();
-
       // Obtain Proxy Factory
       ProxyFactory proxyFactory = null;
       try
       {
-         proxyFactory = registry.getProxyFactory(proxyFactoryRegistryKey);
+         Object pfObj = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryRegistryKey);
+         assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
+         assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
+               + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
+         proxyFactory = (ProxyFactory) pfObj;
       }
-      catch (ProxyFactoryNotRegisteredException pfnre)
+      catch (NotBoundException nbe)
       {
-         throw new RuntimeException(pfnre);
+         throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName() + " from expected key \""
+               + proxyFactoryRegistryKey + "\"", nbe);
       }
-      assert proxyFactory != null : ProxyFactory.class.getName() + " returned from " + registry + " at key "
-            + proxyFactoryRegistryKey + " was null";
 
       // Return the proxy returned from the ProxyFactory
       Object proxy = this.getProxy(proxyFactory, name, refAddrs);
@@ -154,8 +153,6 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    // --------------------------------------------------------------------------------||
 
    protected abstract Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses);
-
-   protected abstract ProxyFactoryRegistry getProxyFactoryRegistry();
 
    // --------------------------------------------------------------------------------||
    // Internal Helper Methods --------------------------------------------------------||
