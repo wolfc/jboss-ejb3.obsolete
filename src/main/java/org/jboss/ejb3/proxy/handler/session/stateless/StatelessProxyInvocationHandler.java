@@ -33,8 +33,6 @@ import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
-import org.jboss.kernel.Kernel;
-import org.jboss.kernel.spi.registry.KernelBus;
 import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
 
@@ -101,12 +99,6 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
                + nefdie.getMessage());
       }
 
-      // Obtain the correct container from MC
-      //TODO This won't fly for remote, MC would be on another Process
-      //TODO This breaks contract, so provide mechanism to invoke over commons Ejb3Registry
-      Kernel kernel = (Kernel)Ejb3RegistrarLocator.locateRegistrar().getProvider();
-      KernelBus bus = kernel.getBus();
-
       // Obtain container name
       String containerName = StringUtils.adjustWhitespaceStringToNull(this.getContainerName());
       assert containerName != null : "Container name for invocation must be specified";
@@ -121,10 +113,11 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
       invocationArguments.add(args);
 
       // Invoke
-      log.debug("Invoking on MC Bean with name \"" + this.getContainerName() + "\" method \""
+      //TODO This won't fly for remote, Object Store would be on another Process
+      log.debug("Invoking on Bean with name \"" + this.getContainerName() + "\" method \""
             + InvokableContext.METHOD_NAME_INVOKE + "\" with arguments : " + invocationArguments);
-      return bus.invoke(this.getContainerName(), InvokableContext.METHOD_NAME_INVOKE, invocationArguments
-            .toArray(new Object[]
+      return Ejb3RegistrarLocator.locateRegistrar().invoke(this.getContainerName(),
+            InvokableContext.METHOD_NAME_INVOKE, invocationArguments.toArray(new Object[]
             {}), InvokableContext.METHOD_SIGNATURE_INVOKE);
 
    }
