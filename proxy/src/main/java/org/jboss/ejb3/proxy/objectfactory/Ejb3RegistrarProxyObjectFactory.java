@@ -25,10 +25,6 @@ import java.io.Serializable;
 
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 
 /**
@@ -52,48 +48,12 @@ public abstract class Ejb3RegistrarProxyObjectFactory extends ProxyObjectFactory
    private static final Logger log = Logger.getLogger(Ejb3RegistrarProxyObjectFactory.class);
 
    // --------------------------------------------------------------------------------||
-   // Instance Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   //TODO
-   // Inject via IoC, must be configurable
-   private ProxyFactoryRegistry proxyFactoryRegistry;
-
-   // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    public Ejb3RegistrarProxyObjectFactory()
    {
-      // Set the ProxyFactoryRegistry as obtained from the EJB3 Registrar
-      //TODO ProxyFactoryRegistry will be replaced by IoC itself
-      ProxyFactoryRegistry registry = null;
-      try
-      {
-         registry = (ProxyFactoryRegistry) Ejb3RegistrarLocator.locateRegistrar().lookup(
-               ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_PROXY_FACTORY_REGISTRY);
-      }
-      catch (NotBoundException e)
-      {
-         throw new RuntimeException(ProxyFactoryRegistry.class.getSimpleName()
-               + " is required to be bound in the Object Store, but was not", e);
-      }
-      this.setProxyFactoryRegistry(registry);
-   }
 
-   // --------------------------------------------------------------------------------||
-   // Accessors / Mutators -----------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   @Override
-   protected ProxyFactoryRegistry getProxyFactoryRegistry()
-   {
-      return this.proxyFactoryRegistry;
-   }
-
-   public void setProxyFactoryRegistry(ProxyFactoryRegistry proxyFactoryRegistry)
-   {
-      this.proxyFactoryRegistry = proxyFactoryRegistry;
    }
 
 }

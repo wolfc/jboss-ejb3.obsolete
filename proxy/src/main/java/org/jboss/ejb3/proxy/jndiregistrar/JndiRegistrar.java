@@ -31,13 +31,13 @@ import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 
+import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryAlreadyRegisteredException;
-import org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -92,16 +92,11 @@ public class JndiRegistrar
    private Context context;
 
    /**
-    * Implementation of ProxyFactoryRegistry to use
-    */
-   private ProxyFactoryRegistry registry;
-
-   /**
     * Fully-qualified class name of the JNDI Object Factory to Reference for SLSBs
     */
    private String statelessSessionProxyObjectFactoryType;
 
-   //TODO MDB, @Service, SFSB
+   //TODO @Service, SFSB
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -112,21 +107,14 @@ public class JndiRegistrar
     * which may be null.
     * 
     * @param context The JNDI Context into which Objects will be bound
-    * @param registry The ProxyFactoryRegistry with which ProxyFactories will be registered
     * @param statelessSessionProxyObjectFactoryType String representation of the JNDI Object Factory to use for SLSBs
     */
-   public JndiRegistrar(final Context context, final ProxyFactoryRegistry registry,
-         String statelessSessionProxyObjectFactoryType)
+   public JndiRegistrar(final Context context, String statelessSessionProxyObjectFactoryType)
    {
       // Set the Context
       assert context != null : this + " may not be configured with null  " + Context.class.getName();
       this.setContext(context);
       log.debug("Using  " + Context.class.getName() + ": " + context);
-
-      // Set the ProxyFactoryRegistry
-      assert registry != null : this + " may not be configured with null  " + ProxyFactoryRegistry.class.getName();
-      this.setRegistry(registry);
-      log.debug("Using " + ProxyFactoryRegistry.class.getSimpleName() + ": " + registry);
 
       /*
        * Perform some assertions and logging
@@ -578,31 +566,26 @@ public class JndiRegistrar
    {
       // Get a unique key
       String key = this.getProxyFactoryRegistryKey(smd, isLocal);
-      assert !this.getRegistry().isRegistered(key) : "Attempting to register " + factory + " with "
-            + this.getRegistry() + " an already registered key, \"" + key + "\"";
+
+      // Register
+      log.debug("Registering " + factory + " under key \"" + key + "\"...");
+      try
+      {
+         Ejb3RegistrarLocator.locateRegistrar().bind(key, factory);
+      }
+      catch (DuplicateBindException e)
+      {
+         throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + key
+               + "\"", e);
+      }
 
       /*
        * Note on registry key collisions:
        * 
        * Indicates that either the keys created are not unique or that we're attempting to redeploy 
        * an EJB that was not properly deregistered.  Either way, this is a programmatic problem
-       * and not the fault of the application developer/deployer
+       * and not the fault of the bean developer/deployer
        */
-
-      // Log
-      log.debug("Registering " + factory + " into " + ProxyFactoryRegistry.class.getSimpleName() + " under key \""
-            + key + "\"...");
-
-      // Register
-      try
-      {
-         this.getRegistry().registerProxyFactory(key, factory);
-      }
-      catch (ProxyFactoryAlreadyRegisteredException e)
-      {
-         throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + key
-               + "\", with " + this.getRegistry(), e);
-      }
 
       // Return the key
       return key;
@@ -611,16 +594,6 @@ public class JndiRegistrar
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-
-   public ProxyFactoryRegistry getRegistry()
-   {
-      return registry;
-   }
-
-   public void setRegistry(ProxyFactoryRegistry registry)
-   {
-      this.registry = registry;
-   }
 
    public Context getContext()
    {
