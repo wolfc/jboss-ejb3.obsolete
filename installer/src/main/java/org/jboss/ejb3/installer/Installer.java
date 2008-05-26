@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.jboss.ejb3.common.thread.RedirectProcessOutputToSystemOutThread;
+
 /**
  * JBoss AS EJB3 Plugin Installer
  * 
@@ -328,7 +330,7 @@ public class Installer
          Process antProcess = this.getAntProcess();
 
          // Capture the output
-         Thread captureProcess = new CaptureProcess(antProcess);
+         Thread captureProcess = new RedirectProcessOutputToSystemOutThread(antProcess);
          captureProcess.start();
 
          // Ensure proper completion, block until done
@@ -634,50 +636,6 @@ public class Installer
 
          // Log
          getPrintStream().println("");
-      }
-   }
-
-   /**
-    * 
-    * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
-    * @version $Revision: $$
-    */
-   private class CaptureProcess extends Thread implements Runnable
-   {
-      // Instance Members
-      Process process;
-
-      // Constructors
-      public CaptureProcess(Process process)
-      {
-         this.process = process;
-      }
-
-      @Override
-      public void run()
-      {
-         // Call Super
-         super.run();
-
-         // Initialize
-         int bytesRead = 0;
-         byte[] buffer = new byte[1024];
-
-         // Obtain InputStream of process
-         InputStream in = this.process.getInputStream();
-
-         // Read in and direct PrintStream
-         try
-         {
-            while ((bytesRead = in.read(buffer)) != -1)
-            {
-               getPrintStream().write(buffer, 0, bytesRead);
-            }
-         }
-         catch (IOException ioe)
-         {
-            throw new RuntimeException(ioe);
-         }
       }
    }
 }
