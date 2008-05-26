@@ -46,6 +46,13 @@
       <artifactId>ant-contrib</artifactId>
       <version>${version.ant-contrib:ant-contrib}</version>
     </dependency>
+
+    <!-- EJB3 Common -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-common</artifactId>
+      <version>0.1.1-SNAPSHOT</version>
+    </dependency>
     
   </dependencies>
 
