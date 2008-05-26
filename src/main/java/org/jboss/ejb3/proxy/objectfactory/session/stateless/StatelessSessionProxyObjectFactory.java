@@ -46,6 +46,10 @@ public class StatelessSessionProxyObjectFactory extends SessionProxyObjectFactor
 
    private static final long serialVersionUID = 1L;
 
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    /*
     * TODO
     * 

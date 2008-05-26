@@ -26,13 +26,16 @@ import static org.junit.Assert.assertTrue;
 
 import javax.naming.InitialContext;
 
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.proxy.common.Utils;
-import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
+import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -86,14 +89,36 @@ public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
    }
 
    // --------------------------------------------------------------------------------||
-   // Required Implementations -------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * Creates and returns a new Session Container
+    * Perform setup before any tests
+    * 
+    * @throws Throwable
     */
-   protected SessionContainer createContainer() throws Throwable
+   @BeforeClass
+   public static void setUpBeforeClass() throws Throwable
    {
-      return Utils.createSlsb(MyStatelessBean.class);
+      // Create Bootstrap and Deploy
+      ProxySessionTestCaseBase.setUpBeforeClass();
+
+      // Deploy MC Beans
+      ProxyStatelessSessionTestCase.bootstrap.deploy(ProxyStatelessSessionTestCase.class);
+
+      // Create a SLSB
+      StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
+
+      // Install
+      Ejb3RegistrarLocator.locateRegistrar().bind(container.getName(), container);
+
+   }
+   
+   @AfterClass
+   public static void tearDownAfterClass() throws Exception
+   {
+      if (bootstrap != null)
+         bootstrap.shutdown();
+      bootstrap = null;
    }
 }

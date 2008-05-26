@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session.stateful;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +32,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
 
 /**
@@ -55,8 +57,7 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
    // --------------------------------------------------------------------------------||
 
    /**
-    * SFSB Object Factories must always create a new SFSB Proxy with every lookup, 
-    * set a new Session ID as obtained by the SFSB Container, and return.
+    * SFSB Object Factories must always create a new SFSB Proxy
     * 
     * @param proxyFactory The ProxyFactory to use
     * @param name The JNDI name looked up
@@ -65,41 +66,35 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
    @Override
    protected Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses)
    {
-      // Get the Proxy from the Super Implementation
+      // Create a new Proxy Instance
       Object proxy = this.createProxy(proxyFactory, name, referenceAddresses);
 
-      // Get the Container Name
-      String containerName = this.getContainerName(name, referenceAddresses);
+      // Obtain the InvocationHandler
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof StatefulProxyInvocationHandler : "SFSB Proxy must be of type "
+            + StatefulProxyInvocationHandler.class.getName();
+      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) handler;
 
-      // Get the Container
-      Object obj = null;
+      // Get a new Session ID from the Container
+      String containerName = sHandler.getContainerName();
+      Object sessionId = null;
       try
       {
-         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
+         sessionId = Ejb3RegistrarLocator.locateRegistrar().invoke(containerName,
+               StatefulSessionInvokableContext.METHOD_NAME_CREATESESSION, null,
+               StatefulSessionInvokableContext.METHOD_SIGNATURE_CREATESESSION);
       }
       catch (NotBoundException e)
       {
-         throw new RuntimeException("Found reference to EJB Container with name " + containerName
-               + " but it could not be found in the object store", e);
+         throw new RuntimeException("Could not obtain a new Session ID from SFSB Container with name \""
+               + containerName + "\"", e);
       }
-      assert obj instanceof StatefulSessionInvokableContext : "Object found registered under name " + containerName
-            + " must be of type " + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
-      StatefulSessionInvokableContext<?> container = (StatefulSessionInvokableContext<?>) obj;
 
-      // Create a Session ID from the Container
-      Object sessionId = container.createSession();
+      // Set the Session ID on the Proxy
+      sHandler.setSessionId(sessionId);
 
-      // Ensure Proxy is of expected type
-      assert proxy instanceof StatefulSessionProxy : "Proxy " + proxy + " must be of type "
-            + StatefulSessionProxy.class.getName();
-
-      // Cast
-      StatefulSessionProxy sProxy = (StatefulSessionProxy) proxy;
-
-      // Set the Session ID
-      sProxy.setSessionId(sessionId);
-
-      // Return
+      // Return the Proxy
       return proxy;
    }
+
 }

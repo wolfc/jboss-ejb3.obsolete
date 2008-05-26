@@ -124,31 +124,38 @@ public abstract class SessionContainer
     */
    public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
-      // Get the types from the arguments
-      List<Class<?>> types = new ArrayList<Class<?>>();
-      for (Object arg : args)
+      // Initialize
+      Class<?>[] argTypes = new Class<?>[]
+      {};
+
+      // Get the types from the arguments, if present
+      if (args != null)
       {
-         types.add(arg.getClass());
+         List<Class<?>> types = new ArrayList<Class<?>>();
+         for (Object arg : args)
+         {
+            types.add(arg.getClass());
+         }
+         argTypes = types.toArray(new Class<?>[]
+         {});
       }
-      Class<?>[] argTypes = types.toArray(new Class<?>[]
-      {});
 
       // Obtain the method for invocation
       Method m = this.getClassLoader().loadClass(method.getClassName()).getDeclaredMethod(method.getName(), argTypes);
 
       // Invoke on the bean
-      return invokeBean(m, args);
+      return invokeBean(proxy, m, args);
    }
 
-   private Object createInstance() throws InstantiationException, IllegalAccessException
+   protected Object createInstance() throws InstantiationException, IllegalAccessException
    {
       return this.getBeanClass().newInstance();
    }
 
-   public Object invokeBean(Method method, Object args[]) throws Throwable
+   public Object invokeBean(Object proxy, Method method, Object args[]) throws Throwable
    {
-      // Mock up a new instance, traditionally this would be obtained from a Pool
-      Object obj = createInstance();
+      // Get the appropriate instance
+      Object obj = this.getBeanInstance(proxy);
 
       // Invoke
       return method.invoke(obj, args);
@@ -234,6 +241,15 @@ public abstract class SessionContainer
     * @return
     */
    protected abstract String getJndiRegistrarBindName();
+
+   /**
+    * Obtains the appropriate bean instance for invocation
+    * as called from the specified proxy
+    * 
+    * @param proxy
+    * @return
+    */
+   protected abstract Object getBeanInstance(Object proxy);
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

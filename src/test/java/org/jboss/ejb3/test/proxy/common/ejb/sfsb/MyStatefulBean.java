@@ -34,7 +34,7 @@ import javax.ejb.Stateful;
  * @version $Revision: $
  */
 @Stateful
-@LocalHome(MyStatelfulLocalHome.class)
+@LocalHome(MyStatefulLocalHome.class)
 @RemoteHome(MyStatefulRemoteHome.class)
 public class MyStatefulBean implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
 {
