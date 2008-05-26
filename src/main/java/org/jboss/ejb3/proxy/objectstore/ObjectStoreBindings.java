@@ -26,6 +26,10 @@ package org.jboss.ejb3.proxy.objectstore;
  * 
  * Defines constants used in binding POJOs to
  * the Object Store
+ * 
+ * These values must match those either used to 
+ * Register beans programmatically or via
+ * XML Configuration
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
@@ -78,6 +82,27 @@ public interface ObjectStoreBindings
     * The following are Bindings used as Object Store Bean Names
     */
 
-   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3 + "JndiRegistrar";
+   /**
+    * Namespace for all JNDI Registrars
+    */
+   String OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJB3 + "JndiRegistrar.";
+
+   /**
+    * Namespace for Session EJB JNDI Registrars
+    */
+   String OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR
+         + "Session.";
+
+   /**
+    * Bind name for SLSB JNDI Registrar
+    */
+   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
+         + "SLSBJndiRegistrar";
+
+   /**
+    * Bind name for SFSB JNDI Registrar
+    */
+   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
+         + "SFSBJndiRegistrar";
 
 }
