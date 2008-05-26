@@ -224,7 +224,7 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
       boolean equal = sessionId.equals(sArgument.getSessionId());
 
       // Return
-      log.debug("SFSB Equality Check for " + sHandler.getSessionId() + " and " + sArgument.getSessionId() + " ="
+      log.debug("SFSB Equality Check for " + sHandler.getSessionId() + " and " + sArgument.getSessionId() + " = "
             + equal);
       return equal;
    }
