@@ -51,4 +51,14 @@ public class StatelessContainer extends SessionSpecContainer implements Invokabl
       return ObjectStoreBindings.OBJECTSTORE_NAMESPACE_EJBCONTAINER_STATELESS + this.getMetaData().getEjbName() + "/"
             + UUID.randomUUID();
    }
+
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected String getJndiRegistrarBindName()
+   {
+      return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB;
+   }
 }

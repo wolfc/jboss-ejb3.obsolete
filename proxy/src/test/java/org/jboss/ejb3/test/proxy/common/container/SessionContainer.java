@@ -29,9 +29,8 @@ import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.jndiregistrar.JndiRegistrar;
+import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -161,7 +160,7 @@ public abstract class SessionContainer
       log.info("Starting " + this);
 
       // Obtain registrar
-      JndiRegistrar registrar = this.getJndiRegistrar();
+      JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
 
       // Bind all appropriate references/factories to Global JNDI for Client access, if a JNDI Registrar is present
       if (registrar != null)
@@ -170,8 +169,8 @@ public abstract class SessionContainer
       }
       else
       {
-         log.warn("No " + JndiRegistrar.class.getSimpleName() + " was found; byassing binding of Proxies to "
-               + this.getName() + " in Global JNDI.");
+         log.warn("No " + JndiSessionRegistrarBase.class.getSimpleName()
+               + " was found; byassing binding of Proxies to " + this.getName() + " in Global JNDI.");
       }
 
    }
@@ -182,35 +181,37 @@ public abstract class SessionContainer
       log.info("Stopping " + this);
 
       //TODO We need to unbind the EJB, something like:
-      //JndiRegistrar.unbindEjb(this.metaData);
+      //JndiSessionRegistrarBase.unbindEjb(this.metaData);
       // or some key by which the registrar will keep track of all bindings
    }
 
    /**
-    * Obtains the JndiRegistrar from MC, null if not found
+    * Obtains the JndiSessionRegistrarBase from MC, null if not found
     * 
     * @return
     */
-   protected JndiRegistrar getJndiRegistrar()
+   protected JndiSessionRegistrarBase getJndiRegistrar()
    {
+      // Initialize
+      String jndiRegistrarBindName = this.getJndiRegistrarBindName();
+
       // Lookup
       Object obj = null;
-
       try
       {
-         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR);
+         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(jndiRegistrarBindName);
       }
       // If not installed, warn and return null
       catch (NotBoundException e)
       {
-         log.warn("No " + JndiRegistrar.class.getName() + " was found installed in MC at "
-               + ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR);
+         log.warn("No " + JndiSessionRegistrarBase.class.getName()
+               + " was found installed in the ObjectStore (Registry) at " + jndiRegistrarBindName);
          return null;
 
       }
 
       // Cast
-      JndiRegistrar registrar = (JndiRegistrar) obj;
+      JndiSessionRegistrarBase registrar = (JndiSessionRegistrarBase) obj;
 
       // Return
       return registrar;
@@ -226,6 +227,13 @@ public abstract class SessionContainer
     * @return
     */
    protected abstract String createContainerName();
+
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected abstract String getJndiRegistrarBindName();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

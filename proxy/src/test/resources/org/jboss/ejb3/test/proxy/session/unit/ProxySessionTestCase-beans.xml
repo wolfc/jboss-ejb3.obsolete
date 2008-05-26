@@ -2,13 +2,19 @@
   xsi:schemaLocation="urn:jboss:bean-deployer:2.0 bean-deployer_2_0.xsd"
   xmlns="urn:jboss:bean-deployer:2.0">
 
-  <!-- JNDI -->
+  <!-- 
+    
+    JNDI 
+    
+    The requisite Naming Server
+    
+  -->
   <bean name="NameServer" class="org.jnp.server.SingletonNamingServer" />
 
-  <!--
+  <!-- 
     
+    JNDI Registrars
     
-    JNDI Registrar
     
     The JNDI Registrar is responsible for all JNDI Bindings for
     an EJB.  Its constructor takes the following arguments, in order:
@@ -18,10 +24,11 @@
     String statelessSessionProxyObjectFactoryType The JNDI ObjectFactory implementation to use for SLSB
     ...more later when SFSB, @Service, MDB Implemented
     
-    
   -->
-  <bean name="org.jboss.ejb3.JndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiRegistrar">
+
+  <!-- SLSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
     <constructor>
       <parameter>
         <inject bean="org.jboss.ejb3.JndiContext" />
@@ -33,6 +40,21 @@
     <depends>NameServer</depends>
   </bean>
 
+  <!-- SFSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
+    <constructor>
+      <parameter>
+        <inject bean="org.jboss.ejb3.JndiContext" />
+      </parameter>
+      <parameter>
+        org.jboss.ejb3.proxy.objectfactory.session.stateless.StatefulSessionProxyObjectFactory
+      </parameter>
+    </constructor>
+    <depends>NameServer</depends>
+  </bean>
+
+  <!-- JNDI Registrar Configuration -->
   <bean name="org.jboss.ejb3.JndiContext"
     class="javax.naming.InitialContext" />
 
