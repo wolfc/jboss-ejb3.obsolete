@@ -21,35 +21,36 @@
  */
 package org.jboss.ejb3.test.proxy.session.unit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import javax.naming.InitialContext;
-
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.Utils;
+import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
-import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
+ * ProxySessionTestCaseBase
+ * 
+ * Operations common to Proxy Session Test Cases
+ *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ProxySessionTestCase
+public abstract class ProxySessionTestCaseBase
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    private static EmbeddedTestMcBootstrap bootstrap;
 
-   private static final Logger log = Logger.getLogger(ProxySessionTestCase.class);
+   // --------------------------------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    /**
     * @throws java.lang.Exception
@@ -63,7 +64,7 @@ public class ProxySessionTestCase
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
-      bootstrap.deploy(ProxySessionTestCase.class);
+      bootstrap.deploy(ProxyStatelessSessionTestCase.class);
 
       // Create a SLSB
       StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
@@ -83,42 +84,13 @@ public class ProxySessionTestCase
       bootstrap = null;
    }
 
-   @Test
-   public void testLocal() throws Exception
-   {
-      InitialContext ctx = new InitialContext();
+   // --------------------------------------------------------------------------------||
+   // Contracts ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
-      Object bean = ctx.lookup("MyStatelessBean/local");
-      assertTrue(bean instanceof MyStatelessLocal);
+   /**
+    * Creates and returns a new Session Container
+    */
+   protected abstract SessionContainer createContainer() throws Throwable;
 
-      String result = ((MyStatelessLocal) bean).sayHi("testLocal");
-      assertEquals("Hi testLocal", result);
-   }
-
-   @Test
-   public void testLocalHome() throws Exception
-   {
-      InitialContext ctx = new InitialContext();
-
-      Object bean = ctx.lookup("MyStatelessBean/localHome");
-      assertTrue(bean instanceof MyStatelessLocalHome);
-   }
-
-   @Test
-   public void testRemote() throws Exception
-   {
-      InitialContext ctx = new InitialContext();
-
-      Object bean = ctx.lookup("MyStatelessBean/remote");
-      assertTrue(bean instanceof MyStatelessRemote);
-   }
-
-   @Test
-   public void testRemoteHome() throws Exception
-   {
-      InitialContext ctx = new InitialContext();
-
-      Object bean = ctx.lookup("MyStatelessBean/home");
-      assertTrue(bean instanceof MyStatelessRemoteHome);
-   }
 }

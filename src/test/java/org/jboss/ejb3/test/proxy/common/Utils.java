@@ -121,13 +121,13 @@ public class Utils
       JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate);
 
       // Log out JNDI Names
-      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // MyStatefulBean/remote
+      log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // [beanName]/remote
       for (String businessInterface : beanMetaData.getBusinessRemotes())
       {
          log.info("Business Remote JNDI Name for " + businessInterface + ": "
                + beanMetaData.determineResolvedJndiName(businessInterface));
       }
-      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // MyStatefulBean/local
+      log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // [beanName]/local
       for (String businessInterface : beanMetaData.getBusinessLocals())
       {
          log.info("Business Local JNDI Name for " + businessInterface + ": "
