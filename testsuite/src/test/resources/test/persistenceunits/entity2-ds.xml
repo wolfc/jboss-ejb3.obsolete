@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<datasources>
+   <local-tx-datasource>
+      <jndi-name>Entity2DS</jndi-name>
+
+      <connection-url>jdbc:hsqldb:${jboss.server.data.dir}${/}hypersonic2${/}Entity2DS</connection-url>
+
+      <driver-class>org.hsqldb.jdbcDriver</driver-class>
+
+      <user-name>sa</user-name>
+      <password></password>
+
+      <min-pool-size>5</min-pool-size>
+
+      <max-pool-size>20</max-pool-size>
+
+      <idle-timeout-minutes>0</idle-timeout-minutes>
+
+      <metadata>
+         <type-mapping>Hypersonic SQL</type-mapping>
+      </metadata>
+      
+      <depends>jboss:service=Hypersonic,database=Entity2DS</depends>
+   </local-tx-datasource>
+
+   <mbean code="org.jboss.jdbc.HypersonicDatabase" 
+     name="jboss:service=Hypersonic,database=Entity2DS">
+     <attribute name="Database">Entity2DS</attribute>
+     <attribute name="InProcessMode">true</attribute>
+   </mbean>
+   
+   <!--local-tx-datasource> 
+ 
+	<jndi-name>Entity2DS</jndi-name> 
+ 
+    <connection-url>jdbc:mysql://localhost:3306/jboss</connection-url> 
+    <driver-class>com.mysql.jdbc.Driver</driver-class> 
+ 
+    <user-name>jboss</user-name> 
+    <password>jboss</password> 
+ 
+    <connection-property name="autoReconnect">true</connection-property>
+ 
+    <metadata> 
+      <type-mapping>mySQL</type-mapping> 
+    </metadata> 
+ 
+  </local-tx-datasource-->
+</datasources>

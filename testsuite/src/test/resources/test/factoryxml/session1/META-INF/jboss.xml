@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss>
+   <enterprise-beans>
+   <session>
+      <ejb-name>Session1Bean</ejb-name>
+      <ejb-ref>
+         <ejb-ref-name>session2</ejb-ref-name>
+         <ignore-dependency/>
+      </ejb-ref>
+   </session>
+   </enterprise-beans>
+</jboss>

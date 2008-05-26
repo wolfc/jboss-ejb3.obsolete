@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<ejb-jar version="2.1"
+         xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+                             http://java.sun.com/xml/ns/j2ee/ejb-jar_2_1.xsd"
+>
+
+   <enterprise-beans>
+      <session>
+         <ejb-name>StatelessBean21</ejb-name>
+         <home>org.jboss.ejb3.test.microbench.StatelessHomeRemote</home>
+	     <remote>org.jboss.ejb3.test.microbench.StatelessRemote21</remote>
+         <local-home>org.jboss.ejb3.test.microbench.StatelessHomeLocal</local-home>
+         <local>org.jboss.ejb3.test.microbench.StatelessLocal21</local>
+         <ejb-class>org.jboss.ejb3.test.microbench.StatelessBean21</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+         <security-identity>
+            <use-caller-identity/>
+         </security-identity>
+
+      </session>
+   </enterprise-beans>
+
+   <assembly-descriptor>
+   </assembly-descriptor>
+
+</ejb-jar>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <display-name>Tests of invalid injection</display-name>
+   <enterprise-beans>
+      <session>
+         <description>A session bean on looks up stuff in the ENC</description>
+         <ejb-name>BadFieldMethodBean</ejb-name>
+         <env-entry>
+            <description>A flag indicating if the bean should perform the full ENC testsuite</description>
+            <env-entry-name>key</env-entry-name>
+            <env-entry-type>java.lang.String</env-entry-type>
+            <env-entry-value>BadFieldMethodBean</env-entry-value>
+            <injection-target>
+               <injection-target-class>org.jboss.ejb3.test.naming.bad.BadFieldMethodBean</injection-target-class>
+               <injection-target-name>key</injection-target-name>
+            </injection-target>
+         </env-entry>
+      </session>
+   </enterprise-beans>
+
+</ejb-jar>

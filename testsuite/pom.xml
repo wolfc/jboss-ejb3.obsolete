@@ -1,0 +1,273 @@
+<!--
+  vi:ts=2:sw=2:expandtab
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>0.13.3</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jboss-ejb3-testsuite</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>JBoss EJB 3.0 Testsuite</name>
+  <description>
+    JBoss EJB 3.0 Testsuite contains all integration tests.
+  </description>
+
+  <properties>
+    <!-- Version of JBoss AS Facilities we depend upon -->
+    <version.org.jboss.jboss-as>5.0.0.Beta4</version.org.jboss.jboss-as>
+  </properties>
+
+  <build>
+    <plugins>
+      <!-- The individual integration tests are build using Ant -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-tests</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>integration-test</phase>
+            <configuration>
+              <tasks>
+                <!-- Execute the Test Build -->
+                <ant antfile="build-test.xml" target="main" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Run the tests using EJB3 TestRunner in Maven.
+           Currently not supported, the tests should be run
+           using Ant.
+        -->
+      <!-- EJB3 TestRunner Configuration
+      <plugin>
+        <groupId>org.jboss.maven.plugins</groupId>
+        <artifactId>maven-jboss-ejb3-testrunner-plugin</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>run-ejb3-tests</id>
+            <goals>
+              <goal>run-testsuite</goal>
+            </goals>
+            <phase>integration-test</phase>
+                <phase>validate</phase>  For testing only
+            <configuration>
+              <jvmArgs>
+                <jvmArg>-Xmx512M</jvmArg>
+              </jvmArgs>
+              <configurationsToTestsConfigPath>src/test/resources/testrunner-config/jbossas_configuration-ejb3_test-bindings.xml</configurationsToTestsConfigPath>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin> -->
+
+      <!-- Dependency Plugin Configuration -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+
+          <!-- Unpack requisite build scripts -->
+          <execution>
+            <id>unpack-build-scripts</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss.test</groupId>
+                  <artifactId>jboss-test</artifactId>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/dependencies/unpacked/jboss-test</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+            </configuration>
+          </execution>
+
+          <!--  Copy jboss-test JAR -->
+          <execution>
+            <id>copy-jboss-test</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss.test</groupId>
+                  <artifactId>jboss-test</artifactId>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.jboss.jbossas</groupId>
+                  <artifactId>jboss-server-manager</artifactId>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+            </configuration>
+          </execution>
+
+          <!-- Copy dependencies necessary of Test Clients -->
+          <execution>
+            <id>copy-core-dependencies</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.jboss.ejb3</groupId>
+                  <artifactId>jboss-ejb3-core</artifactId>
+                  <scope>test</scope>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${project.build.directory}/dependencies/lib</outputDirectory>
+              <overWriteIfNewer>true</overWriteIfNewer>
+              <stripVersion>true</stripVersion>
+              <!-- <excludeTransitive>true</excludeTransitive>  -->
+            </configuration>
+          </execution>
+
+        </executions>
+      </plugin>
+
+      <!-- JAR the Tests -->
+      <!-- TODO: Instead of passing of the build directory, this jar is passed to junit. Why? -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Temporarily, don't run any tests here -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Used in clusteredservice/unit/HttpUtils -->
+    <dependency>
+      <groupId>apache-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.0.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.xml.soap</groupId>
+      <artifactId>saaj-api</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-core</artifactId>
+      <version>0.1.1</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.embedded</groupId>
+      <artifactId>jboss-embedded</artifactId>
+      <version>beta3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-ejb-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-persistence-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-j2se</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-main</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-system-jmx</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.naming</groupId>
+      <artifactId>jnpserver</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.test</groupId>
+      <artifactId>jboss-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

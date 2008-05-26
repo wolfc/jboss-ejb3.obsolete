@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="Entity1">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <properties>
+          <property name="hibernate.hbm2ddl.auto" value="create"/>
+          <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+      </properties>
+      <class>org.jboss.ejb3.test.persistenceunits.Entity1</class>
+   </persistence-unit>
+   <persistence-unit name="Entity2">
+      <jta-data-source>java:/Entity2DS</jta-data-source>
+      <properties>
+          <property name="hibernate.hbm2ddl.auto" value="create"/>
+          <!--property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/-->
+          <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+      </properties>
+      <class>org.jboss.ejb3.test.persistenceunits.Entity2</class>
+   </persistence-unit>
+</persistence>

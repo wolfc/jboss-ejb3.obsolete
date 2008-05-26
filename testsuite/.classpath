@@ -1,0 +1,5 @@
+<classpath>
+  <classpathentry kind="src" path="src/test/java" output="eclipse-target/tests-classes"/>
+  <classpathentry kind="output" path="eclipse-target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+</classpath>
