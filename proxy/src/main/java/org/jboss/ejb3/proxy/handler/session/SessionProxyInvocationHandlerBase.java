@@ -21,7 +21,18 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.string.StringUtils;
+import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.logging.Logger;
 
 /**
  * SessionProxyInvocationHandlerBase
@@ -37,6 +48,12 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
          SessionProxyInvocationHandler
 {
    // ------------------------------------------------------------------------------||
+   // Class Members ----------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(SessionProxyInvocationHandlerBase.class);
+
+   // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
@@ -46,5 +63,50 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
    protected SessionProxyInvocationHandlerBase()
    {
       super();
+   }
+
+   // ------------------------------------------------------------------------------||
+   // Required Implementations -----------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   {
+      // Set the invoked method
+      SerializableMethod invokedMethod = new SerializableMethod(method);
+      this.setInvokedMethod(invokedMethod);
+
+      // Attempt to handle directly
+      try
+      {
+         return this.handleInvocationDirectly(proxy, args);
+      }
+      // Ignore this, we just couldn't handle here
+      catch (NotEligibleForDirectInvocationException nefdie)
+      {
+         log.debug("Couldn't handle invocation directly within Proxy " + InvocationHandler.class.getName() + ": "
+               + nefdie.getMessage());
+      }
+
+      // Obtain container name
+      String containerName = StringUtils.adjustWhitespaceStringToNull(this.getContainerName());
+      assert containerName != null : "Container name for invocation must be specified";
+
+      // Assemble arguments for invocation
+      List<Object> invocationArguments = new ArrayList<Object>();
+      // Add proxy as argument
+      invocationArguments.add(proxy);
+      // Add invoked method as argument
+      invocationArguments.add(invokedMethod);
+      // Add rest of arguments
+      invocationArguments.add(args);
+
+      // Invoke
+      //TODO This won't fly for remote, Object Store would be on another Process
+      log.debug("Invoking on Bean with name \"" + this.getContainerName() + "\" method \""
+            + InvokableContext.METHOD_NAME_INVOKE + "\" with arguments : " + invocationArguments);
+      return Ejb3RegistrarLocator.locateRegistrar().invoke(this.getContainerName(),
+            InvokableContext.METHOD_NAME_INVOKE, invocationArguments.toArray(new Object[]
+            {}), InvokableContext.METHOD_SIGNATURE_INVOKE);
+
    }
 }
