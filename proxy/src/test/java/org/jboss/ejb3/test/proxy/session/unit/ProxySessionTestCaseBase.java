@@ -24,12 +24,6 @@ package org.jboss.ejb3.test.proxy.session.unit;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
-import org.jboss.ejb3.test.proxy.common.Utils;
-import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
-import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 
 /**
  * ProxySessionTestCaseBase
@@ -46,16 +40,12 @@ public abstract class ProxySessionTestCaseBase
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static EmbeddedTestMcBootstrap bootstrap;
+   protected static EmbeddedTestMcBootstrap bootstrap;
 
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /**
-    * @throws java.lang.Exception
-    */
-   @BeforeClass
    public static void setUpBeforeClass() throws Throwable
    {
       bootstrap = new EmbeddedTestMcBootstrap();
@@ -63,34 +53,5 @@ public abstract class ProxySessionTestCaseBase
 
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
-
-      bootstrap.deploy(ProxyStatelessSessionTestCase.class);
-
-      // Create a SLSB
-      StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
-
-      // Install into MC
-      bootstrap.installInstance(container.getName(), container);
    }
-
-   /**
-    * @throws java.lang.Exception
-    */
-   @AfterClass
-   public static void tearDownAfterClass() throws Exception
-   {
-      if (bootstrap != null)
-         bootstrap.shutdown();
-      bootstrap = null;
-   }
-
-   // --------------------------------------------------------------------------------||
-   // Contracts ----------------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   /**
-    * Creates and returns a new Session Container
-    */
-   protected abstract SessionContainer createContainer() throws Throwable;
-
 }

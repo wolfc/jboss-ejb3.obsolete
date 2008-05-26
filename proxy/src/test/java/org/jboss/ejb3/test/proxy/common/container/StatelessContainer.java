@@ -61,4 +61,24 @@ public class StatelessContainer extends SessionSpecContainer implements Invokabl
    {
       return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB;
    }
+
+   /**
+    * Obtains the appropriate bean instance for invocation
+    * as called from the specified proxy
+    * 
+    * @param proxy
+    * @return
+    */
+   protected Object getBeanInstance(Object proxy)
+   {
+      // Typically this would be obtained from a Pool
+      try
+      {
+         return this.createInstance();
+      }
+      catch (Throwable t)
+      {
+         throw new RuntimeException("Error in creating new SLSB Bean Instance", t);
+      }
+   }
 }

@@ -21,11 +21,14 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
 import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -84,7 +87,7 @@ public class StatefulContainer extends SessionSpecContainer
       Object instance = null;
       try
       {
-         instance = this.getBeanClass().newInstance();
+         instance = this.createInstance();
       }
       catch (Throwable t)
       {
@@ -117,6 +120,34 @@ public class StatefulContainer extends SessionSpecContainer
    protected String getJndiRegistrarBindName()
    {
       return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB;
+   }
+
+   /**
+    * Obtains the appropriate bean instance for invocation
+    * as called from the specified proxy
+    * 
+    * @param proxy
+    * @return
+    */
+   protected Object getBeanInstance(Object proxy)
+   {
+      // Obtain the InvocationHandler
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof StatefulProxyInvocationHandler : "SFSB Proxy must be of type "
+            + StatefulProxyInvocationHandler.class.getName();
+      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) handler;
+
+      // Get the Session ID
+      Object sessionId = sHandler.getSessionId();
+      assert sessionId != null : "Proxy has no Session ID set, and this is required for SFSB Invocation";
+
+      // Get the corresponding instance from the cache
+      Object bean = this.getCache().get(sessionId);
+      assert bean != null : "SFSB Proxy claims Session ID of " + sessionId
+            + ", but no corresponding bean instance could be found";
+
+      // Return
+      return bean;
    }
 
    // --------------------------------------------------------------------------------||

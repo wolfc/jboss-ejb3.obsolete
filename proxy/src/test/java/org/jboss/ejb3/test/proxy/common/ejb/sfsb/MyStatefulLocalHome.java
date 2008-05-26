@@ -24,12 +24,12 @@ package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 import javax.ejb.EJBLocalHome;
 
 /**
- * MyStatelfulLocalHome
+ * MyStatefulLocalHome
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface MyStatelfulLocalHome extends EJBLocalHome
+public interface MyStatefulLocalHome extends EJBLocalHome
 {
    MyStateful21Local create();
 }

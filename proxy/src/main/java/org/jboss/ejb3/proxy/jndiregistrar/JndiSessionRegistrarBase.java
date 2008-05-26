@@ -124,6 +124,17 @@ public abstract class JndiSessionRegistrarBase
       // Set the Proxy Object Factory Type
       assert sessionProxyObjectFactoryType != null && !sessionProxyObjectFactoryType.equals("") : "Session EJB Proxy "
             + ObjectFactory.class.getSimpleName() + " must be specified.";
+
+      try
+      {
+         // See if the specified Session Proxy Object Factory is valid
+         Class.forName(sessionProxyObjectFactoryType);
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new RuntimeException("Specified " + ObjectFactory.class.getSimpleName() + " of "
+               + sessionProxyObjectFactoryType + " could not be loaded.", e);
+      }
       this.setSessionProxyObjectFactoryType(sessionProxyObjectFactoryType);
       log.debug("Using Session EJB JNDI " + ObjectFactory.class.getSimpleName() + ": "
             + this.getSessionProxyObjectFactoryType());

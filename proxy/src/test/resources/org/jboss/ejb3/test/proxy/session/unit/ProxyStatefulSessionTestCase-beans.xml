@@ -26,15 +26,15 @@
     
   -->
 
-  <!-- SLSB JNDI Registrar -->
-  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
+  <!-- SFSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
     <constructor>
       <parameter>
         <inject bean="org.jboss.ejb3.JndiContext" />
       </parameter>
       <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
+        org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>
