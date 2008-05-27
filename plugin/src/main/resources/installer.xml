@@ -17,6 +17,7 @@
       <unpack>true</unpack>
       <includes>
         <include>org.jboss.ejb3:jboss-ejb3-installer</include>
+        <include>org.jboss.ejb3:jboss-ejb3-common</include>
       </includes>
     </dependencySet>
     <dependencySet>
