@@ -30,9 +30,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javassist.bytecode.ClassFile;
-
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
@@ -41,7 +38,7 @@ import javax.naming.NamingException;
 import javax.persistence.Entity;
 import javax.security.jacc.PolicyConfiguration;
 
-import org.hibernate.ejb.packaging.PersistenceMetadata;
+import javassist.bytecode.ClassFile;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
@@ -55,8 +52,6 @@ import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
-import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitMetaData;
-import org.jboss.ejb3.metadata.jpa.spec.PersistenceUnitsMetaData;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
@@ -68,6 +63,8 @@ import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
+import org.jboss.metadata.jpa.spec.PersistenceMetaData;
+import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
 
@@ -89,7 +86,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    private JBossMetaData metaData;
    
-   private PersistenceUnitsMetaData persistenceUnitsMetaData;
+   private PersistenceMetaData persistenceUnitsMetaData;
 
    protected DeploymentUnit unit;
 
@@ -132,7 +129,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    
    protected boolean reinitialize = false;
 
-   public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceUnitsMetaData persistenceUnitsMetaData)
+   public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceMetaData persistenceUnitsMetaData)
    {
       assert unit != null : "unit is null";
       
@@ -148,8 +145,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       {
          throw new RuntimeException(e);
       }
-      persistenceUnitResolver = new EjbModulePersistenceUnitResolver(persistenceUnitDeployments, deploymentScope,
-            ejbContainers);
+      persistenceUnitResolver = new EjbModulePersistenceUnitResolver(persistenceUnitDeployments, deploymentScope, ejbContainers);
       MessageDestinationsMetaData destinations = null;
       if (metaData != null && metaData.getAssemblyDescriptor() != null)
          destinations = metaData.getAssemblyDescriptor().getMessageDestinations();
@@ -673,25 +669,29 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
       // scope the unitName if this is an ejb archive
       // todo revert to this: List<PersistenceMetadata> persistenceMetadata = PersistenceXmlLoader.deploy(persistenceXmlUrl, new HashMap(), new EJB3DTDEntityResolver());
-      for (PersistenceUnitMetaData persistenceUnitMetaData : persistenceUnitsMetaData)
+      List<PersistenceUnitMetaData> pumds = persistenceUnitsMetaData.getPersistenceUnits();
+      for (PersistenceUnitMetaData metaData : pumds)
       {
-         PersistenceMetadata metadata = persistenceUnitMetaData.getLegacyMetadata();
-         
          String earShortName = deploymentScope == null ? null : deploymentScope.getShortName();
          boolean isScoped = ejbContainers.size() > 0;
 
+         Map<String, String> properties = metaData.getProperties();
+         if (properties == null)
+         {
+            properties = new HashMap<String, String>();
+            metaData.setProperties(properties);
+         }
          // Ensure 2nd level cache entries are segregated from other deployments
-         String cache_prefix = metadata.getProps().getProperty(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX);
+         String cache_prefix = properties.get(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX);
          if (cache_prefix == null)
          {
             // Create a region_prefix for the 2nd level cache to ensure
             // deployments are segregated
             String jarName = isScoped ? unit.getShortName() : null;
-            cache_prefix = SecondLevelCacheUtil.createCacheRegionPrefix(earShortName, jarName, metadata.getName());
-            metadata.getProps().setProperty(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX, cache_prefix);
+            cache_prefix = SecondLevelCacheUtil.createCacheRegionPrefix(earShortName, jarName, metaData.getName());
+            properties.put(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX, cache_prefix);
          }
-         PersistenceUnitDeployment deployment = new PersistenceUnitDeployment(initialContext, this,
-               explicitEntityClasses, persistenceUnitMetaData, earShortName, unit.getShortName(), isScoped);
+         PersistenceUnitDeployment deployment = new PersistenceUnitDeployment(initialContext, this, explicitEntityClasses, metaData, earShortName, unit.getShortName(), isScoped);
          PersistenceUnitRegistry.register(deployment);
          persistenceUnitDeployments.add(deployment);
       }
