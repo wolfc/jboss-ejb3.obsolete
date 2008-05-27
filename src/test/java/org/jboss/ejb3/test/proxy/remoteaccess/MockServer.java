@@ -105,7 +105,7 @@ public class MockServer
 
       // Switch up to the hacky CL so that "jndi.properties" is not loaded
       ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(new JndiPropertiesRedirectClassloader());
+      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
 
       // Create and set a new MC Bootstrap 
       this.setBootstrap(EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap());
