@@ -7,19 +7,18 @@
     JNDI 
     
     The requisite Naming Server
+    
+    
+  -->
 
+  <bean name="NamingBeanImpl" class="org.jnp.server.NamingBeanImpl" />
 
-  <bean name="NameServer" class="org.jnp.server.NamingBeanImpl">
-    <property name="installGlobalService">true</property>
-  </bean>   -->
-  
-     <!-- JNDI -->
-   <bean name="NamingBeanImpl" class="org.jnp.server.NamingBeanImpl"/>
-   
-   <bean name="Naming" class="org.jnp.server.Main">
-      <property name="namingInfo"><inject bean="NamingBeanImpl"/></property>
-      <property name="port">1099</property>
-   </bean>
+  <bean name="Naming" class="org.jnp.server.Main">
+    <property name="namingInfo">
+      <inject bean="NamingBeanImpl" />
+    </property>
+    <property name="port">1099</property>
+  </bean>
 
   <!-- 
     
