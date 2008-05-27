@@ -33,6 +33,7 @@ import javax.naming.InitialContext;
 import org.jboss.ejb3.common.thread.RedirectProcessOutputToSystemOutThread;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
+import org.jboss.ejb3.test.proxy.remoteaccess.JndiPropertiesToJndiRemotePropertiesHackCl;
 import org.jboss.ejb3.test.proxy.remoteaccess.MockServer;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
@@ -85,7 +86,15 @@ public class RemoteAccessTestCase
    @Test
    public void testInvocation() throws Throwable
    {
+
+      // Switch up to the hacky CL so that "jndi.properties" is not loaded, and uses instead "jndi-remote.properties"
+      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJndiRemotePropertiesHackCl());
+
       InitialContext ctx = new InitialContext();
+
+      // Replace the CL
+      Thread.currentThread().setContextClassLoader(oldLoader);
 
       Object bean = ctx.lookup("MyStatelessBean/remote");
       assertTrue(bean instanceof MyStatelessLocal);
@@ -126,6 +135,7 @@ public class RemoteAccessTestCase
       Process p = RemoteAccessTestCase.getRemoteProcess();
       p.getOutputStream().flush();
       p.destroy();
+
    }
 
    // --------------------------------------------------------------------------------||
@@ -217,4 +227,5 @@ public class RemoteAccessTestCase
    {
       RemoteAccessTestCase.remoteProcess = remoteProcess;
    }
+
 }
