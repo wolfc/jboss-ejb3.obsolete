@@ -63,6 +63,10 @@
   
   <category name="org.jboss">
     <priority value="INFO"/>
+  </category>  
+  
+  <category name="org.jnp">
+    <priority value="INFO"/>
   </category>
   
   <category name="org.jboss.ejb3">

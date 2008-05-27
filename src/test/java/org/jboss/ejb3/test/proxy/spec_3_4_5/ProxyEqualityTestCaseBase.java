@@ -193,12 +193,12 @@ public abstract class ProxyEqualityTestCaseBase
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public static EmbeddedTestMcBootstrap getBootstrap()
+   protected static EmbeddedTestMcBootstrap getBootstrap()
    {
       return ProxyEqualityTestCaseBase.bootstrap;
    }
 
-   public static void setBootstrap(EmbeddedTestMcBootstrap bootstrap)
+   protected static void setBootstrap(EmbeddedTestMcBootstrap bootstrap)
    {
       ProxyEqualityTestCaseBase.bootstrap = bootstrap;
    }
