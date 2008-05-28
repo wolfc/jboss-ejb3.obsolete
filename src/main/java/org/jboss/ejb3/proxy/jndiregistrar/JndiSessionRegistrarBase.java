@@ -40,6 +40,7 @@ import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.naming.Util;
@@ -150,26 +151,12 @@ public abstract class JndiSessionRegistrarBase
     * responsible for creation and registration of any all ProxyFactory
     * implementations required by the EJB
     * 
-    * @param md
+    * @param smd
     * @param cl The CL of the Container
     * @param containerName The name under which the target container is registered
     */
-   public void bindEjb(final JBossEnterpriseBeanMetaData md, final ClassLoader cl, final String containerName)
+   public void bindEjb(final JBossSessionBeanMetaData smd, final ClassLoader cl, final String containerName)
    {
-      // Assert castable
-      assert (md instanceof JBossSessionBeanMetaData) : md + " claims to be a Session Bean but is not of type "
-            + JBossSessionBeanMetaData.class.getName();
-      JBossSessionBeanMetaData smd = null;
-      try
-      {
-         smd = JBossSessionBeanMetaData.class.cast(md);
-      }
-      catch (ClassCastException cce)
-      {
-         throw new RuntimeException(md + " claiming to be Session Bean could not be cast to "
-               + JBossSessionBeanMetaData.class.getName(), cce);
-      }
-
       // Log 
       String ejbName = smd.getEjbName();
       log.debug("Found Session Bean: " + ejbName);
@@ -205,7 +192,7 @@ public abstract class JndiSessionRegistrarBase
       if (hasLocalView)
       {
          // Create and register a local proxy factory
-         ProxyFactory factory = this.createLocalProxyFactory(smd, cl);
+         SessionProxyFactory factory = this.createLocalProxyFactory(smd, cl);
          localProxyFactoryKey = this.registerProxyFactory(factory, smd, true);
       }
 
@@ -213,8 +200,8 @@ public abstract class JndiSessionRegistrarBase
       String remoteProxyFactoryKey = null;
       if (hasRemoteView)
       {
-         // Create and register a local proxy factory
-         ProxyFactory factory = this.createRemoteProxyFactory(smd, cl);
+         // Create and register a remote proxy factory
+         SessionProxyFactory factory = this.createRemoteProxyFactory(smd, cl);
          remoteProxyFactoryKey = this.registerProxyFactory(factory, smd, false);
       }
 
@@ -249,16 +236,21 @@ public abstract class JndiSessionRegistrarBase
          else if (smd.getHome() != null && !smd.getHome().equals(""))
          {
             String homeType = smd.getHome();
-            RefAddr refAddr = new StringRefAddr(
+            RefAddr refAddrHomeInterface = new StringRefAddr(
                   ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, homeType);
+            RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
             Reference homeRef = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + homeType, this
                   .getSessionProxyObjectFactoryType(), null);
-            homeRef.add(refAddr);
+            homeRef.add(refAddrHomeInterface);
+            homeRef.add(refAddrRemoting);
             String homeAddress = smd.determineResolvedJndiName(homeType);
             log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + homeAddress
                   + "\"");
             this.bind(homeRef, homeAddress, remoteProxyFactoryKey, containerName);
          }
+
+         // Add a Reference Address for the Remoting URL
+         refAddrsForDefaultRemote.add(this.createRemotingRefAddr(smd));
 
          /*
           * Bind ObjectFactory for default remote businesses (and home if bound together)
@@ -289,11 +281,13 @@ public abstract class JndiSessionRegistrarBase
          // Bind ObjectFactory specific to each Remote Business Interface
          for (String businessRemote : businessRemotes)
          {
-            RefAddr refAddr = new StringRefAddr(
+            RefAddr refAddrBusinessInterface = new StringRefAddr(
                   ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
+            RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
             Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote,
                   this.getSessionProxyObjectFactoryType(), null);
-            ref.add(refAddr);
+            ref.add(refAddrBusinessInterface);
+            ref.add(refAddrRemoting);
             String address = smd.determineResolvedJndiName(businessRemote);
             log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                   + " to be bound into JNDI at \"" + address + "\"");
@@ -471,6 +465,29 @@ public abstract class JndiSessionRegistrarBase
 
       // Return
       return bindTogether;
+   }
+
+   /**
+    * Creates and returns a new RefAddr to flag the proper
+    * InvokerLocator URL used by remoting for the EJB represented
+    * by the specified metadata 
+    * 
+    * @param smd
+    * @return
+    */
+   protected RefAddr createRemotingRefAddr(JBossSessionBeanMetaData smd)
+   {
+      // Obtain RemoteBinding
+      List<RemoteBindingMetaData> bindings = smd.getRemoteBindings();
+      assert bindings != null && bindings.size() > 0 : "Remote Bindings are required and none are present";
+      RemoteBindingMetaData remoteBinding = smd.getRemoteBindings().get(0);
+
+      // Create RefAddr
+      RefAddr refAddr = new StringRefAddr(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL,
+            remoteBinding.getClientBindUrl());
+
+      // Return
+      return refAddr;
    }
 
    /**

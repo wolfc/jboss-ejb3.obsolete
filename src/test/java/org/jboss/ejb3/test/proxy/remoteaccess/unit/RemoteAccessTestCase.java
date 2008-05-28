@@ -133,7 +133,6 @@ public class RemoteAccessTestCase
        * This is far from a graceful shutdown, but hey, this is only for a test
        */
       Process p = RemoteAccessTestCase.getRemoteProcess();
-      p.getOutputStream().flush();
       p.destroy();
 
    }

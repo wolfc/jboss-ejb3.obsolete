@@ -53,4 +53,34 @@
   <bean name="org.jboss.ejb3.JndiContext"
     class="javax.naming.InitialContext" />
 
+  <!-- 
+    
+    Remoting
+    
+  -->
+
+  <!-- Remoting  Configuration -->
+  <bean name="ServerConfiguration"
+    class="org.jboss.remoting.ServerConfiguration">
+    <property name="invocationHandlers">
+      <map keyClass="java.lang.String" valueClass="java.lang.String">
+        <entry>
+          <key>AOP</key>
+          <value>
+            org.jboss.aspects.remoting.AOPRemotingInvocationHandler
+          </value>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
+  <!-- Remoting Connector -->
+  <bean name="Connector"
+    class="org.jboss.remoting.transport.Connector">
+    <property name="invokerLocator">socket://0.0.0.0:3874</property>
+    <property name="serverConfiguration">
+      <inject bean="ServerConfiguration" />
+    </property>
+  </bean>
+
 </deployment>

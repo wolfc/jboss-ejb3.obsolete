@@ -22,8 +22,10 @@
 package org.jboss.ejb3.test.proxy.common;
 
 import java.lang.reflect.AnnotatedElement;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
@@ -34,6 +36,7 @@ import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionPolicyDecorator;
+import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
 import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
 
 /**
@@ -113,9 +116,17 @@ public class Utils
       // emulate merge deployer
       JBossMetaData mergedMetaData = new JBossMetaData();
       mergedMetaData.merge(null, metaData);
-
+      
+      // Get delegate
       JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) mergedMetaData
             .getEnterpriseBean(beanImplClass.getSimpleName());
+      
+      // Add Remote Binding manually
+      List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
+      RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
+      remoteBinding.setClientBindUrl("socket://localhost:3874");
+      remoteBindings.add(remoteBinding);
+      beanMetaDataDelegate.setRemoteBindings(remoteBindings);
 
       // Use a Session JNDI Binding Policy for the metadata
       JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate);

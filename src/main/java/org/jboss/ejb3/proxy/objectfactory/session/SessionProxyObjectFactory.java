@@ -140,7 +140,8 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       }
 
       // Obtain the target container name
-      String containerName = this.getContainerName(name, referenceAddresses);
+      String containerName = this.getSingleRequiredReferenceAddressValue(name, referenceAddresses,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME);
 
       // Get the proxy's invocation handler
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
