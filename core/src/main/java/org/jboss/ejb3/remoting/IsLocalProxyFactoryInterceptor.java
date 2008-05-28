@@ -36,9 +36,10 @@ import org.jboss.logging.Logger;
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @author Brian Stansberry
- * 
+ * @deprecated Use org.jboss.ejb3.proxy.remoting in EJB3 Proxy Component
  * @version $Revision: 61667 $
  */
+@Deprecated
 public class IsLocalProxyFactoryInterceptor implements Interceptor, Serializable
 {
    private static final long serialVersionUID = -1264055696758370812L;
