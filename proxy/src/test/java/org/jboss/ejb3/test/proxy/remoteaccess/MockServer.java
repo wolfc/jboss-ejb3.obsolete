@@ -1,7 +1,9 @@
 package org.jboss.ejb3.test.proxy.remoteaccess;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.proxy.remoting.RemotingTargetIds;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.Utils;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
@@ -85,7 +87,7 @@ public class MockServer
 
       // Create a new Launcher
       MockServer launcher = new MockServer(testClass);
-      MockServer.setServer(server);
+      MockServer.setServer(launcher);
 
       // Initialize the launcher in a new Thread
       new Startup(launcher).start();
@@ -115,6 +117,10 @@ public class MockServer
 
       // Bind the Ejb3Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
+
+      // Register the EJB3 Registrar with Remoting
+      Dispatcher.singleton.registerTarget(RemotingTargetIds.TARGET_ID_EJB_REGISTRAR, Ejb3RegistrarLocator
+            .locateRegistrar());
 
       // Deploy *-beans.xml
       this.getBootstrap().deploy(this.getTestClass());

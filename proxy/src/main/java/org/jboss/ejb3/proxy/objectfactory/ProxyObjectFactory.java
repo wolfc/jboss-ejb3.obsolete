@@ -22,6 +22,7 @@
 package org.jboss.ejb3.proxy.objectfactory;
 
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,10 +36,17 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
+import org.jboss.ejb3.proxy.remoting.RemotingTargetIds;
 import org.jboss.logging.Logger;
+import org.jboss.remoting.InvokerLocator;
 
 /**
  * ProxyObjectFactory
@@ -94,20 +102,39 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       Map<String, List<String>> refAddrs = this.getReferenceAddresses(ref);
 
       // Obtain the key used for looking up the appropriate ProxyFactory in the Registry
-      List<String> proxyFactoryRegistryKeys = refAddrs
-            .get(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
-      String assertionErrorMessage = "Exactly one Reference Address of type \""
-            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY + "\" is required, found "
-            + proxyFactoryRegistryKeys;
-      assert proxyFactoryRegistryKeys != null : assertionErrorMessage;
-      assert proxyFactoryRegistryKeys.size() == 1 : assertionErrorMessage;
-      String proxyFactoryRegistryKey = proxyFactoryRegistryKeys.get(0);
+      String proxyFactoryRegistryKey = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
+
+      // Obtain the URL for invoking upon the Registry
+      String url = this.getSingleReferenceAddressValue(name, refAddrs,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
+
+      // Initialize Ejb3Registrar
+      Ejb3Registrar registrar = null;
+
+      // If Remoting Defined
+      if (url != null)
+      {
+         // Create a POJI Proxy to the Registrar
+         InvokerLocator locator = new InvokerLocator(url);
+         Interceptor[] interceptors =
+         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+         PojiProxy handler = new PojiProxy(RemotingTargetIds.TARGET_ID_EJB_REGISTRAR, locator, interceptors);
+         Class<?>[] interfaces = new Class<?>[]
+         {Ejb3Registrar.class};
+         registrar = (Ejb3Registrar) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
+      }
+      // Local
+      else
+      {
+         registrar = Ejb3RegistrarLocator.locateRegistrar();
+      }
 
       // Obtain Proxy Factory
       ProxyFactory proxyFactory = null;
       try
       {
-         Object pfObj = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryRegistryKey);
+         Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
          assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
          assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
                + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
@@ -126,26 +153,52 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    }
 
    /**
-    * Obtains the container name bound as a reference address to the JNDI Name specified
+    * Obtains the single value of the specified type as obtained from the specified reference 
+    * addresses bound at the specified Name.  Asserts that the value exists and is the only one
+    * for the specified type. 
     * 
     * @param name
     * @param referenceAddresses
+    * @param refAddrType
     * @return
     */
-   protected String getContainerName(Name name, Map<String, List<String>> referenceAddresses)
+   protected String getSingleRequiredReferenceAddressValue(Name name, Map<String, List<String>> referenceAddresses,
+         String refAddrType)
    {
-      // Get the Container Name
-      String refAddrType = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME;
-      List<String> containerNames = referenceAddresses.get(refAddrType);
-      assert containerNames != null : RefAddr.class.getSimpleName() + " type of " + refAddrType
-            + " is required to find the EJB Container associated with the " + Reference.class.getSimpleName()
-            + " for JNDI Name " + name;
-      assert containerNames.size() == 1 : "Only one " + RefAddr.class.getSimpleName() + " of type " + refAddrType
-            + " may be defined, instead found: " + containerNames;
-      String containerName = containerNames.get(0);
+      // Get the value
+      String value = this.getSingleReferenceAddressValue(name, referenceAddresses, refAddrType);
+      assert (value != null && !value.trim().equals("")) : "Exactly one " + RefAddr.class.getSimpleName() + " of type "
+            + refAddrType + " must be defined, none found";
 
       // Return
-      return containerName;
+      return value;
+   }
+
+   /**
+    * Obtains the single value of the specified type as obtained from the specified reference 
+    * addresses bound at the specified Name.  Asserts that the value exists and is the only one
+    * for the specified type. 
+    * 
+    * @param name
+    * @param referenceAddresses
+    * @param refAddrType
+    * @return
+    */
+   protected String getSingleReferenceAddressValue(Name name, Map<String, List<String>> referenceAddresses,
+         String refAddrType)
+   {
+      // Get the values
+      List<String> values = referenceAddresses.get(refAddrType);
+      assert values == null || values.size() == 1 : "Only one " + RefAddr.class.getSimpleName() + " of type "
+            + refAddrType + " may be defined, instead found: " + values;
+      String value = null;
+      if (values != null)
+      {
+         value = values.get(0).trim();
+      }
+
+      // Return
+      return value;
    }
 
    // --------------------------------------------------------------------------------||

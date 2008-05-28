@@ -78,6 +78,13 @@ public interface ProxyFactoryReferenceAddressTypes
     * The following are ReferenceAddress types denoting the Name of the EJB Container associated 
     * with a Reference
     */
+   
    String REF_ADDR_TYPE_EJBCONTAINER_NAME = "EJB Container Name";
+   
+   /*
+    * The following are Reference Address Types used in Remoting
+    */
+   
+   String REF_ADDR_TYPE_INVOKER_LOCATOR_URL = "Remoting Host URL";
 
 }

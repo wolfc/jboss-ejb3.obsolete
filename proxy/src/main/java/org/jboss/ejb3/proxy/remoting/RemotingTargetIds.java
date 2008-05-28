@@ -19,40 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory;
+package org.jboss.ejb3.proxy.remoting;
 
-import java.io.Serializable;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 
 /**
- * ProxyFactory
+ * RemotingTargetIds
  * 
- * Contract for a generic Proxy Factory, specifying 
- * a simple lifecycle and functions common to
- * all Proxy Factories
+ * This interface defines the key constants used as 
+ * valid Remoting Target IDs for use in the
+ * Dispatcher singleton
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface ProxyFactory extends Serializable
+public interface RemotingTargetIds
 {
    // --------------------------------------------------------------------------------||
-   // Lifecycle Methods --------------------------------------------------------------||
+   // Constants ----------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * Lifecycle callback to be invoked 
-    * before the ProxyFactory is able to service requests
-    * 
-    *  @throws Exception
+    * ID of the EJB3 Registrar
     */
-   void start() throws Exception;
+   String TARGET_ID_EJB_REGISTRAR = Ejb3Registrar.class.getSimpleName();
 
-   /**
-    * Lifecycle callback to be invoked 
-    * before the ProxyFactory is taken out of service, 
-    * possibly GC'd
-    * 
-    * @throws Exception
-    */
-   void stop() throws Exception;
 }

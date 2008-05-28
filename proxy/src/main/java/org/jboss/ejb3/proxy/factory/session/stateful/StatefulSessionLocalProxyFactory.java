@@ -24,7 +24,6 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -41,7 +40,7 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger logger = Logger.getLogger(StatefulSessionLocalProxyFactory.class);
+   private static final long serialVersionUID = 1L;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||

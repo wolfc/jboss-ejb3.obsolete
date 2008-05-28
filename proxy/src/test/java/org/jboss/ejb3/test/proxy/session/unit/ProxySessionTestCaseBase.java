@@ -21,8 +21,10 @@
  */
 package org.jboss.ejb3.test.proxy.session.unit;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.proxy.remoting.RemotingTargetIds;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 
 /**
@@ -53,5 +55,9 @@ public abstract class ProxySessionTestCaseBase
 
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
+      
+      // Register the EJB3 Registrar with Remoting
+      Dispatcher.singleton.registerTarget(RemotingTargetIds.TARGET_ID_EJB_REGISTRAR, Ejb3RegistrarLocator
+            .locateRegistrar());
    }
 }
