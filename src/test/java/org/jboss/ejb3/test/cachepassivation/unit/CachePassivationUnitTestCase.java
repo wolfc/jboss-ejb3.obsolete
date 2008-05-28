@@ -21,7 +21,9 @@
  */
 package org.jboss.ejb3.test.cachepassivation.unit;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.naming.InitialContext;
 
@@ -32,11 +34,14 @@ import org.jboss.aop.Domain;
 import org.jboss.cache.transaction.DummyTransactionManager;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
+import org.jboss.ejb3.cache.persistence.PersistenceManagerFactory;
+import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.ejb3.test.cachepassivation.MockBean;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
 import org.jboss.ejb3.test.cachepassivation.MockStatefulContainer;
+import org.jboss.ejb3.test.cachepassivation.MyStatefulSessionFilePersistenceManagerFactory;
 import org.jboss.naming.JavaCompInitializer;
 import org.jnp.server.SingletonNamingServer;
 
@@ -68,7 +73,12 @@ public class CachePassivationUnitTestCase extends TestCase
       String beanClassName = MockBean.class.getName();
       String ejbName = "MockBean";
       Domain domain = new Domain(new AspectManager(), "Test", false);
+      Map<String, Class<? extends PersistenceManagerFactory>> factories = new HashMap<String, Class<? extends PersistenceManagerFactory>>();
+      factories.put("MyStatefulSessionFilePersistenceManager", MyStatefulSessionFilePersistenceManagerFactory.class);
+      PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry = new PersistenceManagerFactoryRegistry();
+      persistenceManagerFactoryRegistry.setFactories(factories);
       Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      deployment.setPersistenceManagerFactoryRegistry(persistenceManagerFactoryRegistry);
       MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties, deployment);
       container.instantiated();
       container.processMetadata();
@@ -107,9 +117,9 @@ public class CachePassivationUnitTestCase extends TestCase
       }
       finally
       {
-         container.stop();
-         container.destroy();
-         Ejb3Registry.unregister(container);
+//         container.stop();
+//         container.destroy();
+//         Ejb3Registry.unregister(container);
       }
    }
 }
