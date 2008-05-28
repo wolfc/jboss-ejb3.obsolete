@@ -1,3 +1,0 @@
-<jboss-app>
-  <loader-repository>org.jboss.test:name=externalrefscoped,ear=first</loader-repository>
-</jboss-app>
