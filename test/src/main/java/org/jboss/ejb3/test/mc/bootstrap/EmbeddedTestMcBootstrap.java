@@ -21,7 +21,9 @@
  */
 package org.jboss.ejb3.test.mc.bootstrap;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Enumeration;
 
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.dependency.spi.ControllerContext;
@@ -29,6 +31,7 @@ import org.jboss.dependency.spi.ControllerState;
 import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
 import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.kernel.spi.dependency.KernelController;
+import org.jboss.kernel.spi.deployment.KernelDeployment;
 import org.jboss.logging.Logger;
 
 /**
@@ -110,13 +113,14 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
     * 
     * @param url
     */
-   public void deploy(URL url)
+   public KernelDeployment deploy(URL url)
    {
       try
       {
          log.debug("Deploying " + url.toString() + "...");
-         this.getDeployer().deploy(url);
+         KernelDeployment deployment = this.getDeployer().deploy(url);
          log.info("Deployed: " + url.toString());
+         return deployment;
       }
       catch (Throwable e)
       {
@@ -131,8 +135,20 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
     */
    public void deploy(ClassLoader cl, String url)
    {
-      URL deployable = this.getResource(cl, url);
-      this.deploy(deployable);
+      Enumeration<URL> deployables = this.getResources(cl, url);
+      while (deployables.hasMoreElements())
+      {
+         URL deployable = deployables.nextElement();
+         KernelDeployment deployment = this.deploy(deployable);
+         try
+         {
+            this.getDeployer().validate(deployment);
+         }
+         catch (Throwable t)
+         {
+            throw new RuntimeException("Deployment of " + deployable + " failed", t);
+         }
+      }
    }
 
    /**
@@ -205,8 +221,11 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
     */
    public void undeploy(ClassLoader cl, String url)
    {
-      URL deployable = this.getResource(cl, url);
-      this.undeploy(deployable);
+      Enumeration<URL> deployables = this.getResources(cl, url);
+      while (deployables.hasMoreElements())
+      {
+         this.undeploy(deployables.nextElement());
+      }
    }
 
    /**
@@ -307,25 +326,33 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
       return flatten;
    }
 
-   private URL getResource(ClassLoader cl, String resource)
+   private Enumeration<URL> getResources(ClassLoader cl, String resource)
    {
       // Ensure specified
       assert cl != null : "Specified " + ClassLoader.class.getSimpleName() + " is null";
       assert resource != null && !resource.equals("") : "Resource must be specified";
 
       // Obtain URL
-      URL url = cl.getResource(resource);
-      if (url == null)
+      Enumeration<URL> urls = null;
+      try
+      {
+         urls = cl.getResources(resource);
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException("Could not obtain " + resource);
+      }
+      if (urls == null || !urls.hasMoreElements())
       {
          throw new RuntimeException("Resource \"" + resource + "\" could not be obtained from current classloader");
       }
-      return url;
+      return urls;
    }
 
    public void installInstance(String name, Object instance) throws Throwable
    {
       BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(name, instance.getClass().getName());
-      this.getKernel().getController().install(bmdb.getBeanMetaData(),instance);
+      this.getKernel().getController().install(bmdb.getBeanMetaData(), instance);
       log.info("Installed in MC at \"" + name + "\": " + instance);
    }
 
