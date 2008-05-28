@@ -26,6 +26,10 @@ import java.util.Hashtable;
 import org.jboss.aop.Domain;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * Comment
@@ -40,7 +44,7 @@ public class MockStatefulContainer extends StatefulContainer
    public MockStatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
          Hashtable ctxProperties, Ejb3Deployment deployment) throws ClassNotFoundException
    {
-      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, null);
+      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, createMockBeanMetaData());
    }
    
    @Override
@@ -48,5 +52,16 @@ public class MockStatefulContainer extends StatefulContainer
    {
       // TODO Auto-generated method stub
       return super.createSession();
+   }
+   
+   private static JBossSessionBeanMetaData createMockBeanMetaData()
+   {
+      JBossMetaData metaData = new JBossMetaData();
+      JBossEnterpriseBeansMetaData enterpriseBeans = new JBossEnterpriseBeansMetaData();
+      metaData.setEnterpriseBeans(enterpriseBeans);
+      metaData.setAssemblyDescriptor(new JBossAssemblyDescriptorMetaData());
+      JBossSessionBeanMetaData sessionBeanMetaData = new JBossSessionBeanMetaData();
+      sessionBeanMetaData.setEnterpriseBeansMetaData(enterpriseBeans);
+      return sessionBeanMetaData;
    }
 }
