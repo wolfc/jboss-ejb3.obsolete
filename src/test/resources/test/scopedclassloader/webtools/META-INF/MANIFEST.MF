@@ -1,1 +1,0 @@
-Class-Path: search-ejbs-client.jar

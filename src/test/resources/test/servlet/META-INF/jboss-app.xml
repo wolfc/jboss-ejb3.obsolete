@@ -1,7 +1,0 @@
-<jboss-app>
-   <loader-repository>jboss.test:war=servlet.war</loader-repository>
-
-   <module>
-      <service>servlet-security-service.xml</service>
-   </module>
-</jboss-app>
