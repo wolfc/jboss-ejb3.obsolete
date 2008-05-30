@@ -43,8 +43,8 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerMetadata;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
-import org.jboss.ejb3.proxy.remoting.RemotingTargetIds;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 
@@ -105,50 +105,63 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       String proxyFactoryRegistryKey = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
             ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
 
-      // Obtain the URL for invoking upon the Registry
-      String url = this.getSingleReferenceAddressValue(name, refAddrs,
-            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
-
-      // Initialize Ejb3Registrar
-      Ejb3Registrar registrar = null;
-
-      // If Remoting Defined
-      if (url != null)
-      {
-         // Create a POJI Proxy to the Registrar
-         InvokerLocator locator = new InvokerLocator(url);
-         Interceptor[] interceptors =
-         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-         PojiProxy handler = new PojiProxy(RemotingTargetIds.TARGET_ID_EJB_REGISTRAR, locator, interceptors);
-         Class<?>[] interfaces = new Class<?>[]
-         {Ejb3Registrar.class};
-         registrar = (Ejb3Registrar) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
-      }
-      // Local
-      else
-      {
-         registrar = Ejb3RegistrarLocator.locateRegistrar();
-      }
+      /*
+       * Obtain the Proxy Factory either
+       * locally via the Ejb3Registry, or
+       * via the remote Dispatcher
+       */
 
       // Obtain Proxy Factory
       ProxyFactory proxyFactory = null;
+
       try
       {
-         Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
-         assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
-         assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
-               + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
-         proxyFactory = (ProxyFactory) pfObj;
+         // Attempt to get local EJB3 Registrar
+         Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+
+         // Local lookup succeeded, so use it
+         try
+         {
+            Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
+            assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
+            assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
+                  + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
+            proxyFactory = (ProxyFactory) pfObj;
+         }
+         catch (NotBoundException nbe)
+         {
+            throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName()
+                  + " from expected key \"" + proxyFactoryRegistryKey + "\"", nbe);
+         }
       }
+      // Registrar is not local, so use Remoting to Obtain Proxy Factory
       catch (NotBoundException nbe)
       {
-         throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName() + " from expected key \""
-               + proxyFactoryRegistryKey + "\"", nbe);
+         // Obtain the URL for invoking upon the Registry
+         String url = this.getSingleReferenceAddressValue(name, refAddrs,
+               ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
+
+         // Create an InvokerLocator
+         InvokerLocator locator = new InvokerLocator(url);
+
+         // Make the Locator available within Thread scope
+         ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.set(locator);
+
+         // Create a POJI Proxy to the Registrar
+         Interceptor[] interceptors =
+         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+         PojiProxy handler = new PojiProxy(proxyFactoryRegistryKey, locator, interceptors);
+         Class<?>[] interfaces = new Class<?>[]
+         {this.getProxyFactoryClass()};
+         proxyFactory = (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
+
       }
 
-      // Return the proxy returned from the ProxyFactory
+      // Get the proxy returned from the ProxyFactory
       Object proxy = this.getProxy(proxyFactory, name, refAddrs);
       assert proxy != null : "Proxy returned from " + proxyFactory + " was null.";
+
+      // Return the Proxy
       return proxy;
    }
 
@@ -207,6 +220,12 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    protected abstract Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses);
 
+   /**
+    * Obtains the type or supertype used by proxy factories for this Object Factory
+    * @return
+    */
+   protected abstract Class<?> getProxyFactoryClass();
+
    // --------------------------------------------------------------------------------||
    // Internal Helper Methods --------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -234,7 +253,9 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          RefAddr refAddr = refAddrs.nextElement();
          String type = refAddr.getType();
          Class<?> expectedContentsType = String.class;
-         assert (expectedContentsType.isAssignableFrom(refAddr.getContent().getClass())) : "Content of Reference Address of type \""
+         Object refAddrContent = refAddr.getContent();
+         assert (refAddrContent != null) : "Encountered Reference Address of type " + type + " but with null Content";
+         assert (expectedContentsType.isAssignableFrom(refAddrContent.getClass())) : "Content of Reference Address of type \""
                + type + "\" at index " + count + " was not of expected Java type " + expectedContentsType.getName();
          String content = (String) refAddr.getContent();
 

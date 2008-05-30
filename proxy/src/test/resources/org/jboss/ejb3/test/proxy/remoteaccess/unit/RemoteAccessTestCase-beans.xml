@@ -13,7 +13,7 @@
 
   <bean name="NamingBeanImpl" class="org.jnp.server.NamingBeanImpl" />
 
-  <bean name="Naming" class="org.jnp.server.Main">
+  <bean name="NameServer" class="org.jnp.server.Main">
     <property name="namingInfo">
       <inject bean="NamingBeanImpl" />
     </property>
@@ -46,7 +46,21 @@
         org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
       </parameter>
     </constructor>
-    <depends>Naming</depends>
+    <depends>NameServer</depends>
+  </bean>
+
+  <!-- SFSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
+    <constructor>
+      <parameter>
+        <inject bean="org.jboss.ejb3.JndiContext" />
+      </parameter>
+      <parameter>
+        org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
+      </parameter>
+    </constructor>
+    <depends>NameServer</depends>
   </bean>
 
   <!-- JNDI Registrar Configuration -->

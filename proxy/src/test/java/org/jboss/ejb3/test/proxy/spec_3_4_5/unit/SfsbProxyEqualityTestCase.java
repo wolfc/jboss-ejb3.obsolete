@@ -203,8 +203,8 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       StatefulContainer sfsb = this.getContainer();
 
       // Make a Local Proxy Factory
-      StatefulSessionLocalProxyFactory factory = new StatefulSessionLocalProxyFactory(sfsb.getMetaData(), sfsb
-            .getClassLoader());
+      StatefulSessionLocalProxyFactory factory = new StatefulSessionLocalProxyFactory(
+            StatefulSessionLocalProxyFactory.class.getName(), sfsb.getMetaData(), sfsb.getClassLoader());
 
       // Start
       factory.start();
@@ -226,8 +226,8 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       StatefulContainer sfsb = this.getContainer();
 
       // Make a Remote Proxy Factory
-      StatefulSessionRemoteProxyFactory factory = new StatefulSessionRemoteProxyFactory(sfsb.getMetaData(), sfsb
-            .getClassLoader());
+      StatefulSessionRemoteProxyFactory factory = new StatefulSessionRemoteProxyFactory(
+            StatefulSessionRemoteProxyFactory.class.getName(), sfsb.getMetaData(), sfsb.getClassLoader());
 
       // Start
       factory.start();

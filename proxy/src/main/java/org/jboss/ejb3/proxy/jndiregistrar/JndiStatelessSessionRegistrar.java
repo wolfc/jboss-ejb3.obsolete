@@ -23,9 +23,11 @@ package org.jboss.ejb3.proxy.jndiregistrar;
 
 import javax.naming.Context;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -40,6 +42,11 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  */
 public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(JndiStatelessSessionRegistrar.class);
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -64,25 +71,36 @@ public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
    /**
     * Creates and returns a new local proxy factory for this SLSB
     * 
-    *  @param smd The metadata representing this SLSB
-    *  @param cl The ClassLoader for this EJB Container
+    * @param name The unique name for the ProxyFactory
+    * @param smd The metadata representing this SLSB
+    * @param cl The ClassLoader for this EJB Container
     */
    @Override
-   protected SessionProxyFactory createLocalProxyFactory(JBossSessionBeanMetaData smd, ClassLoader cl)
+   protected SessionProxyFactory createLocalProxyFactory(final String name, JBossSessionBeanMetaData smd, ClassLoader cl)
    {
-      return new StatelessSessionLocalProxyFactory(smd, cl);
+      return new StatelessSessionLocalProxyFactory(name, smd, cl);
    }
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
     * 
-    *  @param smd The metadata representing this Session EJB
-    *  @param cl The ClassLoader for this EJB Container
+    * @param name The unique name for the ProxyFactory
+    * @param smd The metadata representing this Session EJB
+    * @param cl The ClassLoader for this EJB Container
     */
    @Override
-   protected SessionProxyFactory createRemoteProxyFactory(final JBossSessionBeanMetaData smd, final ClassLoader cl)
+   protected SessionProxyFactory createRemoteProxyFactory(final String name, final JBossSessionBeanMetaData smd,
+         final ClassLoader cl)
    {
-      return new StatelessSessionRemoteProxyFactory(smd, cl);
+      // Create
+      SessionProxyFactory factory = new StatelessSessionRemoteProxyFactory(name, smd, cl);
+
+      // Register with Remoting
+      log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);
+      Dispatcher.singleton.registerTarget(factory.getName(), factory);
+
+      // Return
+      return factory;
    }
 
 }

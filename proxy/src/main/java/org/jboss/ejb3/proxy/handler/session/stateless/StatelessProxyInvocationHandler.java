@@ -43,6 +43,8 @@ public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationH
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
+   private static final long serialVersionUID = 1L;
+
    private static final Logger log = Logger.getLogger(StatelessProxyInvocationHandler.class);
 
    // ------------------------------------------------------------------------------||

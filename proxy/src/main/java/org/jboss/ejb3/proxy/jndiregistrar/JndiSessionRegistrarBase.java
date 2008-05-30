@@ -97,8 +97,6 @@ public abstract class JndiSessionRegistrarBase
     */
    private String sessionProxyObjectFactoryType;
 
-   //TODO @Service, SFSB
-
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -187,30 +185,17 @@ public abstract class JndiSessionRegistrarBase
        * Create and Register Proxy Factories
        */
 
-      // If there's a local view
-      String localProxyFactoryKey = null;
-      if (hasLocalView)
-      {
-         // Create and register a local proxy factory
-         SessionProxyFactory factory = this.createLocalProxyFactory(smd, cl);
-         localProxyFactoryKey = this.registerProxyFactory(factory, smd, true);
-      }
-
       // If there's a remote view
-      String remoteProxyFactoryKey = null;
-      if (hasRemoteView)
-      {
-         // Create and register a remote proxy factory
-         SessionProxyFactory factory = this.createRemoteProxyFactory(smd, cl);
-         remoteProxyFactoryKey = this.registerProxyFactory(factory, smd, false);
-      }
-
       /*
        * Bind Remote ObjectFactories to JNDI
        */
 
       if (hasRemoteView)
       {
+         // Create and register a remote proxy factory
+         String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, false);
+         SessionProxyFactory factory = this.createRemoteProxyFactory(remoteProxyFactoryKey, smd, cl);
+         this.registerProxyFactory(remoteProxyFactoryKey, factory, smd);
 
          // Initialize Reference Addresses to attach to default remote JNDI Reference
          List<RefAddr> refAddrsForDefaultRemote = new ArrayList<RefAddr>();
@@ -295,9 +280,14 @@ public abstract class JndiSessionRegistrarBase
 
          }
       }
-
+      // If there's a local view
       if (hasLocalView)
       {
+         // Create and register a local proxy factory
+         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, true);
+         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, smd, cl);
+         this.registerProxyFactory(localProxyFactoryKey, factory, smd);
+
          // Initialize Reference Addresses to attach to default local JNDI Reference
          List<RefAddr> refAddrsForDefaultLocal = new ArrayList<RefAddr>();
 
@@ -383,20 +373,22 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Creates and returns a new local proxy factory for this Session Bean
     * 
-    *  @param smd The metadata representing this Session EJB
-    *  @param cl The ClassLoader for this EJB Container
+    * @param name The unique name for the ProxyFactory
+    * @param smd The metadata representing this Session EJB
+    * @param cl The ClassLoader for this EJB Container
     */
-   protected abstract SessionProxyFactory createLocalProxyFactory(final JBossSessionBeanMetaData smd,
-         final ClassLoader cl);
+   protected abstract SessionProxyFactory createLocalProxyFactory(final String name,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl);
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
     * 
-    *  @param smd The metadata representing this Session EJB
-    *  @param cl The ClassLoader for this EJB Container
+    * @param name The unique name for the ProxyFactory
+    * @param smd The metadata representing this Session EJB
+    * @param cl The ClassLoader for this EJB Container
     */
-   protected abstract SessionProxyFactory createRemoteProxyFactory(final JBossSessionBeanMetaData smd,
-         final ClassLoader cl);
+   protected abstract SessionProxyFactory createRemoteProxyFactory(final String name,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl);
 
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||
@@ -416,14 +408,20 @@ public abstract class JndiSessionRegistrarBase
    protected void bind(Reference ref, String address, String proxyFactoryRegistryKey, String containerName)
    {
       // Add the Proxy Factory Registry key for this Reference
-      RefAddr proxyFactoryRefAddr = new StringRefAddr(
-            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY, proxyFactoryRegistryKey);
+      assert proxyFactoryRegistryKey != null && !proxyFactoryRegistryKey.trim().equals("") : "Proxy Factory Registry key is required but not supplied";
+      String proxyFactoryRefType = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY;
+      RefAddr proxyFactoryRefAddr = new StringRefAddr(proxyFactoryRefType, proxyFactoryRegistryKey);
       ref.add(proxyFactoryRefAddr);
+      log.debug("Adding " + RefAddr.class.getSimpleName() + " to " + Reference.class.getSimpleName() + ": Type \""
+            + proxyFactoryRefType + "\", Content \"" + proxyFactoryRegistryKey + "\"");
 
       // Add the Container name for this Reference
-      RefAddr containerRefAddr = new StringRefAddr(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME,
-            containerName);
+      assert containerName != null && !containerName.trim().equals("") : "Container Name is required but not supplied";
+      String ejbContainerRefType = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME;
+      RefAddr containerRefAddr = new StringRefAddr(ejbContainerRefType, containerName);
       ref.add(containerRefAddr);
+      log.debug("Adding " + RefAddr.class.getSimpleName() + " to " + Reference.class.getSimpleName() + ": Type \""
+            + ejbContainerRefType + "\", Content \"" + containerName + "\"");
 
       // Bind
       try
@@ -551,21 +549,17 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Registers the specified proxy factory into the registry 
     * 
+    * @param name The unique name for the ProxyFactory
     * @param factory
     * @param smd Metadata describing the EJB
-    * @param isLocal
-    * @return The key under which the ProxyFactory was registered
     */
-   protected String registerProxyFactory(ProxyFactory factory, JBossEnterpriseBeanMetaData smd, boolean isLocal)
+   protected void registerProxyFactory(String name, ProxyFactory factory, JBossEnterpriseBeanMetaData smd)
    {
-      // Get a unique key
-      String key = this.getProxyFactoryRegistryKey(smd, isLocal);
-
       // Register
-      log.debug("Registering " + factory + " under key \"" + key + "\"...");
+      log.debug("Registering " + factory + " under key \"" + name + "\"...");
       try
       {
-         Ejb3RegistrarLocator.locateRegistrar().bind(key, factory);
+         Ejb3RegistrarLocator.locateRegistrar().bind(name, factory);
       }
       catch (DuplicateBindException e)
       {
@@ -577,12 +571,9 @@ public abstract class JndiSessionRegistrarBase
           * and not the fault of the bean provider/developer/deployer
           */
 
-         throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + key
+         throw new RuntimeException("Could not register " + factory + " under an already registered key, \"" + name
                + "\"", e);
       }
-
-      // Return the key
-      return key;
    }
 
    // --------------------------------------------------------------------------------||

@@ -40,8 +40,6 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = 1L;
-
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -49,14 +47,16 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    /**
     * Constructor
     * 
+    * @param name The unique name for this ProxyFactory
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatefulSessionLocalProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public StatefulSessionLocalProxyFactory(final String name, final JBossSessionBeanMetaData metadata,
+         final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader);
+      super(name, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||

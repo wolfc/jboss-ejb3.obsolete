@@ -50,6 +50,11 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   /**
+    * The Unique name for this Proxy Factory
+    */
+   private String name;
+
    private ClassLoader classloader;
 
    // --------------------------------------------------------------------------------||
@@ -59,12 +64,14 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    /**
     * Constructor
     * 
+    * @param name The unique name for this ProxyFactory
     * @param classloader The ClassLoader associated with the EJBContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public ProxyFactoryBase(final ClassLoader classloader)
+   public ProxyFactoryBase(final String name, final ClassLoader classloader)
    {
       // Set properties
+      this.setName(name);
       this.setClassLoader(classloader);
    }
 
@@ -148,8 +155,6 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    {
       // Log
       log.debug("Started: " + this);
-
-      //TODO
    }
 
    /**
@@ -179,6 +184,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    protected void setClassLoader(final ClassLoader classloader)
    {
       this.classloader = classloader;
+   }
+
+   public String getName()
+   {
+      return name;
+   }
+
+   protected void setName(final String name)
+   {
+      this.name = name;
    }
 
 }

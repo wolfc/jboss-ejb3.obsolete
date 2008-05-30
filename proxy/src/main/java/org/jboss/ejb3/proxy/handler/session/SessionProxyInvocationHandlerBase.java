@@ -23,16 +23,25 @@ package org.jboss.ejb3.proxy.handler.session;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerMetadata;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
+import org.jboss.remoting.InvokerLocator;
 
 /**
  * SessionProxyInvocationHandlerBase
@@ -100,13 +109,48 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       // Add rest of arguments
       invocationArguments.add(args);
 
+      /*
+       * Obtain the Container
+       */
+      InvokableContext<?> container = null;
+
+      // Attempt to obtain locally
+      try
+      {
+         Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(this.getContainerName());
+         assert obj instanceof InvokableContext : "Container retrieved from " + Ejb3Registrar.class.getSimpleName()
+               + " was not of expected type " + InvokableContext.class.getName() + " but was instead " + obj;
+         container = (InvokableContext<?>) obj;
+      }
+      // Remote
+      catch (NotBoundException nbe)
+      {
+         // Create a POJI Proxy to the Container
+         InvokerLocator locator = ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.get();
+         Interceptor[] interceptors =
+         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+         PojiProxy handler = new PojiProxy(this.getContainerName(), locator, interceptors);
+         Class<?>[] interfaces = new Class<?>[]
+         {InvokableContext.class};
+         container = (InvokableContext<?>) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
+      }
+
+      /*
+       * Invoke
+       */
+
       // Invoke
-      //TODO This won't fly for remote, Object Store would be on another Process
-      log.debug("Invoking on Bean with name \"" + this.getContainerName() + "\" method \""
-            + InvokableContext.METHOD_NAME_INVOKE + "\" with arguments : " + invocationArguments);
-      return Ejb3RegistrarLocator.locateRegistrar().invoke(this.getContainerName(),
-            InvokableContext.METHOD_NAME_INVOKE, invocationArguments.toArray(new Object[]
-            {}), InvokableContext.METHOD_SIGNATURE_INVOKE);
+      SerializableMethod methodToInvoke = new SerializableMethod(method);
+      log.debug("Invoking: " + methodToInvoke + " with arguments " + args + "...");
+      Object result = container.invoke(proxy, methodToInvoke, args);
+
+      // Remove the Invoker Locator from this Thread, we've invoked already
+      //TODO Revisit/rethink this pattern; the InvokerLocator is set in the ObjectFactory, 
+      // yet removed after invocation in the handler here? 
+      ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.set(null);
+
+      // Return
+      return result;
 
    }
 }

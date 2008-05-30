@@ -28,12 +28,20 @@ import java.util.Map;
 
 import javax.naming.Name;
 
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerMetadata;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
+import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
+import org.jboss.remoting.InvokerLocator;
 
 /**
  * StatefulSessionProxyObjectFactory
@@ -75,14 +83,41 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
             + StatefulProxyInvocationHandler.class.getName();
       StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) handler;
 
+      /*
+       * Obtain the Container
+       */
+      StatefulSessionInvokableContext<?> container = null;
+      String containerName = this.getSingleRequiredReferenceAddressValue(name, referenceAddresses,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME);
+
+      // Attempt to obtain locally
+      try
+      {
+         Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
+         assert obj instanceof StatefulSessionInvokableContext : "Container retrieved from "
+               + Ejb3Registrar.class.getSimpleName() + " was not of expected type "
+               + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
+         container = (StatefulSessionInvokableContext<?>) obj;
+      }
+      // Remote
+      catch (NotBoundException nbe)
+      {
+         // Create a POJI Proxy to the Container
+         InvokerLocator locator = ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.get();
+         Interceptor[] interceptors =
+         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+         PojiProxy proxyHandler = new PojiProxy(containerName, locator, interceptors);
+         Class<?>[] interfaces = new Class<?>[]
+         {StatefulSessionInvokableContext.class};
+         container = (StatefulSessionInvokableContext<?>) Proxy.newProxyInstance(interfaces[0].getClassLoader(),
+               interfaces, proxyHandler);
+      }
+
       // Get a new Session ID from the Container
-      String containerName = sHandler.getContainerName();
       Object sessionId = null;
       try
       {
-         sessionId = Ejb3RegistrarLocator.locateRegistrar().invoke(containerName,
-               StatefulSessionInvokableContext.METHOD_NAME_CREATESESSION, null,
-               StatefulSessionInvokableContext.METHOD_SIGNATURE_CREATESESSION);
+         sessionId = container.createSession();
       }
       catch (NotBoundException e)
       {
