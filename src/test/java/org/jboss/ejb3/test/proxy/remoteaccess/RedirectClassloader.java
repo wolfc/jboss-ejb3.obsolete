@@ -30,7 +30,7 @@ import org.jboss.logging.Logger;
 /**
  * RedirectClassloader
  * 
- * Hacky Classloader that will replace a queried resource
+ * Base for ClassLoaders that will replace a queried resource
  * with another under the hood
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
@@ -38,12 +38,15 @@ import org.jboss.logging.Logger;
  */
 public abstract class RedirectClassloader extends ClassLoader
 {
-
-   private static final String TO_REPLACE = "jndi.properties";
-
-   private static final String REPLACE_WITH = "jnpserver.properties";
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(RedirectClassloader.class);
+
+   // --------------------------------------------------------------------------------||
+   // Overridden Implementations -----------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    /**
     * Replaces a request to load "jndi.properties" with "jnpserver.properties"
@@ -58,6 +61,10 @@ public abstract class RedirectClassloader extends ClassLoader
       }
       return super.getResources(name);
    }
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    protected abstract String getFrom();
 
