@@ -147,6 +147,10 @@
                 <exclude>org.jboss:jboss-metadata</exclude>
                 <!-- deprecated, split up into multiple components -->
                 <exclude>org.jboss.microcontainer:jboss-container</exclude>
+                <!-- deprecated, should be org.jboss.deployers:jboss-deployers-impl -->
+                <exclude>org.jboss.microcontainer:jboss-deployers-impl</exclude>
+                <!-- deprecated, should be org.jboss.deployers:jboss-deployers-spi -->
+                <exclude>org.jboss.microcontainer:jboss-deployers-spi</exclude>
               </excludes>
             </bannedDependencies>
           </rules>
