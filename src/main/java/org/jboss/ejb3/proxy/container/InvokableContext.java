@@ -37,14 +37,6 @@ import org.jboss.ejb3.proxy.lang.SerializableMethod;
 public interface InvokableContext<T extends ContainerMethodInvocation>
 {
    /**
-    * The name of the "invoke" method for use in reflection
-    */
-   String METHOD_NAME_INVOKE = "invoke";
-   
-   String[] METHOD_SIGNATURE_INVOKE = new String[]
-   {Object.class.getName(), SerializableMethod.class.getName(), Object[].class.getName()};
-   
-   /**
     * Invokes the method described by the specified serializable method
     * as called from the specified proxy, using the specified arguments
     * 

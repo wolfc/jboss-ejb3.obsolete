@@ -22,6 +22,7 @@
 
 package org.jboss.ejb3.proxy.handler;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
@@ -36,7 +37,7 @@ import org.jboss.ejb3.proxy.lang.SerializableMethod;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision$
  */
-public interface ProxyInvocationHandler extends InvocationHandler
+public interface ProxyInvocationHandler extends InvocationHandler, Serializable
 {
    Object getAsynchronousProxy(Object proxy);
 

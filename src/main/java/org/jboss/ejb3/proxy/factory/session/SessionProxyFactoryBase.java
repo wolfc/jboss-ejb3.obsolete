@@ -95,14 +95,16 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    /**
     * Constructor
     * 
+    * @param name The unique name for this ProxyFactory
     * @param metadata The metadata representing this Session Bean
     * @param classloader The ClassLoader associated with the SessionContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public SessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public SessionProxyFactoryBase(final String name, final JBossSessionBeanMetaData metadata,
+         final ClassLoader classloader)
    {
       // Call Super
-      super(classloader);
+      super(name, classloader);
 
       // Set Metadata
       this.setMetadata(metadata);
@@ -122,9 +124,6 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyHome()
    {
-      // Initialize an error message; why not be pessimistic? ;)
-      String errorMessage = "Could not create Home Proxy for " + this.getMetadata().getEjbName();
-
       try
       {
          // Create a new Proxy instance, and return
@@ -135,7 +134,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       catch (Throwable t)
       {
          // Throw a descriptive error message along with the originating Throwable 
-         throw new RuntimeException(errorMessage, t);
+         throw new RuntimeException("Could not create Home Proxy for " + this.getMetadata().getEjbName(), t);
       }
    }
 

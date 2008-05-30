@@ -40,7 +40,6 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   private static final long serialVersionUID = 1L;
 
    private static final Logger logger = Logger.getLogger(StatelessSessionRemoteProxyFactory.class);
 
@@ -53,14 +52,16 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    /**
     * Constructor
     * 
+    * @param name The unique name for this ProxyFactory
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatelessSessionRemoteProxyFactory(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public StatelessSessionRemoteProxyFactory(final String name, final JBossSessionBeanMetaData metadata,
+         final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader);
+      super(name, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||

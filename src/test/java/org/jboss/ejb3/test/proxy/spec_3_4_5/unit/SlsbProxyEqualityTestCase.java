@@ -70,7 +70,7 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
-      
+
       // Manually set the target container
       this.setContainerNameOnProxy(proxy1);
       this.setContainerNameOnProxy(proxy2);
@@ -98,7 +98,7 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
-      
+
       // Manually set the target container
       this.setContainerNameOnProxy(proxy1);
       this.setContainerNameOnProxy(proxy2);
@@ -158,8 +158,8 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       SessionContainer container = this.getContainer();
 
       // Create the Factory
-      StatelessSessionLocalProxyFactory factory = new StatelessSessionLocalProxyFactory(container.getMetaData(),
-            container.getClassLoader());
+      StatelessSessionLocalProxyFactory factory = new StatelessSessionLocalProxyFactory(
+            StatelessSessionLocalProxyFactory.class.getName(), container.getMetaData(), container.getClassLoader());
 
       // Start
       factory.start();
@@ -181,8 +181,8 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       SessionContainer container = this.getContainer();
 
       // Create the Factory
-      StatelessSessionRemoteProxyFactory factory = new StatelessSessionRemoteProxyFactory(container.getMetaData(),
-            container.getClassLoader());
+      StatelessSessionRemoteProxyFactory factory = new StatelessSessionRemoteProxyFactory(
+            StatelessSessionRemoteProxyFactory.class.getName(), container.getMetaData(), container.getClassLoader());
 
       // Start
       factory.start();

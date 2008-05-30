@@ -47,14 +47,16 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    /**
     * Constructor
     * 
+    * @param name The unique name for this ProxyFactory
     * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatefulSessionProxyFactoryBase(final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public StatefulSessionProxyFactoryBase(final String name, final JBossSessionBeanMetaData metadata,
+         final ClassLoader classloader)
    {
       // Call Super
-      super(metadata, classloader);
+      super(name, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||

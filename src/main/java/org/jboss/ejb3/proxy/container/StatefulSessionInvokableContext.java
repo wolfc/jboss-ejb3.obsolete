@@ -37,15 +37,6 @@ public interface StatefulSessionInvokableContext<T extends StatefulSessionContai
       extends
          InvokableContext<StatefulSessionContainerMethodInvocation>
 {
-
-   /**
-    * The name of the "createSession" method for use in reflection
-    */
-   String METHOD_NAME_CREATESESSION = "createSession";
-
-   String[] METHOD_SIGNATURE_CREATESESSION = new String[]
-   {};
-
    /**
     * Creates a new user session and returns the unique Session ID
     * 

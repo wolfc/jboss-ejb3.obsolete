@@ -19,29 +19,29 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.remoting;
+package org.jboss.ejb3.proxy.handler;
 
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
+import org.jboss.remoting.InvokerLocator;
 
 /**
- * RemotingTargetIds
+ * ProxyInvocationHandlerMetadata
  * 
- * This interface defines the key constants used as 
- * valid Remoting Target IDs for use in the
- * Dispatcher singleton
+ * Contains Thread-specific Metadata for use in 
+ * Proxy Invocation Handlers, to provide
+ * additional context than that represented by 
+ * the API
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface RemotingTargetIds
+public abstract class ProxyInvocationHandlerMetadata
 {
    // --------------------------------------------------------------------------------||
-   // Constants ----------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * ID of the EJB3 Registrar
+    * The InvokerLocator to use for Remoting for this Invocation
     */
-   String TARGET_ID_EJB_REGISTRAR = Ejb3Registrar.class.getSimpleName();
-
+   public static ThreadLocal<InvokerLocator> INVOKER_LOCATOR = new ThreadLocal<InvokerLocator>();
 }

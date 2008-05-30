@@ -73,7 +73,6 @@ public class ProxyStatefulSessionTestCase extends ProxySessionTestCaseBase
    @Test
    public void testLocalBusiness() throws Exception
    {
-
       // Obtain the Proxy
       Object bean = ProxyStatefulSessionTestCase.context.lookup("MyStatefulBean/local");
       assertTrue("Bean must be assignable to " + MyStatefulLocalBusiness.class.getSimpleName() + " but was instead "
@@ -92,7 +91,6 @@ public class ProxyStatefulSessionTestCase extends ProxySessionTestCaseBase
    @Test
    public void testRemoteBusiness() throws Exception
    {
-
       // Obtain the Proxy
       Object bean = ProxyStatefulSessionTestCase.context.lookup("MyStatefulBean/remote");
       assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "

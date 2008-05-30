@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.proxy.factory;
 
-import java.io.Serializable;
-
 /**
  * ProxyFactory
  * 
@@ -33,8 +31,19 @@ import java.io.Serializable;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface ProxyFactory extends Serializable
+public interface ProxyFactory
 {
+   // --------------------------------------------------------------------------------||
+   // Fnuctional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Returns the unique name of this ProxyFactory
+    * 
+    * @return
+    */
+   String getName();
+
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||

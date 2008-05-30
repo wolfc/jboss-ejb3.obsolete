@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -165,6 +166,9 @@ public abstract class SessionContainer
    public void start() throws Throwable
    {
       log.info("Starting " + this);
+      
+      // Register with Remoting
+      Dispatcher.singleton.registerTarget(this.getName(), this);
 
       // Obtain registrar
       JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
@@ -186,6 +190,9 @@ public abstract class SessionContainer
    public void stop()
    {
       log.info("Stopping " + this);
+      
+      // Deregister with Remoting
+      Dispatcher.singleton.unregisterTarget(this.getName());
 
       //TODO We need to unbind the EJB, something like:
       //JndiSessionRegistrarBase.unbindEjb(this.metaData);

@@ -59,6 +59,9 @@ public class StatelessSessionProxyObjectFactory extends SessionProxyObjectFactor
     * Home
     * Business
     * One per interface-specific business
+    * 
+    * This cache will have to be done at the Server Side as ObjectFactory is a 
+    * client-specific construct recreated upon each lookup
     */
    /**
     * SLSB Object Factories must always create a new SLSB Proxy if one is not

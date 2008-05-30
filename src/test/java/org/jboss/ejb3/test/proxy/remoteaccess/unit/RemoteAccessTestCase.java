@@ -28,10 +28,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.common.thread.RedirectProcessOutputToSystemOutThread;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
+import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulRemoteBusiness;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.remoteaccess.JndiPropertiesToJndiRemotePropertiesHackCl;
 import org.jboss.ejb3.test.proxy.remoteaccess.MockServer;
@@ -75,6 +76,8 @@ public class RemoteAccessTestCase
 
    private static Process remoteProcess;
 
+   private static Context context;
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -83,25 +86,35 @@ public class RemoteAccessTestCase
    // Tests --------------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   /**
+    * Ensures that a SLSB Remote invocation succeeds
+    */
    @Test
-   public void testInvocation() throws Throwable
+   public void testStatelessSessionRemoteInvocation() throws Throwable
    {
-
-      // Switch up to the hacky CL so that "jndi.properties" is not loaded, and uses instead "jndi-remote.properties"
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJndiRemotePropertiesHackCl());
-
-      InitialContext ctx = new InitialContext();
-
-      // Replace the CL
-      Thread.currentThread().setContextClassLoader(oldLoader);
-
-      Object bean = ctx.lookup("MyStatelessBean/remote");
-      assertTrue(bean instanceof MyStatelessLocal);
+      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatelessBean/remote");
+      assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
+            bean instanceof MyStatelessRemote);
 
       String result = ((MyStatelessRemote) bean).sayHi("testRemote");
-      assertEquals("Hi testRemote", result);
+      String expected = "Hi testRemote";
+      assertEquals("Result was not expected", expected, result);
+   }
 
+   /**
+    * Ensures that a SFSB Remote invocation succeeds
+    */
+   @Test
+   public void testStatefulSessionRemoteInvocation() throws Throwable
+   {
+      // Obtain the Proxy
+      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatefulBean/remote");
+      assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
+            + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
+
+      // Invoke and Test Result
+      int result = ((MyStatefulRemoteBusiness) bean).getNextCounter();
+      assertEquals(result, 0);
    }
 
    // --------------------------------------------------------------------------------||
@@ -114,6 +127,15 @@ public class RemoteAccessTestCase
    @BeforeClass
    public static void beforeClass() throws Throwable
    {
+      // Switch up to the hacky CL so that "jndi.properties" is not loaded, and uses instead "jndi-remote.properties"
+      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJndiRemotePropertiesHackCl());
+
+      RemoteAccessTestCase.setContext(new InitialContext());
+
+      // Replace the CL
+      Thread.currentThread().setContextClassLoader(oldLoader);
+
       // Start Server
       RemoteAccessTestCase.invokeRemoteMockServerProcess(RemoteAccessTestCase.class.getName());
 
@@ -130,7 +152,7 @@ public class RemoteAccessTestCase
    public static void afterClass() throws Throwable
    {
       /*
-       * This is far from a graceful shutdown, but hey, this is only for a test
+       * This is far from a graceful shutdown, but hey, this is only a test
        */
       Process p = RemoteAccessTestCase.getRemoteProcess();
       p.destroy();
@@ -222,9 +244,19 @@ public class RemoteAccessTestCase
       return remoteProcess;
    }
 
-   public static void setRemoteProcess(Process remoteProcess)
+   protected static void setRemoteProcess(Process remoteProcess)
    {
       RemoteAccessTestCase.remoteProcess = remoteProcess;
+   }
+
+   public static Context getContext()
+   {
+      return context;
+   }
+
+   protected static void setContext(Context context)
+   {
+      RemoteAccessTestCase.context = context;
    }
 
 }

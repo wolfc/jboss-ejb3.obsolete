@@ -1,12 +1,12 @@
 package org.jboss.ejb3.test.proxy.remoteaccess;
 
-import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.proxy.remoting.RemotingTargetIds;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.Utils;
+import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
+import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
 import org.jboss.logging.Logger;
 
@@ -35,11 +35,6 @@ public class MockServer
    // --------------------------------------------------------------------------------||
 
    private EmbeddedTestMcBootstrap bootstrap;
-
-   /**
-    * Name of the SLSB Container for these tests
-    */
-   private String containerName;
 
    /**
     * The Test Class using this launcher
@@ -105,10 +100,6 @@ public class MockServer
    protected void initialize() throws Throwable
    {
 
-      // Switch up to the hacky CL so that "jndi.properties" is not loaded
-      ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
-
       // Create and set a new MC Bootstrap 
       this.setBootstrap(EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap());
 
@@ -118,23 +109,27 @@ public class MockServer
       // Bind the Ejb3Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
-      // Register the EJB3 Registrar with Remoting
-      Dispatcher.singleton.registerTarget(RemotingTargetIds.TARGET_ID_EJB_REGISTRAR, Ejb3RegistrarLocator
-            .locateRegistrar());
+      // Switch up to the hacky CL so that "jndi.properties" is not loaded
+      ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
+      Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
 
       // Deploy *-beans.xml
       this.getBootstrap().deploy(this.getTestClass());
 
-      // Create a SLSB Container
-      StatelessContainer container = Utils.createSlsb(MyStatelessBean.class);
-      log.info("Created SLSB Container: " + container.getName());
-      this.setContainerName(container.getName());
-
-      // Install into MC
-      this.getBootstrap().installInstance(container.getName(), container);
-
       // Restore old CL
       Thread.currentThread().setContextClassLoader(olderLoader);
+
+      // Create a SLSB Container
+      StatelessContainer slsbContainer = Utils.createSlsb(MyStatelessBean.class);
+      log.info("Created SLSB Container: " + slsbContainer.getName());
+
+      // Create a SFSB Container
+      StatefulContainer sfsbContainer = Utils.createSfsb(MyStatefulBean.class);
+      log.info("Created SFSB Container: " + sfsbContainer.getName());
+
+      // Install into MC
+      this.getBootstrap().installInstance(slsbContainer.getName(), slsbContainer);
+      this.getBootstrap().installInstance(sfsbContainer.getName(), sfsbContainer);
 
    }
 
@@ -225,16 +220,6 @@ public class MockServer
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-
-   public String getContainerName()
-   {
-      return this.containerName;
-   }
-
-   public void setContainerName(String containerName)
-   {
-      this.containerName = containerName;
-   }
 
    public EmbeddedTestMcBootstrap getBootstrap()
    {

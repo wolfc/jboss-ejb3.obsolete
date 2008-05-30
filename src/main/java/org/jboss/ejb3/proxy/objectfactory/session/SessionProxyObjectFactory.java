@@ -80,10 +80,17 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       boolean hasBusiness = this.hasBusiness(name, referenceAddresses);
 
       // Cast
-      assert factory instanceof SessionProxyFactory : ProxyFactory.class.getSimpleName() + " used in "
-            + SessionProxyObjectFactory.class.getSimpleName() + " must be of type "
-            + SessionProxyFactory.class.getName();
-      SessionProxyFactory sFactory = (SessionProxyFactory) factory;
+      SessionProxyFactory sFactory = null;
+      try
+      {
+         sFactory = SessionProxyFactory.class.cast(factory);
+      }
+      catch (ClassCastException cce)
+      {
+         throw new RuntimeException(ProxyFactory.class.getSimpleName() + " used in "
+               + SessionProxyObjectFactory.class.getSimpleName() + " must be of type "
+               + SessionProxyFactory.class.getName() + " but was instead " + factory, cce);
+      }
 
       // If home and business are bound together
       if (hasHome && hasBusiness)
@@ -155,6 +162,15 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
 
       // Return
       return proxy;
+   }
+
+   /**
+    * Obtains the type or supertype used by proxy factories for this Object Factory
+    * @return
+    */
+   protected Class<?> getProxyFactoryClass()
+   {
+      return SessionProxyFactory.class;
    }
 
    // --------------------------------------------------------------------------------||
