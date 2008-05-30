@@ -57,30 +57,12 @@
       </plugin>
 
       <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce-banned-dependencies</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <rules>
-            <bannedDependencies>
-              <excludes>
-                <exclude>org.jboss:javassist</exclude>
-                <exclude>org.jboss:jboss-metadata</exclude>
-                <exclude>org.jboss.microcontainer:jboss-container</exclude>
-              </excludes>
-              <!--searchTransitive>true</searchTransitive-->
-            </bannedDependencies>
-          </rules>
-          <fail>true</fail>
+          <!-- To make sure any static variables are flushed -->
+          <forkMode>always</forkMode>
         </configuration>
       </plugin>
-
     </plugins>
 
   </build>
@@ -107,6 +89,21 @@
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>jboss.jbossts</groupId>
+      <artifactId>jbossjta</artifactId>
+      <version>4.3.0.GA</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- To actually run SimpleTransactionService -->
+    <dependency>
+      <groupId>jboss.jbossts</groupId>
+      <artifactId>jbossts-common</artifactId>
+      <version>4.3.0.GA</version>
       <scope>test</scope>
     </dependency>
     
@@ -205,6 +202,14 @@
       <artifactId>jboss-aop-aspects</artifactId>
     </dependency>
     
+    <!-- used in the basicbootstrap-beans.xml -->
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop-deployer-jdk50</artifactId>
+      <version>2.0.0.CR10</version>
+      <scope>test</scope>
+    </dependency>
+    
     <dependency>
       <groupId>org.jboss.cache</groupId>
       <artifactId>jbosscache-core</artifactId>
@@ -216,6 +221,13 @@
           <artifactId>jboss-javaee</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-aspects-test</artifactId>
+      <version>1.0.0.Beta1</version>
+      <scope>test</scope>
     </dependency>
     
     <dependency>
@@ -322,6 +334,13 @@
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-test</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
       <version>0.13.0</version>
     </dependency>
@@ -377,7 +396,19 @@
         </exclusion>
         <exclusion>
           <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-aop-mc-int</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
           <artifactId>jboss-container</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-impl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-spi</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -386,6 +417,28 @@
       <artifactId>jboss-as-system-jmx</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-aop-mc-int</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-impl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
