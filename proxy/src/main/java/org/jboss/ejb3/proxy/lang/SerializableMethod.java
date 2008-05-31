@@ -155,6 +155,108 @@ public class SerializableMethod implements Serializable
    }
 
    // ------------------------------------------------------------------------------||
+   // Functional Methods -----------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the Method described by this view, using the
+    * TCL
+    * 
+    * @return
+    */
+   public Method toMethod()
+   {
+      return this.toMethod(Thread.currentThread().getContextClassLoader());
+   }
+
+   /**
+    * Obtains the Method described by this view, using the
+    * ClassLoader specified
+    * 
+    * @param cl
+    * @return
+    */
+   public Method toMethod(ClassLoader cl)
+   {
+      // Load the Class described by the Method
+      Class<?> invokingClass = this.getClassType(cl);
+
+      // Load the argument types
+      List<Object> argTypesList = new ArrayList<Object>();
+      for (String argTypeName : this.getArgumentTypes())
+      {
+         Class<?> argType = null;
+         try
+         {
+            argType = cl.loadClass(argTypeName);
+         }
+         catch (ClassNotFoundException cnfe)
+         {
+            throw new RuntimeException("Could not load class defined as the invoking class, " + argTypeName + ", by "
+                  + cl, cnfe);
+         }
+         argTypesList.add(argType);
+      }
+      Class<?>[] argTypes = argTypesList.toArray(new Class<?>[]
+      {});
+
+      // Obtain the Method
+      String methodName = this.getName();
+      Method invokedMethod = null;
+      try
+      {
+         invokedMethod = invokingClass.getMethod(methodName, argTypes);
+      }
+      catch (NoSuchMethodException nsme)
+      {
+         throw new RuntimeException("Method " + this + " does not exist in " + invokingClass.getName(), nsme);
+      }
+
+      // Return
+      return invokedMethod;
+   }
+
+   /**
+    * Obtains the Class described by this view, using the
+    * TCL
+    * 
+    * @return
+    */
+   public Class<?> getClassType()
+   {
+      return this.getClassType(Thread.currentThread().getContextClassLoader());
+   }
+
+   /**
+    * Obtains the Class described by this view, using the
+    * specified ClassLoader
+    * 
+    * @param cl
+    * @return
+    */
+   public Class<?> getClassType(ClassLoader cl)
+   {
+      // Perform assertions
+      assert cl != null : ClassLoader.class.getSimpleName() + "must be defined.";
+
+      // Load the Class described by the Method
+      String invokingClassName = this.getClassName();
+      Class<?> invokingClass = null;
+      try
+      {
+         invokingClass = cl.loadClass(invokingClassName);
+      }
+      catch (ClassNotFoundException cnfe)
+      {
+         throw new RuntimeException("Specified calling class, " + invokingClassName + " could not be found for " + cl,
+               cnfe);
+      }
+
+      // Return
+      return invokingClass;
+   }
+
+   // ------------------------------------------------------------------------------||
    // Accessors / Mutators ---------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
