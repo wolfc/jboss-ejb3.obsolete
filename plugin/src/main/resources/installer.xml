@@ -32,6 +32,7 @@
         <include>org.jboss.ejb3:jboss-ejb3-interceptors</include>
         <include>org.jboss.ejb3:jboss-ejb3-metadata</include>
         <include>org.jboss.ejb3:jboss-ejb3-pool</include>
+        <include>org.jboss.ejb3:jboss-ejb3-proxy</include>
         <include>org.jboss.ejb3:jboss-ejb3-security</include>
         <include>org.jboss.ejb3:jboss-ejb3-transactions</include>
       </includes>
@@ -41,6 +42,7 @@
       <outputFileNameMapping>${artifactId}-${classifier}.${extension}</outputFileNameMapping>
       <includes>
         <include>org.jboss.ejb3:jboss-ejb3-core:jar:client</include>
+        <include>org.jboss.ejb3:jboss-ejb3-proxy:jar:client</include>
         <include>org.jboss.ejb3:jboss-ejb3-security:jar:client</include>
       </includes>
       <outputDirectory>lib</outputDirectory>
