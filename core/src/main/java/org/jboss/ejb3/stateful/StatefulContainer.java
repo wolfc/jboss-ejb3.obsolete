@@ -27,8 +27,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJBHome;
@@ -49,6 +51,7 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.asynch.FutureHolder;
+import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
@@ -65,13 +68,14 @@ import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.impl.HomeHandleImpl;
+import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.injection.Injector;
@@ -299,6 +303,8 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
 
    }
 
+   @Stop
+   @Override
    public void stop() throws Exception
    {
       super.stop();
@@ -323,6 +329,16 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
    public CacheFactoryRegistry getCacheFactoryRegistry()
    {
       return this.getDeployment().getCacheFactoryRegistry();
+   }
+   
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected String getJndiRegistrarBindName()
+   {
+      return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB;
    }
 
    /**
@@ -406,7 +422,7 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
             
             ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
             
-            invokedMethod.push(new InvokedMethod(true, method));
+            invokedMethod.push(new SerializableMethod(method));
             return nextInvocation.invokeNext();
          }
          finally
@@ -524,7 +540,7 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
    
                Object rtn = null;
                  
-               invokedMethod.push(new InvokedMethod(false, unadvisedMethod));
+               invokedMethod.push(new SerializableMethod(unadvisedMethod));
                rtn = newSi.invokeNext();
 
                response = marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
@@ -959,9 +975,12 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
     * @throws Exception
     */
    @Override
-   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+   protected Object invokeHomeCreate(SerializableMethod method, Object args[])
          throws Exception
    {
+      
+      // Lookup
+      Object factory = this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
       
       // Cast
       String errorMessage = "Specified factory " + factory.getClass().getName() + " is not of type "
@@ -981,15 +1000,21 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       {};
       Object[] initParameterValues =
       {};
-      if (unadvisedMethod.getParameterTypes().length > 0)
+      if (method.getArgumentTypes().length > 0)
       {
-         initParameterTypes = unadvisedMethod.getParameterTypes();
+         List<Class<?>> argTypes = new ArrayList<Class<?>>();
+         for(String argTypeName : method.getArgumentTypes())
+         {
+            argTypes.add(this.getClassloader().loadClass(argTypeName));
+         }
+         
+         initParameterTypes = argTypes.toArray(new Class<?>[]{});
          initParameterValues = args;
       }
 
       Object id = createSession(initParameterTypes, initParameterValues);
 
-      Object proxy = statefulFactory.createProxyBusiness(id, unadvisedMethod.getReturnType().getName());
+      Object proxy = statefulFactory.createProxyBusiness(id, method.getReturnType());
 
       return proxy;
    }
