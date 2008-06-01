@@ -116,7 +116,8 @@
   <property name="artifact.ejb3.interceptors" value="${location.dependencies.lib}/jboss-ejb3-interceptors.jar"/>
   <property name="artifact.ejb3.extapi" value="${location.dependencies.lib}/jboss-ejb3-ext-api.jar"/>
   <property name="artifact.ejb3.extapiimpl" value="${location.dependencies.lib}/jboss-ejb3-ext-api-impl.jar"/>
-  <property name="artifact.ejb3.core" value="${location.target}/jboss-ejb3-core.jar"/>
+  <property name="artifact.ejb3.core" value="${location.dependencies.lib}/jboss-ejb3-core.jar"/>
+	<property name="artifact.ejb3.pool" value="${location.dependencies.lib}/jboss-ejb3-pool.jar"/>
     
   <!-- Define the Path to Server Task Definitions, used by the JBoss Server Run targets -->
   <path id="server.taskdef.classpath">  
@@ -310,11 +311,14 @@
   	<!-- EJB3 Interceptors -->
   	<pathelement path="${artifact.ejb3.interceptors}" />
 	
-	  <!-- EJB3 Interceptors -->
+	  <!-- EJB3 ExtApi -->
 	  <pathelement path="${artifact.ejb3.extapi}" />
 	
-	  <!-- EJB3 Interceptors -->
+	  <!-- EJB3 ExtApiImpl -->
 	  <pathelement path="${artifact.ejb3.extapiimpl}" />
+  	
+    <!-- EJB3 Pool -->
+    <pathelement path="${artifact.ejb3.pool}" />
     
   </path>
     
