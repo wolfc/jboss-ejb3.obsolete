@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.3</version>
+    <version>0.13.5</version>
   </parent>
 
   <!-- Model Version -->
@@ -49,7 +49,7 @@
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <printSummary>true</printSummary>
-          <testFailureIgnore>true</testFailureIgnore> <!-- Not used in EJB3 Core yet, just dev -->
+          <testFailureIgnore>false</testFailureIgnore>
           <includes>
             <include>**/*TestCase.java</include>
             <include>**/*TestSuite.java</include>
@@ -135,7 +135,7 @@
     <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0.Beta15</version>
     </dependency>
 
     <dependency>
@@ -147,7 +147,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>0.1.1-SNAPSHOT</version>
+      <version>0.1.1</version>
     </dependency>
     
     <dependency>
@@ -159,14 +159,14 @@
      <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
       <scope>test</scope>
     </dependency>
 
      <dependency>
        <groupId>org.jboss.aspects</groupId>
        <artifactId>jboss-remoting-aspects</artifactId>
-       <version>1.0.0-SNAPSHOT</version>
+       <version>1.0.0.GA</version>
      </dependency>
      
      <!-- 
