@@ -33,7 +33,7 @@ public interface StatelessLocalBusiness
 {
    public void testEjbContextLookup() throws Exception;
 
-   public Class testInvokedBusinessInterface() throws Exception;
+   public Class<?> testInvokedBusinessInterface() throws Exception;
 
    public void testEjbObject() throws Exception;
 

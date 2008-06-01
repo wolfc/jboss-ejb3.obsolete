@@ -63,7 +63,7 @@ public class StatelessBean extends BaseBean
    @Resource
    SessionContext sessionContext;
    
-   StatelessLocalBusiness ejbLocalObject;
+   StatelessLocal ejbLocalObject;
    org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote ejbObject;
    
    public void noop()
@@ -121,7 +121,7 @@ public class StatelessBean extends BaseBean
    @PostConstruct
    public void postConstruct()
    {
-      ejbLocalObject = (StatelessLocalBusiness)sessionContext.getEJBLocalObject();
+      ejbLocalObject = (StatelessLocal)sessionContext.getEJBLocalObject();
       ejbObject = (org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote)sessionContext.getEJBObject();
    }
 

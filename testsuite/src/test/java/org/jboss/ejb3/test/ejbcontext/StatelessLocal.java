@@ -8,7 +8,7 @@ package org.jboss.ejb3.test.ejbcontext;
 
 import javax.ejb.EJBLocalObject;
 
-public interface StatelessLocal extends EJBLocalObject
+public interface StatelessLocal extends EJBLocalObject, StatelessLocalBusiness
 {
    String JNDI_NAME = "Stateless/local";
 }
