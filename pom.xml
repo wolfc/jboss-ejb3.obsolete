@@ -1,9 +1,4 @@
-<!--
-  vi:ts=2:sw=2:expandtab
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
@@ -27,7 +22,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-build</artifactId>
-  <version>0.13.4-SNAPSHOT</version>
+  <version>0.13.4</version>
   <packaging>pom</packaging>
   <name>JBoss EJB 3.0 Build POM</name>
   <url>http://labs.jboss.com/jbossejb3</url>
@@ -59,9 +54,9 @@
 
   <!-- SCM -->
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.4</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.4</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-0.13.4</url>
   </scm>  
   
   <!-- Issues -->
