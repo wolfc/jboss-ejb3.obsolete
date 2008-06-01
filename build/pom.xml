@@ -140,6 +140,7 @@
                 <exclude>org.jboss:javassist</exclude> 
                 For now this is commented out until AOP2CR10+
                 declares proper javassist dependency
+                JBAOP-586
                 -->
                 <!-- deprecated, should be org.jboss.metadata:jboss-metadata -->
                 <exclude>org.jboss:jboss-metadata</exclude>
