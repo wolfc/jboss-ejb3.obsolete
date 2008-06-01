@@ -136,8 +136,11 @@
           <rules>
             <bannedDependencies>
               <excludes>
-                <!-- deprecated, should be javassist:javassist -->
-                <exclude>org.jboss:javassist</exclude>
+                <!-- deprecated, should be javassist:javassist 
+                <exclude>org.jboss:javassist</exclude> 
+                For now this is commented out until AOP2CR10+
+                declares proper javassist dependency
+                -->
                 <!-- deprecated, should be org.jboss.metadata:jboss-metadata -->
                 <exclude>org.jboss:jboss-metadata</exclude>
                 <!-- deprecated, split up into multiple components -->
