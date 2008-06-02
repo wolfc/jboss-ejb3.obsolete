@@ -136,6 +136,8 @@
           <rules>
             <bannedDependencies>
               <excludes>
+                <!-- deprecated, should be org.jboss.remoting:jboss-remoting -->
+                <exclude>jboss.remoting:jboss-remoting</exclude>
                 <!-- deprecated, should be javassist:javassist -->
                 <exclude>org.jboss:javassist</exclude>
                 <!-- deprecated, should be org.jboss.metadata:jboss-metadata -->
@@ -288,7 +290,7 @@
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
-        <version>1.0.0.Beta15</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
  
       <dependency>
