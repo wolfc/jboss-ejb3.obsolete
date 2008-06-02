@@ -116,14 +116,6 @@
   <!-- Dependencies -->
   <dependencies>
 
-    <!-- TODO: JBAOP-586: aop defines the wrong dependency -->
-    <dependency>
-      <groupId>javassist</groupId>
-      <artifactId>javassist</artifactId>
-      <version>3.7.1.GA</version>
-      <scope>test</scope>
-    </dependency>
-
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -133,13 +125,7 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
-      <version>1.0.0-SNAPSHOT</version> <!-- JBAOP-586 -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss</groupId>
-          <artifactId>javassist</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>1.0.1.CR2</version>
     </dependency>
 
     <dependency>
