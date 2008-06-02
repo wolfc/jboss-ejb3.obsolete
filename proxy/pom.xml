@@ -133,7 +133,13 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
-      <version>1.0.0.GA</version>
+      <version>1.0.0-SNAPSHOT</version> <!-- JBAOP-586 -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
