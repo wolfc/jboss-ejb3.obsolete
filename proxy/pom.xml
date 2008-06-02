@@ -16,7 +16,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.5</version>
+    <version>0.13.6-SNAPSHOT</version>
   </parent>
 
   <!-- Model Version -->
@@ -54,6 +54,7 @@
             <include>**/*TestCase.java</include>
             <include>**/*TestSuite.java</include>
           </includes>
+          <!-- Note: Fiddling with forkMode screws up surefire.test.class.path -->
           <forkMode>always</forkMode>
           <argLine>-ea</argLine>
         </configuration>
@@ -115,35 +116,26 @@
   <!-- Dependencies -->
   <dependencies>
 
+    <!-- TODO: JBAOP-586: aop defines the wrong dependency -->
+    <dependency>
+      <groupId>javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.7.1.GA</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-spi</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.logging</groupId>
-      <artifactId>jboss-logging-log4j</artifactId>
-      <scope>test</scope>
-    </dependency>
     
     <dependency>
-      <groupId>org.jboss.metadata</groupId>
-      <artifactId>jboss-metadata</artifactId>
-      <version>1.0.0.Beta15</version>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-remoting-aspects</artifactId>
+      <version>1.0.0.GA</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.naming</groupId>
-      <artifactId>jnpserver</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
@@ -163,23 +155,39 @@
       <scope>test</scope>
     </dependency>
 
-     <dependency>
-       <groupId>org.jboss.aspects</groupId>
-       <artifactId>jboss-remoting-aspects</artifactId>
-       <version>1.0.0.GA</version>
-     </dependency>
-     
-     <!-- 
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.naming</groupId>
+      <artifactId>jnpserver</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    
+    <!-- 
      Needed by remoting, not declared as runtime dependency? 
      
      Remove if possible later
-     -->
-     <dependency>
-       <groupId>oswego-concurrent</groupId>
-       <artifactId>concurrent</artifactId>
-       <version>1.3.4-jboss-update1</version>
-       <scope>test</scope>
-     </dependency>        
+    -->
+    <dependency>
+      <groupId>oswego-concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>1.3.4-jboss-update1</version>
+      <scope>test</scope>
+    </dependency>        
 
   </dependencies>
 
