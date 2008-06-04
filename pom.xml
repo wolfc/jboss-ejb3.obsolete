@@ -159,22 +159,23 @@
       <!-- 
         
         To pass JVM Arguments (ie. Remote Debugging w/ suspend),
-        pass "jvmargs" as system property, ie:
+        pass "maven.surefire.debug" as system property, ie:
         
-        mvn test -Djvmargs='-Xrunjdwp:transport=dt_socket,address=8788,server=y,suspend=y'
+        mvn test -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"
         
       -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <printSummary>false</printSummary>
-          <testFailureIgnore>true</testFailureIgnore>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <printSummary>true</printSummary>
+          <testFailureIgnore>false</testFailureIgnore>
           <includes>
-            <include>**/**TestCase.java</include>
-            <include>**/**TestSuite.java</include>
+            <include>**/*TestCase.java</include>
+            <include>**/*TestSuite.java</include>
           </includes>
-          <forkMode>once</forkMode>
-          <argLine>${jvmargs}</argLine>
+          <forkMode>always</forkMode>
+          <argLine>-ea</argLine>
         </configuration>
       </plugin>
 
