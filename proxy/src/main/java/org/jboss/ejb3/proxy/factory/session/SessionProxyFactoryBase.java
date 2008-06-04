@@ -22,6 +22,7 @@
 package org.jboss.ejb3.proxy.factory.session;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateless.StatelessProxyInvocationHandler;
 import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -191,8 +193,11 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
                + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
 
+         // Create new Invocation Handler
+         SessionProxyInvocationHandler handler = this.getInvocationHandlerConstructor().newInstance(businessInterfaceName);
+
          // Create a new Proxy instance, and return
-         return constructor.newInstance(this.getInvocationHandlerConstructor().newInstance(businessInterfaceName));
+         return constructor.newInstance(handler);
       }
       catch (Throwable t)
       {
@@ -439,10 +444,10 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @return
     */
    @Override
-   protected Set<Class<?>> getProxyInterfaces()
+   protected Set<Class<?>> getCommonProxyInterfaces()
    {
       // Initialize
-      Set<Class<?>> interfaces = super.getProxyInterfaces();
+      Set<Class<?>> interfaces = super.getCommonProxyInterfaces();
 
       // Add
       interfaces.add(SessionProxy.class);
