@@ -22,6 +22,9 @@
 
 package org.jboss.ejb3.proxy.handler.session;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
 
 /**
@@ -33,7 +36,7 @@ import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: 72638 $
  */
-public interface SessionProxyInvocationHandler extends ProxyInvocationHandler
+public interface SessionProxyInvocationHandler extends ProxyInvocationHandler, InvocationHandler, Serializable
 {
 
 }
