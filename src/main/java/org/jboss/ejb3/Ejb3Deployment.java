@@ -25,6 +25,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -55,6 +56,7 @@ import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
+import org.jboss.injection.InjectionHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
@@ -62,6 +64,7 @@ import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanGenericWrapper;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.javaee.spec.Environment;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
 import org.jboss.metadata.jpa.spec.PersistenceMetaData;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
@@ -430,6 +433,17 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    protected abstract PolicyConfiguration createPolicyConfiguration() throws Exception;
 
    protected abstract void putJaccInService(PolicyConfiguration pc, DeploymentUnit unit);
+
+   /**
+    * Return the container injection handler collection. If not specified(null)
+    * a default handler collection will be created.
+    * @return the injection handler collection to use, null if the container
+    *    should use a default setup.
+    */
+   protected Collection<InjectionHandler<Environment>> getHandlers()
+   {
+      return null;
+   }
 
    /**
     * Create all EJB containers and Persistence Units
