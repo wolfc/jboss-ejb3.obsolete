@@ -24,6 +24,7 @@ package org.jboss.ejb3.proxy.handler.session.stateless;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
@@ -37,6 +38,8 @@ import org.jboss.util.NotImplementedException;
  * @version $Revision: $
  */
 public class StatelessProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
+      implements
+         SessionProxyInvocationHandler
 {
 
    // ------------------------------------------------------------------------------||

@@ -156,7 +156,7 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       // Set the target Container Name
       assert handler instanceof SessionProxyInvocationHandler : InvocationHandler.class.getSimpleName()
             + " must be of type " + SessionProxyInvocationHandler.class.getName() + " but instead was assignable to "
-            + proxy.getClass().getInterfaces();
+            + handler.getClass().getInterfaces();
       SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
       sHandler.setContainerName(containerName);
 

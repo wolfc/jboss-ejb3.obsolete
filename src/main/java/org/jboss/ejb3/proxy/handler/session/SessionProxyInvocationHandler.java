@@ -38,5 +38,10 @@ import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
  */
 public interface SessionProxyInvocationHandler extends ProxyInvocationHandler, InvocationHandler, Serializable
 {
-
+   /**
+    * Sets the target container name
+    * 
+    * @param containerName
+    */
+   void setContainerName(String containerName);
 }
