@@ -147,6 +147,26 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                   encName = "java:comp/UserTransaction";
                }
             }
+            else if (TimerService.class.getName().equals(envRef.getType()))
+            {
+               final Container ic = (Container) container;
+               InjectorFactory<?> factory = new InjectorFactory<TimerServicePropertyInjector>()
+               {
+                  public TimerServicePropertyInjector create(BeanProperty property)
+                  {
+                     return new TimerServicePropertyInjector(property, ic);
+                  }
+               };
+               if(envRef.getInjectionTargets() != null)
+               {
+                  InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                  continue;
+               }
+               else
+               {
+                  encName = "java:comp/TimerService";
+               }
+            }
             else if (ORB.class.getName().equals(envRef.getType()))
             {
                encName = "java:comp/ORB";
@@ -207,6 +227,26 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                   else
                   {
                      mappedName = "java:comp/UserTransaction";
+                  }
+               }
+               else if (resType.equals(TimerService.class))
+               {
+                  final Container ic = (Container) container;
+                  InjectorFactory<?> factory = new InjectorFactory<TimerServicePropertyInjector>()
+                  {
+                     public TimerServicePropertyInjector create(BeanProperty property)
+                     {
+                        return new TimerServicePropertyInjector(property, ic);
+                     }
+                  };
+                  if(envRef.getInjectionTargets() != null)
+                  {
+                     InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                     continue;
+                  }
+                  else
+                  {
+                     mappedName = "java:comp/TimerService";
                   }
                }
                else if (resType.equals(ORB.class))
