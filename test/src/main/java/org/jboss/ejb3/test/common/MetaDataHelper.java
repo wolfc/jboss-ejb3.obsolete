@@ -96,7 +96,7 @@ public class MetaDataHelper
 
       //TODO When JBossSessionBeanMetaDataCreator is done, remove this
       // Add Remote Binding manually
-      if (beanMetaDataDelegate.getBusinessRemotes() != null)
+      if (beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
       {
          List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
          RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
