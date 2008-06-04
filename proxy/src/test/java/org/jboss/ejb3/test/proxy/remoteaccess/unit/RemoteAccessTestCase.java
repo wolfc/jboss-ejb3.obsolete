@@ -102,6 +102,25 @@ public class RemoteAccessTestCase
    }
 
    /**
+    * Ensures that more than one SLSB Remote invocations succeed
+    */
+   @Test
+   public void testStatelessSessionDuplicateRemoteInvocations() throws Throwable
+   {
+      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatelessBean/remote");
+      assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
+            bean instanceof MyStatelessRemote);
+
+      MyStatelessRemote slsb = ((MyStatelessRemote) bean);
+      String result = slsb.sayHi("testRemote");
+      String expected = "Hi testRemote";
+      assertEquals("Result was not expected", expected, result);
+      result = slsb.sayHi("testRemote");
+      expected = "Hi testRemote";
+      assertEquals("Result was not expected", expected, result);
+   }
+
+   /**
     * Ensures that a SFSB Remote invocation succeeds
     */
    @Test
@@ -115,6 +134,25 @@ public class RemoteAccessTestCase
       // Invoke and Test Result
       int result = ((MyStatefulRemoteBusiness) bean).getNextCounter();
       assertEquals(result, 0);
+   }
+
+   /**
+    * Ensures that more than one SFSB Remote invocations succeed
+    */
+   @Test
+   public void testStatefulSessionDuplicateRemoteInvocation() throws Throwable
+   {
+      // Obtain the Proxy
+      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatefulBean/remote");
+      assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
+            + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
+
+      // Invoke and Test Result
+      MyStatefulRemoteBusiness sfsb = ((MyStatefulRemoteBusiness) bean);
+      int result = sfsb.getNextCounter();
+      assertEquals(result, 0);
+      result = sfsb.getNextCounter();
+      assertEquals(result, 1);
    }
 
    // --------------------------------------------------------------------------------||
