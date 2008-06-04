@@ -21,26 +21,38 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 
-import javax.ejb.Local;
-import javax.ejb.LocalHome;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.Stateful;
-
 /**
- * MyStatefulBean
+ * MyStatefulBeanBase
  * 
- * A Mock SFSB
+ * Base containing business logic for the Mock SFSB
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateful
-@LocalHome(MyStatefulLocalHome.class)
-@RemoteHome(MyStatefulRemoteHome.class)
-@Local(MyStatefulLocalBusiness.class)
-@Remote(MyStatefulRemoteBusiness.class)
-public class MyStatefulBean extends MyStatefulBeanBase implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
+public class MyStatefulBeanBase implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
 {
-   // Business Logic in Base
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * The internal counter
+    */
+   private int counter = 0;
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Returns the next number in the counter.  The first 
+    * invocation will return 0, and every subsequent invocation
+    * will increment the internal counter by 1.
+    * 
+    * @return
+    */
+   public int getNextCounter()
+   {
+      return this.counter++;
+   }
 }

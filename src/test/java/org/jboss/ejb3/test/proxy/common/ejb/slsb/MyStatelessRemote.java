@@ -21,13 +21,10 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
-import javax.ejb.Remote;
-
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Remote
 public interface MyStatelessRemote extends MyStateless
 {
 
