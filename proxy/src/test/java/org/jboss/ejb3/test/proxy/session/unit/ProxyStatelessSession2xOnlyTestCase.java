@@ -80,7 +80,7 @@ public class ProxyStatelessSession2xOnlyTestCase extends ProxySessionTestCaseBas
       ProxySessionTestCaseBase.setUpBeforeClass();
 
       // Deploy MC Beans
-      ProxyStatelessSession2xOnlyTestCase.bootstrap.deploy(ProxyStatelessSession2xOnlyTestCase.class);
+      ProxyStatelessSession2xOnlyTestCase.bootstrap.deploy(ProxyStatelessSessionTestCase.class);
 
       // Create a SLSB
       StatelessContainer container = Utils.createSlsb(MyStateless2xOnlyBean.class);
