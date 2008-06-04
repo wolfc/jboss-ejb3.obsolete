@@ -62,6 +62,18 @@ public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
    }
 
    @Test
+   public void testLocalSpecificInterface() throws Exception
+   {
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/local-" + MyStatelessLocal.class.getName());
+      assertTrue(bean instanceof MyStatelessLocal);
+
+      String result = ((MyStatelessLocal) bean).sayHi("testLocal");
+      assertEquals("Hi testLocal", result);
+   }
+
+   @Test
    public void testLocalHome() throws Exception
    {
       InitialContext ctx = new InitialContext();
@@ -77,6 +89,21 @@ public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
 
       Object bean = ctx.lookup("MyStatelessBean/remote");
       assertTrue(bean instanceof MyStatelessRemote);
+
+      String result = ((MyStatelessRemote) bean).sayHi("testRemote");
+      assertEquals("Hi testRemote", result);
+   }
+
+   @Test
+   public void testRemoteSpecificInterface() throws Exception
+   {
+      InitialContext ctx = new InitialContext();
+
+      Object bean = ctx.lookup("MyStatelessBean/remote-" + MyStatelessRemote.class.getName());
+      assertTrue(bean instanceof MyStatelessRemote);
+
+      String result = ((MyStatelessRemote) bean).sayHi("testRemote");
+      assertEquals("Hi testRemote", result);
    }
 
    @Test
@@ -113,7 +140,7 @@ public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
       Ejb3RegistrarLocator.locateRegistrar().bind(container.getName(), container);
 
    }
-   
+
    @AfterClass
    public static void tearDownAfterClass() throws Exception
    {

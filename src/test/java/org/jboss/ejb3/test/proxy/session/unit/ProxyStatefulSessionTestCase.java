@@ -84,6 +84,26 @@ public class ProxyStatefulSessionTestCase extends ProxySessionTestCaseBase
    }
 
    /**
+    * Test Local Business Binding and Invocation
+    * to a specific interface
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testLocalBusinessSpecificInterface() throws Exception
+   {
+      // Obtain the Proxy
+      Object bean = ProxyStatefulSessionTestCase.context.lookup("MyStatefulBean/local-"
+            + MyStatefulLocalBusiness.class.getName());
+      assertTrue("Bean must be assignable to " + MyStatefulLocalBusiness.class.getSimpleName() + " but was instead "
+            + bean.getClass(), bean instanceof MyStatefulLocalBusiness);
+
+      // Invoke and Test Result
+      int result = ((MyStatefulLocalBusiness) bean).getNextCounter();
+      assertEquals(result, 0);
+   }
+
+   /**
     * Test Remote Business Binding and Invocation
     * 
     * @throws Exception
@@ -93,6 +113,26 @@ public class ProxyStatefulSessionTestCase extends ProxySessionTestCaseBase
    {
       // Obtain the Proxy
       Object bean = ProxyStatefulSessionTestCase.context.lookup("MyStatefulBean/remote");
+      assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
+            + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
+
+      // Invoke and Test Result
+      int result = ((MyStatefulRemoteBusiness) bean).getNextCounter();
+      assertEquals(result, 0);
+   }
+
+   /**
+    * Test Remote Business Binding and Invocation
+    * to a specific interface
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testRemoteBusinessSpecificInterface() throws Exception
+   {
+      // Obtain the Proxy
+      Object bean = ProxyStatefulSessionTestCase.context.lookup("MyStatefulBean/remote-"
+            + MyStatefulRemoteBusiness.class.getName());
       assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
             + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
 
