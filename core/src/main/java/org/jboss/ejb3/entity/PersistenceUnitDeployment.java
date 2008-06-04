@@ -44,6 +44,8 @@ import org.jboss.ejb3.javaee.SimpleJavaEEModule;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.metadata.jpa.spec.TransactionType;
+import org.jboss.virtual.VirtualFile;
+import org.jboss.virtual.VFSUtils;
 
 /**
  * Comment
@@ -217,11 +219,18 @@ public class PersistenceUnitDeployment extends AbstractJavaEEComponent
       pi.setPersistenceUnitName(metaData.getName());
       pi.setMappingFileNames(safeList(metaData.getMappingFiles()));
       pi.setExcludeUnlistedClasses(metaData.isExcludeUnlistedClasses());
-      log.debug("Persistence root url " + di.getRootFile());
-      pi.setPersistenceUnitRootUrl(di.getRootFile().toURL());
-//      PersistenceUnitTransactionType transactionType = PersistenceUnitTransactionType.JTA;
-//      if ("RESOURCE_LOCAL".equals(xml.getTransactionType()))
-//         transactionType = PersistenceUnitTransactionType.RESOURCE_LOCAL;
+      VirtualFile root = di.getRootFile();
+      log.debug("Persistence root: " + root);
+      // hack the JPA url
+      URL url = root.toURL();
+      // is not nested, so direct VFS URL is not an option
+      if (VFSUtils.isNestedFile(root) == false)
+      {
+         String urlString = url.toExternalForm();
+         if (urlString.startsWith("vfs"))
+            url = new URL(urlString.substring(3));
+      }
+      pi.setPersistenceUnitRootUrl(url);
       PersistenceUnitTransactionType transactionType = getJPATransactionType();
       pi.setTransactionType(transactionType);
 
