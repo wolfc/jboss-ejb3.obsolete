@@ -36,12 +36,15 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactory;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
+import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.ejb3.test.cachepassivation.MockBean;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
 import org.jboss.ejb3.test.cachepassivation.MockStatefulContainer;
 import org.jboss.ejb3.test.cachepassivation.MyStatefulSessionFilePersistenceManagerFactory;
+import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.naming.JavaCompInitializer;
 import org.jnp.server.SingletonNamingServer;
 
@@ -68,6 +71,9 @@ public class CachePassivationUnitTestCase extends TestCase
       DummyTransactionManager tm = new DummyTransactionManager();
       InitialContext ic = new InitialContext(ctxProperties);
       ic.bind("java:/TransactionManager", tm);
+      
+      EmbeddedTestMcBootstrap bootstrap = EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap();
+      Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
       
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       String beanClassName = MockBean.class.getName();
@@ -117,6 +123,7 @@ public class CachePassivationUnitTestCase extends TestCase
       }
       finally
       {
+         bootstrap.shutdown();
 //         container.stop();
 //         container.destroy();
 //         Ejb3Registry.unregister(container);
