@@ -540,14 +540,18 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       // XML must be done first so that any annotation overrides are initialized
       
       // todo injection handlers should be pluggable from XML
-      Collection<InjectionHandler<Environment>> handlers = new ArrayList<InjectionHandler<Environment>>();
-      handlers.add(new EJBHandler<Environment>());
-      handlers.add(new DependsHandler<Environment>());
-      handlers.add(new JndiInjectHandler<Environment>());
-      handlers.add(new PersistenceContextHandler<Environment>());
-      handlers.add(new PersistenceUnitHandler<Environment>());
-      handlers.add(new ResourceHandler<Environment>());
-      handlers.add(new WebServiceRefHandler<Environment>());
+      Collection<InjectionHandler<Environment>> handlers = this.deployment.getHandlers();
+      if(handlers == null)
+      {
+         handlers = new ArrayList<InjectionHandler<Environment>>();
+         handlers.add(new EJBHandler<Environment>());
+         handlers.add(new DependsHandler<Environment>());
+         handlers.add(new JndiInjectHandler<Environment>());
+         handlers.add(new PersistenceContextHandler<Environment>());
+         handlers.add(new PersistenceUnitHandler<Environment>());
+         handlers.add(new ResourceHandler<Environment>());
+         handlers.add(new WebServiceRefHandler<Environment>());
+      }
 
       ClassLoader old = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(classloader);
