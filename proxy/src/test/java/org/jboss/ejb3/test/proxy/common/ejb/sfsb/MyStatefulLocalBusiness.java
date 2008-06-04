@@ -21,15 +21,12 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 
-import javax.ejb.Local;
-
 /**
  * MyStatefulLocalBusiness
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Local
 public interface MyStatefulLocalBusiness extends MyStateful
 {
 

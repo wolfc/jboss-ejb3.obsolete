@@ -19,28 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
+package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
-import javax.ejb.Local;
 import javax.ejb.LocalHome;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
-import javax.ejb.Stateful;
+import javax.ejb.Stateless;
 
 /**
- * MyStatefulBean
+ * SLSB with only EJB2.x Views
  * 
- * A Mock SFSB
- *
- * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Stateful
-@LocalHome(MyStatefulLocalHome.class)
-@RemoteHome(MyStatefulRemoteHome.class)
-@Local(MyStatefulLocalBusiness.class)
-@Remote(MyStatefulRemoteBusiness.class)
-public class MyStatefulBean extends MyStatefulBeanBase implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
+@Stateless
+@LocalHome(MyStatelessLocalHome.class)
+@RemoteHome(MyStatelessRemoteHome.class)
+public class MyStateless2xOnlyBean implements MyStatelessLocal, MyStatelessRemote
 {
-   // Business Logic in Base
+   public String sayHi(String name)
+   {
+      return "Hi " + name;
+   }
 }

@@ -21,13 +21,10 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
-import javax.ejb.Local;
-
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Local
 public interface MyStatelessLocal extends MyStateless
 {
 

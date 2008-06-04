@@ -21,16 +21,12 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 
-import javax.ejb.Remote;
-
-
 /**
  * MyStatefulRemoteBusiness
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Remote
 public interface MyStatefulRemoteBusiness extends MyStateful
 {
 

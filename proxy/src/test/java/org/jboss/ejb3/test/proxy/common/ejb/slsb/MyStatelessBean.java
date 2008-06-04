@@ -21,7 +21,9 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.slsb;
 
+import javax.ejb.Local;
 import javax.ejb.LocalHome;
+import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateless;
 
@@ -32,6 +34,8 @@ import javax.ejb.Stateless;
 @Stateless
 @LocalHome(MyStatelessLocalHome.class)
 @RemoteHome(MyStatelessRemoteHome.class)
+@Local(MyStatelessLocal.class)
+@Remote(MyStatelessRemote.class)
 public class MyStatelessBean implements MyStatelessLocal, MyStatelessRemote
 {
    public String sayHi(String name)

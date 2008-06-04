@@ -21,16 +21,14 @@
  */
 package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
 
-import javax.ejb.Local;
 import javax.ejb.LocalHome;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 
 /**
  * MyStatefulBean
  * 
- * A Mock SFSB
+ * A Mock SFSB with only EJB2.x Views
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
@@ -38,9 +36,10 @@ import javax.ejb.Stateful;
 @Stateful
 @LocalHome(MyStatefulLocalHome.class)
 @RemoteHome(MyStatefulRemoteHome.class)
-@Local(MyStatefulLocalBusiness.class)
-@Remote(MyStatefulRemoteBusiness.class)
-public class MyStatefulBean extends MyStatefulBeanBase implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
+public class MyStateful2xOnlyBean extends MyStatefulBeanBase
+      implements
+         MyStatefulLocalBusiness,
+         MyStatefulRemoteBusiness
 {
    // Business Logic in Base
 }
