@@ -19,6 +19,7 @@ import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
@@ -121,11 +122,14 @@ public abstract class SessionSpecContainer extends SessionContainer
       // Initialize
       String jndiRegistrarBindName = this.getJndiRegistrarBindName();
 
+      // Obtain Registrar
+      Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+
       // Lookup
       Object obj = null;
       try
       {
-         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(jndiRegistrarBindName);
+         obj = registrar.lookup(jndiRegistrarBindName);
       }
       // If not installed, warn and return null
       catch (NotBoundException e)
@@ -137,10 +141,10 @@ public abstract class SessionSpecContainer extends SessionContainer
       }
 
       // Cast
-      JndiSessionRegistrarBase registrar = (JndiSessionRegistrarBase) obj;
+      JndiSessionRegistrarBase jndiRegistrar = (JndiSessionRegistrarBase) obj;
 
       // Return
-      return registrar;
+      return jndiRegistrar;
    }
 
    /**

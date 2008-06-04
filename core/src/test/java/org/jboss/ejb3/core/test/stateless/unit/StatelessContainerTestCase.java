@@ -35,12 +35,14 @@ import org.jboss.aop.DomainDefinition;
 import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.InitialContextFactory;
-import org.jboss.ejb3.core.test.common.MetaDataHelper;
+import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.core.test.stateless.MyStateless;
 import org.jboss.ejb3.core.test.stateless.MyStatelessBean;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
+import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.junit.AfterClass;
@@ -75,6 +77,10 @@ public class StatelessContainerTestCase
       InitialContextFactory.close(null, null);
       
       bootstrap = EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap();
+      
+      // Bind Registrar
+      Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
+      
       deploy("basicbootstrap-beans.xml");
       
       // TODO: AspectDeployment
@@ -104,19 +110,23 @@ public class StatelessContainerTestCase
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       System.out.println(cl.getResource("jndi.properties"));
       String beanClassname = MyStatelessBean.class.getName();
-      String ejbName = "MyStatelessBean";
+      String ejbName = MyStatelessBean.class.getSimpleName();
       Domain domain = getDomain("Stateless Bean");
-      Hashtable ctxProperties = null;
+      Hashtable<?,?> ctxProperties = null;
       Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
-      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.createMockBeanMetaData();
+      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(MyStatelessBean.class);
       StatelessContainer container = new StatelessContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
       
       // TODO: wickedness
       container.instantiated();
       
-      String serviceName = "jboss.ejb3:name=MyStatelessBean,service=EJB3";
-      AbstractBeanMetaData bmd = new AbstractBeanMetaData(serviceName, StatelessContainer.class.getName());
-      bootstrap.getKernel().getController().install(bmd, container);
+      // Register the Container in ObjectStore (MC)
+//      String serviceName = "jboss.ejb3:name=MyStatelessBean,service=EJB3";
+//      AbstractBeanMetaData bmd = new AbstractBeanMetaData(serviceName, StatelessContainer.class.getName());
+//    bootstrap.getKernel().getController().install(bmd, container);
+      String containerName = container.getName();
+      Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
+
       
       InitialContext ctx = new InitialContext();
       System.out.println("ctx = " + ctx);
@@ -126,6 +136,6 @@ public class StatelessContainerTestCase
       String actual = bean.sayHi("Me");
       assertEquals("Hi Me", actual);
       
-      bootstrap.getKernel().getController().uninstall(serviceName);
+      bootstrap.getKernel().getController().uninstall(containerName);
    }
 }

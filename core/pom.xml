@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.4-SNAPSHOT</version>
+    <version>0.13.7-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -56,13 +56,6 @@
         <inherited>false</inherited>
       </plugin>
 
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <!-- To make sure any static variables are flushed -->
-          <forkMode>always</forkMode>
-        </configuration>
-      </plugin>
     </plugins>
 
   </build>
@@ -226,7 +219,7 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
-      <version>1.0.0.Beta1</version>
+      <version>1.0.1.CR2</version>
     </dependency>
     
     <dependency>
@@ -280,7 +273,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-async</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1-SNAPSHOT</version>
     </dependency>
     
     <dependency>
@@ -334,14 +327,14 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
-      <version>0.13.0</version>
+      <version>0.13.1-SNAPSHOT</version>
     </dependency>
 
     <dependency>
