@@ -105,10 +105,10 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @return
     */
    @Override
-   protected Set<Class<?>> getProxyInterfaces()
+   protected Set<Class<?>> getCommonProxyInterfaces()
    {
       // Initialize
-      Set<Class<?>> interfaces = super.getProxyInterfaces();
+      Set<Class<?>> interfaces = super.getCommonProxyInterfaces();
 
       // Add
       interfaces.add(StatefulSessionProxy.class);

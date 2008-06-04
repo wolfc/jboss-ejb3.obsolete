@@ -172,8 +172,8 @@ public abstract class JndiSessionRegistrarBase
       String remoteHome = StringUtils.adjustWhitespaceStringToNull(smd.getHome());
 
       // Determine if there are local/remote views
-      boolean hasLocalView = (localHome != null || businessLocals.size() < 1);
-      boolean hasRemoteView = (remoteHome != null || businessRemotes.size() < 1);
+      boolean hasLocalView = (localHome != null || (businessLocals != null && businessLocals.size() > 0));
+      boolean hasRemoteView = (remoteHome != null || (businessRemotes != null && businessRemotes.size() > 0));
 
       // If no local or remote views
       if (!hasLocalView && !hasRemoteView)
@@ -201,11 +201,14 @@ public abstract class JndiSessionRegistrarBase
          List<RefAddr> refAddrsForDefaultRemote = new ArrayList<RefAddr>();
 
          // For each of the remote business interfaces, make a Reference Address
-         for (String businessRemote : businessRemotes)
+         if (businessRemotes != null)
          {
-            RefAddr refAddr = new StringRefAddr(
-                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
-            refAddrsForDefaultRemote.add(refAddr);
+            for (String businessRemote : businessRemotes)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
+               refAddrsForDefaultRemote.add(refAddr);
+            }
          }
 
          // Determine if remote home and business remotes are bound to same JNDI Address
@@ -259,25 +262,27 @@ public abstract class JndiSessionRegistrarBase
 
          // Bind the Default Remote Reference to JNDI
          String defaultRemoteAddress = smd.determineJndiName();
-         log.debug("Default Remote View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+         log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultRemoteAddress + "\"");
          this.bind(defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
 
          // Bind ObjectFactory specific to each Remote Business Interface
-         for (String businessRemote : businessRemotes)
+         if (businessRemotes != null)
          {
-            RefAddr refAddrBusinessInterface = new StringRefAddr(
-                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
-            RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
-            Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote,
-                  this.getSessionProxyObjectFactoryType(), null);
-            ref.add(refAddrBusinessInterface);
-            ref.add(refAddrRemoting);
-            String address = smd.determineResolvedJndiName(businessRemote);
-            log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
-                  + " to be bound into JNDI at \"" + address + "\"");
-            this.bind(ref, address, remoteProxyFactoryKey, containerName);
-
+            for (String businessRemote : businessRemotes)
+            {
+               RefAddr refAddrBusinessInterface = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
+               RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
+               Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote,
+                     this.getSessionProxyObjectFactoryType(), null);
+               ref.add(refAddrBusinessInterface);
+               ref.add(refAddrRemoting);
+               String address = smd.determineResolvedJndiName(businessRemote);
+               log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
+                     + " to be bound into JNDI at \"" + address + "\"");
+               this.bind(ref, address, remoteProxyFactoryKey, containerName);
+            }
          }
       }
       // If there's a local view
@@ -345,7 +350,7 @@ public abstract class JndiSessionRegistrarBase
 
          // Bind the Default Local Reference to JNDI
          String defaultLocalAddress = smd.determineLocalJndiName();
-         log.debug("Default Local View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+         log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultLocalAddress + "\"");
          this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
 

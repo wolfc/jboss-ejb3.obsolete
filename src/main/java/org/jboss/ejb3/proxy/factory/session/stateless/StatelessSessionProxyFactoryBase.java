@@ -27,6 +27,7 @@ import java.util.Set;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateless.StatelessProxyInvocationHandler;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -39,6 +40,18 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  */
 public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFactoryBase implements SessionProxyFactory
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(StatelessSessionProxyFactoryBase.class);
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private Constructor<StatelessProxyInvocationHandler> invocationHandlerConstructor;
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -85,15 +98,35 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
    @Override
    protected final Constructor<StatelessProxyInvocationHandler> getInvocationHandlerConstructor()
    {
-      try
+      // If not created
+      if (this.invocationHandlerConstructor == null)
       {
-         return StatelessProxyInvocationHandler.class.getConstructor(new Class[]
-         {String.class});
+         // Initialize
+         Constructor<StatelessProxyInvocationHandler> ctor = null;
+         try
+         {
+            // Create
+            Class<?>[] args = new Class[]
+            {String.class};
+            log.debug("Creating " + Constructor.class.getSimpleName() + " to "
+                  + StatelessProxyInvocationHandler.class.getName() + " with arguments: " + args);
+            ctor = StatelessProxyInvocationHandler.class.getConstructor(args);
+         }
+         catch (NoSuchMethodException e)
+         {
+            throw new RuntimeException("Could not find Constructor with one String argument for "
+                  + StatelessProxyInvocationHandler.class.getName(), e);
+         }
+         this.setInvocationHandlerConstructor(ctor);
       }
-      catch (NoSuchMethodException e)
-      {
-         throw new RuntimeException("Could not find Constructor with one String argument for "
-               + StatelessProxyInvocationHandler.class.getName(), e);
-      }
+
+      // Return
+      return this.invocationHandlerConstructor;
+   }
+
+   private void setInvocationHandlerConstructor(
+         Constructor<StatelessProxyInvocationHandler> invocationHandlerConstructor)
+   {
+      this.invocationHandlerConstructor = invocationHandlerConstructor;
    }
 }

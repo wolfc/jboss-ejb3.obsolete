@@ -34,32 +34,8 @@
   <build>
 
     <plugins>
-      <!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <compilerArgument>-verbose</compilerArgument>
-        </configuration>
-      </plugin>
-      -->
-      <!-- Surefire -->
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          <printSummary>true</printSummary>
-          <testFailureIgnore>false</testFailureIgnore>
-          <includes>
-            <include>**/*TestCase.java</include>
-            <include>**/*TestSuite.java</include>
-          </includes>
-          <!-- Note: Fiddling with forkMode screws up surefire.test.class.path -->
-          <forkMode>always</forkMode>
-          <argLine>-ea</argLine>
-        </configuration>
-      </plugin>
-      
+
+      <!-- Build a CP File for use by MockServer -->     
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -143,7 +119,7 @@
      <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 

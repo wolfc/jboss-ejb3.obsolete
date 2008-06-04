@@ -28,6 +28,7 @@ import java.util.List;
 import org.jboss.aop.Dispatcher;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
@@ -208,12 +209,15 @@ public abstract class SessionContainer
    {
       // Initialize
       String jndiRegistrarBindName = this.getJndiRegistrarBindName();
+      
+      // Obtain Registrar
+      Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
       // Lookup
       Object obj = null;
       try
       {
-         obj = Ejb3RegistrarLocator.locateRegistrar().lookup(jndiRegistrarBindName);
+         obj = registrar.lookup(jndiRegistrarBindName);
       }
       // If not installed, warn and return null
       catch (NotBoundException e)
@@ -225,10 +229,10 @@ public abstract class SessionContainer
       }
 
       // Cast
-      JndiSessionRegistrarBase registrar = (JndiSessionRegistrarBase) obj;
+      JndiSessionRegistrarBase jndiRegistrar = (JndiSessionRegistrarBase) obj;
 
       // Return
-      return registrar;
+      return jndiRegistrar;
    }
 
    // --------------------------------------------------------------------------------||

@@ -90,7 +90,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    protected Constructor<?> createProxyConstructor(Set<Class<?>> interfaces, ClassLoader cl)
    {
       // Add interfaces common to all proxies
-      interfaces.addAll(this.getProxyInterfaces());
+      interfaces.addAll(this.getCommonProxyInterfaces());
 
       Class<?> proxyClass = Proxy.getProxyClass(cl, interfaces.toArray(new Class<?>[]
       {}));
@@ -112,7 +112,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     * 
     * @return
     */
-   protected Set<Class<?>> getProxyInterfaces()
+   protected Set<Class<?>> getCommonProxyInterfaces()
    {
       // Initialize
       Set<Class<?>> interfaces = new HashSet<Class<?>>();
