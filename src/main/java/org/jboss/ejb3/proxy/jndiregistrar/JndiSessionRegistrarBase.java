@@ -297,11 +297,14 @@ public abstract class JndiSessionRegistrarBase
          List<RefAddr> refAddrsForDefaultLocal = new ArrayList<RefAddr>();
 
          // For each of the local business interfaces, make a Reference Address
-         for (String businessLocal : businessLocals)
+         if (businessLocals != null)
          {
-            RefAddr refAddr = new StringRefAddr(
-                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
-            refAddrsForDefaultLocal.add(refAddr);
+            for (String businessLocal : businessLocals)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
+               refAddrsForDefaultLocal.add(refAddr);
+            }
          }
 
          // Determine if local home and business locals are bound to same JNDI Address
@@ -355,18 +358,21 @@ public abstract class JndiSessionRegistrarBase
          this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
 
          // Bind ObjectFactory specific to each Local Business Interface
-         for (String businessLocal : businessLocals)
+         if (businessLocals != null)
          {
-            RefAddr refAddr = new StringRefAddr(
-                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
-            Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal,
-                  this.getSessionProxyObjectFactoryType(), null);
-            ref.add(refAddr);
-            String address = smd.determineResolvedJndiName(businessLocal);
-            log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
-                  + " to be bound into JNDI at \"" + address + "\"");
-            this.bind(ref, address, localProxyFactoryKey, containerName);
+            for (String businessLocal : businessLocals)
+            {
+               RefAddr refAddr = new StringRefAddr(
+                     ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
+               Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal,
+                     this.getSessionProxyObjectFactoryType(), null);
+               ref.add(refAddr);
+               String address = smd.determineResolvedJndiName(businessLocal);
+               log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
+                     + " to be bound into JNDI at \"" + address + "\"");
+               this.bind(ref, address, localProxyFactoryKey, containerName);
 
+            }
          }
       }
    }
