@@ -96,7 +96,7 @@ public class ProxyStatelessSessionRemoteOnlyTestCase extends ProxySessionTestCas
       ProxySessionTestCaseBase.setUpBeforeClass();
 
       // Deploy MC Beans
-      ProxyStatelessSessionRemoteOnlyTestCase.bootstrap.deploy(ProxyStatelessSessionRemoteOnlyTestCase.class);
+      ProxyStatelessSessionRemoteOnlyTestCase.bootstrap.deploy(ProxyStatelessSessionTestCase.class);
 
       // Create a SLSB
       StatelessContainer container = Utils.createSlsb(MyStatelessRemoteOnlyBean.class);

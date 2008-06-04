@@ -111,7 +111,7 @@ public class ProxyStatelessSession30OnlyTestCase extends ProxySessionTestCaseBas
       ProxySessionTestCaseBase.setUpBeforeClass();
 
       // Deploy MC Beans
-      ProxyStatelessSession30OnlyTestCase.bootstrap.deploy(ProxyStatelessSession30OnlyTestCase.class);
+      ProxyStatelessSession30OnlyTestCase.bootstrap.deploy(ProxyStatelessSessionTestCase.class);
 
       // Create a SLSB
       StatelessContainer container = Utils.createSlsb(MyStateless30OnlyBean.class);
