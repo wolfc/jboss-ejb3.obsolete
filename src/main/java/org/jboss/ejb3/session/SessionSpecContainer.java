@@ -24,7 +24,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.lang.SerializableMethod;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -176,9 +176,9 @@ public abstract class SessionSpecContainer extends SessionContainer
          //TODO Use Polymorphism to have sessions only in StatefulContainer
          InvocationHandler handler = Proxy.getInvocationHandler(proxy);
          Object sessionId = null;
-         if (handler instanceof StatefulProxyInvocationHandler)
+         if (handler instanceof StatefulProxyInvocationHandlerBase)
          {
-            sessionId = ((StatefulProxyInvocationHandler) handler).getSessionId();
+            sessionId = ((StatefulProxyInvocationHandlerBase) handler).getSessionId();
          }
 
          if (unadvisedMethod != null && isHomeMethod(method))
