@@ -61,7 +61,6 @@ import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
@@ -207,7 +206,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    public void start() throws Exception
    {
       super.start();
-      proxyDeployer.start();
 
       try
       {
@@ -233,7 +231,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
 
    public void stop() throws Exception
-   {      
+   {
       invokeOptionalMethod("stop");
       
       if (timerService != null)
@@ -249,15 +247,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       beanContext = null;
       
       super.stop();
-      
-      try
-      {
-         proxyDeployer.stop();
-      }
-      catch (Exception ignore)
-      {
-         log.debug("Proxy deployer stop failed", ignore);
-      }
    }
 
    public void destroy() throws Exception
@@ -533,6 +522,21 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
            throws MBeanException, ReflectionException
    {
       return delegate.invoke(actionName, params, signature);
+   }
+
+   @Override
+   protected Object invokeEJBObjectMethod(ProxyFactory factory, Object id, MethodInfo info, Object[] args) throws Exception
+   {
+      throw new RuntimeException("NYI");
+   }
+   
+
+   //TODO This shouldn't be required of @Service
+   @Override
+   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+         throws Exception
+   {
+      throw new NotImplementedException("Invalid for " + ServiceContainer.class.getName());
    }
 
    public MBeanInfo getMBeanInfo()

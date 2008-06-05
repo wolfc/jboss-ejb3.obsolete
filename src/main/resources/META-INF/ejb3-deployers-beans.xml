@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    EJB3 Deployers
+    JCA Deployers
 -->
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
@@ -271,50 +271,5 @@
    <bean name="PersistenceUnitParsingDeployer" class="org.jboss.ejb3.deployers.PersistenceUnitParsingDeployer">
       <property name="type">car</property>
    </bean>
-   
-   <!-- 
-    
-    JNDI Registrars
-    
-    
-    The JNDI Registrar is responsible for all JNDI Bindings for
-    an EJB.  Its constructor takes the following arguments, in order:
-    
-    javax.naming.Context (JNDI Context into which to bind objects)
-    org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry (Implementation of ProxyFactoryRegistry)
-    String statelessSessionProxyObjectFactoryType The JNDI ObjectFactory implementation to use for SLSB
-    ...more later when SFSB, @Service, MDB Implemented
-    
-  -->
-
-  <!-- SLSB JNDI Registrar -->
-  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
-    <constructor>
-      <parameter>
-        <inject bean="org.jboss.ejb3.JndiContext" />
-      </parameter>
-      <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
-      </parameter>
-    </constructor>
-  </bean>
-
-  <!-- SFSB JNDI Registrar -->
-  <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
-    <constructor>
-      <parameter>
-        <inject bean="org.jboss.ejb3.JndiContext" />
-      </parameter>
-      <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
-      </parameter>
-    </constructor>
-  </bean>
-
-  <!-- JNDI Registrar Configuration -->
-  <bean name="org.jboss.ejb3.JndiContext"
-    class="javax.naming.InitialContext" />
    
 </deployment>
