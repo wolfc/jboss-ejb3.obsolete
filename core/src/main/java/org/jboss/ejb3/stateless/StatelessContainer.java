@@ -22,17 +22,6 @@
 package org.jboss.ejb3.stateless;
 
 
-import java.lang.reflect.Method;
-import java.util.Hashtable;
-import java.util.Map;
-
-import javax.ejb.EJBContext;
-import javax.ejb.EJBException;
-import javax.ejb.Handle;
-import javax.ejb.Timer;
-import javax.ejb.TimerService;
-import javax.naming.NamingException;
-
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
@@ -55,8 +44,6 @@ import org.jboss.ejb3.proxy.factory.stateless.BaseStatelessRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory;
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
@@ -73,6 +60,12 @@ import org.jboss.wsf.spi.invocation.InvocationType;
 import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
 import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
 import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
+
+import javax.ejb.*;
+import javax.naming.NamingException;
+import java.lang.reflect.Method;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -317,7 +310,7 @@ public class StatelessContainer extends SessionSpecContainer
          {
             invokeStats.callIn();
             
-            invokedMethod.push(new SerializableMethod(unadvisedMethod));
+            invokedMethod.push(new InvokedMethod(true, unadvisedMethod));
 
             if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
             {
@@ -372,7 +365,7 @@ public class StatelessContainer extends SessionSpecContainer
          {
             invokeStats.callIn();
             
-            invokedMethod.push(new SerializableMethod(unadvisedMethod));
+            invokedMethod.push(new InvokedMethod(false, unadvisedMethod));
             Map responseContext = null;
             Object rtn = null;
             if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
@@ -479,14 +472,11 @@ public class StatelessContainer extends SessionSpecContainer
     * @throws Exception
     */
    @Override
-   protected Object invokeHomeCreate(SerializableMethod unadvisedMethod, Object args[])
+   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
          throws Exception
    {   
-      // Lookup factory
-      Object factory = this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
-      SessionProxyFactory proxyFactory = SessionProxyFactory.class.cast(factory);
 
-      Object proxy = proxyFactory.createProxyBusiness(unadvisedMethod.getReturnType());
+      Object proxy = factory.createProxyBusiness(unadvisedMethod.getReturnType().getName());
 
       return proxy;
    }
@@ -596,16 +586,6 @@ public class StatelessContainer extends SessionSpecContainer
    {
       String name = this.getObjectName() != null ? this.getObjectName().getCanonicalName() : null;
       return name;
-   }
-   
-   /**
-    * Returns the name under which the JNDI Registrar for this container is bound
-    * 
-    * @return
-    */
-   protected String getJndiRegistrarBindName()
-   {
-      return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB;
    }
    
    static class WSCallbackImpl implements BeanContextLifecycleCallback
