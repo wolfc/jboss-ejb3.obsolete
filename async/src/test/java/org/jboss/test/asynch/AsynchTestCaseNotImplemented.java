@@ -36,7 +36,7 @@ import org.jboss.util.NotImplementedException;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class AsynchTestCase
+public class AsynchTestCaseNotImplemented
 extends JBossTestCase
 {
    org.jboss.logging.Logger  log = getLog();
@@ -44,12 +44,14 @@ extends JBossTestCase
    static boolean deployed = false;
    static int test = 0;
 
-   public AsynchTestCase(String name)
+   public AsynchTestCaseNotImplemented(String name)
    {
 
       super(name);
 
    }
+/**
+ Rework Dependency Below
 
    public void testRemote() throws Exception
    {
@@ -102,4 +104,5 @@ extends JBossTestCase
       throw new NotImplementedException();
    }
 
+*/
 }
