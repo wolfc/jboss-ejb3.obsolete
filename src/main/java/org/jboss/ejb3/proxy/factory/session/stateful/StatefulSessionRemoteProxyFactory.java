@@ -24,6 +24,8 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -46,6 +48,15 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
 
    // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * URL to be used in Remoting
+    */
+   private String url;
+
+   // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
@@ -53,15 +64,19 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
     * Constructor
     * 
     * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
+    * @param url The URL to use for remoting
     */
-   public StatefulSessionRemoteProxyFactory(final String name, final JBossSessionBeanMetaData metadata,
-         final ClassLoader classloader)
+   public StatefulSessionRemoteProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url)
    {
       // Call Super
-      super(name, metadata, classloader);
+      super(name, containerName, metadata, classloader);
+      this.setUrl(url);
    }
 
    // --------------------------------------------------------------------------------||
@@ -110,5 +125,34 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    protected String getInterceptorStackName()
    {
       return StatefulSessionRemoteProxyFactory.STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   @Override
+   protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
+   {
+      // Create
+      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(businessInterfaceName, this
+            .getUrl());
+
+      // Return
+      return handler;
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   public String getUrl()
+   {
+      return url;
+   }
+
+   public void setUrl(String url)
+   {
+      this.url = url;
    }
 }

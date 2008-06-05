@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -133,9 +133,9 @@ public class StatefulContainer extends SessionSpecContainer
    {
       // Obtain the InvocationHandler
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulProxyInvocationHandler : "SFSB Proxy must be of type "
-            + StatefulProxyInvocationHandler.class.getName();
-      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) handler;
+      assert handler instanceof StatefulProxyInvocationHandlerBase : "SFSB Proxy must be of type "
+            + StatefulProxyInvocationHandlerBase.class.getName();
+      StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
 
       // Get the Session ID
       Object sessionId = sHandler.getSessionId();

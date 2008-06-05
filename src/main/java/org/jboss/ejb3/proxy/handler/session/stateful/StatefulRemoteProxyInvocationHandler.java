@@ -19,30 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.session.stateless;
+package org.jboss.ejb3.proxy.handler.session.stateful;
 
-import java.util.Set;
-
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
-import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
- * StatelessSessionProxyFactoryBase
- * 
- * Base upon which SLSB Proxy Factories may build
+ * StatefulRemoteProxyInvocationHandler
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFactoryBase implements SessionProxyFactory
+public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocationHandlerBase
 {
+
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger log = Logger.getLogger(StatelessSessionProxyFactoryBase.class);
+   private static final long serialVersionUID = 1L;
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private String url;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -51,35 +52,42 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
    /**
     * Constructor
     * 
-    * @param name The unique name for this ProxyFactory
-    * @param containerName The name of the InvokableContext (container)
-    *   upon which Proxies will invoke
-    * @param metadata The metadata representing this SLSB
-    * @param classloader The ClassLoader associated with the StatelessContainer
-    *       for which this ProxyFactory is to generate Proxies
+    * @param businessInterfaceType The possibly null businessInterfaceType
+    *   marking this invocation hander as specific to a given
+    *   EJB3 Business Interface
+    *   @param url The URL to the Remote Host
     */
-   public StatelessSessionProxyFactoryBase(final String name, final String containerName,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+   public StatefulRemoteProxyInvocationHandler(String businessInterfaceType, String url)
    {
-      // Call Super
-      super(name, containerName, metadata, classloader);
+      super(businessInterfaceType);
+      this.setUrl(url);
    }
 
    // --------------------------------------------------------------------------------||
-   // Functional Methods -------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /**
-    * Obtains the return types declared by the "create" methods for the specified home interface.
-    *  
-    * @param homeInterface
-    * @return
-    * @deprecated http://jira.jboss.com/jira/browse/JBMETA-41
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandlerBase#getContainer()
     */
-   @Deprecated
    @Override
-   protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
+   protected InvokableContext<? extends ContainerMethodInvocation> getContainer()
    {
-      return this.getReturnTypesFromCreateMethods(homeInterface, true);
+      return this.createRemoteProxyToContainer(this.getUrl());
    }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   public String getUrl()
+   {
+      return url;
+   }
+
+   public void setUrl(String url)
+   {
+      this.url = url;
+   }
+
 }

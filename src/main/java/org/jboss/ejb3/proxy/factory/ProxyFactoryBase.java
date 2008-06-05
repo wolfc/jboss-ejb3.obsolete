@@ -55,6 +55,8 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     */
    private String name;
 
+   private String containerName;
+
    private ClassLoader classloader;
 
    // --------------------------------------------------------------------------------||
@@ -65,13 +67,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     * Constructor
     * 
     * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param classloader The ClassLoader associated with the EJBContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public ProxyFactoryBase(final String name, final ClassLoader classloader)
+   public ProxyFactoryBase(final String name, final String containerName, final ClassLoader classloader)
    {
       // Set properties
       this.setName(name);
+      this.setContainerName(containerName);
       this.setClassLoader(classloader);
    }
 
@@ -194,6 +199,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    protected void setName(final String name)
    {
       this.name = name;
+   }
+
+   public String getContainerName()
+   {
+      return containerName;
+   }
+
+   public void setContainerName(String containerName)
+   {
+      this.containerName = containerName;
    }
 
 }

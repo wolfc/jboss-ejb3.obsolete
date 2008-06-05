@@ -72,28 +72,34 @@ public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
     * Creates and returns a new local proxy factory for this SLSB
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this SLSB
     * @param cl The ClassLoader for this EJB Container
     */
    @Override
-   protected SessionProxyFactory createLocalProxyFactory(final String name, JBossSessionBeanMetaData smd, ClassLoader cl)
+   protected SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
+         JBossSessionBeanMetaData smd, ClassLoader cl)
    {
-      return new StatelessSessionLocalProxyFactory(name, smd, cl);
+      return new StatelessSessionLocalProxyFactory(name, containerName, smd, cl);
    }
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
+    * @param url The URL to use for Remoting
     */
    @Override
-   protected SessionProxyFactory createRemoteProxyFactory(final String name, final JBossSessionBeanMetaData smd,
-         final ClassLoader cl)
+   protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url)
    {
       // Create
-      SessionProxyFactory factory = new StatelessSessionRemoteProxyFactory(name, smd, cl);
+      SessionProxyFactory factory = new StatelessSessionRemoteProxyFactory(name, containerName, smd, cl, url);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

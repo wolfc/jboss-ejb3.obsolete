@@ -24,6 +24,8 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulLocalProxyInvocationHandler;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -48,15 +50,17 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
     * Constructor
     * 
     * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatefulSessionLocalProxyFactory(final String name, final JBossSessionBeanMetaData metadata,
-         final ClassLoader classloader)
+   public StatefulSessionLocalProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(name, metadata, classloader);
+      super(name, containerName, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
@@ -93,5 +97,19 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    protected final String getEjb2xInterfaceType()
    {
       return this.getMetadata().getLocal();
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   @Override
+   protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
+   {
+      // Create
+      SessionProxyInvocationHandler handler = new StatefulLocalProxyInvocationHandler(businessInterfaceName);
+
+      // Return
+      return handler;
    }
 }
