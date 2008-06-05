@@ -178,7 +178,7 @@ public class RemoteAccessTestCase
       RemoteAccessTestCase.invokeRemoteMockServerProcess(RemoteAccessTestCase.class.getName());
 
       // Wait for Server to start
-      Thread.sleep(3000);
+      Thread.sleep(5000);
    }
 
    /**
