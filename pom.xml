@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.6</version>
+    <version>0.13.7</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -14,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-async</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Aspects [Async]</name>
   <description>The Java EJB3 Asynchronous Aspects</description>
@@ -48,4 +48,10 @@
     </dependency>
     
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-0.1.1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-0.1.1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-0.1.1</url>
+  </scm>
 </project>
