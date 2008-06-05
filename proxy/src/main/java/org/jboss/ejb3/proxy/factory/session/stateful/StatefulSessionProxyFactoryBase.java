@@ -21,12 +21,10 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateful;
 
-import java.lang.reflect.Constructor;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -48,15 +46,17 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * Constructor
     * 
     * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatefulSessionProxyFactoryBase(final String name, final JBossSessionBeanMetaData metadata,
-         final ClassLoader classloader)
+   public StatefulSessionProxyFactoryBase(final String name, final String containerName,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(name, metadata, classloader);
+      super(name, containerName, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
@@ -75,27 +75,6 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
    {
       return this.getReturnTypesFromCreateMethods(homeInterface, true);
-   }
-
-   /**
-    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
-    * instanciating new handlers to specify in Proxy Creation
-    * 
-    * @return
-    */
-   @Override
-   protected final Constructor<StatefulProxyInvocationHandler> getInvocationHandlerConstructor()
-   {
-      try
-      {
-         return StatefulProxyInvocationHandler.class.getConstructor(new Class[]
-         {String.class});
-      }
-      catch (NoSuchMethodException e)
-      {
-         throw new RuntimeException("Could not find Constructor with one String argument for "
-               + StatefulProxyInvocationHandler.class.getName(), e);
-      }
    }
 
    /**

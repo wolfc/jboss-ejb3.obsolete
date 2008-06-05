@@ -73,29 +73,34 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     * Creates and returns a new local proxy factory for this SFSB
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this SFSB
     * @param cl The ClassLoader for this EJB Container
     */
    @Override
-   protected SessionProxyFactory createLocalProxyFactory(final String name, final JBossSessionBeanMetaData smd,
-         final ClassLoader cl)
+   protected SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl)
    {
-      return new StatefulSessionLocalProxyFactory(name, smd, cl);
+      return new StatefulSessionLocalProxyFactory(name, containerName, smd, cl);
    }
 
    /**
     * Creates and returns a new remote proxy factory for this SFSB
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this SFSB
     * @param cl The ClassLoader for this EJB Container
+    * @param url The URL to use for Remoting
     */
    @Override
-   protected SessionProxyFactory createRemoteProxyFactory(final String name, final JBossSessionBeanMetaData smd,
-         final ClassLoader cl)
+   protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url)
    {
       // Create
-      SessionProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, smd, cl);
+      SessionProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, smd, cl, url);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

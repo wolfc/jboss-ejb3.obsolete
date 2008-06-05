@@ -43,7 +43,6 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerMetadata;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -117,6 +116,8 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       try
       {
          // Attempt to get local EJB3 Registrar
+         //TODO EJBTHREE-1403
+         // This is the wrong way to determine local/remote 
          Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
          // Local lookup succeeded, so use it
@@ -143,9 +144,6 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
          // Create an InvokerLocator
          InvokerLocator locator = new InvokerLocator(url);
-
-         // Make the Locator available within Thread scope
-         ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.set(locator);
 
          // Create a POJI Proxy to the Registrar
          Interceptor[] interceptors =

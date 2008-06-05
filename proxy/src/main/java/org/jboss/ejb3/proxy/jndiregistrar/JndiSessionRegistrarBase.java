@@ -192,9 +192,16 @@ public abstract class JndiSessionRegistrarBase
 
       if (hasRemoteView)
       {
+         // Obtain RemoteBinding URL
+         List<RemoteBindingMetaData> bindings = smd.getRemoteBindings();
+         assert bindings != null && bindings.size() > 0 : "Remote Bindings are required and none are present";
+         RemoteBindingMetaData remoteBinding = smd.getRemoteBindings().get(0);
+         String url = remoteBinding.getClientBindUrl();
+
          // Create and register a remote proxy factory
          String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, false);
-         SessionProxyFactory factory = this.createRemoteProxyFactory(remoteProxyFactoryKey, smd, cl);
+         SessionProxyFactory factory = this
+               .createRemoteProxyFactory(remoteProxyFactoryKey, containerName, smd, cl, url);
          this.registerProxyFactory(remoteProxyFactoryKey, factory, smd);
 
          // Initialize Reference Addresses to attach to default remote JNDI Reference
@@ -290,7 +297,7 @@ public abstract class JndiSessionRegistrarBase
       {
          // Create and register a local proxy factory
          String localProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, true);
-         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, smd, cl);
+         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, smd, cl);
          this.registerProxyFactory(localProxyFactoryKey, factory, smd);
 
          // Initialize Reference Addresses to attach to default local JNDI Reference
@@ -385,21 +392,26 @@ public abstract class JndiSessionRegistrarBase
     * Creates and returns a new local proxy factory for this Session Bean
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
     */
-   protected abstract SessionProxyFactory createLocalProxyFactory(final String name,
+   protected abstract SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
          final JBossSessionBeanMetaData smd, final ClassLoader cl);
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
     * 
     * @param name The unique name for the ProxyFactory
+    * @param containerName The name of the Container upon which Proxies 
+    *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
+    * @param url The URL to use for Remoting
     */
-   protected abstract SessionProxyFactory createRemoteProxyFactory(final String name,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl);
+   protected abstract SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url);
 
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||

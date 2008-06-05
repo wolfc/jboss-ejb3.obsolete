@@ -24,6 +24,8 @@ package org.jboss.ejb3.proxy.factory.session.stateless;
 import java.util.Set;
 
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateless.StatelessLocalProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -51,15 +53,17 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
     * Constructor
     * 
     * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     */
-   public StatelessSessionLocalProxyFactory(final String name, final JBossSessionBeanMetaData metadata,
-         final ClassLoader classloader)
+   public StatelessSessionLocalProxyFactory(final String name, final String containerName,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
    {
       // Call Super
-      super(name, metadata, classloader);
+      super(name, containerName, metadata, classloader);
    }
 
    // --------------------------------------------------------------------------------||
@@ -96,5 +100,19 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
    protected final String getEjb2xInterfaceType()
    {
       return this.getMetadata().getLocal();
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   @Override
+   protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
+   {
+      // Create
+      SessionProxyInvocationHandler handler = new StatelessLocalProxyInvocationHandler(businessInterfaceName);
+
+      // Return
+      return handler;
    }
 }

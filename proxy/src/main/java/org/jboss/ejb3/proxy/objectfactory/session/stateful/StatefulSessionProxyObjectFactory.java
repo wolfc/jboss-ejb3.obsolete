@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.objectfactory.session.stateful;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +37,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerMetadata;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.objectfactory.session.SessionProxyObjectFactory;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
@@ -79,9 +79,9 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
 
       // Obtain the InvocationHandler
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulProxyInvocationHandler : "SFSB Proxy must be of type "
-            + StatefulProxyInvocationHandler.class.getName();
-      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) handler;
+      assert handler instanceof StatefulProxyInvocationHandlerBase : "SFSB Proxy must be of type "
+            + StatefulProxyInvocationHandlerBase.class.getName();
+      StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
 
       /*
        * Obtain the Container
@@ -103,7 +103,17 @@ public class StatefulSessionProxyObjectFactory extends SessionProxyObjectFactory
       catch (NotBoundException nbe)
       {
          // Create a POJI Proxy to the Container
-         InvokerLocator locator = ProxyInvocationHandlerMetadata.INVOKER_LOCATOR.get();
+         String url = this.getSingleRequiredReferenceAddressValue(name, referenceAddresses,
+               ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
+         InvokerLocator locator = null;
+         try
+         {
+            locator = new InvokerLocator(url);
+         }
+         catch (MalformedURLException e)
+         {
+            throw new RuntimeException();
+         }
          Interceptor[] interceptors =
          {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
          PojiProxy proxyHandler = new PojiProxy(containerName, locator, interceptors);

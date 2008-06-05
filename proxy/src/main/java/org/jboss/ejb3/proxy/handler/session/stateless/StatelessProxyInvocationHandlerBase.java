@@ -19,27 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.stateful;
+package org.jboss.ejb3.proxy.handler.session.stateless;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.util.NotImplementedException;
 
 /**
- * StatefulProxyInvocationHandler
+ * StatelessProxyInvocationHandlerBase
  * 
- * Implementation of a SFSB Proxy Invocation Handler 
+ * Implementation of a SLSB Proxy Invocation Handler 
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
+public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecProxyInvocationHandlerBase
       implements
-         StatefulSessionProxy
+         SessionProxyInvocationHandler
 {
 
    // ------------------------------------------------------------------------------||
@@ -48,16 +48,7 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
 
    private static final long serialVersionUID = 1L;
 
-   private static final Logger log = Logger.getLogger(StatefulProxyInvocationHandler.class);
-
-   // ------------------------------------------------------------------------------||
-   // Instance Members -------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /**
-    * The Session ID of the SFSB Instance to which this ProxyHandler will delegate
-    */
-   private Object sessionId;
+   private static final Logger log = Logger.getLogger(StatelessProxyInvocationHandlerBase.class);
 
    // ------------------------------------------------------------------------------||
    // Constructors -----------------------------------------------------------------||
@@ -66,7 +57,7 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    /**
     * Constructor
     */
-   public StatefulProxyInvocationHandler()
+   public StatelessProxyInvocationHandlerBase()
    {
       this(null);
    }
@@ -78,7 +69,7 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatefulProxyInvocationHandler(String businessInterfaceType)
+   public StatelessProxyInvocationHandlerBase(String businessInterfaceType)
    {
       super(businessInterfaceType);
    }
@@ -88,92 +79,84 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    // ------------------------------------------------------------------------------||
 
    /**
-    * Obtains the Session ID for this SFSB instance
+    * Handles invocation of "equals(Object)" upon a SLSB Proxy
     * 
-    * @return
-    */
-   public Object getSessionId()
-   {
-      return this.sessionId;
-   }
-
-   /**
-    * Sets the Session ID for this SFSB instance
-    * 
-    * @param sessionId
-    */
-   public void setSessionId(Object sessionId)
-   {
-      this.sessionId = sessionId;
-   }
-
-   /**
-    * EJB 3.0 Core Specification 3.4.5.1
-    * 
-    * Determines Equality for SFSB Proxies
+    * EJB 3.0 Specification 3.4.5.2
     * 
     * @param proxy
-    * @param argument
+    * @param args
+    * @return
     */
-   @Override
    protected boolean invokeEquals(Object proxy, Object argument)
    {
       /*
-       * EJB 3.0 Core Specification 3.4.5.1: 
+       * EJB 3.0 Specification 3.4.5.2:
        * 
-       * A stateful session object has a unique identity that is assigned by the 
-       * container at the time the object is created. A client of the stateful 
-       * session bean business interface can determine if two business interface 
-       * references refer to the same session object by use of the equals method.
+       * All business object references of the same interface type for the same 
+       * stateless session bean have the same object identity, which is 
+       * assigned by the container.
+       *
+       * The equals method always returns true when used to compare references 
+       * to the same business interface type of the same session bean.
        * 
-       * All stateful session bean references to the same business interface for 
-       * the same stateful session bean instance will be equal. Stateful session 
-       * bean references to different interface types or to different session bean 
-       * instances will not have the same identity.
+       * Session bean references to either different business interface types
+       * or different session beans will not be equal."
        */
 
-      // If these objects are not of the same type
-      if (!argument.getClass().equals(proxy.getClass()))
+      // If these are not of the same type
+      if (!proxy.getClass().equals(argument.getClass()))
       {
-         // Not equal
-         if (log.isTraceEnabled())
-         {
-            log.trace(argument + " is not equal to " + proxy + " as they are different types");
-         }
+         // Return false
          return false;
       }
 
-      // Get Invocation Handlers
+      // If the argument is not a proxy
+      if (!Proxy.isProxyClass(argument.getClass()))
+      {
+         return false;
+      }
+
+      // Get the InvocationHandlers
       InvocationHandler proxyHandler = this.getInvocationHandler(proxy);
       InvocationHandler argumentHandler = Proxy.getInvocationHandler(argument);
 
       // If argument handler is not SLSB Handler
-      if (!(argumentHandler instanceof StatefulProxyInvocationHandler))
+      if (!(argumentHandler instanceof StatelessProxyInvocationHandlerBase))
       {
          return false;
       }
 
       // Cast
-      StatefulProxyInvocationHandler sHandler = (StatefulProxyInvocationHandler) proxyHandler;
-      StatefulProxyInvocationHandler sArgument = (StatefulProxyInvocationHandler) argumentHandler;
+      StatelessProxyInvocationHandlerBase proxySHandler = (StatelessProxyInvocationHandlerBase) proxyHandler;
+      StatelessProxyInvocationHandlerBase argumentSHandler = (StatelessProxyInvocationHandlerBase) argumentHandler;
 
       // Ensure target containers are equal
-      String proxyContainerName = sHandler.getContainerName();
-      assert proxyContainerName != null : "Container Name for " + sHandler + " was not set and is required";
-      if (!proxyContainerName.equals(sArgument.getContainerName()))
+      String proxyContainerName = proxySHandler.getContainerName();
+      assert proxyContainerName != null : "Container Name for " + proxySHandler + " was not set and is required";
+      if (!proxyContainerName.equals(argumentSHandler.getContainerName()))
       {
          return false;
       }
 
-      // Equal if Session IDs are equal
-      Object sessionId = sHandler.getSessionId();
-      assert sessionId != null : "Required Session ID is not present in " + proxy;
-      boolean equal = sessionId.equals(sArgument.getSessionId());
+      // Obtain target business interfaces
+      String proxyBusinessInterface = proxySHandler.getBusinessInterfaceType();
+      String argumentBusinessInterface = argumentSHandler.getBusinessInterfaceType();
 
-      // Return
-      log.debug("SFSB Equality Check for " + sHandler.getSessionId() + " and " + sArgument.getSessionId() + " = "
-            + equal);
-      return equal;
+      // If no business interface is specified for the proxy, but is for the argument
+      if (proxyBusinessInterface == null && argumentBusinessInterface != null)
+      {
+         return false;
+      }
+
+      // If the business interface of the proxy does not match that of the argument
+      if (proxyBusinessInterface != null && !proxyBusinessInterface.equals(argumentBusinessInterface))
+      {
+         return false;
+      }
+
+      // All conditions passed, so true
+      return true;
+
    }
 
    /**
@@ -185,11 +168,11 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    protected int invokeHashCode(Object proxy)
    {
       // Get the InvocationHandler
-      StatefulProxyInvocationHandler handler = this.getInvocationHandler(proxy);
+      StatelessProxyInvocationHandlerBase handler = this.getInvocationHandler(proxy);
 
       // Generate unique String by value according to rules in "invokeEquals"; 
-      // Destination Container, Session ID, and Business Interface
-      String unique = handler.getContainerName() + handler.getBusinessInterfaceType() + handler.getSessionId();
+      // Destination Container and Business Interface
+      String unique = handler.getContainerName() + handler.getBusinessInterfaceType();
 
       // Hash the String
       return unique.hashCode();
@@ -199,12 +182,12 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    // Internal Helper Methods ------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   protected StatefulProxyInvocationHandler getInvocationHandler(Object proxy)
+   protected StatelessProxyInvocationHandlerBase getInvocationHandler(Object proxy)
    {
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulProxyInvocationHandler : "Expected " + InvocationHandler.class.getSimpleName()
-            + " of type " + StatefulProxyInvocationHandler.class.getName() + ", but instead was " + handler;
-      return (StatefulProxyInvocationHandler) handler;
+      assert handler instanceof StatelessProxyInvocationHandlerBase : "Expected " + InvocationHandler.class.getSimpleName()
+            + " of type " + StatelessProxyInvocationHandlerBase.class.getName() + ", but instead was " + handler;
+      return (StatelessProxyInvocationHandlerBase) handler;
    }
 
    // ------------------------------------------------------------------------------||
@@ -218,4 +201,5 @@ public class StatefulProxyInvocationHandler extends SessionSpecProxyInvocationHa
    {
       throw new NotImplementedException("ALR");
    }
+
 }
