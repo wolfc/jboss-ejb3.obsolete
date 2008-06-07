@@ -12,6 +12,7 @@ import org.jboss.ejb3.test.proxy.lang.unit.SerializableMethodTestCase;
  * {@link SerializableMethod}
  *
  * @author Jaikiran Pai
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  * @see {@link SerializableMethodTestCase}
  */
@@ -53,6 +54,21 @@ public class MyClass
       //do nothing
    }
 
+   /**
+    * 
+    * @param b
+    * @param s
+    * @param i
+    * @param l
+    * @param c
+    * @param f
+    * @param d
+    * @param b
+    */
+   public void methodWithPrimitiveParamsAndReturningVoid(byte b, short s, int i, long l, char c, float f, double d, boolean bo){
+      // Do Nothing
+   }
+   
    /**
     * 
     * @param obj

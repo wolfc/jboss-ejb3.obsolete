@@ -185,16 +185,7 @@ public class SerializableMethod implements Serializable
       List<Object> argTypesList = new ArrayList<Object>();
       for (String argTypeName : this.getArgumentTypes())
       {
-         Class<?> argType = null;
-         try
-         {
-            argType = cl.loadClass(argTypeName);
-         }
-         catch (ClassNotFoundException cnfe)
-         {
-            throw new RuntimeException("Could not load class defined as the invoking class, " + argTypeName + ", by "
-                  + cl, cnfe);
-         }
+         Class<?> argType = this.getClassFromName(argTypeName, cl);
          argTypesList.add(argType);
       }
       Class<?>[] argTypes = argTypesList.toArray(new Class<?>[]
@@ -236,24 +227,79 @@ public class SerializableMethod implements Serializable
     */
    public Class<?> getClassType(ClassLoader cl)
    {
+      // Obtain
+      Class<?> clazz = this.getClassFromName(this.getClassName(), cl);
+
+      // Return 
+      return clazz;
+   }
+
+   /**
+    * Returns the class associated with the given name
+    * 
+    * @param name
+    * @param cl
+    * @return
+    */
+   protected Class<?> getClassFromName(String name, ClassLoader cl)
+   {
       // Perform assertions
       assert cl != null : ClassLoader.class.getSimpleName() + "must be defined.";
 
+      /*
+       * Handle Primitives
+       */
+      if (name.equals(void.class.getName()))
+      {
+         return void.class;
+      }
+      if (name.equals(byte.class.getName()))
+      {
+         return byte.class;
+      }
+      if (name.equals(short.class.getName()))
+      {
+         return short.class;
+      }
+      if (name.equals(int.class.getName()))
+      {
+         return int.class;
+      }
+      if (name.equals(long.class.getName()))
+      {
+         return long.class;
+      }
+      if (name.equals(char.class.getName()))
+      {
+         return char.class;
+      }
+      if (name.equals(boolean.class.getName()))
+      {
+         return boolean.class;
+      }
+      if (name.equals(float.class.getName()))
+      {
+         return float.class;
+      }
+      if (name.equals(double.class.getName()))
+      {
+         return double.class;
+      }
+
       // Load the Class described by the Method
-      String invokingClassName = this.getClassName();
-      Class<?> invokingClass = null;
+      Class<?> clazz = null;
+
       try
       {
-         invokingClass = cl.loadClass(invokingClassName);
+         clazz = cl.loadClass(name);
       }
       catch (ClassNotFoundException cnfe)
       {
-         throw new RuntimeException("Specified calling class, " + invokingClassName + " could not be found for " + cl,
-               cnfe);
+         throw new RuntimeException("Specified calling class, " + name + " could not be found for " + cl, cnfe);
       }
 
       // Return
-      return invokingClass;
+      return clazz;
    }
 
    // ------------------------------------------------------------------------------||

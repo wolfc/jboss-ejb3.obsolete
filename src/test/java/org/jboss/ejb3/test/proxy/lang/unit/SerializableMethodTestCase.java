@@ -51,7 +51,7 @@ public class SerializableMethodTestCase
       // Intention of this test is to ensure that the methods accepting no parameter are handled correctly.
 
       Method methodWithNoParamAndReturningVoid = myClass.getClass()
-            .getMethod("methodWithNoParamAndReturningVoid", null);
+            .getMethod("methodWithNoParamAndReturningVoid", (Class<?>[])null);
       SerializableMethod serializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid);
       SerializableMethod anotherSerializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid);
 
@@ -190,8 +190,8 @@ public class SerializableMethodTestCase
       // Test that the SerializableMethod instances created
       // for a method with same name, param and return type, but belonging to different classes are NOT equal
 
-      Method toStringMethodOfMyClass = myClass.getClass().getDeclaredMethod("toString", null);
-      Method toStringMethodOfObject = Object.class.getDeclaredMethod("toString", null);
+      Method toStringMethodOfMyClass = myClass.getClass().getDeclaredMethod("toString", (Class<?>[]) null);
+      Method toStringMethodOfObject = Object.class.getDeclaredMethod("toString", (Class<?>[]) null);
 
       SerializableMethod serializableMethod_toStringForMyClass = new SerializableMethod(toStringMethodOfMyClass);
       SerializableMethod serializableMethod_toStringForThisTestCase = new SerializableMethod(toStringMethodOfObject);
@@ -268,8 +268,8 @@ public class SerializableMethodTestCase
       // Note that this testcase should NOT override the toString method, to ensure that the getMethod() returns
       // the 'Method' of Object.class
 
-      Method toStringMethodOfThisClass = this.getClass().getMethod("toString", null);
-      Method toStringMethodOfObject = Object.class.getMethod("toString", null);
+      Method toStringMethodOfThisClass = this.getClass().getMethod("toString", (Class<?>[]) null);
+      Method toStringMethodOfObject = Object.class.getMethod("toString", (Class<?>[]) null);
 
       SerializableMethod serializableMethod_toStringOfThisClass = new SerializableMethod(toStringMethodOfThisClass);
       SerializableMethod serializableMethod_toStringOfObjectClass = new SerializableMethod(toStringMethodOfObject);
@@ -414,8 +414,10 @@ public class SerializableMethodTestCase
 
       logger.info("Testing the toMethod(), for methods accepting primitives");
 
-      Method method = myClass.getClass().getMethod("methodWithParamAndReturningVoid", new Class[]
-      {int.class});
+      Method method = myClass.getClass().getMethod(
+            "methodWithPrimitiveParamsAndReturningVoid",
+            new Class[]
+            {byte.class, short.class, int.class, long.class, char.class, float.class, double.class, boolean.class});
       SerializableMethod serializableMethod = new SerializableMethod(method);
       // invoke the toMethod()
       Method copyOfMethod = serializableMethod.toMethod();
