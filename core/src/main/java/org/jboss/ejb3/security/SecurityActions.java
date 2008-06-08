@@ -37,7 +37,7 @@ import org.jboss.security.SecurityAssociation;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextFactory;
 import org.jboss.security.SubjectInfo;
-import org.jboss.security.plugins.SecurityContextAssociation;
+import org.jboss.security.SecurityContextAssociation;
 
 
 /**
