@@ -29,7 +29,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.logging.Logger;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
-import org.jboss.security.plugins.SecurityContextAssociation;
 
 /**
  * An interceptor that enforces the run-as identity declared by a bean.
@@ -56,35 +55,6 @@ public class RunAsSecurityInterceptorv2 implements Interceptor
       return runAsIdentity;
    }
 
-   /*public Object invoke(Invocation invocation) throws Throwable
-   { 
-      Subject previousSubject = null;
-      try
-      {
-         RunAsIdentity runAsIdentity = getRunAsIdentity(invocation);
-         SecurityActions.pushRunAs(runAsIdentity);
-         
-         runAsIdentity = SecurityActions.peekRunAsIdentity(1);
-         if (runAsIdentity != null)
-         {
-            previousSubject = SecurityActions.getActiveSubject();
-            Set newPrincipals = runAsIdentity.getPrincipalsSet();
-            Subject newSubject = new Subject(false, newPrincipals, new HashSet(), new HashSet());
-            SecurityAssociation.setSubject(newSubject);
-         }
-         
-         return invocation.invokeNext(); 
-      }
-      finally
-      {
-         if (previousSubject != null)
-            SecurityAssociation.setSubject(previousSubject);
-         
-         SecurityActions.popRunAs();
-      }
-   }
-*/
-   
    public Object invoke(Invocation invocation) throws Throwable
    { 
       //Check for ejbTimeOut
@@ -104,7 +74,7 @@ public class RunAsSecurityInterceptorv2 implements Interceptor
          if(domain != null)
          {
             sc = SecurityActions.createSecurityContext(domain.value());
-            SecurityContextAssociation.setSecurityContext(sc);
+            SecurityActions.setSecurityContext(sc);
          }  
       }
       
