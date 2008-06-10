@@ -221,6 +221,7 @@ public class PersistenceUnitDeployment extends AbstractJavaEEComponent
       pi.setExcludeUnlistedClasses(metaData.isExcludeUnlistedClasses());
       VirtualFile root = di.getRootFile();
       log.debug("Persistence root: " + root);
+      // TODO - update this with VFSUtils helper method
       // hack the JPA url
       URL url = root.toURL();
       // is not nested, so direct VFS URL is not an option
@@ -228,7 +229,13 @@ public class PersistenceUnitDeployment extends AbstractJavaEEComponent
       {
          String urlString = url.toExternalForm();
          if (urlString.startsWith("vfs"))
-            url = new URL(urlString.substring(3));
+         {
+            // treat vfszip as file
+            if (urlString.startsWith("vfszip"))
+               url = new URL("file" + urlString.substring(6));
+            else
+               url = new URL(urlString.substring(3)); // (vfs)file and (vfs)jar are ok
+         }
       }
       pi.setPersistenceUnitRootUrl(url);
       PersistenceUnitTransactionType transactionType = getJPATransactionType();
