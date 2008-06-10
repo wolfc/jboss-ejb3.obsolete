@@ -68,17 +68,19 @@ public class EntityTestBean implements EntityTest
    {
    }
    
-   public void getCache(boolean optimistic)
+   public void getCache(String cacheConfigName)
    {
-      if (optimistic)
-         cacheConfigName = "optimistic-shared";
-      else
-         cacheConfigName = "pessimistic-shared";
+      this.cacheConfigName = cacheConfigName;
 
       try
       {
-         //Just to initialise the cache with a listener
-         Cache<Object, Object> cache = getCache();
+         if (cache == null && cacheConfigName != null)
+         {
+            CacheManager cm = CacheManagerLocator.getCacheManagerLocator().getCacheManager(null);
+            cache = cm.getCache(cacheConfigName, true);
+            cache.start();
+         }
+         
          if (listener == null)
          {
             listener = new MyListener();
@@ -160,20 +162,21 @@ public class EntityTestBean implements EntityTest
       }
    }
    
-   public void loadedFromCache()
+   public String loadedFromCache()
    {
       System.out.println("CHECK CACHE");         
       try
       {
          System.out.println("Visited: " + listener.visited);
          if (!listener.visited.contains("Customer#1"))
-            throw new RuntimeException("Customer#1 was not in cache");
+            return "Customer#1 was not in cache";
          if (!listener.visited.contains("Contact#1"))
-            throw new RuntimeException("Contact#1 was not in cache");
+            return "Contact#1 was not in cache";
          if (!listener.visited.contains("Contact#2"))
-            throw new RuntimeException("Contact2#1 was not in cache");
+            return "Contact2#1 was not in cache";
          if (!listener.visited.contains("Customer.contacts#1"))
-            throw new RuntimeException("Customer.contacts#1 was not in cache");
+            return "Customer.contacts#1 was not in cache";
+         return null;
       }
       finally
       {
@@ -188,11 +191,9 @@ public class EntityTestBean implements EntityTest
    {
       try
       {         
-         if (listener != null)
+         if (cache != null && listener != null)
          {
-            Cache c = getCache();
-            if (c != null)
-               c.removeCacheListener(listener);
+            cache.removeCacheListener(listener);
          }
       }
       catch (Exception e)
@@ -229,17 +230,6 @@ public class EntityTestBean implements EntityTest
       {
          log.error("Caught exception releasing cache", e);
       }
-   }
-
-   private Cache<Object, Object> getCache() throws Exception
-   {
-      if (cache == null && cacheConfigName != null)
-      {
-         CacheManager cm = CacheManagerLocator.getCacheManagerLocator().getCacheManager(null);
-         cache = cm.getCache(cacheConfigName, true);
-         cache.start();
-      }
-      return cache;
    }
 
    @CacheListener

@@ -116,7 +116,7 @@ extends JBossClusteredTestCase
       InitialContext ctx1 = new InitialContext(prop1);
       tester1 = (EntityTest)ctx1.lookup("EntityTestBean/remote");
       
-      tester0.getCache(isOptimistic());
+      tester0.getCache(getCacheConfigName());
       
       Customer customer = tester0.createCustomer();
       
@@ -143,30 +143,21 @@ extends JBossClusteredTestCase
       // so pause a bit before checking node 1
       sleep(SLEEP_TIME);
       
-      //Now connect to cache on node2 and make sure it is all there
+      //Now connect to cache on node2 and make sure it is all there      
       
-      
-      tester1.getCache(isOptimistic());
+      tester1.getCache(getCacheConfigName());
       
       System.out.println("Find node 1");
       customer = tester1.findByCustomerId(customer.getId());
 
       //Check everything was in cache
       System.out.println("Check cache 1");
-      try
-      {
-         tester1.loadedFromCache();
-      }
-      catch (Exception e)
-      {
-         log.info("Call to tester1 failed", e);
-         fail(e.getMessage());
-      }
+      assertEquals(null, tester1.loadedFromCache());
    }
 
-   protected boolean isOptimistic()
+   protected String getCacheConfigName()
    {
-      return false;
+      return "pessimistic-shared";
    }
    
    public static Test suite() throws Exception

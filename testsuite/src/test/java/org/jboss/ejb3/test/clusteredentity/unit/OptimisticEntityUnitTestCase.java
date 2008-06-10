@@ -46,9 +46,9 @@ public class OptimisticEntityUnitTestCase extends EntityUnitTestCase
    }
 
    @Override
-   protected boolean isOptimistic()
+   protected String getCacheConfigName()
    {
-      return true;
+      return "optimistic-shared";
    }
 
 }

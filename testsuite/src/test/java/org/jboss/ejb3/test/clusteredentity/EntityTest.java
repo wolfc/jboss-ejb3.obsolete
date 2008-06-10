@@ -31,13 +31,13 @@ package org.jboss.ejb3.test.clusteredentity;
  */
 public interface EntityTest
 {
-   void getCache(boolean optimistic);
+   void getCache(String cacheConfigName);
    
    Customer createCustomer();
 
    Customer findByCustomerId(Integer id);
    
-   void loadedFromCache();
+   String loadedFromCache();
    
    void cleanup();
 }
