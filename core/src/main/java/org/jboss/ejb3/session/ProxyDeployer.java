@@ -23,6 +23,7 @@ package org.jboss.ejb3.session;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,35 @@ public class ProxyDeployer
       this.container = container;
    }
 
+   private static <T> Constructor<T> getConstructor(Class<T> cls, Class<?> ... parameterTypes) throws SecurityException, NoSuchMethodException
+   {
+      try
+      {
+         return cls.getConstructor(parameterTypes);
+      }
+      catch(NoSuchMethodException e)
+      {
+         log.warn("Class " + cls + " does not have a proper constructor with parameters " + Arrays.toString(parameterTypes) + ", will try to find one");
+         
+         Constructor<T> constructors[] = cls.getConstructors();
+         for(Constructor<T> constructor : constructors)
+         {
+            if(parameterTypes.length != constructor.getParameterTypes().length)
+               continue;
+            
+            int i = 0;
+            for(; i < parameterTypes.length; i++)
+            {
+               if(!constructor.getParameterTypes()[i].isAssignableFrom(parameterTypes[i]))
+                  break;
+            }
+            if(i == parameterTypes.length)
+               return constructor;
+         }
+         throw e;
+      }
+   }
+   
    public Map<Object, ProxyFactory> getProxyFactories()
    {
       return proxyFactories;
@@ -89,7 +119,7 @@ public class ProxyDeployer
             else
             {
                Class<? extends RemoteProxyFactory> remoteFactoryClass = container.getDeployment().getRemoteProxyFactoryRegistry().getProxyFactoryClass(binding.factory());
-               Constructor<? extends RemoteProxyFactory> constructor = remoteFactoryClass.getConstructor(SessionContainer.class, RemoteBinding.class);
+               Constructor<? extends RemoteProxyFactory> constructor = getConstructor(remoteFactoryClass, container.getClass(), RemoteBinding.class);
                factory = constructor.newInstance(container, binding);
             }
             factory.start();
