@@ -37,25 +37,23 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
 @Stateful
-@Remote(
-      {RemoteBusinessInterface.class, RemoteInterface.class})
-@RemoteBinding(jndiBinding="ExplicitStatefulRemote")
-@RemoteHomeBinding(jndiBinding="ExplicitStatefulHome")
+@Remote(RemoteBusinessInterface.class)
+@RemoteBinding(jndiBinding = "ExplicitStatefulRemote")
+@RemoteHomeBinding(jndiBinding = "ExplicitStatefulHome")
 @RemoteHome(Home.class)
-@Local(
-{LocalBusinessInterface.class, LocalInterface.class})
-@LocalBinding(jndiBinding="ExplicitStatefulLocal")
-@LocalHomeBinding(jndiBinding="ExplicitStatefulLocalHome")
+@Local(LocalBusinessInterface.class)
+@LocalBinding(jndiBinding = "ExplicitStatefulLocal")
+@LocalHomeBinding(jndiBinding = "ExplicitStatefulLocalHome")
 @LocalHome(org.jboss.ejb3.test.homeinterface.LocalHome.class)
 public class ExplicitStatefulBean implements RemoteBusinessInterface, LocalBusinessInterface
 {
    private static final Logger log = Logger.getLogger(ExplicitStatefulBean.class);
-    
-   public void test() 
+
+   public void test()
    {
    }
-   
-   public void testLocal() 
+
+   public void testLocal()
    {
    }
 }

@@ -33,19 +33,19 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
 @Stateless
-@Remote({RemoteBusinessInterface.class,RemoteInterface.class})
+@Remote(RemoteBusinessInterface.class)
 @RemoteHome(Home.class)
-@Local({LocalBusinessInterface.class,LocalInterface.class})
+@Local(LocalBusinessInterface.class)
 @LocalHome(org.jboss.ejb3.test.homeinterface.LocalHome.class)
 public class DescriptorStatelessBean implements RemoteBusinessInterface, LocalBusinessInterface
 {
    private static final Logger log = Logger.getLogger(DescriptorStatelessBean.class);
-    
-   public void test() 
+
+   public void test()
    {
    }
-   
-   public void testLocal() 
+
+   public void testLocal()
    {
    }
 }
