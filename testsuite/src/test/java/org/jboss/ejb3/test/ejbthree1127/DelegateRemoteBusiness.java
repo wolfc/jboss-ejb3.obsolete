@@ -30,10 +30,8 @@ package org.jboss.ejb3.test.ejbthree1127;
 public interface DelegateRemoteBusiness
 {
    String JNDI_NAME = "DelegateBean/remote";
-   
-   int testNoLocalHomeDefined();
-   
+
    int testNoLocalExplicitlyDefined();
-   
+
    int testLocalBusinessOnlyDefined();
 }

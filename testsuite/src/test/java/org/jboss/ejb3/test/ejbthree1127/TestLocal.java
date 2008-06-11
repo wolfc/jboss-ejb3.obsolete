@@ -30,9 +30,7 @@ import javax.ejb.EJBLocalObject;
  * @version $Revision: $
  */
 public interface TestLocal extends EJBLocalObject
-{
-   String JNDI_NAME_NO_LOCAL_HOME = "NoLocalHomeBean/local";
-   
+{   
    int RETURN_VALUE = 1;
    
    int test();

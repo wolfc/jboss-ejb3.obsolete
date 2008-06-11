@@ -82,24 +82,4 @@ public class DelegateBean implements DelegateRemoteBusiness
          throw new RuntimeException(e);
       }
    }
-
-   public int testNoLocalHomeDefined()
-   {
-      logger.info("testNoLocalHomeDefined");
-      
-      // Obtain reference to local
-      TestLocal local = null;
-      try
-      {
-         local = (TestLocal)new InitialContext().lookup(TestLocal.JNDI_NAME_NO_LOCAL_HOME);
-      }
-      catch (NamingException ne)
-      {
-         throw new RuntimeException(ne);
-      }
-      
-      
-      return local.test();
-   }
-
 }

@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.test.ejbthree1127.unit;
 
-import javax.naming.NameNotFoundException;
-
 import junit.framework.Test;
 
 import org.jboss.ejb3.test.ejbthree1127.DelegateRemoteBusiness;
@@ -86,27 +84,6 @@ public class InterfaceDefinitionsUnitTestCase extends JBossTestCase
    }
 
    /**
-    * Ensure that the Test EJB with 2.1 View defined only by a Remote interface 
-    * (no Remote Home) fails to deploy
-    */
-   public void test21ViewRemoteHomeInterfaceNotDefined() throws Exception
-   {
-      // Lookup EJB Home
-      try
-      {
-         this.getInitialContext().lookup(TestRemote.JNDI_NAME_NO_REMOTE_HOME_DEFINED);
-      }
-      catch (NameNotFoundException nnfe)
-      {
-         // Expected
-         return;
-      }
-
-      // If we've reached this point, the EJB that shouldn't have deployed, did
-      JBossTestCase.fail("Test EJB with 2.1 View defining no Remote Home should not successfully deploy.");
-   }
-
-   /**
     * Ensure that the Test EJB with 3.0 View defined only by @Local to 
     * Local Business interface properly deploys
     */
@@ -132,30 +109,4 @@ public class InterfaceDefinitionsUnitTestCase extends JBossTestCase
       // Invoke 
       assertEquals(ejb.testNoLocalExplicitlyDefined(), TestLocal.RETURN_VALUE);
    }
-
-   /**
-    * Ensure that the Test EJB with 2.1 View defined only by a Local interface 
-    * (no Local Home) fails to deploy
-    */
-   public void test21ViewLocalHomeInterfaceNotDefined() throws Exception
-   {
-      // Lookup Delegate EJB 
-      DelegateRemoteBusiness ejb = (DelegateRemoteBusiness) this.getInitialContext().lookup(
-            DelegateRemoteBusiness.JNDI_NAME);
-
-      // Invoke 
-      try
-      {
-         ejb.testNoLocalHomeDefined();
-      }
-      catch (Exception e)
-      {
-         // Expected
-         return;
-      }
-
-      // If we've reached here, the bean deployed and it shouldn't have
-      JBossTestCase.fail("EJB with 2.1 Local View and no LocalHome defined should not have deployed.");
-   }
-
 }
