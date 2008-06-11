@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.7</version>
+    <version>0.13.8-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -457,6 +457,10 @@
       <artifactId>jboss-as-server</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
       <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-remoting</artifactId>
+        </exclusion>        
         <exclusion>
           <groupId>org.jboss</groupId>
           <artifactId>jboss-metadata</artifactId>

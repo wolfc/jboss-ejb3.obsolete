@@ -114,4 +114,85 @@
   <!-- JNDI Registrar Configuration -->
   <bean name="org.jboss.ejb3.JndiContext"
     class="javax.naming.InitialContext" />
+    
+   <!-- Remoting Proxy Factory Registry -->
+   <bean name="EJB3RemoteProxyFactoryRegistry" class="org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- RemoteProxyFactory -->
+            <entry>
+               <key>RemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.RemoteProxyFactory</value>
+            </entry>
+            <!-- IORFactory -->
+            <!-- Only available in AS 
+            <entry>
+               <key>IORFactory</key>
+               <value>org.jboss.ejb3.iiop.IORFactory</value>
+            </entry>
+            -->
+            <!-- ServiceRemoteProxyFactory -->
+            <entry>
+               <key>ServiceRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory</value>
+            </entry>
+            <!-- StatefulClusterProxyFactory -->
+            <entry>
+               <key>StatefulClusterProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory</value>
+            </entry>
+            <!-- StatefulRemoteProxyFactory -->
+            <entry>
+               <key>StatefulRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory</value>
+            </entry>
+            <!-- StatelessClusterProxyFactory -->
+            <entry>
+               <key>StatelessClusterProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory</value>
+            </entry>
+            <!-- StatelessRemoteProxyFactory -->
+            <entry>
+               <key>StatelessRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory</value>
+            </entry>            
+         </map>
+      </property>
+   </bean>
+   
+   <!-- EJB3 Persistence Manager Factory Registry -->
+   <bean name="EJB3PersistenceManagerFactoryRegistry" class="org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- StatefulSessionFilePersistenceManager -->
+            <entry>
+               <key>StatefulSessionFilePersistenceManager</key>
+               <!-- A dummy persistence manager which doesn't rely on the jboss mbean -->
+               <value>org.jboss.ejb3.test.cachepassivation.MyStatefulSessionFilePersistenceManagerFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <!-- REMOTING -->
+      
+   <bean name="ServerConfiguration" class="org.jboss.remoting.ServerConfiguration">
+      <property name="invocationHandlers">
+         <map keyClass="java.lang.String" valueClass="java.lang.String">
+            <entry>
+               <key>AOP</key>
+               <value>org.jboss.aspects.remoting.AOPRemotingInvocationHandler</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <bean name="Connector" class="org.jboss.remoting.transport.Connector">
+      <property name="invokerLocator">socket://0.0.0.0:3873</property>
+      <property name="serverConfiguration"><inject bean="ServerConfiguration"/></property>
+   </bean>
 </deployment>
