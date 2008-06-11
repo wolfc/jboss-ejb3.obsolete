@@ -39,40 +39,42 @@ import javax.naming.InitialContext;
  *  @since  Aug 16, 2007 
  *  @version $Revision$
  */
-@Stateless(name="SimpleStatelessBean")
-@Remote
+@Stateless(name = "SimpleStatelessBean")
+@Remote(SimpleSessionInterfaceRemote.class)
 @RunAs("InternalRole")
-public class SimpleSessionBean implements SimpleSessionInterface
-{ 
-   @Resource SessionContext sessionContext;
-   
-   @RolesAllowed({"Echo"})
+public class SimpleSessionBean implements SimpleSessionInterfaceRemote
+{
+   @Resource
+   SessionContext sessionContext;
+
+   @RolesAllowed(
+   {"Echo"})
    public String echo(String arg)
    {
       SimpleSessionInterface ssi = null;
       try
-      { 
+      {
          InitialContext context = new InitialContext();
          String jndiName = "FirstBean/local";
-         ssi = (SimpleSessionInterface)context.lookup(jndiName); 
-      } 
-      catch(Exception e)
+         ssi = (SimpleSessionInterface) context.lookup(jndiName);
+      }
+      catch (Exception e)
       {
          throw new RuntimeException(e);
       }
       String str = ssi.echo(arg);
-      if(str.equals(arg) == false)
-         throw new IllegalStateException("First Bean returned:"+str);
-      return arg; 
-   } 
-   
+      if (str.equals(arg) == false)
+         throw new IllegalStateException("First Bean returned:" + str);
+      return arg;
+   }
+
    public Principal echoCallerPrincipal()
    {
-      return sessionContext.getCallerPrincipal(); 
+      return sessionContext.getCallerPrincipal();
    }
-   
+
    public boolean isCallerInRole(String roleName)
    {
       return sessionContext.isCallerInRole(roleName);
-   } 
+   }
 }

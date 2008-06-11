@@ -27,7 +27,6 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 import javax.naming.InitialContext;
 
-
 //$Id$
 
 /**
@@ -38,30 +37,31 @@ import javax.naming.InitialContext;
  */
 
 @Stateless
-@Local(SimpleSessionInterface.class)
+@Local(SimpleSessionInterfaceLocal.class)
 @RunAs("InternalRole")
 public class FirstBean extends SimpleSessionBean
-{   
+{
    private InitialContext context = null;
-   
-   @RolesAllowed({"InternalRole"}) 
+
+   @RolesAllowed(
+   {"InternalRole"})
    public String echo(String arg)
-   {   
+   {
       SimpleSessionInterface ssi = null;
       try
-      { 
+      {
          context = new InitialContext();
          String jndiName = "SecondBean/local";
-         ssi = (SimpleSessionInterface)context.lookup(jndiName);
-      } 
-      catch(Exception e)
+         ssi = (SimpleSessionInterface) context.lookup(jndiName);
+      }
+      catch (Exception e)
       {
          throw new RuntimeException(e);
       }
       String str = ssi.echo(arg);
-      System.out.println("RESPONSE FROM SECOND BEAN="+str);
-      if(str.equals(arg) == false)
-         throw new IllegalStateException("Second Bean returned:"+str); 
+      System.out.println("RESPONSE FROM SECOND BEAN=" + str);
+      if (str.equals(arg) == false)
+         throw new IllegalStateException("Second Bean returned:" + str);
       return arg;
-   } 
+   }
 }

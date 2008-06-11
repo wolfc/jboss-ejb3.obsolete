@@ -28,7 +28,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
-import javax.ejb.Stateful; 
+import javax.ejb.Stateful;
 import javax.naming.InitialContext;
 
 //$Id$
@@ -40,7 +40,7 @@ import javax.naming.InitialContext;
  *  @version $Revision$
  */
 @Stateful(name="SimpleStatefulBean")
-@Remote
+@Remote(SimpleSessionInterfaceRemote.class)
 @RunAs("InternalRole")
 public class SimpleStatefulBean implements SimpleSessionInterface
 { 

@@ -24,7 +24,6 @@ package org.jboss.ejb3.test.security5;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
-import javax.naming.InitialContext;
 
 //$Id$
 
@@ -35,14 +34,16 @@ import javax.naming.InitialContext;
  *  @since  Aug 20, 2007 
  *  @version $Revision$
  */
-@Local(SimpleSessionInterface.class)
-@RolesAllowed({"InternalRole"})
+@Local(SimpleSessionInterfaceLocal.class)
+@RolesAllowed(
+{"InternalRole"})
 @Stateless
 public class SecondBean extends SimpleSessionBean
-{ 
-   @RolesAllowed({"InternalRole"})
+{
+   @RolesAllowed(
+   {"InternalRole"})
    public String echo(String arg)
    {
-      return arg; 
+      return arg;
    }
 }
