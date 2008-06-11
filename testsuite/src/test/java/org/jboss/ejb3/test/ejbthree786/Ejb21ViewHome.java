@@ -32,5 +32,7 @@ import javax.ejb.EJBHome;
  */
 public interface Ejb21ViewHome extends EJBHome
 {
+   public static final String JNDI_NAME_REMOTE_HOME = "Ejb21ViewBean/home";
+   
    Ejb21View create() throws CreateException, RemoteException;
 }

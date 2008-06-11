@@ -87,8 +87,8 @@ public class RemoveMethodUnitTestCase extends JBossTestCase
    public void testExplicitExtensionEjbObjectInProxy() throws Exception
    {
       // Obtain stub
-      //Ejb21View session = (Ejb21View) getInitialContext().lookup(Ejb21ViewBean.JNDI_NAME_REMOTE);
-      Object obj = getInitialContext().lookup("Ejb21ViewBean/home");
+      //Ejb21View session = (Ejb21View) getInitialContext().lookup(Ejb21ViewBean.JNDI_NAME_REMOTE_HOME);
+      Object obj = getInitialContext().lookup(Ejb21ViewHome.JNDI_NAME_REMOTE_HOME);
       Ejb21ViewHome home = (Ejb21ViewHome) PortableRemoteObject.narrow(obj, Ejb21ViewHome.class);
       Ejb21View session = home.create();
 
