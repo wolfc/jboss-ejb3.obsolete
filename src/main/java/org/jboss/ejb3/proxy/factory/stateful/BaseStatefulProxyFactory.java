@@ -93,7 +93,7 @@ public abstract class BaseStatefulProxyFactory extends BaseSessionProxyFactory i
       Reference ref = new Reference(Object.class.getName(), refAddr, JndiSessionProxyObjectFactory.class.getName(), null);
       try
       {
-         log.debug("Binding reference for " + getContainer().getEjbName() + " in JNDI at " + atom);
+         log.debug("Binding reference for " + getContainer().getEjbName() + " in JNDI at " + jndiName);
          Util.rebind(ctx, atom, ref);
       }
       catch (NamingException e)
