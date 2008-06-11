@@ -140,6 +140,7 @@
             <bannedDependencies>
               <excludes>
                 <!-- deprecated, should be org.jboss.remoting:jboss-remoting -->
+                <exclude>jboss:jboss-remoting</exclude>
                 <exclude>jboss.remoting:jboss-remoting</exclude>
                 <!-- deprecated, should be javassist:javassist -->
                 <exclude>org.jboss:javassist</exclude>
