@@ -1,2 +1,0 @@
-jboss-aop-jdk50.jar
-jboss-container.jar
