@@ -35,10 +35,10 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
  * @version $Revision: $
  */
 @Stateful
-@Remote({TestRemote.class,TestRemoteBusiness.class})
+@Remote(TestRemoteBusiness.class)
 @RemoteHome(TestRemoteHome.class)
-@RemoteBinding(jndiBinding=TestRemoteBusiness.JNDI_NAME)
-@RemoteHomeBinding(jndiBinding=TestRemoteHome.JNDI_NAME)
+@RemoteBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
+@RemoteHomeBinding(jndiBinding = TestRemoteHome.JNDI_NAME)
 public class TestBean implements TestRemoteBusiness
 {
    public String test()

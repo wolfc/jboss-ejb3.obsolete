@@ -25,9 +25,7 @@ import java.rmi.RemoteException;
 
 import javax.annotation.PreDestroy;
 import javax.ejb.EJBException;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
-import javax.ejb.Remove;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
@@ -41,10 +39,11 @@ import org.jboss.logging.Logger;
  * @version $Revision: $
  */
 @Stateful
-@Remote(MyStateful21.class)
 @RemoteHome(MyStateful21Home.class)
 public class MyStateful21Bean implements SessionBean
 {
+   private static final long serialVersionUID = 1L;
+
    private static final Logger log = Logger.getLogger(MyStateful21Bean.class);
    
    private String name;

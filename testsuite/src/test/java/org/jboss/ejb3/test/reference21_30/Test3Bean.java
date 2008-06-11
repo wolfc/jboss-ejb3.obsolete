@@ -38,7 +38,7 @@ import org.jboss.logging.Logger;
  * @version <tt>$Revision$</tt>
  */
 @Stateless(name="Test3")
-@Remote({Test3.class, Test3Business.class})
+@Remote(Test3Business.class)
 @RemoteBindings({@RemoteBinding(jndiBinding="Test3Remote"),@RemoteBinding(jndiBinding="Test3/remote")})
 @RemoteHome(Test3Home.class)
 @EJBs({@EJB(name="injected/Test2",  mappedName="Test2")})

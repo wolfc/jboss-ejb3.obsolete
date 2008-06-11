@@ -31,8 +31,6 @@ import javax.ejb.EJBObject;
  */
 public interface MyStateful extends EJBObject
 {
-   String JNDI_NAME = "MyStatefulBean/remote";
-
    String sayHi() throws RemoteException;
 
    void setName(String name) throws RemoteException;

@@ -41,8 +41,8 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
 @Stateless(name="Session30")
-@Remote({Session30.class, Session30RemoteBusiness.class})
-@Local({LocalSession30.class, LocalSession30Business.class})
+@Remote(Session30RemoteBusiness.class)
+@Local(LocalSession30Business.class)
 @RemoteBinding(jndiBinding = "Session30Remote")
 @LocalBinding(jndiBinding = "LocalSession30")
 @RemoteHome(Session30Home.class)

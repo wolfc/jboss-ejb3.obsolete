@@ -25,7 +25,6 @@ import javax.annotation.PreDestroy;
 import javax.ejb.Init;
 import javax.ejb.Local;
 import javax.ejb.LocalHome;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 import javax.naming.InitialContext;
@@ -39,8 +38,7 @@ import org.jboss.logging.Logger;
 @Stateful(name="HomedStatefulSession30")
 @RemoteHome(StatefulSession30Home.class)
 @LocalHome(StatefulSession30LocalHome.class)
-@Local({LocalStatefulSession30Business.class,LocalStatefulSession30.class})
-@Remote(StatefulSession30.class)
+@Local(LocalStatefulSession30Business.class)
 public class HomedStatefulSession30Bean implements java.io.Serializable
 {
    

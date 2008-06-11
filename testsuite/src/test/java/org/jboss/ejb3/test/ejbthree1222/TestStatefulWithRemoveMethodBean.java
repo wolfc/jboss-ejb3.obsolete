@@ -43,10 +43,8 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
  * @version $Revision: $
  */
 @Stateful
-@Local(
-{TestStatefulWithRemoveMethodLocal.class, TestStatefulWithRemoveMethodLocalBusiness.class})
-@Remote(
-{TestStatefulWithRemoveMethodRemoteBusiness.class, TestStatefulWithRemoveMethodRemote.class})
+@Local(TestStatefulWithRemoveMethodLocalBusiness.class)
+@Remote(TestStatefulWithRemoveMethodRemoteBusiness.class)
 @LocalHome(TestStatefulWithRemoveMethodLocalHome.class)
 @RemoteHome(TestStatefulWithRemoveMethodRemoteHome.class)
 @LocalBinding(jndiBinding = TestStatefulWithRemoveMethodLocalBusiness.JNDI_NAME)

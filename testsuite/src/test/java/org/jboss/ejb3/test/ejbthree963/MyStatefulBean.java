@@ -24,13 +24,11 @@ package org.jboss.ejb3.test.ejbthree963;
 import java.rmi.RemoteException;
 
 import javax.ejb.EJBException;
-import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.SessionBean;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteHomeBinding;
 
 /**
@@ -39,8 +37,6 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
  */
 @Stateful
 @RemoteHome(MyStatefulHome.class)
-@Remote(MyStateful.class)
-@RemoteBinding(jndiBinding = MyStateful.JNDI_NAME)
 @RemoteHomeBinding(jndiBinding = MyStatefulHome.JNDI_NAME)
 public class MyStatefulBean implements SessionBean
 {
