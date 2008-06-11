@@ -54,8 +54,6 @@ import org.jboss.ejb3.test.stateful.StatefulTx;
 import org.jboss.ejb3.test.stateful.Stateless;
 import org.jboss.ejb3.test.stateful.Tester;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
@@ -174,6 +172,14 @@ extends JBossTestCase
             }
          }
       }
+   }
+   
+   @Override
+   protected void setUp() throws Exception
+   {
+      super.setUp();
+      
+      serverFound();
    }
    
    // Keep this test first so we test everything after a deployment restart
