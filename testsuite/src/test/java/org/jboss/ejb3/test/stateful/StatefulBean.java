@@ -54,7 +54,7 @@ import org.jboss.serial.io.JBossObjectOutputStream;
  * @version $Revision$
  */
 @Stateful(name="StatefulBean")
-@Remote({org.jboss.ejb3.test.stateful.Stateful.class, Stateful21.class})
+@Remote({org.jboss.ejb3.test.stateful.Stateful.class})
 @Local(org.jboss.ejb3.test.stateful.StatefulLocal.class)
 @RemoteBinding(jndiBinding = "Stateful",
                interceptorStack="RemoteBindingStatefulSessionClientInterceptors",
