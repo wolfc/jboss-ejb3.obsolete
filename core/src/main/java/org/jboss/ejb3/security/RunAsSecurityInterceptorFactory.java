@@ -22,6 +22,7 @@
 package org.jboss.ejb3.security;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.security.RunAs;
@@ -38,8 +39,6 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.spec.SecurityIdentityMetaData;
-import org.jboss.security.AuthenticationManager;
-import org.jboss.security.RealmMapping;
 import org.jboss.security.RunAsIdentity;
 
 /**
@@ -56,11 +55,12 @@ implements AspectFactory
   
    protected RunAsIdentity getRunAsIdentity(EJBContainer container)
    {      
-      RunAs runAs = (RunAs) container.resolveAnnotation(RunAs.class);
+      RunAs runAs = (RunAs) container.getAnnotation(RunAs.class);
       if (runAs == null)
          return null;
       
       String runAsPrincipal = runAs.value(); 
+      Set<String> extraRoles = new HashSet<String>();
       
       JBossEnterpriseBeanMetaData jbEnterpriseBeanMetaData = container.getXml();
       if(jbEnterpriseBeanMetaData != null)
@@ -68,11 +68,12 @@ implements AspectFactory
          SecurityIdentityMetaData securityIdentity = jbEnterpriseBeanMetaData.getSecurityIdentity();
          if(securityIdentity.isUseCallerId())
             return null; //Overriden in xml 
-         runAsPrincipal = securityIdentity.getRunAsPrincipal(); 
+         runAsPrincipal = securityIdentity.getRunAsPrincipal();  
+         Map<String,Set<String>> principalVsRoleMap = 
+        	 jbEnterpriseBeanMetaData.getSecurityRolesPrincipalVersusRolesMap(); 
+         extraRoles = principalVsRoleMap.get(runAsPrincipal);  
       }
-      
-      Set<String> extraRoles = new HashSet<String>();
-      
+       
       JBossAssemblyDescriptorMetaData ad = container.getAssemblyDescriptor();
       if(ad != null && runAsPrincipal != null)
       {
