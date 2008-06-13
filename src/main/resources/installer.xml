@@ -41,6 +41,7 @@
     <dependencySet>
       <outputFileNameMapping>${artifactId}-${classifier}.${extension}</outputFileNameMapping>
       <includes>
+        <include>org.jboss.ejb3:jboss-ejb3-common:jar:client</include>
         <include>org.jboss.ejb3:jboss-ejb3-core:jar:client</include>
         <include>org.jboss.ejb3:jboss-ejb3-proxy:jar:client</include>
         <include>org.jboss.ejb3:jboss-ejb3-security:jar:client</include>
