@@ -139,10 +139,12 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       catch (NotBoundException nbe)
       {
          // Obtain the URL for invoking upon the Registry
-         String url = this.getSingleReferenceAddressValue(name, refAddrs,
+         String url = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
                ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
 
          // Create an InvokerLocator
+         assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
+               + " URL is required, but is not specified; improperly bound reference in JNDI";
          InvokerLocator locator = new InvokerLocator(url);
 
          // Create a POJI Proxy to the Registrar
