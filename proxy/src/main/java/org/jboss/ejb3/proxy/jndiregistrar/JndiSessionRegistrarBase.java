@@ -71,18 +71,6 @@ public abstract class JndiSessionRegistrarBase
     */
    private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY = "/ProxyFactory";
 
-   /**
-    * The value appended to the key used to bind local proxy factories to the registry
-    */
-   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY_LOCAL = JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY
-         + "/local";
-
-   /**
-    * The value appended to the key used to bind local remote factories to the registry
-    */
-   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY_REMOTE = JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY
-         + "/remote";
-
    private static final String OBJECT_FACTORY_CLASSNAME_PREFIX = "Proxy for: ";
 
    //TODO Remove
@@ -682,7 +670,7 @@ public abstract class JndiSessionRegistrarBase
     * Returns the name of the unique key under which a Proxy Factory will 
     * be registered.  Will follow form:
     * 
-    * ejbName/ProxyFactory/(local|remote)
+    * (jndiName)/ProxyFactory/
     * 
     * ...depending upon the specified "isLocal" flag
     * 
@@ -692,20 +680,20 @@ public abstract class JndiSessionRegistrarBase
    protected String getProxyFactoryRegistryKey(JBossEnterpriseBeanMetaData md, boolean isLocal)
    {
       // Initialize
-      String suffix = null;
+      String prefix = null;
 
       // Set Suffix
       if (isLocal)
       {
-         suffix = JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY_LOCAL;
+         prefix = md.determineLocalJndiName();
       }
       else
       {
-         suffix = JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY_REMOTE;
+         prefix = md.determineJndiName();
       }
 
       // Assemble and return
-      String key = md.getEjbName() + suffix;
+      String key = prefix + JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY;
       return key;
    }
 
