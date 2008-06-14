@@ -26,6 +26,7 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
@@ -166,12 +167,18 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Call Super
       ProxyEqualityTestCaseBase.beforeClass();
 
+      // Deploy Beans
+      SfsbProxyEqualityTestCase.getBootstrap().deploy(SfsbProxyEqualityTestCase.class);
+
       // Create a SFSB Container
       StatefulContainer container = Utils.createSfsb(MyStatefulBean.class);
       log.info("Created SFSB Container: " + container.getName());
       SfsbProxyEqualityTestCase.setContainerName(container.getName());
 
-      // Install into MC
+      // Register Container w/ Remoting
+      Dispatcher.singleton.registerTarget(container.getName(), container);
+
+      // Install SFSB into MC
       SfsbProxyEqualityTestCase.getBootstrap().installInstance(container.getName(), container);
    }
 
@@ -228,7 +235,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Make a Remote Proxy Factory
       StatefulSessionRemoteProxyFactory factory = new StatefulSessionRemoteProxyFactory(
             StatefulSessionRemoteProxyFactory.class.getName(), sfsb.getName(), sfsb.getMetaData(), sfsb
-                  .getClassLoader(),null);
+                  .getClassLoader(), "socket://localhost:3874");
 
       // Start
       factory.start();

@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,28 +19,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.session;
+package org.jboss.ejb3.proxy.factory.session.stateful;
 
-import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 
 /**
- * SessionProxyFactory
+ * StatefulSessionProxyFactory
  * 
- * Contract for a Proxy Factory responsible
- * for creation of both EJB3 and EJB2.x 
- * Session Bean Proxies
+ * Extension for SFSB Proxy Factories in which case methods defined
+ * by SessionProxyFactory result in creation of a new Session, while
+ * the overloaded methods provided here may create a Proxy for a specified
+ * Session ID
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface SessionProxyFactory extends ProxyFactory
+public interface StatefulSessionProxyFactory extends SessionProxyFactory
 {
    /**
     * Create an EJB2.x Home Proxy
     * 
+    * @param sessionId
     * @return
     */
-   Object createProxyHome();
+   Object createProxyHome(Object sessionId);
 
    /**
     * Create an EJB3 Business proxy with no 
@@ -51,24 +53,28 @@ public interface SessionProxyFactory extends ProxyFactory
     * the Default (same JNDI Name), this 
     * Proxy will implement the Home interface as well. 
     * 
+    * @param sessionId
     * @return
     */
-   Object createProxyDefault();
+   Object createProxyDefault(Object sessionId);
 
    /**
     * Create an EJB3 Business Proxy specific to the specified
     * target business interface name (expressed as 
     * a fully-qualified class name)
     * 
+    * @param sessionId
     * @param businessInterfaceName
     * @return
     */
-   Object createProxyBusiness(String businessInterfaceName);
+   Object createProxyBusiness(Object sessionId, String businessInterfaceName);
 
    /**
     * Create an EJB2.x Proxy 
     * 
+    * @param sessionId
     * @return
     */
-   Object createProxyEjb2x();
+   Object createProxyEjb2x(Object sessionId);
+
 }

@@ -76,6 +76,11 @@ public abstract class SessionContainer
     */
    private Class<?> beanClass;
 
+   /**
+    * The optional JNDI Registrar
+    */
+   private JndiSessionRegistrarBase jndiRegistrar;
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -167,7 +172,7 @@ public abstract class SessionContainer
    public void start() throws Throwable
    {
       log.info("Starting " + this);
-      
+
       // Register with Remoting
       Dispatcher.singleton.registerTarget(this.getName(), this);
 
@@ -177,6 +182,7 @@ public abstract class SessionContainer
       // Bind all appropriate references/factories to Global JNDI for Client access, if a JNDI Registrar is present
       if (registrar != null)
       {
+         this.setJndiRegistrar(registrar);
          registrar.bindEjb(this.getMetaData(), this.getClassLoader(), this.getName());
       }
       else
@@ -191,13 +197,18 @@ public abstract class SessionContainer
    public void stop()
    {
       log.info("Stopping " + this);
-      
+
       // Deregister with Remoting
       Dispatcher.singleton.unregisterTarget(this.getName());
 
-      //TODO We need to unbind the EJB, something like:
-      //JndiSessionRegistrarBase.unbindEjb(this.metaData);
-      // or some key by which the registrar will keep track of all bindings
+      // Obtain registrar
+      JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
+
+      // If the registrar has been used for this container, unbind all JNDI references
+      if (registrar != null)
+      {
+         registrar.unbindEjb(this.getMetaData());
+      }
    }
 
    /**
@@ -209,7 +220,7 @@ public abstract class SessionContainer
    {
       // Initialize
       String jndiRegistrarBindName = this.getJndiRegistrarBindName();
-      
+
       // Obtain Registrar
       Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
@@ -304,5 +315,10 @@ public abstract class SessionContainer
    private void setBeanClass(Class<?> beanClass)
    {
       this.beanClass = beanClass;
+   }
+
+   public void setJndiRegistrar(JndiSessionRegistrarBase jndiRegistrar)
+   {
+      this.jndiRegistrar = jndiRegistrar;
    }
 }

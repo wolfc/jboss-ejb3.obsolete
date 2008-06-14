@@ -21,13 +21,21 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateful;
 
+import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.Set;
 
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.remoting.InvokerLocator;
 
 /**
  * StatefulSessionRemoteProxyFactory
@@ -43,7 +51,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger logger = Logger.getLogger(StatefulSessionRemoteProxyFactory.class);
+   private static final Logger log = Logger.getLogger(StatefulSessionRemoteProxyFactory.class);
 
    private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
 
@@ -140,6 +148,50 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
 
       // Return
       return handler;
+   }
+
+   /**
+    * Obtains the Container used by this Proxy Factory
+    * 
+    * @return The Container for this Proxy Factory
+    */
+   @Override
+   protected StatefulSessionInvokableContext<?> obtainContainer()
+   {
+      /*
+       * Obtain the Container
+       */
+      StatefulSessionInvokableContext<?> container = null;
+      String containerName = this.getContainerName();
+
+      // Create an InvokerLocator
+      String url = this.getUrl();
+      assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
+            + " URL is required, but is not specified for " + this;
+      InvokerLocator locator = null;
+      try
+      {
+         locator = new InvokerLocator(url);
+      }
+      catch (MalformedURLException e)
+      {
+         throw new RuntimeException(
+               "URL for " + InvokerLocator.class.getSimpleName() + " in " + this + " was improper", e);
+      }
+
+      // Create a POJI Proxy to the Container
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      PojiProxy handler = new PojiProxy(containerName, locator, interceptors);
+      Class<?>[] interfaces = new Class<?>[]
+      {StatefulSessionInvokableContext.class};
+      container = (StatefulSessionInvokableContext<?>) Proxy.newProxyInstance(interfaces[0].getClassLoader(),
+            interfaces, handler);
+      log.debug("Created Remoting Proxy to " + StatefulSessionInvokableContext.class.getSimpleName() + " with name "
+            + containerName + " using URL " + url);
+
+      // Return
+      return container;
    }
 
    // --------------------------------------------------------------------------------||

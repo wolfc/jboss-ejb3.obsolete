@@ -129,7 +129,7 @@ public abstract class ProxyEqualityTestCaseBase
    }
 
    @AfterClass
-   public static void afterClass() throws Exception
+   public static void afterClass() throws Throwable
    {
       // Shutdown MC
       ProxyEqualityTestCaseBase.getBootstrap().shutdown();
