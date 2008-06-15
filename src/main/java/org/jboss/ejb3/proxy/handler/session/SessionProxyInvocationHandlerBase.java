@@ -84,6 +84,13 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       SerializableMethod invokedMethod = new SerializableMethod(method);
       this.setInvokedMethod(invokedMethod);
 
+      // Adjust for null arguments
+      if (args == null)
+      {
+         args = new Object[]
+         {};
+      }
+
       // Attempt to handle directly
       try
       {
