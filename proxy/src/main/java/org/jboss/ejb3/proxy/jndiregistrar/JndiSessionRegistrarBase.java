@@ -442,8 +442,7 @@ public abstract class JndiSessionRegistrarBase
          // Bind Home (not bound together) if exists
          if ((smd.getHome() != null && !smd.getHome().equals("")) && !bindRemoteAndHomeTogether)
          {
-            String homeType = smd.getHome();
-            String homeAddress = smd.determineResolvedJndiName(homeType);
+            String homeAddress = smd.getHomeJndiName();
             log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \"" + homeAddress
                   + "\"");
             this.unbind(homeAddress);
@@ -484,8 +483,7 @@ public abstract class JndiSessionRegistrarBase
          // Unbind Local Home (not bound together) if exists
          if ((smd.getLocalHome() != null && !smd.getLocalHome().equals("")) && !bindLocalAndLocalHomeTogether)
          {
-            String localHomeType = smd.getLocalHome();
-            String localHomeAddress = smd.determineResolvedJndiName(localHomeType);
+            String localHomeAddress = smd.getLocalHomeJndiName();
             log.debug("Local Home View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                   + localHomeAddress + "\"");
             this.unbind(localHomeAddress);
@@ -677,7 +675,7 @@ public abstract class JndiSessionRegistrarBase
     * @param md
     * @param isLocal
     */
-   protected String getProxyFactoryRegistryKey(JBossEnterpriseBeanMetaData md, boolean isLocal)
+   public String getProxyFactoryRegistryKey(JBossEnterpriseBeanMetaData md, boolean isLocal)
    {
       // Initialize
       String prefix = null;
