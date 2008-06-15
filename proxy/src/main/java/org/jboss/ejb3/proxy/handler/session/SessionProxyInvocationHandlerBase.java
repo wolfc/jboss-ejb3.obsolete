@@ -102,20 +102,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
          log.debug("Couldn't handle invocation directly within Proxy " + InvocationHandler.class.getName() + ": "
                + nefdie.getMessage());
       }
-
-      // Obtain container name
-      String containerName = StringUtils.adjustWhitespaceStringToNull(this.getContainerName());
-      assert containerName != null : "Container name for invocation must be specified";
-
-      // Assemble arguments for invocation
-      List<Object> invocationArguments = new ArrayList<Object>();
-      // Add proxy as argument
-      invocationArguments.add(proxy);
-      // Add invoked method as argument
-      invocationArguments.add(invokedMethod);
-      // Add rest of arguments
-      invocationArguments.add(args);
-
+      
       /*
        * Obtain the Container
        */
@@ -126,9 +113,8 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
        */
 
       // Invoke
-      SerializableMethod methodToInvoke = new SerializableMethod(method);
-      log.debug("Invoking: " + methodToInvoke + " with arguments " + args + "...");
-      Object result = container.invoke(proxy, methodToInvoke, args);
+      log.debug("Invoking: " + invokedMethod + " with arguments " + args + "...");
+      Object result = container.invoke(proxy, invokedMethod, args);
 
       // Return
       return result;
