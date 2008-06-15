@@ -31,18 +31,11 @@
     class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
     <constructor>
       <parameter>
-        <inject bean="org.jboss.ejb3.JndiContext" />
-      </parameter>
-      <parameter>
         org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>
   </bean>
-
-  <!-- JNDI Registrar Configuration -->
-  <bean name="org.jboss.ejb3.JndiContext"
-    class="javax.naming.InitialContext" />
 
   <!-- 
     

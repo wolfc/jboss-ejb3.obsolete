@@ -85,11 +85,6 @@ public abstract class JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
 
    /**
-    * Context under which we'll bind to JNDI
-    */
-   private Context context;
-
-   /**
     * Fully-qualified class name of the JNDI Object Factory to Reference
     */
    private String sessionProxyObjectFactoryType;
@@ -102,17 +97,11 @@ public abstract class JndiSessionRegistrarBase
     * Creates a JNDI Registrar from the specified configuration properties, none of
     * which may be null.
     * 
-    * @param context The JNDI Context into which Objects will be bound
     * @param sessionProxyObjectFactoryType String representation of the JNDI Object 
     *           Factory Class Name (fully-qualified) to use for this Session EJB
     */
-   public JndiSessionRegistrarBase(final Context context, final String sessionProxyObjectFactoryType)
+   public JndiSessionRegistrarBase(final String sessionProxyObjectFactoryType)
    {
-      // Set the Context
-      assert context != null : this + " may not be configured with null  " + Context.class.getName();
-      this.setContext(context);
-      log.debug("Using  " + Context.class.getName() + ": " + context);
-
       /*
        * Perform some assertions and logging
        */
@@ -146,11 +135,13 @@ public abstract class JndiSessionRegistrarBase
     * responsible for creation and registration of any all ProxyFactory
     * implementations required by the EJB
     * 
+    * @param context The JNDI Context to use for binding
     * @param smd
     * @param cl The CL of the Container
     * @param containerName The name under which the target container is registered
     */
-   public void bindEjb(final JBossSessionBeanMetaData smd, final ClassLoader cl, final String containerName)
+   public void bindEjb(final Context context, final JBossSessionBeanMetaData smd, final ClassLoader cl,
+         final String containerName)
    {
       // Log 
       String ejbName = smd.getEjbName();
@@ -245,7 +236,7 @@ public abstract class JndiSessionRegistrarBase
             assert homeAddress != null && !homeAddress.equals("") : "JNDI Address for Remote Home must be defined";
             log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + homeAddress
                   + "\"");
-            this.bind(homeRef, homeAddress, remoteProxyFactoryKey, containerName);
+            this.bind(context, homeRef, homeAddress, remoteProxyFactoryKey, containerName);
          }
 
          // Add a Reference Address for the Remoting URL
@@ -275,7 +266,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteAddress = smd.determineJndiName();
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultRemoteAddress + "\"");
-         this.bind(defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
+         this.bind(context, defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
 
          // Bind ObjectFactory specific to each Remote Business Interface
          if (businessRemotes != null)
@@ -292,7 +283,7 @@ public abstract class JndiSessionRegistrarBase
                String address = smd.determineResolvedJndiName(businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(ref, address, remoteProxyFactoryKey, containerName);
+               this.bind(context, ref, address, remoteProxyFactoryKey, containerName);
             }
          }
       }
@@ -339,7 +330,7 @@ public abstract class JndiSessionRegistrarBase
             String localHomeAddress = smd.getLocalHomeJndiName();
             log.debug("Local Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + localHomeAddress
                   + "\"");
-            this.bind(localHomeRef, localHomeAddress, localProxyFactoryKey, containerName);
+            this.bind(context, localHomeRef, localHomeAddress, localProxyFactoryKey, containerName);
          }
 
          /*
@@ -366,7 +357,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalAddress = smd.determineLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultLocalAddress + "\"");
-         this.bind(defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
+         this.bind(context, defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
 
          // Bind ObjectFactory specific to each Local Business Interface
          if (businessLocals != null)
@@ -381,7 +372,7 @@ public abstract class JndiSessionRegistrarBase
                String address = smd.determineResolvedJndiName(businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(ref, address, localProxyFactoryKey, containerName);
+               this.bind(context, ref, address, localProxyFactoryKey, containerName);
 
             }
          }
@@ -394,9 +385,10 @@ public abstract class JndiSessionRegistrarBase
     * responsible for destruction and deregistration of any all ProxyFactory
     * implementations required by the EJB
     * 
+    * @param context The JNDI Context to use for unbinding
     * @param smd
     */
-   public void unbindEjb(final JBossSessionBeanMetaData smd)
+   public void unbindEjb(final Context context, final JBossSessionBeanMetaData smd)
    {
       // Log 
       String ejbName = smd.getEjbName();
@@ -445,7 +437,7 @@ public abstract class JndiSessionRegistrarBase
             String homeAddress = smd.getHomeJndiName();
             log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \"" + homeAddress
                   + "\"");
-            this.unbind(homeAddress);
+            this.unbind(context, homeAddress);
          }
 
          /*
@@ -456,7 +448,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteAddress = smd.determineJndiName();
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultRemoteAddress + "\"");
-         this.unbind(defaultRemoteAddress);
+         this.unbind(context, defaultRemoteAddress);
 
          // Unbind ObjectFactory specific to each Remote Business Interface
          if (businessRemotes != null)
@@ -466,7 +458,7 @@ public abstract class JndiSessionRegistrarBase
                String address = smd.determineResolvedJndiName(businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be unbound from JNDI at \"" + address + "\"");
-               this.unbind(address);
+               this.unbind(context, address);
             }
          }
       }
@@ -486,7 +478,7 @@ public abstract class JndiSessionRegistrarBase
             String localHomeAddress = smd.getLocalHomeJndiName();
             log.debug("Local Home View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                   + localHomeAddress + "\"");
-            this.unbind(localHomeAddress);
+            this.unbind(context, localHomeAddress);
          }
 
          /*
@@ -497,7 +489,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalAddress = smd.determineLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultLocalAddress + "\"");
-         this.unbind(defaultLocalAddress);
+         this.unbind(context,defaultLocalAddress);
 
          // Unbind ObjectFactory specific to each Local Business Interface
          if (businessLocals != null)
@@ -507,7 +499,7 @@ public abstract class JndiSessionRegistrarBase
                String address = smd.determineResolvedJndiName(businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be unbound from JNDI at \"" + address + "\"");
-               this.unbind(address);
+               this.unbind(context, address);
             }
          }
       }
@@ -551,13 +543,15 @@ public abstract class JndiSessionRegistrarBase
     * the requisite key for the ProxyFactory within the Registry and the requisite
     * target EJB Container Name as ReferenceAddresses
     * 
+    * @param context The JNDI Context to use
     * @param ref
     * @param address
     * @param proxyFactoryRegistryKey The key under which the proxy factory 
     *   for this reference is stored in the proxy factory registry
     * @param containerName The target container to be used in invocations from Proxies obtained from this address
     */
-   protected void bind(Reference ref, String address, String proxyFactoryRegistryKey, String containerName)
+   protected void bind(Context context, Reference ref, String address, String proxyFactoryRegistryKey,
+         String containerName)
    {
       // Add the Proxy Factory Registry key for this Reference
       assert proxyFactoryRegistryKey != null && !proxyFactoryRegistryKey.trim().equals("") : "Proxy Factory Registry key is required but not supplied";
@@ -578,7 +572,7 @@ public abstract class JndiSessionRegistrarBase
       // Bind
       try
       {
-         Util.rebind(this.getContext(), address, ref);
+         Util.rebind(context, address, ref);
          log.debug("Bound " + ref.getClass().getName() + " into JNDI at \"" + address + "\"");
       }
       catch (NamingException e)
@@ -590,14 +584,15 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Unbinds the specified address from JNDI
     * 
+    * @param context The JNDI Context to use
     * @param address
     */
-   protected void unbind(String address)
+   protected void unbind(Context context, String address)
    {
       // Unbind
       try
       {
-         Util.unbind(this.getContext(), address);
+         Util.unbind(context, address);
       }
       catch (NameNotFoundException nnfe)
       {
@@ -776,16 +771,6 @@ public abstract class JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-
-   public Context getContext()
-   {
-      return context;
-   }
-
-   public void setContext(Context context)
-   {
-      this.context = context;
-   }
 
    public String getSessionProxyObjectFactoryType()
    {

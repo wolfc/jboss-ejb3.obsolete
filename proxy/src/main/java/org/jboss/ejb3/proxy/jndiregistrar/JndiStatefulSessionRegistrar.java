@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.proxy.jndiregistrar;
 
-import javax.naming.Context;
-
 import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
@@ -57,12 +55,11 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     * Creates a JNDI Registrar from the specified configuration properties, none of
     * which may be null.
     * 
-    * @param context The JNDI Context into which Objects will be bound
     * @param statelessSessionProxyObjectFactoryType String representation of the JNDI Object Factory to use for SLSBs
     */
-   public JndiStatefulSessionRegistrar(Context context, String statelessSessionProxyObjectFactoryType)
+   public JndiStatefulSessionRegistrar(String statelessSessionProxyObjectFactoryType)
    {
-      super(context, statelessSessionProxyObjectFactoryType);
+      super(statelessSessionProxyObjectFactoryType);
    }
 
    // --------------------------------------------------------------------------------||
