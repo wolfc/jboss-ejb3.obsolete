@@ -83,14 +83,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       // Set the invoked method
       SerializableMethod invokedMethod = new SerializableMethod(method);
       this.setInvokedMethod(invokedMethod);
-
-      // Adjust for null arguments
-      if (args == null)
-      {
-         args = new Object[]
-         {};
-      }
-
+      
       // Attempt to handle directly
       try
       {
@@ -99,7 +92,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       // Ignore this, we just couldn't handle here
       catch (NotEligibleForDirectInvocationException nefdie)
       {
-         log.debug("Couldn't handle invocation directly within Proxy " + InvocationHandler.class.getName() + ": "
+         log.debug("Couldn't handle invocation directly within " + this + ": "
                + nefdie.getMessage());
       }
       
