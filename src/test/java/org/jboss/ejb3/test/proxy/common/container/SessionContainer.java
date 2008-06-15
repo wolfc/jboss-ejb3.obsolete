@@ -25,6 +25,10 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.jboss.aop.Dispatcher;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
@@ -80,6 +84,11 @@ public abstract class SessionContainer
     * The optional JNDI Registrar
     */
    private JndiSessionRegistrarBase jndiRegistrar;
+
+   /**
+    * The JNDI Context to use for binding
+    */
+   private Context jndiContext;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -183,7 +192,7 @@ public abstract class SessionContainer
       if (registrar != null)
       {
          this.setJndiRegistrar(registrar);
-         registrar.bindEjb(this.getMetaData(), this.getClassLoader(), this.getName());
+         registrar.bindEjb(this.getJndiContext(), this.getMetaData(), this.getClassLoader(), this.getName());
       }
       else
       {
@@ -207,7 +216,7 @@ public abstract class SessionContainer
       // If the registrar has been used for this container, unbind all JNDI references
       if (registrar != null)
       {
-         registrar.unbindEjb(this.getMetaData());
+         registrar.unbindEjb(this.getJndiContext(), this.getMetaData());
       }
    }
 
@@ -218,29 +227,33 @@ public abstract class SessionContainer
     */
    protected JndiSessionRegistrarBase getJndiRegistrar()
    {
-      // Initialize
-      String jndiRegistrarBindName = this.getJndiRegistrarBindName();
-
-      // Obtain Registrar
-      Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
-
-      // Lookup
-      Object obj = null;
-      try
+      // If the JNDI Registrar has not yet been set
+      if (this.jndiRegistrar == null)
       {
-         obj = registrar.lookup(jndiRegistrarBindName);
-      }
-      // If not installed, warn and return null
-      catch (NotBoundException e)
-      {
-         log.warn("No " + JndiSessionRegistrarBase.class.getName()
-               + " was found installed in the ObjectStore (Registry) at " + jndiRegistrarBindName);
-         return null;
+         // Initialize
+         String jndiRegistrarBindName = this.getJndiRegistrarBindName();
 
-      }
+         // Obtain Registrar
+         Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
-      // Cast
-      JndiSessionRegistrarBase jndiRegistrar = (JndiSessionRegistrarBase) obj;
+         // Lookup
+         Object obj = null;
+         try
+         {
+            obj = registrar.lookup(jndiRegistrarBindName);
+         }
+         // If not installed, warn and return null
+         catch (NotBoundException e)
+         {
+            log.warn("No " + JndiSessionRegistrarBase.class.getName()
+                  + " was found installed in the ObjectStore (Registry) at " + jndiRegistrarBindName);
+            return null;
+
+         }
+
+         // Cast and set
+         this.setJndiRegistrar((JndiSessionRegistrarBase) obj);
+      }
 
       // Return
       return jndiRegistrar;
@@ -320,5 +333,26 @@ public abstract class SessionContainer
    public void setJndiRegistrar(JndiSessionRegistrarBase jndiRegistrar)
    {
       this.jndiRegistrar = jndiRegistrar;
+   }
+
+   protected Context getJndiContext()
+   {
+      if (this.jndiContext == null)
+      {
+         try
+         {
+            this.setJndiContext(new InitialContext());
+         }
+         catch (NamingException e)
+         {
+            throw new RuntimeException("Could not create new default JNDI Context for Container: " + this.getName(), e);
+         }
+      }
+      return jndiContext;
+   }
+
+   private void setJndiContext(Context jndiContext)
+   {
+      this.jndiContext = jndiContext;
    }
 }
