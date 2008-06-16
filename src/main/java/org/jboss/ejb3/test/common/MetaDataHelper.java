@@ -85,7 +85,7 @@ public class MetaDataHelper
 
       // Mock up a @RemoteBinding if none specified but are required
       if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
-            && beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0)
+            && (beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0))
       {
          List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
          RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
