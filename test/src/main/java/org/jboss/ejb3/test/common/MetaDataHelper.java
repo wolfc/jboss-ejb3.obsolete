@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.jboss.logging.Logger;
-import org.jboss.metadata.annotation.creator.ejb.EjbJar30Creator;
+import org.jboss.metadata.annotation.creator.ejb.jboss.JBoss50Creator;
 import org.jboss.metadata.annotation.finder.AnnotationFinder;
 import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
@@ -39,7 +39,6 @@ import org.jboss.metadata.ejb.jboss.JBossSessionPolicyDecorator;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
-import org.jboss.metadata.ejb.spec.EjbJar30MetaData;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
@@ -74,33 +73,22 @@ public class MetaDataHelper
     */
    public static JBossSessionBeanMetaData getMetadataFromBeanImplClass(Class<?> beanImplClass)
    {
-      //TODO
-      /*
-       * EjbJar30Creator will be replaced by JBossSessionBeanMetaDataCreator
-       * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=136416
-       */
-
       // emulate annotation deployer
       AnnotationFinder<AnnotatedElement> finder = new DefaultAnnotationFinder<AnnotatedElement>();
       Collection<Class<?>> classes = new HashSet<Class<?>>();
       classes.add(beanImplClass);
-      EjbJar30MetaData metaData = new EjbJar30Creator(finder).create(classes);
-
-      // emulate merge deployer
-      JBossMetaData mergedMetaData = new JBossMetaData();
-      mergedMetaData.merge(null, metaData);
+      JBossMetaData metadata = new JBoss50Creator(finder).create(classes);
 
       // Get delegate
-      JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) mergedMetaData
+      JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) metadata
             .getEnterpriseBean(beanImplClass.getSimpleName());
 
-      //TODO When JBossSessionBeanMetaDataCreator is done, remove this
-      // Add Remote Binding manually
-      if (beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
+      // Mock up a @RemoteBinding if none specified but are required
+      if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
+            && beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0)
       {
          List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
          RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
-         remoteBinding.setClientBindUrl("socket://localhost:3874"); //TODO Hardcoded bad
          remoteBindings.add(remoteBinding);
          beanMetaDataDelegate.setRemoteBindings(remoteBindings);
       }
