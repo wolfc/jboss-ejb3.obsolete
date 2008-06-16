@@ -489,7 +489,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalAddress = smd.determineLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultLocalAddress + "\"");
-         this.unbind(context,defaultLocalAddress);
+         this.unbind(context, defaultLocalAddress);
 
          // Unbind ObjectFactory specific to each Local Business Interface
          if (businessLocals != null)
