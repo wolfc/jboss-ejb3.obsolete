@@ -81,7 +81,7 @@
   <!-- Remoting Connector -->
   <bean name="Connector"
     class="org.jboss.remoting.transport.Connector">
-    <property name="invokerLocator">socket://0.0.0.0:3874</property>
+    <property name="invokerLocator">socket://0.0.0.0:3873</property>
     <property name="serverConfiguration">
       <inject bean="ServerConfiguration" />
     </property>
