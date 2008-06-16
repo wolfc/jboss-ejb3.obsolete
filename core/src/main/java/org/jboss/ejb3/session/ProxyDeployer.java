@@ -72,7 +72,9 @@ public class ProxyDeployer
       {
          log.warn("Class " + cls + " does not have a proper constructor with parameters " + Arrays.toString(parameterTypes) + ", will try to find one");
          
-         Constructor<T> constructors[] = cls.getConstructors();
+         // I'm not going to modify the array, so I can cast it safely
+         // http://java.sun.com/javase/6/docs/api/java/lang/Class.html#getConstructors()
+         Constructor<T> constructors[] = (Constructor<T>[]) cls.getConstructors();
          for(Constructor<T> constructor : constructors)
          {
             if(parameterTypes.length != constructor.getParameterTypes().length)
