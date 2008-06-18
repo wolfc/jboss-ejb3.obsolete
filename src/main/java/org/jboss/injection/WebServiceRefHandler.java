@@ -24,6 +24,7 @@ package org.jboss.injection;
 // $Id: WebServiceRefHandler.java 61084 2007-03-05 14:50:45Z thomas.diesler@jboss.com $
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -60,6 +61,26 @@ public class WebServiceRefHandler<X extends RemoteEnvironment> implements Inject
                throw new IllegalStateException ("Duplicate <service-ref-name> in " + sref);
          
          srefMap.put(sref.getServiceRefName(), sref);
+
+         String encName = "env/" + sref.getServiceRefName();
+         AnnotatedElement annotatedElement = sref.getAnnotatedElement();
+         if(annotatedElement == null)
+         {
+            if(sref.getInjectionTargets() != null && sref.getInjectionTargets().size() > 0)
+            {
+               for(ResourceInjectionTargetMetaData trg : sref.getInjectionTargets())
+               {
+                  annotatedElement = InjectionUtil.findInjectionTarget(container.getClassloader(), trg);
+                  addInjector(container, encName, annotatedElement);   
+               }
+            }
+            else
+               log.warn("No injection target for service-ref: " + sref.getServiceRefName());
+         }
+         else
+         {
+            addInjector(container, encName, annotatedElement);   
+         }         
       }
    }
 
@@ -79,6 +100,18 @@ public class WebServiceRefHandler<X extends RemoteEnvironment> implements Inject
             bindRefOnType(type, container, refItem);
          }
       }
+   }
+
+   private void addInjector(InjectionContainer container, String encName, AnnotatedElement annotatedElement)
+   {
+      Injector jndiInjector;
+      if(annotatedElement instanceof Method)
+         jndiInjector = new JndiMethodInjector((Method)annotatedElement, encName, container.getEnc());
+      else if(annotatedElement instanceof Field)
+         jndiInjector = new JndiFieldInjector((Field)annotatedElement, encName, container.getEnc());
+      else
+         throw new IllegalStateException("Annotated element for '" + encName + "' is niether Method nor Field: " + annotatedElement);      
+      container.getInjectors().add(jndiInjector);
    }
 
    private void bindRefOnType(Class<?> type, InjectionContainer container, WebServiceRef wsref)
