@@ -23,8 +23,10 @@ package org.jboss.ejb3.proxy.handler.stateful;
 
 import java.lang.reflect.Method;
 
+import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.LocalProxyInvocationHandler;
+import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.session.SessionContainer;
 
 /**
@@ -50,6 +52,16 @@ public class StatefulLocalHomeProxyInvocationHandler extends LocalProxyInvocatio
    public Object invoke(Object proxy, Method method, Object[] args)
            throws Throwable
    {
+      // Attempt to handle locally
+      long hash = MethodHashing.calculateHash(method);
+      Object ret = ProxyUtils.handleCallLocally(hash, proxy, this, method, args);
+      if (ret != null)
+      {
+         // Was handled locally, return
+         return ret;
+      }
+      
+      // Invoke upon container
       SessionContainer sfsb = (SessionContainer) getContainer();
       return sfsb.localHomeInvoke(method, args);
    }
