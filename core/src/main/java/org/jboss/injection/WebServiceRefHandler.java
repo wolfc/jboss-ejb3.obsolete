@@ -77,7 +77,8 @@ public class WebServiceRefHandler<X extends RemoteEnvironment> implements Inject
             else
                log.warn("No injection target for service-ref: " + sref.getServiceRefName());
          }
-         else
+         // annotated classes do not specify injection target
+         else if(!(annotatedElement instanceof java.lang.reflect.Type))
          {
             addInjector(container, encName, annotatedElement);   
          }         
