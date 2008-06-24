@@ -49,7 +49,8 @@ public abstract class AbstractEJB3TestCase
    public static void afterClass() throws Exception
    {
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
-      AspectXmlLoader.undeployXML(url);
+      if(url != null)
+         AspectXmlLoader.undeployXML(url);
       
       if(bootstrap != null)
          bootstrap.shutdown();
@@ -71,6 +72,8 @@ public abstract class AbstractEJB3TestCase
       
       // TODO: AspectDeployment
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
+      if(url == null)
+         throw new IllegalStateException("Can't find ejb3-interceptors-aop.xml on class loader " + Thread.currentThread().getContextClassLoader());
       AspectXmlLoader.deployXML(url);
    }
    
