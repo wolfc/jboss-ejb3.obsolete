@@ -296,7 +296,7 @@
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
-        <version>1.0.0.Beta18</version>
+        <version>1.0.0.Beta26</version>
       </dependency>
  
       <dependency>
