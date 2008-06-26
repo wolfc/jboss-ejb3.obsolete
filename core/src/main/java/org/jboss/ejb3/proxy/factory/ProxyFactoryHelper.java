@@ -234,7 +234,7 @@ public class ProxyFactoryHelper
                if (localInterface.equals(remoteInterface))
                {
                   throw new RuntimeException("@Remote and @Local may not both be specified on the same interface \""
-                        + remoteInterface.toString() + "\" per EJB3 Spec 4.6.7, Bullet 5.4");
+                        + remoteInterface.toString() + "\" per EJB3 Spec 4.6.6, Bullet 5.4");
                }
             }
          }
