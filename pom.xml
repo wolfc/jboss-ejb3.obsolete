@@ -22,6 +22,22 @@
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
 
+  <repositories>
+    <!-- APIviz repository -->
+    <repository>
+      <id>apiviz.release</id>
+      <name>APIviz releases</name>
+      <url>http://apiviz.googlecode.com/svn/site/repo/mvn/release</url>
+      <releases>
+
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <!-- Properties -->
 
   <properties>
@@ -54,6 +70,35 @@
           <attach>true</attach>
         </configuration>
         <inherited>false</inherited>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+<!--
+        <executions>
+          <execution>
+            <id>attach-javadoc</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+-->
+        <configuration>
+          <doclet>net.gleamynode.apiviz.APIviz</doclet>
+          <docletArtifact>
+            <groupId>net.gleamynode.apiviz</groupId>
+            <artifactId>apiviz</artifactId>
+            <version>1.0.3</version>
+          </docletArtifact>
+<!--
+          <aggregate>true</aggregate>
+          <encoding>UTF-8</encoding>
+          <locale>en_US</locale>
+-->
+        </configuration>
       </plugin>
 
     </plugins>
