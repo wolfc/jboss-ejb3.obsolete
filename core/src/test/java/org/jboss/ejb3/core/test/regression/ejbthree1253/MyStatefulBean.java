@@ -31,7 +31,7 @@ import org.jboss.ejb3.annotation.defaults.RemoteBindingDefaults;
  * @version $Revision: $
  */
 @Stateful
-@RemoteBinding(factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
+@RemoteBinding(clientBindUrl="socket://127.0.0.1:3875", factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
 public class MyStatefulBean implements MyStateful
 {
    private String name;
