@@ -144,6 +144,7 @@
         <test name="ejbthree1071" />
         <test name="ejbthree1075" />
         <test name="ejbthree1082" />
+        <test name="ejbthree1116" />
         <test name="ejbthree1119" />
         <test name="ejbthree1122" />
         <test name="ejbthree1123" />
