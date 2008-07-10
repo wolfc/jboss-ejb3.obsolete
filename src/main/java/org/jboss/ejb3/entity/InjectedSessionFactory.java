@@ -29,9 +29,11 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.util.Map;
 import java.util.Set;
+
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.persistence.EntityManagerFactory;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Interceptor;
 import org.hibernate.SessionFactory;
@@ -42,7 +44,7 @@ import org.hibernate.engine.FilterDefinition;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.metadata.CollectionMetadata;
 import org.hibernate.stat.Statistics;
-import org.jboss.ejb3.PersistenceUnitRegistry;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 
 /**
  * Comment
@@ -73,9 +75,8 @@ public class InjectedSessionFactory implements SessionFactory, Externalizable
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
       String kernelName = in.readUTF();
-      PersistenceUnitDeployment deployment = PersistenceUnitRegistry.getPersistenceUnit(kernelName);
-      if (deployment == null) throw new IOException("Unable to find persistence unit in registry: " + kernelName);
-      managedFactory = deployment.getManagedFactory();
+      managedFactory = ManagedEntityManagerFactoryHelper.getManagedEntityManagerFactory(kernelName);
+      if (managedFactory == null) throw new IOException("Unable to find persistence unit in registry: " + kernelName);
       delegate = managedFactory.getEntityManagerFactory();
    }
 

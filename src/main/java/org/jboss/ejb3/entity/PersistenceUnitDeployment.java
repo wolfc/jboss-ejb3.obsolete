@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import javax.naming.InitialContext;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -41,11 +42,12 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.NonSerializableFactory;
 import org.jboss.ejb3.javaee.AbstractJavaEEComponent;
 import org.jboss.ejb3.javaee.SimpleJavaEEModule;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.metadata.jpa.spec.TransactionType;
-import org.jboss.virtual.VirtualFile;
 import org.jboss.virtual.VFSUtils;
+import org.jboss.virtual.VirtualFile;
 
 /**
  * Comment
@@ -53,6 +55,7 @@ import org.jboss.virtual.VFSUtils;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
+@Deprecated
 public class PersistenceUnitDeployment extends AbstractJavaEEComponent
 {
    private static final Logger log = Logger.getLogger(PersistenceUnitDeployment.class);

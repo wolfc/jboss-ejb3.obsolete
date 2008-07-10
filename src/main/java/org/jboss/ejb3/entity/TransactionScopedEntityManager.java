@@ -21,19 +21,23 @@
  */
 package org.jboss.ejb3.entity;
 
-import org.hibernate.Session;
-import org.hibernate.ejb.HibernateEntityManager;
-import org.jboss.ejb3.PersistenceUnitRegistry;
-import org.jboss.ejb3.stateful.StatefulBeanContext;
-import org.jboss.logging.Logger;
-
-import javax.persistence.*;
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.FlushModeType;
+import javax.persistence.LockModeType;
+import javax.persistence.Query;
+
+import org.hibernate.Session;
+import org.hibernate.ejb.HibernateEntityManager;
+import org.jboss.ejb3.stateful.StatefulBeanContext;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
@@ -76,9 +80,8 @@ public class TransactionScopedEntityManager implements EntityManager, HibernateS
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
       String kernelName = in.readUTF();
-      PersistenceUnitDeployment deployment = PersistenceUnitRegistry.getPersistenceUnit(kernelName);
-      if (deployment == null) throw new IOException("Unable to find persistence unit in registry: " + kernelName);
-      factory = deployment.getManagedFactory();
+      factory = ManagedEntityManagerFactoryHelper.getManagedEntityManagerFactory(kernelName);
+      if ( factory == null ) throw new IOException( "Unable to find persistence unit in registry: " + kernelName );
    }
 
    public Object getDelegate()

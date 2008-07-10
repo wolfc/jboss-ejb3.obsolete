@@ -17,7 +17,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-core</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.7-SNAPSHOT</version>
+  <version>0.1.7</version>
   <name>JBoss EJB 3.0 Core</name>
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
@@ -519,6 +519,12 @@
     </dependency>
     
     <dependency>
+      <groupId>org.jboss.jpa</groupId>
+      <artifactId>jboss-jpa-deployers</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
     </dependency>
@@ -557,4 +563,10 @@
     </dependency>
     
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.7</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.7</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-0.1.7</url>
+  </scm>
 </project>
