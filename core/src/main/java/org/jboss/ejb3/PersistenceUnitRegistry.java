@@ -21,15 +21,17 @@
  */
 package org.jboss.ejb3;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Collection;
-import org.jboss.logging.Logger;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
+import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version <tt>$Revision$</tt>
  */
+@Deprecated
 public class PersistenceUnitRegistry
 {
    private static final Logger log = Logger.getLogger(PersistenceUnitRegistry.class);

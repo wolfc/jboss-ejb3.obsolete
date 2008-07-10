@@ -21,13 +21,15 @@
  */
 package org.jboss.ejb3.entity;
 
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.logging.Logger;
-
-import javax.persistence.EntityManager;
 import java.util.IdentityHashMap;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
+
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.logging.Logger;
 
 /**
  * If a transaction-scoped entitymanager is accessed outside of a transaction

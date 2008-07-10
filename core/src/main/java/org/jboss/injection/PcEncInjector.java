@@ -23,19 +23,19 @@ package org.jboss.injection;
 
 import java.lang.reflect.Proxy;
 
-import org.jboss.ejb3.entity.ManagedEntityManagerFactory;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContextType;
+
+import org.hibernate.Session;
 import org.jboss.ejb3.entity.ExtendedEntityManager;
 import org.jboss.ejb3.entity.TransactionScopedEntityManager;
 import org.jboss.ejb3.entity.hibernate.ExtendedSessionInvocationHandler;
 import org.jboss.ejb3.entity.hibernate.TransactionScopedSessionInvocationHandler;
 import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 import org.jboss.util.naming.Util;
-import org.hibernate.Session;
-
-import javax.persistence.PersistenceContextType;
-import javax.persistence.EntityManager;
-import javax.naming.NameNotFoundException;
-import javax.naming.NamingException;
 
 /**
  * Comment

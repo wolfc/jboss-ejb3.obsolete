@@ -22,20 +22,20 @@
  */
 package org.jboss.ejb3.entity.hibernate;
 
-import java.io.ObjectOutput;
+import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
-import java.io.Externalizable;
+import java.io.ObjectOutput;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import javax.persistence.EntityManager;
 
-import org.jboss.ejb3.entity.ManagedEntityManagerFactory;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
-import org.jboss.ejb3.PersistenceUnitRegistry;
 import org.hibernate.Session;
 import org.hibernate.ejb.HibernateEntityManager;
+import org.jboss.ejb3.entity.ManagedEntityManagerFactoryHelper;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 
 /**
  * Handle method execution delegation to an Hibernate session following the transaction scoped persistence context rules
@@ -82,9 +82,8 @@ public class TransactionScopedSessionInvocationHandler implements InvocationHand
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
       String kernelName = in.readUTF();
-      PersistenceUnitDeployment deployment = PersistenceUnitRegistry.getPersistenceUnit( kernelName );
-      if ( deployment == null ) throw new IOException( "Unable to find persistence unit in registry: " + kernelName );
-      factory = deployment.getManagedFactory();
+      factory = ManagedEntityManagerFactoryHelper.getManagedEntityManagerFactory(kernelName);
+      if ( factory == null ) throw new IOException( "Unable to find persistence unit in registry: " + kernelName );
    }
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable

@@ -519,6 +519,12 @@
     </dependency>
     
     <dependency>
+      <groupId>org.jboss.jpa</groupId>
+      <artifactId>jboss-jpa-deployers</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
     </dependency>
