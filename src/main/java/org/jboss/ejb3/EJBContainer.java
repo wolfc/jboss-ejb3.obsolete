@@ -87,7 +87,7 @@ import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.injection.DependsHandler;
 import org.jboss.injection.EJBHandler;
 import org.jboss.injection.EncInjector;
-import org.jboss.injection.InjectionContainer;
+import org.jboss.injection.ExtendedInjectionContainer;
 import org.jboss.injection.InjectionHandler;
 import org.jboss.injection.InjectionUtil;
 import org.jboss.injection.Injector;
@@ -115,7 +115,7 @@ import org.jboss.virtual.VirtualFile;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class EJBContainer implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, InjectionContainer, JavaEEComponent
+public abstract class EJBContainer implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, ExtendedInjectionContainer, JavaEEComponent
 {
    private static final Logger log = Logger.getLogger(EJBContainer.class);
 
@@ -1327,6 +1327,11 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    public String resolveMessageDestination(String link)
    {
       return deployment.resolveMessageDestination(link);
+   }
+   
+   public String resolvePersistenceUnitSupplier(String unitName)
+   {
+      return getDeployment().resolvePersistenceUnitSupplier(unitName);
    }
    
    public <T extends Annotation> T getAnnotation(Class<T> annotationType)

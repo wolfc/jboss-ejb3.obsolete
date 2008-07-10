@@ -22,14 +22,16 @@
 package org.jboss.ejb3.entity;
 
 import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.transaction.TransactionManager;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.ejb3.PersistenceUnitRegistry;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.tx.TxUtil;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -63,7 +65,7 @@ public class ExtendedPersistenceContextPropagationInterceptor implements Interce
          for (String kernelname : extendedPCs.keySet())
          {
             EntityManager manager = extendedPCs.get(kernelname);
-            ManagedEntityManagerFactory factory = PersistenceUnitRegistry.getPersistenceUnit(kernelname).getManagedFactory();
+            ManagedEntityManagerFactory factory = ManagedEntityManagerFactoryHelper.getManagedEntityManagerFactory(kernelname);
             factory.registerExtendedWithTransaction(manager);
          }
       }

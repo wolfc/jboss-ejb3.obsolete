@@ -26,9 +26,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Map;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import org.jboss.ejb3.PersistenceUnitRegistry;
+
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 
 /**
  * Comment
@@ -67,9 +69,9 @@ public class InjectedEntityManagerFactory implements EntityManagerFactory, Exter
    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
    {
       String kernelName = in.readUTF();
-      PersistenceUnitDeployment deployment = PersistenceUnitRegistry.getPersistenceUnit(kernelName);
-      if (deployment == null) throw new IOException("Unable to find persistence unit in registry: " + kernelName);
-      managedFactory = deployment.getManagedFactory();
+      managedFactory = ManagedEntityManagerFactoryHelper.getManagedEntityManagerFactory(kernelName);
+      if(managedFactory == null)
+         throw new IOException("Unable to find persistence unit in registry: " + kernelName);
       delegate = managedFactory.getEntityManagerFactory();
    }
 

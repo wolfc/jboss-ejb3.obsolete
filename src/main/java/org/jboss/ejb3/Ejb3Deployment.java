@@ -31,6 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javassist.bytecode.ClassFile;
+
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
@@ -39,7 +42,7 @@ import javax.naming.NamingException;
 import javax.persistence.Entity;
 import javax.security.jacc.PolicyConfiguration;
 
-import javassist.bytecode.ClassFile;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
@@ -57,6 +60,7 @@ import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
 import org.jboss.injection.InjectionHandler;
+import org.jboss.jpa.resolvers.PersistenceUnitDependencyResolver;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossGenericBeanMetaData;
@@ -95,6 +99,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected LinkedHashMap<ObjectName, Container> ejbContainers = new LinkedHashMap<ObjectName, Container>();
 
+   private boolean processPersistenceUnits = true;
    protected boolean hasEntities;
 
    protected List<String> explicitEntityClasses = new ArrayList<String>();
@@ -132,6 +137,11 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    
    protected boolean reinitialize = false;
 
+   private org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit;
+   
+   private PersistenceUnitDependencyResolver persistenceUnitDependencyResolver;
+
+   @Deprecated
    public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceMetaData persistenceUnitsMetaData)
    {
       assert unit != null : "unit is null";
@@ -153,6 +163,23 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       if (metaData != null && metaData.getAssemblyDescriptor() != null)
          destinations = metaData.getAssemblyDescriptor().getMessageDestinations();
       messageDestinationResolver = new MessageDestinationResolver(deploymentScope, destinations);
+   }
+   
+   /**
+    * Do not deploy persistence unit anymore.
+    * 
+    * @param deploymentUnit
+    * @param unit
+    * @param deploymentScope
+    * @param metaData
+    */
+   public Ejb3Deployment(org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit, DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData)
+   {
+      this(unit, deploymentScope, metaData, null);
+      
+      assert deploymentUnit != null : "deploymentUnit is null";
+      
+      this.deploymentUnit = deploymentUnit;
    }
 
    public JavaEEApplication getApplication()
@@ -217,6 +244,12 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       this.persistenceManagerFactoryRegistry = registry;
    }
    
+   @Inject
+   public void setPersistenceUnitDependencyResolver(PersistenceUnitDependencyResolver resolver)
+   {
+      this.persistenceUnitDependencyResolver = resolver;
+   }
+   
    public PoolFactoryRegistry getPoolFactoryRegistry()
    {
       return poolFactoryRegistry;
@@ -226,6 +259,11 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       this.poolFactoryRegistry = poolFactoryRegistry;
    }
 
+   public void setProcessPersistenceUnits(boolean b)
+   {
+      this.processPersistenceUnits = b;
+   }
+   
    /**
     * Returns a partial MBean attribute name of the form
     * ",ear=foo.ear,jar=foo.jar"
@@ -665,7 +703,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected void initializePersistenceUnits() throws Exception
    {
-      hasEntities = persistenceUnitsMetaData != null;
+      hasEntities = persistenceUnitsMetaData != null && processPersistenceUnits;
 
       if (!hasEntities)
          return;
@@ -839,6 +877,11 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       return messageDestinationResolver.resolveMessageDestination(link);
    }
 
+   protected String resolvePersistenceUnitSupplier(String persistenceUnitName)
+   {
+      return persistenceUnitDependencyResolver.resolvePersistenceUnitSupplier(deploymentUnit, persistenceUnitName);
+   }
+   
    public MessageDestinationResolver getMessageDestinationResolver()
    {
       return messageDestinationResolver;

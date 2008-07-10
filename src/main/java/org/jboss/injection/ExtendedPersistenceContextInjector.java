@@ -22,9 +22,10 @@
 package org.jboss.injection;
 
 import javax.persistence.EntityManager;
+
 import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.entity.ManagedEntityManagerFactory;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
+import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 import org.jboss.logging.Logger;
 
 /**
