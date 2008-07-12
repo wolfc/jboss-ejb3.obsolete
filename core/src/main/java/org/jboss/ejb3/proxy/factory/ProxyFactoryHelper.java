@@ -58,12 +58,11 @@ import org.jboss.ejb3.annotation.impl.LocalImpl;
 import org.jboss.ejb3.annotation.impl.RemoteImpl;
 import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.jndipolicy.impl.PackagingBasedJndiBindingPolicy;
-import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.session.SessionContainer;
-import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DeploymentSummary;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 
 /**
@@ -1039,18 +1038,17 @@ public class ProxyFactoryHelper
    private static EjbDeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
    {
       // Construct Deployment Summary
-      EjbDeploymentSummary summary = new EjbDeploymentSummary();
-      summary.setEjbName(container.getEjbName());
-      summary.setService(container instanceof ServiceContainer);
-      summary.setStateful(container instanceof StatefulContainer);
-      summary.setDeploymentName(container.getDeployment().getName());
-      summary.setBeanClassName(container.getBeanClass().getName());
+      DeploymentSummary dsummary = new DeploymentSummary();
+      dsummary.setDeploymentName(container.getDeployment().getName());
       DeploymentScope scope = container.getDeployment().getEar();
       if (scope != null)
       {
-         summary.setDeploymentScopeBaseName(scope.getBaseName());
+         dsummary.setDeploymentScopeBaseName(scope.getBaseName());
       }
-
+      
+      // Construct EjbDeploymetSummary
+      EjbDeploymentSummary summary = new EjbDeploymentSummary(container.getXml(),dsummary);
+      
       // Return
       return summary;
    }
