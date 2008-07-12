@@ -30,6 +30,8 @@ import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
 
 /**
  * Comment
@@ -62,6 +64,7 @@ public class MockStatefulContainer extends StatefulContainer
       metaData.setAssemblyDescriptor(new JBossAssemblyDescriptorMetaData());
       JBossSessionBeanMetaData sessionBeanMetaData = new JBossSessionBeanMetaData();
       sessionBeanMetaData.setEnterpriseBeansMetaData(enterpriseBeans);
+      sessionBeanMetaData = new JBossSessionPolicyDecorator(sessionBeanMetaData, new BasicJndiBindingPolicy());
       return sessionBeanMetaData;
    }
 }
