@@ -83,7 +83,7 @@
     
   -->
 
-  <!-- SLSB JNDI Registrar -->
+  <!-- SLSB JNDI Registrar 
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
     class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
     <constructor>
@@ -95,9 +95,9 @@
       </parameter>
     </constructor>
     <depends>NameServer</depends>
-  </bean>
+  </bean> -->
 
-  <!-- SFSB JNDI Registrar -->
+  <!-- SFSB JNDI Registrar 
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
     class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
     <constructor>
@@ -109,7 +109,7 @@
       </parameter>
     </constructor>
     <depends>NameServer</depends>
-  </bean>
+  </bean> -->
 
   <!-- JNDI Registrar Configuration -->
   <bean name="org.jboss.ejb3.JndiContext"
