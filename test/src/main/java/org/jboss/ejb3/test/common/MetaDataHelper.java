@@ -35,8 +35,9 @@ import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionPolicyDecorator;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
@@ -94,7 +95,8 @@ public class MetaDataHelper
       }
 
       // Use a Session JNDI Binding Policy for the metadata
-      JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate);
+      JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate,
+            new BasicJndiBindingPolicy());
 
       /*
        * Log Out JNDI Names
@@ -104,7 +106,7 @@ public class MetaDataHelper
       BusinessRemotesMetaData businessRemotes = beanMetaData.getBusinessRemotes();
       if (businessRemotes != null)
       {
-         log.info("Business Remote JNDI Name: " + beanMetaData.determineJndiName()); // [beanName]/remote
+         log.info("Business Remote JNDI Name: " + beanMetaData.getJndiName()); // [beanName]/remote
          for (String businessInterface : beanMetaData.getBusinessRemotes())
          {
             log.info("Business Remote JNDI Name for " + businessInterface + ": "
@@ -116,7 +118,7 @@ public class MetaDataHelper
       BusinessLocalsMetaData businessLocals = beanMetaData.getBusinessLocals();
       if (businessLocals != null)
       {
-         log.info("Local JNDI Name: " + beanMetaData.determineLocalJndiName()); // [beanName]/local
+         log.info("Local JNDI Name: " + beanMetaData.getLocalJndiName()); // [beanName]/local
          for (String businessInterface : beanMetaData.getBusinessLocals())
          {
             log.info("Business Local JNDI Name for " + businessInterface + ": "
