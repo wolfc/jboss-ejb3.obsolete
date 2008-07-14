@@ -32,10 +32,6 @@ import org.jboss.aop.Domain;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.cluster.metadata.ClusteredMetaDataBridge;
-import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
-import org.jboss.ejb3.interceptors.container.AbstractContainer;
-import org.jboss.ejb3.interceptors.container.ContainerInterceptorFactory;
-import org.jboss.ejb3.interceptors.container.InterceptorFactoryRefImpl;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
 import org.jboss.ejb3.interceptors.metadata.AdditiveBeanInterceptorMetaDataBridge;
@@ -44,7 +40,10 @@ import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
 import org.jboss.ejb3.security.bridge.SecurityDomainMetaDataBridge;
+import org.jboss.ejb3.tx.metadata.ApplicationExceptionComponentMetaDataLoaderFactory;
+import org.jboss.ejb3.tx.metadata.ApplicationExceptionMetaDataBridge;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.spec.ApplicationExceptionMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;
 
 /**
@@ -192,6 +191,10 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       interceptorBridges.add(new InterceptorMetaDataBridge());
       annotations.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
       annotations.addMetaDataBridge(new AdditiveBeanInterceptorMetaDataBridge(beanClass, classLoader, beanMetaData));
+      
+      List<MetaDataBridge<ApplicationExceptionMetaData>> appExceptionBridges = new ArrayList<MetaDataBridge<ApplicationExceptionMetaData>>();
+      appExceptionBridges.add(new ApplicationExceptionMetaDataBridge());
+      annotations.addComponentMetaDataLoaderFactory(new ApplicationExceptionComponentMetaDataLoaderFactory(appExceptionBridges));
       
       //Add a security domain bridge
       annotations.addMetaDataBridge(new SecurityDomainMetaDataBridge());
