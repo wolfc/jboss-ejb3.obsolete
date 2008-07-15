@@ -21,19 +21,15 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;

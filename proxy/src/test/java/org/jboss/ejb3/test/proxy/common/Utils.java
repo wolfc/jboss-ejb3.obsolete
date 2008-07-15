@@ -26,6 +26,8 @@ import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
 
 /**
  * Utils
@@ -59,6 +61,9 @@ public class Utils
       // Get Metadata
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(slsbImplementationClass);
 
+      // Decorate Metadata
+      beanMetaData = new JBossSessionPolicyDecorator(beanMetaData, new BasicJndiBindingPolicy());
+
       // Make a Container
       StatelessContainer container = new StatelessContainer(beanMetaData, Thread.currentThread()
             .getContextClassLoader());
@@ -78,6 +83,9 @@ public class Utils
    {
       // Get Metadata
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(sfsbImplementationClass);
+
+      // Decorate Metadata
+      beanMetaData = new JBossSessionPolicyDecorator(beanMetaData, new BasicJndiBindingPolicy());
 
       // Make a Container
       StatefulContainer container = new StatefulContainer(beanMetaData, Thread.currentThread().getContextClassLoader());

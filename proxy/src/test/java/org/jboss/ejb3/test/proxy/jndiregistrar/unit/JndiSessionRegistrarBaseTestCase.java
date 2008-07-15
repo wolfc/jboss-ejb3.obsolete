@@ -58,6 +58,7 @@ import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.junit.After;
@@ -471,7 +472,7 @@ public class JndiSessionRegistrarBaseTestCase
    private String getDefaultBusinessRemoteJndiName(SessionContainer sessionContainer)
    {
       JBossSessionBeanMetaData metadata = sessionContainer.getMetaData();
-      return metadata.determineJndiName();
+      return metadata.getJndiName();
    }
 
    /**
@@ -483,7 +484,7 @@ public class JndiSessionRegistrarBaseTestCase
    private String getDefaultBusinessLocalJndiName(SessionContainer sessionContainer)
    {
       JBossSessionBeanMetaData metadata = sessionContainer.getMetaData();
-      return metadata.determineLocalJndiName();
+      return metadata.getLocalJndiName();
    }
 
    /**
@@ -529,9 +530,9 @@ public class JndiSessionRegistrarBaseTestCase
       Set<String> jndiNames = new HashSet<String>();
 
       // default business remote jndi name 
-      jndiNames.add(metadata.determineJndiName());
+      jndiNames.add(metadata.getJndiName());
       // default business local jndi name
-      jndiNames.add(metadata.determineLocalJndiName());
+      jndiNames.add(metadata.getLocalJndiName());
       // local home jndi name  
       jndiNames.add(metadata.getLocalHomeJndiName());
       // remote home jndi name
@@ -543,7 +544,7 @@ public class JndiSessionRegistrarBaseTestCase
       {
          for (String businessRemoteInterfaceName : businessRemotesMetadata)
          {
-            jndiNames.add(metadata.determineResolvedJndiName(businessRemoteInterfaceName));
+            jndiNames.add(JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessRemoteInterfaceName));
          }
       }
 
@@ -553,7 +554,7 @@ public class JndiSessionRegistrarBaseTestCase
       {
          for (String businessLocalInterfaceName : businessLocalsMetadata)
          {
-            jndiNames.add(metadata.determineResolvedJndiName(businessLocalInterfaceName));
+            jndiNames.add(JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessLocalInterfaceName));
          }
       }
 
