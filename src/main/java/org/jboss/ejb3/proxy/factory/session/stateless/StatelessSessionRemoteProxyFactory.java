@@ -125,8 +125,9 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    protected String getInterceptorStackName()
    {
       return StatelessSessionRemoteProxyFactory.STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS;
-   } // --------------------------------------------------------------------------------||
-
+   } 
+   
+   // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 

@@ -42,6 +42,7 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.naming.Util;
@@ -263,7 +264,7 @@ public abstract class JndiSessionRegistrarBase
          }
 
          // Bind the Default Remote Reference to JNDI
-         String defaultRemoteAddress = smd.determineJndiName();
+         String defaultRemoteAddress = smd.getJndiName();
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultRemoteAddress + "\"");
          this.bind(context, defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
@@ -280,7 +281,7 @@ public abstract class JndiSessionRegistrarBase
                      this.getSessionProxyObjectFactoryType(), null);
                ref.add(refAddrBusinessInterface);
                ref.add(refAddrRemoting);
-               String address = smd.determineResolvedJndiName(businessRemote);
+               String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
                this.bind(context, ref, address, remoteProxyFactoryKey, containerName);
@@ -354,7 +355,7 @@ public abstract class JndiSessionRegistrarBase
          }
 
          // Bind the Default Local Reference to JNDI
-         String defaultLocalAddress = smd.determineLocalJndiName();
+         String defaultLocalAddress = smd.getLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultLocalAddress + "\"");
          this.bind(context, defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
@@ -369,7 +370,7 @@ public abstract class JndiSessionRegistrarBase
                Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal,
                      this.getSessionProxyObjectFactoryType(), null);
                ref.add(refAddr);
-               String address = smd.determineResolvedJndiName(businessLocal);
+               String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
                this.bind(context, ref, address, localProxyFactoryKey, containerName);
@@ -445,7 +446,7 @@ public abstract class JndiSessionRegistrarBase
           */
 
          // Bind the Default Remote Reference to JNDI
-         String defaultRemoteAddress = smd.determineJndiName();
+         String defaultRemoteAddress = smd.getJndiName();
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultRemoteAddress + "\"");
          this.unbind(context, defaultRemoteAddress);
@@ -455,7 +456,7 @@ public abstract class JndiSessionRegistrarBase
          {
             for (String businessRemote : businessRemotes)
             {
-               String address = smd.determineResolvedJndiName(businessRemote);
+               String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be unbound from JNDI at \"" + address + "\"");
                this.unbind(context, address);
@@ -486,7 +487,7 @@ public abstract class JndiSessionRegistrarBase
           */
 
          // Unbind the Default Local Reference to JNDI
-         String defaultLocalAddress = smd.determineLocalJndiName();
+         String defaultLocalAddress = smd.getLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultLocalAddress + "\"");
          this.unbind(context, defaultLocalAddress);
@@ -496,7 +497,7 @@ public abstract class JndiSessionRegistrarBase
          {
             for (String businessLocal : businessLocals)
             {
-               String address = smd.determineResolvedJndiName(businessLocal);
+               String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be unbound from JNDI at \"" + address + "\"");
                this.unbind(context, address);
@@ -621,13 +622,13 @@ public abstract class JndiSessionRegistrarBase
       if (isLocal)
       {
          // Bind together if Local Default JNDI Name == Local Home JNDI Name
-         bindTogether = smd.determineLocalJndiName().equals(smd.getLocalHomeJndiName());
+         bindTogether = smd.getLocalJndiName().equals(smd.getLocalHomeJndiName());
       }
       // If Remote
       else
       {
          // Bind together if Local Default JNDI Name == Local Home JNDI Name
-         bindTogether = smd.determineJndiName().equals(smd.getHomeJndiName());
+         bindTogether = smd.getJndiName().equals(smd.getHomeJndiName());
       }
 
       // Return
@@ -670,7 +671,7 @@ public abstract class JndiSessionRegistrarBase
     * @param md
     * @param isLocal
     */
-   public String getProxyFactoryRegistryKey(JBossEnterpriseBeanMetaData md, boolean isLocal)
+   public String getProxyFactoryRegistryKey(JBossSessionBeanMetaData md, boolean isLocal)
    {
       // Initialize
       String prefix = null;
@@ -678,11 +679,11 @@ public abstract class JndiSessionRegistrarBase
       // Set Suffix
       if (isLocal)
       {
-         prefix = md.determineLocalJndiName();
+         prefix = md.getLocalJndiName();
       }
       else
       {
-         prefix = md.determineJndiName();
+         prefix = md.getJndiName();
       }
 
       // Assemble and return
