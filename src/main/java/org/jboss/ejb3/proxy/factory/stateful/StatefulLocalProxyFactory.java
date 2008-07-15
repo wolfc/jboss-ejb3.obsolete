@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.stateful;
+package org.jboss.ejb3.proxy.factory.stateful;
 
 import java.io.IOException;
 import java.io.ObjectInput;
@@ -34,7 +34,6 @@ import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.SpecificationInterfaceType;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulProxyFactory;
 import org.jboss.ejb3.proxy.handler.stateful.StatefulLocalHomeProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.stateful.StatefulLocalProxyInvocationHandler;
 import org.jboss.ejb3.session.ProxyAccessType;
@@ -77,6 +76,19 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    protected Class<?> getHomeType()
    {
       return ProxyFactoryHelper.getLocalHomeInterface(this.getContainer());
+   }
+   
+   /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return true;
    }
 
    /**

@@ -109,6 +109,19 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
    }
    
    /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return false;
+   }
+   
+   /**
     * Defines the access type for this Proxies created by this Factory
     * 
     * @return

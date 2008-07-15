@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -57,6 +58,10 @@ import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
+import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
+import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.util.naming.Util;
 
 /**
@@ -187,7 +192,42 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
          log.debug("Binding proxy for " + getContainer().getEjbName() + " in JNDI at " + this.getJndiName());
          Util.rebind(getContainer().getInitialContext(), this.getJndiName(), proxy);
          
-         // 
+         // Bind a proxy per business interface
+         //TODO This ugly block should be using polymorphism, but I'll allow it as the proxy mechanism 
+         // is going to be replaced entirely by EJB3 Proxy soon
+         JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData) container.getXml();
+         BusinessRemotesMetaData remotes = smd.getBusinessRemotes();
+         BusinessLocalsMetaData locals = smd.getBusinessLocals();
+         Set<String> businessInterfaces = new HashSet<String>();
+         boolean isLocal = this.isLocal();
+         if (!isLocal)
+         {
+            if (remotes != null)
+            {
+               businessInterfaces.addAll(remotes);
+            }
+         }
+         else
+         {
+            if (locals != null)
+            {
+               businessInterfaces.addAll(locals);
+            }
+         }
+         for (String businessInterface : businessInterfaces)
+         {
+            String jndiName = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessInterface);
+            log.debug("Binding proxy for " + getContainer().getEjbName() + ", interface " + businessInterface
+                  + " in JNDI at " + jndiName);
+            if(Proxy.isProxyClass(proxy.getClass()))
+            {
+               for(Class<?> in : proxy.getClass().getInterfaces())
+               {
+                 log.debug("Proxy Interface for JNDI Name " + jndiName + ": " + in);
+               }
+            }
+            Util.rebind(this.getContainer().getInitialContext(), jndiName, proxy);
+         }
          
       } catch (NamingException e)
       {
@@ -198,6 +238,15 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
          throw namingException;
       }
    }
+   
+   /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   protected abstract boolean isLocal();
    
    /**
     * Whether or not to bind the home and business interfaces together

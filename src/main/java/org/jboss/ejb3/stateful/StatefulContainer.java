@@ -68,6 +68,7 @@ import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory;
+import org.jboss.ejb3.proxy.factory.stateful.StatefulLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;

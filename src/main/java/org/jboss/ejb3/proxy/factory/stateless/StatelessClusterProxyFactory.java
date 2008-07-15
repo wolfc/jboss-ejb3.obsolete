@@ -81,6 +81,19 @@ public class StatelessClusterProxyFactory extends BaseStatelessRemoteProxyFactor
       this.binding = binding;
       this.clustered = clustered;
    }
+   
+   /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return false;
+   }
 
    public void start() throws Exception
    {
