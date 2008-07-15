@@ -36,6 +36,8 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.stateful.StatefulHandleRemoteImpl;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.remoting.InvokerLocator;
 
 /**
@@ -62,7 +64,8 @@ public abstract class BaseStatefulRemoteProxyFactory extends BaseStatefulProxyFa
    // Constructor
    public BaseStatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
-      super(container, binding.jndiBinding());
+      super(container, JbossSessionBeanJndiNameResolver
+            .resolveRemoteBusinessDefaultJndiName((JBossSessionBeanMetaData) container.getXml()));
       
       this.binding = binding;
       

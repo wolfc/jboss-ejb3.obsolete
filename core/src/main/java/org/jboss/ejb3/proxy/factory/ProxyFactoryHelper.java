@@ -44,11 +44,9 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.KernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
-import org.jboss.ejb3.annotation.JndiBindingPolicy;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -61,10 +59,6 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DeploymentSummary;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossEnterpriseBeanJndiNameResolver;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 
@@ -971,6 +965,9 @@ public class ProxyFactoryHelper
             .getXml());
    }
 
+   /*
+    * Commented out; not used
+    */
 //   /**
 //    * Obtains the JNDI Binding Policy for the specified container
 //    * 
@@ -1019,22 +1016,22 @@ public class ProxyFactoryHelper
 //         throw new RuntimeException(e);
 //      }
 //   }
-
-   private static EjbDeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
-   {
-      // Construct Deployment Summary
-      DeploymentSummary dsummary = new DeploymentSummary();
-      dsummary.setDeploymentName(container.getDeployment().getName());
-      DeploymentScope scope = container.getDeployment().getEar();
-      if (scope != null)
-      {
-         dsummary.setDeploymentScopeBaseName(scope.getBaseName());
-      }
-      
-      // Construct EjbDeploymetSummary
-      EjbDeploymentSummary summary = new EjbDeploymentSummary(container.getXml(),dsummary);
-      
-      // Return
-      return summary;
-   }
+//
+//   private static EjbDeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
+//   {
+//      // Construct Deployment Summary
+//      DeploymentSummary dsummary = new DeploymentSummary();
+//      dsummary.setDeploymentName(container.getDeployment().getName());
+//      DeploymentScope scope = container.getDeployment().getEar();
+//      if (scope != null)
+//      {
+//         dsummary.setDeploymentScopeBaseName(scope.getBaseName());
+//      }
+//      
+//      // Construct EjbDeploymetSummary
+//      EjbDeploymentSummary summary = new EjbDeploymentSummary(container.getXml(),dsummary);
+//      
+//      // Return
+//      return summary;
+//   }
 }

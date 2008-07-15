@@ -33,6 +33,8 @@ import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.stateless.StatelessHandleRemoteImpl;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.util.naming.Util;
 
 
@@ -48,7 +50,8 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    
    public StatelessLocalProxyFactory(SessionSpecContainer container, LocalBinding binding)
    {
-      super(container, binding.jndiBinding());
+      super(container, JbossSessionBeanJndiNameResolver
+            .resolveLocalBusinessDefaultJndiName((JBossSessionBeanMetaData) container.getXml()));
    }
    
    /**
@@ -67,6 +70,19 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    protected ProxyAccessType getProxyAccessType()
    {
       return ProxyAccessType.LOCAL;
+   }
+   
+   /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return true;
    }
 
    

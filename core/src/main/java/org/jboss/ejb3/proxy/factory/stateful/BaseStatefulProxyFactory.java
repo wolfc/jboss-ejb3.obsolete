@@ -85,24 +85,26 @@ public abstract class BaseStatefulProxyFactory extends BaseSessionProxyFactory i
       this.init();
       
       // Bind the Proxy Factory
-      Context ctx = getContainer().getInitialContext();
-      Name name = ctx.getNameParser("").parse(jndiName);
-      ctx = Util.createSubcontext(ctx, name.getPrefix(name.size() - 1));
-      String atom = name.get(name.size() - 1);
+      //Context ctx = getContainer().getInitialContext();
+      //Name name = ctx.getNameParser("").parse(jndiName);
+      //ctx = Util.createSubcontext(ctx, name.getPrefix(name.size() - 1));
+      //String atom = name.get(name.size() - 1);
       RefAddr refAddr = new StringRefAddr(JndiSessionProxyObjectFactory.REF_ADDR_NAME_JNDI_BINDING_DELEGATE_PROXY_FACTORY, jndiName + PROXY_FACTORY_NAME);
       Reference ref = new Reference(Object.class.getName(), refAddr, JndiSessionProxyObjectFactory.class.getName(), null);
-      try
-      {
-         log.debug("Binding reference for " + getContainer().getEjbName() + " in JNDI at " + jndiName);
-         Util.rebind(ctx, atom, ref);
-      }
-      catch (NamingException e)
-      {
-         NamingException namingException = new NamingException("Could not bind stateful proxy with ejb name "
-               + getContainer().getEjbName() + " into JNDI under jndiName: " + ctx.getNameInNamespace() + "/" + atom);
-         namingException.setRootCause(e);
-         throw namingException;
-      }
+//      try
+//      {
+//         log.debug("Binding reference for " + getContainer().getEjbName() + " in JNDI at " + jndiName);
+//         Util.rebind(ctx, atom, ref);
+//      }
+//      catch (NamingException e)
+//      {
+//         NamingException namingException = new NamingException("Could not bind stateful proxy with ejb name "
+//               + getContainer().getEjbName() + " into JNDI under jndiName: " + ctx.getNameInNamespace() + "/" + atom);
+//         namingException.setRootCause(e);
+//         throw namingException;
+//      }
+      
+      this.bindProxy(ref);
    }
 
    public void stop() throws Exception
