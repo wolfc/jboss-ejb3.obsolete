@@ -4,7 +4,7 @@
   <parent>
     <artifactId>jboss-ejb3-build</artifactId>
     <groupId>org.jboss.ejb3</groupId>
-    <version>0.13.3</version>
+    <version>0.13.10</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -13,7 +13,7 @@
 
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-  <version>0.4.1-SNAPSHOT</version>
+  <version>0.4.1</version>
   <name>JBoss EJB 3.0 Implementation Classes</name>
   <description>
     JBoss EJB 3.0 Implementation Internals conforming to API
@@ -53,4 +53,10 @@
       <artifactId>jboss-metadata</artifactId>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.4.1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.4.1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-ext-api-impl-0.4.1</url>
+  </scm>
 </project>
