@@ -81,8 +81,10 @@ public class MetaDataHelper
       JBossMetaData metadata = new JBoss50Creator(finder).create(classes);
 
       // Get delegate
+      String ejbName = beanImplClass.getSimpleName();
       JBossSessionBeanMetaData beanMetaDataDelegate = (JBossSessionBeanMetaData) metadata
-            .getEnterpriseBean(beanImplClass.getSimpleName());
+            .getEnterpriseBean(ejbName);
+      assert beanMetaDataDelegate!=null : "Bean metadata for " + ejbName + " could not be found";
 
       // Mock up a @RemoteBinding if none specified but are required
       if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
