@@ -64,7 +64,7 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    
    public StatefulLocalProxyFactory(SessionSpecContainer container, LocalBinding binding)
    {
-      super(container, binding.jndiBinding());
+      super(container, ProxyFactoryHelper.getLocalJndiName(container));
    }
    
    /**
@@ -76,19 +76,6 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    protected Class<?> getHomeType()
    {
       return ProxyFactoryHelper.getLocalHomeInterface(this.getContainer());
-   }
-   
-   /**
-    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
-    * is in place, but this keeps us moving forward easily.
-    * 
-    * @deprecated Hack
-    * @return
-    */
-   @Deprecated
-   protected boolean isLocal()
-   {
-      return true;
    }
 
    /**
@@ -123,7 +110,25 @@ public class StatefulLocalProxyFactory extends BaseStatefulProxyFactory
    @Override
    protected boolean bindHomeAndBusinessTogether()
    {
-      return ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer()).equals(this.jndiName);
+      String localHomeJndiName = ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer());
+      if(localHomeJndiName!=null)
+      {
+         return localHomeJndiName.equals(this.jndiName);
+      }
+      return false;
+   }
+   
+   /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return true;
    }
 
    public void start() throws Exception

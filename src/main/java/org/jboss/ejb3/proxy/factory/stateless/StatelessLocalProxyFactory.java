@@ -33,8 +33,6 @@ import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.stateless.StatelessHandleRemoteImpl;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.util.naming.Util;
 
 
@@ -50,8 +48,7 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    
    public StatelessLocalProxyFactory(SessionSpecContainer container, LocalBinding binding)
    {
-      super(container, JbossSessionBeanJndiNameResolver
-            .resolveLocalBusinessDefaultJndiName((JBossSessionBeanMetaData) container.getXml()));
+      super(container, ProxyFactoryHelper.getLocalJndiName(container));
    }
    
    /**
@@ -71,19 +68,6 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    {
       return ProxyAccessType.LOCAL;
    }
-   
-   /**
-    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
-    * is in place, but this keeps us moving forward easily.
-    * 
-    * @deprecated Hack
-    * @return
-    */
-   @Deprecated
-   protected boolean isLocal()
-   {
-      return true;
-   }
 
    
    protected void validateEjb21Views(){
@@ -98,6 +82,20 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    }
    
    /**
+    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
+    * is in place, but this keeps us moving forward easily.
+    * 
+    * @deprecated Hack
+    * @return
+    */
+   @Deprecated
+   @Override
+   protected boolean isLocal()
+   {
+      return true;
+   }
+   
+   /**
     * Whether or not to bind the home and business interfaces together
     * 
     * @return
@@ -105,7 +103,12 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
    @Override
    protected boolean bindHomeAndBusinessTogether()
    {
-      return ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer()).equals(jndiName);
+      String localHomeJndiName = ProxyFactoryHelper.getLocalHomeJndiName(this.getContainer());
+      if(localHomeJndiName!=null)
+      {
+         return localHomeJndiName.equals(jndiName);
+      }
+      return false;
    }
 
    @Override

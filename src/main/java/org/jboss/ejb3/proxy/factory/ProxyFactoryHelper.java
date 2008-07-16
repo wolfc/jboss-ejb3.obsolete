@@ -44,6 +44,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.jboss.ejb3.Container;
+import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.KernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
@@ -55,12 +56,16 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.annotation.impl.LocalImpl;
 import org.jboss.ejb3.annotation.impl.RemoteImpl;
 import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossEnterpriseBeanJndiNameResolver;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
+import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DeploymentSummary;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 
 /**
  * Comment
@@ -410,6 +415,8 @@ public class ProxyFactoryHelper
 
       // Initialize to defaults of remote and not home
       String jndiName = null;
+      boolean isHome = false;
+      boolean isLocal = false;
 
       // Determine if remote
       Class<?>[] remotes = ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(container);
@@ -447,6 +454,9 @@ public class ProxyFactoryHelper
                // Encountered, return
                return binding.jndiBinding();
             }
+
+            // Set home for policy
+            isHome = true;
          }
       }
 
@@ -463,6 +473,10 @@ public class ProxyFactoryHelper
                // Encountered, return
                return binding.jndiBinding();
             }
+
+            // Set local and home for policy
+            isHome = true;
+            isLocal = true;
          }
       }
 
@@ -479,6 +493,9 @@ public class ProxyFactoryHelper
                // Encountered, return
                return binding.jndiBinding();
             }
+
+            // Set local for policy
+            isLocal = true;
          }
       }
 
@@ -490,7 +507,8 @@ public class ProxyFactoryHelper
                + businessInterface.getName());
 
          // Set JNDI name
-         jndiName = JbossEnterpriseBeanJndiNameResolver.resolveJndiName(container.getXml(), businessInterface.getName());
+         JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData) container.getXml();
+         jndiName = smd.getJndiName();
       }
 
       // Return
@@ -842,9 +860,8 @@ public class ProxyFactoryHelper
       if (binding != null)
          return binding.jndiBinding();
 
-      // Use metadata
-      String jndiName = JbossSessionBeanJndiNameResolver.resolveRemoteHomeJndiName((JBossSessionBeanMetaData) container
-            .getXml());
+      JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
+      String jndiName = smd.getHomeJndiName();
       return jndiName;
    }
 
@@ -855,9 +872,9 @@ public class ProxyFactoryHelper
       if (binding != null)
          return binding.jndiBinding();
 
-      // Use metadata
-      String jndiName = JbossSessionBeanJndiNameResolver.resolveLocalHomeJndiName((JBossSessionBeanMetaData) container
-            .getXml());
+      // Use Default JNDI Binding Policy
+      JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
+      String jndiName = smd.getLocalHomeJndiName();
       return jndiName;
    }
 
@@ -872,11 +889,10 @@ public class ProxyFactoryHelper
       LocalBinding localBinding = container.getAnnotation(LocalBinding.class);
 
       // If none specified
-      if (localBinding == null)
+      if (localBinding == null || localBinding.jndiBinding() != null || localBinding.jndiBinding().trim().length() == 0)
       {
-         // Get JNDI name from metadata
-         String name = JbossSessionBeanJndiNameResolver
-               .resolveLocalBusinessDefaultJndiName((JBossSessionBeanMetaData) container.getXml());
+         JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
+         String name = smd.getLocalJndiName();
 
          // If we should check for naming conflict
          if (conflictCheck){
@@ -910,16 +926,18 @@ public class ProxyFactoryHelper
    {
       if (container.getAnnotation(Local.class) != null)
       {
-         JBossSessionBeanMetaData md = (JBossSessionBeanMetaData) container.getXml();
-         String localJndiName = JbossSessionBeanJndiNameResolver.resolveLocalBusinessDefaultJndiName(md);
-         String remoteJndiName = JbossSessionBeanJndiNameResolver.resolveRemoteBusinessDefaultJndiName(md);
+         JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
+         String localJndiName = smd.getLocalJndiName();
+         String remoteJndiName = smd.getJndiName();
          String ejbName = container.getEjbName();
-         if ((localJndiName.equals(remoteJndiName)))
+         if (localJndiName != null)
          {
-            throw new javax.ejb.EJBException("Conflict between default jndi name " + remoteJndiName
-                  + " for both remote and local for ejb-name:" + ejbName + ", bean class=" + container.getBeanClass());
+            if (localJndiName.equals(remoteJndiName) || localJndiName.startsWith(remoteJndiName + "/"))
+               throw new javax.ejb.EJBException("Conflict between default jndi name " + remoteJndiName
+                     + " for both remote and local for ejb-name:" + ejbName + ", bean class="
+                     + container.getBeanClass() + "\nLocal JNDI Name: " + localJndiName + "\nRemote JNDI Name: "
+                     + remoteJndiName);
          }
-
       }
    }
 
@@ -960,78 +978,8 @@ public class ProxyFactoryHelper
 
    public static String getDefaultRemoteBusinessJndiName(EJBContainer container)
    {
-      // Return the policy's default remote name for this summary
-      return JbossSessionBeanJndiNameResolver.resolveRemoteBusinessDefaultJndiName((JBossSessionBeanMetaData) container
-            .getXml());
+      JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
+      String jndiName = smd.getJndiName();
+      return jndiName;
    }
-
-   /*
-    * Commented out; not used
-    */
-//   /**
-//    * Obtains the JNDI Binding Policy for the specified container
-//    * 
-//    * @param container
-//    * @author ALR
-//    * @return
-//    */
-//   private static DefaultJndiBindingPolicy getJndiBindingPolicy(EJBContainer container)
-//   {
-//      // Attempt to obtain the binding policy from annotation repo
-//      JndiBindingPolicy bindingPolicy = container.getAnnotation(JndiBindingPolicy.class);
-//
-//      // Initialize
-//      Class<? extends DefaultJndiBindingPolicy> policy = null;
-//      
-//      // If policy is defined
-//      if (bindingPolicy != null){
-//         // Use it
-//         policy = bindingPolicy.policy();
-//      }
-//      // No policy defined
-//      else
-//      {
-//         // Use default policy
-//         Class<? extends DefaultJndiBindingPolicy> policyClass = BasicJndiBindingPolicy.class;
-//         // Log warning
-//         log.warn("No default JNDI Binding Policy Defined (see ejb3-interceptors-aop.xml for example); defaulting to "
-//               + policyClass.getName());
-//         policy = policyClass;
-//      }
-//      
-//      // Log
-//      log.debug("Obtaining JNDI name from policy " + policy.getName());
-//
-//      try
-//      {
-//         // Instanciate the policy and return
-//         return policy.newInstance();
-//      }
-//      catch (InstantiationException e)
-//      {
-//         throw new RuntimeException("Could not instanciate JNDI Binding Policy: " + policy.getName(), e);
-//      }
-//      catch (IllegalAccessException e)
-//      {
-//         throw new RuntimeException(e);
-//      }
-//   }
-//
-//   private static EjbDeploymentSummary getDeploymentSummaryFromContainer(EJBContainer container)
-//   {
-//      // Construct Deployment Summary
-//      DeploymentSummary dsummary = new DeploymentSummary();
-//      dsummary.setDeploymentName(container.getDeployment().getName());
-//      DeploymentScope scope = container.getDeployment().getEar();
-//      if (scope != null)
-//      {
-//         dsummary.setDeploymentScopeBaseName(scope.getBaseName());
-//      }
-//      
-//      // Construct EjbDeploymetSummary
-//      EjbDeploymentSummary summary = new EjbDeploymentSummary(container.getXml(),dsummary);
-//      
-//      // Return
-//      return summary;
-//   }
 }
