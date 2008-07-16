@@ -173,9 +173,6 @@
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
-      </annotation>
    </domain>
 
    <domain name="JACC Stateless Bean" extends="Intercepted Bean" inheritBindings="true">
@@ -205,9 +202,6 @@
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
-      </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
       </annotation>
    </domain>
 
@@ -257,9 +251,6 @@
 
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
-      </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
       </annotation>
    </domain>
 
@@ -327,9 +318,6 @@
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
-      </annotation>
 
       <!-- NON Clustered cache configuration -->
       <annotation expr="!class(@org.jboss.ejb3.annotation.Cache) AND !class(@org.jboss.ejb3.annotation.Clustered)">
@@ -356,9 +344,6 @@
       <annotation expr="!class(@org.jboss.ejb3.annotation.Cache)">
          @org.jboss.ejb3.annotation.Cache ("NoPassivationCache")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
-      </annotation>
 
    </domain>
 
@@ -379,9 +364,6 @@
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
-      </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
       </annotation>
    </domain>
 
@@ -405,9 +387,6 @@
       </bind>
       <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
-      </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
       </annotation>
    </domain>
 
@@ -436,9 +415,6 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
-      </annotation>
    </domain>
 
    <domain name="JACC Service Bean" extends="Intercepted Bean" inheritBindings="true">
@@ -466,9 +442,6 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.JndiBindingPolicy)">
-         @org.jboss.ejb3.annotation.JndiBindingPolicy (policy=org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy.class)
-      </annotation>
    </domain>
 
 </aop>

@@ -23,7 +23,6 @@ package org.jboss.ejb3.core.test.stateless.unit;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.naming.InitialContext;
@@ -75,11 +74,7 @@ public class StatelessContainerTestCase extends AbstractEJB3TestCase
       
       InitialContext ctx = new InitialContext();
       System.out.println("ctx = " + ctx);
-      Enumeration<?> i = container.getInitialContext().list("MyStatelessBean");
-      while(i.hasMoreElements())
-      {
-         System.out.println("  " + i.nextElement());   
-      }
+      //System.out.println("  " + container.getInitialContext().list("MyStatelessBean").next());
       MyStateless bean = (MyStateless) ctx.lookup("MyStatelessBean/local");
       
       String actual = bean.sayHi("Me");

@@ -14,8 +14,6 @@ import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.stateless.StatelessHandleRemoteImpl;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.remoting.InvokerLocator;
 
 public abstract class BaseStatelessRemoteProxyFactory extends BaseStatelessProxyFactory implements RemoteProxyFactory
@@ -30,8 +28,7 @@ public abstract class BaseStatelessRemoteProxyFactory extends BaseStatelessProxy
    // Constructor
    public BaseStatelessRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
    {
-      super(container, JbossSessionBeanJndiNameResolver
-            .resolveRemoteBusinessDefaultJndiName((JBossSessionBeanMetaData) container.getXml()));
+      super(container, ProxyFactoryHelper.getRemoteBusinessJndiName(container));
       
       this.binding = binding;
       

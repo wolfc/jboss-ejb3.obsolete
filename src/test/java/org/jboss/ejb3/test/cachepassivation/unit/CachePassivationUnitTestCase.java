@@ -76,8 +76,9 @@ public class CachePassivationUnitTestCase extends TestCase
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
       
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
-      String beanClassName = MockBean.class.getName();
-      String ejbName = "MockBean";
+      Class<?> beanClass = MockBean.class;
+      String beanClassName = beanClass.getName();
+      String ejbName = beanClass.getSimpleName();
       Domain domain = new Domain(new AspectManager(), "Test", false);
       Map<String, Class<? extends PersistenceManagerFactory>> factories = new HashMap<String, Class<? extends PersistenceManagerFactory>>();
       factories.put("MyStatefulSessionFilePersistenceManager", MyStatefulSessionFilePersistenceManagerFactory.class);
