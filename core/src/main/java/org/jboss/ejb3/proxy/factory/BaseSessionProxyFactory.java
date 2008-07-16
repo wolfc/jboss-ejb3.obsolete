@@ -43,7 +43,6 @@ import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.HomeHandle;
 import javax.ejb.RemoteHome;
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.EJBContainer;
@@ -219,15 +218,16 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
             String jndiName = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessInterface);
             log.debug("Binding proxy for " + getContainer().getEjbName() + ", interface " + businessInterface
                   + " in JNDI at " + jndiName);
-            if(Proxy.isProxyClass(proxy.getClass()))
+            if (Proxy.isProxyClass(proxy.getClass()))
             {
-               for(Class<?> in : proxy.getClass().getInterfaces())
+               for (Class<?> in : proxy.getClass().getInterfaces())
                {
-                 log.debug("Proxy Interface for JNDI Name " + jndiName + ": " + in);
+                  log.debug("Proxy Interface for JNDI Name " + jndiName + ": " + in);
                }
             }
             Util.rebind(this.getContainer().getInitialContext(), jndiName, proxy);
          }
+
          
       } catch (NamingException e)
       {
@@ -239,6 +239,7 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
       }
    }
    
+   
    /**
     * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
     * is in place, but this keeps us moving forward easily.
@@ -246,8 +247,12 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
     * @deprecated Hack
     * @return
     */
-   protected abstract boolean isLocal();
-   
+   @Deprecated
+   protected boolean isLocal()
+   {
+      return false;
+   }
+
    /**
     * Whether or not to bind the home and business interfaces together
     * 

@@ -62,25 +62,20 @@ public class StatelessRemoteProxyFactory extends BaseStatelessRemoteProxyFactory
    protected boolean bindHomeAndBusinessTogether()
    {
       SessionSpecContainer container = this.getContainer();
-      return ProxyFactoryHelper.getHomeJndiName(container).equals(ProxyFactoryHelper.getRemoteBusinessJndiName(container));
+      String homeJndiName = ProxyFactoryHelper.getHomeJndiName(container);
+      if(homeJndiName!=null)
+      {
+         return homeJndiName.equals(ProxyFactoryHelper.getRemoteBusinessJndiName(container));
+      }
+      else
+      {
+         return false;
+      }
    }
 
    public void init() throws Exception
    {
       super.init();
-   }
-   
-   /**
-    * Returns whether this Proxy Factory is local.  A Hack until EJB3 Proxy 
-    * is in place, but this keeps us moving forward easily.
-    * 
-    * @deprecated Hack
-    * @return
-    */
-   @Deprecated
-   protected boolean isLocal()
-   {
-      return false;
    }
 
    public void start() throws Exception
