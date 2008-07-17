@@ -35,6 +35,7 @@ import javax.ejb.PrePassivate;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.advice.PerVmAdvice;
+import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 
@@ -49,6 +50,11 @@ public class LifecycleCallbacks
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
+      
+      // TODO: these should come from aop.xml
+      interceptors.add(new CurrentInvocationInterceptor());
+      interceptors.add(PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+      
       // 12.7 footnote 57: ignore method level interceptors
       // The lifecycle callbacks on the interceptors must be invoked in order
       for(Class<?> interceptorClass : lifecycleInterceptorClasses)
@@ -84,8 +90,6 @@ public class LifecycleCallbacks
             }
          }
       }
-      
-      interceptors.add(0, PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
       
       return interceptors.toArray(new Interceptor[0]);
    }
