@@ -252,9 +252,10 @@ public class ConsumerContainer extends MessagingContainer
     *
     * @throws Exception Failed to initalize.
     */
-   public void start() throws Exception
+   @Override
+   protected void lockedStart() throws Exception
    {
-      super.start();
+      super.lockedStart();
       
       registerProducers();
    }
@@ -301,9 +302,10 @@ public class ConsumerContainer extends MessagingContainer
       activationSpec.merge(md.activationConfig());
    }
 
-   public void stop() throws Exception
+   @Override
+   protected void lockedStop() throws Exception
    {
       unregisterProducers();
-      super.stop();
+      super.lockedStop();
    }
 }

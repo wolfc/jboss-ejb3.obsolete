@@ -159,9 +159,10 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
     *
     * @throws Exception Failed to initalize.
     */
-   public void start() throws Exception
+   @Override
+   protected void lockedStart() throws Exception
    {
-      super.start();
+      super.lockedStart();
 
       populateActivationSpec();
          
@@ -293,8 +294,8 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
       }
    }
 
-
-   public void stop() throws Exception
+   @Override
+   protected void lockedStop() throws Exception
    {
       if (timerService != null)
       {
@@ -304,7 +305,7 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
 
       stopProxies();
       
-      super.stop();
+      super.lockedStop();
    }
 
    protected void stopProxies() throws Exception

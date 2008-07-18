@@ -132,11 +132,6 @@ public class MDB extends MessagingContainer
       list.add(getMessagingType());
       return list;
    }
-   
-   public void start() throws Exception
-   {
-      super.start();
-   }
 
    public ObjectName getJmxName()
    {
