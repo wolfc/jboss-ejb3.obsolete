@@ -35,6 +35,9 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -180,6 +183,9 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    private ThreadLocalStack<BeanContext<?>> currentBean = new ThreadLocalStack<BeanContext<?>>();
    
    protected boolean reinitialize = false;
+   
+   // To support clean startup/shutdown
+   private ReadWriteLock containerLock = new ReentrantReadWriteLock();
    
    /**
     * @param name                  Advisor name
@@ -829,6 +835,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
 
    public void create() throws Exception
    {
+      // Lock until start()
+      this.getContainerLock().lock();
       /*
       initializeClassContainer();
       for (int i = 0; i < constructors.length; i++)
@@ -842,8 +850,15 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       */
    }
 
+   public final void start() throws Exception
+   {
+      this.lockedStart();
+      
+      this.getContainerLock().unlock();
+   }
+   
    // Everything must be done in start to make sure all dependencies have been satisfied
-   public void start() throws Exception
+   protected void lockedStart() throws Exception
    {
       if (reinitialize)
          reinitialize();
@@ -870,7 +885,14 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       log.info("STARTED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
    }
 
-   public void stop() throws Exception
+   public final void stop() throws Exception
+   {
+      this.getContainerLock().lockInterruptibly();
+      
+      this.lockedStop();
+   }
+   
+   protected void lockedStop() throws Exception
    {
       reinitialize = true;
       
@@ -1498,6 +1520,16 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       }
       
       return bridgeMethod;
+   }
+   
+   public Lock getInvocationLock()
+   {
+      return this.containerLock.readLock();
+   }
+   
+   private Lock getContainerLock()
+   {
+      return this.containerLock.writeLock();
    }
    
    public String toString()

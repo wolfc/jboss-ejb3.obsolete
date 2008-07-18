@@ -278,18 +278,19 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
       this.cache.start();
    }
    
-   public void start() throws Exception
+   @Override
+   protected void lockedStart() throws Exception
    {
       try
       {
-         super.start();
+         super.lockedStart();
          this.createAndStartCache();
       }
       catch (Exception e)
       {
          try
          {
-            stop();
+            this.lockedStop();
          }
          catch (Exception ignore)
          {
@@ -300,10 +301,12 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulO
 
    }
 
-   public void stop() throws Exception
+   @Override
+   protected void lockedStop() throws Exception
    {
-      super.stop();
       if (cache != null) cache.stop();
+      
+      super.lockedStop();
    }
 
    public StatefulCache getCache()

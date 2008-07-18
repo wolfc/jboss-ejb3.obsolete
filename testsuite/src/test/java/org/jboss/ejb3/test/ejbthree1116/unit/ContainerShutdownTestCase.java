@@ -54,6 +54,8 @@ public class ContainerShutdownTestCase extends JBossTestCase
    {
       MyStateful bean = (MyStateful) new InitialContext().lookup("MyStatefulBean/remote");
       
+      bean.increment();
+      
       this.undeploy(JAR);
       
       try
@@ -80,9 +82,32 @@ public class ContainerShutdownTestCase extends JBossTestCase
    {
       MyStateful bean = (MyStateful) new InitialContext().lookup("MyStatefulBean/remote");
       
-      CountDownLatch latch = new CountDownLatch(2);
+      bean.increment();
       
-      Thread thread = new Thread(new Undeployer(latch));
+      final CountDownLatch latch = new CountDownLatch(2);
+      
+      Thread thread = new Thread()
+      {
+         @Override
+         public void run()
+         {
+            try
+            {
+               latch.countDown();
+               latch.await();
+               
+               ContainerShutdownTestCase.this.undeploy(JAR);
+            }
+            catch (InterruptedException e)
+            {
+               Thread.currentThread().interrupt();
+            }
+            catch (Exception e)
+            {
+               ContainerShutdownTestCase.this.log.error(e.getMessage(), e);
+            }
+         }
+      };
       
       thread.start();
       
@@ -122,35 +147,6 @@ public class ContainerShutdownTestCase extends JBossTestCase
          catch (InterruptedException e)
          {
             Thread.currentThread().interrupt();
-         }
-      }
-   }
-   
-   private class Undeployer implements Runnable
-   {
-      private CountDownLatch latch;
-      
-      public Undeployer(CountDownLatch latch)
-      {
-         this.latch = latch;
-      }
-      
-      public void run()
-      {
-         try
-         {
-            this.latch.countDown();
-            this.latch.await();
-
-            ContainerShutdownTestCase.this.undeploy(JAR);
-         }
-         catch (InterruptedException e)
-         {
-            Thread.currentThread().interrupt();
-         }
-         catch (Exception e)
-         {
-            ContainerShutdownTestCase.this.log.error(e.getMessage(), e);
          }
       }
    }

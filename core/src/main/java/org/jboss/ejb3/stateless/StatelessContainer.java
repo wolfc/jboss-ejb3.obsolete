@@ -195,11 +195,12 @@ public class StatelessContainer extends SessionSpecContainer
       this.timeout = getTimeoutCallback(timeoutMethodMetaData, getBeanClass());
    }
    
-   public void start() throws Exception
+   @Override
+   protected void lockedStart() throws Exception
    {
       try
       {
-         super.start();
+         super.lockedStart();
          
          timerService = TimerServiceFactory.getInstance().createTimerService(this, this);
          
@@ -209,7 +210,7 @@ public class StatelessContainer extends SessionSpecContainer
       {
          try
          {
-            stop();
+            this.lockedStop();
          }
          catch (Exception ignore)
          {
@@ -219,7 +220,8 @@ public class StatelessContainer extends SessionSpecContainer
       }
    }
 
-   public void stop() throws Exception
+   @Override
+   protected void lockedStop() throws Exception
    {
       if (timerService != null)
       {
@@ -227,7 +229,7 @@ public class StatelessContainer extends SessionSpecContainer
          timerService = null;
       }
       
-      super.stop();
+      super.lockedStop();
    }
 
    public TimerService getTimerService()

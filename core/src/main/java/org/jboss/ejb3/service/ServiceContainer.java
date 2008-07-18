@@ -203,9 +203,10 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       invokeOptionalMethod("create");
    }
    
-   public void start() throws Exception
+   @Override
+   protected void lockedStart() throws Exception
    {
-      super.start();
+      super.lockedStart();
 
       try
       {
@@ -226,11 +227,12 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       catch (Exception e)
       {
          e.printStackTrace();
-         stop();
+         this.lockedStop();
       }
    }
 
-   public void stop() throws Exception
+   @Override
+   protected void lockedStop() throws Exception
    {
       invokeOptionalMethod("stop");
       
@@ -246,7 +248,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       singleton = null;
       beanContext = null;
       
-      super.stop();
+      super.lockedStop();
    }
 
    public void destroy() throws Exception

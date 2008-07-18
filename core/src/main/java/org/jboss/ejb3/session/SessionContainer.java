@@ -180,9 +180,9 @@ public abstract class SessionContainer extends EJBContainer
       return list;
    }
    
-   public void start() throws Exception
+   protected void lockedStart() throws Exception
    {
-      super.start();
+      super.lockedStart();
       // So that Remoting layer can reference this container easily.
       Dispatcher.singleton.registerTarget(getObjectName().getCanonicalName(), new ClassProxyHack(this));
       proxyDeployer.start();
@@ -208,7 +208,7 @@ public abstract class SessionContainer extends EJBContainer
       return clusterFamilies;
    }
 
-   public void stop() throws Exception
+   protected void lockedStop() throws Exception
    {
       try
       {
@@ -226,7 +226,7 @@ public abstract class SessionContainer extends EJBContainer
       {
          log.debug("Dispatcher unregister target failed", ignore);
       }
-      super.stop();
+      super.lockedStop();
    }
 
    @Override

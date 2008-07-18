@@ -82,6 +82,7 @@
    <interceptor class="org.jboss.ejb3.AllowedOperationsInterceptor" scope="PER_VM"/>
    <interceptor factory="org.jboss.ejb3.mdb.CurrentMessageInjectorInterceptorFactory" scope="PER_CLASS"/>
    <interceptor class="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor" scope="PER_VM"/>
+   <interceptor class="org.jboss.ejb3.BlockContainerShutdownInterceptor" scope="PER_VM"/>
 
    <!--
          INTERCEPTORS
@@ -140,6 +141,7 @@
       
       <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
+         <interceptor-ref name="org.jboss.ejb3.BlockContainerShutdownInterceptor"/>
       </bind>
    </domain>
    
