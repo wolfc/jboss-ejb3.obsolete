@@ -25,7 +25,7 @@ package org.jboss.ejb3.proxy.handler;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 
 /**
  * ProxyInvocationHandler

@@ -187,7 +187,8 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote home of SLSB returned null", home);
 
-      assertTrue("Failure - Remote Home of SLSB, returned from lookup, is NOT instance of " + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
+      assertTrue("Failure - Remote Home of SLSB, returned from lookup, is NOT instance of "
+            + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
 
       // lookup the bean local home to ensure its been bound to the jndi
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
@@ -195,7 +196,8 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of local home of SLSB, returned null", localHome);
 
-      assertTrue("Failure - Local SLSB returned from lookup is NOT instance of " + MyStatelessLocalHome.class, (localHome instanceof MyStatelessLocalHome));
+      assertTrue("Failure - Local SLSB returned from lookup is NOT instance of " + MyStatelessLocalHome.class,
+            (localHome instanceof MyStatelessLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -231,14 +233,16 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Remote object of 3.0 SLSB is null", remote);
 
-      assertTrue("Failure - Remote object of 3.0 SLSB is NOT an instance of " + MyStatelessRemote.class, (remote instanceof MyStatelessRemote));
+      assertTrue("Failure - Remote object of 3.0 SLSB is NOT an instance of " + MyStatelessRemote.class,
+            (remote instanceof MyStatelessRemote));
 
       // lookup the local bean to ensure its been bound to the jndi
       Object local = ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
 
       assertNotNull("Failure - Local object of 3.0 SLSB is null", local);
 
-      assertTrue("Failure - Local object of 3.0 SLSB is NOT an instance of " + MyStatelessLocal.class, (local instanceof MyStatelessLocal));
+      assertTrue("Failure - Local object of 3.0 SLSB is NOT an instance of " + MyStatelessLocal.class,
+            (local instanceof MyStatelessLocal));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -276,13 +280,15 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Remote home of 3.0 SLSB is null", home);
 
-      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
+      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessRemoteHome.class,
+            (home instanceof MyStatelessRemoteHome));
 
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
 
       assertNotNull("Failure - Local home of 3.0 SLSB is null", localHome);
 
-      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessLocalHome.class, (localHome instanceof MyStatelessLocalHome));
+      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessLocalHome.class,
+            (localHome instanceof MyStatelessLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -317,7 +323,8 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote bean returned null", remote);
 
-      assertTrue("Failure - Remote bean returned from lookup is NOT instance of " + MyStatelessRemote.class, (remote instanceof MyStatelessRemote));
+      assertTrue("Failure - Remote bean returned from lookup is NOT instance of " + MyStatelessRemote.class,
+            (remote instanceof MyStatelessRemote));
 
       // Now bind to the JNDI, some object
       ctx.bind("TestJndiName", "TestJndiObject");
@@ -360,7 +367,8 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote SFSB returned null", remote);
 
-      assertTrue("Failure - Remote SFSB returned from lookup is NOT instance of " + MyStatefulRemoteBusiness.class, (remote instanceof MyStatefulRemoteBusiness));
+      assertTrue("Failure - Remote SFSB returned from lookup is NOT instance of " + MyStatefulRemoteBusiness.class,
+            (remote instanceof MyStatefulRemoteBusiness));
 
       // lookup local
       Object local = (Object) ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
@@ -368,7 +376,8 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of local SFSB returned null", local);
 
-      assertTrue("Failure - Local SFSB returned from lookup is NOT instance of " + MyStatefulLocalBusiness.class, (local instanceof MyStatefulLocalBusiness));
+      assertTrue("Failure - Local SFSB returned from lookup is NOT instance of " + MyStatefulLocalBusiness.class,
+            (local instanceof MyStatefulLocalBusiness));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -406,14 +415,16 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote for SFSB returned null", remote);
 
-      assertTrue("Failure - Remote SFSB is NOT instance of " + MyStatefulRemoteBusiness.class, (remote instanceof MyStatefulRemoteBusiness));
+      assertTrue("Failure - Remote SFSB is NOT instance of " + MyStatefulRemoteBusiness.class,
+            (remote instanceof MyStatefulRemoteBusiness));
 
       // lookup the local 
       Object local = ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
 
       assertNotNull("Failure - Lookup of local for SFSB returned null", local);
 
-      assertTrue("Failure - Local SFSB is NOT instance of " + MyStatefulLocalBusiness.class, (local instanceof MyStatefulLocalBusiness));
+      assertTrue("Failure - Local SFSB is NOT instance of " + MyStatefulLocalBusiness.class,
+            (local instanceof MyStatefulLocalBusiness));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -448,14 +459,16 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote home for SFSB returned null", home);
 
-      assertTrue("Failure - Remote home lookup of SFSB is NOT instance of " + MyStatefulRemoteHome.class, (home instanceof MyStatefulRemoteHome));
+      assertTrue("Failure - Remote home lookup of SFSB is NOT instance of " + MyStatefulRemoteHome.class,
+            (home instanceof MyStatefulRemoteHome));
 
       // lookup the local home
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
 
       assertNotNull("Failure - Lookup of local home for SFSB returned null", localHome);
 
-      assertTrue("Failure - Local home lookup of SFSB is NOT instance of " + MyStatefulLocalHome.class, (localHome instanceof MyStatefulLocalHome));
+      assertTrue("Failure - Local home lookup of SFSB is NOT instance of " + MyStatefulLocalHome.class,
+            (localHome instanceof MyStatefulLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -544,7 +557,8 @@ public class JndiSessionRegistrarBaseTestCase
       {
          for (String businessRemoteInterfaceName : businessRemotesMetadata)
          {
-            jndiNames.add(JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessRemoteInterfaceName));
+            String jndiName = JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessRemoteInterfaceName);
+            jndiNames.add(jndiName);
          }
       }
 
@@ -554,11 +568,14 @@ public class JndiSessionRegistrarBaseTestCase
       {
          for (String businessLocalInterfaceName : businessLocalsMetadata)
          {
-            jndiNames.add(JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessLocalInterfaceName));
+            String jndiName = JbossSessionBeanJndiNameResolver.resolveJndiName(metadata, businessLocalInterfaceName);
+            jndiNames.add(jndiName);
+
          }
       }
 
-      logger.debug("Number of jndi names associated with session container " + sessionContainer.getName() + " = " + jndiNames.size());
+      logger.debug("Number of jndi names associated with session container " + sessionContainer.getName() + " = "
+            + jndiNames.size());
 
       return jndiNames;
 

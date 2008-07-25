@@ -21,6 +21,13 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
+import java.lang.reflect.Method;
+
+import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
+import org.jboss.logging.Logger;
+
 /**
  * SessionSpecProxyInvocationHandlerBase
  * 
@@ -34,6 +41,12 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       implements
          SessionSpecProxyInvocationHandler
 {
+   // ------------------------------------------------------------------------------||
+   // Class Members ----------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(SessionSpecProxyInvocationHandlerBase.class);
+   
    // ------------------------------------------------------------------------------||
    // Instance Members -------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -61,6 +74,55 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    {
       super();
       this.setBusinessInterfaceType(businessInterfaceType);
+   }
+   
+   // ------------------------------------------------------------------------------||
+   // Required Implementations -----------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   {      
+      // Obtain an explicitly-specified actual class
+      String actualClass = this.getBusinessInterfaceType();
+      
+      // Set the invoked method
+      SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
+      this.setInvokedMethod(invokedMethod);
+      
+      // Attempt to handle directly
+      try
+      {
+         return this.handleInvocationDirectly(proxy, args);
+      }
+      // Ignore this, we just couldn't handle here
+      catch (NotEligibleForDirectInvocationException nefdie)
+      {
+         log.debug("Couldn't handle invocation directly within " + this + ": "
+               + nefdie.getMessage());
+      }
+      
+      /*
+       * Obtain the Container
+       */
+      InvokableContext<?> container = this.getContainer();
+
+      /*
+       * Invoke
+       */
+      
+      // Adjust args if null to empty array
+      if(args==null)
+      {
+         args = new Object[]{};
+      }
+
+      // Invoke
+      log.debug("Invoking: " + invokedMethod + " with arguments " + args + "...");
+      Object result = container.invoke(proxy, invokedMethod, args);
+
+      // Return
+      return result;
+
    }
 
    // ------------------------------------------------------------------------------||

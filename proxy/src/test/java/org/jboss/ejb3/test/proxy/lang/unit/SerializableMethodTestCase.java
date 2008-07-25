@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.test.proxy.lang.MyChildClass;
 import org.jboss.ejb3.test.proxy.lang.MyClass;
 import org.jboss.ejb3.test.proxy.lang.SerializationUtil;
@@ -73,8 +73,10 @@ public class SerializableMethodTestCase
 
       Method methodWithNoParamAndReturningVoid = myClass.getClass().getMethod("methodWithNoParamAndReturningVoid",
             (Class<?>[]) null);
-      SerializableMethod serializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid);
-      SerializableMethod anotherSerializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid);
+      SerializableMethod serializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid, myClass
+            .getClass());
+      SerializableMethod anotherSerializableMethod = new SerializableMethod(methodWithNoParamAndReturningVoid, myClass
+            .getClass());
 
       // These 2 SerializableMethod instances should be equal, as they were created for the same Method
       assertTrue("Failure - Two SerializableMethod instances created out of the same Method are not equal",
@@ -103,9 +105,10 @@ public class SerializableMethodTestCase
       Method methodAcceptingArrayOfPrimitives = myClass.getClass().getMethod("methodAcceptingArrayOfPrimitives",
             new Class[]
             {int[].class});
-      SerializableMethod serializableMethod_arrayOfPrimitives = new SerializableMethod(methodAcceptingArrayOfPrimitives);
+      SerializableMethod serializableMethod_arrayOfPrimitives = new SerializableMethod(
+            methodAcceptingArrayOfPrimitives, myClass.getClass());
       SerializableMethod anotherSerializableMethod_arrayOfPrimitives = new SerializableMethod(
-            methodAcceptingArrayOfPrimitives);
+            methodAcceptingArrayOfPrimitives, myClass.getClass());
 
       // test equals
       assertTrue(
@@ -122,9 +125,10 @@ public class SerializableMethodTestCase
 
       Method methodAcceptingArrayOfObjects = myClass.getClass().getMethod("methodAcceptingArrayOfObjects", new Class[]
       {Object[].class});
-      SerializableMethod serializableMethod_arrayOfObjects = new SerializableMethod(methodAcceptingArrayOfObjects);
+      SerializableMethod serializableMethod_arrayOfObjects = new SerializableMethod(methodAcceptingArrayOfObjects,
+            myClass.getClass());
       SerializableMethod anotherSerializableMethod_arrayOfObjects = new SerializableMethod(
-            methodAcceptingArrayOfObjects);
+            methodAcceptingArrayOfObjects, myClass.getClass());
 
       // test equals
       assertTrue(
@@ -158,8 +162,10 @@ public class SerializableMethodTestCase
             "methodWithParamAndReturningVoid", new Class[]
             {Integer.class});
 
-      SerializableMethod serializableMethod = new SerializableMethod(methodAcceptingStringParamAndReturingVoid);
-      SerializableMethod anotherSerializableMethod = new SerializableMethod(methodAcceptingIntegerParamAndReturingVoid);
+      SerializableMethod serializableMethod = new SerializableMethod(methodAcceptingStringParamAndReturingVoid, myClass
+            .getClass());
+      SerializableMethod anotherSerializableMethod = new SerializableMethod(methodAcceptingIntegerParamAndReturingVoid,
+            myClass.getClass());
 
       // test the equals
       assertFalse("Failure - Two Serializable method instances created for 2 different overloaded methods are equal",
@@ -174,9 +180,9 @@ public class SerializableMethodTestCase
             {int.class});
 
       SerializableMethod serializableMethod_PrimitiveIntParam = new SerializableMethod(
-            methodAcceptingPrimitiveIntAndReturningVoid);
+            methodAcceptingPrimitiveIntAndReturningVoid, myClass.getClass());
       SerializableMethod serializableMethod_IntegerParam = new SerializableMethod(
-            methodAcceptingIntegerParamAndReturingVoid);
+            methodAcceptingIntegerParamAndReturingVoid, myClass.getClass());
 
       // test the equals
       assertFalse(
@@ -189,7 +195,8 @@ public class SerializableMethodTestCase
 
       Method methodAcceptingObject = myClass.getClass().getMethod("methodWithParamAndReturningVoid", new Class[]
       {Object.class});
-      SerializableMethod serializableMethod_ObjectParam = new SerializableMethod(methodAcceptingObject);
+      SerializableMethod serializableMethod_ObjectParam = new SerializableMethod(methodAcceptingObject, myClass
+            .getClass());
 
       // test the equals
       assertFalse(
@@ -214,8 +221,10 @@ public class SerializableMethodTestCase
       Method toStringMethodOfMyClass = myClass.getClass().getDeclaredMethod("toString", (Class<?>[]) null);
       Method toStringMethodOfObject = Object.class.getDeclaredMethod("toString", (Class<?>[]) null);
 
-      SerializableMethod serializableMethod_toStringForMyClass = new SerializableMethod(toStringMethodOfMyClass);
-      SerializableMethod serializableMethod_toStringForThisTestCase = new SerializableMethod(toStringMethodOfObject);
+      SerializableMethod serializableMethod_toStringForMyClass = new SerializableMethod(toStringMethodOfMyClass,
+            myClass.getClass());
+      SerializableMethod serializableMethod_toStringForThisTestCase = new SerializableMethod(toStringMethodOfObject,
+            Object.class);
 
       // test the equals 
       assertFalse("Failure - Two SerializableMethod instances for same methods from two different classes are equal",
@@ -240,7 +249,7 @@ public class SerializableMethodTestCase
       Method methodWithParam = myClass.getClass().getMethod("methodAcceptingArrayOfObjects", new Class[]
       {Object[].class});
 
-      SerializableMethod serializableMethod = new SerializableMethod(methodWithParam);
+      SerializableMethod serializableMethod = new SerializableMethod(methodWithParam, myClass.getClass());
 
       SerializableMethod copyOfSerializableMethod = (SerializableMethod) SerializationUtil.getCopy(serializableMethod);
 
@@ -256,7 +265,7 @@ public class SerializableMethodTestCase
 
       Method method = myClass.getClass().getMethod("methodAcceptingMyClass", new Class[]
       {MyClass.class});
-      SerializableMethod serializableMethod_nonSerializableParam = new SerializableMethod(method);
+      SerializableMethod serializableMethod_nonSerializableParam = new SerializableMethod(method, myClass.getClass());
 
       SerializableMethod copyOfSerializableMethod_nonSerilizableParam = (SerializableMethod) SerializationUtil
             .getCopy(serializableMethod_nonSerializableParam);
@@ -292,17 +301,20 @@ public class SerializableMethodTestCase
       Method toStringMethodOfThisClass = this.getClass().getMethod("toString", (Class<?>[]) null);
       Method toStringMethodOfObject = Object.class.getMethod("toString", (Class<?>[]) null);
 
-      SerializableMethod serializableMethod_toStringOfThisClass = new SerializableMethod(toStringMethodOfThisClass);
-      SerializableMethod serializableMethod_toStringOfObjectClass = new SerializableMethod(toStringMethodOfObject);
+      SerializableMethod serializableMethod_toStringOfThisClass = new SerializableMethod(toStringMethodOfThisClass,
+            myClass.getClass());
+      SerializableMethod serializableMethod_toStringOfObjectClass = new SerializableMethod(toStringMethodOfObject,
+            Object.class);
 
       // test equals
-      assertTrue("Failure - Two SerializableMethod instances of method belonging to the same base class are not equal",
-            serializableMethod_toStringOfObjectClass.equals(serializableMethod_toStringOfThisClass));
+      assertTrue(
+            "Failure - Two SerializableMethod instances of method belonging to the same base class must not be equal",
+            !serializableMethod_toStringOfObjectClass.equals(serializableMethod_toStringOfThisClass));
 
       // test hashCode
-      assertEquals(
-            "Failure - Two SerializableMethod instances of method belonging to the same base class have different hashCode",
-            serializableMethod_toStringOfObjectClass.hashCode(), serializableMethod_toStringOfThisClass.hashCode());
+      assertTrue(
+            "Failure - Two SerializableMethod instances of method belonging to the same base class must have different hashCode",
+            serializableMethod_toStringOfObjectClass.hashCode() != serializableMethod_toStringOfThisClass.hashCode());
 
       // Test that the SerializableMethod instances created
       // for overridden methods are NOT equal
@@ -312,8 +324,8 @@ public class SerializableMethodTestCase
       Method methodFromParentClass = MyClass.class.getDeclaredMethod("methodWithParamAndReturningVoid", new Class[]
       {Integer.class});
 
-      SerializableMethod serializableMethodForChild = new SerializableMethod(methodFromChildClass);
-      SerializableMethod serializableMethodForParent = new SerializableMethod(methodFromParentClass);
+      SerializableMethod serializableMethodForChild = new SerializableMethod(methodFromChildClass, MyChildClass.class);
+      SerializableMethod serializableMethodForParent = new SerializableMethod(methodFromParentClass, MyClass.class);
 
       // test equals
       assertFalse("Failure - The SerializableMethod instances of method from base class and child class are equal",
@@ -339,8 +351,8 @@ public class SerializableMethodTestCase
       Method anotherGenericMethod = myClass.getClass().getMethod("methodWithGenerics", new Class[]
       {List.class, int.class});
 
-      SerializableMethod serializableMethod = new SerializableMethod(genericsMethod);
-      SerializableMethod anotherSerializableMethod = new SerializableMethod(anotherGenericMethod);
+      SerializableMethod serializableMethod = new SerializableMethod(genericsMethod, myClass.getClass());
+      SerializableMethod anotherSerializableMethod = new SerializableMethod(anotherGenericMethod, myClass.getClass());
 
       // test equals
       assertTrue("Failure - Two SerializableMethod instances for a method involving generics are not equal",
@@ -370,7 +382,7 @@ public class SerializableMethodTestCase
       Method methodWithoutPrimitivesParams = myClass.getClass().getMethod("methodWithParamAndReturningVoid",
             new Class[]
             {Integer.class});
-      SerializableMethod serializableMethod = new SerializableMethod(methodWithoutPrimitivesParams);
+      SerializableMethod serializableMethod = new SerializableMethod(methodWithoutPrimitivesParams, myClass.getClass());
       // invoke the toMethod()
       Method copyOfMethodWithoutPrimitiveParams = serializableMethod.toMethod();
 
@@ -404,7 +416,7 @@ public class SerializableMethodTestCase
 
       Method methodWithGenerics = myClass.getClass().getMethod("methodWithGenerics", new Class[]
       {List.class, int.class});
-      SerializableMethod serializableMethod = new SerializableMethod(methodWithGenerics);
+      SerializableMethod serializableMethod = new SerializableMethod(methodWithGenerics, myClass.getClass());
 
       Method copyOfMethodWithGenerics = serializableMethod.toMethod();
 
@@ -437,7 +449,7 @@ public class SerializableMethodTestCase
 
       Method method = myClass.getClass().getMethod("methodWithPrimitiveParamsAndReturningVoid", new Class[]
       {byte.class, short.class, int.class, long.class, char.class, float.class, double.class, boolean.class});
-      SerializableMethod serializableMethod = new SerializableMethod(method);
+      SerializableMethod serializableMethod = new SerializableMethod(method, myClass.getClass());
       // invoke the toMethod()
       Method copyOfMethod = serializableMethod.toMethod();
 
@@ -467,7 +479,7 @@ public class SerializableMethodTestCase
 
       Method methodReturningInteger = myClass.getClass().getMethod("methodReturingInteger", new Class[]
       {Integer.class});
-      SerializableMethod serializableMethod = new SerializableMethod(methodReturningInteger);
+      SerializableMethod serializableMethod = new SerializableMethod(methodReturningInteger, myClass.getClass());
       // invoke the toMethod()
       Method copyOfMethodReturingInteger = serializableMethod.toMethod();
 
@@ -501,7 +513,8 @@ public class SerializableMethodTestCase
       Method methodAcceptingArrayOfPrimitives = myClass.getClass().getMethod("methodAcceptingArrayOfPrimitives",
             new Class[]
             {int[].class});
-      SerializableMethod serializableMethod = new SerializableMethod(methodAcceptingArrayOfPrimitives);
+      SerializableMethod serializableMethod = new SerializableMethod(methodAcceptingArrayOfPrimitives, myClass
+            .getClass());
       // invoke the toMethod()
       Method copyOfMethodAcceptingArrayOfPrimitives = serializableMethod.toMethod();
 
@@ -523,7 +536,8 @@ public class SerializableMethodTestCase
 
       Method methodAcceptingArrayOfObjects = myClass.getClass().getMethod("methodAcceptingArrayOfObjects", new Class[]
       {Object[].class});
-      SerializableMethod serializableMethod_arrayOfObjParams = new SerializableMethod(methodAcceptingArrayOfObjects);
+      SerializableMethod serializableMethod_arrayOfObjParams = new SerializableMethod(methodAcceptingArrayOfObjects,
+            myClass.getClass());
       //invoke the toMethod()
       Method copyOfMethodAcceptingArrayOfObjects = serializableMethod_arrayOfObjParams.toMethod();
 
@@ -554,10 +568,14 @@ public class SerializableMethodTestCase
 
       Method method = myClass.getClass().getMethod("methodAcceptingMyClass", new Class[]
       {MyClass.class});
-      SerializableMethod serializableMethod = new SerializableMethod(method);
+      Method methodToString = myClass.getClass().getMethod("toString", new Class[]
+      {});
+      SerializableMethod serializableMethod = new SerializableMethod(method, myClass.getClass());
+      SerializableMethod serializableMethodToString = new SerializableMethod(methodToString, myClass.getClass());
 
       // invoke toMethod
       Method copyOfMethod = serializableMethod.toMethod(this.getClass().getClassLoader());
+      Method copyOfMethodToString = serializableMethodToString.toMethod(this.getClass().getClassLoader());
 
       // test equals 
       assertTrue("Failure - equals fails with classsloader passed to toMethod", method.equals(copyOfMethod));
@@ -565,6 +583,9 @@ public class SerializableMethodTestCase
       // test hashCode
       assertEquals("Failure - hashCode does not match when classloader is passed to toMethod", method.hashCode(),
             copyOfMethod.hashCode());
+
+      // test toString
+      assertEquals("Roundtrip of inherited method toString failed",copyOfMethodToString, methodToString);
 
       logger.info("Completed testing the toMethod(Classloader)");
 
@@ -588,7 +609,7 @@ public class SerializableMethodTestCase
       Method method = myClass.getClass().getMethod("methodAcceptingMyClass", new Class[]
       {MyClass.class});
 
-      SerializableMethod serializableMethod = new SerializableMethod(method);
+      SerializableMethod serializableMethod = new SerializableMethod(method, myClass.getClass());
 
       // now make a copy through serialization/de-serialization
       SerializableMethod copyOfSerializableMethod = (SerializableMethod) SerializationUtil.getCopy(serializableMethod);

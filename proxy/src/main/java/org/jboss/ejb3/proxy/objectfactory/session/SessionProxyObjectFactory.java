@@ -96,13 +96,13 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       if (hasHome && hasBusiness)
       {
          proxy = sFactory.createProxyDefault();
-         log.debug("Created Proxy " + proxy + " for both EJB2.x and EJB3 Business Interfaces.");
+         log.debug("Created Proxy for both EJB2.x Home and EJB3 Business Interfaces.");
       }
       // If bound to home only
       else if (hasHome)
       {
          proxy = sFactory.createProxyHome();
-         log.debug("Created Proxy " + proxy + " for EJB2.x Home Interface(s)");
+         log.debug("Created Proxy for EJB2.x Home Interface(s)");
       }
       // If bound to business only
       else if (hasBusiness)
@@ -130,13 +130,15 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
             // Obtain a proxy specific to this business interface
             String businessInterface = businessInterfaces.get(0);
             proxy = sFactory.createProxyBusiness(businessInterface);
-            log.debug("Created Proxy " + proxy + " for EJB3 Business Interface: " + businessInterface);
+            log.debug("Created Proxy of type " + proxy.getClass().getSimpleName() + " for EJB3 Business Interface: "
+                  + businessInterface);
          }
          else
          {
             // Use a general-purpose proxy for all business interfaces
             proxy = sFactory.createProxyDefault();
-            log.debug("Created Proxy " + proxy + " for EJB3 Business Interfaces: " + businessInterfaces);
+            log.debug("Created Proxy of type " + proxy.getClass().getSimpleName() + " for EJB3 Business Interfaces: "
+                  + businessInterfaces);
          }
       }
       // No valid type is bound here

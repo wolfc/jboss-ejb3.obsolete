@@ -21,7 +21,9 @@
  */
 package org.jboss.ejb3.proxy.handler;
 
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import java.lang.reflect.Method;
+
+import org.jboss.ejb3.common.lang.SerializableMethod;
 
 /**
  * ProxyInvocationHandlerBase
@@ -61,11 +63,11 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       try
       {
          METHOD_TO_STRING = new SerializableMethod(Object.class
-               .getDeclaredMethod(ProxyInvocationHandlerBase.METHOD_NAME_TO_STRING));
+               .getDeclaredMethod(ProxyInvocationHandlerBase.METHOD_NAME_TO_STRING), Object.class);
          METHOD_EQUALS = new SerializableMethod(Object.class.getDeclaredMethod(
-               ProxyInvocationHandlerBase.METHOD_NAME_EQUALS, Object.class));
+               ProxyInvocationHandlerBase.METHOD_NAME_EQUALS, Object.class), Object.class);
          METHOD_HASH_CODE = new SerializableMethod(Object.class
-               .getDeclaredMethod(ProxyInvocationHandlerBase.METHOD_NAME_HASH_CODE));
+               .getDeclaredMethod(ProxyInvocationHandlerBase.METHOD_NAME_HASH_CODE), Object.class);
       }
       catch (NoSuchMethodException nsme)
       {
@@ -121,8 +123,11 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       SerializableMethod invokedMethod = this.getInvokedMethod();
       assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
 
+      // Obtain Declared Method
+      Method declaredMethod = invokedMethod.toMethod();
+
       // equals
-      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS))
+      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS.toMethod()))
       {
          assert args.length == 1 : "Invocation for 'equals' should have exactly one argument, instead was: "
                + invokedMethod;
@@ -130,12 +135,12 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
          return this.invokeEquals(proxy, argument);
       }
       // toString
-      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING))
+      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING.toMethod()))
       {
          return this.toString();
       }
       // hashCode
-      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE))
+      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE.toMethod()))
       {
          return this.invokeHashCode(proxy);
       }

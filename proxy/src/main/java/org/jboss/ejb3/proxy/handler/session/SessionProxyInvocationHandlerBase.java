@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 
@@ -32,9 +31,8 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.remoting.Ejb3PojiProxy;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -56,6 +54,8 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
+   private static final long serialVersionUID = 1L;
+   
    private static final Logger log = Logger.getLogger(SessionProxyInvocationHandlerBase.class);
 
    // ------------------------------------------------------------------------------||
@@ -68,46 +68,6 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
    protected SessionProxyInvocationHandlerBase()
    {
       super();
-   }
-
-   // ------------------------------------------------------------------------------||
-   // Required Implementations -----------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-   {
-      // Set the invoked method
-      SerializableMethod invokedMethod = new SerializableMethod(method);
-      this.setInvokedMethod(invokedMethod);
-      
-      // Attempt to handle directly
-      try
-      {
-         return this.handleInvocationDirectly(proxy, args);
-      }
-      // Ignore this, we just couldn't handle here
-      catch (NotEligibleForDirectInvocationException nefdie)
-      {
-         log.debug("Couldn't handle invocation directly within " + this + ": "
-               + nefdie.getMessage());
-      }
-      
-      /*
-       * Obtain the Container
-       */
-      InvokableContext<?> container = this.getContainer();
-
-      /*
-       * Invoke
-       */
-
-      // Invoke
-      log.debug("Invoking: " + invokedMethod + " with arguments " + args + "...");
-      Object result = container.invoke(proxy, invokedMethod, args);
-
-      // Return
-      return result;
-
    }
 
    /**
@@ -151,7 +111,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       // Create a POJI Proxy to the Container
       Interceptor[] interceptors =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-      PojiProxy handler = new PojiProxy(this.getContainerName(), locator, interceptors);
+      PojiProxy handler = new Ejb3PojiProxy(this.getContainerName(), locator, interceptors);
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext<? extends ContainerMethodInvocation> container = (InvokableContext<?>) Proxy.newProxyInstance(

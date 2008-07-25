@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
