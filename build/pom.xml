@@ -296,7 +296,7 @@
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
-        <version>1.0.0.Beta29</version>
+        <version>1.0.0.Beta31</version>
       </dependency>
  
       <dependency>
@@ -332,6 +332,13 @@
         <artifactId>jboss-aspects-common</artifactId>
         <version>1.0.0.Beta1</version>
         <scope>test</scope>
+      </dependency>
+      
+      <!-- Remoting Aspects -->
+      <dependency>
+        <groupId>org.jboss.aspects</groupId>
+        <artifactId>jboss-remoting-aspects</artifactId>
+        <version>1.0.1.CR2</version>
       </dependency>
 
       <!-- JavaEE APIs -->      
