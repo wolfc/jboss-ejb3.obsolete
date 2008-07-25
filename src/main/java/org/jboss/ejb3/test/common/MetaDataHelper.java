@@ -22,17 +22,25 @@
 package org.jboss.ejb3.test.common;
 
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
+
+import org.jboss.annotation.javaee.Descriptions;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.annotation.creator.ProcessorUtils;
 import org.jboss.metadata.annotation.creator.ejb.jboss.JBoss50Creator;
 import org.jboss.metadata.annotation.finder.AnnotationFinder;
 import org.jboss.metadata.annotation.finder.DefaultAnnotationFinder;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnvironmentRefsGroupMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
@@ -40,6 +48,11 @@ import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
 import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
+import org.jboss.metadata.javaee.spec.ResourceEnvironmentReferenceMetaData;
+import org.jboss.metadata.javaee.spec.ResourceEnvironmentReferencesMetaData;
+import org.jboss.metadata.javaee.spec.ResourceInjectionTargetMetaData;
+import org.jboss.metadata.javaee.spec.ResourceReferenceMetaData;
+import org.jboss.metadata.javaee.spec.ResourceReferencesMetaData;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
@@ -95,6 +108,28 @@ public class MetaDataHelper
          remoteBindings.add(remoteBinding);
          beanMetaDataDelegate.setRemoteBindings(remoteBindings);
       }
+      
+//      // Mock up @Resource field-level annotation
+//      //TODO Remove when handled by JBoss50Creator
+//      // http://www.jboss.com/index.html?module=bb&op=viewtopic&t=139578
+//      Field[] fields = beanImplClass.getFields();
+//      for (Field field : fields)
+//      {
+//         Resource resource = field.getAnnotation(Resource.class);
+//         if (resource != null)
+//         {
+//            Class<?> type = field.getType();
+//            if (type.equals(SessionContext.class))
+//            {
+//               ResourceReferenceMetaData ref = createResourceEnvRef(resource, field);
+//               JBossEnvironmentRefsGroupMetaData jndiEnvRefs = new JBossEnvironmentRefsGroupMetaData();
+//               jndiEnvRefs.setResourceReferences(new ResourceReferencesMetaData());
+//               beanMetaDataDelegate.setJndiEnvironmentRefsGroup(jndiEnvRefs);
+//               ResourceReferencesMetaData refs = beanMetaDataDelegate.getResourceReferences();
+//               refs.add(ref);
+//            }
+//         }
+//      }
 
       // Use a Session JNDI Binding Policy for the metadata
       JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate,
@@ -143,5 +178,57 @@ public class MetaDataHelper
       }
 
       return beanMetaData;
+   }
+
+   /*
+    * DEPRECATED Below this marker
+    */
+   
+   @Deprecated
+   protected static ResourceReferenceMetaData createResourceEnvRef(Resource annotation, Field element)
+   {
+      ResourceReferenceMetaData ref = new ResourceReferenceMetaData();
+      String name = annotation.name();
+      if (name.length() == 0)
+         name = getName(element);
+      if (annotation.mappedName().length() > 0)
+         ref.setMappedName(annotation.mappedName());
+      if (annotation.type() != Object.class)
+         ref.setType(annotation.type().getName());
+      else
+         ref.setType(getType(element));
+      Descriptions descriptions = ProcessorUtils.getDescription(annotation.description());
+      if (descriptions != null)
+         ref.setDescriptions(descriptions);
+
+      String injectionName = getInjectionName(element);
+      Set<ResourceInjectionTargetMetaData> injectionTargets = ProcessorUtils
+            .getInjectionTargets(injectionName, element);
+      if (injectionTargets != null)
+         ref.setInjectionTargets(injectionTargets);
+
+      return ref;
+   }
+   
+   @Deprecated
+   protected static String getName(Field element)
+   {
+      String name = element.getName();
+      return name;
+   }
+   @Deprecated
+   protected static String getInjectionName(Field element)
+   {
+      return element.getName();
+   }
+   @Deprecated
+   protected static String getType(Field element)
+   {
+      return element.getType().getName();
+   }
+   @Deprecated
+   protected static String getDeclaringClass(Field element)
+   {
+      return element.getDeclaringClass().getName();
    }
 }
