@@ -24,7 +24,7 @@ package org.jboss.ejb3.test.proxy.lang;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.test.proxy.lang.unit.SerializableMethodTestCase;
 
 /**

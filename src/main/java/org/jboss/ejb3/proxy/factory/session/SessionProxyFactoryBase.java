@@ -185,10 +185,11 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     */
    public Object createProxyBusiness(final String businessInterfaceName)
    {
+      // Ensure businessInterfaceName is specified
+      assert businessInterfaceName != null && businessInterfaceName.trim().length() > 0 : "Required business interface type name was not specified";
+
       try
       {
-         // Ensure businessInterfaceName is specified
-         assert businessInterfaceName != null && !businessInterfaceName.equals("") : "Required business interface type name was not specified";
 
          // Obtain the correct business proxy constructor
          Constructor<?> constructor = this.getConstructorsProxySpecificBusinessInterface().get(
@@ -366,7 +367,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
       }
 
       // If there's a home defined and its bound to the same binding as the default
-      if (hasHomeInterface && this.getMetadata().determineJndiName().equals(this.getMetadata().getHomeJndiName()))
+      if (hasHomeInterface && this.getMetadata().getJndiName().equals(this.getMetadata().getHomeJndiName()))
       {
          defaultProxyInterfaces.add(homeInterfaceClass);
       }

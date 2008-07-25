@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.proxy.container;
 
-import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
+import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 
 /**
  * StatefulSessionInvokableContext

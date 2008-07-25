@@ -26,11 +26,11 @@ import java.lang.reflect.Proxy;
 import java.util.Set;
 
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
-import org.jboss.ejb3.proxy.invocation.StatefulSessionContainerMethodInvocation;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**

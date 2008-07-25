@@ -32,11 +32,11 @@ import javax.naming.NamingException;
 import org.jboss.aop.Dispatcher;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -157,7 +157,7 @@ public abstract class SessionContainer
       }
 
       // Obtain the method for invocation
-      Method m = this.getClassLoader().loadClass(method.getClassName()).getDeclaredMethod(method.getName(), argTypes);
+      Method m = this.getClassLoader().loadClass(method.getDeclaringClassName()).getDeclaredMethod(method.getName(), argTypes);
 
       // Invoke on the bean
       return invokeBean(proxy, m, args);

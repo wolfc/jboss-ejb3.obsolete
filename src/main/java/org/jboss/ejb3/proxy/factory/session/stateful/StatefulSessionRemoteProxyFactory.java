@@ -32,6 +32,7 @@ import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.remoting.Ejb3PojiProxy;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -182,7 +183,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       // Create a POJI Proxy to the Container
       Interceptor[] interceptors =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-      PojiProxy handler = new PojiProxy(containerName, locator, interceptors);
+      PojiProxy handler = new Ejb3PojiProxy(containerName, locator, interceptors);
       Class<?>[] interfaces = new Class<?>[]
       {StatefulSessionInvokableContext.class};
       container = (StatefulSessionInvokableContext<?>) Proxy.newProxyInstance(interfaces[0].getClassLoader(),

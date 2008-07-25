@@ -70,7 +70,7 @@ public abstract class JndiSessionRegistrarBase
    /**
     * The value appended to the key used to bind proxy factories to the registry
     */
-   private static final String KEY_SUFFIX_PROXY_FACTORY_REGISTRY = "/ProxyFactory";
+   private static final String KEY_PREFIX_PROXY_FACTORY_REGISTRY = "ProxyFactory/";
 
    private static final String OBJECT_FACTORY_CLASSNAME_PREFIX = "Proxy for: ";
 
@@ -573,7 +573,7 @@ public abstract class JndiSessionRegistrarBase
       // Bind
       try
       {
-         Util.rebind(context, address, ref);
+         Util.bind(context, address, ref);
          log.debug("Bound " + ref.getClass().getName() + " into JNDI at \"" + address + "\"");
       }
       catch (NamingException e)
@@ -674,20 +674,24 @@ public abstract class JndiSessionRegistrarBase
    public String getProxyFactoryRegistryKey(JBossSessionBeanMetaData md, boolean isLocal)
    {
       // Initialize
-      String prefix = null;
+      String suffix = null;
 
       // Set Suffix
       if (isLocal)
       {
-         prefix = md.getLocalJndiName();
+         suffix = md.getLocalJndiName();
       }
       else
       {
-         prefix = md.getJndiName();
+         suffix = md.getJndiName();
       }
 
+      // Ensure suffix is specified
+      assert suffix != null && !suffix.equals("") : ProxyFactory.class.getSimpleName()
+            + " key prefix for binding to registry is noy specified";
+
       // Assemble and return
-      String key = prefix + JndiSessionRegistrarBase.KEY_SUFFIX_PROXY_FACTORY_REGISTRY;
+      String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + suffix;
       return key;
    }
 
@@ -706,16 +710,36 @@ public abstract class JndiSessionRegistrarBase
       // what will be castable from the lookup result
       StringBuffer defaultRemotes = new StringBuffer();
       int remotesCount = 0;
+      int interfaceCount = 0;
       for (RefAddr refAddr : refAddrs)
       {
          remotesCount++;
-         defaultRemotes.append(refAddr.getContent());
-         if (remotesCount < refAddrs.size())
+         String refAddrType = refAddr.getType();
+         if (isRefAddrTypeEjbInterface(refAddrType))
          {
-            defaultRemotes.append(", ");
+            if (interfaceCount > 0)
+            {
+               defaultRemotes.append(", ");
+            }
+            defaultRemotes.append(refAddr.getContent());
+            interfaceCount++;
          }
       }
       return defaultRemotes.toString();
+   }
+   
+   /**
+    * Returns whether the specified RefAddr type denotes an EJB Interface 
+    * 
+    * @param refAddrType
+    * @return
+    */
+   private boolean isRefAddrTypeEjbInterface(String refAddrType)
+   {
+      return refAddrType.equals(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL) ||
+      refAddrType.equals(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE) ||
+      refAddrType.equals(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_LOCAL) ||
+      refAddrType.equals(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE);
    }
 
    /**

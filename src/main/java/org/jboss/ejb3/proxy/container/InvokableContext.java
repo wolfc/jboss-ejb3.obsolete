@@ -21,8 +21,8 @@
  */
 package org.jboss.ejb3.proxy.container;
 
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
-import org.jboss.ejb3.proxy.lang.SerializableMethod;
 
 /**
  * InvokableContext
