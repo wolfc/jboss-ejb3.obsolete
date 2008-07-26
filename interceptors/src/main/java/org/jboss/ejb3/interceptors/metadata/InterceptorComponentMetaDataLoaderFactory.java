@@ -39,7 +39,7 @@ import org.jboss.metadata.spi.signature.Signature;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorComponentMetaDataLoaderFactory implements ComponentMetaDataLoaderFactory<JBossEnterpriseBeanMetaData>
 {
@@ -68,10 +68,13 @@ public class InterceptorComponentMetaDataLoaderFactory implements ComponentMetaD
    private InterceptorMetaData findInterceptor(JBossEnterpriseBeanMetaData beanMetaData, String name)
    {
       InterceptorsMetaData interceptors = beanMetaData.getEjbJarMetaData().getInterceptors();
-      for(InterceptorMetaData interceptorMetaData : interceptors)
+      if (interceptors != null)
       {
-         if(interceptorMetaData.getInterceptorClass().equals(name))
-            return interceptorMetaData;
+         for (InterceptorMetaData interceptorMetaData : interceptors)
+         {
+            if (interceptorMetaData.getInterceptorClass().equals(name))
+               return interceptorMetaData;
+         }
       }
       return null;
    }
