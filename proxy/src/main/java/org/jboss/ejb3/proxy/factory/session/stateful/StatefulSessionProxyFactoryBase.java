@@ -25,6 +25,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Set;
 
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
@@ -316,7 +318,33 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * 
     * @return The Container for this Proxy Factory
     */
-   protected abstract StatefulSessionInvokableContext<?> obtainContainer();
+   protected StatefulSessionInvokableContext<?> obtainContainer()
+   {
+      /*
+       * Obtain the Container
+       */
+      StatefulSessionInvokableContext<?> container = null;
+      String containerName = this.getContainerName();
+
+      // Lookup from EJB3 Registrar
+      try
+      {
+         Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
+         assert obj instanceof StatefulSessionInvokableContext : "Container retrieved from "
+               + Ejb3Registrar.class.getSimpleName() + " was not of expected type "
+               + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
+         container = (StatefulSessionInvokableContext<?>) obj;
+      }
+      catch (NotBoundException nbe)
+      {
+         throw new RuntimeException(StatefulSessionProxyFactory.class.getSimpleName() + " " + this
+               + " has defined container name \"" + containerName + "\", but this could not be found in the "
+               + Ejb3Registrar.class.getSimpleName());
+      }
+
+      // Return
+      return container;
+   }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

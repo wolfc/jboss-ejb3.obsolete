@@ -24,7 +24,10 @@ package org.jboss.ejb3.proxy.handler.session;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 
+import org.jboss.aop.Dispatcher;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
@@ -32,7 +35,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.remoting.Ejb3PojiProxy;
+import org.jboss.ejb3.proxy.remoting.InvokableContextProxy;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -111,11 +114,11 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
       // Create a POJI Proxy to the Container
       Interceptor[] interceptors =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-      PojiProxy handler = new Ejb3PojiProxy(this.getContainerName(), locator, interceptors);
+      PojiProxy handler = new InvokableContextProxy(this.getContainerName(), locator, interceptors);
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext<? extends ContainerMethodInvocation> container = (InvokableContext<?>) Proxy.newProxyInstance(
-            interfaces[0].getClassLoader(), interfaces, handler);
+            InvokableContext.class.getClassLoader(), interfaces, handler);
 
       // Return
       return container;

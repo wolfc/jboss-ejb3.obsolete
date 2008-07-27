@@ -116,38 +116,4 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
       // Return
       return handler;
    }
-
-   /**
-    * Obtains the Container used by this Proxy Factory
-    * 
-    * @return The Container for this Proxy Factory
-    */
-   @Override
-   protected StatefulSessionInvokableContext<?> obtainContainer()
-   {
-      /*
-       * Obtain the Container
-       */
-      StatefulSessionInvokableContext<?> container = null;
-      String containerName = this.getContainerName();
-
-      // Lookup from EJB3 Registrar
-      try
-      {
-         Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
-         assert obj instanceof StatefulSessionInvokableContext : "Container retrieved from "
-               + Ejb3Registrar.class.getSimpleName() + " was not of expected type "
-               + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
-         container = (StatefulSessionInvokableContext<?>) obj;
-      }
-      catch (NotBoundException nbe)
-      {
-         throw new RuntimeException(StatefulSessionProxyFactory.class.getSimpleName() + " " + this
-               + " has defined container name \"" + containerName + "\", but this could not be found in the "
-               + Ejb3Registrar.class.getSimpleName());
-      }
-
-      // Return
-      return container;
-   }
 }

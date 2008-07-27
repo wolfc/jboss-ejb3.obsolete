@@ -21,20 +21,26 @@
  */
 package org.jboss.ejb3.proxy.remoting;
 
+import java.lang.reflect.Method;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.remoting.InvokerLocator;
 
 /**
- * Ejb3PojiProxy
+ * InvokableContextProxy
  * 
  * An EJB3-specific implementation of the Remoting PojiProxy
+ * for an InvokableContext, responsible for rewriting the target method
+ * "invoke" with that specified as the method to invoke
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class Ejb3PojiProxy extends PojiProxy
+public class InvokableContextProxy extends PojiProxy
 {
    // ------------------------------------------------------------------------------||
    // Class Members  ---------------------------------------------------------------||
@@ -46,7 +52,7 @@ public class Ejb3PojiProxy extends PojiProxy
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   public Ejb3PojiProxy(Object oid, InvokerLocator uri, Interceptor[] interceptors)
+   public InvokableContextProxy(Object oid, InvokerLocator uri, Interceptor[] interceptors)
    {
       super(oid, uri, interceptors);
    }
@@ -55,7 +61,7 @@ public class Ejb3PojiProxy extends PojiProxy
    // Overridden Implementations ---------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   //TODO Needs new release of jboss-remoting-aspects
+   //TODO Pending Release of jboss-remoting-aspects, stalled by failed build
 //   /**
 //    * Adds EJB3-specific metadata to the invocation before it's made
 //    */
@@ -69,4 +75,56 @@ public class Ejb3PojiProxy extends PojiProxy
 //      //TODO
 //
 //   }
+
+   //TODO Pending Release of jboss-remoting-aspects, stalled by failed build
+//   /**
+//    * Proceed with the invocation upon InvokableContext.invoke(), 
+//    * setting the target method
+//    */
+//   @Override
+//   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+//   {
+//      MethodInvocation sri = this.constructMethodInvocation(method, args);
+//      sri.setArguments(args);
+//      this.addMetadataToInvocation(sri);
+//      return sri.invokeNext();
+//   }
+
+   //TODO Pending Release of jboss-remoting-aspects, stalled by failed build
+//   /**
+//    * Constructs a MethodInvocation from the specified Method and
+//    * arguments
+//    * 
+//    * @param method
+//    * @param args
+//    * @return
+//    */
+//   /*
+//    * Hack Smell, this would not be necessary if the Container could 
+//    * resolve InvokableContext.invoke()'s methodHash from the advisor.getMethodInfo(hash).
+//    * 
+//    * Code review requested by ALR
+//    */
+//   @Override
+//   protected MethodInvocation constructMethodInvocation(Method method, Object[] args)
+//   {
+//      // Some sanity checks
+//      assert args.length == 3; // InvokableContext.invoke(Object proxy, SerializableMethod method, Object[] args)
+//      Object targetMethodArg = args[1];
+//      assert targetMethodArg instanceof SerializableMethod : "Second argument expected to be "
+//            + SerializableMethod.class.getName();
+//      assert targetMethodArg != null : "Target method may not be null";
+//
+//      // Get the target method      
+//      SerializableMethod targetMethod = (SerializableMethod) targetMethodArg;
+//      Method realizedMethod = targetMethod.toMethod();
+//
+//      // Create and invoke upon a MethodInvocation
+//      long hash = MethodHashing.calculateHash(realizedMethod);
+//      MethodInvocation sri = new MethodInvocation(this.getInterceptors(), hash, realizedMethod, realizedMethod, null);
+//
+//      // Return
+//      return sri;
+//   }
+
 }
