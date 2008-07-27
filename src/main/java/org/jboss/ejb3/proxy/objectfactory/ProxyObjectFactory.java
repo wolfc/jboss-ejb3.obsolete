@@ -43,7 +43,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.remoting.Ejb3PojiProxy;
+import org.jboss.ejb3.proxy.remoting.InvokableContextProxy;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -151,7 +151,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          // Create a POJI Proxy to the Registrar
          Interceptor[] interceptors =
          {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-         PojiProxy handler = new Ejb3PojiProxy(proxyFactoryRegistryKey, locator, interceptors);
+         PojiProxy handler = new InvokableContextProxy(proxyFactoryRegistryKey, locator, interceptors);
          Class<?>[] interfaces = new Class<?>[]
          {this.getProxyFactoryClass()};
          proxyFactory = (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);

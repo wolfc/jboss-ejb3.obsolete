@@ -46,7 +46,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    // ------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(SessionSpecProxyInvocationHandlerBase.class);
-   
+
    // ------------------------------------------------------------------------------||
    // Instance Members -------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -75,20 +75,20 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       super();
       this.setBusinessInterfaceType(businessInterfaceType);
    }
-   
+
    // ------------------------------------------------------------------------------||
    // Required Implementations -----------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-   {      
+   {
       // Obtain an explicitly-specified actual class
       String actualClass = this.getBusinessInterfaceType();
-      
+
       // Set the invoked method
       SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
       this.setInvokedMethod(invokedMethod);
-      
+
       // Attempt to handle directly
       try
       {
@@ -97,10 +97,9 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       // Ignore this, we just couldn't handle here
       catch (NotEligibleForDirectInvocationException nefdie)
       {
-         log.debug("Couldn't handle invocation directly within " + this + ": "
-               + nefdie.getMessage());
+         log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
       }
-      
+
       /*
        * Obtain the Container
        */
@@ -109,20 +108,27 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       /*
        * Invoke
        */
-      
+
       // Adjust args if null to empty array
-      if(args==null)
+      if (args == null)
       {
-         args = new Object[]{};
+         args = new Object[]
+         {};
       }
+      
+//      StatefulRemoteInvocation sri = new StatefulRemoteInvocation(interceptors, hash, method, method, null, id);
+//      sri.setArguments(args);
+//      sri.setInstanceResolver(metadata);
+//      sri.getMetaData().addMetaData(Dispatcher.DISPATCHER, Dispatcher.OID, containerId, PayloadKey.AS_IS);
+//      sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.INVOKER_LOCATOR, uri, PayloadKey.AS_IS);
+//      sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.SUBSYSTEM, "AOP", PayloadKey.AS_IS);
+//      sri.getMetaData().addMetaData(IsLocalInterceptor.IS_LOCAL, IsLocalInterceptor.GUID, containerGuid, PayloadKey.AS_IS);
 
       // Invoke
-      log.debug("Invoking: " + invokedMethod + " with arguments " + args + "...");
       Object result = container.invoke(proxy, invokedMethod, args);
-
+      
       // Return
       return result;
-
    }
 
    // ------------------------------------------------------------------------------||
