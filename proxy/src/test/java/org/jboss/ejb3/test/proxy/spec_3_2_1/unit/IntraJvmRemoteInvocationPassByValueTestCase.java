@@ -87,12 +87,13 @@ public class IntraJvmRemoteInvocationPassByValueTestCase
     * intent at the method-level, like so.
     */
    @Test
-   public void testExampleMethod() throws Throwable{
-      
+   public void testExampleMethod() throws Throwable
+   {
+
       /*
        * Show what were doing in the next code block
        */
-      
+
       // Give line-specific information if necessary
       log.warn("Needs Implementation");
    }
