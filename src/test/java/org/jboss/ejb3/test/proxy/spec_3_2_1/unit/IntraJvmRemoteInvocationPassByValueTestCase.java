@@ -58,7 +58,7 @@ public class IntraJvmRemoteInvocationPassByValueTestCase
    private static final Logger log = Logger.getLogger(IntraJvmRemoteInvocationPassByValueTestCase.class);
 
    /*
-    * Bootstrap (MC Abstraction)
+    * Bootstrap (MC Facade)
     */
    private static EmbeddedTestMcBootstrap bootstrap;
 
@@ -79,7 +79,7 @@ public class IntraJvmRemoteInvocationPassByValueTestCase
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    /**
     * This test is in place as an example only.
     * 
@@ -111,7 +111,7 @@ public class IntraJvmRemoteInvocationPassByValueTestCase
       /*
        * Setup the bootstrap environment
        */
-      
+
       // Create and set a new MC Bootstrap
       bootstrap = EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap();
 
@@ -120,7 +120,7 @@ public class IntraJvmRemoteInvocationPassByValueTestCase
 
       // Deploy Beans
       bootstrap.deploy(IntraJvmRemoteInvocationPassByValueTestCase.class);
-      
+
       /*
        * Create EJBs and Install
        */
