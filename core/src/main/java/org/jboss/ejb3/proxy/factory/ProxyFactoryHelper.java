@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
@@ -44,7 +43,6 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.KernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
@@ -56,16 +54,10 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.annotation.impl.LocalImpl;
 import org.jboss.ejb3.annotation.impl.RemoteImpl;
 import org.jboss.ejb3.common.lang.ClassHelper;
-import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.session.SessionContainer;
-import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DeploymentSummary;
-import org.jboss.metadata.ejb.jboss.jndipolicy.spi.EjbDeploymentSummary;
 
 /**
  * Comment
@@ -861,8 +853,7 @@ public class ProxyFactoryHelper
          return binding.jndiBinding();
 
       JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
-      String jndiName = smd.getHomeJndiName();
-      return jndiName;
+      return smd.getHomeJndiName();
    }
 
    public static String getLocalHomeJndiName(EJBContainer container)
@@ -874,13 +865,12 @@ public class ProxyFactoryHelper
 
       // Use Default JNDI Binding Policy
       JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
-      String jndiName = smd.getLocalHomeJndiName();
-      return jndiName;
+      return smd.getLocalHomeJndiName();
    }
 
    public static String getLocalJndiName(EJBContainer container)
    {
-      return ProxyFactoryHelper.getLocalJndiName(container, true);
+      return getLocalJndiName(container, true);
    }
 
    private static String getLocalJndiName(EJBContainer container, boolean conflictCheck)
@@ -889,7 +879,7 @@ public class ProxyFactoryHelper
       LocalBinding localBinding = container.getAnnotation(LocalBinding.class);
 
       // If none specified
-      if (localBinding == null || localBinding.jndiBinding() != null || localBinding.jndiBinding().trim().length() == 0)
+      if (localBinding == null || (localBinding.jndiBinding() != null && localBinding.jndiBinding().trim().length() == 0))
       {
          JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData)container.getXml();
          String name = smd.getLocalJndiName();
