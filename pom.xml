@@ -68,6 +68,21 @@
     <url>http://jira.jboss.com/jira/browse/EJBTHREE</url>
   </issueManagement>
 
+  <repositories>
+    <!-- APIviz repository -->
+    <repository>
+      <id>apiviz.release</id>
+      <name>APIviz releases</name>
+      <url>http://apiviz.googlecode.com/svn/site/repo/mvn/release</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <!-- Properties -->
   <properties>
 
@@ -155,6 +170,18 @@
               </excludes>
             </bannedDependencies>
           </rules>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <doclet>net.gleamynode.apiviz.APIviz</doclet>
+          <docletArtifact>
+            <groupId>net.gleamynode.apiviz</groupId>
+            <artifactId>apiviz</artifactId>
+            <version>1.0.3</version>
+          </docletArtifact>
         </configuration>
       </plugin>
 
