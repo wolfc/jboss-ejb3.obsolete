@@ -65,6 +65,7 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
+import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
@@ -1061,7 +1062,16 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    public void invokePostConstruct(BeanContext<?> beanContext)
    {
-      invokeCallback(beanContext, PostConstruct.class);
+      // FIXME: This is a dirty hack to notify AS EJBTimerService about what's going on
+      AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsAssociation.IN_EJB_CREATE);
+      try
+      {
+         invokeCallback(beanContext, PostConstruct.class);
+      }
+      finally
+      {
+         AllowedOperationsAssociation.popInMethodFlag();
+      }
    }
 
    @Deprecated
