@@ -21,6 +21,10 @@
  */
 package org.jboss.ejb3.timerservice.jboss;
 
+import static org.jboss.ejb.AllowedOperationsFlags.IN_BUSINESS_METHOD;
+import static org.jboss.ejb.AllowedOperationsFlags.IN_EJB_TIMEOUT;
+import static org.jboss.ejb.AllowedOperationsFlags.IN_SERVICE_ENDPOINT_METHOD;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
@@ -30,11 +34,12 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.management.ObjectName;
 
+import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 
 /**
- * Comment
+ * Holds the association with the container, without exposing it.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -51,23 +56,33 @@ public class TimerServiceFacade implements TimerService
       this.delegate = delegate;
    }
 
+   private void assertAllowedIn(String timerMethod)
+   {
+      // TODO: This isn't handled by the AS timer service itself
+      AllowedOperationsAssociation.assertAllowedIn(timerMethod, IN_BUSINESS_METHOD | IN_EJB_TIMEOUT | IN_SERVICE_ENDPOINT_METHOD);
+   }
+   
    public Timer createTimer(Date initialExpiration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException
    {
+      assertAllowedIn("TimerService.createTimer");
       return delegate.createTimer(initialExpiration, intervalDuration, info);
    }
 
    public Timer createTimer(Date expiration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException
    {
+      assertAllowedIn("TimerService.createTimer");
       return delegate.createTimer(expiration, info);
    }
 
    public Timer createTimer(long initialDuration, long intervalDuration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException
    {
+      assertAllowedIn("TimerService.createTimer");
       return delegate.createTimer(initialDuration, intervalDuration, info);
    }
 
    public Timer createTimer(long duration, Serializable info) throws IllegalArgumentException, IllegalStateException, EJBException
    {
+      assertAllowedIn("TimerService.createTimer");
       return delegate.createTimer(duration, info);
    }
 
@@ -81,8 +96,9 @@ public class TimerServiceFacade implements TimerService
       return container.getObjectName();
    }
    
-   public Collection getTimers() throws IllegalStateException, EJBException
+   public Collection<?> getTimers() throws IllegalStateException, EJBException
    {
+      assertAllowedIn("TimerService.getTimers");
       return delegate.getTimers();
    }
 }

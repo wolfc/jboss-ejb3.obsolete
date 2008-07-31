@@ -34,6 +34,7 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
 
@@ -73,11 +74,18 @@ public class SessionSynchronizationInterceptor implements Interceptor
          SessionSynchronization bean = (SessionSynchronization) ctx.getInstance();
          try
          {
+            // FIXME: This is a dirty hack to notify AS EJBTimerService about what's going on
+            AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsAssociation.IN_BEFORE_COMPLETION);
+            
             bean.beforeCompletion();
          }
          catch (RemoteException e)
          {
             throw new RuntimeException(e);
+         }
+         finally
+         {
+            AllowedOperationsAssociation.popInMethodFlag();
          }
       }
 

@@ -24,6 +24,7 @@ package org.jboss.ejb3.timerservice.jboss;
 import javax.ejb.TimerService;
 import javax.management.ObjectName;
 
+import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.txtimer.EJBTimerService;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
@@ -118,6 +119,17 @@ public class JBossTimerServiceFactory extends TimerServiceFactory
       // FIXME: do not assume that a TimedObjectInvoker is an EJBContainer
       ClassLoader loader = container.getClassloader();
       
-      getEJBTimerService().restoreTimers(timerService.getContainerId(), loader);
+      // FIXME: A hack to circumvent the check in TimerServiceFacade
+      // In AS itself (/EJB2) the container has an unsecured timer service association
+      // see org.jboss.ejb.Container.getTimerService(Object pKey)
+      AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsAssociation.IN_BUSINESS_METHOD);
+      try
+      {
+         getEJBTimerService().restoreTimers(timerService.getContainerId(), loader);
+      }
+      finally
+      {
+         AllowedOperationsAssociation.popInMethodFlag();
+      }
    }
 }
