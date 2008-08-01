@@ -33,6 +33,7 @@ import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -47,6 +48,12 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       implements
          StatefulSessionProxyFactory
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(StatefulSessionProxyFactoryBase.class);
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -303,6 +310,11 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       catch (NotBoundException e)
       {
          throw new RuntimeException("Could not obtain a new Session ID from SFSB Container \"" + container + "\"", e);
+      }
+      catch (RuntimeException re)
+      {
+         log.error("Could not obtain new Session ID from SFSB Container", re);
+         throw re;
       }
 
       // Return the new ID

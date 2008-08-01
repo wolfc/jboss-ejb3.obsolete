@@ -23,6 +23,10 @@ package org.jboss.ejb3.proxy.handler.session;
 
 import java.lang.reflect.Method;
 
+import org.jboss.aop.Dispatcher;
+import org.jboss.aop.util.PayloadKey;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
@@ -115,14 +119,6 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
          args = new Object[]
          {};
       }
-      
-//      StatefulRemoteInvocation sri = new StatefulRemoteInvocation(interceptors, hash, method, method, null, id);
-//      sri.setArguments(args);
-//      sri.setInstanceResolver(metadata);
-//      sri.getMetaData().addMetaData(Dispatcher.DISPATCHER, Dispatcher.OID, containerId, PayloadKey.AS_IS);
-//      sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.INVOKER_LOCATOR, uri, PayloadKey.AS_IS);
-//      sri.getMetaData().addMetaData(InvokeRemoteInterceptor.REMOTING, InvokeRemoteInterceptor.SUBSYSTEM, "AOP", PayloadKey.AS_IS);
-//      sri.getMetaData().addMetaData(IsLocalInterceptor.IS_LOCAL, IsLocalInterceptor.GUID, containerGuid, PayloadKey.AS_IS);
 
       // Invoke
       Object result = container.invoke(proxy, invokedMethod, args);
