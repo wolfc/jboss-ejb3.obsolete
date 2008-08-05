@@ -93,13 +93,18 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       
       this.classLoader = classLoader;
       
-      MetaDataRetrieval classMetaData = ClassMetaDataRetrievalFactory.INSTANCE.getMetaDataRetrieval(new Scope(CommonLevels.CLASS, beanClass));
       ScopeKey instanceScope = new ScopeKey(CommonLevels.INSTANCE, canonicalObjectName);
       mutableMetaData = new MemoryMetaDataLoader(instanceScope);
       //MetaDataRetrieval dynamicXml = new EJBMetaDataLoader(instanceScope, beanMetaData, classLoader);
       this.bridgedMetaDataLoader = new BridgedMetaDataLoader<JBossEnterpriseBeanMetaData>(instanceScope, beanMetaData, classLoader);
       
-      MetaDataContext classContext = new AbstractMetaDataContext(classMetaData);
+      MetaDataContext classContext = null;
+      if(beanMetaData == null || !beanMetaData.getEjbJarMetaData().isMetadataComplete())
+      {
+         // Create a fallback parent meta data context which targets the annotations
+         MetaDataRetrieval classMetaData = ClassMetaDataRetrievalFactory.INSTANCE.getMetaDataRetrieval(new Scope(CommonLevels.CLASS, beanClass));
+         classContext = new AbstractMetaDataContext(classMetaData);
+      }
       MetaDataRetrieval[] instance = { bridgedMetaDataLoader, mutableMetaData }; 
       MetaDataContext instanceContext = new AbstractMetaDataContext(classContext, Arrays.asList(instance));
       metaData = new MetaDataRetrievalToMetaDataBridge(instanceContext);
