@@ -29,10 +29,9 @@ import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.invocation.StatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
 import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -55,7 +54,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
    // ------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 1L;
-   
+
    private static final Logger log = Logger.getLogger(SessionProxyInvocationHandlerBase.class);
 
    // ------------------------------------------------------------------------------||
@@ -75,7 +74,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
     * 
     * @return
     */
-   protected InvokableContext<? extends ContainerMethodInvocation> getContainerLocally()
+   protected InvokableContext getContainerLocally()
    {
       // Lookup
       Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(this.getContainerName());
@@ -85,40 +84,7 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
             + " was not of expected type " + InvokableContext.class.getName() + " but was instead " + obj;
 
       // Return
-      return (InvokableContext<?>) obj;
-   }
-
-   /**
-    * Creates and returns a Remoting Proxy to invoke upon the container
-    * 
-    * @param url The location of the remote host holding the Container
-    * @return
-    */
-   protected InvokableContext<? extends ContainerMethodInvocation> createRemoteProxyToContainer(String url)
-   {
-      // Create an InvokerLocator
-      InvokerLocator locator = null;
-      try
-      {
-         locator = new InvokerLocator(url);
-      }
-      catch (MalformedURLException e)
-      {
-         throw new RuntimeException("Could not create " + InvokerLocator.class.getSimpleName() + " to url \"" + url
-               + "\"", e);
-      }
-
-      // Create a POJI Proxy to the Container
-      Interceptor[] interceptors =
-      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-      PojiProxy handler = new StatefulRemoteProxyInvocationHack(this.getContainerName(), locator, interceptors);
-      Class<?>[] interfaces = new Class<?>[]
-      {InvokableContext.class};
-      InvokableContext<? extends ContainerMethodInvocation> container = (InvokableContext<?>) Proxy.newProxyInstance(
-            InvokableContext.class.getClassLoader(), interfaces, handler);      
-
-      // Return
-      return container;
+      return (InvokableContext) obj;
    }
 
    // ------------------------------------------------------------------------------||
@@ -130,5 +96,5 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
     * 
     * @return
     */
-   protected abstract InvokableContext<? extends ContainerMethodInvocation> getContainer();
+   protected abstract InvokableContext getContainer();
 }

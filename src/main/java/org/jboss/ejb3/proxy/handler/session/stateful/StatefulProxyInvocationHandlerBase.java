@@ -21,12 +21,21 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateful;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
+import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
+import org.jboss.remoting.InvokerLocator;
 import org.jboss.util.NotImplementedException;
 
 /**
@@ -57,7 +66,7 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
    /**
     * The Session ID of the SFSB Instance to which this ProxyHandler will delegate
     */
-   private Object sessionId;
+   private Serializable sessionId;
 
    // ------------------------------------------------------------------------------||
    // Constructors -----------------------------------------------------------------||
@@ -84,7 +93,7 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
     * 
     * @return
     */
-   public Object getSessionId()
+   public Serializable getSessionId()
    {
       return this.sessionId;
    }
@@ -94,7 +103,7 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
     * 
     * @param sessionId
     */
-   public void setSessionId(Object sessionId)
+   public void setSessionId(Serializable sessionId)
    {
       this.sessionId = sessionId;
    }
@@ -185,6 +194,40 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
 
       // Hash the String
       return unique.hashCode();
+   }
+
+   /**
+    * Creates and returns a Remoting Proxy to invoke upon the container
+    * 
+    * @param url The location of the remote host holding the Container
+    * @return
+    */
+   protected InvokableContext createRemoteProxyToContainer(String url)
+   {
+      // Create an InvokerLocator
+      InvokerLocator locator = null;
+      try
+      {
+         locator = new InvokerLocator(url);
+      }
+      catch (MalformedURLException e)
+      {
+         throw new RuntimeException("Could not create " + InvokerLocator.class.getSimpleName() + " to url \"" + url
+               + "\"", e);
+      }
+
+      // Create a POJI Proxy to the Container
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
+            interceptors, this.getSessionId());
+      Class<?>[] interfaces = new Class<?>[]
+      {InvokableContext.class};
+      InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),
+            interfaces, handler);
+
+      // Return
+      return container;
    }
 
    // ------------------------------------------------------------------------------||

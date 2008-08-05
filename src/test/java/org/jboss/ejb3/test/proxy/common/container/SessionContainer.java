@@ -21,24 +21,42 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.jboss.aop.Advisor;
+import org.jboss.aop.AspectManager;
 import org.jboss.aop.Dispatcher;
+import org.jboss.aop.MethodInfo;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.InvocationResponse;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
+import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
+import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
 /**
  * SessionContainer
@@ -48,7 +66,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class SessionContainer
+public abstract class SessionContainer implements InvokableContext
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -90,6 +108,11 @@ public abstract class SessionContainer
     */
    private Context jndiContext;
 
+   /**
+    * The AOP Advisor
+    */
+   private Advisor advisor;
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -122,6 +145,11 @@ public abstract class SessionContainer
          throw new RuntimeException("Could not find Bean Implementation class \"" + beanClassName + "\" in the "
                + ClassLoader.class.getSimpleName() + " for " + this);
       }
+
+      // Set Advisor
+      AspectManager aspectManager = AspectManager.instance(this.getClassLoader());
+      Advisor advisor = new ProxyTestClassAdvisor(this, aspectManager);
+      this.setAdvisor(advisor);
    }
 
    // --------------------------------------------------------------------------------||
@@ -157,10 +185,103 @@ public abstract class SessionContainer
       }
 
       // Obtain the method for invocation
-      Method m = this.getClassLoader().loadClass(method.getDeclaringClassName()).getDeclaredMethod(method.getName(), argTypes);
+      Method m = this.getClassLoader().loadClass(method.getDeclaringClassName()).getDeclaredMethod(method.getName(),
+            argTypes);
 
       // Invoke on the bean
       return invokeBean(proxy, m, args);
+   }
+
+   /**
+    * Invocation point of entry for Remoting
+    * 
+    * @param invocation
+    * @return
+    * @throws Throwable
+    */
+   public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
+   {
+      /*
+       * Set the proper TCL
+       */
+
+      // Hold a reference to the existing TCL
+      ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
+
+      // Set the Container's CL as TCL, required to unmarshall methods from the bean impl class
+      Thread.currentThread().setContextClassLoader(this.getClassLoader());
+
+      /*
+       * Obtain the target method (unmarshall from invocation)
+       */
+
+      // Cast
+      assert invocation instanceof MethodInvocation : SessionContainer.class.getName() + ".dynamicInoke supports only "
+            + MethodInvocation.class.getSimpleName() + ", but has been passed: " + invocation;
+      MethodInvocation mi = (MethodInvocation) invocation;
+
+      // Get the method hash
+      long methodHash = mi.getMethodHash();
+      log.debug("Received dynamic invocation for method with hash: " + methodHash);
+
+      // Get the Method via MethodInfo from the Advisor
+      Advisor advisor = this.getAdvisor();
+      MethodInfo info = advisor.getMethodInfo(mi.getMethodHash());
+
+      /*
+       * Build a new Invocation
+       */
+
+      // Construct the invocation
+      MethodInvocation newInvocation = new MethodInvocation(info, new Interceptor[]
+      {});
+      Object[] args = mi.getArguments();
+      newInvocation.setArguments(args);
+      newInvocation.setMetaData(mi.getMetaData());
+      newInvocation.setAdvisor(advisor);
+
+      // Obtain the Session ID
+      Serializable sessionId = null;
+      Object objSessionId = mi.getMetaData(StatefulSessionRemotingMetadata.TAG_SFSB_INVOCATION,
+            StatefulSessionRemotingMetadata.KEY_SESSION_ID);
+      if (objSessionId != null)
+      {
+         assert objSessionId instanceof Serializable : "Session IDs must be " + Serializable.class.getSimpleName();
+         sessionId = (Serializable) objSessionId;
+      }
+
+      // Get the target, and set on the invocation
+      Object target = this.getBeanInstance(sessionId);
+      newInvocation.setTargetObject(target);
+
+      // Create an Object reference to hold the return value
+      Object returnValue = null;
+
+      // Create a reference to the Invocation's response
+      InvocationResponse response = null;
+
+      /*
+       * Invoke
+       */
+
+      try
+      {
+         // Invoke
+         returnValue = newInvocation.invokeNext();
+
+         // Create a Response
+         response = new InvocationResponse(returnValue);
+         Map<Object, Object> responseContext = newInvocation.getResponseContextInfo();
+         response.setContextInfo(responseContext);
+      }
+      finally
+      {
+         // Reset the TCL to original
+         Thread.currentThread().setContextClassLoader(originalLoader);
+      }
+
+      // Return
+      return response;
    }
 
    protected Object createInstance() throws InstantiationException, IllegalAccessException
@@ -168,10 +289,24 @@ public abstract class SessionContainer
       return this.getBeanClass().newInstance();
    }
 
+   //FIXME: Should be agnostic to Session IDs, SLSBs have none
    public Object invokeBean(Object proxy, Method method, Object args[]) throws Throwable
    {
+      // Initialize a Session ID
+      Serializable sessionId = null;
+
+      // Obtain the InvocationHandler
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      if (handler instanceof StatefulProxyInvocationHandlerBase)
+      {
+         StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
+
+         // Get the Session ID
+         sessionId = sHandler.getSessionId();
+      }
+
       // Get the appropriate instance
-      Object obj = this.getBeanInstance(proxy);
+      Object obj = this.getBeanInstance(sessionId);
 
       // Invoke
       return method.invoke(obj, args);
@@ -183,7 +318,7 @@ public abstract class SessionContainer
       log.info("Starting " + this);
 
       // Register with Remoting
-      Dispatcher.singleton.registerTarget(this.getName(), this);
+      Dispatcher.singleton.registerTarget(this.getName(), new ProxyTestClassProxyHack(this));
 
       // Obtain registrar
       JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
@@ -281,10 +416,149 @@ public abstract class SessionContainer
     * Obtains the appropriate bean instance for invocation
     * as called from the specified proxy
     * 
-    * @param proxy
+    * @param sessionId
     * @return
     */
-   protected abstract Object getBeanInstance(Object proxy);
+   protected abstract Object getBeanInstance(Serializable sessionId);
+
+   // --------------------------------------------------------------------------------||
+   // Internal Helper Methods --------------------------------------------------------||
+   // --------------------------------------------------------------------------------||   
+
+   /**
+    * Obtains a List of all methods handled by the bean class
+    * 
+    * @return The methods handled by the bean class directly
+    */
+   public Set<Method> getVirtualMethods()
+   {
+      // Initialize
+      Set<Method> virtualMethods = new HashSet<Method>();
+
+      // Obtain Metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+
+      // Obtain CL
+      ClassLoader cl = this.getClassLoader();
+
+      /*
+       * Business Remotes
+       */
+
+      // Obtain all specified business remotes
+      BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
+      if (businessRemotes != null)
+      {
+         // For each business remote
+         for (String businessRemote : businessRemotes)
+         {
+            // Load the Class
+            Class<?> businessRemoteClass = null;
+            try
+            {
+               businessRemoteClass = Class.forName(businessRemote, true, cl);
+            }
+            catch (ClassNotFoundException e)
+            {
+               throw new RuntimeException("Could not find specified business remote class: " + businessRemote, e);
+            }
+
+            // Obtain all methods declared by the class
+            Method[] declaredMethods = businessRemoteClass.getMethods();
+
+            // Add each method
+            for (Method declaredMethod : declaredMethods)
+            {
+               virtualMethods.add(declaredMethod);
+            }
+         }
+      }
+
+      /*
+       * Business Locals
+       */
+
+      // Obtain all specified business locals
+      BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
+      if (businessLocals != null)
+      {
+         // For each business local
+         for (String businessLocal : businessLocals)
+         {
+            // Load the Class
+            Class<?> businessLocalClass = null;
+            try
+            {
+               businessLocalClass = Class.forName(businessLocal, true, cl);
+            }
+            catch (ClassNotFoundException e)
+            {
+               throw new RuntimeException("Could not find specified business local class: " + businessLocal, e);
+            }
+
+            // Obtain all methods declared by the class
+            Method[] declaredMethods = businessLocalClass.getMethods();
+
+            // Add each method
+            for (Method declaredMethod : declaredMethods)
+            {
+               virtualMethods.add(declaredMethod);
+            }
+         }
+      }
+
+      // Remote Home
+      String remoteHomeClassName = smd.getHome();
+      if (remoteHomeClassName != null)
+      {
+         Class<?> remoteHomeClass = null;
+         try
+         {
+            remoteHomeClass = Class.forName(remoteHomeClassName, true, cl);
+         }
+         catch (ClassNotFoundException e)
+         {
+            throw new RuntimeException("Could not find specified Remote Home Class: " + remoteHomeClassName, e);
+         }
+         if (remoteHomeClass != null)
+         {
+            Method[] declaredMethods = remoteHomeClass.getMethods();
+            for (Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+
+            declaredMethods = javax.ejb.EJBObject.class.getMethods();
+            for (Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+         }
+      }
+
+      // Local Home
+      String localHomeClassName = smd.getLocalHome();
+      if (localHomeClassName != null)
+      {
+         Class<?> localHomeClass = null;
+         try
+         {
+            localHomeClass = Class.forName(localHomeClassName, true, cl);
+         }
+         catch (ClassNotFoundException e)
+         {
+            throw new RuntimeException("Could not find specified Local Home Class: " + localHomeClass, e);
+         }
+         if (localHomeClass != null)
+         {
+            Method[] declaredMethods = localHomeClass.getMethods();
+            for (Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+
+            declaredMethods = javax.ejb.EJBLocalObject.class.getMethods();
+            for (Method declaredMethod : declaredMethods)
+               virtualMethods.add(declaredMethod);
+         }
+      }
+
+      return virtualMethods;
+   }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
@@ -354,5 +628,15 @@ public abstract class SessionContainer
    private void setJndiContext(Context jndiContext)
    {
       this.jndiContext = jndiContext;
+   }
+
+   public Advisor getAdvisor()
+   {
+      return advisor;
+   }
+
+   public void setAdvisor(Advisor advisor)
+   {
+      this.advisor = advisor;
    }
 }

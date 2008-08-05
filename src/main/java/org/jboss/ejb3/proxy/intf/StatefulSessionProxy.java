@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.intf;
 
+import java.io.Serializable;
+
 /**
  * StatefulSessionProxy
  * 
@@ -36,12 +38,12 @@ public interface StatefulSessionProxy extends SessionProxy
     * 
     * @return
     */
-   Object getSessionId();
+   Serializable getSessionId();
 
    /**
     * Sets the Session ID for this SFSB instance
     * 
     * @param sessionId
     */
-   void setSessionId(Object sessionId);
+   void setSessionId(Serializable sessionId);
 }

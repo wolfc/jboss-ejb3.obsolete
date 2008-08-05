@@ -21,8 +21,9 @@
  */
 package org.jboss.ejb3.proxy.container;
 
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 
 /**
  * InvokableContext
@@ -34,7 +35,7 @@ import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface InvokableContext<T extends ContainerMethodInvocation>
+public interface InvokableContext
 {
    /**
     * Invokes the method described by the specified serializable method
@@ -47,4 +48,13 @@ public interface InvokableContext<T extends ContainerMethodInvocation>
     * @return
     */
    Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable;
+
+   /**
+    * Invocation point of entry for Remoting
+    * 
+    * @param invocation
+    * @return
+    * @throws Throwable
+    */
+   InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable;
 }
