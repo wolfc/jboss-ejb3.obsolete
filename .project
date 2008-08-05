@@ -1,24 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>jboss-ejb3-interceptors</name>
-	<comment>The JBoss EJB 3 Interceptors component implements all functionality
+  <name>jboss-ejb3-interceptors</name>
+  <comment>The JBoss EJB 3 Interceptors component implements all functionality
     specified in Chapter 12 (Interceptors) of the EJB 3 specification.</comment>
-	<projects>
-	</projects>
-	<buildSpec>
-		<buildCommand>
-			<name>org.maven.ide.eclipse.maven2Builder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-	</buildSpec>
-	<natures>
-		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.maven.ide.eclipse.maven2Nature</nature>
-	</natures>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+  </natures>
 </projectDescription>
