@@ -211,61 +211,63 @@ public abstract class SessionContainer implements InvokableContext
       // Set the Container's CL as TCL, required to unmarshall methods from the bean impl class
       Thread.currentThread().setContextClassLoader(this.getClassLoader());
 
-      /*
-       * Obtain the target method (unmarshall from invocation)
-       */
-
-      // Cast
-      assert invocation instanceof MethodInvocation : SessionContainer.class.getName() + ".dynamicInoke supports only "
-            + MethodInvocation.class.getSimpleName() + ", but has been passed: " + invocation;
-      MethodInvocation mi = (MethodInvocation) invocation;
-
-      // Get the method hash
-      long methodHash = mi.getMethodHash();
-      log.debug("Received dynamic invocation for method with hash: " + methodHash);
-
-      // Get the Method via MethodInfo from the Advisor
-      Advisor advisor = this.getAdvisor();
-      MethodInfo info = advisor.getMethodInfo(mi.getMethodHash());
-
-      /*
-       * Build a new Invocation
-       */
-
-      // Construct the invocation
-      MethodInvocation newInvocation = new MethodInvocation(info, new Interceptor[]
-      {});
-      Object[] args = mi.getArguments();
-      newInvocation.setArguments(args);
-      newInvocation.setMetaData(mi.getMetaData());
-      newInvocation.setAdvisor(advisor);
-
-      // Obtain the Session ID
-      Serializable sessionId = null;
-      Object objSessionId = mi.getMetaData(StatefulSessionRemotingMetadata.TAG_SFSB_INVOCATION,
-            StatefulSessionRemotingMetadata.KEY_SESSION_ID);
-      if (objSessionId != null)
-      {
-         assert objSessionId instanceof Serializable : "Session IDs must be " + Serializable.class.getSimpleName();
-         sessionId = (Serializable) objSessionId;
-      }
-
-      // Get the target, and set on the invocation
-      Object target = this.getBeanInstance(sessionId);
-      newInvocation.setTargetObject(target);
-
-      // Create an Object reference to hold the return value
-      Object returnValue = null;
-
-      // Create a reference to the Invocation's response
-      InvocationResponse response = null;
-
-      /*
-       * Invoke
-       */
-
       try
       {
+
+         /*
+          * Obtain the target method (unmarshall from invocation)
+          */
+
+         // Cast
+         assert invocation instanceof MethodInvocation : SessionContainer.class.getName()
+               + ".dynamicInoke supports only " + MethodInvocation.class.getSimpleName() + ", but has been passed: "
+               + invocation;
+         MethodInvocation mi = (MethodInvocation) invocation;
+
+         // Get the method hash
+         long methodHash = mi.getMethodHash();
+         log.debug("Received dynamic invocation for method with hash: " + methodHash);
+
+         // Get the Method via MethodInfo from the Advisor
+         Advisor advisor = this.getAdvisor();
+         MethodInfo info = advisor.getMethodInfo(mi.getMethodHash());
+
+         /*
+          * Build a new Invocation
+          */
+
+         // Construct the invocation
+         MethodInvocation newInvocation = new MethodInvocation(info, new Interceptor[]
+         {});
+         Object[] args = mi.getArguments();
+         newInvocation.setArguments(args);
+         newInvocation.setMetaData(mi.getMetaData());
+         newInvocation.setAdvisor(advisor);
+
+         // Obtain the Session ID
+         Serializable sessionId = null;
+         Object objSessionId = mi.getMetaData(StatefulSessionRemotingMetadata.TAG_SFSB_INVOCATION,
+               StatefulSessionRemotingMetadata.KEY_SESSION_ID);
+         if (objSessionId != null)
+         {
+            assert objSessionId instanceof Serializable : "Session IDs must be " + Serializable.class.getSimpleName();
+            sessionId = (Serializable) objSessionId;
+         }
+
+         // Get the target, and set on the invocation
+         Object target = this.getBeanInstance(sessionId);
+         newInvocation.setTargetObject(target);
+
+         // Create an Object reference to hold the return value
+         Object returnValue = null;
+
+         // Create a reference to the Invocation's response
+         InvocationResponse response = null;
+
+         /*
+          * Invoke
+          */
+
          // Invoke
          returnValue = newInvocation.invokeNext();
 
@@ -273,15 +275,15 @@ public abstract class SessionContainer implements InvokableContext
          response = new InvocationResponse(returnValue);
          Map<Object, Object> responseContext = newInvocation.getResponseContextInfo();
          response.setContextInfo(responseContext);
+
+         // Return
+         return response;
       }
       finally
       {
          // Reset the TCL to original
          Thread.currentThread().setContextClassLoader(originalLoader);
       }
-
-      // Return
-      return response;
    }
 
    protected Object createInstance() throws InstantiationException, IllegalAccessException
