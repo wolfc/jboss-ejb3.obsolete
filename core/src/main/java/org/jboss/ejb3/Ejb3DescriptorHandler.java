@@ -189,12 +189,15 @@ import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationReferenceMetaData;
 import org.jboss.metadata.javaee.spec.MessageDestinationReferencesMetaData;
+import org.jboss.metadata.javaee.spec.PortComponent;
 import org.jboss.metadata.javaee.spec.ResourceInjectionTargetMetaData;
 import org.jboss.metadata.javaee.spec.ResourceReferenceMetaData;
 import org.jboss.metadata.javaee.spec.ResourceReferencesMetaData;
 import org.jboss.metadata.javaee.spec.RunAsMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
+import org.jboss.wsf.spi.metadata.j2ee.PortComponentMD;
+import org.jboss.wsf.spi.metadata.j2ee.PortComponentSpec;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -911,6 +914,8 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       addEjbAnnotations(container, enterpriseBean);
 
       addEjb21Annotations(container, isStateful);
+      
+      addWebServiceAnnotations(container, enterpriseBean);
    }
 
    /**
@@ -1374,6 +1379,25 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       }
    }
 
+   private void addWebServiceAnnotations(EJBContainer container, JBossEnterpriseBeanMetaData enterpriseBean)
+   {
+      if (enterpriseBean != null && (enterpriseBean instanceof JBossSessionBeanMetaData))
+      {
+         PortComponent pc = ((JBossSessionBeanMetaData)enterpriseBean).getPortComponent();
+         if (pc != null)
+         {
+            PortComponentMD annotation = new PortComponentMD();
+            annotation.setAuthMethod(pc.getAuthMethod());
+            annotation.setPortComponentName(pc.getPortComponentName());
+            annotation.setPortComponentURI(pc.getPortComponentURI());
+            annotation.setSecureWSDLAccess(pc.getSecureWSDLAccess());
+            annotation.setTransportGuarantee(pc.getTransportGuarantee());
+            
+            addClassAnnotation(container, PortComponentSpec.class, annotation);
+         }
+      }
+   }
+   
    private void addConcurrentAnnotations(EJBContainer container,
          JBossSessionBeanMetaData enterpriseBean) throws Exception
    {
