@@ -50,7 +50,7 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
    public InterceptorMetaDataBridge()
    {
       // FIXME InterceptorMetaDataBridge constructor
-      System.out.println("======> Creating interceptor metadata bridge");
+      log.debug("======> Creating interceptor metadata bridge");
 
    }
    
