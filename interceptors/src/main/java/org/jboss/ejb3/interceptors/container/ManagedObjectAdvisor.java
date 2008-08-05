@@ -85,9 +85,14 @@ public class ManagedObjectAdvisor<T, C extends AbstractContainer<T, C>> extends 
       assert container != null : "container is null";
       
       this.container = container;
-      
+
       if(pAnnotations != null)
+      {
+         // FIXME: This is a hack to make sure that any installed annotation repository is authoritative
+         setMetadata(new DummyMetaData());
+         
          this.annotations = pAnnotations;
+      }
       
       // For convenience we add the ManagedObject annotation
       ManagedObject annotation = new ManagedObject()
