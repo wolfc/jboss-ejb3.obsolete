@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateful;
 
+import java.io.Serializable;
+
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 
 /**
@@ -42,7 +44,7 @@ public interface StatefulSessionProxyFactory extends SessionProxyFactory
     * @param sessionId
     * @return
     */
-   Object createProxyHome(Object sessionId);
+   Object createProxyHome(Serializable sessionId);
 
    /**
     * Create an EJB3 Business proxy with no 
@@ -56,7 +58,7 @@ public interface StatefulSessionProxyFactory extends SessionProxyFactory
     * @param sessionId
     * @return
     */
-   Object createProxyDefault(Object sessionId);
+   Object createProxyDefault(Serializable sessionId);
 
    /**
     * Create an EJB3 Business Proxy specific to the specified
@@ -67,7 +69,7 @@ public interface StatefulSessionProxyFactory extends SessionProxyFactory
     * @param businessInterfaceName
     * @return
     */
-   Object createProxyBusiness(Object sessionId, String businessInterfaceName);
+   Object createProxyBusiness(Serializable sessionId, String businessInterfaceName);
 
    /**
     * Create an EJB2.x Proxy 
@@ -75,6 +77,6 @@ public interface StatefulSessionProxyFactory extends SessionProxyFactory
     * @param sessionId
     * @return
     */
-   Object createProxyEjb2x(Object sessionId);
+   Object createProxyEjb2x(Serializable sessionId);
 
 }

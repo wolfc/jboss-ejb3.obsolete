@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateless;
 
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -63,7 +62,7 @@ public class StatelessLocalProxyInvocationHandler extends StatelessProxyInvocati
     * @see org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandlerBase#getContainer()
     */
    @Override
-   protected InvokableContext<? extends ContainerMethodInvocation> getContainer()
+   protected InvokableContext getContainer()
    {
       return this.getContainerLocally();
    }

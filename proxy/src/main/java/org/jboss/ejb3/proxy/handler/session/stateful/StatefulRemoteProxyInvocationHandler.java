@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateful;
 
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -71,7 +70,7 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
     * @see org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandlerBase#getContainer()
     */
    @Override
-   protected InvokableContext<? extends ContainerMethodInvocation> getContainer()
+   protected InvokableContext getContainer()
    {
       return this.createRemoteProxyToContainer(this.getUrl());
    }

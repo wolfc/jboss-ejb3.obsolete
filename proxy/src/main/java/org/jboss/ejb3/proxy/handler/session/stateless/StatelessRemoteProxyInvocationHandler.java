@@ -21,8 +21,16 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateless;
 
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
+import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
+
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
+import org.jboss.remoting.InvokerLocator;
 
 /**
  * StatelessRemoteProxyInvocationHandler
@@ -71,9 +79,51 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
     * @see org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandlerBase#getContainer()
     */
    @Override
-   protected InvokableContext<? extends ContainerMethodInvocation> getContainer()
+   protected InvokableContext getContainer()
    {
       return this.createRemoteProxyToContainer(this.getUrl());
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Creates and returns a Remoting Proxy to invoke upon the container
+    * 
+    * @param url The location of the remote host holding the Container
+    * @return
+    */
+   //FIXME Mostly a copy of the SFSB Remote Handler, but passing null 
+   // as a SessionID.  Should be using more intelligent design, SLSB's have 
+   // no Sessions.  To be reworked in InvokableContextStatefulRemoteProxyInvocationHack, 
+   // as this implementation is @deprecated
+   protected InvokableContext createRemoteProxyToContainer(String url)
+   {
+      // Create an InvokerLocator
+      InvokerLocator locator = null;
+      try
+      {
+         locator = new InvokerLocator(url);
+      }
+      catch (MalformedURLException e)
+      {
+         throw new RuntimeException("Could not create " + InvokerLocator.class.getSimpleName() + " to url \"" + url
+               + "\"", e);
+      }
+
+      // Create a POJI Proxy to the Container
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
+            interceptors, null);
+      Class<?>[] interfaces = new Class<?>[]
+      {InvokableContext.class};
+      InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),
+            interfaces, handler);
+
+      // Return
+      return container;
    }
 
    // --------------------------------------------------------------------------------||

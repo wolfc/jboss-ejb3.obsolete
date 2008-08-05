@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.factory.session.stateful;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Set;
@@ -28,7 +29,6 @@ import java.util.Set;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
@@ -61,7 +61,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    /**
     * The Container used by this SFSB Proxy Factory
     */
-   private transient StatefulSessionInvokableContext<?> container;
+   private transient StatefulSessionInvokableContext container;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -133,7 +133,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    @Override
    public Object createProxyHome()
    {
-      Object sessionId = this.getNewSessionId();
+      Serializable sessionId = this.getNewSessionId();
       return this.createProxyHome(sessionId);
    }
 
@@ -151,7 +151,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    @Override
    public Object createProxyDefault()
    {
-      Object sessionId = this.getNewSessionId();
+      Serializable sessionId = this.getNewSessionId();
       return this.createProxyDefault(sessionId);
    }
 
@@ -166,7 +166,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    @Override
    public Object createProxyBusiness(final String businessInterfaceName)
    {
-      Object sessionId = this.getNewSessionId();
+      Serializable sessionId = this.getNewSessionId();
       return this.createProxyBusiness(sessionId, businessInterfaceName);
    }
 
@@ -178,7 +178,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    @Override
    public Object createProxyEjb2x()
    {
-      Object sessionId = this.getNewSessionId();
+      Serializable sessionId = this.getNewSessionId();
       return this.createProxyEjb2x(sessionId);
    }
 
@@ -192,7 +192,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param sessionId
     * @return
     */
-   public Object createProxyHome(Object sessionId)
+   public Object createProxyHome(Serializable sessionId)
    {
       // Obtain Proxy using Super Implementation
       Object proxy = super.createProxyHome();
@@ -216,7 +216,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param sessionId
     * @return
     */
-   public Object createProxyDefault(Object sessionId)
+   public Object createProxyDefault(Serializable sessionId)
    {
       // Obtain Proxy using Super Implementation
       Object proxy = super.createProxyDefault();
@@ -237,7 +237,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param businessInterfaceName
     * @return
     */
-   public Object createProxyBusiness(Object sessionId, String businessInterfaceName)
+   public Object createProxyBusiness(Serializable sessionId, String businessInterfaceName)
    {
       // Obtain Proxy using Super Implementation
       Object proxy = super.createProxyBusiness(businessInterfaceName);
@@ -255,7 +255,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param sessionId
     * @return
     */
-   public Object createProxyEjb2x(Object sessionId)
+   public Object createProxyEjb2x(Serializable sessionId)
    {
       // Obtain Proxy using Super Implementation
       Object proxy = super.createProxyEjb2x();
@@ -278,7 +278,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param proxy
     * @param sessionId
     */
-   protected void associateProxyWithSession(Object proxy, Object sessionId)
+   protected void associateProxyWithSession(Object proxy, Serializable sessionId)
    {
       // Obtain the InvocationHandler
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
@@ -296,13 +296,13 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * 
     * @return The ID of the new session
     */
-   protected Object getNewSessionId()
+   protected Serializable getNewSessionId()
    {
       // Obtain the Container
-      StatefulSessionInvokableContext<?> container = this.getContainer();
+      StatefulSessionInvokableContext container = this.getContainer();
 
       // Get a new Session ID from the Container
-      Object sessionId = null;
+      Serializable sessionId = null;
       try
       {
          sessionId = container.createSession();
@@ -330,12 +330,12 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * 
     * @return The Container for this Proxy Factory
     */
-   protected StatefulSessionInvokableContext<?> obtainContainer()
+   protected StatefulSessionInvokableContext obtainContainer()
    {
       /*
        * Obtain the Container
        */
-      StatefulSessionInvokableContext<?> container = null;
+      StatefulSessionInvokableContext container = null;
       String containerName = this.getContainerName();
 
       // Lookup from EJB3 Registrar
@@ -345,7 +345,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
          assert obj instanceof StatefulSessionInvokableContext : "Container retrieved from "
                + Ejb3Registrar.class.getSimpleName() + " was not of expected type "
                + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
-         container = (StatefulSessionInvokableContext<?>) obj;
+         container = (StatefulSessionInvokableContext) obj;
       }
       catch (NotBoundException nbe)
       {
@@ -362,7 +362,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public StatefulSessionInvokableContext<?> getContainer()
+   public StatefulSessionInvokableContext getContainer()
    {
       if (this.container == null)
       {
@@ -372,8 +372,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       return this.container;
    }
 
-   public void setContainer(
-         StatefulSessionInvokableContext<? extends StatefulSessionContainerMethodInvocation> container)
+   public void setContainer(StatefulSessionInvokableContext container)
    {
       this.container = container;
    }

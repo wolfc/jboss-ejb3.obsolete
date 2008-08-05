@@ -21,9 +21,9 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -34,7 +34,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class StatelessContainer extends SessionSpecContainer implements InvokableContext<ContainerMethodInvocation>
+public class StatelessContainer extends SessionSpecContainer implements InvokableContext
 {
    public StatelessContainer(JBossSessionBeanMetaData metaData, ClassLoader classLoader) throws ClassNotFoundException
    {
@@ -63,13 +63,14 @@ public class StatelessContainer extends SessionSpecContainer implements Invokabl
    }
 
    /**
-    * Obtains the appropriate bean instance for invocation
-    * as called from the specified proxy
+    * Obtains the appropriate bean instance for invocation.
+    * Specified Session ID will be ignored
     * 
-    * @param proxy
+    * @param sessionId
     * @return
     */
-   protected Object getBeanInstance(Object proxy)
+   //FIXME: SLSBs have no Session ID
+   protected Object getBeanInstance(Serializable sessionId)
    {
       // Typically this would be obtained from a Pool
       try

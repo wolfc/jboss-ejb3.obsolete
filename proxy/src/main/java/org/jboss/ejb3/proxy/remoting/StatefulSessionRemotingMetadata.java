@@ -19,26 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.container;
-
-import java.io.Serializable;
+package org.jboss.ejb3.proxy.remoting;
 
 /**
- * StatefulSessionInvokableContext
+ * StatefulSessionRemotingMetadata
  * 
- * Represents an object capable of carrying out 
- * EJB3 SFSB Invocations as described by an 
- * Invocation descriptor
+ * Contains constants used in Remoting metadata
+ * for SFSB Invocations
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionInvokableContext extends InvokableContext
+public interface StatefulSessionRemotingMetadata
 {
+
    /**
-    * Creates a new user session and returns the unique Session ID
-    * 
-    * @return
+    * AOP Metadata Tag for SFSB Remoting Invocations
     */
-   Serializable createSession();
+   String TAG_SFSB_INVOCATION = "SFSB";
+
+   /**
+    * AOP Metadata Key for SFSB Session ID
+    */
+   String KEY_SESSION_ID = "SessionID";
 }

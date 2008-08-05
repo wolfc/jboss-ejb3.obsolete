@@ -23,10 +23,6 @@ package org.jboss.ejb3.proxy.handler.session;
 
 import java.lang.reflect.Method;
 
-import org.jboss.aop.Dispatcher;
-import org.jboss.aop.util.PayloadKey;
-import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
-import org.jboss.aspects.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
@@ -107,7 +103,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       /*
        * Obtain the Container
        */
-      InvokableContext<?> container = this.getContainer();
+      InvokableContext container = this.getContainer();
 
       /*
        * Invoke
@@ -122,7 +118,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
 
       // Invoke
       Object result = container.invoke(proxy, invokedMethod, args);
-      
+
       // Return
       return result;
    }

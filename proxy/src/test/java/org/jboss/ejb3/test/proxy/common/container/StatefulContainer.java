@@ -21,15 +21,12 @@
  */
 package org.jboss.ejb3.test.proxy.common.container;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -41,9 +38,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulContainer extends SessionSpecContainer
-      implements
-         StatefulSessionInvokableContext<StatefulSessionContainerMethodInvocation>
+public class StatefulContainer extends SessionSpecContainer implements StatefulSessionInvokableContext
 {
 
    // --------------------------------------------------------------------------------||
@@ -78,10 +73,10 @@ public class StatefulContainer extends SessionSpecContainer
     * 
     * @return
     */
-   public Object createSession()
+   public Serializable createSession()
    {
       // Create a new Session ID
-      Object sessionId = UUID.randomUUID();
+      Serializable sessionId = UUID.randomUUID();
 
       // Create a new Instance
       Object instance = null;
@@ -126,25 +121,18 @@ public class StatefulContainer extends SessionSpecContainer
     * Obtains the appropriate bean instance for invocation
     * as called from the specified proxy
     * 
-    * @param proxy
+    * @param sessionId
     * @return
     */
-   protected Object getBeanInstance(Object proxy)
+   protected Object getBeanInstance(Serializable sessionId)
    {
-      // Obtain the InvocationHandler
-      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulProxyInvocationHandlerBase : "SFSB Proxy must be of type "
-            + StatefulProxyInvocationHandlerBase.class.getName();
-      StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
-
-      // Get the Session ID
-      Object sessionId = sHandler.getSessionId();
-      assert sessionId != null : "Proxy has no Session ID set, and this is required for SFSB Invocation";
+      // Sanity Check
+      assert sessionId != null : "No Session ID specified, and this is required for SFSB Invocation";
 
       // Get the corresponding instance from the cache
       Object bean = this.getCache().get(sessionId);
-      assert bean != null : "SFSB Proxy claims Session ID of " + sessionId
-            + ", but no corresponding bean instance could be found";
+      assert bean != null : "Session ID of " + sessionId
+            + " declared, but no corresponding bean instance could be found";
 
       // Return
       return bean;
