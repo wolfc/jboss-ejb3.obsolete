@@ -23,63 +23,72 @@ package org.jboss.ejb3.core.test.stateless.unit;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Hashtable;
-
 import javax.naming.InitialContext;
 
-import org.jboss.aop.Domain;
-import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
 import org.jboss.ejb3.core.test.stateless.MyStateless;
 import org.jboss.ejb3.core.test.stateless.MyStatelessBean;
 import org.jboss.ejb3.stateless.StatelessContainer;
-import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
-import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
-import org.jboss.ejb3.test.common.MetaDataHelper;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
  * This test is just to get some coverage in StatelessContainer.
  * 
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
 public class StatelessContainerTestCase extends AbstractEJB3TestCase
 {
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static StatelessContainer container;
+
+   // --------------------------------------------------------------------------------||
+   // Tests --------------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Simple test for SLSB invocation
+    */
    @Test
    public void test1() throws Throwable
    {
-      ClassLoader cl = Thread.currentThread().getContextClassLoader();
-      System.out.println(cl.getResource("jndi.properties"));
-      String beanClassname = MyStatelessBean.class.getName();
-      String ejbName = MyStatelessBean.class.getSimpleName();
-      Domain domain = getDomain("Stateless Bean");
-      Hashtable<?,?> ctxProperties = null;
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
-      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(MyStatelessBean.class);
-      StatelessContainer container = new StatelessContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
-      
-      // TODO: wickedness
-      container.instantiated();
-      
-      // Register the Container in ObjectStore (MC)
-//      String serviceName = "jboss.ejb3:name=MyStatelessBean,service=EJB3";
-//      AbstractBeanMetaData bmd = new AbstractBeanMetaData(serviceName, StatelessContainer.class.getName());
-//    bootstrap.getKernel().getController().install(bmd, container);
-      String containerName = container.getName();
-      Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
 
-      
       InitialContext ctx = new InitialContext();
       System.out.println("ctx = " + ctx);
       //System.out.println("  " + container.getInitialContext().list("MyStatelessBean").next());
       MyStateless bean = (MyStateless) ctx.lookup("MyStatelessBean/local");
-      
       String actual = bean.sayHi("Me");
       assertEquals("Hi Me", actual);
-      
-      getBootstrap().getKernel().getController().uninstall(containerName);
+
    }
+
+   // --------------------------------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   @BeforeClass
+   public static void beforeClass() throws Exception
+   {
+      AbstractEJB3TestCase.beforeClass();
+
+      // Deploy the test SLSB
+      container = deploySlsb(MyStatelessBean.class);
+   }
+
+   @AfterClass
+   public static void afterClass() throws Exception
+   {
+      // Undeploy the test SLSB
+      undeployEjb(container);
+
+      AbstractEJB3TestCase.afterClass();
+   }
+
 }
