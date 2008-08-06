@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateful;
 
+import java.io.Serializable;
+
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -29,7 +31,7 @@ import org.jboss.ejb3.proxy.container.InvokableContext;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocationHandlerBase
+public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocationHandlerBase implements Serializable
 {
 
    // --------------------------------------------------------------------------------||

@@ -48,7 +48,8 @@ import org.jboss.util.NotImplementedException;
  */
 public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProxyInvocationHandlerBase
       implements
-         StatefulSessionProxy
+         StatefulSessionProxy,
+         Serializable
 {
 
    // ------------------------------------------------------------------------------||
