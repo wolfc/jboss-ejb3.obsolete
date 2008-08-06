@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +28,6 @@ import javax.naming.Name;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.objectfactory.Ejb3RegistrarProxyObjectFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.logging.Logger;
@@ -151,16 +148,8 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       // Obtain the target container name
       String containerName = this.getSingleRequiredReferenceAddressValue(name, referenceAddresses,
             ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME);
-
-      // Get the proxy's invocation handler
-      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-
-      // Set the target Container Name
-      assert handler instanceof SessionProxyInvocationHandler : InvocationHandler.class.getSimpleName()
-            + " must be of type " + SessionProxyInvocationHandler.class.getName() + " but instead was assignable to "
-            + handler.getClass().getInterfaces();
-      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
-      sHandler.setContainerName(containerName);
+      assert containerName != null && containerName.trim().length() > 0 : "Container Name must be specified via reference address + \""
+            + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_EJBCONTAINER_NAME + "\"";
 
       // Return
       return proxy;

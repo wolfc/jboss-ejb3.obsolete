@@ -48,18 +48,4 @@ public interface ProxyInvocationHandler extends InvocationHandler, Serializable
     */
    SerializableMethod getInvokedMethod();
 
-   /**
-    * Get the target container name
-    * 
-    * @return
-    */
-   String getContainerName();
-
-   /**
-    * Sets the target container name
-    * 
-    * @param containerName
-    */
-   void setContainerName(String containerName);
-
 }

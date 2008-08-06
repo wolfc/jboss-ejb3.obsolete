@@ -45,13 +45,14 @@ public class StatelessLocalProxyInvocationHandler extends StatelessProxyInvocati
    /**
     * Constructor
     * 
+    * @param containerName The name of the target Container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessLocalProxyInvocationHandler(String businessInterfaceType)
+   public StatelessLocalProxyInvocationHandler(final String containerName, final String businessInterfaceType)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
    }
 
    // --------------------------------------------------------------------------------||

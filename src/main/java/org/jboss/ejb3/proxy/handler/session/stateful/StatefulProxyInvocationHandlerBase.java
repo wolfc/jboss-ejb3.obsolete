@@ -75,13 +75,14 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
    /**
     * Constructor
     * 
+    * @param containerName The name of the target container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatefulProxyInvocationHandlerBase(String businessInterfaceType)
+   public StatefulProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -219,6 +220,8 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
       // Create a POJI Proxy to the Container
       Interceptor[] interceptors =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      String containerName = this.getContainerName();
+      assert containerName != null && containerName.trim().length() > 0 : "Container Name must be set";
       PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
             interceptors, this.getSessionId());
       Class<?>[] interfaces = new Class<?>[]

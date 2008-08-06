@@ -21,20 +21,11 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
-import java.lang.reflect.Proxy;
-import java.net.MalformedURLException;
-
-import org.jboss.aop.advice.Interceptor;
-import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
-import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
-import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
-import org.jboss.remoting.InvokerLocator;
 
 /**
  * SessionProxyInvocationHandlerBase
@@ -63,10 +54,12 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
 
    /**
     * Constructor 
+    * 
+    * @param containerName The name of the target Container
     */
-   protected SessionProxyInvocationHandlerBase()
+   protected SessionProxyInvocationHandlerBase(final String containerName)
    {
-      super();
+      super(containerName);
    }
 
    /**

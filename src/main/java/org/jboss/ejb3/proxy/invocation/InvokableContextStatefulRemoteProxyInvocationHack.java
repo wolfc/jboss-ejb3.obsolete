@@ -33,6 +33,7 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulRemoteInvocation;
+import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 
 /**
@@ -54,17 +55,41 @@ import org.jboss.remoting.InvokerLocator;
 public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
 {
 
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(InvokableContextStatefulRemoteProxyInvocationHack.class);
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    /**
     * The Session ID to be used in SFSB Invocations
     */
    private Serializable sessionId;
 
+   // --------------------------------------------------------------------------------||
+   // Constructor --------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    public InvokableContextStatefulRemoteProxyInvocationHack(Object oid, InvokerLocator uri, Interceptor[] interceptors,
          Serializable sessionId)
    {
+      // Call Super Implementation
       super(oid, uri, interceptors);
+      
+      // Some sanity checks
+      assert oid !=null : "Specified OID is null";
+      
+      // Set additional properties
       this.setSessionId(sessionId);
    }
+
+   // --------------------------------------------------------------------------------||
+   // Overridden Implementations -----------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    /**
     * Constructs a MethodInvocation from the specified Method and
@@ -119,6 +144,9 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       Method dynamicInvokeMethod = serializableMethod.toMethod();
       long hash = MethodHashing.calculateHash(dynamicInvokeMethod);
 
+      // Log
+      log.debug("Received invocation request to method " + serializableMethod + "; using hash: " + hash);
+
       /*
        * Build the invocation and return
        * 
@@ -127,7 +155,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
        * via ProxyTestClassProxyHack, an indirection to allow the proper CL to be set
        */
       MethodInvocation sri = new StatefulRemoteInvocation(this.getInterceptors(), hash, dynamicInvokeMethod,
-            dynamicInvokeMethod, null, null);
+            dynamicInvokeMethod, null, this.getSessionId());
       return sri;
    }
 
@@ -167,6 +195,10 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       Object[] arguments = (Object[]) objArguments;
       invocation.setArguments(arguments);
    }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    protected Serializable getSessionId()
    {

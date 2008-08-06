@@ -51,14 +51,16 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
    /**
     * Constructor
     * 
+    * @param containerName The name of the target container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
-    *   @param url The URL to the Remote Host
+    * @param url The URL to the Remote Host
     */
-   public StatefulRemoteProxyInvocationHandler(String businessInterfaceType, String url)
+   public StatefulRemoteProxyInvocationHandler(final String containerName, final String businessInterfaceType,
+         final String url)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
       this.setUrl(url);
    }
 

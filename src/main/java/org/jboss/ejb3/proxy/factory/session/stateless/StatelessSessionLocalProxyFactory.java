@@ -109,8 +109,12 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
    @Override
    protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
    {
+      // Obtain container name
+      String containerName = this.getContainerName();
+
       // Create
-      SessionProxyInvocationHandler handler = new StatelessLocalProxyInvocationHandler(businessInterfaceName);
+      SessionProxyInvocationHandler handler = new StatelessLocalProxyInvocationHandler(containerName,
+            businessInterfaceName);
 
       // Return
       return handler;
