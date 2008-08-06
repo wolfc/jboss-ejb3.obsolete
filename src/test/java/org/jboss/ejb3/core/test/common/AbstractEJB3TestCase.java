@@ -37,6 +37,7 @@ import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
@@ -61,6 +62,13 @@ public abstract class AbstractEJB3TestCase
    private static final Logger log = Logger.getLogger(AbstractEJB3TestCase.class);
 
    private static final String DOMAIN_NAME_SLSB = "Stateless Bean";
+   
+   /**
+    * Types of Containers Supported
+    */
+   enum ContainerType{
+      SFSB,SLSB
+   }
 
    @AfterClass
    public static void afterClass() throws Exception
@@ -123,14 +131,14 @@ public abstract class AbstractEJB3TestCase
          throw new IllegalArgumentException("No such domain '" + domainName + "'");
       return (Domain) domainDef.getManager();
    }
-
+   
    /**
-    * Creates and deploys a SLSB represented by the specified implementation classs
+    * Creates and deploys a Session EJB represented by the specified implementation class
     * 
     * @param beanImplementationClass
     * @return
     */
-   protected static StatelessContainer deploySlsb(Class<?> beanImplementationClass)
+   public static SessionContainer deploySessionEjb(Class<?> beanImplementationClass)
    {
       // Obtain TCL
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
@@ -148,18 +156,96 @@ public abstract class AbstractEJB3TestCase
 
       // Create metadata
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
-
-      // Create a SLSB Container
-      StatelessContainer container = null;
-      try
+      
+      // Ensure a Session Bean
+      assert beanMetaData.isSession() : "The specified EJB must be a Session Bean";
+      
+      /*
+       * Determine type
+       */
+      
+      // Initialize as SLSB
+      ContainerType type = ContainerType.SLSB;
+      
+      // Set as SFSB if stateful
+      if(beanMetaData.isStateful())
       {
-         container = new StatelessContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
-      }
-      catch (ClassNotFoundException cnfe)
-      {
-         throw new RuntimeException("Could not create SLSB Container for " + beanClassname, cnfe);
+         type = ContainerType.SFSB;
       }
 
+      // Create a Session Container
+      SessionContainer container = instanciateContainer(type, cl, beanClassname, ejbName, domain, ctxProperties,
+            deployment, beanMetaData);
+      
+      // Deploy and register
+      registerContainer(container);
+      
+      // Return
+      return container;
+   }
+   
+   /**
+    * Instanciates the appropriate SessionContainer based on the specified arguments and returns it
+    *  
+    * @param type
+    * @param loader
+    * @param beanClassName
+    * @param ejbName
+    * @param domain
+    * @param ctxProperties
+    * @param deployment
+    * @param md
+    * @return
+    */
+   private static SessionContainer instanciateContainer(ContainerType type, ClassLoader loader, String beanClassName,
+         String ejbName, Domain domain, Hashtable<?, ?> ctxProperties, Ejb3Deployment deployment,
+         JBossSessionBeanMetaData md)
+   {
+      // Initialize
+      SessionContainer container = null;
+
+      /*
+       * Instanciate the Container, depending upon the type specified
+       */
+      switch (type)
+      {
+         case SFSB :
+            try
+            {
+               container = new StatefulContainer(loader, beanClassName, ejbName, domain, ctxProperties, deployment, md);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+               throw new RuntimeException("Could not create SLSB Container for " + beanClassName, cnfe);
+            }
+            break;
+         case SLSB :
+            try
+            {
+               container = new StatelessContainer(loader, beanClassName, ejbName, domain, ctxProperties, deployment, md);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+               throw new RuntimeException("Could not create SLSB Container for " + beanClassName, cnfe);
+            }
+            break;
+         default :
+            throw new UnsupportedOperationException("Only SFSB and SLSB currently supported");
+      }
+
+      // Return
+      return container;
+   }
+   
+
+   /**
+    * Deploys, registers the specified Session Container
+    * 
+    * @param beanImplementationClass
+    * @return
+    */
+   private static SessionContainer registerContainer(SessionContainer container)
+   {
       //FIXME
       // Typically these steps are done by Ejb3Deployment
       container.instantiated(); //TODO: Wickeness
@@ -194,13 +280,13 @@ public abstract class AbstractEJB3TestCase
     * 
     * @param container
     */
-   protected static void undeployEjb(SessionContainer container)
+   public static void undeployEjb(SessionContainer container)
    {
       // Igonre a null container (maybe deployment did not succeed)
       if (container == null)
          return;
 
-      // Unbind and call approproate lifecycle events
+      // Unbind and call appropriate lifecycle events
       try
       {
          Ejb3RegistrarLocator.locateRegistrar().unbind(container.getObjectName().getCanonicalName());
