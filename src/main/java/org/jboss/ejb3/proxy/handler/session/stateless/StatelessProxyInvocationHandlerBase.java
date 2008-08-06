@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateless;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
@@ -39,7 +40,8 @@ import org.jboss.util.NotImplementedException;
  */
 public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecProxyInvocationHandlerBase
       implements
-         SessionProxyInvocationHandler
+         SessionProxyInvocationHandler,
+         Serializable
 {
 
    // ------------------------------------------------------------------------------||

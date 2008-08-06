@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.handler.session.stateless;
 
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 
@@ -38,7 +39,7 @@ import org.jboss.remoting.InvokerLocator;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocationHandlerBase
+public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocationHandlerBase implements Serializable
 {
 
    // --------------------------------------------------------------------------------||
@@ -69,7 +70,7 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
    public StatelessRemoteProxyInvocationHandler(final String containerName, final String businessInterfaceType,
          final String url)
    {
-      super(containerName,businessInterfaceType);
+      super(containerName, businessInterfaceType);
       this.setUrl(url);
    }
 

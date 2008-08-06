@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.handler;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
@@ -34,7 +35,7 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandler
+public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandler, Serializable
 {
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||

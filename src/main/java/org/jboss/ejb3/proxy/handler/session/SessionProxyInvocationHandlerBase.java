@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
+import java.io.Serializable;
+
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
@@ -38,7 +40,8 @@ import org.jboss.logging.Logger;
  */
 public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationHandlerBase
       implements
-         SessionProxyInvocationHandler
+         SessionProxyInvocationHandler,
+         Serializable
 {
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||

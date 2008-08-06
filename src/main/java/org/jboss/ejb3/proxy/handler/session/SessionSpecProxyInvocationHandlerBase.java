@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.handler.session;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
@@ -39,7 +40,8 @@ import org.jboss.logging.Logger;
  */
 public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxyInvocationHandlerBase
       implements
-         SessionSpecProxyInvocationHandler
+         SessionSpecProxyInvocationHandler,
+         Serializable
 {
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
