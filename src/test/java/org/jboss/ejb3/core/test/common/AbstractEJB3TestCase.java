@@ -22,15 +22,28 @@
 package org.jboss.ejb3.core.test.common;
 
 import java.net.URL;
+import java.util.Hashtable;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
+import org.jboss.ejb3.DeploymentUnit;
+import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
+import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateless.StatelessContainer;
+import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
+import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
+import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
+import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -44,57 +57,157 @@ import org.junit.BeforeClass;
 public abstract class AbstractEJB3TestCase
 {
    private static EmbeddedTestMcBootstrap bootstrap;
-   
+
+   private static final Logger log = Logger.getLogger(AbstractEJB3TestCase.class);
+
+   private static final String DOMAIN_NAME_SLSB = "Stateless Bean";
+
    @AfterClass
    public static void afterClass() throws Exception
    {
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
-      if(url != null)
+      if (url != null)
          AspectXmlLoader.undeployXML(url);
-      
-      if(bootstrap != null)
+
+      if (bootstrap != null)
          bootstrap.shutdown();
       bootstrap = null;
+      
+      // Unbind Registrar
+      Ejb3RegistrarLocator.unbindRegistrar();
+     
    }
-   
+
    @BeforeClass
    public static void beforeClass() throws Exception
    {
       // FIXME: weirdness in InitialContextFactory (see EJBTHREE-1097)
       InitialContextFactory.close(null, null);
-      
+
       bootstrap = EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap();
-      
+
       // Bind Registrar
-      Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
-      
+      if (!Ejb3RegistrarLocator.isRegistrarBound())
+      {
+         Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
+      }
+
       deploy("basicbootstrap-beans.xml");
-      
+
       // TODO: AspectDeployment
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
-      if(url == null)
-         throw new IllegalStateException("Can't find ejb3-interceptors-aop.xml on class loader " + Thread.currentThread().getContextClassLoader());
+      if (url == null)
+         throw new IllegalStateException("Can't find ejb3-interceptors-aop.xml on class loader "
+               + Thread.currentThread().getContextClassLoader());
       AspectXmlLoader.deployXML(url);
    }
-   
+
    private static void deploy(String resourceName)
    {
       URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
-      if(url == null)
+      if (url == null)
          throw new IllegalArgumentException("Can't find a resource named '" + resourceName + "'");
       assert bootstrap != null : "Can't deploy a resource, bootstrap is null";
       bootstrap.deploy(url);
    }
-   
+
    protected static EmbeddedTestMcBootstrap getBootstrap()
    {
       return bootstrap;
    }
-   
+
    protected static Domain getDomain(String domainName)
    {
       DomainDefinition domainDef = AspectManager.instance().getContainer(domainName);
-      if(domainDef == null) throw new IllegalArgumentException("No such domain '" + domainName + "'");
+      if (domainDef == null)
+         throw new IllegalArgumentException("No such domain '" + domainName + "'");
       return (Domain) domainDef.getManager();
+   }
+
+   /**
+    * Creates and deploys a SLSB represented by the specified implementation classs
+    * 
+    * @param beanImplementationClass
+    * @return
+    */
+   protected static StatelessContainer deploySlsb(Class<?> beanImplementationClass)
+   {
+      // Obtain TCL
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+      // Ensure jndi.properties is accessible
+      log.info("Found: " + cl.getResource("jndi.properties"));
+
+      // Obtain properties required of container construction
+      String beanClassname = beanImplementationClass.getName();
+      String ejbName = beanImplementationClass.getSimpleName();
+      Domain domain = getDomain(AbstractEJB3TestCase.DOMAIN_NAME_SLSB);
+      Hashtable<?, ?> ctxProperties = null;
+      DeploymentUnit unit = new MockDeploymentUnit();
+      Ejb3Deployment deployment = new MockEjb3Deployment(unit, null);
+
+      // Create metadata
+      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
+
+      // Create a SLSB Container
+      StatelessContainer container = null;
+      try
+      {
+         container = new StatelessContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
+      }
+      catch (ClassNotFoundException cnfe)
+      {
+         throw new RuntimeException("Could not create SLSB Container for " + beanClassname, cnfe);
+      }
+
+      //FIXME
+      // Typically these steps are done by Ejb3Deployment
+      container.instantiated(); //TODO: Wickeness
+      container.processMetadata();
+      Ejb3Registry.register(container);
+
+      // Register the Container in ObjectStore (MC) - will also invoke lifecycle
+      String containerName = container.getObjectName().getCanonicalName();
+      try
+      {
+         Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
+      }
+      catch (DuplicateBindException dbe)
+      {
+         try
+         {
+            container.stop();
+         }
+         catch (Exception e)
+         {
+            // Ignore
+         }
+         throw new RuntimeException("Object Store already has binding under " + containerName, dbe);
+      }
+
+      // Return
+      return container;
+   }
+
+   /**
+    * Undeploys the specified Container
+    * 
+    * @param container
+    */
+   protected static void undeployEjb(SessionContainer container)
+   {
+      // Igonre a null container (maybe deployment did not succeed)
+      if (container == null)
+         return;
+
+      // Unbind and call approproate lifecycle events
+      try
+      {
+         Ejb3RegistrarLocator.locateRegistrar().unbind(container.getObjectName().getCanonicalName());
+      }
+      catch (NotBoundException nbe)
+      {
+         // Ignore
+      }
    }
 }
