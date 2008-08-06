@@ -28,7 +28,7 @@ import javax.naming.InitialContext;
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
 import org.jboss.ejb3.core.test.stateless.MyStateless;
 import org.jboss.ejb3.core.test.stateless.MyStatelessBean;
-import org.jboss.ejb3.stateless.StatelessContainer;
+import org.jboss.ejb3.session.SessionContainer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class StatelessContainerTestCase extends AbstractEJB3TestCase
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static StatelessContainer container;
+   private static SessionContainer container;
 
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
@@ -79,7 +79,7 @@ public class StatelessContainerTestCase extends AbstractEJB3TestCase
       AbstractEJB3TestCase.beforeClass();
 
       // Deploy the test SLSB
-      container = deploySlsb(MyStatelessBean.class);
+      container = deploySessionEjb(MyStatelessBean.class);
    }
 
    @AfterClass
