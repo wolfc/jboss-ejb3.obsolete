@@ -97,9 +97,12 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
 
    /**
     * Constructor
+    * 
+    * @param containerName The name of the target container
     */
-   protected ProxyInvocationHandlerBase()
+   protected ProxyInvocationHandlerBase(final String containerName)
    {
+      this.setContainerName(containerName);
    }
 
    // ------------------------------------------------------------------------------||
@@ -185,13 +188,14 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       this.invokedMethod = invokedMethod;
    }
 
-   public String getContainerName()
+   protected String getContainerName()
    {
       return containerName;
    }
 
-   public void setContainerName(String containerName)
+   protected void setContainerName(final String containerName)
    {
+      assert containerName != null && containerName.trim().length() > 0 : "Container Name must be specified";
       this.containerName = containerName;
    }
 }

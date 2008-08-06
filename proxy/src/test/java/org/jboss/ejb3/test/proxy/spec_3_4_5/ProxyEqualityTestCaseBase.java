@@ -21,14 +21,11 @@
  */
 package org.jboss.ejb3.test.proxy.spec_3_4_5;
 
-import java.lang.reflect.Proxy;
-
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.ejb3.test.proxy.common.container.SessionContainer;
 import org.jboss.logging.Logger;
@@ -80,9 +77,6 @@ public abstract class ProxyEqualityTestCaseBase
       // Create Proxy
       Object proxy = this.createProxyDefault(factory);
 
-      // Manually set the target container
-      this.setContainerNameOnProxy(proxy);
-
       // Ensure equal to itself by value
       TestCase
             .assertTrue(
@@ -103,9 +97,6 @@ public abstract class ProxyEqualityTestCaseBase
 
       // Create Proxy
       Object proxy = this.createProxyDefault(factory);
-
-      // Manually set the target container
-      this.setContainerNameOnProxy(proxy);
 
       // Ensure equal to itself by value
       TestCase
@@ -148,18 +139,6 @@ public abstract class ProxyEqualityTestCaseBase
    protected Object createProxyDefault(SessionProxyFactory factory)
    {
       return factory.createProxyDefault();
-   }
-
-   /**
-    * Sets the Container Name on the specified proxy
-    * 
-    * @param proxy
-    */
-   protected void setContainerNameOnProxy(Object proxy)
-   {
-      // Get the InvocationHander for the Proxy
-      ProxyInvocationHandler handler = (ProxyInvocationHandler) Proxy.getInvocationHandler(proxy);
-      handler.setContainerName(ProxyEqualityTestCaseBase.getContainerName());
    }
 
    // --------------------------------------------------------------------------------||

@@ -23,10 +23,6 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 
 import java.util.Set;
 
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulLocalProxyInvocationHandler;
@@ -110,8 +106,12 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    @Override
    protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
    {
+      // Obtain target container name
+      String containerName = this.getContainerName();
+
       // Create
-      SessionProxyInvocationHandler handler = new StatefulLocalProxyInvocationHandler(businessInterfaceName);
+      SessionProxyInvocationHandler handler = new StatefulLocalProxyInvocationHandler(containerName,
+            businessInterfaceName);
 
       // Return
       return handler;

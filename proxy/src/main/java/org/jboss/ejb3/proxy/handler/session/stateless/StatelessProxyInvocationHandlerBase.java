@@ -56,22 +56,25 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
 
    /**
     * Constructor
+    * 
+    * @param containerName
     */
-   public StatelessProxyInvocationHandlerBase()
+   public StatelessProxyInvocationHandlerBase(final String containerName)
    {
-      this(null);
+      this(containerName, null);
    }
 
    /**
     * Constructor
     * 
+    * @param containerName The name of the target Container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     */
-   public StatelessProxyInvocationHandlerBase(String businessInterfaceType)
+   public StatelessProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType)
    {
-      super(businessInterfaceType);
+      super(containerName, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -185,8 +188,9 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
    protected StatelessProxyInvocationHandlerBase getInvocationHandler(Object proxy)
    {
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatelessProxyInvocationHandlerBase : "Expected " + InvocationHandler.class.getSimpleName()
-            + " of type " + StatelessProxyInvocationHandlerBase.class.getName() + ", but instead was " + handler;
+      assert handler instanceof StatelessProxyInvocationHandlerBase : "Expected "
+            + InvocationHandler.class.getSimpleName() + " of type "
+            + StatelessProxyInvocationHandlerBase.class.getName() + ", but instead was " + handler;
       return (StatelessProxyInvocationHandlerBase) handler;
    }
 

@@ -125,8 +125,8 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    protected String getInterceptorStackName()
    {
       return StatelessSessionRemoteProxyFactory.STACK_NAME_STATELESS_SESSION_CLIENT_INTERCEPTORS;
-   } 
-   
+   }
+
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -134,9 +134,13 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    @Override
    protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
    {
+      // Obtain properties
+      String containerName = this.getContainerName();
+      String url = this.getUrl();
+
       // Create
-      SessionProxyInvocationHandler handler = new StatelessRemoteProxyInvocationHandler(businessInterfaceName, this
-            .getUrl());
+      SessionProxyInvocationHandler handler = new StatelessRemoteProxyInvocationHandler(containerName,
+            businessInterfaceName, url);
 
       // Return
       return handler;
@@ -151,7 +155,7 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
       return url;
    }
 
-   public void setUrl(String url)
+   public void setUrl(final String url)
    {
       this.url = url;
    }

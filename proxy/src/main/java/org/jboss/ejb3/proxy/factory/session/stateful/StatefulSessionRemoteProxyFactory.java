@@ -134,9 +134,13 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    @Override
    protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
    {
+      // Obtain target properties
+      String containterName = this.getContainerName();
+      String url = this.getUrl();
+
       // Create
-      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(businessInterfaceName, this
-            .getUrl());
+      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containterName,
+            businessInterfaceName, url);
 
       // Return
       return handler;

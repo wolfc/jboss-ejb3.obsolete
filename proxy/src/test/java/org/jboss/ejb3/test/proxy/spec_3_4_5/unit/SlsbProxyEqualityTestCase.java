@@ -71,10 +71,6 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
 
-      // Manually set the target container
-      this.setContainerNameOnProxy(proxy1);
-      this.setContainerNameOnProxy(proxy2);
-
       // Ensure they're equal to one another
       TestCase
             .assertTrue(
@@ -98,10 +94,6 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Create 2 Proxies
       Object proxy1 = factory.createProxyDefault();
       Object proxy2 = factory.createProxyDefault();
-
-      // Manually set the target container
-      this.setContainerNameOnProxy(proxy1);
-      this.setContainerNameOnProxy(proxy2);
 
       // Ensure they're equal to one another
       TestCase
