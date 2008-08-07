@@ -330,7 +330,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>0.1.5-SNAPSHOT</version>
+      <version>0.1.5</version>
     </dependency>
 
     <dependency>
@@ -354,13 +354,13 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.3-SNAPSHOT</version>
+      <version>0.13.3</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
-      <version>0.12.2-SNAPSHOT</version>
+      <version>0.12.2</version>
     </dependency>
     
     <dependency>
