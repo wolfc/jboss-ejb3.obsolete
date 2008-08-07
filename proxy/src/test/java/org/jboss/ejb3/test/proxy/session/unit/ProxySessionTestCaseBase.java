@@ -21,6 +21,10 @@
  */
 package org.jboss.ejb3.test.proxy.session.unit;
 
+import java.net.URL;
+
+import org.jboss.aop.AspectManager;
+import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
@@ -42,6 +46,8 @@ public abstract class ProxySessionTestCaseBase
 
    protected static EmbeddedTestMcBootstrap bootstrap;
 
+   private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
+
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -53,5 +59,15 @@ public abstract class ProxySessionTestCaseBase
 
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
+
+      // Load ejb3-interceptors-aop.xml into AspectManager
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+      URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
+      if (url == null)
+      {
+         throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
+               + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
+      }
+      AspectXmlLoader.deployXML(url);
    }
 }

@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.handler.session.stateful;
 
 import java.io.Serializable;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -58,11 +59,12 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param url The URL to the Remote Host
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
    public StatefulRemoteProxyInvocationHandler(final String containerName, final String businessInterfaceType,
-         final String url)
+         final String url, final Interceptor[] interceptors)
    {
-      super(containerName, businessInterfaceType);
+      super(containerName, businessInterfaceType, interceptors);
       this.setUrl(url);
    }
 

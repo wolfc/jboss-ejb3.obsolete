@@ -27,6 +27,9 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.aop.AspectManager;
+import org.jboss.aop.advice.AdviceStack;
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.intf.EjbProxy;
 import org.jboss.logging.Logger;
 
@@ -142,8 +145,30 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     */
    protected String getInterceptorStackName()
    {
-      // Apply no interceptors by default
       return null;
+   }
+
+   /**
+    * Obtains all interceptors in this Proxy Factory's stack
+    * 
+    * @return
+    */
+   protected Interceptor[] getInterceptors()
+   {
+      // If there's no stack name, return no interceptors
+      String stackName = this.getInterceptorStackName();
+      if (stackName == null)
+      {
+         return new Interceptor[]
+         {};
+      }
+
+      // Obtain interceptors by stack name via Aspect Manager
+      AspectManager manager = AspectManager.instance();
+      AdviceStack stack = manager.getAdviceStack(stackName);
+      assert stack != null : "Could not find Advice Stack with name: " + stackName;
+      Interceptor[] interceptors = stack.createInterceptors();
+      return interceptors;
    }
 
    // --------------------------------------------------------------------------------||

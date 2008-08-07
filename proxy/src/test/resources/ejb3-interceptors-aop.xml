@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+
+  Mock ejb3-interceptors-aop.xml for use in testing EJB3 Proxy
+
+ -->
+<aop xmlns="urn:jboss:aop-beans:1.0">
+
+
+    <!-- 
+    
+    Client Interceptor Stack Definitions
+    
+     -->
+
+   <stack name="ServiceClientInterceptors">
+
+   </stack>
+
+   <stack name="AsynchronousStatelessSessionClientInterceptors">
+
+   </stack>
+
+   <stack name="AsynchronousStatefulSessionClientInterceptors">
+
+   </stack>
+
+   <stack name="StatelessSessionClientInterceptors">
+
+   </stack>
+
+   <stack name="StatefulSessionClientInterceptors">
+
+   </stack>
+
+</aop>
