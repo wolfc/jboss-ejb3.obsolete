@@ -31,6 +31,7 @@ import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulRemoteInvocation;
 import org.jboss.logging.Logger;
@@ -156,6 +157,11 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
        */
       MethodInvocation sri = new StatefulRemoteInvocation(this.getInterceptors(), hash, dynamicInvokeMethod,
             dynamicInvokeMethod, null, this.getSessionId());
+      
+      // Manually add metadata for invoked method
+      sri.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
+            SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, serializableMethod);
+      
       return sri;
    }
 

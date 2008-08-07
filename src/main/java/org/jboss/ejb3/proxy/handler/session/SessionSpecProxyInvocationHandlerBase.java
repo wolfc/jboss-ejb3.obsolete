@@ -128,7 +128,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    // Accessors / Mutators ---------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   public String getBusinessInterfaceType()
+   protected String getBusinessInterfaceType()
    {
       return businessInterfaceType;
    }
