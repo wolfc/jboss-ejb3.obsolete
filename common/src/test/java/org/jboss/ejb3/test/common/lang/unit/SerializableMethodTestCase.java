@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.lang.unit;
+package org.jboss.ejb3.test.common.lang.unit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,12 +28,10 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.test.proxy.lang.MyChildClass;
-import org.jboss.ejb3.test.proxy.lang.MyClass;
-import org.jboss.ejb3.test.proxy.lang.SerializationUtil;
+import org.jboss.ejb3.test.common.lang.MyChildClass;
+import org.jboss.ejb3.test.common.lang.MyClass;
+import org.jboss.ejb3.test.common.lang.SerializationUtil;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
