@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,20 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.jboss.ejb3.proxy.handler.session;
+package org.jboss.ejb3.proxy.remoting;
 
 /**
- * SessionSpecProxyInvocationHandler
+ * SessionSpecRemotingMetadata
  * 
- * Defines contract for operations required of
- * a Session Bean Proxy Invocation Handler 
- * following the EJB3 Specification
- * 
+ * Contains constants used in Remoting metadata
+ * for Session Spec Invocations
+ *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
- * @version $Revision: 72638 $
+ * @version $Revision: $
  */
-public interface SessionSpecProxyInvocationHandler extends SessionProxyInvocationHandler
+public interface SessionSpecRemotingMetadata
 {
 
+   /**
+    * AOP Metadata Tag for SFSB Remoting Invocations
+    */
+   String TAG_SESSION_INVOCATION = "SessionInvocation";
+
+   /**
+    * AOP Metadata Key for SFSB Session ID
+    */
+   String KEY_INVOKED_METHOD = "InvokedMethod";
 }

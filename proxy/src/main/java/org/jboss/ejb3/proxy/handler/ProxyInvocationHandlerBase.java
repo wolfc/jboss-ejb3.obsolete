@@ -83,11 +83,6 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
    // ------------------------------------------------------------------------------||
 
    /**
-    * The invoked method
-    */
-   private SerializableMethod invokedMethod;
-
-   /**
     * The name under which the target container is registered
     */
    private String containerName;

@@ -36,7 +36,7 @@ public interface StatefulSessionRemotingMetadata
    /**
     * AOP Metadata Tag for SFSB Remoting Invocations
     */
-   String TAG_SFSB_INVOCATION = "SFSB";
+   String TAG_SFSB_INVOCATION = "SFSBInvocation";
 
    /**
     * AOP Metadata Key for SFSB Session ID
