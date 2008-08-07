@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +33,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
+import org.jboss.aop.AspectManager;
+import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
@@ -93,6 +96,8 @@ public class JndiSessionRegistrarBaseTestCase
     * Instance of logger
     */
    private static Logger logger = Logger.getLogger(JndiSessionRegistrarBaseTestCase.class);
+   
+   private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
 
    /**
     * Initializes the required services
@@ -109,6 +114,16 @@ public class JndiSessionRegistrarBaseTestCase
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
       bootstrap.deploy(JndiSessionRegistrarBaseTestCase.class);
+      
+      // Load ejb3-interceptors-aop.xml into AspectManager
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+      URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
+      if (url == null)
+      {
+         throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
+               + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
+      }
+      AspectXmlLoader.deployXML(url);
 
    }
 

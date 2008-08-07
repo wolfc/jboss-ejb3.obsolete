@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.handler.session;
 
 import java.io.Serializable;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
@@ -59,10 +60,11 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
     * Constructor 
     * 
     * @param containerName The name of the target Container
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   protected SessionProxyInvocationHandlerBase(final String containerName)
+   protected SessionProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
    {
-      super(containerName);
+      super(containerName, interceptors);
    }
 
    /**

@@ -24,6 +24,10 @@ package org.jboss.ejb3.proxy.handler.session.stateless;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
@@ -66,11 +70,12 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param url The URL to the Remote Host
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
    public StatelessRemoteProxyInvocationHandler(final String containerName, final String businessInterfaceType,
-         final String url)
+         final String url, final Interceptor[] interceptors)
    {
-      super(containerName, businessInterfaceType);
+      super(containerName, businessInterfaceType, interceptors);
       this.setUrl(url);
    }
 
@@ -115,9 +120,27 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
                + "\"", e);
       }
 
-      // Create a POJI Proxy to the Container
-      Interceptor[] interceptors =
+      /*
+       * Define interceptors
+       */
+
+      // Manually define a few
+      Interceptor[] interceptorsManuallyDefined =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+
+      // Get interceptors from the stack
+      Interceptor[] interceptorsFromStack = this.getInterceptors();
+
+      // Merge
+      List<Interceptor> interceptorsManuallyDefinedList = Arrays.asList(interceptorsManuallyDefined);
+      List<Interceptor> interceptorsFromStackList = Arrays.asList(interceptorsFromStack);
+      Set<Interceptor> mergedInterceptors = new HashSet<Interceptor>();
+      mergedInterceptors.addAll(interceptorsManuallyDefinedList);
+      mergedInterceptors.addAll(interceptorsFromStackList);
+      Interceptor[] interceptors = mergedInterceptors.toArray(new Interceptor[]
+      {});
+
+      // Create a POJI Proxy to the Container
       PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
             interceptors, null);
       Class<?>[] interfaces = new Class<?>[]

@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 
 import java.util.Set;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
@@ -138,9 +139,12 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       String containterName = this.getContainerName();
       String url = this.getUrl();
 
+      // Get Interceptors
+      Interceptor[] interceptors = this.getInterceptors();
+
       // Create
       SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containterName,
-            businessInterfaceName, url);
+            businessInterfaceName, url, interceptors);
 
       // Return
       return handler;

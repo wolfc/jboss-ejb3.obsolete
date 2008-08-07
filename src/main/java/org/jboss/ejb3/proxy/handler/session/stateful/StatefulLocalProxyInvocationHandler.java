@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.handler.session.stateful;
 
 import java.io.Serializable;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -51,10 +52,12 @@ public class StatefulLocalProxyInvocationHandler extends StatefulProxyInvocation
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatefulLocalProxyInvocationHandler(final String containerName, final String businessInterfaceType)
+   public StatefulLocalProxyInvocationHandler(final String containerName, final String businessInterfaceType,
+         final Interceptor[] interceptors)
    {
-      super(containerName, businessInterfaceType);
+      super(containerName, businessInterfaceType, interceptors);
    }
 
    // --------------------------------------------------------------------------------||

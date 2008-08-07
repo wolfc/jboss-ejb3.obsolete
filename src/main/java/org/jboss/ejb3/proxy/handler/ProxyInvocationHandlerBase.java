@@ -24,6 +24,7 @@ package org.jboss.ejb3.proxy.handler;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 
 /**
@@ -37,6 +38,15 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
  */
 public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandler, Serializable
 {
+   // ------------------------------------------------------------------------------||
+   // Instance Members -------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   /**
+    * The interceptors to apply to inovcations upon this handler
+    */
+   private Interceptor[] interceptors;
+
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -95,10 +105,12 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     * Constructor
     * 
     * @param containerName The name of the target container
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   protected ProxyInvocationHandlerBase(final String containerName)
+   protected ProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
    {
       this.setContainerName(containerName);
+      this.setInterceptors(interceptors);
    }
 
    // ------------------------------------------------------------------------------||
@@ -180,5 +192,15 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
    {
       assert containerName != null && containerName.trim().length() > 0 : "Container Name must be specified";
       this.containerName = containerName;
+   }
+
+   protected Interceptor[] getInterceptors()
+   {
+      return interceptors;
+   }
+
+   private void setInterceptors(Interceptor[] interceptors)
+   {
+      this.interceptors = interceptors;
    }
 }

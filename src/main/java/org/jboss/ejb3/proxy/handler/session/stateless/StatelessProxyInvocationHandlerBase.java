@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.logging.Logger;
@@ -60,10 +61,11 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
     * Constructor
     * 
     * @param containerName
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessProxyInvocationHandlerBase(final String containerName)
+   public StatelessProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
    {
-      this(containerName, null);
+      this(containerName, null, interceptors);
    }
 
    /**
@@ -73,10 +75,12 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType)
+   public StatelessProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType,
+         final Interceptor[] interceptors)
    {
-      super(containerName, businessInterfaceType);
+      super(containerName, businessInterfaceType, interceptors);
    }
 
    // ------------------------------------------------------------------------------||

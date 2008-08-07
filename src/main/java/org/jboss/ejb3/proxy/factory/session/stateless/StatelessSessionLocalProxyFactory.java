@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.factory.session.stateless;
 
 import java.util.Set;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateless.StatelessLocalProxyInvocationHandler;
@@ -112,9 +113,12 @@ public class StatelessSessionLocalProxyFactory extends StatelessSessionProxyFact
       // Obtain container name
       String containerName = this.getContainerName();
 
+      // Get Interceptors
+      Interceptor[] interceptors = this.getInterceptors();
+
       // Create
       SessionProxyInvocationHandler handler = new StatelessLocalProxyInvocationHandler(containerName,
-            businessInterfaceName);
+            businessInterfaceName, interceptors);
 
       // Return
       return handler;

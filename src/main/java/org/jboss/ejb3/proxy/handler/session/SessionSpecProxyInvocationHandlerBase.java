@@ -24,6 +24,7 @@ package org.jboss.ejb3.proxy.handler.session;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
@@ -71,10 +72,12 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
+    * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   protected SessionSpecProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType)
+   protected SessionSpecProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType,
+         final Interceptor[] interceptors)
    {
-      super(containerName);
+      super(containerName, interceptors);
       this.setBusinessInterfaceType(businessInterfaceType);
    }
 
@@ -94,7 +97,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       {
          log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
       }
-      
+
       // Obtain an explicitly-specified actual class
       String actualClass = this.getBusinessInterfaceType();
 
