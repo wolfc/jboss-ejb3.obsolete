@@ -218,8 +218,10 @@ public abstract class JndiSessionRegistrarBase
          if (bindRemoteAndHomeTogether)
          {
             // Add a Reference Address for the Remote Home
+            String home = smd.getHome();
+            assert home != null : "Home and Business set to be bound together, yet no home is defined";
             RefAddr refAddr = new StringRefAddr(
-                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, smd.getHome());
+                  ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, home);
             refAddrsForDefaultRemote.add(refAddr);
          }
          // Bind Home (not bound together) if exists
@@ -621,12 +623,25 @@ public abstract class JndiSessionRegistrarBase
       // If local
       if (isLocal)
       {
+         // If no local home defined
+         if (smd.getLocalHome() == null)
+         {
+            // Not bound together
+            return false;
+         }
+
          // Bind together if Local Default JNDI Name == Local Home JNDI Name
          bindTogether = smd.getLocalJndiName().equals(smd.getLocalHomeJndiName());
       }
       // If Remote
       else
       {
+         // If no home defined
+         if (smd.getHome() == null)
+         {
+            // Not bound together
+            return false;
+         }
          // Bind together if Local Default JNDI Name == Local Home JNDI Name
          bindTogether = smd.getJndiName().equals(smd.getHomeJndiName());
       }
