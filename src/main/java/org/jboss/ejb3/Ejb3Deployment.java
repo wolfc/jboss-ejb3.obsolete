@@ -586,24 +586,30 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected void deploy() throws Exception
    {
-      Ejb3HandlerFactory factory = Ejb3HandlerFactory.getInstance(this);
-      if (unit.getUrl() != null)
-         deployUrl(factory);
-
-      if (unit.getClasses() != null)
+      if(metaData == null || !metaData.isMetadataComplete())
       {
-         for (Class explicit : unit.getClasses())
+         Ejb3HandlerFactory factory = Ejb3HandlerFactory.getInstance(this);
+         // Scan and deploy
+         if (unit.getUrl() != null)
+            deployUrl(factory);
+   
+         // Deploy any classes that have been explicitly marked
+         if (unit.getClasses() != null)
          {
-            if (explicit.isAnnotationPresent(Entity.class))
+            for (Class explicit : unit.getClasses())
             {
-               continue;
+               if (explicit.isAnnotationPresent(Entity.class))
+               {
+                  continue;
+               }
+               String name = explicit.getName().replace('.', '/') + ".class";
+               InputStream stream = explicit.getClassLoader().getResourceAsStream(name);
+               deployElement(stream, factory, initialContext);
             }
-            String name = explicit.getName().replace('.', '/') + ".class";
-            InputStream stream = explicit.getClassLoader().getResourceAsStream(name);
-            deployElement(stream, factory, initialContext);
          }
       }
 
+      // Deploy the beans from the descriptor
       deployBeansFromLib(initialContext);
    }
 
