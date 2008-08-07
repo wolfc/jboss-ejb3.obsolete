@@ -28,6 +28,8 @@ import static org.junit.Assert.assertTrue;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.test.proxy.lang.MyChildClass;
 import org.jboss.ejb3.test.proxy.lang.MyClass;
@@ -626,4 +628,31 @@ public class SerializableMethodTestCase
 
       logger.info("Completed testing toMethod() with serialization");
    }
+   
+   /**
+    * Test to ensure that when no actual class is specified,
+    * this field is automatically populated to the value of the declaring
+    * class 
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testDeclaringClassDefaultsWhenNoActualClassSpecified() throws Throwable
+   {
+      // Obtain a method
+      Method method = Object.class.getMethod("toString", new Class<?>[]{});
+      
+      // Create a Serializable View, without noting an actual class
+      SerializableMethod sm = new SerializableMethod(method);
+      
+      // Get the actual and declaring class names
+      String declaringClassName = sm.getDeclaringClassName();
+      String actualClassName = sm.getActualClassName();
+      
+      // Ensure they're equal
+      assertEquals("When no actual class is specified, should default to the declaring class", declaringClassName,
+            actualClassName);
+      
+   }
+   
 }
