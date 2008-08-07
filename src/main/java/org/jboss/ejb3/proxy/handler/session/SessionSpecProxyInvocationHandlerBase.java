@@ -84,23 +84,22 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
 
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      // Obtain an explicitly-specified actual class
-      String actualClass = this.getBusinessInterfaceType();
-
-      // Set the invoked method
-      SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
-      this.setInvokedMethod(invokedMethod);
-
       // Attempt to handle directly
       try
       {
-         return this.handleInvocationDirectly(proxy, args);
+         return this.handleInvocationDirectly(proxy, args, method);
       }
       // Ignore this, we just couldn't handle here
       catch (NotEligibleForDirectInvocationException nefdie)
       {
          log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
       }
+      
+      // Obtain an explicitly-specified actual class
+      String actualClass = this.getBusinessInterfaceType();
+
+      // Set the invoked method
+      SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
 
       /*
        * Obtain the Container

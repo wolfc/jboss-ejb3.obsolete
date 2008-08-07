@@ -117,21 +117,18 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     * 
     * @param proxy
     * @param args Arguments of the current invocation
+    * @param invokedMethod The method invoked
     * @return
     * @throws NotEligibleForDirectInvocationException
     */
-   protected Object handleInvocationDirectly(Object proxy, Object[] args)
+   protected Object handleInvocationDirectly(Object proxy, Object[] args, Method invokedMethod)
          throws NotEligibleForDirectInvocationException
    {
       // Obtain the invoked method
-      SerializableMethod invokedMethod = this.getInvokedMethod();
       assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
 
-      // Obtain Declared Method
-      Method declaredMethod = invokedMethod.toMethod();
-
       // equals
-      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS.toMethod()))
+      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_EQUALS.toMethod()))
       {
          assert args.length == 1 : "Invocation for 'equals' should have exactly one argument, instead was: "
                + invokedMethod;
@@ -139,18 +136,18 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
          return this.invokeEquals(proxy, argument);
       }
       // toString
-      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING.toMethod()))
+      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING.toMethod()))
       {
          return this.toString();
       }
       // hashCode
-      if (declaredMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE.toMethod()))
+      if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE.toMethod()))
       {
          return this.invokeHashCode(proxy);
       }
 
       // If no eligible methods were invoked
-      throw new NotEligibleForDirectInvocationException("Current invocation \"" + this.getInvokedMethod()
+      throw new NotEligibleForDirectInvocationException("Current invocation \"" + invokedMethod
             + "\" is not eligible for direct handling by " + this);
    }
 
@@ -178,16 +175,6 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
    // ------------------------------------------------------------------------------||
    // Accessors / Mutators ---------------------------------------------------------||
    // ------------------------------------------------------------------------------||
-
-   public SerializableMethod getInvokedMethod()
-   {
-      return invokedMethod;
-   }
-
-   protected void setInvokedMethod(SerializableMethod invokedMethod)
-   {
-      this.invokedMethod = invokedMethod;
-   }
 
    protected String getContainerName()
    {
