@@ -17,7 +17,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-core</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.11-SNAPSHOT</version>
+  <version>0.1.10-SNAPSHOT</version>
   <name>JBoss EJB 3.0 Core</name>
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
@@ -270,7 +270,7 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
-      <version>1.1.0.CR3</version>
+      <version>1.1.0.CR4</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.aspects</groupId>
@@ -290,7 +290,7 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
-      <version>1.1.0.CR3</version>
+      <version>1.1.0.CR4</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss</groupId>
@@ -330,7 +330,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>0.1.5</version>
+      <version>0.1.5-SNAPSHOT</version>
     </dependency>
 
     <dependency>
@@ -354,13 +354,13 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.3</version>
+      <version>0.13.3-SNAPSHOT</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
-      <version>0.12.2</version>
+      <version>0.12.2-SNAPSHOT</version>
     </dependency>
     
     <dependency>
