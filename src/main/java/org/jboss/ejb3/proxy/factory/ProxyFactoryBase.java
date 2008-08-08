@@ -27,6 +27,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
@@ -62,6 +63,8 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    private ClassLoader classloader;
 
+   private Advisor advisor;
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -74,13 +77,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     *   upon which Proxies will invoke
     * @param classloader The ClassLoader associated with the EJBContainer
     *       for which this ProxyFactory is to generate Proxies
+    * @param advisor The Advisor for proxies created by this factory
     */
-   public ProxyFactoryBase(final String name, final String containerName, final ClassLoader classloader)
+   public ProxyFactoryBase(final String name, final String containerName, final ClassLoader classloader,
+         final Advisor advisor)
    {
       // Set properties
       this.setName(name);
       this.setContainerName(containerName);
       this.setClassLoader(classloader);
+      this.setAdvisor(advisor);
    }
 
    // --------------------------------------------------------------------------------||
@@ -167,7 +173,8 @@ public abstract class ProxyFactoryBase implements ProxyFactory
       AspectManager manager = AspectManager.instance();
       AdviceStack stack = manager.getAdviceStack(stackName);
       assert stack != null : "Could not find Advice Stack with name: " + stackName;
-      Interceptor[] interceptors = stack.createInterceptors();
+      Advisor advisor = this.getAdvisor();
+      Interceptor[] interceptors = stack.createInterceptors(advisor, null);
       return interceptors;
    }
 
@@ -234,6 +241,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    public void setContainerName(String containerName)
    {
       this.containerName = containerName;
+   }
+
+   protected Advisor getAdvisor()
+   {
+      return advisor;
+   }
+
+   private void setAdvisor(Advisor advisor)
+   {
+      this.advisor = advisor;
    }
 
 }

@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.proxy.jndiregistrar;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
@@ -74,12 +75,13 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     *   from the returned ProxyFactory will invoke
     * @param smd The metadata representing this SFSB
     * @param cl The ClassLoader for this EJB Container
+    * @param advisor The Advisor for proxies created by this factory
     */
    @Override
    protected SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl)
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
    {
-      return new StatefulSessionLocalProxyFactory(name, containerName, smd, cl);
+      return new StatefulSessionLocalProxyFactory(name, containerName, smd, cl, advisor);
    }
 
    /**
@@ -91,13 +93,14 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     * @param smd The metadata representing this SFSB
     * @param cl The ClassLoader for this EJB Container
     * @param url The URL to use for Remoting
+    * @param advisor The Advisor for proxies created by this factory
     */
    @Override
    protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url)
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url, final Advisor advisor)
    {
       // Create
-      SessionProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, smd, cl, url);
+      SessionProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, smd, cl, url, advisor);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

@@ -329,7 +329,8 @@ public abstract class SessionContainer implements InvokableContext
       if (registrar != null)
       {
          this.setJndiRegistrar(registrar);
-         registrar.bindEjb(this.getJndiContext(), this.getMetaData(), this.getClassLoader(), this.getName());
+         registrar.bindEjb(this.getJndiContext(), this.getMetaData(), this.getClassLoader(), this.getName(), this
+               .getAdvisor());
       }
       else
       {
