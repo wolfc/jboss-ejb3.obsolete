@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.factory.session.stateless;
 
 import java.util.Set;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
@@ -71,12 +72,13 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param url The URL to use for remoting
+    * @param advisor The Advisor for proxies created by this factory
     */
    public StatelessSessionRemoteProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url)
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, metadata, classloader);
+      super(name, containerName, metadata, classloader, advisor);
       this.setUrl(url);
    }
 

@@ -33,6 +33,7 @@ import java.util.Set;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 
+import org.jboss.aop.Advisor;
 import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
@@ -101,12 +102,13 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @param metadata The metadata representing this Session Bean
     * @param classloader The ClassLoader associated with the SessionContainer
     *       for which this ProxyFactory is to generate Proxies
+    * @param advisor The Advisor for proxies created by this factory
     */
    public SessionProxyFactoryBase(final String name, final String containerName,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, classloader);
+      super(name, containerName, classloader, advisor);
 
       // Set Metadata
       this.setMetadata(metadata);

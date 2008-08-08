@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.factory.session.stateless;
 
 import java.util.Set;
 
+import org.jboss.aop.Advisor;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.logging.Logger;
@@ -57,12 +58,13 @@ public abstract class StatelessSessionProxyFactoryBase extends SessionProxyFacto
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
+    * @param advisor The Advisor for proxies created by this factory
     */
    public StatelessSessionProxyFactoryBase(final String name, final String containerName,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader)
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, metadata, classloader);
+      super(name, containerName, metadata, classloader, advisor);
    }
 
    // --------------------------------------------------------------------------------||

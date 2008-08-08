@@ -80,10 +80,10 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
    {
       // Call Super Implementation
       super(oid, uri, interceptors);
-      
+
       // Some sanity checks
-      assert oid !=null : "Specified OID is null";
-      
+      assert oid != null : "Specified OID is null";
+
       // Set additional properties
       this.setSessionId(sessionId);
    }
@@ -157,11 +157,11 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
        */
       MethodInvocation sri = new StatefulRemoteInvocation(this.getInterceptors(), hash, dynamicInvokeMethod,
             dynamicInvokeMethod, null, this.getSessionId());
-      
+
       // Manually add metadata for invoked method
       sri.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
             SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, serializableMethod);
-      
+
       return sri;
    }
 
@@ -184,6 +184,10 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
          methodInvocation.getMetaData().addMetaData(StatefulSessionRemotingMetadata.TAG_SFSB_INVOCATION,
                StatefulSessionRemotingMetadata.KEY_SESSION_ID, sessionId, PayloadKey.AS_IS);
       }
+
+      // Add Container Name
+      //FIXME Hardcoded Strings bad, IsLocalInterceptor should be sharing these references or otherwise accessible somehow
+      methodInvocation.getMetaData().addMetaData("IS_LOCAL", "GUID", this.getOid());
 
    }
 
