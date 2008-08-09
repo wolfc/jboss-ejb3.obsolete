@@ -25,19 +25,13 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
-import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 import org.jboss.util.NotImplementedException;
@@ -81,15 +75,16 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
     * Constructor
     * 
     * @param containerName The name of the target container
+    * @param containerGuid The globally-unique name of the container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatefulProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType,
-         final Interceptor[] interceptors)
+   public StatefulProxyInvocationHandlerBase(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors, final String businessInterfaceType)
    {
-      super(containerName, businessInterfaceType, interceptors);
+      super(containerName, containerGuid, interceptors, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||
@@ -228,27 +223,18 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
        * Define interceptors
        */
 
-      // Manually define a few
-      Interceptor[] interceptorsManuallyDefined =
-      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-
       // Get interceptors from the stack
-      Interceptor[] interceptorsFromStack = this.getInterceptors();
+      Interceptor[] interceptors = this.getInterceptors();
 
-      // Merge
-      List<Interceptor> interceptorsManuallyDefinedList = Arrays.asList(interceptorsManuallyDefined);
-      List<Interceptor> interceptorsFromStackList = Arrays.asList(interceptorsFromStack);
-      Set<Interceptor> mergedInterceptors = new HashSet<Interceptor>();
-      mergedInterceptors.addAll(interceptorsManuallyDefinedList);
-      mergedInterceptors.addAll(interceptorsFromStackList);
-      Interceptor[] interceptors = mergedInterceptors.toArray(new Interceptor[]
-      {});
+      /*
+       * Create Proxy
+       */
 
       // Create a POJI Proxy to the Container
       String containerName = this.getContainerName();
       assert containerName != null && containerName.trim().length() > 0 : "Container Name must be set";
-      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
-            interceptors, this.getSessionId());
+      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), this
+            .getContainerGuid(), locator, interceptors, this.getSessionId());
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),

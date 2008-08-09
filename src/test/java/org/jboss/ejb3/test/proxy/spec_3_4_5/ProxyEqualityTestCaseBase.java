@@ -25,8 +25,10 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.aop.ClassAdvisor;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
@@ -64,6 +66,11 @@ public abstract class ProxyEqualityTestCaseBase
     * Name of the SLSB Container for these tests
     */
    private static String containerName;
+
+   /**
+    * The Advisor for these tests
+    */
+   protected static Advisor advisor = null;
 
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
@@ -133,7 +140,9 @@ public abstract class ProxyEqualityTestCaseBase
                + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
       }
       AspectXmlLoader.deployXML(url);
-
+      AspectManager manager = AspectManager.instance();
+      Advisor advisor = new ClassAdvisor(ProxyEqualityTestCaseBase.class, manager);
+      ProxyEqualityTestCaseBase.advisor = advisor;
    }
 
    @AfterClass

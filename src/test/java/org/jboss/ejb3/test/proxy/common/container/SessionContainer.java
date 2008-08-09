@@ -310,7 +310,7 @@ public abstract class SessionContainer implements InvokableContext
       {
          this.setJndiRegistrar(registrar);
          registrar.bindEjb(this.getJndiContext(), this.getMetaData(), this.getClassLoader(), this.getName(), this
-               .getAdvisor());
+               .getName(), this.getAdvisor());
       }
       else
       {

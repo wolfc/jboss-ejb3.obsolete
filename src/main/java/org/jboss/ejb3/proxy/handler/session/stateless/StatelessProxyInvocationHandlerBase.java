@@ -61,26 +61,29 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
     * Constructor
     * 
     * @param containerName
+    * @param containerGuid The globally-unique name of the container
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
+   public StatelessProxyInvocationHandlerBase(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors)
    {
-      this(containerName, null, interceptors);
+      this(containerName, containerGuid, interceptors, null);
    }
 
    /**
     * Constructor
     * 
     * @param containerName The name of the target Container
+    * @param containerGuid The globally-unique name of the container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessProxyInvocationHandlerBase(final String containerName, final String businessInterfaceType,
-         final Interceptor[] interceptors)
+   public StatelessProxyInvocationHandlerBase(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors, final String businessInterfaceType)
    {
-      super(containerName, businessInterfaceType, interceptors);
+      super(containerName, containerGuid, interceptors, businessInterfaceType);
    }
 
    // ------------------------------------------------------------------------------||

@@ -99,16 +99,17 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * @param name The unique name for this ProxyFactory
     * @param containerName The name of the InvokableContext (container)
     *   upon which Proxies will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param metadata The metadata representing this Session Bean
     * @param classloader The ClassLoader associated with the SessionContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param advisor The Advisor for proxies created by this factory
     */
-   public SessionProxyFactoryBase(final String name, final String containerName,
+   public SessionProxyFactoryBase(final String name, final String containerName, final String containerGuid,
          final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, classloader, advisor);
+      super(name, containerName, containerGuid, classloader, advisor);
 
       // Set Metadata
       this.setMetadata(metadata);

@@ -59,7 +59,15 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     */
    private String name;
 
+   /**
+    * The name of the target container
+    */
    private String containerName;
+
+   /** 
+    * The globally-unique name of the target container 
+    */
+   private String containerGuid;
 
    private ClassLoader classloader;
 
@@ -75,16 +83,18 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     * @param name The unique name for this ProxyFactory
     * @param containerName The name of the InvokableContext (container)
     *   upon which Proxies will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param classloader The ClassLoader associated with the EJBContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param advisor The Advisor for proxies created by this factory
     */
-   public ProxyFactoryBase(final String name, final String containerName, final ClassLoader classloader,
-         final Advisor advisor)
+   public ProxyFactoryBase(final String name, final String containerName, final String containerGuid,
+         final ClassLoader classloader, final Advisor advisor)
    {
       // Set properties
       this.setName(name);
       this.setContainerName(containerName);
+      this.setContainerGuid(containerGuid);
       this.setClassLoader(classloader);
       this.setAdvisor(advisor);
    }
@@ -233,7 +243,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
       this.name = name;
    }
 
-   public String getContainerName()
+   protected String getContainerName()
    {
       return containerName;
    }
@@ -251,6 +261,16 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    private void setAdvisor(Advisor advisor)
    {
       this.advisor = advisor;
+   }
+
+   protected String getContainerGuid()
+   {
+      return containerGuid;
+   }
+
+   private void setContainerGuid(String containerGuid)
+   {
+      this.containerGuid = containerGuid;
    }
 
 }
