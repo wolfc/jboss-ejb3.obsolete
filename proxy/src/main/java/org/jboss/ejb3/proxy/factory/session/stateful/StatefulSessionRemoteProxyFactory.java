@@ -68,17 +68,18 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
     * @param name The unique name for this ProxyFactory
     * @param containerName The name of the InvokableContext (container)
     *   upon which Proxies will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param metadata The metadata representing this SFSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param url The URL to use for remoting
     * @param advisor The Advisor for proxies created by this factory
     */
-   public StatefulSessionRemoteProxyFactory(final String name, final String containerName,
+   public StatefulSessionRemoteProxyFactory(final String name, final String containerName, final String containerGuid,
          final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, metadata, classloader, advisor);
+      super(name, containerName, containerGuid, metadata, classloader, advisor);
       this.setUrl(url);
    }
 
@@ -140,13 +141,14 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       // Obtain target properties
       String containterName = this.getContainerName();
       String url = this.getUrl();
+      String containerGuid = this.getContainerGuid();
 
       // Get Interceptors
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containterName,
-            businessInterfaceName, url, interceptors);
+      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containterName, containerGuid,
+            interceptors, businessInterfaceName, url);
 
       // Return
       return handler;

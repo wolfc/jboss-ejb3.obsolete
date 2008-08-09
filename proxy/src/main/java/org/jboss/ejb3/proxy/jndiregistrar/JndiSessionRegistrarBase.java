@@ -36,7 +36,6 @@ import org.jboss.aop.Advisor;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.string.StringUtils;
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
@@ -142,10 +141,11 @@ public abstract class JndiSessionRegistrarBase
     * @param smd
     * @param cl The CL of the Container
     * @param containerName The name under which the target container is registered
+    * @param containerGuid The globally-unique name of the container
     * @param advisor The advisor to use for generated proxies
     */
    public void bindEjb(final Context context, final JBossSessionBeanMetaData smd, final ClassLoader cl,
-         final String containerName, final Advisor advisor)
+         final String containerName, final String containerGuid, final Advisor advisor)
    {
       // Log 
       String ejbName = smd.getEjbName();
@@ -198,8 +198,8 @@ public abstract class JndiSessionRegistrarBase
          }
          // Create and register a remote proxy factory
          String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, false);
-         SessionProxyFactory factory = this.createRemoteProxyFactory(remoteProxyFactoryKey, containerName, smd, cl,
-               url, advisor);
+         SessionProxyFactory factory = this.createRemoteProxyFactory(remoteProxyFactoryKey, containerName,
+               containerGuid, smd, cl, url, advisor);
          this.registerProxyFactory(remoteProxyFactoryKey, factory, smd);
 
          // Initialize Reference Addresses to attach to default remote JNDI Reference
@@ -298,8 +298,8 @@ public abstract class JndiSessionRegistrarBase
       {
          // Create and register a local proxy factory
          String localProxyFactoryKey = this.getProxyFactoryRegistryKey(smd, true);
-         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, smd, cl,
-               advisor);
+         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, containerGuid,
+               smd, cl, advisor);
          this.registerProxyFactory(localProxyFactoryKey, factory, smd);
 
          // Initialize Reference Addresses to attach to default local JNDI Reference
@@ -522,12 +522,13 @@ public abstract class JndiSessionRegistrarBase
     * @param name The unique name for the ProxyFactory
     * @param containerName The name of the Container upon which Proxies 
     *   from the returned ProxyFactory will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
     * @param advisor The Advisor for proxies created by this factory
     */
    protected abstract SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
@@ -535,13 +536,15 @@ public abstract class JndiSessionRegistrarBase
     * @param name The unique name for the ProxyFactory
     * @param containerName The name of the Container upon which Proxies 
     *   from the returned ProxyFactory will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
     * @param url The URL to use for Remoting
     * @param advisor The Advisor for proxies created by this factory
     */
    protected abstract SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url, final Advisor advisor);
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
+         final Advisor advisor);
 
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||

@@ -60,11 +60,13 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
     * Constructor 
     * 
     * @param containerName The name of the target Container
+    * @param containerGuid The globally-unique name of the container
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   protected SessionProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
+   protected SessionProxyInvocationHandlerBase(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors)
    {
-      super(containerName, interceptors);
+      super(containerName, containerGuid, interceptors);
    }
 
    /**

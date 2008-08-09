@@ -97,6 +97,11 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     */
    private String containerName;
 
+   /**
+    * The Globally-unique Container ID
+    */
+   private String containerGuid;
+
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -105,11 +110,14 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     * Constructor
     * 
     * @param containerName The name of the target container
+    * @param containerGuid The globally-unique name of the container
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   protected ProxyInvocationHandlerBase(final String containerName, final Interceptor[] interceptors)
+   protected ProxyInvocationHandlerBase(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors)
    {
       this.setContainerName(containerName);
+      this.setContainerGuid(containerGuid);
       this.setInterceptors(interceptors);
    }
 
@@ -199,8 +207,18 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       return interceptors;
    }
 
-   private void setInterceptors(Interceptor[] interceptors)
+   private void setInterceptors(final Interceptor[] interceptors)
    {
       this.interceptors = interceptors;
+   }
+
+   protected String getContainerGuid()
+   {
+      return containerGuid;
+   }
+
+   private void setContainerGuid(final String containerGuid)
+   {
+      this.containerGuid = containerGuid;
    }
 }

@@ -44,14 +44,6 @@ public interface ProxyFactory
     */
    String getName();
 
-   /**
-    * Returns the name of the InvokableContext (container)
-    * upon which Proxies will invoke
-    * 
-    * @return
-    */
-   String getContainerName();
-
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||

@@ -72,15 +72,17 @@ public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
     * @param name The unique name for the ProxyFactory
     * @param containerName The name of the Container upon which Proxies 
     *   from the returned ProxyFactory will invoke
+    * @param containerGuid The globally-unique name of the container
+    * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this SLSB
     * @param cl The ClassLoader for this EJB Container
     * @param advisor The Advisor for proxies created by this factory
     */
    @Override
    protected SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
    {
-      return new StatelessSessionLocalProxyFactory(name, containerName, smd, cl, advisor);
+      return new StatelessSessionLocalProxyFactory(name, containerName, containerGuid, smd, cl, advisor);
    }
 
    /**
@@ -89,6 +91,7 @@ public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
     * @param name The unique name for the ProxyFactory
     * @param containerName The name of the Container upon which Proxies 
     *   from the returned ProxyFactory will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this Session EJB
     * @param cl The ClassLoader for this EJB Container
     * @param url The URL to use for Remoting
@@ -96,10 +99,12 @@ public class JndiStatelessSessionRegistrar extends JndiSessionRegistrarBase
     */
    @Override
    protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url, final Advisor advisor)
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
+         final Advisor advisor)
    {
       // Create
-      SessionProxyFactory factory = new StatelessSessionRemoteProxyFactory(name, containerName, smd, cl, url, advisor);
+      SessionProxyFactory factory = new StatelessSessionRemoteProxyFactory(name, containerName, containerGuid, smd, cl,
+            url, advisor);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

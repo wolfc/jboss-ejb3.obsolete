@@ -54,16 +54,17 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
     * @param name The unique name for this ProxyFactory
     * @param containerName The name of the InvokableContext (container)
     *   upon which Proxies will invoke
+    * @param containerGuid The globally-unique name of the container
     * @param metadata The metadata representing this SLSB
     * @param classloader The ClassLoader associated with the StatelessContainer
     *       for which this ProxyFactory is to generate Proxies
     * @param advisor The Advisor for proxies created by this factory
     */
-   public StatefulSessionLocalProxyFactory(final String name, final String containerName,
+   public StatefulSessionLocalProxyFactory(final String name, final String containerName, final String containerGuid,
          final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final Advisor advisor)
    {
       // Call Super
-      super(name, containerName, metadata, classloader, advisor);
+      super(name, containerName, containerGuid, metadata, classloader, advisor);
    }
 
    // --------------------------------------------------------------------------------||
@@ -111,13 +112,14 @@ public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactor
    {
       // Obtain target container name
       String containerName = this.getContainerName();
+      String containerGuid = this.getContainerGuid();
 
       // Obtain interceptors
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionProxyInvocationHandler handler = new StatefulLocalProxyInvocationHandler(containerName,
-            businessInterfaceName, interceptors);
+      SessionProxyInvocationHandler handler = new StatefulLocalProxyInvocationHandler(containerName, containerGuid,
+            interceptors, businessInterfaceName);
 
       // Return
       return handler;

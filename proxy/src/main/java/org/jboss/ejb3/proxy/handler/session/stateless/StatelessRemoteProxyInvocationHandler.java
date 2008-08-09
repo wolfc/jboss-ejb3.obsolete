@@ -24,17 +24,11 @@ package org.jboss.ejb3.proxy.handler.session.stateless;
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
-import org.jboss.ejb3.proxy.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.remoting.InvokerLocator;
 
 /**
@@ -124,25 +118,16 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
        * Define interceptors
        */
 
-      // Manually define a few
-      Interceptor[] interceptorsManuallyDefined =
-      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-
       // Get interceptors from the stack
-      Interceptor[] interceptorsFromStack = this.getInterceptors();
+      Interceptor[] interceptors = this.getInterceptors();
 
-      // Merge
-      List<Interceptor> interceptorsManuallyDefinedList = Arrays.asList(interceptorsManuallyDefined);
-      List<Interceptor> interceptorsFromStackList = Arrays.asList(interceptorsFromStack);
-      Set<Interceptor> mergedInterceptors = new HashSet<Interceptor>();
-      mergedInterceptors.addAll(interceptorsManuallyDefinedList);
-      mergedInterceptors.addAll(interceptorsFromStackList);
-      Interceptor[] interceptors = mergedInterceptors.toArray(new Interceptor[]
-      {});
+      /*
+       * Create a Proxy
+       */
 
       // Create a POJI Proxy to the Container
-      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), locator,
-            interceptors, null);
+      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), this
+            .getContainerGuid(), locator, interceptors, null);
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),
