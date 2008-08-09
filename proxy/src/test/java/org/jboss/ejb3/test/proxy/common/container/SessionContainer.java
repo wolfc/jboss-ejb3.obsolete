@@ -25,9 +25,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -168,25 +166,7 @@ public abstract class SessionContainer implements InvokableContext
     */
    public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
-      // Initialize
-      Class<?>[] argTypes = new Class<?>[]
-      {};
-
-      // Get the types from the arguments, if present
-      if (args != null)
-      {
-         List<Class<?>> types = new ArrayList<Class<?>>();
-         for (Object arg : args)
-         {
-            types.add(arg.getClass());
-         }
-         argTypes = types.toArray(new Class<?>[]
-         {});
-      }
-
-      // Obtain the method for invocation
-      Method m = this.getClassLoader().loadClass(method.getDeclaringClassName()).getDeclaredMethod(method.getName(),
-            argTypes);
+      Method m = method.toMethod(this.getClassLoader());
 
       // Invoke on the bean
       return invokeBean(proxy, m, args);
