@@ -140,14 +140,15 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    {
       // Obtain properties
       String containerName = this.getContainerName();
+      String containerGuid = this.getContainerGuid();
       String url = this.getUrl();
 
       // Get Interceptors
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionProxyInvocationHandler handler = new StatelessRemoteProxyInvocationHandler(containerName,
-            businessInterfaceName, url, interceptors);
+      SessionProxyInvocationHandler handler = new StatelessRemoteProxyInvocationHandler(containerName, containerGuid,
+            interceptors, businessInterfaceName, url);
 
       // Return
       return handler;
