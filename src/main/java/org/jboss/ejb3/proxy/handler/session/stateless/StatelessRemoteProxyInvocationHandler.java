@@ -66,10 +66,10 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
     * @param url The URL to the Remote Host
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessRemoteProxyInvocationHandler(final String containerName, final String businessInterfaceType,
-         final String url, final Interceptor[] interceptors)
+   public StatelessRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
-      super(containerName, businessInterfaceType, interceptors);
+      super(containerName, containerGuid, interceptors, businessInterfaceType);
       this.setUrl(url);
    }
 
