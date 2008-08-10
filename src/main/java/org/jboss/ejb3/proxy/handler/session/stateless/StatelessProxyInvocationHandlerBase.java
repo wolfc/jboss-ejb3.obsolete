@@ -115,13 +115,6 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
        * or different session beans will not be equal."
        */
 
-      // If these are not of the same type
-      if (!proxy.getClass().equals(argument.getClass()))
-      {
-         // Return false
-         return false;
-      }
-
       // If the argument is not a proxy
       if (!Proxy.isProxyClass(argument.getClass()))
       {
