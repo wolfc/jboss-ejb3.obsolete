@@ -156,8 +156,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          /*
           * Obtain the target method (advised)
           */
-         Method unadvisedMethod = method.toMethod(this.getClassloader());
-         long hash = MethodHashing.calculateHash(unadvisedMethod);
+         Method actualMethod = method.toMethod(this.getClassloader());
+         long hash = MethodHashing.calculateHash(actualMethod);
          MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
@@ -165,6 +165,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
                   + this.getEjbName() + " : " + method.toString()
                   + ", probable error in virtual method registration w/ Advisor for the Container");
          }
+         Method unadvisedMethod = info.getUnadvisedMethod();
+         SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
 
          // Obtain Invocation Handler
          //TODO Ugly, use polymorphism and get Session ID for SFSB only
@@ -180,11 +182,11 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
           * Invoke directly if this is an EJB2.x Method
           */
 
-         if (unadvisedMethod != null && isHomeMethod(method))
+         if (unadvisedMethod != null && isHomeMethod(unadvisedSerializableMethod))
          {
             return invokeHomeMethod(method, args);
          }
-         else if (unadvisedMethod != null && this.isEjbObjectMethod(method))
+         else if (unadvisedMethod != null && this.isEjbObjectMethod(unadvisedSerializableMethod))
          {
             return invokeEJBObjectMethod(sessionId, info, args);
          }
