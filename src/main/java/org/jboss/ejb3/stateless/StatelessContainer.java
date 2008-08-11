@@ -22,6 +22,19 @@
 package org.jboss.ejb3.stateless;
 
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.Hashtable;
+import java.util.Map;
+
+import javax.ejb.EJBContext;
+import javax.ejb.EJBException;
+import javax.ejb.Handle;
+import javax.ejb.Timer;
+import javax.ejb.TimerService;
+import javax.naming.NamingException;
+
+import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
@@ -37,14 +50,20 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.BaseStatelessRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
+import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
+import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
+import org.jboss.ejb3.stateful.StatefulRemoteInvocation;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.WebServiceContextProxy;
@@ -53,6 +72,7 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
+import org.jboss.util.NotImplementedException;
 import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
 import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
@@ -60,12 +80,6 @@ import org.jboss.wsf.spi.invocation.InvocationType;
 import org.jboss.wsf.spi.invocation.WebServiceContextFactory;
 import org.jboss.wsf.spi.invocation.integration.InvocationContextCallback;
 import org.jboss.wsf.spi.invocation.integration.ServiceEndpointContainer;
-
-import javax.ejb.*;
-import javax.naming.NamingException;
-import java.lang.reflect.Method;
-import java.util.Hashtable;
-import java.util.Map;
 
 
 /**
@@ -75,7 +89,7 @@ import java.util.Map;
  * @version $Revision$
  */
 public class StatelessContainer extends SessionSpecContainer
-  implements TimedObjectInvoker, ServiceEndpointContainer
+  implements TimedObjectInvoker, ServiceEndpointContainer, InvokableContext
 {
    private static final Logger log = Logger.getLogger(StatelessContainer.class);
 
@@ -167,7 +181,7 @@ public class StatelessContainer extends SessionSpecContainer
       return proxyFactory.createProxyEjb21(businessInterfaceType);
    }
    
-   public Object createSession(Class<?> initTypes[], Object initArgs[])
+   public Serializable createSession(Class<?> initTypes[], Object initArgs[])
    {
       if((initTypes != null && initTypes.length > 0) || (initArgs != null && initArgs.length > 0))
          throw new IllegalArgumentException("stateless bean create method must take no arguments (EJB3 4.5)");
@@ -312,7 +326,7 @@ public class StatelessContainer extends SessionSpecContainer
          {
             invokeStats.callIn();
             
-            invokedMethod.push(new InvokedMethod(true, unadvisedMethod));
+            //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
 
             if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
             {
@@ -338,7 +352,7 @@ public class StatelessContainer extends SessionSpecContainer
             
             invokeStats.callOut();
             
-            invokedMethod.pop();
+            //invokedMethod.pop();
          }
       }
       finally
@@ -346,7 +360,140 @@ public class StatelessContainer extends SessionSpecContainer
          Thread.currentThread().setContextClassLoader(oldLoader);
       }
    }
+   
+   /**
+    * Remote Invocation entry point, as delegated from
+    * ClassProxyHack (Remoting Dispatcher)
+    */
+   public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
+   {
+      /*
+       * Initialize
+       */
 
+      // Mark the start time
+      long start = System.currentTimeMillis();
+
+      // Create a pointer to a new Invocation
+      EJBContainerInvocation newSi = null;
+
+      // Create a pointer to the response we'll return
+      InvocationResponse response = null;
+      
+
+      /*
+       * Setup Environment (Stack/Thread)
+       */
+
+      // Hold a reference to the existing TCL
+      ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
+
+      // Set the Container's CL as TCL, required to unmarshall methods from the bean impl class
+      Thread.currentThread().setContextClassLoader(this.getClassloader());
+
+      // Push the ENC onto the stack
+      pushEnc();
+      
+      try
+      {
+         
+         /*
+          * Obtain the target method (unmarshall from invocation)
+          */
+
+         // Cast
+         assert invocation instanceof StatefulRemoteInvocation : SessionContainer.class.getName()
+               + ".dynamicInoke supports only " + StatefulRemoteInvocation.class.getSimpleName()
+               + ", but has been passed: " + invocation;
+         MethodInvocation si = (MethodInvocation) invocation;
+
+         // Get the method hash
+         long methodHash = si.getMethodHash();
+         log.debug("Received dynamic invocation for method with hash: " + methodHash);
+
+         // Get the Method via MethodInfo from the Advisor
+         Advisor advisor = this.getAdvisor();
+         MethodInfo info = advisor.getMethodInfo(methodHash);
+         Method unadvisedMethod = info.getMethod();
+         
+         try
+         {
+            invokeStats.callIn();
+
+            //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
+            Map responseContext = null;
+            Object rtn = null;
+            if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
+            {
+               rtn = invokeHomeMethod(info, si);
+            }
+            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
+            {
+               rtn = invokeEJBObjectMethod(info, si);
+            }
+            else
+            {
+
+               newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
+               newSi.setArguments(si.getArguments());
+               newSi.setMetaData(si.getMetaData());
+               newSi.setAdvisor(getAdvisor());
+               
+               /*
+                * Set the invoked method
+                */
+               //TODO Remove when CurrentInvocation is ironed out
+               
+               // Get the invoked method from invocation metadata
+               Object objInvokedMethod = si.getMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,SessionSpecRemotingMetadata.KEY_INVOKED_METHOD);
+               assert objInvokedMethod !=null : "Invoked Method must be set on invocation metadata";
+               assert objInvokedMethod instanceof SerializableMethod : "Invoked Method set on invocation metadata is not of type " + SerializableMethod.class.getName() + ", instead: " + objInvokedMethod;
+               SerializableMethod invokedMethod = (SerializableMethod)objInvokedMethod;
+               
+               // Set onto stack
+               SessionSpecContainer.invokedMethod.push(invokedMethod);
+               
+               
+               try
+               {
+                  rtn = newSi.invokeNext();
+                  responseContext = newSi.getResponseContextInfo();
+               }
+               catch (Throwable throwable)
+               {
+                  responseContext = newSi.getResponseContextInfo();
+                  return marshallException(invocation, throwable, responseContext);
+               }
+               finally
+               {
+                  SessionSpecContainer.invokedMethod.pop();
+               }
+            }
+
+            response = marshallResponse(invocation, rtn, responseContext);
+            return response;
+         }
+         finally
+         {
+            if (unadvisedMethod != null)
+            {
+               long end = System.currentTimeMillis();
+               long elapsed = end - start;
+               invokeStats.updateStats(unadvisedMethod, elapsed);
+            }
+
+            invokeStats.callOut();
+
+            //invokedMethod.pop();
+         }
+      }
+      finally
+      {
+         Thread.currentThread().setContextClassLoader(originalLoader);
+      }
+   }
+
+   @Deprecated
    public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
    {
       long start = System.currentTimeMillis();
@@ -367,7 +514,7 @@ public class StatelessContainer extends SessionSpecContainer
          {
             invokeStats.callIn();
             
-            invokedMethod.push(new InvokedMethod(false, unadvisedMethod));
+            //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
             Map responseContext = null;
             Object rtn = null;
             if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
@@ -413,7 +560,7 @@ public class StatelessContainer extends SessionSpecContainer
             
             invokeStats.callOut();
             
-            invokedMethod.pop();
+            //invokedMethod.pop();
          }
       }
       finally
@@ -474,11 +621,14 @@ public class StatelessContainer extends SessionSpecContainer
     * @throws Exception
     */
    @Override
-   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
+   protected Object invokeHomeCreate(SerializableMethod unadvisedMethod, Object args[])
          throws Exception
    {   
+      // Lookup factory
+      Object factory = this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
+      SessionProxyFactory proxyFactory = SessionProxyFactory.class.cast(factory);
 
-      Object proxy = factory.createProxyBusiness(unadvisedMethod.getReturnType().getName());
+      Object proxy = proxyFactory.createProxyBusiness(unadvisedMethod.getReturnType());
 
       return proxy;
    }
@@ -588,6 +738,16 @@ public class StatelessContainer extends SessionSpecContainer
    {
       String name = this.getObjectName() != null ? this.getObjectName().getCanonicalName() : null;
       return name;
+   }
+   
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected String getJndiRegistrarBindName()
+   {
+      return ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB;
    }
    
    static class WSCallbackImpl implements BeanContextLifecycleCallback

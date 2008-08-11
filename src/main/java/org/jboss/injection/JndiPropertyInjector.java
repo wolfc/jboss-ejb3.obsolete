@@ -21,6 +21,7 @@
  */
 package org.jboss.injection;
 
+import java.lang.reflect.Proxy;
 import java.util.Arrays;
 
 import javax.naming.Context;
@@ -29,6 +30,7 @@ import javax.naming.NamingException;
 
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.JndiUtil;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
 
@@ -89,7 +91,28 @@ public class JndiPropertyInjector extends AbstractPropertyInjector implements Po
 
    public void inject(Object instance)
    {
+      
+      
+      
+      
+      
       Object value = lookup(jndiName);
+      
+//      Class<?> valueClass = value.getClass();
+//      
+//      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+//      ClassLoader classcl = property.getType().getClassLoader();
+//      ClassLoader valueCl = valueClass.getClassLoader();
+//      ClassLoader proxyHandlerCl = null;
+//      if(Proxy.isProxyClass(value.getClass()))
+//      {
+//         Object proxyHandler = Proxy.getInvocationHandler(value);
+//         proxyHandlerCl = proxyHandler.getClass().getClassLoader();
+//         
+//      }
+//      ClassLoader containerCl = SessionSpecContainer.TMP_CL;
+//      boolean equalsCl = classcl.equals(valueCl);
+      
       log.trace("injecting " + value + " from " + jndiName + " into " + property + " of " + instance);
       try
       {

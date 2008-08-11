@@ -56,6 +56,8 @@ public interface Container
    Class getBeanClass();
 
    String getEjbName();
+   
+   String getName();
 
    ObjectName getObjectName();
 

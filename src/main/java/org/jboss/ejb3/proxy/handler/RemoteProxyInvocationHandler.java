@@ -29,7 +29,7 @@ import org.jboss.aop.metadata.SimpleMetaData;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public interface RemoteProxyInvocationHandler extends ProxyInvocationHandler
+public interface RemoteProxyInvocationHandler extends ProxyInvocationHandlerDeprecated
 {
    SimpleMetaData getMetaData();
 }

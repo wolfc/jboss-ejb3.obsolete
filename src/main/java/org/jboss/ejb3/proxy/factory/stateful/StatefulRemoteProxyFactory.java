@@ -72,6 +72,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
       String targetId = getTargetId();
       String clientBindUrl = ProxyFactoryHelper.getClientBindUrl(this.getBinding());
       Object factoryProxy = createPojiProxy(targetId, interfaces, clientBindUrl);
+      String jndiName = this.getJndiName();
       log.debug("Binding proxy factory for " + getContainer().getEjbName() + " in JNDI at " + jndiName + PROXY_FACTORY_NAME + " with client bind url " + clientBindUrl);
       try
       {
@@ -100,6 +101,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
    @Override
    public void stop() throws Exception
    {
+      String jndiName = this.getJndiName();
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
       Dispatcher.singleton.unregisterTarget(getTargetId());
       
@@ -167,6 +169,7 @@ public class StatefulRemoteProxyFactory extends BaseStatefulRemoteProxyFactory i
     */
    protected String getTargetId()
    {  
+      String jndiName = this.getJndiName();
       assert jndiName != null : "jndiName is null"; 
       return jndiName + PROXY_FACTORY_NAME;
    }

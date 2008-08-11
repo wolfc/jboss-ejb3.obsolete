@@ -510,9 +510,21 @@ public abstract class BaseSessionProxyFactory implements SessionProxyFactory, Ex
     */
    protected abstract Class<?> getHomeType();
    
-   protected final String getJndiName()
+   protected String getJndiName()
    {
-      return this.jndiName;
+      SessionSpecContainer container = this.getContainer();
+      JBossSessionBeanMetaData md = container.getMetaData();
+      String jndiName = md.determineResolvedJndiName(null);
+      return jndiName;
+   }
+
+   protected String getHomeJndiName()
+   {
+      SessionSpecContainer container = this.getContainer();
+      JBossSessionBeanMetaData md = container.getMetaData();
+      String home = md.getHome();
+      String jndiName = md.determineResolvedJndiName(home);
+      return jndiName;
    }
    
    public final String getJndiNameProxyFactory()

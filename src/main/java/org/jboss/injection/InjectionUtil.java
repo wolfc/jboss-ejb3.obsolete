@@ -21,16 +21,6 @@
  */
 package org.jboss.injection;
 
-import org.jboss.ejb3.EJBContainer;
-import org.jboss.injection.lang.reflect.BeanProperty;
-import org.jboss.injection.lang.reflect.BeanPropertyFactory;
-import org.jboss.logging.Logger;
-import org.jboss.metadata.javaee.spec.RemoteEnvironment;
-import org.jboss.metadata.javaee.spec.ResourceInjectionMetaData;
-import org.jboss.metadata.javaee.spec.ResourceInjectionTargetMetaData;
-import org.jboss.metamodel.descriptor.InjectionTarget;
-import org.jboss.metamodel.descriptor.Ref;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -42,6 +32,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jboss.ejb3.EJBContainer;
+import org.jboss.injection.lang.reflect.BeanProperty;
+import org.jboss.injection.lang.reflect.BeanPropertyFactory;
+import org.jboss.logging.Logger;
+import org.jboss.metadata.javaee.spec.RemoteEnvironment;
+import org.jboss.metadata.javaee.spec.ResourceInjectionMetaData;
+import org.jboss.metadata.javaee.spec.ResourceInjectionTargetMetaData;
 
 /**
  * Comment

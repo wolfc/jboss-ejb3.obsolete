@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.service;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.List;
@@ -58,16 +59,15 @@ import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
-import org.jboss.util.NotImplementedException;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -139,11 +139,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       return new ServiceRemoteProxyFactory(this, binding);
    }
    
-   public Object createSession(Class initTypes[], Object initArgs[])
+   public Serializable createSession(Class<?> initTypes[], Object initArgs[])
    {
 //      if((initTypes != null && initTypes.length > 0) || (initArgs != null && initArgs.length > 0))
 //         throw new IllegalArgumentException("service bean create method must take no arguments");
-      throw new RuntimeException("NYI");
+      throw new UnsupportedOperationException("Service Containers have no Sessions");
    }
 
    public Object getMBean()
@@ -167,6 +167,12 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       //registerManagementInterface();
       
       invokeOptionalMethod("create");
+   }
+
+   @Override
+   public void instantiated()
+   {
+      super.instantiated();
    }
 
    @Override
@@ -207,6 +213,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    protected void lockedStart() throws Exception
    {
       super.lockedStart();
+      proxyDeployer.start();
 
       try
       {
@@ -233,7 +240,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    @Override
    protected void lockedStop() throws Exception
-   {
+   {      
       invokeOptionalMethod("stop");
       
       if (timerService != null)
@@ -249,6 +256,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       beanContext = null;
       
       super.lockedStop();
+      
+      try
+      {
+         proxyDeployer.stop();
+      }
+      catch (Exception ignore)
+      {
+         log.debug("Proxy deployer stop failed", ignore);
+      }
    }
 
    public void destroy() throws Exception
@@ -366,7 +382,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
          }
-         EJBContainerInvocation nextInvocation = new EJBContainerInvocation(info);
+         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info,null);
          nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
 
@@ -399,7 +415,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       long start = System.currentTimeMillis();
       
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      EJBContainerInvocation newSi = null;
+      StatefulContainerInvocation newSi = null;
       
       MethodInvocation si = (MethodInvocation) invocation;
       MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
@@ -414,7 +430,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");
          }
-         newSi = new EJBContainerInvocation(info);
+         newSi = new StatefulContainerInvocation(info,null);
          newSi.setArguments(si.getArguments());
          newSi.setMetaData(si.getMetaData());
          newSi.setAdvisor(getAdvisor());
@@ -470,7 +486,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
    
    @Override
-   protected EJBContainerInvocation populateInvocation(EJBContainerInvocation invocation)
+   protected StatefulContainerInvocation populateInvocation(StatefulContainerInvocation invocation)
    {
       invocation.setTargetObject(singleton);
       invocation.setBeanContext(beanContext);
@@ -524,21 +540,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
            throws MBeanException, ReflectionException
    {
       return delegate.invoke(actionName, params, signature);
-   }
-
-   @Override
-   protected Object invokeEJBObjectMethod(ProxyFactory factory, Object id, MethodInfo info, Object[] args) throws Exception
-   {
-      throw new RuntimeException("NYI");
-   }
-   
-
-   //TODO This shouldn't be required of @Service
-   @Override
-   protected Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
-         throws Exception
-   {
-      throw new NotImplementedException("Invalid for " + ServiceContainer.class.getName());
    }
 
    public MBeanInfo getMBeanInfo()
