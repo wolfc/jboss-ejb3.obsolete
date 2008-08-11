@@ -24,8 +24,10 @@ package org.jboss.ejb3.stateless;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
@@ -72,7 +74,6 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
-import org.jboss.util.NotImplementedException;
 import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
 import org.jboss.wsf.spi.invocation.ExtensibleWebServiceContext;
@@ -680,9 +681,22 @@ public class StatelessContainer extends SessionSpecContainer
       
       try
       {
-         String jndiName = ProxyFactoryHelper.getJndiName(this, intf);
-         if (jndiName == null) throw new IllegalStateException("Cannot find BusinessObject for interface: " + intf.getName());
-         return getInitialContext().lookup(ProxyFactoryHelper.getJndiName(this, intf));
+         
+         /*
+          * Get all business interfaces
+          */
+         Set<String> businessInterfaceNames = new HashSet<String>();
+         JBossSessionBeanMetaData smd= (JBossSessionBeanMetaData)this.getXml();
+         businessInterfaceNames.addAll(smd.getBusinessRemotes());
+         businessInterfaceNames.addAll(smd.getBusinessLocals());
+         
+         String interfaceName = intf.getName();
+         
+         if (!businessInterfaceNames.contains(interfaceName))
+            throw new IllegalStateException("Cannot find BusinessObject for interface: " + interfaceName);
+         
+         String jndiName = this.getXml().determineResolvedJndiName(interfaceName);
+         return getInitialContext().lookup(jndiName);
       }
       catch (NamingException e)
       {
