@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.ejb.EJBContext;
 import javax.ejb.EJBException;
+import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -611,28 +612,6 @@ public class StatelessContainer extends SessionSpecContainer
       {
          return null;
       }
-   }
-   
-   /**
-    * Provides implementation for this bean's EJB 2.1 Home.create() method 
-    * 
-    * @param factory
-    * @param unadvisedMethod
-    * @param args
-    * @return
-    * @throws Exception
-    */
-   @Override
-   protected Object invokeHomeCreate(SerializableMethod unadvisedMethod, Object args[])
-         throws Exception
-   {   
-      // Lookup factory
-      Object factory = this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
-      SessionProxyFactory proxyFactory = SessionProxyFactory.class.cast(factory);
-
-      Object proxy = proxyFactory.createProxyBusiness(unadvisedMethod.getReturnType());
-
-      return proxy;
    }
 
    public Object localHomeInvoke(Method method, Object[] args) throws Throwable

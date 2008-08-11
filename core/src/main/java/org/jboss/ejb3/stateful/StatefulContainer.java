@@ -72,6 +72,7 @@ import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.BaseStatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory;
@@ -1194,34 +1195,6 @@ public class StatefulContainer extends SessionSpecContainer
       {
          return null;
       }
-   }
-   
-   /**
-    * Provides implementation for this bean's EJB 2.1 Home.create() method 
-    * 
-    * @param factory
-    * @param unadvisedMethod
-    * @param args
-    * @return
-    * @throws Exception
-    */
-   @Override
-   protected Object invokeHomeCreate(SerializableMethod method, Object args[])
-         throws Exception
-   {  
-      // Lookup
-      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(this.getMetaData(), false);
-      Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
-      
-      // Cast
-      assert factory instanceof StatefulSessionProxyFactory : "Specified factory " + factory.getClass().getName() + " is not of type "
-      + StatefulSessionProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName() + ", but was instead " + factory;
-      StatefulSessionProxyFactory statefulFactory = null;
-      statefulFactory = StatefulSessionProxyFactory.class.cast(factory);
-
-      Object proxy = statefulFactory.createProxyEjb2x();
-
-      return proxy;
    }
 
    protected InvocationResponse invokeEJBObjectMethod(MethodInfo info,
