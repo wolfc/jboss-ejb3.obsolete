@@ -101,7 +101,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     *   upon which Proxies will invoke
     * @param containerGuid The globally-unique name of the container
     * @param metadata The metadata representing this Session Bean
-    * @param classloader The ClassLoader associated with the SessionContainer
+    * @param classloader The ClassLoader associated with the Container's Bean Class
     *       for which this ProxyFactory is to generate Proxies
     * @param advisor The Advisor for proxies created by this factory
     */
@@ -197,6 +197,27 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          // Obtain the correct business proxy constructor
          Constructor<?> constructor = this.getConstructorsProxySpecificBusinessInterface().get(
                businessInterfaceName.trim());
+         
+         /*
+          * In place for web injection (isolated CL)
+          */
+         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+         try
+         {
+            // See if we can get at the bean class from the TCL
+            Class<?> businessInterfaceClass = Class.forName(businessInterfaceName,false,tcl);
+            
+            // If so, use the TCL to generate the Proxy class, not the Container CL
+            Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
+            businessInterfaces.add(businessInterfaceClass);
+            constructor = this.createProxyConstructor(businessInterfaces, tcl);
+            
+         }
+         catch(ClassNotFoundException cce)
+         {
+            // Ignore
+         }
+         
 
          // Ensure the constructor was found
          assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
