@@ -32,10 +32,12 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -286,12 +288,29 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    /**
     * Provides implementation for this bean's EJB 2.1 Home.create() method 
     * 
-    * @param method
+    * @param factory
+    * @param unadvisedMethod
     * @param args
     * @return
     * @throws Exception
     */
-   protected abstract Object invokeHomeCreate(SerializableMethod method, Object args[]) throws Exception;
+   protected Object invokeHomeCreate(SerializableMethod method, Object args[])
+         throws Exception
+   {  
+      // Lookup
+      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(this.getMetaData(), false);
+      Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
+      
+      // Cast
+      assert factory instanceof SessionProxyFactory : "Specified factory " + factory.getClass().getName() + " is not of type "
+      + SessionProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName() + ", but was instead " + factory;
+      SessionProxyFactory sessionFactory = null;
+      sessionFactory = SessionProxyFactory.class.cast(factory);
+
+      Object proxy = sessionFactory.createProxyEjb2x();
+
+      return proxy;
+   }
 
    /**
     * TODO: work in progress (refactor both invokeHomeMethod's, localHomeInvoke)
