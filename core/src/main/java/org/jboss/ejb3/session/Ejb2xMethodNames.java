@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,31 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory;
-
-import org.jboss.ejb3.proxy.ProxyFactory;
+package org.jboss.ejb3.session;
 
 /**
- * SessionProxyFactory
+ * Ejb2xMethodNames
  * 
- * Contract for a Proxy Factory specific to 
- * operations required by Session implementations
- * 
+ * This interface contains immutable names of EJB2.x Methods for
+ * use in reflection
+ *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
- * @deprecated In favor of EJB3 Proxy
  */
-@Deprecated
-public interface SessionProxyFactory extends ProxyFactory
+public interface Ejb2xMethodNames
 {
-   /**
-    * Create an EJB3 Business Proxy with the specified
-    * target business interface name (should be expressed as 
-    * a fully-qualified class name)
-    * 
-    * @param id
-    * @param businessInterfaceName
-    * @return
+   // --------------------------------------------------------------------------------||
+   // Constants ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /*
+    * The following are used in EJB2.x Home Interfaces
     */
-   public Object createProxyBusiness(String businessInterfaceName);
+
+   String METHOD_NAME_HOME_CREATE = "create";
+
+   String METHOD_NAME_HOME_REMOVE = "remove";
 }

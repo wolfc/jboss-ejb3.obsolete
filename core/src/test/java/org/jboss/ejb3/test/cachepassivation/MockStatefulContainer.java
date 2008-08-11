@@ -21,17 +21,14 @@
  */
 package org.jboss.ejb3.test.cachepassivation;
 
+import java.io.Serializable;
 import java.util.Hashtable;
 
 import org.jboss.aop.Domain;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.stateful.StatefulContainer;
-import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
-import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
-import org.jboss.metadata.ejb.jboss.JBossMetaData;
+import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
-import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
 
 /**
  * Comment
@@ -46,25 +43,27 @@ public class MockStatefulContainer extends StatefulContainer
    public MockStatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
          Hashtable ctxProperties, Ejb3Deployment deployment) throws ClassNotFoundException
    {
-      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, createMockBeanMetaData());
+      super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, createMockBeanMetaData(beanClassName));
    }
-   
+
    @Override
-   public Object createSession()
+   public Serializable createSession()
    {
       // TODO Auto-generated method stub
       return super.createSession();
    }
-   
-   private static JBossSessionBeanMetaData createMockBeanMetaData()
+
+   private static JBossSessionBeanMetaData createMockBeanMetaData(String beanClassName)
    {
-      JBossMetaData metaData = new JBossMetaData();
-      JBossEnterpriseBeansMetaData enterpriseBeans = new JBossEnterpriseBeansMetaData();
-      metaData.setEnterpriseBeans(enterpriseBeans);
-      metaData.setAssemblyDescriptor(new JBossAssemblyDescriptorMetaData());
-      JBossSessionBeanMetaData sessionBeanMetaData = new JBossSessionBeanMetaData();
-      sessionBeanMetaData.setEnterpriseBeansMetaData(enterpriseBeans);
-      sessionBeanMetaData = new JBossSessionPolicyDecorator(sessionBeanMetaData, new BasicJndiBindingPolicy());
-      return sessionBeanMetaData;
+      try
+      {
+         return MetaDataHelper.getMetadataFromBeanImplClass(Thread.currentThread().getContextClassLoader().loadClass(
+               beanClassName));
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new RuntimeException("Could not load Bean Implementation class when creating new "
+               + MockStatefulContainer.class, e);
+      }
    }
 }

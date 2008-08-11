@@ -61,7 +61,7 @@
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <param name="Target" value="System.out"/>
-    <param name="Threshold" value="WARN"/>
+    <param name="Threshold" value="DEBUG"/>
 
     <layout class="org.apache.log4j.PatternLayout">
       <!-- The default pattern: Date Priority [Category] Message\n -->
@@ -110,15 +110,13 @@
     <priority value="INFO"/>
   </category>
   
+  <!-- 
+  Unnecessary, EJB3 is exposed as DEBUG
   <category name="org.jboss.ejb3.interceptors.aop.DomainClassLoader">
     <priority value="DEBUG"/>
-  </category>
+  </category>   -->
   
   <category name="org.jboss.ejb3">
-    <priority value="DEBUG"/>
-  </category>
-  
-  <category name="org.jboss.ejb3.test">
     <priority value="DEBUG"/>
   </category>
   
@@ -127,6 +125,7 @@
   <!-- ======================= -->
 
   <root>
+    <priority value="WARN" />
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>

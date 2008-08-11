@@ -216,6 +216,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       ClusteredPojiProxy proxy = new ClusteredPojiProxy(targetId, locator, interceptors, wrapper, 
                                                         factoryLBP, partitionName, null);
       Object factoryProxy =  Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, proxy);
+      String jndiName = this.getJndiName();
       try
       {
          Util.rebind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME, factoryProxy);
@@ -268,6 +269,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
       hatarget.destroy();
       drm.unregisterListener(proxyFamilyName, this);
       this.getContainer().getClusterFamilies().remove(proxyFamilyName);
+      String jndiName = this.getJndiName();
       Util.unbind(getContainer().getInitialContext(), jndiName + PROXY_FACTORY_NAME);
       super.stop();
    }
@@ -277,6 +279,7 @@ public class StatefulClusterProxyFactory extends BaseStatefulRemoteProxyFactory
     */
    protected String getTargetId()
    {
+      String jndiName = this.getJndiName();
       assert jndiName != null : "jndiName is null";      
       String partition = ((SessionContainer) getContainer()).getPartitionName();
       return jndiName + PROXY_FACTORY_NAME + "@" + partition;

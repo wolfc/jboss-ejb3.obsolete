@@ -84,6 +84,7 @@ import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
@@ -173,8 +174,6 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
 
    private String jaccContextId;
 
-   protected HashMap invokedMethod = new HashMap();
-
    protected InvocationStatistics invokeStats = new InvocationStatistics();
    
    private String partitionName;
@@ -225,7 +224,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       // we must have set beanContainer first and then do the advisor. 
       try
       {
-         beanContainer.initialize(ejbName, domain, beanClass, beanMetaData, cl); 
+         beanContainer.initialize(ejbName, domain, beanClass, beanMetaData, cl);
       }
       catch(Exception e)
       {

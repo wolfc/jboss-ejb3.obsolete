@@ -83,37 +83,27 @@
     
   -->
 
-  <!-- SLSB JNDI Registrar 
+  <!-- SLSB JNDI Registrar -->
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
     class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
     <constructor>
-      <parameter>
-        <inject bean="org.jboss.ejb3.JndiContext" />
-      </parameter>
       <parameter>
         org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>
-  </bean> -->
+  </bean>
 
-  <!-- SFSB JNDI Registrar 
+  <!-- SFSB JNDI Registrar -->
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
     class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
     <constructor>
-      <parameter>
-        <inject bean="org.jboss.ejb3.JndiContext" />
-      </parameter>
       <parameter>
         org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>
-  </bean> -->
-
-  <!-- JNDI Registrar Configuration -->
-  <bean name="org.jboss.ejb3.JndiContext"
-    class="javax.naming.InitialContext" />
+  </bean>
     
    <!-- Remoting Proxy Factory Registry -->
    <bean name="EJB3RemoteProxyFactoryRegistry" class="org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry">

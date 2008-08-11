@@ -71,7 +71,7 @@ public class WebServiceContextInjectionTestCase extends AbstractEJB3TestCase
       container.processMetadata();
       
       // Register the Container in ObjectStore (MC)
-      String containerName = container.getName();
+      String containerName = container.getObjectName().getCanonicalName();
       Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
 
       InitialContext ctx = new InitialContext();
@@ -81,7 +81,7 @@ public class WebServiceContextInjectionTestCase extends AbstractEJB3TestCase
       
       bean.checkWebServiceContext();
       
-      getBootstrap().getKernel().getController().uninstall(containerName);
+      Ejb3RegistrarLocator.locateRegistrar().unbind(containerName);
    }
 
    @Test
@@ -125,7 +125,7 @@ public class WebServiceContextInjectionTestCase extends AbstractEJB3TestCase
       container.processMetadata();
       
       // Register the Container in ObjectStore (MC)
-      String containerName = container.getName();
+      String containerName = container.getObjectName().getCanonicalName();
       Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
 
       InitialContext ctx = new InitialContext();

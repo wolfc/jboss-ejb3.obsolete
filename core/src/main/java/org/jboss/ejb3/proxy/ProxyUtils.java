@@ -36,7 +36,7 @@ import org.jboss.aspects.asynch.AsynchProvider;
 import org.jboss.aspects.asynch.AsynchProxyInterceptor;
 import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerDeprecated;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -133,13 +133,13 @@ public class ProxyUtils
       }
    }
 
-   public static Object handleCallLocally(Object jbproxy, ProxyInvocationHandler ih, Method m, Object[] args)
+   public static Object handleCallLocally(Object jbproxy, ProxyInvocationHandlerDeprecated ih, Method m, Object[] args)
    {
       long hash = MethodHashing.calculateHash(m);
       return handleCallLocally(hash, jbproxy, ih, m, args);
    }
 
-   public static Object handleCallLocally(long hash, Object jbproxy, ProxyInvocationHandler ih, Method m, Object[] args)
+   public static Object handleCallLocally(long hash, Object jbproxy, ProxyInvocationHandlerDeprecated ih, Method m, Object[] args)
    {
       if (hash == ProxyUtils.GET_ASYNCHRONOUS)
       {

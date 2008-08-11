@@ -109,10 +109,6 @@ public class JBossSessionGenericWrapper extends JBossSessionBeanMetaData
    {
       return delegate.determineInvokerBindings();
    }
-   public String determineLocalJndiName()
-   {
-      return delegate.determineLocalJndiName();
-   }
    public boolean equals(Object obj)
    {
       return delegate.equals(obj);

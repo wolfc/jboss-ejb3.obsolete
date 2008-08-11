@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.naming.Context;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
@@ -86,6 +87,11 @@ public abstract class BaseStatefulProxyFactory extends BaseSessionProxyFactory i
       //Name name = ctx.getNameParser("").parse(jndiName);
       //ctx = Util.createSubcontext(ctx, name.getPrefix(name.size() - 1));
       //String atom = name.get(name.size() - 1);
+      Context ctx = getContainer().getInitialContext();
+      String jndiName = this.getJndiName();
+//      Name name = ctx.getNameParser("").parse(jndiName);
+      //ctx = Util.createSubcontext(ctx, name.getPrefix(name.size() - 1));
+      //String atom = name.get(name.size() - 1);
       RefAddr refAddr = new StringRefAddr(JndiSessionProxyObjectFactory.REF_ADDR_NAME_JNDI_BINDING_DELEGATE_PROXY_FACTORY, jndiName + PROXY_FACTORY_NAME);
       Reference ref = new Reference(Object.class.getName(), refAddr, JndiSessionProxyObjectFactory.class.getName(), null);
 //      try
@@ -102,10 +108,12 @@ public abstract class BaseStatefulProxyFactory extends BaseSessionProxyFactory i
 //      }
       
       this.bindProxy(ref);
+
    }
 
    public void stop() throws Exception
    {
+      String jndiName = this.getJndiName();
       Util.unbind(getContainer().getInitialContext(), jndiName);
    }
 
@@ -124,13 +132,11 @@ public abstract class BaseStatefulProxyFactory extends BaseSessionProxyFactory i
          log.error(e.getMessage(), e);
          throw new IOException(e.getMessage());
       }
-      this.jndiName = in.readUTF();
    }
    
    @Override
    public void writeExternal(ObjectOutput out) throws IOException
    {
       super.writeExternal(out);
-      out.writeUTF(jndiName);
    }
 }

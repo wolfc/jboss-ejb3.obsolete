@@ -33,6 +33,7 @@ import org.jboss.ejb3.session.ProxyAccessType;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.stateless.StatelessHandleRemoteImpl;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.naming.Util;
 
 
@@ -171,5 +172,14 @@ public class StatelessLocalProxyFactory extends BaseStatelessProxyFactory
       //TODO Rework the contract such that this method does not need to be
       // defined for local proxy factories
       return null;
+   }
+   
+   @Override
+   protected String getJndiName()
+   {
+      SessionSpecContainer container = this.getContainer();
+      JBossSessionBeanMetaData md = container.getMetaData();
+      String jndiName = md.determineLocalJndiName();
+      return jndiName;
    }
 }
