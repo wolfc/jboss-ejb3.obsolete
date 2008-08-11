@@ -35,6 +35,7 @@ import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
+import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -202,6 +203,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
           */
          
          StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info,sessionId);
+         nextInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
+               SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, method);
          nextInvocation.setArguments(args);
          
          
