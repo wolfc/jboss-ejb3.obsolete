@@ -80,7 +80,20 @@ public abstract class JndiSessionRegistrarBase
    /**
     * The default URL for InvokerLocator in the case @RemoteBinding does not specify it
     */
-   public static final String DEFAULT_CLIENT_BINDING = "socket://0.0.0.0:3873";
+   public static final String DEFAULT_CLIENT_BINDING;
+   static{
+      // Construct a default binding from $(jboss.bind.address)
+      StringBuffer sb = new StringBuffer();
+      sb.append("socket://");
+      String bindAddress = System.getProperty("jboss.bind.address");
+      if(bindAddress==null)
+      {
+         bindAddress = "0.0.0.0";
+      }
+      sb.append(bindAddress);
+      sb.append(":3873");
+      DEFAULT_CLIENT_BINDING=sb.toString();
+   }
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
