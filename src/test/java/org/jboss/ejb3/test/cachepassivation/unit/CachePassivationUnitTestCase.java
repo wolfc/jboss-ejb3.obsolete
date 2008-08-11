@@ -86,7 +86,8 @@ public class CachePassivationUnitTestCase extends TestCase
       persistenceManagerFactoryRegistry.setFactories(factories);
       Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
       deployment.setPersistenceManagerFactoryRegistry(persistenceManagerFactoryRegistry);
-      MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties, deployment);
+      MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties,
+            deployment);
       container.instantiated();
       container.processMetadata();
       System.out.println("injectors = " + container.getInjectors());

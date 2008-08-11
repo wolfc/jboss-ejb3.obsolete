@@ -40,6 +40,7 @@ import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
 /**
  * Delegatee of a SessionContainer for managing proxy factories.
@@ -191,10 +192,11 @@ public class ProxyDeployer
          if (binding == null)
          {
             log.debug("no declared remote bindings for : " + container.getEjbName());
-            if (ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(container).length > 0)
+            BusinessRemotesMetaData businessRemotes = container.getMetaData().getBusinessRemotes();
+            if (businessRemotes != null && businessRemotes.size() > 0)
             {
                log.debug("there is remote interfaces for " + container.getEjbName());
-               String jndiName = ProxyFactoryHelper.getDefaultRemoteBusinessJndiName(container);
+               String jndiName = container.getMetaData().determineResolvedJndiName(null);
                log.debug("default remote binding has jndiName of " + jndiName);
                String uri = ""; // use the default
                RemoteBinding[] list = {new RemoteBindingImpl(jndiName, "", uri, RemoteBindingDefaults.PROXY_FACTORY_DEFAULT)};

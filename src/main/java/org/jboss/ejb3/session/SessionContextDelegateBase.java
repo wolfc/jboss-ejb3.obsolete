@@ -36,7 +36,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class SessionContextDelegateBase<J extends SessionContainer> extends EJBContextImpl<J, SessionBeanContext<J>>
+public abstract class SessionContextDelegateBase<J extends SessionSpecContainer>
+      extends
+         EJBContextImpl<J, SessionBeanContext<J>>
       implements
          SessionContext
 {

@@ -47,6 +47,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
 import org.jboss.ejb3.enc.MessageDestinationResolver;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;

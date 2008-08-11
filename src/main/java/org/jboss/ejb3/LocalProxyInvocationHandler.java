@@ -28,7 +28,7 @@ import java.io.ObjectOutput;
 import java.lang.reflect.InvocationHandler;
 
 import org.jboss.ejb3.proxy.handler.BaseProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerDeprecated;
 import org.jboss.logging.Logger;
 
 /**
@@ -37,7 +37,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class LocalProxyInvocationHandler extends BaseProxyInvocationHandler implements InvocationHandler, Externalizable, ProxyInvocationHandler
+public abstract class LocalProxyInvocationHandler extends BaseProxyInvocationHandler implements InvocationHandler, Externalizable, ProxyInvocationHandlerDeprecated
 {
    private static Logger log = Logger.getLogger(LocalProxyInvocationHandler.class);
 

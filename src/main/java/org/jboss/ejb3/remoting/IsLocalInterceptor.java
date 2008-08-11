@@ -26,9 +26,12 @@ import java.util.Map;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.util.PayloadKey;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Registry;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.logging.Logger;
 import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 
@@ -76,8 +79,29 @@ public class IsLocalInterceptor implements Interceptor, Serializable
    protected Object invokeLocal(Invocation invocation, Container container) throws Throwable
    {
       Invocation copy = (Invocation) new MarshalledObjectForLocalCalls(invocation).get();
-      copy.getMetaData().addMetaData(IS_LOCAL, IS_LOCAL, Boolean.TRUE);
-      org.jboss.aop.joinpoint.InvocationResponse response = ((SessionContainer) container).dynamicInvoke(null, copy);
+      copy.getMetaData().addMetaData(IS_LOCAL, IS_LOCAL, Boolean.TRUE, PayloadKey.AS_IS);
+      org.jboss.aop.joinpoint.InvocationResponse response = null;
+
+      /*
+       * EJBTHREE-1385
+       * 
+       * Integration of EJB3 Proxy changed the invocation model,
+       * so SessionSpecContainers now are supported via
+       * dynamicInvoke(Invocation), where all other
+       * SessionContainers use the @deprecated
+       * dynamicInvoke(Object,Invocation)
+       */ 
+      if (container instanceof SessionSpecContainer)
+      {
+         SessionSpecContainer ssc = (SessionSpecContainer) container;
+         response = ssc.dynamicInvoke(copy);
+      }
+      else
+      {
+         response = ((SessionContainer) container).dynamicInvoke(null, copy);
+      }
+      
+      
       Map contextInfo = response.getContextInfo();
       if (contextInfo != null)
       {

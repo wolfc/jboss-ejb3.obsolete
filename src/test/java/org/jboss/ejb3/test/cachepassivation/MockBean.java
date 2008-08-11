@@ -26,6 +26,7 @@ import javax.annotation.Resource;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 import javax.ejb.SessionContext;
+import javax.ejb.Stateful;
 
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
@@ -42,6 +43,7 @@ import org.jboss.ejb3.annotation.Pool;
 @PersistenceManager("MyStatefulSessionFilePersistenceManager")
 @CacheConfig(idleTimeoutSeconds=1)
 @Pool("ThreadlocalPool")
+@Stateful
 public class MockBean implements Mock
 {
    public static Object notification = new Object();

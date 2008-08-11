@@ -21,15 +21,17 @@
  */
 package org.jboss.ejb3.session;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.LocalHome;
@@ -43,15 +45,14 @@ import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.EJBContainer;
-import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Module;
-import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
@@ -60,6 +61,8 @@ import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
+import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 
 /**
@@ -75,18 +78,6 @@ public abstract class SessionContainer extends EJBContainer
 
    protected ProxyDeployer proxyDeployer;
    private Map<String, HATarget> clusterFamilies;
-
-   public class InvokedMethod
-   {
-      public InvokedMethod(boolean localInterface, Method method)
-      {
-         isLocalInterface = localInterface;
-         this.method = method;
-      }
-
-      public boolean isLocalInterface;
-      public Method method;
-   }
    
    /**
     * Returns a remote binding for this container
@@ -107,8 +98,6 @@ public abstract class SessionContainer extends EJBContainer
       
       return binding;
    }
-
-   protected ThreadLocalStack<InvokedMethod> invokedMethod = new ThreadLocalStack<InvokedMethod>();
 
    public SessionContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
                            Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
@@ -132,30 +121,8 @@ public abstract class SessionContainer extends EJBContainer
    protected abstract RemoteProxyFactory getProxyFactory(RemoteBinding binding);
    
    public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
-   
-   public Class<?> getInvokedBusinessInterface()
-   {
-      InvokedMethod method = invokedMethod.get();
-      if (method == null) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
-      if (method.method == null) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
-      if (method.isLocalInterface) return method.method.getDeclaringClass();
-      Class<?>[] remoteInterfaces = ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(this);
-      for (Class<?> intf : remoteInterfaces)
-      {
-         try
-         {
-            intf.getMethod(method.method.getName(), method.method.getParameterTypes());
-            return intf;
-         }
-         catch (NoSuchMethodException ignored)
-         {
-            // continue
-         }
-      }
-      throw new IllegalStateException("Unable to find geInvokedBusinessInterface()");
-   }
 
-   protected JBossSessionBeanMetaData getMetaData()
+   public JBossSessionBeanMetaData getMetaData()
    {
       // TODO: resolve this cast using generics on EJBContainer
       return (JBossSessionBeanMetaData) getXml();
@@ -183,9 +150,19 @@ public abstract class SessionContainer extends EJBContainer
    protected void lockedStart() throws Exception
    {
       super.lockedStart();
+      this.registerWithAopDispatcher();
+      
+      //TODO Remove
+      //      proxyDeployer.start();
+   }
+   
+   /**
+    * Registers this Container with Remoting
+    */
+   protected void registerWithAopDispatcher()
+   {
       // So that Remoting layer can reference this container easily.
       Dispatcher.singleton.registerTarget(getObjectName().getCanonicalName(), new ClassProxyHack(this));
-      proxyDeployer.start();
    }
 
    /**
@@ -210,14 +187,15 @@ public abstract class SessionContainer extends EJBContainer
 
    protected void lockedStop() throws Exception
    {
-      try
-      {
-         proxyDeployer.stop();
-      }
-      catch (Exception ignore)
-      {
-         log.debug("Proxy deployer stop failed", ignore);
-      }
+      //TODO Remove
+//      try
+//      {
+//         proxyDeployer.stop();
+//      }
+//      catch (Exception ignore)
+//      {
+//         log.debug("Proxy deployer stop failed", ignore);
+//      }
       try
       {
          Dispatcher.singleton.unregisterTarget(getObjectName().getCanonicalName());
@@ -266,6 +244,152 @@ public abstract class SessionContainer extends EJBContainer
       }
       return virtualMethods;
    }
+   
+   
+//   /**
+//    * Obtains a List of all methods handled by the bean class
+//    * 
+//    * @return The methods handled by the bean class directly
+//    */
+//   @Override
+//   //FIXME: Should be adapted to use metadata view from metadata bridge
+//   // such that *-aop.xml annotations may be included
+//   public List<Method> getVirtualMethods()
+//   {
+//      // Initialize
+//      List<Method> virtualMethods = new ArrayList<Method>();
+//
+//      // Obtain Metadata
+//      JBossSessionBeanMetaData smd = this.getMetaData();
+//
+//      // Obtain CL
+//      ClassLoader cl = this.getClassloader();
+//
+//      /*
+//       * Business Remotes
+//       */
+//
+//      // Obtain all specified business remotes
+//      BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
+//      if (businessRemotes != null)
+//      {
+//         // For each business remote
+//         for (String businessRemote : businessRemotes)
+//         {
+//            // Load the Class
+//            Class<?> businessRemoteClass = null;
+//            try
+//            {
+//               businessRemoteClass = Class.forName(businessRemote, true, cl);
+//            }
+//            catch (ClassNotFoundException e)
+//            {
+//               throw new RuntimeException("Could not find specified business remote class: " + businessRemote, e);
+//            }
+//
+//            // Obtain all methods declared by the class
+//            Method[] declaredMethods = businessRemoteClass.getMethods();
+//
+//            // Add each method
+//            for (Method declaredMethod : declaredMethods)
+//            {
+//               virtualMethods.add(declaredMethod);
+//            }
+//         }
+//      }
+//
+//      /*
+//       * Business Locals
+//       */
+//
+//      // Obtain all specified business locals
+//      BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
+//      if (businessLocals != null)
+//      {
+//         // For each business local
+//         for (String businessLocal : businessLocals)
+//         {
+//            // Load the Class
+//            Class<?> businessLocalClass = null;
+//            try
+//            {
+//               businessLocalClass = Class.forName(businessLocal, true, cl);
+//            }
+//            catch (ClassNotFoundException e)
+//            {
+//               throw new RuntimeException("Could not find specified business local class: " + businessLocal, e);
+//            }
+//
+//            // Obtain all methods declared by the class
+//            Method[] declaredMethods = businessLocalClass.getMethods();
+//
+//            // Add each method
+//            for (Method declaredMethod : declaredMethods)
+//            {
+//               virtualMethods.add(declaredMethod);
+//            }
+//         }
+//      }
+//
+//      // Remote Home
+//      String remoteHomeClassName = smd.getHome();
+//      if (remoteHomeClassName != null)
+//      {
+//         Class<?> remoteHomeClass = null;
+//         try
+//         {
+//            remoteHomeClass = Class.forName(remoteHomeClassName, true, cl);
+//         }
+//         catch (ClassNotFoundException e)
+//         {
+//            throw new RuntimeException("Could not find specified Remote Home Class: " + remoteHomeClassName, e);
+//         }
+//         if (remoteHomeClass != null)
+//         {
+//            Method[] declaredMethods = remoteHomeClass.getMethods();
+//            for (Method declaredMethod : declaredMethods)
+//               virtualMethods.add(declaredMethod);
+//
+//            declaredMethods = javax.ejb.EJBObject.class.getMethods();
+//            for (Method declaredMethod : declaredMethods)
+//               virtualMethods.add(declaredMethod);
+//         }
+//      }
+//
+//      // Local Home
+//      String localHomeClassName = smd.getLocalHome();
+//      if (localHomeClassName != null)
+//      {
+//         Class<?> localHomeClass = null;
+//         try
+//         {
+//            localHomeClass = Class.forName(localHomeClassName, true, cl);
+//         }
+//         catch (ClassNotFoundException e)
+//         {
+//            throw new RuntimeException("Could not find specified Local Home Class: " + localHomeClass, e);
+//         }
+//         if (localHomeClass != null)
+//         {
+//            Method[] declaredMethods = localHomeClass.getMethods();
+//            for (Method declaredMethod : declaredMethods)
+//               virtualMethods.add(declaredMethod);
+//
+//            declaredMethods = javax.ejb.EJBLocalObject.class.getMethods();
+//            for (Method declaredMethod : declaredMethods)
+//               virtualMethods.add(declaredMethod);
+//         }
+//      }
+//      
+//      log.debug("Found virtual methods: ");
+//      for(Method m : virtualMethods)
+//      {
+//         log.debug("\t" + m + " - " + MethodHashing.calculateHash(m));
+//      }
+//      
+//
+//      return virtualMethods;
+//   }
    
    /*
    protected void createMethodMap()
@@ -316,32 +440,6 @@ public abstract class SessionContainer extends EJBContainer
    }
    */
 
-   protected boolean isHomeMethod(Method method)
-   {
-      if (javax.ejb.EJBHome.class.isAssignableFrom(method.getDeclaringClass())) return true;
-      if (javax.ejb.EJBLocalHome.class.isAssignableFrom(method.getDeclaringClass())) return true;
-      return false;
-   }
-
-   protected boolean isEJBObjectMethod(Method method)
-   {
-      if (method.getDeclaringClass().getName().equals(EJBObject.class.getName()))
-         return true;
-
-      if (method.getDeclaringClass().getName().equals(EJBLocalObject.class.getName()))
-         return true;
-
-      return false;
-   }
-
-   protected boolean isHandleMethod(Method method)
-   {
-      if (method.getDeclaringClass().getName().equals(Handle.class.getName()))
-         return true;
-
-      return false;
-   }
-
    public static InvocationResponse marshallException(Invocation invocation, Throwable exception, Map responseContext) throws Throwable
    {
       if (invocation.getMetaData(IsLocalInterceptor.IS_LOCAL,IsLocalInterceptor.IS_LOCAL) == null) throw exception;
@@ -382,7 +480,9 @@ public abstract class SessionContainer extends EJBContainer
     * @param method     the business or home method to invoke
     * @param args       the arguments for the method
     * @param provider   for asynchronous usage
+    * @deprecated Use "invoke" as defined by InvokableContext
     */
+   @Deprecated
    public Object invoke(SessionProxyFactory factory, Object id, Method method, Object args[], FutureHolder provider) throws Throwable
    {
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
@@ -398,19 +498,22 @@ public abstract class SessionContainer extends EJBContainer
                             + method.toString());
          }
 
-         Method unadvisedMethod = info.getUnadvisedMethod();
-
-         if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
-         {
-            return invokeHomeMethod(factory, info, args);
-         }
-         else if (unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
-         {
-            return invokeEJBObjectMethod(factory, id, info, args);
-         }
+         
+         // Handled now by SessionSpecContainer
+         //Method unadvisedMethod = info.getUnadvisedMethod();
+//         if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
+//         {
+//            return invokeHomeMethod(factory, info, args);
+//         }
+//         else if (unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
+//         {
+//            return invokeEJBObjectMethod(factory, id, info, args);
+//         }
 
          // FIXME: Ahem, stateful container invocation works on all.... (violating contract though)
-         EJBContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
+         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
+         //StatefulSessionContainerMethodInvocation nextInvocation = new StatefulSessionContainerMethodInvocation(info,null);
+         //EJBContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
          nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
          
@@ -418,15 +521,7 @@ public abstract class SessionContainer extends EJBContainer
          nextInvocation = populateInvocation(nextInvocation);
 
          ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
-         try
-         {
-            invokedMethod.push(new InvokedMethod(true, method));
-            return nextInvocation.invokeNext();
-         }
-         finally
-         {
-            invokedMethod.pop();
-         }
+         return nextInvocation.invokeNext();
       }
       finally
       {
@@ -436,59 +531,19 @@ public abstract class SessionContainer extends EJBContainer
    }
    
    /**
-    * TODO: work in progress (refactor both invokeHomeMethod's, localHomeInvoke)
-    * TODO: Move this to SessionSpecContainer
-    */
-   //TODO
-   private Object invokeHomeMethod(SessionProxyFactory factory, MethodInfo info, Object args[]) throws Exception
-   {
-      Method unadvisedMethod = info.getUnadvisedMethod();
-      if (unadvisedMethod.getName().equals("create"))
-      {
-         return this.invokeHomeCreate(factory, unadvisedMethod, args);
-      }
-      else if (unadvisedMethod.getName().equals("remove"))
-      {
-         if(args[0] instanceof Handle)
-            removeHandle((Handle) args[0]);
-         else
-            destroySession(args[0]);
-
-         return null;
-      }
-      else
-      {
-         throw new IllegalArgumentException("illegal home method " + unadvisedMethod);
-      }
-   }
-   
-   /**
-    * Provides implementation for this bean's EJB 2.1 Home.create() method 
-    * 
-    * @param factory
-    * @param unadvisedMethod
-    * @param args
-    * @return
-    * @throws Exception
-    */
-   //TODO Move this to SessionSpecContainer
-   protected abstract Object invokeHomeCreate(SessionProxyFactory factory, Method unadvisedMethod, Object args[])
-         throws Exception;
-   
-   /**
     * Create session to an EJB bean.
     * 
     * @param initParameterTypes     the parameter types used by the home's create method
     * @param initParameterValues    the arguments for the home's create method
     * @return   the identifier of the session
     */
-   abstract public Object createSession(Class<?> initParameterTypes[], Object initParameterValues[]);
+   abstract public Serializable createSession(Class<?> initParameterTypes[], Object initParameterValues[]);
    
    abstract public Object localInvoke(Object id, Method method, Object[] args, FutureHolder provider) throws Throwable;
    
    abstract public Object localHomeInvoke(Method method, Object[] args) throws Throwable;
    
-   public Object createSession()
+   public Serializable createSession()
    {
       return createSession(new Class<?>[]{}, new Object[]{});
    }
@@ -512,12 +567,12 @@ public abstract class SessionContainer extends EJBContainer
       return proxyDeployer.hasJNDIBinding(jndiName);
    }
    
-   protected Object invokeEJBObjectMethod(ProxyFactory factory, Object id, MethodInfo info, Object args[]) throws Exception
+   protected Object invokeEJBObjectMethod(Object id, MethodInfo info, Object args[]) throws Exception
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
       if(unadvisedMethod.getName().equals("getEJBHome"))
       {
-         return factory.createHomeProxy();
+         return this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
       }
       if(unadvisedMethod.getName().equals("getPrimaryKey"))
       {
@@ -554,7 +609,8 @@ public abstract class SessionContainer extends EJBContainer
     * @param invocation
     * @return
     */
-   protected EJBContainerInvocation populateInvocation(EJBContainerInvocation invocation)
+   protected StatefulContainerInvocation populateInvocation(
+         StatefulContainerInvocation invocation)
    {
       return invocation;
    }

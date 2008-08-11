@@ -32,7 +32,7 @@ package org.jboss.ejb3.proxy.handler;
  * @deprecated Has moved to EJB3 Proxy Component as ProxyInvocationHandlerBase
  */
 @Deprecated
-public abstract class BaseProxyInvocationHandler implements ProxyInvocationHandler
+public abstract class BaseProxyInvocationHandler implements ProxyInvocationHandlerDeprecated
 {
    // ------------------------------------------------------------------------------||
    // Instance Members -------------------------------------------------------------||

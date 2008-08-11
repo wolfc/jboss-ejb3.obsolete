@@ -58,7 +58,7 @@ public class MockDeploymentUnit implements DeploymentUnit
     */
    public ClassLoader getClassLoader()
    {
-      return null;
+      return Thread.currentThread().getContextClassLoader();
    }
 
    /* (non-Javadoc)

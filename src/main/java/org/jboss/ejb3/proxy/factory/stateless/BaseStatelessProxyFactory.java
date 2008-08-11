@@ -129,7 +129,7 @@ public abstract class BaseStatelessProxyFactory extends org.jboss.ejb3.proxy.fac
 
    public void stop() throws Exception
    {
-      Util.unbind(getContainer().getInitialContext(), jndiName);
+      Util.unbind(getContainer().getInitialContext(), this.getJndiName());
    }
    
    protected abstract void validateEjb21Views();
