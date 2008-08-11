@@ -415,6 +415,7 @@ public class StatelessContainer extends SessionSpecContainer
          Advisor advisor = this.getAdvisor();
          MethodInfo info = advisor.getMethodInfo(methodHash);
          Method unadvisedMethod = info.getMethod();
+         SerializableMethod unadvisedMethodSerializable = new SerializableMethod(unadvisedMethod);
          
          try
          {
@@ -423,11 +424,11 @@ public class StatelessContainer extends SessionSpecContainer
             //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
             Map responseContext = null;
             Object rtn = null;
-            if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
+            if (unadvisedMethod != null && isHomeMethod(unadvisedMethodSerializable))
             {
                rtn = invokeHomeMethod(info, si);
             }
-            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
+            else if (info != null && unadvisedMethod != null && isEjbObjectMethod(unadvisedMethodSerializable))
             {
                rtn = invokeEJBObjectMethod(info, si);
             }
@@ -437,7 +438,7 @@ public class StatelessContainer extends SessionSpecContainer
                newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(getAdvisor());
+               //newSi.setAdvisor(getAdvisor());
                
                /*
                 * Set the invoked method

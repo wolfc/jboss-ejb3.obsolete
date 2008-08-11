@@ -550,6 +550,7 @@ public class StatefulContainer extends SessionSpecContainer
          Advisor advisor = this.getAdvisor();
          MethodInfo info = advisor.getMethodInfo(methodHash);
          Method unadvisedMethod = info.getMethod();
+         SerializableMethod unadvisedMethodSerializable = new SerializableMethod(unadvisedMethod);
          
          // Get the invoked method from invocation metadata
          Object objInvokedMethod = si.getMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,SessionSpecRemotingMetadata.KEY_INVOKED_METHOD);
@@ -577,11 +578,11 @@ public class StatefulContainer extends SessionSpecContainer
                sessionId = (Serializable) objSessionId;
             }
 
-            if (info != null && unadvisedMethod != null && isHomeMethod(unadvisedMethod))
+            if (info != null && unadvisedMethod != null && isHomeMethod(unadvisedMethodSerializable))
             {
                response = invokeHomeMethod(info, si);
             }
-            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
+            else if (info != null && unadvisedMethod != null && isEjbObjectMethod(unadvisedMethodSerializable))
             {
                response = invokeEJBObjectMethod(info, si);
             }
@@ -619,7 +620,7 @@ public class StatefulContainer extends SessionSpecContainer
                //newSi = new StatefulContainerInvocation(info.getInterceptors(), long methodHash, Method advisedMethod, Method unadvisedMethod, Advisor advisor, Object id);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(getAdvisor());
+               //newSi.setAdvisor(getAdvisor());
 
                // Create an object to hold the return value
                Object returnValue = null;
