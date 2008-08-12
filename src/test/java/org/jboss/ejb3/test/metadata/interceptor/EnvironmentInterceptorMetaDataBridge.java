@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.metadata.interceptor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,15 +33,17 @@ import org.jboss.ejb3.annotation.impl.PostConstructImpl;
 import org.jboss.ejb3.annotation.impl.PreDestroyImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.spec.AroundInvokeMetaData;
 import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
+import org.jboss.metadata.javaee.spec.LifecycleCallbackMetaData;
 import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
 
 /**
  * Does only interceptor stuff.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class EnvironmentInterceptorMetaDataBridge<M extends Environment> implements MetaDataBridge<M>
 {
@@ -62,29 +65,45 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       }
    }
    
-   protected AroundInvoke getAroundInvokeAnnotation(AroundInvokesMetaData callbacks, String methodName)
+   protected AroundInvoke getAroundInvokeAnnotation(AroundInvokesMetaData callbacks, Method method)
    {
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
       assert callbacks.size() == 1;
-      String callbackMethodName = callbacks.get(0).getMethodName();
-      if(methodName.equals(callbackMethodName))
-         return new AroundInvokeImpl();
+      AroundInvokeMetaData callback = callbacks.get(0);
+      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass().getName()))
+      {
+         String callbackMethodName = callback.getMethodName();
+         if(method.getName().equals(callbackMethodName))
+            return new AroundInvokeImpl();
+      }
       return null;
    }
    
-   private <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, String methodName)
+   private <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, Method method)
    {
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
       assert callbacks.size() == 1;
-      // TODO: callbacks[0].className
-      String callbackMethodName = callbacks.get(0).getMethodName();
-      if(methodName.equals(callbackMethodName))
-         return createAnnotationImpl(annotationImplType);
+      LifecycleCallbackMetaData callback = callbacks.get(0);
+      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass().getName()))
+      {
+         String callbackMethodName = callback.getMethodName();
+         if(method.getName().equals(callbackMethodName))
+            return createAnnotationImpl(annotationImplType);
+      }
       return null;
+   }
+   
+   private boolean isEmpty(String s)
+   {
+      if(s == null)
+         return true;
+      if(s.length() == 0)
+         return true;
+      return false;
    }
    
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader)
@@ -92,17 +111,17 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       return null;
    }
 
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, Method method)
    {
       if(annotationClass == PostConstruct.class)
       {
-         PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(metaData.getPostConstructs(), PostConstructImpl.class, methodName);
+         PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(metaData.getPostConstructs(), PostConstructImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
       else if(annotationClass == PreDestroy.class)
       {
-         PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(metaData.getPreDestroys(), PreDestroyImpl.class, methodName);
+         PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(metaData.getPreDestroys(), PreDestroyImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }

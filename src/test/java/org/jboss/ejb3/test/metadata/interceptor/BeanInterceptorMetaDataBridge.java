@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.metadata.interceptor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptors;
@@ -41,7 +42,7 @@ import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBridge<JBossEnterpriseBeanMetaData> implements MetaDataBridge<JBossEnterpriseBeanMetaData>
 {
@@ -101,7 +102,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    }
 
    @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, Method method)
    {
       if(annotationClass == AroundInvoke.class)
       {
@@ -114,11 +115,11 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             aroundInvokes = ((JBossSessionBeanMetaData) beanMetaData).getAroundInvokes();
          if(aroundInvokes != null)
          {
-            Annotation annotation = getAroundInvokeAnnotation(aroundInvokes, methodName);
+            Annotation annotation = getAroundInvokeAnnotation(aroundInvokes, method);
             if(annotation != null)
                return annotationClass.cast(annotation);
          }
       }
-      return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, methodName, parameterNames);
+      return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, method);
    }
 }

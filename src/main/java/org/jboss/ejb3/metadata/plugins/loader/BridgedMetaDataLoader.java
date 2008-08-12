@@ -22,6 +22,7 @@
 package org.jboss.ejb3.metadata.plugins.loader;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ import org.jboss.metadata.spi.signature.Signature;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
 {
@@ -53,6 +54,8 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
       /** The signature */
       private MethodSignature signature;
       
+      private Method method;
+      
       /**
        * Create a new MethodMetaDataRetrieval.
        * 
@@ -61,6 +64,9 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
       public MethodMetaDataRetrieval(MethodSignature methodSignature)
       {
          this.signature = methodSignature;
+         this.method = signature.getMethod();
+         
+         assert this.method != null : "methodSignature.method is null";
       }
 
       public <T extends Annotation> AnnotationItem<T> retrieveAnnotation(Class<T> annotationType)
@@ -70,7 +76,7 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
          
          for(MetaDataBridge<M> bridge : bridges)
          {
-            T annotation = bridge.retrieveAnnotation(annotationType, metaData, classLoader, signature.getName(), signature.getParameters());
+            T annotation = bridge.retrieveAnnotation(annotationType, metaData, classLoader, method);
             if(annotation != null)
                return new SimpleAnnotationItem<T>(annotation);
          }

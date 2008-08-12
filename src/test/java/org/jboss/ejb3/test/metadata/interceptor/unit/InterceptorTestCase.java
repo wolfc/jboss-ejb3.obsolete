@@ -41,6 +41,8 @@ import org.jboss.ejb3.test.metadata.interceptor.DummyInterceptor;
 import org.jboss.ejb3.test.metadata.interceptor.InterceptedBean;
 import org.jboss.ejb3.test.metadata.interceptor.InterceptorComponentMetaDataLoaderFactory;
 import org.jboss.ejb3.test.metadata.interceptor.InterceptorMetaDataBridge;
+import org.jboss.ejb3.test.metadata.interceptor.SameMethodNameBean;
+import org.jboss.ejb3.test.metadata.interceptor.SameMethodNameSuper;
 import org.jboss.ejb3.test.metadata.securitydomain.SecurityDomainBean;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBoss50MetaData;
@@ -58,7 +60,7 @@ import org.w3c.dom.ls.LSInput;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorTestCase extends TestCase
 {
@@ -142,5 +144,34 @@ public class InterceptorTestCase extends TestCase
       
       Method beanAroundInvoke = InterceptedBean.class.getMethod("aroundInvoke", InvocationContext.class);
       assertTrue(repository.hasAnnotation(beanAroundInvoke, AroundInvoke.class));
+   }
+   
+   public void testSameMethodName() throws Exception
+   {
+      // Bootstrap metadata
+      UnmarshallerFactory unmarshallerFactory = UnmarshallerFactory.newInstance();
+      Unmarshaller unmarshaller = unmarshallerFactory.newUnmarshaller();
+      URL url = Thread.currentThread().getContextClassLoader().getResource("interceptor/ejb-jar.xml");
+      EjbJar30MetaData ejbJarMetaData = (EjbJar30MetaData) unmarshaller.unmarshal(url.toString(), schemaResolverForClass(EjbJar30MetaData.class));
+      JBoss50MetaData metaData = new JBoss50MetaData();
+      metaData.merge(null, ejbJarMetaData);
+      
+      JBossEnterpriseBeanMetaData beanMetaData = metaData.getEnterpriseBean("SameMethodNameBean");
+      assertNotNull("beanMetaData is null", beanMetaData);
+      
+      // Bootstrap meta data bridge
+      String canonicalObjectName = "Not important";
+      ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+      AnnotationRepositoryToMetaData repository = new AnnotationRepositoryToMetaData(SecurityDomainBean.class, beanMetaData, canonicalObjectName, classLoader);
+      List<MetaDataBridge<InterceptorMetaData>> interceptorBridges = new ArrayList<MetaDataBridge<InterceptorMetaData>>();
+      interceptorBridges.add(new InterceptorMetaDataBridge());
+      repository.addComponentMetaDataLoaderFactory(new InterceptorComponentMetaDataLoaderFactory(interceptorBridges));
+      repository.addMetaDataBridge(new BeanInterceptorMetaDataBridge());
+      
+      Method superPostConstruct = SameMethodNameSuper.class.getDeclaredMethod("postConstruct");
+      assertTrue(repository.hasAnnotation(superPostConstruct, PostConstruct.class));
+      
+      Method beanPostConstruct = SameMethodNameBean.class.getDeclaredMethod("postConstruct");
+      assertFalse("Bean method has PostConstruct annotation, but none defined in xml", repository.hasAnnotation(beanPostConstruct, PostConstruct.class));
    }
 }

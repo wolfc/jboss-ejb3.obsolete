@@ -22,12 +22,13 @@
 package org.jboss.ejb3.metadata;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
- * Comment
+ * Retrieve an annotation based on a piece of meta data.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public interface MetaDataBridge<M>
 {
@@ -49,9 +50,8 @@ public interface MetaDataBridge<M>
     * @param annotationClass
     * @param metaData
     * @param classLoader
-    * @param methodName
-    * @param parameterNames
+    * @param method
     * @return                   the annotation of null if not found
     */
-   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, String methodName, String ... parameterNames);
+   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, Method method);
 }
