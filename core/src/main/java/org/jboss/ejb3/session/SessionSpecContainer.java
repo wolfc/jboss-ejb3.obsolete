@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.SessionContext;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
@@ -42,6 +43,8 @@ import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
+import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
+import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
 /**
  * SessionSpecContainer
@@ -253,10 +256,76 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       //TODO Should be getting from current invocation
       SerializableMethod invokedMethod = SessionSpecContainer.invokedMethod.get();
       assert invokedMethod!=null : "Invoked Method has not been set";
-      String interfaceName = invokedMethod.getActualClassName();
-      assert interfaceName !=null && interfaceName.trim().length()>0 : "Target Business Interface is not available on invoked method";
-      Class<?> invokedInterface = null;
       
+      // Obtain the name of the invoking interface
+      String interfaceName = null;
+      if (invokedMethod != null)
+      {
+         interfaceName = invokedMethod.getActualClassName();
+      }
+      
+      // Test for no invoked business interface
+      if(interfaceName==null)
+      {
+         throw new IllegalStateException(
+               "Call to "
+                     + SessionContext.class.getName()
+                     + ".getInvokedBusinessInterface() was made from outside an EJB3 Business Interface (possibly an EJB2.x Remote/Local?)");
+      }
+      
+      /*
+       * Determine if the specified class is not a valid business
+       * interface
+       */
+      
+      // Initialize a check flag
+      boolean isValidBusinessInterface = false;
+      
+      // Get Metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+      
+      // Check in business remotes
+      BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
+      if (businessRemotes != null)
+      {
+         for (String businessRemote : businessRemotes)
+         {
+            if (businessRemote.equals(interfaceName))
+            {
+               isValidBusinessInterface = true;
+               break;
+            }
+         }
+      }
+
+      // Check in business locals
+      BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
+      if (businessLocals != null)
+      {
+         for (String businessLocal : businessLocals)
+         {
+            if (businessLocal.equals(interfaceName))
+            {
+               isValidBusinessInterface = true;
+               break;
+            }
+         }
+      }
+      
+      // If not found as a business interface, we haven't invoked through EJB3 View
+      if(!isValidBusinessInterface)
+      {
+         throw new IllegalStateException("Cannot invoke " + SessionContext.class.getName()
+               + ".getInvokedBusinessInterface() from outside of an EJB3 Business View - "
+               + "EJB 3.0 Core Specification 4.5.2; Used: " + interfaceName);
+      }
+      
+      /*
+       * Get Invoked Interface
+       */
+      
+      // Attempt to load the invoked interface
+      Class<?> invokedInterface = null;
       try
       {
          invokedInterface = Class.forName(interfaceName, false, this.getClassloader());
@@ -394,7 +463,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    @Deprecated
    protected boolean isHomeMethod(Method method)
    {
-      log.warn("Deprecated usage of isHomeMethod(Method method), use instead isHomeMethod(SerializableMethod method)");
       if (javax.ejb.EJBHome.class.isAssignableFrom(method.getDeclaringClass()))
          return true;
       if (javax.ejb.EJBLocalHome.class.isAssignableFrom(method.getDeclaringClass()))
