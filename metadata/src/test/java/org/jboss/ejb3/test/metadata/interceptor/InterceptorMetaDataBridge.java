@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.metadata.interceptor;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 import javax.interceptor.AroundInvoke;
 
@@ -33,7 +34,7 @@ import org.jboss.metadata.ejb.spec.InterceptorMetaData;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBridge<InterceptorMetaData> implements MetaDataBridge<InterceptorMetaData>
 {
@@ -46,14 +47,14 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
    }
 
    @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, Method method)
    {
       if(annotationClass == AroundInvoke.class)
       {
-         Annotation annotation = getAroundInvokeAnnotation(interceptorMetaData.getAroundInvokes(), methodName);
+         Annotation annotation = getAroundInvokeAnnotation(interceptorMetaData.getAroundInvokes(), method);
          if(annotation != null)
             return annotationClass.cast(annotation);
       }
-      return super.retrieveAnnotation(annotationClass, interceptorMetaData, classLoader, methodName, parameterNames);
+      return super.retrieveAnnotation(annotationClass, interceptorMetaData, classLoader, method);
    }
 }

@@ -13,6 +13,13 @@
     			<method-name>aroundInvoke</method-name>
     		</around-invoke>
     	</session>
+    	<session>
+    	   <ejb-name>SameMethodNameBean</ejb-name>
+    	   <post-construct>
+    	      <lifecycle-callback-class>org.jboss.ejb3.test.metadata.interceptor.SameMethodNameSuper</lifecycle-callback-class>
+    	      <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+    	   </post-construct>
+    	</session>
     </enterprise-beans>
     <interceptors>
 		<interceptor>
