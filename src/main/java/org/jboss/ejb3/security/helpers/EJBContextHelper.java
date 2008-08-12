@@ -174,13 +174,9 @@ public class EJBContextHelper
    
    private String getContextID()
    {
-      try
-      {
-         return PolicyContext.getContextID();
-      }
-      catch(Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+      String contextID = PolicyContext.getContextID();
+      if(contextID == null)
+         throw new IllegalStateException("No policy context id is set");
+      return contextID;
    }
 }
