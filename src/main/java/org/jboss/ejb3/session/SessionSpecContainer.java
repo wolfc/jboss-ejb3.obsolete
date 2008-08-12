@@ -296,9 +296,58 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     */
    protected Object invokeHomeCreate(SerializableMethod method, Object args[])
          throws Exception
-   {  
+   {
+      
+      /*
+       * Initialize
+       */
+      
+      // Flag for whether this is local or remote
+      boolean isLocal = true;
+      
+      // Flag for if we've found the interface
+      boolean foundInterface = false;
+      
+      // Name of the EJB2.x Interface Class expected
+      String ejb2xInterface = method.getReturnType();
+      
+      // Get Metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+      
+      /*
+       * Determine if the expected type is found in metadata as a EJB2.x Interface 
+       */
+      
+      // Is this a Remote Interface ?
+      String ejb2xRemoteInterface = smd.getRemote();
+      if(ejb2xInterface.equals(ejb2xRemoteInterface))
+      {
+         // We've found it, it's false
+         foundInterface=true;
+         isLocal = false;
+      }
+      
+      // Is this a local interface?
+      if(!foundInterface)
+      {
+         String ejb2xLocalInterface = smd.getLocal();
+         if(ejb2xInterface.equals(ejb2xLocalInterface))
+         {
+            // Mark as found
+            foundInterface = true;
+         }
+      }
+      
+      // If we haven't yet found the interface
+      if(!foundInterface)
+      {
+         throw new RuntimeException("Specified return value for " + method + " notes an EJB 2.x interface: "
+               + ejb2xInterface + "; this could not be found as either a valid remote or local interface for EJB "
+               + this.getEjbName());
+      }
+      
       // Lookup
-      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(this.getMetaData(), false);
+      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(smd, isLocal);
       Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
       
       // Cast
@@ -307,8 +356,10 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       SessionProxyFactory sessionFactory = null;
       sessionFactory = SessionProxyFactory.class.cast(factory);
 
+      // Create Proxy
       Object proxy = sessionFactory.createProxyEjb2x();
-
+      
+      // Return
       return proxy;
    }
 
@@ -343,6 +394,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    @Deprecated
    protected boolean isHomeMethod(Method method)
    {
+      log.warn("Deprecated usage of isHomeMethod(Method method), use instead isHomeMethod(SerializableMethod method)");
       if (javax.ejb.EJBHome.class.isAssignableFrom(method.getDeclaringClass()))
          return true;
       if (javax.ejb.EJBLocalHome.class.isAssignableFrom(method.getDeclaringClass()))
