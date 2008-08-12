@@ -251,6 +251,15 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       }
    }
 
+   /**
+    * Fulfills javax.ejb.SessionContext.getInvokedBusinessInterface()
+    * 
+    * Returns the name of the invoking EJB3 Business Interface
+    * 
+    * @see EJB 3.0 Core Specificatio 4.5.2 for allowable context in 
+    * which this may be invoked
+    * @return
+    */
    public Class<?> getInvokedBusinessInterface()
    {
       //TODO Should be getting from current invocation
@@ -270,7 +279,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          throw new IllegalStateException(
                "Call to "
                      + SessionContext.class.getName()
-                     + ".getInvokedBusinessInterface() was made from outside an EJB3 Business Interface (possibly an EJB2.x Remote/Local?)");
+               + ".getInvokedBusinessInterface() was made from outside an EJB3 Business Interface "
+               + "(possibly an EJB2.x Remote/Local?). " + "EJB 3.0 Specification 4.5.2.");
       }
       
       /*
