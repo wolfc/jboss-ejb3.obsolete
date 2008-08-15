@@ -187,7 +187,7 @@ public abstract class JndiSessionRegistrarBase
       // If no local, remote, or WS views
       if (!hasLocalView && !hasRemoteView && !hasWsEndpoint)
       {
-         throw new RuntimeException("EJB " + smd.getEjbName() + " has no local or remote views defined.");
+         throw new RuntimeException("EJB " + smd.getEjbName() + " has no local, remote, or WS Endpoint View defined.");
       }
 
       /*
