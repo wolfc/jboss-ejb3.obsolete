@@ -102,7 +102,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    @Override
    protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
    {
-      return this.getReturnTypesFromCreateMethods(homeInterface, true);
+      return this.getReturnTypesFromCreateMethods(homeInterface, false);
    }
 
    /**
