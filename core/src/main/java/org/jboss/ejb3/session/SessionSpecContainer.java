@@ -613,8 +613,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    // ------------------------------------------------------------------------------||
    // Lifecycle Methods ------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
-
-   public static ClassLoader TMP_CL = null;
    
    /**
     * Lifecycle Start
@@ -712,9 +710,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          log.warn("No " + JndiSessionRegistrarBase.class.getSimpleName()
                + " was found; byassing binding of Proxies to " + this.getName() + " in Global JNDI.");
       }
-      
-      //TODO Remove
-      TMP_CL = this.getClassloader();
    }
 
    /**
