@@ -139,7 +139,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
    {
       // Obtain target properties
-      String containterName = this.getContainerName();
+      String containerName = this.getContainerName();
       String url = this.getUrl();
       String containerGuid = this.getContainerGuid();
 
@@ -147,7 +147,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containterName, containerGuid,
+      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containerName, containerGuid,
             interceptors, businessInterfaceName, url);
 
       // Return
