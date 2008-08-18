@@ -22,6 +22,7 @@
 package org.jboss.ejb3.interceptors.lang;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -169,6 +170,8 @@ public class ClassHelper
 
    public static boolean isOverridden(Class<?> icptr, Method method) 
    {
+      if(Modifier.isPrivate(method.getModifiers()))
+         return false;
       try
       {
          Method bottomMethod = getMethod(icptr, method.getName(), method.getParameterTypes());

@@ -60,9 +60,8 @@ import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingsMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
-import org.jboss.metadata.ejb.spec.MethodParametersMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
-import org.jboss.metadata.spi.signature.MethodSignature;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 import org.jboss.metadata.spi.signature.Signature;
 
 /**
@@ -84,18 +83,18 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    private ExcludeDefaultInterceptors excludeDefaultInterceptors;
    
    //Method-level things
-   private Map<Signature, Interceptors> methodInterceptors = new HashMap<Signature, Interceptors>(); 
-   private Map<Signature, InterceptorOrder> methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
-   private Map<Signature, ExcludeDefaultInterceptors> methodExcludeDefaultInterceptors = new HashMap<Signature, ExcludeDefaultInterceptors>();
-   private Map<Signature, ExcludeClassInterceptors> methodExcludeClassInterceptors = new HashMap<Signature, ExcludeClassInterceptors>();
+   private Map<DeclaredMethodSignature, Interceptors> methodInterceptors = new HashMap<DeclaredMethodSignature, Interceptors>(); 
+   private Map<DeclaredMethodSignature, InterceptorOrder> methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrder>();
+   private Map<DeclaredMethodSignature, ExcludeDefaultInterceptors> methodExcludeDefaultInterceptors = new HashMap<DeclaredMethodSignature, ExcludeDefaultInterceptors>();
+   private Map<DeclaredMethodSignature, ExcludeClassInterceptors> methodExcludeClassInterceptors = new HashMap<DeclaredMethodSignature, ExcludeClassInterceptors>();
    
    
    //Bean class methods
-   private Map<String, AroundInvoke> aroundInvokes;
-   private Map<String, PostConstruct> postConstructs;
-   private Map<String, PostActivate> postActivates;
-   private Map<String, PrePassivate> prePassivates;
-   private Map<String, PreDestroy> preDestroys;
+   private Map<DeclaredMethodSignature, AroundInvoke> aroundInvokes;
+   private Map<DeclaredMethodSignature, PostConstruct> postConstructs;
+   private Map<DeclaredMethodSignature, PostActivate> postActivates;
+   private Map<DeclaredMethodSignature, PrePassivate> prePassivates;
+   private Map<DeclaredMethodSignature, PreDestroy> preDestroys;
    
    private Class<?> beanClass;
    private ClassLoader classLoader;
@@ -195,12 +194,17 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       initialiseInterceptors(classInterceptorBindingMetaData);
       initialiseInterceptorOrder(classInterceptorOrderMetaData);
 
-      Map<String, List<Method>> methodMap = ClassHelper.getAllMethodsMap(beanClass);
-      MethodSignatures methodSignatures = new MethodSignatures();
-      initialiseMethodInterceptors(methodMap, methodSignatures, methodInterceptorBindingMetaData);
-      initialiseMethodInterceptorOrders(methodMap, methodSignatures, methodInterceptorOrderMetaData);
+      Method realMethods[] = ClassHelper.getAllMethods(beanClass);
+      List<DeclaredMethodSignature> methods = new ArrayList<DeclaredMethodSignature>();
+      for(Method realMethod : realMethods)
+      {
+         methods.add(new DeclaredMethodSignature(realMethod));
+      }
+      
+      initialiseMethodInterceptors(methods, methodInterceptorBindingMetaData);
+      initialiseMethodInterceptorOrders(methods, methodInterceptorOrderMetaData);
 
-      initialiseAroundInvoke(methodMap);
+      initialiseAroundInvoke(methods);
    }
    
    private void setupMetaDataLists(JBossEnterpriseBeanMetaData beanMetaData,
@@ -341,7 +345,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       return null;
    }
    
-   private void addMethodLevelExclusions(Signature sig, InterceptorBindingMetaData binding)
+   private void addMethodLevelExclusions(DeclaredMethodSignature sig, InterceptorBindingMetaData binding)
    {
       ExcludeDefaultInterceptors exDefaultInterceptors = checkExcludeDefaultInterceptors(binding);
       if (exDefaultInterceptors != null)
@@ -359,11 +363,11 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       }
    }
    
-   private void initialiseMethodInterceptors(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
+   private void initialiseMethodInterceptors(List<DeclaredMethodSignature> methods, List<InterceptorBindingMetaData> bindings)
    {
       if (bindings != null && bindings.size() > 0)
       {
-         this.methodInterceptors = new HashMap<Signature, Interceptors>();
+         this.methodInterceptors = new HashMap<DeclaredMethodSignature, Interceptors>();
          for (InterceptorBindingMetaData binding : bindings)
          {
             NamedMethodMetaData method = binding.getMethod();
@@ -372,37 +376,28 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             if(method.getMethodName() == null)
                continue;
             
-            List<Method> methods = methodMap.get(method.getMethodName());
-            
-            if (methods == null)
+            for (DeclaredMethodSignature refMethod : methods)
             {
-               throw new IllegalStateException("Bean class " + beanClass.getName() + " does not have a method called '" + method.getMethodName() + "'. This method name was used in an interceptor-binding entry.");
-            }
-            
-            for (Method refMethod : methods)
-            {
-               Signature signature = methodSignatures.getSignature(refMethod);
-               if (matchesMethod(signature, refMethod, method))
+               if(!matches(refMethod, method))
+                  continue;
+               InterceptorsImpl interceptors = (InterceptorsImpl)methodInterceptors.get(refMethod);
+               if (interceptors == null)
                {
-                  InterceptorsImpl interceptors = (InterceptorsImpl)methodInterceptors.get(signature);
-                  if (interceptors == null)
-                  {
-                     interceptors = new InterceptorsImpl();
-                     methodInterceptors.put(signature, interceptors);
-                  }
-                  add(interceptors, classLoader, binding);
-                  addMethodLevelExclusions(signature, binding);
+                  interceptors = new InterceptorsImpl();
+                  methodInterceptors.put(refMethod, interceptors);
                }
+               add(interceptors, classLoader, binding);
+               addMethodLevelExclusions(refMethod, binding);
             }
          }
       }
    }
    
-   private void initialiseMethodInterceptorOrders(Map<String, List<Method>> methodMap, MethodSignatures methodSignatures, List<InterceptorBindingMetaData> bindings)
+   private void initialiseMethodInterceptorOrders(List<DeclaredMethodSignature> methods, List<InterceptorBindingMetaData> bindings)
    {
       if (bindings != null && bindings.size() > 0)
       {
-         this.methodInterceptorOrders = new HashMap<Signature, InterceptorOrder>();
+         this.methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrder>();
          for (InterceptorBindingMetaData binding : bindings)
          {
             NamedMethodMetaData method = binding.getMethod();
@@ -411,45 +406,23 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             if(method.getMethodName() == null)
                continue;
             
-            List<Method> methods = methodMap.get(method.getMethodName());
-            for (Method refMethod : methods)
+            for (DeclaredMethodSignature refMethod : methods)
             {
-               Signature signature = methodSignatures.getSignature(refMethod);
-               if (matchesMethod(signature, refMethod, method))
+               if(!matches(refMethod, method))
+                  continue;
+               InterceptorOrderImpl interceptors = (InterceptorOrderImpl)methodInterceptors.get(refMethod);
+               if (interceptors == null)
                {
-                  InterceptorOrderImpl interceptors = (InterceptorOrderImpl)methodInterceptors.get(signature);
-                  if (interceptors == null)
-                  {
-                     interceptors = new InterceptorOrderImpl();
-                     methodInterceptorOrders.put(signature, interceptors);
-                  }
-                  add(interceptors, classLoader, binding);
+                  interceptors = new InterceptorOrderImpl();
+                  methodInterceptorOrders.put(refMethod, interceptors);
                }
+               add(interceptors, classLoader, binding);
             }
          }
       }
    }
    
-   private boolean matchesMethod(Signature sig, Method refMethod, NamedMethodMetaData method)
-   {
-      assert refMethod.getName().equals(method.getMethodName());
-      MethodParametersMetaData methodParams = method.getMethodParams();
-      if(methodParams == null)
-      {
-         return true;
-      }
-      else
-      {
-         if(Arrays.equals(methodParams.toArray(), sig.getParameters()))
-         {
-            return true;
-         }
-      }
-      
-      return false;      
-   }
-
-   private void initialiseAroundInvoke(Map<String, List<Method>> methodMap)
+   private void initialiseAroundInvoke(List<DeclaredMethodSignature> methods)
    {
       AroundInvokesMetaData aroundInvokes = null;
 //    if(beanMetaData instanceof JBossGenericBeanMetaData)
@@ -460,68 +433,83 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          aroundInvokes = ((JBossSessionBeanMetaData) beanMetaData).getAroundInvokes();
       if(aroundInvokes != null)
       {
-         for (String methodName : methodMap.keySet())
+         for (DeclaredMethodSignature method : methods)
          {
-            AroundInvoke aroundInvoke = getAroundInvokeAnnotation(aroundInvokes, methodName);
+            AroundInvoke aroundInvoke = getAroundInvokeAnnotation(aroundInvokes, method);
             if(aroundInvoke != null)
             {
                if (this.aroundInvokes == null)
                {
-                  this.aroundInvokes = new HashMap<String, AroundInvoke>();
+                  this.aroundInvokes = new HashMap<DeclaredMethodSignature, AroundInvoke>();
                }
-               this.aroundInvokes.put(methodName, aroundInvoke);
+               this.aroundInvokes.put(method, aroundInvoke);
             }
          }
       }
    }
    
-   private void initialiseLifecycleAnnotations(Map<String, List<Method>> methodMap)
+   private void initialiseLifecycleAnnotations(List<DeclaredMethodSignature> methods)
    {
       if(beanMetaData instanceof JBossSessionBeanMetaData)
       {
-         for (String methodName : methodMap.keySet())
+         for (DeclaredMethodSignature method : methods)
          {
             
-            PostConstruct postConstruct = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostConstructs(), PostConstructImpl.class, methodName);
+            PostConstruct postConstruct = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostConstructs(), PostConstructImpl.class, method);
             if (postConstruct != null)
             {
                if (postConstructs == null)
                {
-                  postConstructs = new HashMap<String, PostConstruct>();
+                  postConstructs = new HashMap<DeclaredMethodSignature, PostConstruct>();
                }
-               postConstructs.put(methodName, postConstruct);
+               postConstructs.put(method, postConstruct);
             }
-            PostActivate postActivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, methodName);
+            PostActivate postActivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPostActivates(), PostActivateImpl.class, method);
             if(postActivate != null)
             {
                if (postActivates == null)
                {
-                  postActivates = new HashMap<String, PostActivate>();
+                  postActivates = new HashMap<DeclaredMethodSignature, PostActivate>();
                }
-               postActivates.put(methodName, postActivate);
+               postActivates.put(method, postActivate);
             }
-            PrePassivate prePassivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPrePassivates(), PrePassivateImpl.class, methodName);
+            PrePassivate prePassivate = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPrePassivates(), PrePassivateImpl.class, method);
             if(prePassivate != null)
             {
                if (prePassivates == null)
                {
-                  prePassivates = new HashMap<String, PrePassivate>();
+                  prePassivates = new HashMap<DeclaredMethodSignature, PrePassivate>();
                }
-               prePassivates.put(methodName, prePassivate);
+               prePassivates.put(method, prePassivate);
             }
-            PreDestroy preDestroy = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPreDestroys(), PreDestroyImpl.class, methodName);
+            PreDestroy preDestroy = getLifeCycleAnnotation(((JBossSessionBeanMetaData) beanMetaData).getPreDestroys(), PreDestroyImpl.class, method);
             if(preDestroy != null)
             {
                if (preDestroys == null)
                {
-                  preDestroys = new HashMap<String, PreDestroy>();
+                  preDestroys = new HashMap<DeclaredMethodSignature, PreDestroy>();
                }
-               preDestroys.put(methodName, preDestroy);
+               preDestroys.put(method, preDestroy);
             }
          }
       }
    }
 
+   private static boolean matches(DeclaredMethodSignature signature, NamedMethodMetaData method)
+   {
+      if(!signature.getName().equals(method.getMethodName()))
+         return false;
+      if(method.getMethodParams() == null)
+      {
+         if(signature.getParameters() == null || signature.getParameters().length == 0)
+            return true;
+         else
+            return false;
+               
+      }
+      return Arrays.equals(signature.getParameters(), method.getMethodParams().toArray());
+   }
+   
    @Override
    public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader)
    {
@@ -545,73 +533,70 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    }
 
    @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       if(annotationClass == AroundInvoke.class)
       {
-         if (parameterNames.length == 1 && parameterNames[0].equals(InvocationContext.class.getName()) && aroundInvokes != null)
+         String parameterTypes[] = method.getParameters();
+         if (parameterTypes.length == 1 && parameterTypes[0].equals(InvocationContext.class.getName()) && aroundInvokes != null)
          {
-            return annotationClass.cast(aroundInvokes.get(methodName));
+            return annotationClass.cast(aroundInvokes.get(method));
          }
          return null;
       }
       else if(annotationClass == InterceptorOrder.class)
       {
-         MethodSignature signature = new MethodSignature(methodName, parameterNames);
          if (methodInterceptorOrders == null)
          {
             return null;
          }
-         return annotationClass.cast(methodInterceptorOrders.get(signature));
+         return annotationClass.cast(methodInterceptorOrders.get(method));
       }
       else if(annotationClass == Interceptors.class)
       {
-         MethodSignature signature = new MethodSignature(methodName, parameterNames);
          if (methodInterceptors == null)
          {
             return null;
          }
-         return annotationClass.cast(methodInterceptors.get(signature));
+         return annotationClass.cast(methodInterceptors.get(method));
       }
       else if (annotationClass == ExcludeDefaultInterceptors.class)
       {
-         MethodSignature signature = new MethodSignature(methodName, parameterNames);
-         return annotationClass.cast(methodExcludeDefaultInterceptors.get(signature));
+         return annotationClass.cast(methodExcludeDefaultInterceptors.get(method));
       }
       else if (annotationClass == ExcludeClassInterceptors.class)
       {
-         MethodSignature signature = new MethodSignature(methodName, parameterNames);
-         return annotationClass.cast(methodExcludeClassInterceptors.get(signature));
+         return annotationClass.cast(methodExcludeClassInterceptors.get(method));
       }
       else if(annotationClass == PostActivate.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && postActivates != null) 
+         if(beanMetaData instanceof JBossSessionBeanMetaData && method.getParameters().length == 0 && postActivates != null) 
          {
-            return annotationClass.cast(postActivates.get(methodName));
+            return annotationClass.cast(postActivates.get(method));
          }
       }
       else if(annotationClass == PostConstruct.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && postConstructs != null) 
+         if(beanMetaData instanceof JBossSessionBeanMetaData && method.getParameters().length == 0 && postConstructs != null) 
          {
-            return annotationClass.cast(postConstructs.get(methodName));
+            return annotationClass.cast(postConstructs.get(method));
          }
       }
       else if(annotationClass == PreDestroy.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && preDestroys != null) 
+         if(beanMetaData instanceof JBossSessionBeanMetaData && method.getParameters().length == 0 && preDestroys != null) 
          {
-            return annotationClass.cast(preDestroys.get(methodName));
+            return annotationClass.cast(preDestroys.get(method));
          }
       }
       else if(annotationClass == PrePassivate.class)
       {
-         if(beanMetaData instanceof JBossSessionBeanMetaData && parameterNames.length == 0 && prePassivates != null) 
+         if(beanMetaData instanceof JBossSessionBeanMetaData && method.getParameters().length == 0 && prePassivates != null) 
          {
-            return annotationClass.cast(prePassivates.get(methodName));
+            return annotationClass.cast(prePassivates.get(method));
          }
       }
-      return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, methodName, parameterNames);
+      return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, method);
    }
    
    private void checkBeanExistsInDeployment(JBossEnterpriseBeanMetaData beanMetaData, String ejbName)
@@ -637,7 +622,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
          Signature s = methodSignatures.get(m);
          if (s == null)
          {
-            s = new MethodSignature(m);
+            s = new DeclaredMethodSignature(m);
             methodSignatures.put(m, s);
          }
          return s;

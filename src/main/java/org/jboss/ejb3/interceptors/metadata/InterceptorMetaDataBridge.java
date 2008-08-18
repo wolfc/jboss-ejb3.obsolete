@@ -36,6 +36,7 @@ import org.jboss.ejb3.interceptors.annotation.impl.PrePassivateImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Comment
@@ -61,38 +62,38 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
    }
 
    @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       if(annotationClass == AroundInvoke.class)
       {
-         Annotation annotation = getAroundInvokeAnnotation(interceptorMetaData.getAroundInvokes(), methodName);
+         Annotation annotation = getAroundInvokeAnnotation(interceptorMetaData.getAroundInvokes(), method);
          if(annotation != null)
             return annotationClass.cast(annotation);
       }
       else if(annotationClass == PostActivate.class)
       {
-         PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostActivates(), PostActivateImpl.class, methodName);
+         PostActivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostActivates(), PostActivateImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
       else if(annotationClass == PostConstruct.class)
       {
-         PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostConstructs(), PostConstructImpl.class, methodName);
+         PostConstruct lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPostConstructs(), PostConstructImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
       else if(annotationClass == PreDestroy.class)
       {
-         PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPreDestroys(), PreDestroyImpl.class, methodName);
+         PreDestroy lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPreDestroys(), PreDestroyImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
       else if(annotationClass == PrePassivate.class)
       {
-         PrePassivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPrePassivates(), PrePassivateImpl.class, methodName);
+         PrePassivate lifeCycleAnnotation = getLifeCycleAnnotation(interceptorMetaData.getPrePassivates(), PrePassivateImpl.class, method);
          if(lifeCycleAnnotation != null)
             return annotationClass.cast(lifeCycleAnnotation);
       }
-      return super.retrieveAnnotation(annotationClass, interceptorMetaData, classLoader, methodName, parameterNames);
+      return super.retrieveAnnotation(annotationClass, interceptorMetaData, classLoader, method);
    }
 }
