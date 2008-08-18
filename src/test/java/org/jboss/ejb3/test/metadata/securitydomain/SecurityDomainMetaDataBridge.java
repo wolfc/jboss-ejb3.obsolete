@@ -22,13 +22,13 @@
 package org.jboss.ejb3.test.metadata.securitydomain;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.impl.SecurityDomainImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Comment
@@ -51,7 +51,7 @@ public class SecurityDomainMetaDataBridge implements MetaDataBridge<JBossEnterpr
       return null;
    }
 
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, Method method)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       return null;
    }

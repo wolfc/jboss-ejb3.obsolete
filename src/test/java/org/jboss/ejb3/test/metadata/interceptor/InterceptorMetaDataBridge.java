@@ -22,13 +22,13 @@
 package org.jboss.ejb3.test.metadata.interceptor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import javax.interceptor.AroundInvoke;
 
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.InterceptorMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Comment
@@ -47,7 +47,7 @@ public class InterceptorMetaDataBridge extends EnvironmentInterceptorMetaDataBri
    }
 
    @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, Method method)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, InterceptorMetaData interceptorMetaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       if(annotationClass == AroundInvoke.class)
       {
