@@ -71,46 +71,40 @@
       <artifactId>jboss-jacc-api</artifactId>
     </dependency>
 
-   <dependency>
-     <groupId>org.jboss.ejb3</groupId>
-     <artifactId>jboss-ejb3-ext-api</artifactId>
-     <version>0.3</version>
-   </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api</artifactId>
+      <version>0.3</version>
+    </dependency>
    
-   <dependency>
-     <groupId>org.jboss.ejb3</groupId>
-     <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-     <version>0.3</version>
-   </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+      <version>0.3</version>
+    </dependency>
 
-   <!-- JBoss AOP -->
-   <dependency>
-     <groupId>org.jboss.aop</groupId>
-     <artifactId>jboss-aop</artifactId>
-     <exclusions>
-       <exclusion>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-common-logging-spi</artifactId>
-       </exclusion>
-       <exclusion>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-logging-spi</artifactId>
-       </exclusion>       
-     </exclusions>
-   </dependency>
+    <!-- JBoss AOP -->
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-common-logging-spi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>       
+      </exclusions>
+    </dependency>
 
-   <!-- JBoss MetaData -->
-   <dependency>
-     <groupId>org.jboss.metadata</groupId>
-     <artifactId>jboss-metadata</artifactId>
-   </dependency>
-
-   <!-- EJB3 Metadata -->
-   <dependency>
-     <groupId>org.jboss.ejb3</groupId>
-     <artifactId>jboss-ejb3-metadata</artifactId>
-     <version>0.12.1</version>
-   </dependency>
+    <!-- EJB3 Metadata -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-metadata</artifactId>
+      <version>0.13.0-SNAPSHOT</version>
+    </dependency>
 
     <!-- JBoss Common Core -->
     <dependency>
@@ -122,6 +116,12 @@
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+
+    <!-- JBoss MetaData -->
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
     </dependency>
 
     <!-- JUnit -->
