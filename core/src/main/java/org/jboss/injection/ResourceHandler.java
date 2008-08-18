@@ -114,7 +114,8 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          if (container.getEncInjectors().containsKey(encName))
             continue;
 
-         if (envRef.getMappedName() == null || envRef.getMappedName().equals(""))
+         String mappedName = envRef.getMappedName();
+         if (mappedName == null || mappedName.length() == 0)
          {
             if (envRef.getResUrl() != null)
             {
@@ -127,53 +128,56 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                   throw new RuntimeException(e);
                }
             }
-            else if (UserTransaction.class.getName().equals(envRef.getType()))
-            {
-               final InjectionContainer ic = container;
-               InjectorFactory<?> factory = new InjectorFactory<UserTransactionPropertyInjector>()
+            else {
+               if (UserTransaction.class.getName().equals(envRef.getType()))
                {
-                  public UserTransactionPropertyInjector create(BeanProperty property)
+                  final InjectionContainer ic = container;
+                  InjectorFactory<?> factory = new InjectorFactory<UserTransactionPropertyInjector>()
                   {
-                     return new UserTransactionPropertyInjector(property, ic);
+                     public UserTransactionPropertyInjector create(BeanProperty property)
+                     {
+                        return new UserTransactionPropertyInjector(property, ic);
+                     }
+                  };
+                  if(envRef.getInjectionTargets() != null)
+                  {
+                     InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                     continue;
                   }
-               };
-               if(envRef.getInjectionTargets() != null)
-               {
-                  InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
-                  continue;
+                  else
+                  {
+                     mappedName = "java:comp/UserTransaction";
+                  }
                }
+               else if (TimerService.class.getName().equals(envRef.getType()))
+               {
+                  final Container ic = (Container) container;
+                  InjectorFactory<?> factory = new InjectorFactory<TimerServicePropertyInjector>()
+                  {
+                     public TimerServicePropertyInjector create(BeanProperty property)
+                     {
+                        return new TimerServicePropertyInjector(property, ic);
+                     }
+                  };
+                  if(envRef.getInjectionTargets() != null)
+                  {
+                     InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                     continue;
+                  }
+                  else
+                  {
+                     mappedName = "java:comp/TimerService";
+                  }
+               }
+               else if (ORB.class.getName().equals(envRef.getType()))
+               {
+                  mappedName = "java:comp/ORB";
+               }            
                else
                {
-                  encName = "java:comp/UserTransaction";
+                  throw new RuntimeException("mapped-name is required for " + envRef.getResourceRefName() + " of deployment " + container.getIdentifier());
                }
-            }
-            else if (TimerService.class.getName().equals(envRef.getType()))
-            {
-               final Container ic = (Container) container;
-               InjectorFactory<?> factory = new InjectorFactory<TimerServicePropertyInjector>()
-               {
-                  public TimerServicePropertyInjector create(BeanProperty property)
-                  {
-                     return new TimerServicePropertyInjector(property, ic);
-                  }
-               };
-               if(envRef.getInjectionTargets() != null)
-               {
-                  InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
-                  continue;
-               }
-               else
-               {
-                  encName = "java:comp/TimerService";
-               }
-            }
-            else if (ORB.class.getName().equals(envRef.getType()))
-            {
-               encName = "java:comp/ORB";
-            }            
-            else
-            {
-               throw new RuntimeException("mapped-name is required for " + envRef.getResourceRefName() + " of deployment " + container.getIdentifier());
+               container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, mappedName, "<resource-ref>"));
             }
          }
          else
