@@ -22,7 +22,6 @@
 package org.jboss.ejb3.test.metadata.interceptor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -38,6 +37,7 @@ import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
 import org.jboss.metadata.javaee.spec.LifecycleCallbackMetaData;
 import org.jboss.metadata.javaee.spec.LifecycleCallbacksMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Does only interceptor stuff.
@@ -65,14 +65,14 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       }
    }
    
-   protected AroundInvoke getAroundInvokeAnnotation(AroundInvokesMetaData callbacks, Method method)
+   protected AroundInvoke getAroundInvokeAnnotation(AroundInvokesMetaData callbacks, DeclaredMethodSignature method)
    {
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
       assert callbacks.size() == 1;
       AroundInvokeMetaData callback = callbacks.get(0);
-      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass().getName()))
+      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass()))
       {
          String callbackMethodName = callback.getMethodName();
          if(method.getName().equals(callbackMethodName))
@@ -81,14 +81,14 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       return null;
    }
    
-   private <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, Method method)
+   private <T extends Annotation> T getLifeCycleAnnotation(LifecycleCallbacksMetaData callbacks, Class<T> annotationImplType, DeclaredMethodSignature method)
    {
       if(callbacks == null || callbacks.isEmpty())
          return null;
       
       assert callbacks.size() == 1;
       LifecycleCallbackMetaData callback = callbacks.get(0);
-      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass().getName()))
+      if(isEmpty(callback.getClassName()) || callback.getClassName().equals(method.getDeclaringClass()))
       {
          String callbackMethodName = callback.getMethodName();
          if(method.getName().equals(callbackMethodName))
@@ -111,7 +111,7 @@ public class EnvironmentInterceptorMetaDataBridge<M extends Environment> impleme
       return null;
    }
 
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, Method method)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       if(annotationClass == PostConstruct.class)
       {

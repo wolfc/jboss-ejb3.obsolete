@@ -23,6 +23,7 @@ package org.jboss.ejb3.metadata.annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -52,6 +53,7 @@ import org.jboss.metadata.spi.scope.CommonLevels;
 import org.jboss.metadata.spi.scope.Scope;
 import org.jboss.metadata.spi.scope.ScopeKey;
 import org.jboss.metadata.spi.signature.ConstructorSignature;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 import org.jboss.metadata.spi.signature.FieldSignature;
 import org.jboss.metadata.spi.signature.MethodSignature;
 import org.jboss.metadata.spi.signature.Signature;
@@ -226,12 +228,12 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
 
    public void addAnnotation(Member m, Class annotation, Object value)
    {
-      mutableMetaData.addAnnotation(m, initAnnotation(value));
+      mutableMetaData.addAnnotation(getSignature(m), initAnnotation(value));
    }
 
    public void addAnnotation(Member m, String annotation, Object value)
    {
-      mutableMetaData.addAnnotation(m, initAnnotation(value));
+      mutableMetaData.addAnnotation(getSignature(m), initAnnotation(value));
    }
 
    public void addClassAnnotation(Class annotation, Object value)
@@ -266,6 +268,13 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       throw new RuntimeException("Not implemented: getClassAnnotations()");
    }
 
+   private static Signature getSignature(Member member)
+   {
+      if(member instanceof Method)
+         return new DeclaredMethodSignature((Method) member);
+      return Signature.getSignature(member);
+   }
+   
    public boolean hasAnnotation(Class<?> cls, Class<? extends Annotation> annotationType)
    {
       if(annotationType == null)
@@ -283,7 +292,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       MetaData classComponent = getComponentMetaData(cls);
       if(classComponent == null)
          return false;
-      MetaData component = classComponent.getComponentMetaData(Signature.getSignature(member));
+      MetaData component = classComponent.getComponentMetaData(getSignature(member));
       if(component == null)
          return false;
       return component.isMetaDataPresent(annotationType);
@@ -303,7 +312,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
    {
       if (annotation == null)
          throw new IllegalArgumentException("Null annotation");
-      MetaData component = metaData.getComponentMetaData(Signature.getSignature(m));
+      MetaData component = metaData.getComponentMetaData(getSignature(m));
       if (component == null)
          return false;
       return component.isAnnotationPresent(annotation);
@@ -313,7 +322,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
    {
       if (annotation == null)
          throw new IllegalArgumentException("Null annotation");
-      MetaData component = metaData.getComponentMetaData(Signature.getSignature(m));
+      MetaData component = metaData.getComponentMetaData(getSignature(m));
       if (component == null)
          return false;
       return component.isAnnotationPresent(loadClass(annotation));
@@ -357,7 +366,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
       MetaData classComponent = getComponentMetaData(cls);
       if(classComponent == null)
          return null;
-      MetaData component = classComponent.getComponentMetaData(Signature.getSignature(member));
+      MetaData component = classComponent.getComponentMetaData(getSignature(member));
       if (component == null)
          return null;
       return component.getAnnotation(annotationType);
@@ -367,7 +376,7 @@ public class AnnotationRepositoryToMetaData extends AnnotationRepository impleme
    {
       if (annotation == null)
          throw new IllegalArgumentException("Null annotation");
-      MetaData component = metaData.getComponentMetaData(Signature.getSignature(m));
+      MetaData component = metaData.getComponentMetaData(getSignature(m));
       if (component == null)
          return null;
       return component.getAnnotation(annotation);

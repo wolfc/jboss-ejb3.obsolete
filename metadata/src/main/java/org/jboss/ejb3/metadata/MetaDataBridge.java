@@ -22,7 +22,8 @@
 package org.jboss.ejb3.metadata;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Retrieve an annotation based on a piece of meta data.
@@ -53,5 +54,5 @@ public interface MetaDataBridge<M>
     * @param method
     * @return                   the annotation of null if not found
     */
-   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, Method method);
+   <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, M metaData, ClassLoader classLoader, DeclaredMethodSignature method);
 }

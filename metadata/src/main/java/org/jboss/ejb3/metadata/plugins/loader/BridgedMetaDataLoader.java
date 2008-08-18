@@ -22,7 +22,6 @@
 package org.jboss.ejb3.metadata.plugins.loader;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +32,7 @@ import org.jboss.metadata.spi.retrieval.AnnotationItem;
 import org.jboss.metadata.spi.retrieval.MetaDataRetrieval;
 import org.jboss.metadata.spi.retrieval.simple.SimpleAnnotationItem;
 import org.jboss.metadata.spi.scope.ScopeKey;
-import org.jboss.metadata.spi.signature.MethodSignature;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 import org.jboss.metadata.spi.signature.Signature;
 
 /**
@@ -52,21 +51,16 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
    private class MethodMetaDataRetrieval extends AbstractMethodMetaDataLoader
    {
       /** The signature */
-      private MethodSignature signature;
-      
-      private Method method;
+      private DeclaredMethodSignature signature;
       
       /**
        * Create a new MethodMetaDataRetrieval.
        * 
        * @param methodSignature the signature
        */
-      public MethodMetaDataRetrieval(MethodSignature methodSignature)
+      public MethodMetaDataRetrieval(DeclaredMethodSignature methodSignature)
       {
          this.signature = methodSignature;
-         this.method = signature.getMethod();
-         
-         assert this.method != null : "methodSignature.method is null";
       }
 
       public <T extends Annotation> AnnotationItem<T> retrieveAnnotation(Class<T> annotationType)
@@ -76,7 +70,7 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
          
          for(MetaDataBridge<M> bridge : bridges)
          {
-            T annotation = bridge.retrieveAnnotation(annotationType, metaData, classLoader, method);
+            T annotation = bridge.retrieveAnnotation(annotationType, metaData, classLoader, signature);
             if(annotation != null)
                return new SimpleAnnotationItem<T>(annotation);
          }
@@ -139,8 +133,8 @@ public class BridgedMetaDataLoader<M> extends AbstractMetaDataLoader
       }
       
       // TODO: shouldn't this be a factory?
-      if(signature instanceof MethodSignature)
-         return new MethodMetaDataRetrieval((MethodSignature) signature);
+      if(signature instanceof DeclaredMethodSignature)
+         return new MethodMetaDataRetrieval((DeclaredMethodSignature) signature);
       
       return super.getComponentMetaDataRetrieval(signature);
    }
