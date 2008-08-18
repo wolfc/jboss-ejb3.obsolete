@@ -69,10 +69,4 @@ public class AdditiveBeanInterceptorMetaDataBridge extends BeanInterceptorMetaDa
       }
       return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader);
    }
-   
-   @Override
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
-   {
-      return super.retrieveAnnotation(annotationClass, beanMetaData, classLoader, methodName, parameterNames);
-   }
 }

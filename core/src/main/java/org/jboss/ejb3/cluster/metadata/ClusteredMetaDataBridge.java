@@ -26,11 +26,11 @@ import java.lang.annotation.Annotation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.impl.ClusteredImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
-import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.ClusterConfigMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Creates a ClusteredImpl to match a ClusterConfigMetaData.
@@ -79,7 +79,7 @@ public class ClusteredMetaDataBridge implements MetaDataBridge<JBossEnterpriseBe
       return null;
    }
 
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData metaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData metaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       return null;
    }   

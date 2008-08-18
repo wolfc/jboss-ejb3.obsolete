@@ -27,6 +27,7 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.impl.SecurityDomainImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
 /**
  * Meta data bridge to return the SecurityDomain Annotation 
@@ -51,7 +52,7 @@ public class SecurityDomainMetaDataBridge implements MetaDataBridge<JBossEnterpr
       return null;
    }
 
-   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, String methodName, String... parameterNames)
+   public <A extends Annotation> A retrieveAnnotation(Class<A> annotationClass, JBossEnterpriseBeanMetaData beanMetaData, ClassLoader classLoader, DeclaredMethodSignature method)
    {
       return null;
    }

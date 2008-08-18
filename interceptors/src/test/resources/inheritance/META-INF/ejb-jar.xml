@@ -16,6 +16,13 @@
          <ejb-name>AnnotatedOverrideBean</ejb-name>
       </session>
       <session>
+         <ejb-name>SameMethodNameBean</ejb-name>
+         <post-construct>
+            <lifecycle-callback-class>SameMethodNameSuper</lifecycle-callback-class>
+            <lifecycle-callback-method>postConstructInSuper</lifecycle-callback-method>
+         </post-construct>
+      </session>
+      <session>
          <ejb-name>XmlBean</ejb-name>
          <around-invoke>
             <method-name>baseAround</method-name>

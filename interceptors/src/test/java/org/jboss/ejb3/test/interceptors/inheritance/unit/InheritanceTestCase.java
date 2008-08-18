@@ -23,7 +23,10 @@ package org.jboss.ejb3.test.interceptors.inheritance.unit;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import junit.framework.TestCase;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aspects.common.AOPDeployer;
@@ -39,12 +42,14 @@ import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedBase;
 import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedBean;
 import org.jboss.ejb3.test.interceptors.inheritance.AnnotatedOverrideBean;
 import org.jboss.ejb3.test.interceptors.inheritance.ClassBaseInterceptor;
-import org.jboss.ejb3.test.interceptors.inheritance.ClassOverrideInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.ClassInterceptor;
+import org.jboss.ejb3.test.interceptors.inheritance.ClassOverrideInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.Interceptions;
 import org.jboss.ejb3.test.interceptors.inheritance.MethodBaseInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.MethodInterceptor;
 import org.jboss.ejb3.test.interceptors.inheritance.MyInterface;
+import org.jboss.ejb3.test.interceptors.inheritance.SameMethodNameBean;
+import org.jboss.ejb3.test.interceptors.inheritance.SameMethodNameSuper;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlBase;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlBean;
 import org.jboss.ejb3.test.interceptors.inheritance.XmlClassBaseInterceptor;
@@ -65,8 +70,6 @@ import org.jboss.xb.binding.sunday.unmarshalling.SchemaBinding;
 import org.jboss.xb.binding.sunday.unmarshalling.SchemaBindingResolver;
 import org.jboss.xb.builder.JBossXBBuilder;
 import org.w3c.dom.ls.LSInput;
-
-import junit.framework.TestCase;
 
 /**
  * 
@@ -133,6 +136,8 @@ public class InheritanceTestCase extends TestCase
    protected void setUp() throws Exception
    {
       log.info(deployer.deploy());
+      
+      Interceptions.clear();
    }
 
    @Override
@@ -279,6 +284,18 @@ public class InheritanceTestCase extends TestCase
       assertEquals("Wrong number of interceptions " + preDestroy, 2, preDestroy.size());
       assertEquals(ClassOverrideInterceptor.class, postConstructs.get(0));
       assertEquals(AnnotatedOverrideBean.class, postConstructs.get(1));
+   }
+   
+   public void testSameMethodName() throws Throwable
+   {
+      JBossEnterpriseBeanMetaData beanMetaData = getJBossEnterpriseBeanMetaData("SameMethodNameBean");;
+      
+      MyContainer<SameMethodNameBean> container = new MyContainer<SameMethodNameBean>("SameMethodNameBean", "Test", SameMethodNameBean.class, beanMetaData);
+      
+      BeanContext<?> bean = container.construct();
+      
+      List<Class<?>> expected = Arrays.asList((Class<?>) SameMethodNameSuper.class, SameMethodNameBean.class); 
+      assertEquals(expected, Interceptions.getPostConstructs());
    }
    
    public void testXmlOverriddenMethods() throws Throwable
