@@ -176,19 +176,9 @@ public abstract class JndiSessionRegistrarBase
       // Get Remote Home
       String remoteHome = StringUtils.adjustWhitespaceStringToNull(smd.getHome());
       
-      // Get WS Endpoint
-      String webServiceEndpoint = smd.getServiceEndpoint();
-
       // Determine if there are local/remote views
       boolean hasLocalView = (localHome != null || (businessLocals != null && businessLocals.size() > 0));
       boolean hasRemoteView = (remoteHome != null || (businessRemotes != null && businessRemotes.size() > 0));
-      boolean hasWsEndpoint = webServiceEndpoint != null;
-
-      // If no local, remote, or WS views
-      if (!hasLocalView && !hasRemoteView && !hasWsEndpoint)
-      {
-         throw new RuntimeException("EJB " + smd.getEjbName() + " has no local, remote, or WS Endpoint View defined.");
-      }
 
       /*
        * Create and Register Proxy Factories
