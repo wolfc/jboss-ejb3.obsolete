@@ -136,7 +136,7 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
    // --------------------------------------------------------------------------------||
 
    @Override
-   protected SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName)
+   protected SessionProxyInvocationHandler createBusinessInterfaceSpecificInvocationHandler(String businessInterfaceName)
    {
       // Obtain properties
       String containerName = this.getContainerName();
@@ -152,6 +152,24 @@ public class StatelessSessionRemoteProxyFactory extends StatelessSessionProxyFac
 
       // Return
       return handler;
+   }
+   
+   @Override
+   protected SessionProxyInvocationHandler createBusinessDefaultInvocationHandler()
+   {
+      return this.createBusinessInterfaceSpecificInvocationHandler(null);
+   }
+
+   @Override
+   protected SessionProxyInvocationHandler createEjb2xComponentInterfaceInvocationHandler()
+   {
+      return this.createBusinessDefaultInvocationHandler();
+   }
+
+   @Override
+   protected SessionProxyInvocationHandler createHomeInvocationHandler()
+   {
+      return this.createBusinessDefaultInvocationHandler();
    }
 
    // --------------------------------------------------------------------------------||

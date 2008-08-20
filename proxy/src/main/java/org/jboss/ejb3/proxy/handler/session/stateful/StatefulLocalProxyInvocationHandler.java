@@ -44,6 +44,19 @@ public class StatefulLocalProxyInvocationHandler extends StatefulProxyInvocation
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+   
+   /**
+    * Constructor
+    * 
+    * @param containerName The name of the target container
+    * @param containerGuid The globally-unique name of the container
+    * @param interceptors The interceptors to apply to invocations upon this handler
+    */
+   public StatefulLocalProxyInvocationHandler(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors)
+   {
+      super(containerName, containerGuid, interceptors, null);
+   }
 
    /**
     * Constructor
