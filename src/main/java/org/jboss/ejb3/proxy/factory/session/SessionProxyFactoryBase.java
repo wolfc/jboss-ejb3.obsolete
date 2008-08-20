@@ -130,13 +130,12 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    public Object createProxyHome()
    {
       // Create a new InvocationHandler
-      SessionProxyInvocationHandler handler = this.createInvocationHandler((String) null);
+      SessionProxyInvocationHandler handler = this.createHomeInvocationHandler();
 
       try
       {
          // Create a new Proxy instance, and return
          return this.getConstructorProxyHome().newInstance(handler);
-
       }
       catch (Throwable t)
       {
@@ -164,7 +163,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
             + SessionProxyFactory.class.getSimpleName() + " was not properly started?";
 
       // Create a new InvocationHandler
-      SessionProxyInvocationHandler handler = this.createInvocationHandler((String) null);
+      SessionProxyInvocationHandler handler = this.createBusinessDefaultInvocationHandler();
 
       try
       {
@@ -197,7 +196,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          // Obtain the correct business proxy constructor
          Constructor<?> constructor = this.getConstructorsProxySpecificBusinessInterface().get(
                businessInterfaceName.trim());
-         
+
          /*
           * In place for web injection (isolated CL)
           */
@@ -205,26 +204,26 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          try
          {
             // See if we can get at the bean class from the TCL
-            Class<?> businessInterfaceClass = Class.forName(businessInterfaceName,false,tcl);
-            
+            Class<?> businessInterfaceClass = Class.forName(businessInterfaceName, false, tcl);
+
             // If so, use the TCL to generate the Proxy class, not the Container CL
             Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
             businessInterfaces.add(businessInterfaceClass);
             constructor = this.createProxyConstructor(businessInterfaces, tcl);
-            
+
          }
-         catch(ClassNotFoundException cce)
+         catch (ClassNotFoundException cce)
          {
             // Ignore
          }
-         
 
          // Ensure the constructor was found
          assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
                + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
 
          // Create a new InvocationHandler
-         SessionProxyInvocationHandler handler = this.createInvocationHandler(businessInterfaceName);
+         SessionProxyInvocationHandler handler = this
+               .createBusinessInterfaceSpecificInvocationHandler(businessInterfaceName);
 
          // Create a new Proxy instance, and return
          return constructor.newInstance(handler);
@@ -245,7 +244,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
    public Object createProxyEjb2x()
    {
       // Create a new InvocationHandler
-      SessionProxyInvocationHandler handler = this.createInvocationHandler((String) null);
+      SessionProxyInvocationHandler handler = this.createEjb2xComponentInterfaceInvocationHandler();
 
       try
       {
@@ -622,9 +621,42 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
     * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
     * instanciating new handlers to specify in Proxy Creation
     * 
+    * Used for creating a Handler for a Business Interface-specific proxy
+    * 
     * @return
     */
-   protected abstract SessionProxyInvocationHandler createInvocationHandler(String businessInterfaceName);
+   protected abstract SessionProxyInvocationHandler createBusinessInterfaceSpecificInvocationHandler(
+         String businessInterfaceName);
+
+   /**
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
+    * 
+    * Used for creating a Handler for a Business Default proxy
+    * 
+    * @return
+    */
+   protected abstract SessionProxyInvocationHandler createBusinessDefaultInvocationHandler();
+
+   /**
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
+    * 
+    * Used for creating a Handler for an EJB2.x Component Interface proxy
+    * 
+    * @return
+    */
+   protected abstract SessionProxyInvocationHandler createEjb2xComponentInterfaceInvocationHandler();
+
+   /**
+    * Returns the Constructor of the SessionProxyInvocationHandler to be used in 
+    * instanciating new handlers to specify in Proxy Creation
+    * 
+    * Used for creating a Handler for am EJB2.x Home proxy
+    * 
+    * @return
+    */
+   protected abstract SessionProxyInvocationHandler createHomeInvocationHandler();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
