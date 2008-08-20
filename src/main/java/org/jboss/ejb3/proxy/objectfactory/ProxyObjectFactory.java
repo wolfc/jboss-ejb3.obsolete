@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.objectfactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -138,23 +139,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       // Registrar is not local, so use Remoting to Obtain Proxy Factory
       catch (NotBoundException nbe)
       {
-         // Obtain the URL for invoking upon the Registry
-         String url = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
-               ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
-
-         // Create an InvokerLocator
-         assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
-               + " URL is required, but is not specified; improperly bound reference in JNDI";
-         InvokerLocator locator = new InvokerLocator(url);
-
-         // Create a POJI Proxy to the Registrar
-         Interceptor[] interceptors =
-         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
-         PojiProxy handler = new PojiProxy(proxyFactoryRegistryKey, locator, interceptors);
-         Class<?>[] interfaces = new Class<?>[]
-         {this.getProxyFactoryClass()};
-         proxyFactory = (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
-
+         proxyFactory = createProxyFactoryProxy(name, refAddrs, proxyFactoryRegistryKey);
       }
 
       // Get the proxy returned from the ProxyFactory
@@ -163,6 +148,36 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
       // Return the Proxy
       return proxy;
+   }
+
+   /**
+    * Creates a remoting proxy to the proxy factory.
+    * 
+    * @param name
+    * @param refAddrs
+    * @param proxyFactoryRegistryKey
+    * @return
+    * @throws Exception
+    */
+   protected ProxyFactory createProxyFactoryProxy(Name name, Map<String, List<String>> refAddrs,
+         String proxyFactoryRegistryKey) throws Exception
+   {
+      // Obtain the URL for invoking upon the Registry
+      String url = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
+
+      // Create an InvokerLocator
+      assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
+            + " URL is required, but is not specified; improperly bound reference in JNDI";
+      InvokerLocator locator = new InvokerLocator(url);
+
+      // Create a POJI Proxy to the Registrar
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      PojiProxy handler = new PojiProxy(proxyFactoryRegistryKey, locator, interceptors);
+      Class<?>[] interfaces = new Class<?>[]{this.getProxyFactoryClass()};
+      
+      return (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
    }
 
    /**

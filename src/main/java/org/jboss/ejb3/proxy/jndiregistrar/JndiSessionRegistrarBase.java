@@ -23,6 +23,7 @@ package org.jboss.ejb3.proxy.jndiregistrar;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
@@ -151,7 +152,7 @@ public abstract class JndiSessionRegistrarBase
     * implementations required by the EJB
     * 
     * @param context The JNDI Context to use for binding
-    * @param smd
+    * @param smd the Container's metadata
     * @param cl The CL of the Container
     * @param containerName The name under which the target container is registered
     * @param containerGuid The globally-unique name of the container
@@ -159,6 +160,29 @@ public abstract class JndiSessionRegistrarBase
     */
    public void bindEjb(final Context context, final JBossSessionBeanMetaData smd, final ClassLoader cl,
          final String containerName, final String containerGuid, final Advisor advisor)
+   {
+      JndiReferenceBindingSet bindingSet = createJndiReferenceBindingSet(context, smd, cl, containerName, containerGuid, advisor);
+      
+      bind(context, bindingSet, false, true);
+   }
+
+   /**
+    * Creates all of the <code>Reference</code> objects that should be bound
+    * in JNDI for the EJB, and determines the correct JNDI name for each.
+    * Additionally responsible for creation and registration of any all 
+    * ProxyFactory implementations required by the EJB.
+    *
+    * @param smd the Container's metadata
+    * @param cl The CL of the Container
+    * @param containerName The name under which the target container is registered
+    * @param containerGuid The globally-unique name of the container
+    * @param advisor The advisor to use for generated proxies
+    * 
+    * @return data object encapsulating the references and their JNDI names
+    */
+   protected JndiReferenceBindingSet createJndiReferenceBindingSet(final Context context,
+         final JBossSessionBeanMetaData smd,  final ClassLoader cl, final String containerName, 
+         final String containerGuid, final Advisor advisor)
    {
       // Log 
       String ejbName = smd.getEjbName();
@@ -183,6 +207,8 @@ public abstract class JndiSessionRegistrarBase
       /*
        * Create and Register Proxy Factories
        */
+      
+      JndiReferenceBindingSet bindingSet = new JndiReferenceBindingSet(context);
 
       // If there's a remote view
       /*
@@ -241,15 +267,17 @@ public abstract class JndiSessionRegistrarBase
             RefAddr refAddrHomeInterface = new StringRefAddr(
                   ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_REMOTE, homeType);
             RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
-            Reference homeRef = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + homeType, this
-                  .getSessionProxyObjectFactoryType(), null);
+            Reference homeRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + homeType, 
+                                                        remoteProxyFactoryKey, containerName);
             homeRef.add(refAddrHomeInterface);
             homeRef.add(refAddrRemoting);
+            
             String homeAddress = smd.getHomeJndiName();
             assert homeAddress != null && !homeAddress.equals("") : "JNDI Address for Remote Home must be defined";
             log.debug("Remote Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + homeAddress
                   + "\"");
-            this.bind(context, homeRef, homeAddress, remoteProxyFactoryKey, containerName);
+            
+            bindingSet.addHomeRemoteBinding(new JndiReferenceBinding(homeAddress, homeRef));
          }
 
          // Add a Reference Address for the Remoting URL
@@ -263,8 +291,8 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultRemote);
 
          // Create a Reference
-         Reference defaultRemoteRef = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
-               + defaultRemoteClassName, this.getSessionProxyObjectFactoryType(), null);
+         Reference defaultRemoteRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
+               + defaultRemoteClassName, remoteProxyFactoryKey, containerName);
 
          // Add all Reference Addresses for Default Remote Reference
          for (RefAddr refAddr : refAddrsForDefaultRemote)
@@ -279,7 +307,8 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteAddress = smd.getJndiName();
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultRemoteAddress + "\"");
-         this.bind(context, defaultRemoteRef, defaultRemoteAddress, remoteProxyFactoryKey, containerName);
+         
+         bindingSet.addDefaultRemoteBinding(new JndiReferenceBinding(defaultRemoteAddress, defaultRemoteRef));
 
          // Bind ObjectFactory specific to each Remote Business Interface
          if (businessRemotes != null)
@@ -289,14 +318,15 @@ public abstract class JndiSessionRegistrarBase
                RefAddr refAddrBusinessInterface = new StringRefAddr(
                      ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE, businessRemote);
                RefAddr refAddrRemoting = this.createRemotingRefAddr(smd);
-               Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote,
-                     this.getSessionProxyObjectFactoryType(), null);
+               Reference ref = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessRemote,
+                     remoteProxyFactoryKey, containerName);
                ref.add(refAddrBusinessInterface);
                ref.add(refAddrRemoting);
                String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessRemote);
                log.debug("Remote Business View for " + businessRemote + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(context, ref, address, remoteProxyFactoryKey, containerName);
+               
+               bindingSet.addBusinessRemoteBinding(businessRemote, new JndiReferenceBinding(address, ref));
             }
          }
       }
@@ -338,13 +368,14 @@ public abstract class JndiSessionRegistrarBase
             String localHomeType = smd.getLocalHome();
             RefAddr refAddr = new StringRefAddr(
                   ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_EJB2x_INTERFACE_HOME_LOCAL, localHomeType);
-            Reference localHomeRef = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
-                  + localHomeType, this.getSessionProxyObjectFactoryType(), null);
+            Reference localHomeRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
+                  + localHomeType, localProxyFactoryKey, containerName);
             localHomeRef.add(refAddr);
             String localHomeAddress = smd.getLocalHomeJndiName();
             log.debug("Local Home View for EJB " + smd.getEjbName() + " to be bound into JNDI at \"" + localHomeAddress
                   + "\"");
-            this.bind(context, localHomeRef, localHomeAddress, localProxyFactoryKey, containerName);
+            
+            bindingSet.addHomeLocalBinding(new JndiReferenceBinding(localHomeAddress, localHomeRef));
          }
 
          /*
@@ -355,8 +386,8 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultLocal);
 
          // Create a Reference
-         Reference defaultLocalRef = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
-               + defaultLocalClassName, this.getSessionProxyObjectFactoryType(), null);
+         Reference defaultLocalRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
+               + defaultLocalClassName, localProxyFactoryKey, containerName);
 
          // Add all Reference Addresses for Default Local Reference
          for (RefAddr refAddr : refAddrsForDefaultLocal)
@@ -371,7 +402,8 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalAddress = smd.getLocalJndiName();
          log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                + defaultLocalAddress + "\"");
-         this.bind(context, defaultLocalRef, defaultLocalAddress, localProxyFactoryKey, containerName);
+         
+         bindingSet.addDefaultLocalBinding(new JndiReferenceBinding(defaultLocalAddress, defaultLocalRef));
 
          // Bind ObjectFactory specific to each Local Business Interface
          if (businessLocals != null)
@@ -380,17 +412,18 @@ public abstract class JndiSessionRegistrarBase
             {
                RefAddr refAddr = new StringRefAddr(
                      ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL, businessLocal);
-               Reference ref = new Reference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal,
-                     this.getSessionProxyObjectFactoryType(), null);
+               Reference ref = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + businessLocal,
+                     localProxyFactoryKey, containerName);
                ref.add(refAddr);
                String address = JbossSessionBeanJndiNameResolver.resolveJndiName(smd, businessLocal);
                log.debug("Local Business View for " + businessLocal + " of EJB " + smd.getEjbName()
                      + " to be bound into JNDI at \"" + address + "\"");
-               this.bind(context, ref, address, localProxyFactoryKey, containerName);
-
+               
+               bindingSet.addBusinessLocalBinding(businessLocal, new JndiReferenceBinding(address, ref));
             }
          }
       }
+      return bindingSet;
    }
 
    /**
@@ -558,20 +591,19 @@ public abstract class JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
 
    /**
-    * Binds the specified Reference into JNDI at the specified address, adding 
-    * the requisite key for the ProxyFactory within the Registry and the requisite
-    * target EJB Container Name as ReferenceAddresses
-    * 
-    * @param context The JNDI Context to use
-    * @param ref
-    * @param address
-    * @param proxyFactoryRegistryKey The key under which the proxy factory 
-    *   for this reference is stored in the proxy factory registry
-    * @param containerName The target container to be used in invocations from Proxies obtained from this address
+    * Creates a new <code>Reference</code> whose <code>classname</code> is
+    * the given <code>referenceName</code> and whose <code>classFactory</code> 
+    * is {@link #getSessionProxyObjectFactoryType()}, adding 
+    * the requisite Registry key for the ProxyFactory and the requisite
+    * target EJB Container Name as ReferenceAddresses.
     */
-   protected void bind(Context context, Reference ref, String address, String proxyFactoryRegistryKey,
-         String containerName)
+   protected Reference createStandardReference(String referenceName,
+                                               String proxyFactoryRegistryKey,
+                                               String containerName)
    {
+      Reference ref = new Reference(referenceName, 
+                                    this.getSessionProxyObjectFactoryType(), null);
+      
       // Add the Proxy Factory Registry key for this Reference
       assert proxyFactoryRegistryKey != null && !proxyFactoryRegistryKey.trim().equals("") : "Proxy Factory Registry key is required but not supplied";
       String proxyFactoryRefType = ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY;
@@ -587,11 +619,96 @@ public abstract class JndiSessionRegistrarBase
       ref.add(containerRefAddr);
       log.debug("Adding " + RefAddr.class.getSimpleName() + " to " + Reference.class.getSimpleName() + ": Type \""
             + ejbContainerRefType + "\", Content \"" + containerName + "\"");
+      
+      return ref;
+   }
+   
+   protected void bind(final Context context, final JndiReferenceBindingSet bindings, 
+                       final boolean useRebind, final boolean bindLocals)
+   {
+      for (JndiReferenceBinding binding : bindings.getDefaultRemoteBindings())
+      {
+         bind(context, binding, useRebind);
+      }
+      
+      for (JndiReferenceBinding binding : bindings.getHomeRemoteBindings())
+      {
+         bind(context, binding, useRebind);
+      }
+      
+      for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessRemoteBindings().values())
+      {
+         for (JndiReferenceBinding binding : businessBindings)
+         {
+            bind(context, binding, useRebind);
+         }
+      }
+      
+      if (bindLocals)
+      {         
+         for (JndiReferenceBinding binding : bindings.getDefaultLocalBindings())
+         {
+            bind(context, binding, useRebind);
+         }
+         
+         for (JndiReferenceBinding binding : bindings.getHomeLocalBindings())
+         {
+            bind(context, binding, useRebind);
+         }
+         
+         for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessLocalBindings().values())
+         {
+            for (JndiReferenceBinding binding : businessBindings)
+            {
+               bind(context, binding, useRebind);
+            }
+         }   
+      }
+   }
+   
+   protected void bind(Context context, JndiReferenceBinding binding, boolean useRebind)
+   {
+      if (binding != null)
+      {
+         if (useRebind)
+            rebind(context, binding.getJndiName(), binding.getReference());
+         else
+            bind(context, binding.getJndiName(), binding.getReference());
+      }
+   }
 
-      // Bind
+   /**
+    * Binds the specified Reference into JNDI at the specified address
+    * 
+    * @param context The JNDI Context to use
+    * @param address the address
+    * @param ref the reference to bind
+    */
+   protected void bind(Context context, String address, Reference ref)
+   {
       try
       {
          Util.bind(context, address, ref);
+         log.debug("Bound " + ref.getClass().getName() + " into JNDI at \"" + address + "\"");
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException("Could not bind " + ref + " into JNDI at \"" + address + "\"", e);
+      }
+   }
+
+   /**
+    * Re-binds the specified Reference into JNDI at the specified address
+    * 
+    * @param context The JNDI Context to use
+    * @param address the address
+    * @param object the object to bind
+    */
+   protected void rebind(Context context, String address, Reference ref)
+   {
+      try
+      {
+         Util.rebind(context, address, ref);
          log.debug("Bound " + ref.getClass().getName() + " into JNDI at \"" + address + "\"");
       }
       catch (NamingException e)
