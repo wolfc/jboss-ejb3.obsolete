@@ -36,7 +36,6 @@ import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.SimpleSLSBLocal;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.SimpleSLSBean;
-import org.jboss.ejb3.test.proxy.jndiregistrar.unit.JndiSessionRegistrarBaseTestCase;
 import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -84,7 +83,7 @@ public class SessionContainerTestCase
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
-      bootstrap.deploy(JndiSessionRegistrarBaseTestCase.class);
+      bootstrap.deploy(SessionContainerTestCase.class);
 
    }
 
