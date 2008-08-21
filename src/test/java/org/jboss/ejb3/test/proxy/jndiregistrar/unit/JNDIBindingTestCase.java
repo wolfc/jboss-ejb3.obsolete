@@ -21,12 +21,15 @@
  */
 package org.jboss.ejb3.test.proxy.jndiregistrar.unit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.Context;
@@ -35,6 +38,10 @@ import javax.naming.NameNotFoundException;
 
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.LocalHomeBinding;
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
@@ -48,6 +55,7 @@ import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStateful2xOnlyBean;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStateful30OnlyBean;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
+import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBeanWithBindings;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulLocalBusiness;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulRemoteBusiness;
@@ -55,12 +63,14 @@ import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulRemoteHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStateless2xOnlyBean;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStateless30OnlyBean;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
+import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBeanWithBindings;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
@@ -70,15 +80,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * JndiSessionRegistrarBaseTestCase
+ * JNDIBindingTestCase
  * 
- * Tests for {@link JndiStatelessSessionRegistrar} 
+ * Tests for verifying that the EJB proxies are bound correctly to the JNDI
+ * and also unbound properly on undeploying the bean. 
  * 
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class JndiSessionRegistrarBaseTestCase
+public class JNDIBindingTestCase
 {
 
    /**
@@ -95,8 +106,8 @@ public class JndiSessionRegistrarBaseTestCase
    /**
     * Instance of logger
     */
-   private static Logger logger = Logger.getLogger(JndiSessionRegistrarBaseTestCase.class);
-   
+   private static Logger logger = Logger.getLogger(JNDIBindingTestCase.class);
+
    private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
 
    /**
@@ -113,15 +124,15 @@ public class JndiSessionRegistrarBaseTestCase
       // Bind the Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
 
-      bootstrap.deploy(JndiSessionRegistrarBaseTestCase.class);
-      
+      bootstrap.deploy(JNDIBindingTestCase.class);
+
       // Load ejb3-interceptors-aop.xml into AspectManager
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
       if (url == null)
       {
-         throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
-               + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
+         throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName() + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP
+               + " could not be found");
       }
       AspectXmlLoader.deployXML(url);
 
@@ -202,8 +213,7 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote home of SLSB returned null", home);
 
-      assertTrue("Failure - Remote Home of SLSB, returned from lookup, is NOT instance of "
-            + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
+      assertTrue("Failure - Remote Home of SLSB, returned from lookup, is NOT instance of " + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
 
       // lookup the bean local home to ensure its been bound to the jndi
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
@@ -211,8 +221,7 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of local home of SLSB, returned null", localHome);
 
-      assertTrue("Failure - Local SLSB returned from lookup is NOT instance of " + MyStatelessLocalHome.class,
-            (localHome instanceof MyStatelessLocalHome));
+      assertTrue("Failure - Local SLSB returned from lookup is NOT instance of " + MyStatelessLocalHome.class, (localHome instanceof MyStatelessLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -248,16 +257,14 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Remote object of 3.0 SLSB is null", remote);
 
-      assertTrue("Failure - Remote object of 3.0 SLSB is NOT an instance of " + MyStatelessRemote.class,
-            (remote instanceof MyStatelessRemote));
+      assertTrue("Failure - Remote object of 3.0 SLSB is NOT an instance of " + MyStatelessRemote.class, (remote instanceof MyStatelessRemote));
 
       // lookup the local bean to ensure its been bound to the jndi
       Object local = ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
 
       assertNotNull("Failure - Local object of 3.0 SLSB is null", local);
 
-      assertTrue("Failure - Local object of 3.0 SLSB is NOT an instance of " + MyStatelessLocal.class,
-            (local instanceof MyStatelessLocal));
+      assertTrue("Failure - Local object of 3.0 SLSB is NOT an instance of " + MyStatelessLocal.class, (local instanceof MyStatelessLocal));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -295,15 +302,13 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Remote home of 3.0 SLSB is null", home);
 
-      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessRemoteHome.class,
-            (home instanceof MyStatelessRemoteHome));
+      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessRemoteHome.class, (home instanceof MyStatelessRemoteHome));
 
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
 
       assertNotNull("Failure - Local home of 3.0 SLSB is null", localHome);
 
-      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessLocalHome.class,
-            (localHome instanceof MyStatelessLocalHome));
+      assertTrue("Failure - Remote home of 3.0 SLSB is NOT an instance of " + MyStatelessLocalHome.class, (localHome instanceof MyStatelessLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -338,8 +343,7 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote bean returned null", remote);
 
-      assertTrue("Failure - Remote bean returned from lookup is NOT instance of " + MyStatelessRemote.class,
-            (remote instanceof MyStatelessRemote));
+      assertTrue("Failure - Remote bean returned from lookup is NOT instance of " + MyStatelessRemote.class, (remote instanceof MyStatelessRemote));
 
       // Now bind to the JNDI, some object
       ctx.bind("TestJndiName", "TestJndiObject");
@@ -382,8 +386,7 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote SFSB returned null", remote);
 
-      assertTrue("Failure - Remote SFSB returned from lookup is NOT instance of " + MyStatefulRemoteBusiness.class,
-            (remote instanceof MyStatefulRemoteBusiness));
+      assertTrue("Failure - Remote SFSB returned from lookup is NOT instance of " + MyStatefulRemoteBusiness.class, (remote instanceof MyStatefulRemoteBusiness));
 
       // lookup local
       Object local = (Object) ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
@@ -391,8 +394,7 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of local SFSB returned null", local);
 
-      assertTrue("Failure - Local SFSB returned from lookup is NOT instance of " + MyStatefulLocalBusiness.class,
-            (local instanceof MyStatefulLocalBusiness));
+      assertTrue("Failure - Local SFSB returned from lookup is NOT instance of " + MyStatefulLocalBusiness.class, (local instanceof MyStatefulLocalBusiness));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -430,16 +432,14 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote for SFSB returned null", remote);
 
-      assertTrue("Failure - Remote SFSB is NOT instance of " + MyStatefulRemoteBusiness.class,
-            (remote instanceof MyStatefulRemoteBusiness));
+      assertTrue("Failure - Remote SFSB is NOT instance of " + MyStatefulRemoteBusiness.class, (remote instanceof MyStatefulRemoteBusiness));
 
       // lookup the local 
       Object local = ctx.lookup(getDefaultBusinessLocalJndiName(sessionContainer));
 
       assertNotNull("Failure - Lookup of local for SFSB returned null", local);
 
-      assertTrue("Failure - Local SFSB is NOT instance of " + MyStatefulLocalBusiness.class,
-            (local instanceof MyStatefulLocalBusiness));
+      assertTrue("Failure - Local SFSB is NOT instance of " + MyStatefulLocalBusiness.class, (local instanceof MyStatefulLocalBusiness));
 
       unbindAndTest(ctx, sessionContainer);
 
@@ -474,21 +474,318 @@ public class JndiSessionRegistrarBaseTestCase
 
       assertNotNull("Failure - Lookup of remote home for SFSB returned null", home);
 
-      assertTrue("Failure - Remote home lookup of SFSB is NOT instance of " + MyStatefulRemoteHome.class,
-            (home instanceof MyStatefulRemoteHome));
+      assertTrue("Failure - Remote home lookup of SFSB is NOT instance of " + MyStatefulRemoteHome.class, (home instanceof MyStatefulRemoteHome));
 
       // lookup the local home
       Object localHome = ctx.lookup(getLocalHomeJndiName(sessionContainer));
 
       assertNotNull("Failure - Lookup of local home for SFSB returned null", localHome);
 
-      assertTrue("Failure - Local home lookup of SFSB is NOT instance of " + MyStatefulLocalHome.class,
-            (localHome instanceof MyStatefulLocalHome));
+      assertTrue("Failure - Local home lookup of SFSB is NOT instance of " + MyStatefulLocalHome.class, (localHome instanceof MyStatefulLocalHome));
 
       unbindAndTest(ctx, sessionContainer);
 
       logger.debug(sessionContainer.getName() + " unbound successfully");
 
+   }
+
+   /**
+    * Test that the {@link RemoteBinding} is honoured for SLSB<br/>
+    * 
+    * Ensure that the remote is bound to the jndi name specified by the @RemoteBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testRemoteBindingForSlsb() throws Throwable
+   {
+      // create the bean
+      this.sessionContainer = Utils.createSlsb(MyStatelessBeanWithBindings.class);
+
+      // bind it to JNDI
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      List<RemoteBindingMetaData> remoteBindingsMetadata = sessionContainer.getMetaData().getRemoteBindings();
+
+      assertNotNull("No RemoteBindingMetadata available", remoteBindingsMetadata);
+      // make sure that the remotebinding metadata list has 1 @RemoteBinding information
+      assertEquals("RemoteBindingMetadata does not have any RemoteBinding information available", remoteBindingsMetadata.size(), 1);
+
+      // Ensure that the RemoteBindingMetaData is created properly with the specified jndiBinding name.
+      Iterator<RemoteBindingMetaData> remoteBindingsMetadataIterator = remoteBindingsMetadata.iterator();
+      RemoteBindingMetaData remoteBindingMetadata = remoteBindingsMetadataIterator.next();
+
+      assertEquals("RemoteBinding JNDI name does not match " + MyStatelessBeanWithBindings.REMOTE_JNDI_NAME, MyStatelessBeanWithBindings.REMOTE_JNDI_NAME, remoteBindingMetadata
+            .getJndiName());
+
+      // Now ensure that the RemoteBindingMetaData is used for binding the 
+      // remote interface of the bean.
+      Context ctx = new InitialContext();
+      String remoteJndiName = remoteBindingMetadata.getJndiName();
+      logger.info("Remote binding jndi = " + remoteJndiName);
+      Object remoteBean = ctx.lookup(remoteJndiName);
+      logger.info("Object is : " + remoteBean);
+      assertNotNull("Remote bean returned from JNDI lookup is null", remoteBean);
+      assertTrue("Remote bean returned from JNDI lookup is NOT an instance of " + MyStatelessRemote.class, (remoteBean instanceof MyStatelessRemote));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+   }
+
+   /**
+    * Test that the {@link LocalBinding} is honoured for SLSB<br/>
+    * 
+    * Ensure that the local is bound to the jndi name specified by the @LocalBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testLocalBindingForSlsb() throws Throwable
+   {
+      //create the bean
+      this.sessionContainer = Utils.createSlsb(MyStatelessBeanWithBindings.class);
+
+      //bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      // Ensure that the local jndi name is set to the @LocalBinding value
+      String localJndiName = sessionContainer.getMetaData().getLocalJndiName();
+
+      assertNotNull("Local jndi name is null", localJndiName);
+      assertEquals("Local jndi name does not match the jndiBinding value specified in @LocalBinding", MyStatelessBeanWithBindings.LOCAL_JNDI_NAME, localJndiName);
+
+      // Lookup using the local jndi name and check that the Local object is bound in the JNDI
+      Context ctx = new InitialContext();
+      Object local = ctx.lookup(localJndiName);
+
+      assertNotNull("Local object bound to JNDI is null", local);
+      assertTrue("Object bound to local JNDI name is NOT an instance of " + MyStatelessLocal.class, (local instanceof MyStatelessLocal));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+
+   }
+
+   /**
+    * Test that the {@link LocalHomeBinding} is honoured for SLSB<br/>
+    * 
+    * Ensure that the localhome object is bound to the jndi name specified by the @LocalHomeBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testLocalHomeBindingForSlsb() throws Throwable
+   {
+      // create bean
+      this.sessionContainer = Utils.createSlsb(MyStatelessBeanWithBindings.class);
+
+      // bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      // Ensure that the localhome jndi name is set to the @LocalHomeBinding value
+      String localHomeJndiName = sessionContainer.getMetaData().getLocalHomeJndiName();
+
+      assertNotNull("Local home jndi name is null", localHomeJndiName);
+      assertEquals("Local home jndi name does not match the jndiBinding value specified in @LocalHomeBinding", MyStatelessBeanWithBindings.LOCAL_HOME_JNDI_NAME, localHomeJndiName);
+
+      // lookup using the localhome jndi name and ensure the localhome is bound to this name
+      Context ctx = new InitialContext();
+      Object localHome = ctx.lookup(localHomeJndiName);
+
+      assertNotNull("Local home is null", localHome);
+      assertTrue("Local home is not an instance of " + MyStatelessLocalHome.class, (localHome instanceof MyStatelessLocalHome));
+
+      //  Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+
+   }
+
+   /**
+    * Test that the {@link RemoteHomeBinding} is honoured for SLSB<br/>
+    * 
+    * Ensure that the remotehome object is bound to the jndi name specified by the @RemoteHomeBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testRemoteHomeBindingForSlsb() throws Throwable
+   {
+      // create the bean
+      this.sessionContainer = Utils.createSlsb(MyStatelessBeanWithBindings.class);
+
+      // bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      // check the remotehome jndi name
+      String remoteHomeJndiName = sessionContainer.getMetaData().getHomeJndiName();
+
+      assertNotNull("Remote home jndi name is null", remoteHomeJndiName);
+      assertEquals("Remote home jndi name does not match the jndibinding value specified in @RemoteHomeBinding", MyStatelessBeanWithBindings.REMOTE_HOME_JNDI_NAME,
+            remoteHomeJndiName);
+
+      // lookup using the remote home jndi name and ensure the remotehome is bound to this name
+      Context ctx = new InitialContext();
+      Object remoteHome = ctx.lookup(remoteHomeJndiName);
+
+      assertNotNull("Remote home is null", remoteHome);
+      assertTrue("Remote home is not an instance of " + MyStatelessRemoteHome.class, (remoteHome instanceof MyStatelessRemoteHome));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+   }
+
+   /**
+    * Test that the {@link RemoteBinding} is honoured for SFSB<br/>
+    * 
+    * Ensure that the remote object is bound to the jndi name specified by the @RemoteBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testRemoteBindingForSfsb() throws Throwable
+   {
+      //create bean
+      this.sessionContainer = Utils.createSfsb(MyStatefulBeanWithBindings.class);
+
+      // bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      List<RemoteBindingMetaData> remoteBindingsMetadata = this.sessionContainer.getMetaData().getRemoteBindings();
+
+      assertEquals("Expected 1 @RemoteBinding metadata for Sfsb", remoteBindingsMetadata.size(), 1);
+
+      RemoteBindingMetaData remoteBindingMetadata = remoteBindingsMetadata.get(0);
+      String remoteJndiName = remoteBindingMetadata.getJndiName();
+
+      assertNotNull("Remote jndi name is null for Sfsb", remoteJndiName);
+      assertEquals("Remote jndi name does not match the jndiBinding value specified in @RemoteBinding", MyStatefulBeanWithBindings.REMOTE_JNDI_NAME, remoteJndiName);
+
+      // lookup and check the object
+      Context ctx = new InitialContext();
+      Object remote = ctx.lookup(remoteJndiName);
+
+      assertNotNull("Remote object bound to jndi is null", remote);
+      assertTrue("Remote object bound to jndi is not an instance of " + MyStatefulRemoteBusiness.class, (remote instanceof MyStatefulRemoteBusiness));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+
+   }
+
+   /**
+    * Test that the {@link LocalBinding} is honoured for SFSB<br/>
+    * 
+    * Ensure that the local object is bound to the jndi name specified by the @LocalBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testLocalBindingForSfsb() throws Throwable
+   {
+      // create the bean
+      this.sessionContainer = Utils.createSfsb(MyStatefulBeanWithBindings.class);
+
+      // bind to jndi
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      String localJndiName = this.sessionContainer.getMetaData().getLocalJndiName();
+
+      assertNotNull("Local jndi name is null", localJndiName);
+      assertEquals("Local jndi name does not match the jndiBindingValue specified in @LocalBinding for Sfsb", MyStatefulBeanWithBindings.LOCAL_JNDI_NAME, localJndiName);
+
+      // lookup and check the bound object
+      Context ctx = new InitialContext();
+      Object local = ctx.lookup(localJndiName);
+
+      assertNotNull("Local object bound to jndi is null", local);
+      assertTrue("Local object bound to jndi is not an instance of " + MyStatefulLocalBusiness.class, (local instanceof MyStatefulLocalBusiness));
+
+      //  Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+
+   }
+
+   /**
+    * Test that the {@link LocalHomeBinding} is honoured for SFSB<br/>
+    * 
+    * Ensure that the localhome object is bound to the jndi name specified by the @LocalHomeBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testLocalHomeBindingForSfsb() throws Throwable
+   {
+      // create the bean
+      this.sessionContainer = Utils.createSfsb(MyStatefulBeanWithBindings.class);
+
+      // bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      String localHomeJndiName = this.sessionContainer.getMetaData().getLocalHomeJndiName();
+
+      assertNotNull("Local home jndi name is null", localHomeJndiName);
+      assertEquals("Local home jndi name does not match the jndiBinding value specified in @LocalHomeBinding", MyStatefulBeanWithBindings.LOCAL_HOME_JNDI_NAME, localHomeJndiName);
+
+      // lookup and check the object bound
+      Context ctx = new InitialContext();
+      Object localHome = ctx.lookup(localHomeJndiName);
+
+      assertNotNull("Local home bound to jndi is null", localHome);
+      assertTrue("Local home bound to jndi is not an instance of " + MyStatefulLocalHome.class, (localHome instanceof MyStatefulLocalHome));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
+
+   }
+
+   /**
+    * Test that the {@link RemoteHomeBinding} is honoured for SFSB<br/>
+    * 
+    * Ensure that the remotehome object is bound to the jndi name specified by the @RemoteHomeBinding
+    * annotation on the bean. Also ensure that the jndi objects are unbound when the bean
+    * is undeployed
+    * 
+    * 
+    * @throws Throwable
+    */
+   @Test
+   public void testRemoteHomeBindingForSfsb() throws Throwable
+   {
+      // create the bean
+      this.sessionContainer = Utils.createSfsb(MyStatefulBeanWithBindings.class);
+
+      // bind the bean
+      Ejb3RegistrarLocator.locateRegistrar().bind(sessionContainer.getName(), sessionContainer);
+
+      String remoteHomeJndiName = this.sessionContainer.getMetaData().getHomeJndiName();
+
+      assertNotNull("Remote home jndi name is null", remoteHomeJndiName);
+      assertEquals("Remote home jndi name does not match the jndiBinding value specified in @RemoteHomeBinding", MyStatefulBeanWithBindings.REMOTE_HOME_JNDI_NAME,
+            remoteHomeJndiName);
+
+      // lookup and check the object bound
+      Context ctx = new InitialContext();
+      Object remoteHome = ctx.lookup(remoteHomeJndiName);
+
+      assertNotNull("Remote home bound to jndi is null", remoteHome);
+      assertTrue("Remote home bound to jndi is not an instance of " + MyStatefulRemoteHome.class, (remoteHome instanceof MyStatefulRemoteHome));
+
+      // Now its time to undeploy the bean and ensure the bindings are also removed
+      unbindAndTest(ctx, sessionContainer);
    }
 
    /**
@@ -589,8 +886,7 @@ public class JndiSessionRegistrarBaseTestCase
          }
       }
 
-      logger.debug("Number of jndi names associated with session container " + sessionContainer.getName() + " = "
-            + jndiNames.size());
+      logger.debug("Number of jndi names associated with session container " + sessionContainer.getName() + " = " + jndiNames.size());
 
       return jndiNames;
 
