@@ -1,5 +1,6 @@
 package org.jboss.ejb3.session;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
+import org.jboss.ejb3.stateful.StatefulInstanceInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
@@ -158,6 +160,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       try
       {
          
+         invokedMethod.push(method);
+         
          /*
           * Obtain the target method (advised)
           */
@@ -172,6 +176,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          }
          Method unadvisedMethod = info.getUnadvisedMethod();
          SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
+         
 
          // Obtain Invocation Handler
          //TODO Ugly, use polymorphism and get Session ID for SFSB only
@@ -228,24 +233,16 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          //         ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
         
          
-         try
-         {
-            /*
-             * Invoke
-             */
-            
-            invokedMethod.push(method);
-            return nextInvocation.invokeNext();
-         }
-         finally
-         {
-            invokedMethod.pop();
-         }
+         /*
+          * Invoke
+          */
 
+         return nextInvocation.invokeNext();
 
       }
       finally
       {
+         invokedMethod.pop();
          Thread.currentThread().setContextClassLoader(oldLoader);
          popEnc();
       }
@@ -256,7 +253,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * 
     * Returns the name of the invoking EJB3 Business Interface
     * 
-    * @see EJB 3.0 Core Specificatio 4.5.2 for allowable context in 
+    * @see EJB 3.0 Core Specification 4.5.2 for allowable context in 
     * which this may be invoked
     * @return
     */
@@ -457,7 +454,11 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          if (args[0] instanceof Handle)
             removeHandle((Handle) args[0]);
          else
-            destroySession(args[0]);
+         {
+            StatefulProxyInvocationHandlerBase handler =(StatefulProxyInvocationHandlerBase) Proxy.getInvocationHandler(args[0]);
+            Serializable sessionId = handler.getSessionId();
+            destroySession(sessionId);
+         }
 
          return null;
       }

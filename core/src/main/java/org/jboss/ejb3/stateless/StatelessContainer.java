@@ -422,6 +422,20 @@ public class StatelessContainer extends SessionSpecContainer
          try
          {
             invokeStats.callIn();
+            
+            /*
+             * Set the invoked method
+             */
+            //TODO Remove when CurrentInvocation is ironed out
+            
+            // Get the invoked method from invocation metadata
+            Object objInvokedMethod = si.getMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,SessionSpecRemotingMetadata.KEY_INVOKED_METHOD);
+            assert objInvokedMethod !=null : "Invoked Method must be set on invocation metadata";
+            assert objInvokedMethod instanceof SerializableMethod : "Invoked Method set on invocation metadata is not of type " + SerializableMethod.class.getName() + ", instead: " + objInvokedMethod;
+            SerializableMethod invokedMethod = (SerializableMethod)objInvokedMethod;
+            
+            // Set onto stack
+            SessionSpecContainer.invokedMethod.push(invokedMethod);
 
             //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
             Map responseContext = null;
@@ -440,22 +454,7 @@ public class StatelessContainer extends SessionSpecContainer
                newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
                newSi.setArguments(si.getArguments());
                newSi.setMetaData(si.getMetaData());
-               //newSi.setAdvisor(getAdvisor());
-               
-               /*
-                * Set the invoked method
-                */
-               //TODO Remove when CurrentInvocation is ironed out
-               
-               // Get the invoked method from invocation metadata
-               Object objInvokedMethod = si.getMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,SessionSpecRemotingMetadata.KEY_INVOKED_METHOD);
-               assert objInvokedMethod !=null : "Invoked Method must be set on invocation metadata";
-               assert objInvokedMethod instanceof SerializableMethod : "Invoked Method set on invocation metadata is not of type " + SerializableMethod.class.getName() + ", instead: " + objInvokedMethod;
-               SerializableMethod invokedMethod = (SerializableMethod)objInvokedMethod;
-               
-               // Set onto stack
-               SessionSpecContainer.invokedMethod.push(invokedMethod);
-               
+               //newSi.setAdvisor(getAdvisor());               
                
                try
                {
