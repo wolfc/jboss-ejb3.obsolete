@@ -323,7 +323,7 @@
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
-        <version>1.0.0.Beta36</version>
+        <version>1.0.0.Beta37</version>
       </dependency>
  
       <dependency>
