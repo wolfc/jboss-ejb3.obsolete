@@ -126,6 +126,9 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if(mappedName != null && mappedName.length() == 0) mappedName = null;
       if (refClass != null && (refClass.equals(Object.class) || refClass.equals(void.class))) refClass = null;
       
+      if(mappedName == null)
+         mappedName = getMappedName(encName, container);
+      
       if(mappedName != null)
       {
          addJNDIDependency(container, mappedName);
@@ -158,41 +161,9 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if (mappedName != null && mappedName.trim().equals(""))
          mappedName = null;
       
-      // Initialize the lookupName to the encName
-      String lookupName = encName;
-      
-      // EJBTHREE-1289: this code should be enabled, but MappedDeploymentEndpointResolver is broken
-//      assert lookupName.startsWith("env/") : "encName used to start with 'env/'";
-//      lookupName = lookupName.substring(4);
-      
-      // mappedName can be null, because an annotation has not been augmented with resolvedJndiName
-      if (mappedName == null)
-      {
-         //
-         AnnotatedEJBReferencesMetaData amds = container.getEnvironmentRefGroup().getAnnotatedEjbReferences();
-         if(amds != null)
-         {
-            AnnotatedEJBReferenceMetaData amd = amds.get(lookupName);
-            if (amd == null && fieldName != null)
-            {
-               lookupName = fieldName;
-               amd = amds.get(lookupName);
-            }
-            if (amd != null)
-            {
-               mappedName = amd.getMappedName();
-               if (mappedName == null)
-                  mappedName = amd.getResolvedJndiName();
-            }
-         }
-      }
+      if(mappedName == null)
+         mappedName = getMappedName(encName, container, fieldName);
 
-      // The MappedDeploymentEndpointResolver should have put resolvedJndiName everywhere.
-      // If no mappedName is known by now, we have a bug.
-//      assert mappedName != null : "mappedName for enc \"" + encName + "\", field \"" + fieldName
-//            + "\" is null (container.environmentRefGroup.annotatedEjbReferences = "
-//            + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
-      
       EncInjector injector = null;
       
       if (mappedName == null)
@@ -294,6 +265,57 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       return jndiName;
    }
 
+   private static String getMappedName(String encName, InjectionContainer container)
+   {
+      return getMappedName(encName, container, null);
+   }
+   
+   /**
+    * Find a mapped name in the meta data which came from the mapped resolver.
+    * 
+    * @param encName
+    * @param container
+    * @param fieldName
+    * @return
+    */
+   private static String getMappedName(String encName, InjectionContainer container, String fieldName)
+   {
+      String mappedName = null;
+      
+      // Initialize the lookupName to the encName
+      String lookupName = encName;
+      
+      // Currently encName has 'env/' prepended (see getEncName)
+      assert lookupName.startsWith("env/") : "encName used to start with 'env/'";
+      lookupName = lookupName.substring(4);
+      
+      // EJBTHREE-1289: find a resolved jndi name
+      AnnotatedEJBReferencesMetaData amds = container.getEnvironmentRefGroup().getAnnotatedEjbReferences();
+      if(amds != null)
+      {
+         AnnotatedEJBReferenceMetaData amd = amds.get(lookupName);
+         if (amd == null && fieldName != null)
+         {
+            lookupName = fieldName;
+            amd = amds.get(lookupName);
+         }
+         if (amd != null)
+         {
+            mappedName = amd.getMappedName();
+            if (mappedName == null)
+               mappedName = amd.getResolvedJndiName();
+         }
+      }
+      
+      // The MappedDeploymentEndpointResolver should have put resolvedJndiName everywhere.
+      // If no mappedName is known by now, we have a bug.
+//      assert mappedName != null : "mappedName for enc \"" + encName + "\", field \"" + fieldName
+//            + "\" is null (container.environmentRefGroup.annotatedEjbReferences = "
+//            + container.getEnvironmentRefGroup().getAnnotatedEjbReferences() + ")";
+      
+      return mappedName;
+   }
+   
    public void handleClassAnnotations(Class<?> clazz, InjectionContainer container)
    {
       EJBs ref = container.getAnnotation(EJBs.class, clazz);
