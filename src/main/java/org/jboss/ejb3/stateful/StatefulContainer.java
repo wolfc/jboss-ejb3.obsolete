@@ -1175,7 +1175,8 @@ public class StatefulContainer extends SessionSpecContainer
       }
       else if (unadvisedMethod.getName().equals("remove"))
       {
-         remove(statefulInvocation.getArguments()[0]);
+         Object argument = statefulInvocation.getArguments()[0];
+         remove(argument);
 
          InvocationResponse response = new InvocationResponse(null);
          response.setContextInfo(statefulInvocation.getResponseContextInfo());
