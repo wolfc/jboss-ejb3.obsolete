@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.RemoveException;
 import javax.ejb.SessionContext;
 
 import org.jboss.aop.Advisor;
@@ -455,9 +456,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
             removeHandle((Handle) args[0]);
          else
          {
-            StatefulProxyInvocationHandlerBase handler =(StatefulProxyInvocationHandlerBase) Proxy.getInvocationHandler(args[0]);
-            Serializable sessionId = handler.getSessionId();
-            destroySession(sessionId);
+            throw new RemoveException(
+                  "EJB 3.0 Specification Violation 3.6.2.2: Session beans do not have a primary key");
          }
 
          return null;
