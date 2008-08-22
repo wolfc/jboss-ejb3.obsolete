@@ -23,6 +23,8 @@ package org.jboss.ejb3.session;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.rmi.NoSuchObjectException;
+import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,9 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ejb.EJBHome;
+import javax.ejb.EJBLocalHome;
+import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.LocalHome;
+import javax.ejb.NoSuchEJBException;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.RemoteHome;
 
 import org.jboss.aop.Dispatcher;
@@ -596,11 +603,87 @@ public abstract class SessionContainer extends EJBContainer
       }
       if (unadvisedMethod.getName().equals("remove"))
       {
-         destroySession(id);
+         try
+         {
+            destroySession(id);
+         }
+         catch(NoSuchEJBException nsee)
+         {
+            String invokingClassName = unadvisedMethod.getDeclaringClass().getName();
+            Exception newException = (Exception) this.constructProperNoSuchEjbException(nsee, invokingClassName);
+            throw newException;
+         }
 
          return null;
       }
       throw new RuntimeException("NYI");
+   }
+   
+   /**
+    * Obtains the proper Exception to return to the caller in 
+    * the event a "remove" call is made on a bean that doesn't exist.
+    * 
+    * Implements EJB 3.0 Core Specification 14.3.9
+    * 
+    * @param original
+    * @param invokingClassName
+    * @return
+    */
+   protected Throwable constructProperNoSuchEjbException(NoSuchEJBException original,String invokingClassName)
+   {
+      /*
+       * EJB 3.0 Core Specification 14.3.9
+       * 
+       * If a client makes a call to a stateful session or entity 
+       * object that has been removed, the container should throw the 
+       * javax.ejb.NoSuchEJBException. If the EJB 2.1 client view is used, 
+       * the container should throw the java.rmi.NoSuchObjectException 
+       * (which is a subclass of java.rmi.RemoteException) to a remote client, 
+       * or the javax.ejb.NoSuchObjectLocalException to a local client.
+       */
+      
+      // Initialize
+      Throwable t = original;
+      ClassLoader cl = this.getClassloader();
+      
+      // Obtain the actual invoked class
+      Class<?> actualInvokingClass = null;
+      try
+      {
+         actualInvokingClass = Class.forName(invokingClassName, true, cl);
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new RuntimeException("Could not obtain invoking class", e);
+      }
+
+      // If local EJB2.x Client
+      if (EJBLocalObject.class.isAssignableFrom(actualInvokingClass)
+            || EJBLocalHome.class.isAssignableFrom(actualInvokingClass))
+      {
+         t = new NoSuchObjectLocalException(original.getMessage());
+      }
+      // If remote EJB2.x Client
+      else if (Remote.class.isAssignableFrom(actualInvokingClass)
+            || EJBObject.class.isAssignableFrom(actualInvokingClass)
+            || EJBHome.class.isAssignableFrom(actualInvokingClass))
+      {
+         t = new NoSuchObjectException(original.getMessage());
+      }
+      // Business interface
+      else
+      {
+         // Take no action, this is here just for readability
+      }
+
+      // Log
+      if (log.isTraceEnabled())
+      {
+         log.trace("Throwing " + t.getClass().getName(), t);
+      }
+
+      // Return
+      return t;
    }
    
    /**
