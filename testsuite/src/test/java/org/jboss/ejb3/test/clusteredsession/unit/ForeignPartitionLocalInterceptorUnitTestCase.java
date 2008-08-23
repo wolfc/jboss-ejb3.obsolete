@@ -48,7 +48,7 @@ public class ForeignPartitionLocalInterceptorUnitTestCase extends InvokeLocalTes
    public static Test suite() throws Exception
    {
       return getDeploySetup(ForeignPartitionLocalInterceptorUnitTestCase.class,
-                           "testlocal-beans.xml");
+                           "testlocal-jboss-beans.xml");
    }
 
    @Override
@@ -77,22 +77,22 @@ public class ForeignPartitionLocalInterceptorUnitTestCase extends InvokeLocalTes
    
    public void testClusteredStatefulGoesRemote() throws Exception
    {
-      stayLocalTest("ClusteredStatefulRemote", false);
+      stayLocalTest("ClusteredStatefulRemote", false, false);
    }
    
    public void testClusteredStatelessGoesRemote() throws Exception
    {
-      stayLocalTest("ClusteredStatelessRemote", false);      
+      stayLocalTest("ClusteredStatelessRemote", false, false);      
    }
    
    public void testNonClusteredStatefulGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatefulRemote", false);      
+      stayLocalTest("NonClusteredStatefulRemote", false, true);      
    }
    
    public void testNonClusteredStatelessGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatelessRemote", false);    
+      stayLocalTest("NonClusteredStatelessRemote", false, true);    
    }
 
    private void cleanDeployments() throws Exception

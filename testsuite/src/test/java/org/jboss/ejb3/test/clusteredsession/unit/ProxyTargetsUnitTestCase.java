@@ -48,7 +48,8 @@ public class ProxyTargetsUnitTestCase extends JBossClusteredTestCase
    private static boolean deployed0 = true;
    private static boolean deployed1 = true;
    
-   private static final String NAME_BASE= "jboss.j2ee:jar=";   
+   private static final String NAME_BASE= "jboss.j2ee:ear=";   
+   private static final String JAR_PREFIX = ",jar=";
    private static final String deployment = "clusteredsession-test.jar";
    private static final String BEAN_PREFIX = ",name=";
    private static final String SLSB = "clusteredStateless";
@@ -72,7 +73,10 @@ public class ProxyTargetsUnitTestCase extends JBossClusteredTestCase
    
    private static String getFamilyName(String beanName)
    {
-      return NAME_BASE + deployment + BEAN_PREFIX + beanName + NAME_QUALIFIER;
+      // This commented out version is correct, but EJB3 isn't generating
+      // it any more, so we use a version that duplicates the deployment name
+//      return NAME_BASE + deployment + BEAN_PREFIX + beanName + NAME_QUALIFIER;
+      return NAME_BASE + deployment + JAR_PREFIX + deployment + BEAN_PREFIX + beanName + NAME_QUALIFIER;
    }
 
    @Override

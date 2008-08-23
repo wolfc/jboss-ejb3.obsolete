@@ -71,7 +71,7 @@ public abstract class InvokeLocalTestBase extends JBossClusteredTestCase
    }
 
 
-   protected void stayLocalTest(String jndiName, boolean expectLocal)
+   protected void stayLocalTest(String jndiName, boolean expectLocal, boolean expectLocalViaLookup)
       throws Exception
    {
       String[] jndiURLs = getNamingURLs();
@@ -108,7 +108,7 @@ public abstract class InvokeLocalTestBase extends JBossClusteredTestCase
       passThroughID = tester.getVMIDFromRemoteLookup(jndiURLs[1], jndiName);
       assertNotNull("Got the remote VMID", passThroughID);
       
-      if (expectLocal)
+      if (expectLocalViaLookup)
          assertEquals("Call stayed local", local, passThroughID);
       else
          assertFalse("Call went remote", local.equals(passThroughID));

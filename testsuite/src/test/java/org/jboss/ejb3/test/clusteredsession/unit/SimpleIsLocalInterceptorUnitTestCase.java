@@ -50,22 +50,22 @@ extends InvokeLocalTestBase
 
    public void testClusteredStatefulStaysLocal() throws Exception
    {
-      stayLocalTest("ClusteredStatefulRemote" ,true);
+      stayLocalTest("ClusteredStatefulRemote" ,true, true);
    }
    
    public void testClusteredStatelessStaysLocal() throws Exception
    {
-      stayLocalTest("ClusteredStatelessRemote" ,true);      
+      stayLocalTest("ClusteredStatelessRemote" ,true, true);      
    }
    
    public void testNonClusteredStatefulGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatefulRemote", false);      
+      stayLocalTest("NonClusteredStatefulRemote", false, true);      
    }
    
    public void testNonClusteredStatelessGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatelessRemote", false);    
+      stayLocalTest("NonClusteredStatelessRemote", false, true);    
    }
 
 }

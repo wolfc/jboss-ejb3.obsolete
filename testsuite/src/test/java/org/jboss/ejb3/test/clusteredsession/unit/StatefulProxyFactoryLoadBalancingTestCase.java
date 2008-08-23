@@ -39,7 +39,7 @@ import org.jboss.test.JBossClusteredTestCase;
  */
 public class StatefulProxyFactoryLoadBalancingTestCase extends JBossClusteredTestCase
 {
-   public static final String TESTER_JNDI_NAME = "NonClusteredStatelessRemote";
+   public static final String TESTER_JNDI_NAME = "ClusteredStatefulRemote";
    
    /**
     * Create a new StatefulProxyFactoryLoadBalancingTestCase.
@@ -69,22 +69,22 @@ public class StatefulProxyFactoryLoadBalancingTestCase extends JBossClusteredTes
       
       VMID create1 = tester1.getCreatorVMID();
       // confirm that the bean didn't have to migrate
-      assertEquals(create1, tester1.getVMID());
+      assertEquals("bean targeted where created", create1, tester1.getVMID());
       
       // Get another bean from the same server; should target
       // a different server from the first
       VMTester tester2 = (VMTester) ctx1.lookup(TESTER_JNDI_NAME);
       
       VMID create2 = tester2.getCreatorVMID();
-      assertEquals(create2, tester2.getVMID());      
-      assertFalse(create1.equals(create2));
+      assertEquals("2nd bean targeted where created", create2, tester2.getVMID());      
+      assertFalse("creation of 2 beans load balanced", create1.equals(create2));
       
       // A third bean should come from the same as the first
       VMTester tester3 = (VMTester) ctx1.lookup(TESTER_JNDI_NAME);
       
       VMID create3 = tester3.getCreatorVMID();
-      assertEquals(create3, tester3.getVMID());
-      assertEquals(create1, create3);
+      assertEquals("3rd bean targeted where created", create3, tester3.getVMID());
+      assertEquals("creation of 3 beans load balanced", create1, create3);
       
       // Get the next proxy from the other server, but the overall 
       // bean creation should still be round robin
@@ -96,15 +96,15 @@ public class StatefulProxyFactoryLoadBalancingTestCase extends JBossClusteredTes
       VMTester tester4 = (VMTester) ctx2.lookup(TESTER_JNDI_NAME);
       
       VMID create4 = tester4.getCreatorVMID();
-      assertEquals(create4, tester4.getVMID());
-      assertEquals(create2, create4);
+      assertEquals("4th bean targeted where created", create4, tester4.getVMID());
+      assertEquals("creation of 4 beans load balanced", create2, create4);
       
       // One last time
       VMTester tester5 = (VMTester) ctx2.lookup(TESTER_JNDI_NAME);
       
       VMID create5 = tester5.getCreatorVMID();
-      assertEquals(create5, tester5.getVMID());
-      assertEquals(create1, create5);
+      assertEquals("5th bean targeted where created", create5, tester5.getVMID());
+      assertEquals("creation of 5 beans load balanced", create1, create5);
    }
 
 }

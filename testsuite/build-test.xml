@@ -4133,7 +4133,7 @@
 
 	  <copy todir="${build.lib}">
 	     <fileset dir="${resources}/test/clusteredsession/islocal/foreign">
-	        <include name="testlocal-beans.xml"/>
+	        <include name="testlocal-jboss-beans.xml"/>
 	     </fileset>
 	  </copy>
 	
