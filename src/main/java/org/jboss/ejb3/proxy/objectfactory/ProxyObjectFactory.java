@@ -122,19 +122,24 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
          // Local lookup succeeded, so use it
-         try
-         {
+         // BES 2008/08/22 -- a NotBoundException doesn't mean failure, just
+         // means the container isn't deployed in this server. So don't catch it
+         // in an inner try/catch; let it propagate to the outer catch.
+         // This may or may not be the proper fix for EJBTHREE-1403, but it allows
+         // clustering unit tests to pass.
+//         try
+//         {
             Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
             assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
             assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
                   + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
             proxyFactory = (ProxyFactory) pfObj;
-         }
-         catch (NotBoundException nbe)
-         {
-            throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName()
-                  + " from expected key \"" + proxyFactoryRegistryKey + "\"", nbe);
-         }
+//         }
+//         catch (NotBoundException nbe)
+//         {
+//            throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName()
+//                  + " from expected key \"" + proxyFactoryRegistryKey + "\"", nbe);
+//         }
       }
       // Registrar is not local, so use Remoting to Obtain Proxy Factory
       catch (NotBoundException nbe)
