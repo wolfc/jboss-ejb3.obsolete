@@ -812,7 +812,7 @@ public abstract class JndiSessionRegistrarBase
     * Returns the name of the unique key under which a Proxy Factory will 
     * be registered.  Will follow form:
     * 
-    * (jndiName)/ProxyFactory/
+    * ProxyFactory/(jndiName)
     * 
     * ...depending upon the specified "isLocal" flag
     * 
@@ -836,7 +836,7 @@ public abstract class JndiSessionRegistrarBase
 
       // Ensure suffix is specified
       assert suffix != null && !suffix.equals("") : ProxyFactory.class.getSimpleName()
-            + " key prefix for binding to registry is noy specified";
+            + " key prefix for binding to registry is not specified";
 
       // Assemble and return
       String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + suffix;
