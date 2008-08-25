@@ -220,6 +220,16 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       
       this.ejbName = ejbName;
       
+      String on = createObjectName(ejbName);     
+      try
+      {
+         objectName = new ObjectName(on);
+      }
+      catch (MalformedObjectNameException e)
+      {
+         throw new RuntimeException("failed to create object name for: " + on, e);
+      }
+      
       // Because interceptors will query back the EJBContainer for annotations
       // we must have set beanContainer first and then do the advisor. 
       try
@@ -229,16 +239,6 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       catch(Exception e)
       {
          throw new RuntimeException("failed to initialize bean container ",e);
-      }
-      String on = createObjectName(ejbName);
-     
-      try
-      {
-         objectName = new ObjectName(on);
-      }
-      catch (MalformedObjectNameException e)
-      {
-         throw new RuntimeException("failed to create object name for: " + on, e);
       }
       
       //annotations = new AnnotationRepositoryToMetaData(this);
