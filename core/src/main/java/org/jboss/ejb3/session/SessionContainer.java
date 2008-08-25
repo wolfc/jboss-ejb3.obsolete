@@ -57,8 +57,12 @@ import org.jboss.ejb3.Ejb3Module;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
+import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
+import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
@@ -181,13 +185,11 @@ public abstract class SessionContainer extends EJBContainer
     */
    public Map<String, HATarget> getClusterFamilies()
    {
-      if(clusterFamilies != null)
-         return clusterFamilies;
-      
-      synchronized (this)
-      {
-         if(clusterFamilies == null)
-            clusterFamilies = new HashMap<String, HATarget>();
+      if(clusterFamilies == null)
+      {      
+         Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+         ProxyClusteringRegistry registry = (ProxyClusteringRegistry) registrar.lookup(ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_PROXY_CLUSTERING_REGISTRY);
+         clusterFamilies = registry.getHATargets(this.getObjectName().getCanonicalName());
       }
       return clusterFamilies;
    }
