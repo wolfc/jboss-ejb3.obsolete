@@ -274,16 +274,10 @@
    
    <!-- 
     
-    JNDI Registrars
-    
+    JNDI Registrars   
     
     The JNDI Registrar is responsible for all JNDI Bindings for
-    an EJB.  Its constructor takes the following arguments, in order:
-    
-    javax.naming.Context (JNDI Context into which to bind objects)
-    org.jboss.ejb3.proxy.spi.registry.ProxyFactoryRegistry (Implementation of ProxyFactoryRegistry)
-    String statelessSessionProxyObjectFactoryType The JNDI ObjectFactory implementation to use for SLSB
-    ...more later when SFSB, @Service, MDB Implemented
+    an EJB.
     
   -->
 
@@ -304,6 +298,31 @@
       <parameter>
         org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
+    </constructor>
+  </bean>
+
+  <bean name="org.jboss.ejb3.ProxyClusteringRegistry"
+        class="org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry"/>
+
+  <!-- Clustered SLSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.ClusteredSLSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.clustered.jndiregistrar.JndiClusteredStatelessSessionRegistrar">
+    <constructor>
+      <parameter>
+        org.jboss.ejb3.proxy.clustered.objectfactory.session.stateless.StatelessSessionClusteredProxyObjectFactory
+      </parameter>
+      <parameter><inject bean="org.jboss.ejb3.ProxyClusteringRegistry"/></parameter>
+    </constructor>
+  </bean>
+
+  <!-- Clustered SFSB JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.ClusteredSFSBJndiRegistrar"
+    class="org.jboss.ejb3.proxy.clustered.jndiregistrar.JndiClusteredStatefulSessionRegistrar">
+    <constructor>
+      <parameter>
+        org.jboss.ejb3.proxy.clustered.objectfactory.session.stateful.StatefulSessionClusteredProxyObjectFactory
+      </parameter>
+      <parameter><inject bean="org.jboss.ejb3.ProxyClusteringRegistry"/></parameter>
     </constructor>
   </bean>
    
