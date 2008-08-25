@@ -23,6 +23,9 @@ package org.jboss.ejb3.proxy.handler;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
@@ -153,7 +156,27 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
       // toString
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_TO_STRING.toMethod()))
       {
-         return this.toString();
+         // Perform assertions
+         assert Proxy.isProxyClass(proxy.getClass()) : "Specified proxy invoked is not of type "
+               + Proxy.class.getName();
+
+         // Obtain implemented interfaces
+         Class<?>[] implementedInterfaces = proxy.getClass().getInterfaces();
+         Set<Class<?>> interfacesSet = new HashSet<Class<?>>();
+         for (Class<?> interfaze : implementedInterfaces)
+         {
+            interfacesSet.add(interfaze);
+         }
+
+         // Construct a return value
+         StringBuffer sb = new StringBuffer();
+         sb.append("Proxy to ");
+         sb.append(this.getContainerName());
+         sb.append(" implementing ");
+         sb.append(interfacesSet);
+
+         // Return
+         return sb.toString();
       }
       // hashCode
       if (invokedMethod.equals(ProxyInvocationHandlerBase.METHOD_HASH_CODE.toMethod()))
