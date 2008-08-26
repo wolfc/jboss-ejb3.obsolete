@@ -27,11 +27,15 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.ejb.Stateless;
 import javax.naming.InitialContext;
 import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aspects.currentinvocation.CurrentInvocation;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.interceptors.container.InvocationHelper;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.javaee.spec.SecurityRoleRefMetaData;
 import org.jboss.security.RealmMapping;
@@ -54,6 +58,10 @@ public class EJBContextHelper
    public Principal getCallerPrincipal(SecurityContext sc,
          RealmMapping rm, SecurityDomain domain)
    {
+      Invocation invocation = getCurrentInvocation("getCallerPrincipal");
+      if(isStateless(invocation) && isLifecycleCallback(invocation))
+         throw new IllegalStateException("getCallerPrincipal is not allowed in a stateless lifecycle callback (EJB3 4.5.2)");
+      
       Principal callerPrincipal = null;
       
       if(sc == null)
@@ -96,6 +104,14 @@ public class EJBContextHelper
       return callerPrincipal; 
    } 
    
+   private static Invocation getCurrentInvocation(String reason)
+   {
+      Invocation current = CurrentInvocation.getCurrentInvocation();
+      if(isInjection(current))
+         throw new IllegalStateException(reason + " not allowed during injection (EJB3 4.4.1 & 4.5.2)");
+      return current;
+   }
+   
    public boolean isCallerInRole(SecurityContext sc,
          SecurityDomain domain,
          RealmMapping rm,
@@ -103,6 +119,10 @@ public class EJBContextHelper
          String roleName, 
          String ejbName)
    {
+      Invocation invocation = getCurrentInvocation("isCallerInRole");
+      if(isStateless(invocation) && isLifecycleCallback(invocation))
+         throw new IllegalStateException("getCallerPrincipal is not allowed in a stateless lifecycle callback (EJB3 4.5.2)");
+      
       if(sc == null)
       {
          try
@@ -155,6 +175,22 @@ public class EJBContextHelper
                                    callerSubject,
                                    this.getContextID(),
                                    srset);
+   }
+   
+   private static boolean isInjection(Invocation invocation)
+   {
+      return InvocationHelper.isInjection(invocation);
+   }
+   
+   private static boolean isLifecycleCallback(Invocation invocation)
+   {
+      return InvocationHelper.isLifecycleCallback(invocation);
+   }
+   
+   private static boolean isStateless(Invocation inv)
+   {
+      assert inv != null : "inv is null";
+      return inv.getAdvisor().resolveAnnotation(Stateless.class) != null;
    }
    
    private PolicyRegistration getPolicyRegistration()
