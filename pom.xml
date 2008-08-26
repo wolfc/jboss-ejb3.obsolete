@@ -335,7 +335,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-security</artifactId>
-      <version>0.13.1</version>
+      <version>0.13.2-SNAPSHOT</version>
     </dependency>
     
     <dependency>
@@ -353,7 +353,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.4</version>
+      <version>0.13.5-SNAPSHOT</version>
     </dependency>
     
     <dependency>
@@ -384,7 +384,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
-      <version>0.13.5</version>
+      <version>0.13.6-SNAPSHOT</version>
     </dependency>
 
     <dependency>
