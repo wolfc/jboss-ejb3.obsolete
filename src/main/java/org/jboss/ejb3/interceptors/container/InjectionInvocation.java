@@ -22,24 +22,16 @@
 package org.jboss.ejb3.interceptors.container;
 
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.aop.joinpoint.MethodInvocation;
 
 /**
+ * Injection happening on a managed object via the container.
+ * 
+ * Note that currently ejb3-interceptors can't reach injection code (circular dependency).
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class InvocationHelper
+public interface InjectionInvocation extends Invocation
 {
-   public static boolean isInjection(Invocation invocation)
-   {
-      // TODO: make sure invocation is never null
-      return invocation == null || invocation instanceof InjectionInvocation;
-   }
-   
-   public static boolean isLifecycleCallback(Invocation invocation)
-   {
-      assert invocation != null : "invocation is null";
-      // FIXME: determine this properly, right now EJBContainer uses ConstructionInvocation
-      return !(invocation instanceof MethodInvocation);
-   }
+
 }
