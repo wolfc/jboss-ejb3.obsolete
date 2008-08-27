@@ -205,12 +205,23 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          {
             // See if we can get at the bean class from the TCL
             Class<?> businessInterfaceClass = Class.forName(businessInterfaceName, false, tcl);
+            
+            // Load the Bean Class from the Container's CL
+            Class<?> ourBusinessInterfaceClass = Class.forName(businessInterfaceName, false, this.getClassLoader());
 
-            // If so, use the TCL to generate the Proxy class, not the Container CL
-            Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
-            businessInterfaces.add(businessInterfaceClass);
-            constructor = this.createProxyConstructor(businessInterfaces, tcl);
+            // If the classes aren't equal, the injection target won't be assignable
+            if (!businessInterfaceClass.equals(ourBusinessInterfaceClass))
+            {
+               // So use the TCL to generate the Proxy class, not the Container CL
+               Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
+               businessInterfaces.add(businessInterfaceClass);
+               constructor = this.createProxyConstructor(businessInterfaces, tcl);
+            }
 
+         }
+         catch(LinkageError le)
+         {
+            // Ignore
          }
          catch (ClassNotFoundException cce)
          {
