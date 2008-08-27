@@ -34,7 +34,10 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.transaction.UserTransaction;
 
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aspects.currentinvocation.CurrentInvocation;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.ejb3.interceptors.container.InvocationHelper;
 import org.jboss.ejb3.security.helpers.EJBContextHelper;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
@@ -171,6 +174,9 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
 
    public TimerService getTimerService() throws IllegalStateException
    {
+      Invocation invocation = CurrentInvocation.getCurrentInvocation();
+      if(InvocationHelper.isInjection(invocation))
+         throw new IllegalStateException("getTimerService() not allowed during injection (EJB3 4.5.2)");
       return getContainer().getTimerService();
    }
 

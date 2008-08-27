@@ -26,14 +26,11 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.rmi.NoSuchObjectException;
-import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 import java.util.Map;
 
 import javax.ejb.EJBHome;
-import javax.ejb.EJBLocalHome;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
@@ -55,14 +52,12 @@ import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
@@ -70,7 +65,6 @@ import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
-import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
@@ -135,13 +129,7 @@ public class StatefulContainer extends SessionSpecContainer
       pushContext(sfctx);
       try
       {
-         if (injectors != null)
-         {
-            for (Injector injector : injectors)
-            {
-               injector.inject(sfctx);
-            }
-         }
+         injectBeanContext(sfctx);
 
          sfctx.initialiseInterceptorInstances();
 

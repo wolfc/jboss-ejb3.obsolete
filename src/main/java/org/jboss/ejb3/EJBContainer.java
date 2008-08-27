@@ -65,6 +65,7 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
+import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -72,6 +73,7 @@ import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
+import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.interceptor.InterceptorInjector;
 import org.jboss.ejb3.interceptors.aop.LifecycleCallbacks;
@@ -84,7 +86,6 @@ import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.pool.PoolFactory;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.security.SecurityDomainManager;
 import org.jboss.ejb3.statistics.InvocationStatistics;
@@ -186,6 +187,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    // To support clean startup/shutdown
    private ReadWriteLock containerLock = new ReentrantReadWriteLock();
+   
+   private static final Interceptor[] currentInvocationStack = new Interceptor[] { new CurrentInvocationInterceptor() };
    
    /**
     * @param name                  Advisor name
@@ -1031,6 +1034,37 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       pool.setInjectors(injectors.toArray(new Injector[injectors.size()]));
    }
 
+   /**
+    * Note this method is a WIP.
+    * 
+    * In actuality ejb3-interceptors should perform the injection itself,
+    * but this requires a rewrite of all injectors.
+    */
+   public void injectBeanContext(BeanContext<?> beanContext)
+   {
+      try
+      {
+         if(injectors == null)
+            return;
+         Advisor advisor = getAdvisor();
+         for (Injector injector : injectors)
+         {
+            InjectionInvocation invocation = new InjectionInvocation(beanContext, injector, currentInvocationStack);
+            invocation.setAdvisor(advisor);
+            invocation.setTargetObject(beanContext.getInstance());
+            invocation.invokeNext();
+         }
+      }
+      catch(Throwable t)
+      {
+         if(t instanceof Error)
+            throw (Error) t;
+         if(t instanceof RuntimeException)
+            throw (RuntimeException) t;
+         throw new RuntimeException(t);
+      }
+   }
+   
    /**
     * Note that this method is a WIP.
     * 
