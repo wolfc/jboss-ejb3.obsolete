@@ -34,6 +34,7 @@ import javax.naming.StringRefAddr;
 import javax.naming.spi.ObjectFactory;
 
 import org.jboss.aop.Advisor;
+import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.string.StringUtils;
@@ -939,6 +940,17 @@ public abstract class JndiSessionRegistrarBase
 
       // Deregister
       Ejb3RegistrarLocator.locateRegistrar().unbind(name);
+      
+      // EJBTHREE-1473
+      // Deregister with AOP if registered
+      //TODO This should probably be in a cleaner location, ie.
+      // implement a callback for AOP Registration/Deregistration
+      // that decouples JNDI Registration and abstracts whether 
+      // a Proxy Factory is Remote or not
+      if(Dispatcher.singleton.isRegistered(name))
+      {
+         Dispatcher.singleton.unregisterTarget(name);
+      }
    }
 
    // --------------------------------------------------------------------------------||
