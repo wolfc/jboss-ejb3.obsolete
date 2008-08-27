@@ -22,6 +22,7 @@
 package org.jboss.ejb3;
 
 import java.util.Hashtable;
+
 import javax.ejb.TimerService;
 import javax.management.ObjectName;
 import javax.naming.Context;
@@ -70,6 +71,8 @@ public interface Container
 
    Pool getPool();
 
+   void injectBeanContext(BeanContext<?> beanContext);
+   
    void invokePostConstruct(BeanContext beanContext, Object[] params);
 
    void invokePreDestroy(BeanContext beanContext);
