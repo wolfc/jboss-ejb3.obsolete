@@ -212,7 +212,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
             constructor = this.createProxyConstructor(businessInterfaces, tcl);
 
          }
-         catch(LinkageError le)
+         catch (LinkageError le)
          {
             // Ignore
          }
