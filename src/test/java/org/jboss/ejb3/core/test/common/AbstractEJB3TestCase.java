@@ -32,6 +32,7 @@ import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.InitialContextFactory;
+import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -40,7 +41,6 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
-import org.jboss.ejb3.test.cachepassivation.MockEjb3Deployment;
 import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.logging.Logger;
@@ -62,6 +62,10 @@ public abstract class AbstractEJB3TestCase
    private static final Logger log = Logger.getLogger(AbstractEJB3TestCase.class);
 
    private static final String DOMAIN_NAME_SLSB = "Stateless Bean";
+   
+   private static final String DOMAIN_NAME_SFSB = "Stateful Bean";
+   
+   private static final String OBJECT_STORE_NAME_PM_FACTORY_REGISTRY = "EJB3PersistenceManagerFactoryRegistry";
    
    /**
     * Types of Containers Supported
@@ -143,43 +147,61 @@ public abstract class AbstractEJB3TestCase
       // Obtain TCL
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
+      /*
+       * Create Metadata
+       */
+
+      // Create metadata
+      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
+
+      // Ensure a Session Bean
+      assert beanMetaData.isSession() : "The specified EJB must be a Session Bean";
+
+      /*
+       * Determine type
+       */
+
+      // Initialize as SLSB
+      ContainerType sessionType = ContainerType.SLSB;
+
+      // Set as SFSB if stateful
+      if (beanMetaData.isStateful())
+      {
+         sessionType = ContainerType.SFSB;
+      }
+
       // Ensure jndi.properties is accessible
       log.info("Found: " + cl.getResource("jndi.properties"));
 
       // Obtain properties required of container construction
       String beanClassname = beanImplementationClass.getName();
       String ejbName = beanImplementationClass.getSimpleName();
-      Domain domain = getDomain(AbstractEJB3TestCase.DOMAIN_NAME_SLSB);
+      Domain domain = getDomain(sessionType.equals(ContainerType.SLSB)
+            ? AbstractEJB3TestCase.DOMAIN_NAME_SLSB
+            : AbstractEJB3TestCase.DOMAIN_NAME_SFSB);
       Hashtable<?, ?> ctxProperties = null;
       DeploymentUnit unit = new MockDeploymentUnit();
       Ejb3Deployment deployment = new MockEjb3Deployment(unit, null);
-
-      // Create metadata
-      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
       
-      // Ensure a Session Bean
-      assert beanMetaData.isSession() : "The specified EJB must be a Session Bean";
-      
-      /*
-       * Determine type
-       */
-      
-      // Initialize as SLSB
-      ContainerType type = ContainerType.SLSB;
-      
-      // Set as SFSB if stateful
-      if(beanMetaData.isStateful())
+      // Is SFSB, manually set a PM Factory Registry
+      //TODO C'mon, here?  Much better elsewhere.
+      if(sessionType.equals(ContainerType.SFSB))
       {
-         type = ContainerType.SFSB;
+         // Lookup PM Factory Registry in MC
+         PersistenceManagerFactoryRegistry registry = Ejb3RegistrarLocator.locateRegistrar().lookup(
+               AbstractEJB3TestCase.OBJECT_STORE_NAME_PM_FACTORY_REGISTRY, PersistenceManagerFactoryRegistry.class);
+
+         // Set on the deployment
+         deployment.setPersistenceManagerFactoryRegistry(registry);
       }
 
       // Create a Session Container
-      SessionContainer container = instanciateContainer(type, cl, beanClassname, ejbName, domain, ctxProperties,
+      SessionContainer container = instanciateContainer(sessionType, cl, beanClassname, ejbName, domain, ctxProperties,
             deployment, beanMetaData);
-      
+
       // Deploy and register
       registerContainer(container);
-      
+
       // Return
       return container;
    }
