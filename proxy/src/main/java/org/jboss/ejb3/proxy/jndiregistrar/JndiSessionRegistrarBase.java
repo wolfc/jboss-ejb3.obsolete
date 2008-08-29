@@ -92,7 +92,7 @@ public abstract class JndiSessionRegistrarBase
    /**
     * The default URL for InvokerLocator if if cannot be read from the EJB3 Remoting Connector
     */
-   protected static final String DEFAULT_CLIENT_BINDING_IF_CONNECTOR_NOT_FOUND = "0.0.0.0:3873";
+   protected static final String DEFAULT_CLIENT_BINDING_IF_CONNECTOR_NOT_FOUND = "socket://0.0.0.0:3873";
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
