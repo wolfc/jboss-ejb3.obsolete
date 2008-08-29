@@ -196,7 +196,7 @@ public class ProxyDeployer
             if (businessRemotes != null && businessRemotes.size() > 0)
             {
                log.debug("there is remote interfaces for " + container.getEjbName());
-               String jndiName = container.getMetaData().determineResolvedJndiName(null);
+               String jndiName = container.getMetaData().getJndiName();
                log.debug("default remote binding has jndiName of " + jndiName);
                String uri = ""; // use the default
                RemoteBinding[] list = {new RemoteBindingImpl(jndiName, "", uri, RemoteBindingDefaults.PROXY_FACTORY_DEFAULT)};

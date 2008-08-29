@@ -74,7 +74,12 @@ public class InterceptorRegistry
    public List<Class<?>> getApplicableInterceptorClasses(Method method)
    {
       List<Class<?>> methodApplicableInterceptorClasses = applicableInterceptorClasses.get(method);
-      assert methodApplicableInterceptorClasses != null : "applicable interceptors is non-existent for " + method;
+      //TODO
+      //FIXME: This assertion is valid, but EJB3 Core needs to declare virtual methods without interceptors
+      // such that they make the Map of MethodHashes, and these then get improperly placed in the
+      // Joinpoint Map, which ends up here...
+      //assert methodApplicableInterceptorClasses != null : "applicable interceptors is non-existent for " + method;
+      log.warn("applicable interceptors is non-existent for " + method);
       return methodApplicableInterceptorClasses;
    }
    
