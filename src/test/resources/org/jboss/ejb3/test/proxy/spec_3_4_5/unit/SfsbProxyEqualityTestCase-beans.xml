@@ -24,7 +24,7 @@
   </bean>
 
   <!-- Remoting Connector -->
-  <bean name="Connector"
+  <bean name="org.jboss.ejb3.RemotingConnector"
     class="org.jboss.remoting.transport.Connector">
     <property name="invokerLocator">socket://0.0.0.0:3874</property>
     <property name="serverConfiguration">
