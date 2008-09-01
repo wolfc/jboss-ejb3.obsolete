@@ -47,9 +47,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.lang.ClassHelper;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
-import org.jboss.ejb3.enc.MessageDestinationResolver;
 import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.ejb3.entity.SecondLevelCacheUtil;
 import org.jboss.ejb3.javaee.JavaEEApplication;
@@ -60,6 +58,7 @@ import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
+import org.jboss.ejb3.resolvers.MessageDestinationReferenceResolver;
 import org.jboss.injection.InjectionHandler;
 import org.jboss.jpa.resolvers.PersistenceUnitDependencyResolver;
 import org.jboss.logging.Logger;
@@ -128,7 +127,8 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
 
-   protected MessageDestinationResolver messageDestinationResolver;
+   private MessageDestinationReferenceResolver messageDestinationReferenceResolver;
+   
    protected CacheFactoryRegistry cacheFactoryRegistry;
    protected RemoteProxyFactoryRegistry remoteProxyFactoryRegistry;
    protected PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry;
@@ -163,7 +163,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       MessageDestinationsMetaData destinations = null;
       if (metaData != null && metaData.getAssemblyDescriptor() != null)
          destinations = metaData.getAssemblyDescriptor().getMessageDestinations();
-      messageDestinationResolver = new MessageDestinationResolver(deploymentScope, destinations);
    }
    
    /**
@@ -240,6 +239,13 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    {
       return persistenceManagerFactoryRegistry;
    }
+   
+   @Inject
+   public void setMessageDestinationReferenceResolver(MessageDestinationReferenceResolver resolver)
+   {
+      this.messageDestinationReferenceResolver = resolver;
+   }
+   
    public void setPersistenceManagerFactoryRegistry(PersistenceManagerFactoryRegistry registry)
    {
       this.persistenceManagerFactoryRegistry = registry;
@@ -823,65 +829,9 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       }
    }
 
-   //   /**
-   //    * Get the jndi name of a message destination.
-   //    * 
-   //    * @param name   the name of the message destination
-   //    * @return       the jndi name
-   //    */
-   //   private String getMessageDestination(String name)
-   //   {
-   //      EjbJarDD dd;
-   //      // FIXME: Why isn't dd stored somewhere?
-   //      try
-   //      {
-   //         dd = EjbJarDDObjectFactory.parse(getDeploymentUnit().getEjbJarXml());
-   //         dd = JBossDDObjectFactory.parse(getDeploymentUnit().getJbossXml(), dd);
-   //      }
-   //      catch(IOException e)
-   //      {
-   //         throw new RuntimeException(e);
-   //      }
-   //      catch(JBossXBException e)
-   //      {
-   //         throw new RuntimeException(e);
-   //      }
-   //
-   //      AssemblyDescriptor ad = dd.getAssemblyDescriptor();
-   //      if(ad == null)
-   //         throw new IllegalStateException("No assembly descriptor found in '" + getName() + "'");
-   //      MessageDestination md = ad.findMessageDestination(name);
-   //      if(md == null)
-   //         throw new IllegalStateException("No message destination '" + name + "' found in '" + getName() + "'");
-   //      String jndiName = md.getJndiName();
-   //      if(jndiName == null)
-   //         throw new IllegalStateException("No jndi name specified for message destination '" + name + "' in '" + getName() + "'");
-   //      return jndiName;
-   //   }
-
    public String resolveMessageDestination(String link)
    {
-      //      // FIXME: this is a copy of DeploymentEjbResolver
-      //      int hashIndex = link.indexOf('#');
-      //      if (hashIndex != -1)
-      //      {
-      //         if (deploymentScope == null)
-      //         {
-      //            log.warn("ejb link '" + link + "' is relative, but no deployment scope found");
-      //            return null;
-      //         }
-      //         String relativePath = link.substring(0, hashIndex);
-      //         Ejb3Deployment dep = deploymentScope.findRelativeDeployment(relativePath);
-      //         if (dep == null)
-      //         {
-      //            log.warn("can't find a deployment for path '" + relativePath + "' of ejb link '" + link + "'");
-      //            return null;
-      //         }
-      //         String name = link.substring(hashIndex + 1);
-      //         return dep.getMessageDestination(name);
-      //      }
-      //      return getMessageDestination(link);
-      return messageDestinationResolver.resolveMessageDestination(link);
+      return messageDestinationReferenceResolver.resolveMessageDestinationJndiName(deploymentUnit, link);
    }
 
    protected String resolvePersistenceUnitSupplier(String persistenceUnitName)
@@ -889,11 +839,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       return persistenceUnitDependencyResolver.resolvePersistenceUnitSupplier(deploymentUnit, persistenceUnitName);
    }
    
-   public MessageDestinationResolver getMessageDestinationResolver()
-   {
-      return messageDestinationResolver;
-   }
-
    /**
     * Do not call, for use in Ejb3Handler.
     * 
