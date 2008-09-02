@@ -24,8 +24,8 @@ package org.jboss.ejb3.security.bridge;
 import java.lang.annotation.Annotation;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.annotation.impl.SecurityDomainImpl;
 import org.jboss.ejb3.metadata.MetaDataBridge;
+import org.jboss.ejb3.security.annotation.SecurityDomainImpl;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 
@@ -47,7 +47,7 @@ public class SecurityDomainMetaDataBridge implements MetaDataBridge<JBossEnterpr
          if(securityDomain == null)
         	 securityDomain = beanMetaData.getJBossMetaData().getSecurityDomain();
          if (securityDomain != null)
-            return annotationClass.cast(new SecurityDomainImpl(securityDomain)); 
+            return annotationClass.cast(new SecurityDomainImpl(securityDomain, beanMetaData.getEjbJarMetaData().getUnauthenticatedPrincipal())); 
       }
       return null;
    }
