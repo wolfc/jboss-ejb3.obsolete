@@ -58,6 +58,7 @@ import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
+import org.jboss.ejb3.resolvers.DefaultMessageDestinationReferenceResolver;
 import org.jboss.ejb3.resolvers.MessageDestinationReferenceResolver;
 import org.jboss.injection.InjectionHandler;
 import org.jboss.jpa.resolvers.PersistenceUnitDependencyResolver;
@@ -127,7 +128,8 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
 
-   private MessageDestinationReferenceResolver messageDestinationReferenceResolver;
+   // For backwards compatibility initialize to the default.
+   private MessageDestinationReferenceResolver messageDestinationReferenceResolver = new DefaultMessageDestinationReferenceResolver();
    
    protected CacheFactoryRegistry cacheFactoryRegistry;
    protected RemoteProxyFactoryRegistry remoteProxyFactoryRegistry;
