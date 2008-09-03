@@ -163,6 +163,9 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    public boolean isCallerInRole(String roleName)
    {
       EJBContainer ejbc = (EJBContainer)container; 
+      //Take care of Policy Context ID for callbacks
+      SecurityActions.setContextID(ejbc.getJaccContextId()); 
+      
       return ejbContextHelper.isCallerInRole(SecurityActions.getSecurityContext(), 
             ejbc.getAnnotation(SecurityDomain.class), 
             rm, 
