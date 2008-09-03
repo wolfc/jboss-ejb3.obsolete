@@ -18,8 +18,24 @@
 	<!-- test only -->
 	<interceptor name="LoggingInterceptor" class="org.jboss.ejb3.test.interceptors.common.aop.LoggingInterceptor" scope="PER_VM"/>
 	
+    <interceptor name="CurrentInvocation" class="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor" scope="PER_VM"/>
+    
+    <!-- define a stack outside of the domain -->
+    <stack name="LifecycleCallbackStack">
+        <interceptor-ref name="CurrentInvocation"/>
+        <advice name="setup" aspect="InvocationContextInterceptor"/>
+        <interceptor class="org.jboss.ejb3.test.interceptors.common.aop.DoNotInvokeInterceptor"/>
+    </stack>
+    
 	<!-- TODO: this is actually the bootstrap container -->
 	<domain name="InterceptorContainer">
+        <!-- define a stack outside of the domain -->
+        <stack name="LifecycleCallbackStack">
+            <interceptor-ref name="CurrentInvocation"/>
+            <advice name="setup" aspect="InvocationContextInterceptor"/>
+            <interceptor class="org.jboss.ejb3.test.interceptors.common.aop.InvocationCounterInterceptor"/>
+        </stack>
+        
 		<pointcut name="beanAroundInvokeCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.AroundInvoke(..))"/>
 		<pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PostConstruct(..))"/>
 		<pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.annotation.PreDestroy(..))"/>

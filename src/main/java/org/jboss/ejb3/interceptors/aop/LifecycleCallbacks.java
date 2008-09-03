@@ -24,6 +24,7 @@ package org.jboss.ejb3.interceptors.aop;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -33,11 +34,15 @@ import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
 
 import org.jboss.aop.Advisor;
+import org.jboss.aop.AspectManager;
+import org.jboss.aop.Domain;
+import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.advice.PerVmAdvice;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
+import org.jboss.logging.Logger;
 
 /**
  * The common logic for lifecycle callbacks.
@@ -47,13 +52,23 @@ import org.jboss.ejb3.interceptors.lang.ClassHelper;
  */
 public class LifecycleCallbacks
 {
+   private static final Logger log = Logger.getLogger(LifecycleCallbacks.class);
+   
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
       
-      // TODO: these should come from aop.xml
-      interceptors.add(new CurrentInvocationInterceptor());
-      interceptors.add(PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+      AdviceStack stack = advisor.getManager().getAdviceStack("LifecycleCallbackStack");
+      if(stack == null)
+      {
+         log.warn("EJBTHREE-1480: LifecycleCallbackStack has not been defined for " + toString(advisor.getManager()));
+         interceptors.add(new CurrentInvocationInterceptor());
+         interceptors.add(PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup"));
+      }
+      else
+      {
+         interceptors.addAll(Arrays.asList(stack.createInterceptors(advisor, null)));
+      }
       
       // 12.7 footnote 57: ignore method level interceptors
       // The lifecycle callbacks on the interceptors must be invoked in order
@@ -126,5 +141,12 @@ public class LifecycleCallbacks
       }
       classes.add(m.getDeclaringClass());
       return classes;
+   }
+   
+   private static String toString(AspectManager manager)
+   {
+      if(manager instanceof Domain)
+         return "domain '" + ((Domain) manager).getDomainName() + "'";
+      return manager.toString();
    }
 }
