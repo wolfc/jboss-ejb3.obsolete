@@ -197,30 +197,6 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          Constructor<?> constructor = this.getConstructorsProxySpecificBusinessInterface().get(
                businessInterfaceName.trim());
 
-         /*
-          * In place for web injection (isolated CL)
-          */
-         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-         try
-         {
-            // See if we can get at the bean class from the TCL
-            Class<?> businessInterfaceClass = Class.forName(businessInterfaceName, false, tcl);
-
-            // If so, use the TCL to generate the Proxy class, not the Container CL
-            Set<Class<?>> businessInterfaces = new HashSet<Class<?>>();
-            businessInterfaces.add(businessInterfaceClass);
-            constructor = this.createProxyConstructor(businessInterfaces, tcl);
-
-         }
-         catch (LinkageError le)
-         {
-            // Ignore
-         }
-         catch (ClassNotFoundException cce)
-         {
-            // Ignore
-         }
-
          // Ensure the constructor was found
          assert constructor != null : "No business proxy constructor for \"" + businessInterfaceName
                + "\" was found; not created at start() properly?  Bad value bound as RefAddr in JNDI?";
@@ -229,8 +205,11 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
          SessionProxyInvocationHandler handler = this
                .createBusinessInterfaceSpecificInvocationHandler(businessInterfaceName);
 
-         // Create a new Proxy instance, and return
-         return constructor.newInstance(handler);
+         // Create a new Proxy instance
+         Object proxy = constructor.newInstance(handler);
+         
+         // Return
+         return proxy;
       }
       catch (Throwable t)
       {
