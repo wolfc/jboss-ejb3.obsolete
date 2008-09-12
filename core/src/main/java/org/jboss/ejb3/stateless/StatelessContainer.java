@@ -493,6 +493,7 @@ public class StatelessContainer extends SessionSpecContainer
       finally
       {
          Thread.currentThread().setContextClassLoader(originalLoader);
+         this.popEnc();
       }
    }
 
