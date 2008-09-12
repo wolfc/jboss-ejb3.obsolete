@@ -393,9 +393,6 @@ public class StatelessContainer extends SessionSpecContainer
 
       // Set the Container's CL as TCL, required to unmarshall methods from the bean impl class
       Thread.currentThread().setContextClassLoader(this.getClassloader());
-
-      // Push the ENC onto the stack
-      pushEnc();
       
       try
       {
@@ -486,14 +483,11 @@ public class StatelessContainer extends SessionSpecContainer
             }
 
             invokeStats.callOut();
-
-            //invokedMethod.pop();
          }
       }
       finally
       {
          Thread.currentThread().setContextClassLoader(originalLoader);
-         this.popEnc();
       }
    }
 
