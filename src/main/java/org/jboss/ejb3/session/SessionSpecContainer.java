@@ -155,9 +155,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader(this.getClassloader());
       
-      // Push the ENC onto the Stack
-      pushEnc();
-      
       try
       {
          
@@ -245,7 +242,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       {
          invokedMethod.pop();
          Thread.currentThread().setContextClassLoader(oldLoader);
-         popEnc();
       }
    }
 
