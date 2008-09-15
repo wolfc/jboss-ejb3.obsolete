@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-Beta1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -41,7 +41,7 @@
   <!-- Properties -->
 
   <properties>
-    <version.org.jboss.jboss-as>5.0.0.Beta4</version.org.jboss.jboss-as>
+    <version.org.jboss.jboss-as>5.0.0.CR1</version.org.jboss.jboss-as>
   </properties>
 
   <!-- Build Information -->
@@ -392,6 +392,12 @@
       <artifactId>jboss-embedded</artifactId>
       <version>beta3</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-core-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
@@ -536,7 +542,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
+      <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
     </dependency>
     
