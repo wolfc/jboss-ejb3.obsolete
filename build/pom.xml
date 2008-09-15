@@ -108,8 +108,8 @@
     <version.junit_junit>4.4</version.junit_junit>
     <version.org.jboss.aop_jboss-aop>2.0.0.CR15</version.org.jboss.aop_jboss-aop>
     <version.org.jboss.aop_jboss-aop-aspects>2.0.0.CR7</version.org.jboss.aop_jboss-aop-aspects>
+    <version.org.jboss.deployers-deployers-core-spi>2.0.0.CR1</version.org.jboss.deployers-deployers-core-spi>
     <version.org.jboss.microcontainer_jboss-container>2.0.0.Beta10</version.org.jboss.microcontainer_jboss-container>
-    <version.org.jboss.microcontainer_jboss-deployers-core-spi>2.0.0.Beta10</version.org.jboss.microcontainer_jboss-deployers-core-spi>
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.Beta17</version.org.jboss.microcontainer_jboss-kernel>
     <version.org.jboss.ws_jbossws-spi>1.0.3.GA</version.org.jboss.ws_jbossws-spi>
    
@@ -163,6 +163,8 @@
                 <exclude>org.jboss:jboss-metadata</exclude>
                 <!-- deprecated, split up into multiple components -->
                 <exclude>org.jboss.microcontainer:jboss-container</exclude>
+                <!-- deprecated, should be org.jboss.deployers:jboss-deployers-core-spi -->
+                <exclude>org.jboss.microcontainer:jboss-deployers-core-spi</exclude>
                 <!-- deprecated, should be org.jboss.deployers:jboss-deployers-impl -->
                 <exclude>org.jboss.microcontainer:jboss-deployers-impl</exclude>
                 <!-- deprecated, should be org.jboss.deployers:jboss-deployers-spi -->
@@ -437,9 +439,9 @@
       </dependency>
       
       <dependency>
-        <groupId>org.jboss.microcontainer</groupId>
+        <groupId>org.jboss.deployers</groupId>
         <artifactId>jboss-deployers-core-spi</artifactId>
-        <version>${version.org.jboss.microcontainer_jboss-deployers-core-spi}</version>
+        <version>${version.org.jboss.deployers-deployers-core-spi}</version>
       </dependency>
 
        <dependency>
