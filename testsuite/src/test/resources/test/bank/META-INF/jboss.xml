@@ -12,7 +12,7 @@
          <remote-binding>
             <jndi-name>bank/Bank</jndi-name>
          </remote-binding>
-         <!-- clustered>true</clustered -->
+         <clustered>true</clustered>
          <security-domain>java:/jaas/bank</security-domain>
          <method-attributes>
             <method>
