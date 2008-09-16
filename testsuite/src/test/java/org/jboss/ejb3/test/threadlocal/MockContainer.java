@@ -60,6 +60,18 @@ public class MockContainer implements Container
 
    }
 
+   public String getName()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   public void injectBeanContext(BeanContext<?> arg0)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
    public BeanContext<?> createBeanContext()
    {
       return new MockBeanContext(construct());
@@ -77,7 +89,7 @@ public class MockContainer implements Container
    /* (non-Javadoc)
     * @see org.jboss.ejb3.Container#getBeanClass()
     */
-   public Class getBeanClass()
+   public Class<?> getBeanClass()
    {
       // TODO Auto-generated method stub
       return null;

@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.cachepassivation;
 
+import java.io.Serializable;
 import java.util.Hashtable;
 
 import org.jboss.aop.Domain;
@@ -44,7 +45,7 @@ public class MockStatefulContainer extends StatefulContainer
    }
    
    @Override
-   public Object createSession()
+   public Serializable createSession()
    {
       // TODO Auto-generated method stub
       return super.createSession();
