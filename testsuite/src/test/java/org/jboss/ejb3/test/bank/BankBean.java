@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.bank;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.sql.Connection;
+
 import javax.annotation.Resource;
 import javax.ejb.EJBException;
 import javax.ejb.Init;
@@ -38,7 +39,7 @@ import org.jboss.ejb3.Container;
  * @author $Author$
  * @version $Revision$
  */
-public class BankBean implements Bank, Serializable, javax.ejb.SessionSynchronization
+public class BankBean implements BankRemote, Serializable, javax.ejb.SessionSynchronization
 {
    transient public DataSource customerDb;
 

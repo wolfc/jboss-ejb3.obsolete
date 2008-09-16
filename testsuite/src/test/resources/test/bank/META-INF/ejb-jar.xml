@@ -10,7 +10,7 @@
    <enterprise-beans>
       <session>
          <ejb-name>Teller</ejb-name>
-         <remote>org.jboss.ejb3.test.bank.Teller</remote>
+         <business-remote>org.jboss.ejb3.test.bank.Teller</business-remote>
          <ejb-class>org.jboss.ejb3.test.bank.TellerBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -35,7 +35,7 @@
       </session>
       <session>
          <ejb-name>Bank</ejb-name>
-         <remote>org.jboss.ejb3.test.bank.Bank</remote>
+         <business-remote>org.jboss.ejb3.test.bank.BankRemote</business-remote>
          <ejb-class>org.jboss.ejb3.test.bank.BankBean</ejb-class>
          <session-type>Stateful</session-type>
          
@@ -75,7 +75,7 @@
       </session>
       <session>
          <ejb-name>Bank21</ejb-name>
-         <remote>org.jboss.ejb3.test.bank.Bank</remote>
+         <remote>org.jboss.ejb3.test.bank.Bank21</remote>
          <ejb-class>org.jboss.ejb3.test.bank.BankBean21</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>
