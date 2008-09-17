@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- TODO: move SchemaResolverConfig to a more general beans.xml -->
+   <bean name="SchemaResolverConfig" class="org.jboss.xb.binding.sunday.unmarshalling.SchemaResolverConfig">
+      <property name="bindingClassesByLocations">
+         <map keyClass="java.lang.String" valueClass="java.lang.String">
+            <entry>
+               <key>ejb-jar_3_0.xsd</key>
+               <value>org.jboss.metadata.ejb.spec.EjbJar30MetaData</value>
+            </entry>
+            <entry>
+               <key>jboss_5_0.xsd</key>
+               <value>org.jboss.metadata.ejb.jboss.JBoss50MetaData</value>
+            </entry>
+            <entry>
+               <key>persistence_1_0.xsd</key>
+               <value>org.jboss.metadata.jpa.spec.PersistenceMetaData</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <bean name="EjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.EjbParsingDeployer"/>
+   <bean name="JBossEjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.JBossEjbParsingDeployer"/>
+   <bean name="EjbAnnotationMetaDataDeployer" class="org.jboss.ejb3.embedded.deployers.EjbAnnotationMetaDataDeployer"/>
+   
+   <bean name="MergedJBossMetaDataDeployer" class="org.jboss.ejb3.embedded.deployers.MergedJBossMetaDataDeployer"/>
+   
+   <bean name="EjbMetadataJndiPolicyDecoratorDeployer" class="org.jboss.ejb3.embedded.deployers.EjbMetadataJndiPolicyDecoratorDeployer"/>
+   
+   <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
+   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer"/>
+
+   <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.embedded.resolvers.EmbeddedMessageDestinationReferenceResolver"/>
+   
+   <!-- EJB3 Pool Factory Registry -->
+   <bean name="EJB3PoolFactoryRegistry" class="org.jboss.ejb3.pool.PoolFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- ThreadlocalPool -->
+            <entry>
+               <key>ThreadlocalPool</key>
+               <value>org.jboss.ejb3.pool.ThreadlocalPoolFactory</value>
+            </entry>
+            <!-- StrictMaxPool -->
+            <entry>
+               <key>StrictMaxPool</key>
+               <value>org.jboss.ejb3.pool.StrictMaxPoolFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <!-- SLSB JNDI Registrar -->
+   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
+      class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
+      <constructor>
+         <parameter>
+            org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
+         </parameter>
+      </constructor>
+   </bean>
+
+</deployment>
