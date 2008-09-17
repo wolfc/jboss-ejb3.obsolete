@@ -219,23 +219,26 @@ public abstract class JndiSessionRegistrarBase
          // Obtain RemoteBinding URL
          List<RemoteBindingMetaData> bindings = smd.getRemoteBindings();
          
-         // Sanity checks
-         boolean bindingsFound =bindings != null && bindings.size() > 0; 
-         assert bindingsFound : "Remote Bindings are required and none are present";
-         if (!bindingsFound)
+         // Get Client Bind URL
+         RemoteBindingMetaData remoteBinding = null;
+         String url = null;
+         try
          {
-            throw new RuntimeException(
-                  "This bean has been declared as remote (possibly via @RemoteHome, but with no EJB2.1 View), "
-                        + "yet no remote bindings have been defined");
+            // If bindings are specified
+            if (bindings != null)
+            {
+               remoteBinding = bindings.get(0);
+               url = remoteBinding.getClientBindUrl();
+            }
+         }
+         // The bindings were empty
+         catch (IndexOutOfBoundsException ioobe)
+         {
+            // Create a new empty remote binding and add to the metadata
+            remoteBinding = new RemoteBindingMetaData();
+            smd.getRemoteBindings().add(remoteBinding);
          }
          
-         //TODO Remote Bindings should be 1 per defined
-         // http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4176636
-         
-         // Get Remote Binding
-         RemoteBindingMetaData remoteBinding = bindings.get(0);
-         String url = remoteBinding.getClientBindUrl();
-
          // If no explicit Client Bind URL is specified
          if (url == null || url.trim().equals(""))
          {
