@@ -37,9 +37,6 @@ import javax.ejb.Stateful;
 @LocalHome(MyStatefulLocalHome.class)
 @RemoteHome(MyStatefulRemoteHome.class)
 public class MyStateful2xOnlyBean extends MyStatefulBeanBase
-      implements
-         MyStatefulLocalBusiness,
-         MyStatefulRemoteBusiness
 {
    // Business Logic in Base
 }
