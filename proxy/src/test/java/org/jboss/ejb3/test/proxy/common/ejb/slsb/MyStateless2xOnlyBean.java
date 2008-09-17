@@ -34,7 +34,7 @@ import javax.ejb.Stateless;
 @Stateless
 @LocalHome(MyStatelessLocalHome.class)
 @RemoteHome(MyStatelessRemoteHome.class)
-public class MyStateless2xOnlyBean implements MyStatelessLocal, MyStatelessRemote
+public class MyStateless2xOnlyBean
 {
    public String sayHi(String name)
    {

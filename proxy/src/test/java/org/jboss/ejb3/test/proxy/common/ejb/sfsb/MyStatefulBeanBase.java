@@ -29,7 +29,7 @@ package org.jboss.ejb3.test.proxy.common.ejb.sfsb;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class MyStatefulBeanBase implements MyStatefulLocalBusiness, MyStatefulRemoteBusiness
+public class MyStatefulBeanBase
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
