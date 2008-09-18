@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.proxy.remoteaccess.unit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
@@ -74,6 +75,12 @@ public class RemoteAccessTestCase
    private static final String FILENAME_DEPENDENCY_CP = RemoteAccessTestCase.LOCATION_TARGET + File.separator
          + "cp.txt";
 
+   private static final String JNDI_NAME_SLSB_LOCAL = "MyStatelessBean/local";
+
+   private static final String JNDI_NAME_SLSB_REMOTE = "MyStatelessBean/remote";
+
+   private static final String JNDI_NAME_SFSB_REMOTE = "MyStatefulBean/remote";
+
    private static Process remoteProcess;
 
    private static Context context;
@@ -92,7 +99,7 @@ public class RemoteAccessTestCase
    @Test
    public void testStatelessSessionRemoteInvocation() throws Throwable
    {
-      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatelessBean/remote");
+      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SLSB_REMOTE);
       assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
             bean instanceof MyStatelessRemote);
 
@@ -107,7 +114,7 @@ public class RemoteAccessTestCase
    @Test
    public void testStatelessSessionDuplicateRemoteInvocations() throws Throwable
    {
-      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatelessBean/remote");
+      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SLSB_REMOTE);
       assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
             bean instanceof MyStatelessRemote);
 
@@ -127,7 +134,7 @@ public class RemoteAccessTestCase
    public void testStatefulSessionRemoteInvocation() throws Throwable
    {
       // Obtain the Proxy
-      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatefulBean/remote");
+      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SFSB_REMOTE);
       assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
             + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
 
@@ -143,7 +150,7 @@ public class RemoteAccessTestCase
    public void testStatefulSessionDuplicateRemoteInvocation() throws Throwable
    {
       // Obtain the Proxy
-      Object bean = RemoteAccessTestCase.getContext().lookup("MyStatefulBean/remote");
+      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SFSB_REMOTE);
       assertTrue("Bean must be assignable to " + MyStatefulRemoteBusiness.class.getSimpleName() + " but was instead "
             + bean.getClass(), bean instanceof MyStatefulRemoteBusiness);
 
@@ -153,6 +160,25 @@ public class RemoteAccessTestCase
       assertEquals(result, 0);
       result = sfsb.getNextCounter();
       assertEquals(result, 1);
+   }
+
+   /**
+    * Ensures that a SLSB Local Proxy may be looked up from a Remote Host.
+    * Invocation, however, is not tested (as this is expected to fail)
+    */
+   @Test
+   public void testStatelessLocalProxyLookupFromRemoteHost() throws Throwable
+   {
+      // Lookup 
+      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SLSB_LOCAL);
+
+      // Ensure not null
+      assertNotNull("Local Proxy obtained from remote host is null", bean);
+
+      // Ensure correct type
+      assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
+            bean instanceof MyStatelessRemote);
+
    }
 
    // --------------------------------------------------------------------------------||
