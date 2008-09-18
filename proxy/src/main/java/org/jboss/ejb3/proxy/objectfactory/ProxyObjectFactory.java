@@ -201,7 +201,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       // Get the value
       String value = this.getSingleReferenceAddressValue(name, referenceAddresses, refAddrType);
       assert (value != null && !value.trim().equals("")) : "Exactly one " + RefAddr.class.getSimpleName() + " of type "
-            + refAddrType + " must be defined, none found";
+            + refAddrType + " must be defined for Name " + name.toString() +", none found";
 
       // Return
       return value;
