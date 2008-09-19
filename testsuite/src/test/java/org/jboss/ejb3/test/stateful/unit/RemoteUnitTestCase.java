@@ -291,27 +291,6 @@ extends JBossTestCase
       }
    }
    
-   public void testLocalSFSB() throws Exception
-   {
-      SecurityClient client = SecurityClientFactory.getSecurityClient();
-      client.setSimple("somebody", "password");
-      client.login();
-      
-      try
-      {
-         StatefulLocal stateful = (StatefulLocal)getInitialContext().lookup("StatefulBean/local");
-         assertNotNull(stateful);
-         
-         stateful.getState();
-         fail("EJBException should be thrown");
-      }
-      catch (Exception e)
-      {
-         if (e.getCause() == null || !(e.getCause() instanceof javax.ejb.EJBException))
-            fail("EJBException should be thrown as cause");
-      }
-   }
-   
    public void testNotSerialableSFSB() throws Exception
    {
       SecurityClient client = SecurityClientFactory.getSecurityClient();

@@ -72,25 +72,6 @@ public class StatelessTestCase extends JBossTestCase
       //assertEquals("somebody", principal);
       assertEquals("anonymous", principal);
    }
-   
-   public void testStatelessLocal() throws Exception
-   {
-      SecurityClient client = SecurityClientFactory.getSecurityClient();
-      client.setSimple("somebody", "password");
-      client.login();
-       
-      try
-      {
-         RunAsStatelessLocal runAs = (RunAsStatelessLocal) getInitialContext().lookup("RunAsStatelessEjbName/local");
-         assertNotNull(runAs);
-         runAs.method(1);
-         fail("EJBException should be thrown");
-      }
-      catch (javax.ejb.EJBException e)
-      {
-         log.info("Caught EJBException " + e.getMessage());
-      }
-   }
 
    public void testRunAs() throws Exception
    {
