@@ -39,4 +39,6 @@ public interface StatefulCommonBusiness
     * @return
     */
    int getNextCounter();
+   
+   void remove();
 }

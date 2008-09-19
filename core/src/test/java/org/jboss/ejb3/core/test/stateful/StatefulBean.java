@@ -21,11 +21,15 @@
  */
 package org.jboss.ejb3.core.test.stateful;
 
+import javax.annotation.PreDestroy;
 import javax.ejb.Local;
 import javax.ejb.LocalHome;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
+import javax.ejb.Remove;
 import javax.ejb.Stateful;
+
+import org.jboss.logging.Logger;
 
 /**
  * StatefulBean
@@ -42,7 +46,10 @@ import javax.ejb.Stateful;
 @RemoteHome(StatefulRemoteHome.class)
 public class StatefulBean implements StatefulRemoteBusiness, StatefulLocalBusiness
 {
-
+   private static Logger log = Logger.getLogger(StatefulBean.class);
+   
+   public static int preDestroys = 0;
+   
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -65,4 +72,16 @@ public class StatefulBean implements StatefulRemoteBusiness, StatefulLocalBusine
       return ++counter;
    }
 
+   @PreDestroy
+   public void preDestroy()
+   {
+      log.info("preDestroy");
+      preDestroys++;
+   }
+   
+   @Remove
+   public void remove()
+   {
+      log.info("remove");
+   }
 }
