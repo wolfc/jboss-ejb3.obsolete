@@ -22,13 +22,14 @@
 package org.jboss.ejb3.stateful;
 
 import java.lang.reflect.Method;
+
 import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
 import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
-import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
@@ -76,18 +77,18 @@ public class StatefulRemoveInterceptor extends AbstractInterceptor
       {
          try
          {
-            StatefulBeanContext ctx = container.getCache().get(id);
-            container.invokePreDestroy(ctx);
+            container.getCache().remove(id);
          }
-         catch (Throwable t)
+         catch(Throwable t)
          {
-            if (!retainIfException)
-            {
-               container.getCache().remove(id);
-            }
+            // An exception thrown from afterCompletion is gobbled up
+            log.error("Removing bean " + id + " from " + container + " failed", t);
+            if(t instanceof Error)
+               throw (Error) t;
+            if(t instanceof RuntimeException)
+               throw (RuntimeException) t;
             throw new RuntimeException(t);
          }
-         container.getCache().remove(id);
       }
    }
 
