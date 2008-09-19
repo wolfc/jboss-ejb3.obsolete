@@ -175,6 +175,9 @@ public class StatefulContainerTestCase
       AbstractEJB3TestCase.afterClass();
    }
    
+   /**
+    * EJBTHREE-1496: preDestroy must be called on remove.
+    */
    @Test
    public void testPreDestroy() throws NamingException
    {
