@@ -40,6 +40,7 @@ import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.kernel.spi.dependency.KernelController;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.kernel.spi.deployment.KernelDeployment;
+import org.jboss.logging.Logger;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VirtualFile;
 
@@ -49,6 +50,8 @@ import org.jboss.virtual.VirtualFile;
  */
 public class JBossEJBContainer extends EJBContainer
 {
+   private static final Logger log = Logger.getLogger(JBossEJBContainer.class);
+   
    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
    
    // stage 1
@@ -119,6 +122,7 @@ public class JBossEJBContainer extends EJBContainer
    
    private KernelDeployment deploy(URL url) throws Throwable
    {
+      log.info("Deploying " + url);
       KernelDeployment deployment = deployer.deploy(url);
       deployer.validate(deployment);
       return deployment;
@@ -127,6 +131,12 @@ public class JBossEJBContainer extends EJBContainer
    private void deployMain(String name) throws DeploymentException, IllegalArgumentException, MalformedURLException, IOException
    {
       URL url = getResource(name);
+      deployMain(url);
+   }
+   
+   private void deployMain(URL url) throws DeploymentException, IOException
+   {
+      log.info("Deploying " + url);
       VirtualFile root = VFS.getRoot(url);
       VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
       mainDeployer.deploy(deployment);
@@ -141,10 +151,7 @@ public class JBossEJBContainer extends EJBContainer
       
       for(String module : modules)
       {
-         VirtualFile root = VFS.getRoot(new URL(module));
-         VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
-         mainDeployer.deploy(deployment);
-         mainDeployer.checkComplete(deployment);
+         deployMain(new URL(module));
       }
    }
    
