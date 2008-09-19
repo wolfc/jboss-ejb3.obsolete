@@ -27,6 +27,8 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.NoSuchEJBException;
+import javax.naming.NamingException;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
@@ -37,6 +39,7 @@ import org.jboss.ejb3.core.test.ejbthree670.MyStateful21Home;
 import org.jboss.ejb3.core.test.ejbthree670.MyStatefulBean;
 import org.jboss.ejb3.session.SessionContainer;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,6 +63,13 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
       AbstractEJB3TestCase.afterClass();
    }
    
+   @Before
+   public void before()
+   {
+      MyStateful21Bean.preDestroyCalls = 0;
+      MyStatefulBean.preDestroyCalls = 0;
+   }
+   
    @BeforeClass
    public static void beforeClass() throws Exception
    {
@@ -69,8 +79,7 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
       containers.add(deploySessionEjb(MyStateful21Bean.class));
    }
    
-   @Test
-   public void test1() throws Exception
+   private MyStateful runMyStatefulTest() throws NamingException
    {
       MyStateful session = (MyStateful) getInitialContext().lookup("MyStatefulBean/remote");
       session.setName("Test");
@@ -86,6 +95,23 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
             fail("pre destroy called multiple times");
          throw e;
       }
+      return session;
+   }
+   
+   @Test
+   public void test1() throws Exception
+   {
+      MyStateful session = runMyStatefulTest();
+      try
+      {
+         session.remove();
+         fail("Should have thrown NoSuchEJBException");
+      }
+      catch(NoSuchEJBException e)
+      {
+         // okay
+      }
+      assertEquals("number of PreDestroy calls", 1, MyStatefulBean.preDestroyCalls);
    }
    
    @Test
@@ -106,6 +132,7 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
             fail("pre destroy called multiple times");
          throw e;
       }
+      assertEquals("number of PreDestroy calls", 1, MyStateful21Bean.preDestroyCalls);
    }
    
    @Test
@@ -126,20 +153,32 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
             fail("pre destroy called multiple times");
          throw e;
       }
+      assertEquals("number of PreDestroy calls", 1, MyStateful21Bean.preDestroyCalls);
    }
    
    @Test
    public void testWithInTransaction() throws Exception
    {
+      MyStateful session;
       TransactionManager tm = lookup("java:/TransactionManager", TransactionManager.class);
       tm.begin();
       try
       {
-         test1();
+         session = runMyStatefulTest();
       }
       finally
       {
          tm.rollback();
       }
+      try
+      {
+         session.remove();
+         fail("Should have thrown NoSuchEJBException");
+      }
+      catch(NoSuchEJBException e)
+      {
+         // okay
+      }
+      assertEquals("number of PreDestroy calls", 1, MyStatefulBean.preDestroyCalls);
    }
 }

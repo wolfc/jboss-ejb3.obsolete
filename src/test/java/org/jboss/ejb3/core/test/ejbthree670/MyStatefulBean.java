@@ -41,7 +41,7 @@ public class MyStatefulBean implements MyStateful
    private static final Logger log = Logger.getLogger(MyStatefulBean.class);
    
    private String name;
-   private int preDestroyCalls = 0;
+   public static int preDestroyCalls = 0;
    
    @PreDestroy
    public void preDestroy()

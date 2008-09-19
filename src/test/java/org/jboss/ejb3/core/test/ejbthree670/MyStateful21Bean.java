@@ -47,7 +47,7 @@ public class MyStateful21Bean implements SessionBean
    private static final Logger log = Logger.getLogger(MyStateful21Bean.class);
    
    private String name;
-   private int preDestroyCalls = 0;
+   public static int preDestroyCalls = 0;
    
    public void ejbActivate() throws EJBException, RemoteException
    {
