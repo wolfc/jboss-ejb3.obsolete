@@ -23,7 +23,6 @@ package org.jboss.ejb3.proxy.objectfactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -114,35 +113,38 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       // Obtain Proxy Factory
       ProxyFactory proxyFactory = null;
 
-      try
-      {
-         // Attempt to get local EJB3 Registrar
-         //TODO EJBTHREE-1403
-         // This is the wrong way to determine local/remote 
-         Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+      // Determine if Remote or Local (EJBTHREE-1403)
+      String isLocalStringFromRefAddr = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_IS_LOCAL);
+      assert isLocalStringFromRefAddr != null && isLocalStringFromRefAddr.trim().length() > 0 : "Required "
+            + RefAddr.class.getSimpleName() + " \"" + ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_IS_LOCAL
+            + "\" was not found at JNDI Name " + name;
+      boolean isLocal = new Boolean(isLocalStringFromRefAddr);
 
-         // Local lookup succeeded, so use it
-         // BES 2008/08/22 -- a NotBoundException doesn't mean failure, just
-         // means the container isn't deployed in this server. So don't catch it
-         // in an inner try/catch; let it propagate to the outer catch.
-         // This may or may not be the proper fix for EJBTHREE-1403, but it allows
-         // clustering unit tests to pass.
-//         try
-//         {
+      // If this is local
+      if (isLocal)
+      {
+         try
+         {
+            // Get local EJB3 Registrar 
+            Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+
             Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
             assert pfObj != null : ProxyFactory.class.getName() + " from key " + proxyFactoryRegistryKey + " was null";
             assert pfObj instanceof ProxyFactory : " Object obtained from key " + proxyFactoryRegistryKey
                   + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
             proxyFactory = (ProxyFactory) pfObj;
-//         }
-//         catch (NotBoundException nbe)
-//         {
-//            throw new RuntimeException("Could not obtain " + ProxyFactory.class.getSimpleName()
-//                  + " from expected key \"" + proxyFactoryRegistryKey + "\"", nbe);
-//         }
+         }
+         // BES 2008/08/22 -- a NotBoundException doesn't mean failure, just
+         // means the container isn't deployed in this server. So don't catch it
+         // in an inner try/catch; let it propagate to the outer catch.
+         catch (NotBoundException nbe)
+         {
+            proxyFactory = createProxyFactoryProxy(name, refAddrs, proxyFactoryRegistryKey);
+         }
       }
       // Registrar is not local, so use Remoting to Obtain Proxy Factory
-      catch (NotBoundException nbe)
+      else
       {
          proxyFactory = createProxyFactoryProxy(name, refAddrs, proxyFactoryRegistryKey);
       }
@@ -168,20 +170,27 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          String proxyFactoryRegistryKey) throws Exception
    {
       // Obtain the URL for invoking upon the Registry
-      String url = this.getSingleRequiredReferenceAddressValue(name, refAddrs,
+      String url = this.getSingleReferenceAddressValue(name, refAddrs,
             ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
 
       // Create an InvokerLocator
-      assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
-            + " URL is required, but is not specified; improperly bound reference in JNDI";
+      assert url != null && url.trim().length() != 0 : InvokerLocator.class.getSimpleName()
+            + " URL is required, but is not specified; improperly bound reference "
+            + "in JNDI or looking up local Proxy from Remote JVM";
+      if (url == null || url.trim().length() == 0)
+      {
+         throw new RuntimeException("Could not find " + InvokerLocator.class.getSimpleName()
+               + " URL at JNDI address \"" + name + "\"; looking up local Proxy from Remote JVM?");
+      }
       InvokerLocator locator = new InvokerLocator(url);
 
       // Create a POJI Proxy to the Registrar
       Interceptor[] interceptors =
       {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
       PojiProxy handler = new PojiProxy(proxyFactoryRegistryKey, locator, interceptors);
-      Class<?>[] interfaces = new Class<?>[]{this.getProxyFactoryClass()};
-      
+      Class<?>[] interfaces = new Class<?>[]
+      {this.getProxyFactoryClass()};
+
       return (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
    }
 
@@ -201,7 +210,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       // Get the value
       String value = this.getSingleReferenceAddressValue(name, referenceAddresses, refAddrType);
       assert (value != null && !value.trim().equals("")) : "Exactly one " + RefAddr.class.getSimpleName() + " of type "
-            + refAddrType + " must be defined for Name " + name.toString() +", none found";
+            + refAddrType + " must be defined for Name " + name.toString() + ", none found";
 
       // Return
       return value;

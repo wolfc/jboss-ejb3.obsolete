@@ -86,5 +86,7 @@ public interface ProxyFactoryReferenceAddressTypes
     */
    
    String REF_ADDR_TYPE_INVOKER_LOCATOR_URL = "Remoting Host URL";
+   
+   String REF_ADDR_TYPE_IS_LOCAL = "Proxy Factory is Local";
 
 }
