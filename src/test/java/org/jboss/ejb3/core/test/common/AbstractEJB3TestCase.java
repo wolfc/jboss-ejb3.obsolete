@@ -328,6 +328,11 @@ public abstract class AbstractEJB3TestCase
       if (container == null)
          return;
 
+      unregisterContainer(container);
+   }
+   
+   private static void unregisterContainer(SessionContainer container)
+   {
       // Unbind and call appropriate lifecycle events
       try
       {
@@ -337,5 +342,6 @@ public abstract class AbstractEJB3TestCase
       {
          // Ignore
       }
+      Ejb3Registry.unregister(container);
    }
 }
