@@ -24,6 +24,9 @@ package org.jboss.ejb3.core.test.ejbthree670.unit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
@@ -32,6 +35,7 @@ import org.jboss.ejb3.core.test.ejbthree670.MyStateful21;
 import org.jboss.ejb3.core.test.ejbthree670.MyStateful21Bean;
 import org.jboss.ejb3.core.test.ejbthree670.MyStateful21Home;
 import org.jboss.ejb3.core.test.ejbthree670.MyStatefulBean;
+import org.jboss.ejb3.session.SessionContainer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -44,9 +48,15 @@ import org.junit.Test;
  */
 public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
 {
+   private static List<SessionContainer> containers = new ArrayList<SessionContainer>();
+   
    @AfterClass
    public static void afterClass() throws Exception
    {
+      for(SessionContainer container : containers)
+         undeployEjb(container);
+      containers.clear();
+      
       AbstractEJB3TestCase.afterClass();
    }
    
@@ -55,8 +65,8 @@ public class PreDestroyCallsTestCase extends AbstractEJB3TestCase
    {
       AbstractEJB3TestCase.beforeClass();
       
-      deploySessionEjb(MyStatefulBean.class);
-      deploySessionEjb(MyStateful21Bean.class);
+      containers.add(deploySessionEjb(MyStatefulBean.class));
+      containers.add(deploySessionEjb(MyStateful21Bean.class));
    }
    
    @Test
