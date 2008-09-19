@@ -24,6 +24,9 @@ package org.jboss.ejb3.core.test.common;
 import java.net.URL;
 import java.util.Hashtable;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.aop.Domain;
@@ -67,6 +70,8 @@ public abstract class AbstractEJB3TestCase
    
    private static final String OBJECT_STORE_NAME_PM_FACTORY_REGISTRY = "EJB3PersistenceManagerFactoryRegistry";
    
+   private static InitialContext initialContext;
+   
    /**
     * Types of Containers Supported
     */
@@ -77,6 +82,10 @@ public abstract class AbstractEJB3TestCase
    @AfterClass
    public static void afterClass() throws Exception
    {
+      if(initialContext != null)
+         initialContext.close();
+      initialContext = null;
+      
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
       if (url != null)
          AspectXmlLoader.undeployXML(url);
@@ -112,6 +121,8 @@ public abstract class AbstractEJB3TestCase
          throw new IllegalStateException("Can't find ejb3-interceptors-aop.xml on class loader "
                + Thread.currentThread().getContextClassLoader());
       AspectXmlLoader.deployXML(url);
+      
+      initialContext = new InitialContext();
    }
 
    private static void deploy(String resourceName)
@@ -134,6 +145,11 @@ public abstract class AbstractEJB3TestCase
       if (domainDef == null)
          throw new IllegalArgumentException("No such domain '" + domainName + "'");
       return (Domain) domainDef.getManager();
+   }
+   
+   protected static InitialContext getInitialContext()
+   {
+      return initialContext;
    }
    
    /**
@@ -259,7 +275,11 @@ public abstract class AbstractEJB3TestCase
       return container;
    }
    
-
+   protected static <T> T lookup(String name, Class<T> type) throws NamingException
+   {
+      return type.cast(getInitialContext().lookup(name));
+   }
+   
    /**
     * Deploys, registers the specified Session Container
     * 
