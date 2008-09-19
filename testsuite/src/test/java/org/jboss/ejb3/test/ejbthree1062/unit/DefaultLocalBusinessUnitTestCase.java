@@ -23,8 +23,6 @@ package org.jboss.ejb3.test.ejbthree1062.unit;
 
 import java.util.Date;
 
-import javax.naming.NameNotFoundException;
-
 import junit.framework.Test;
 
 import org.jboss.ejb3.test.ejbthree1062.Tester;
@@ -53,15 +51,6 @@ public class DefaultLocalBusinessUnitTestCase extends JBossTestCase
    
    public void testCalculator() throws Exception
    {
-      // Guard for errors
-      try
-      {
-         getInitialContext().lookup("CalculatorBean/local");
-      }
-      catch(NameNotFoundException e)
-      {
-         fail("CalculatorBean was not deployed properly");
-      }
       Tester tester = (Tester) getInitialContext().lookup("TesterBean/remote");
       int actual = tester.add(1, 2);
       assertEquals(3, actual);
@@ -69,15 +58,6 @@ public class DefaultLocalBusinessUnitTestCase extends JBossTestCase
    
    public void testSayHiTo() throws Exception
    {
-      // Guard for errors
-      try
-      {
-         getInitialContext().lookup("MyStatelessBean/local");
-      }
-      catch(NameNotFoundException e)
-      {
-         fail("MyStatelessBean was not deployed properly");
-      }
       Tester tester = (Tester) getInitialContext().lookup("TesterBean/remote");
       Date date = new Date();
       String expected = "Hi " + date;
