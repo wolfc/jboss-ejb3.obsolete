@@ -33,6 +33,7 @@ import org.jboss.ejb3.core.test.stateful.StatefulLocalBusiness;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -150,6 +151,12 @@ public class StatefulContainerTestCase
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+   @Before
+   public void before()
+   {
+      StatefulBean.preDestroys = 0;
+   }
+   
    @BeforeClass
    public static void beforeClass() throws Exception
    {
@@ -166,5 +173,14 @@ public class StatefulContainerTestCase
       AbstractEJB3TestCase.undeployEjb(container);
 
       AbstractEJB3TestCase.afterClass();
+   }
+   
+   @Test
+   public void testPreDestroy() throws NamingException
+   {
+      StatefulLocalBusiness bean = lookupLocalSfsb();
+      bean.remove();
+      
+      assertEquals("Wrong number of PreDestroy invocations", 1, StatefulBean.preDestroys);
    }
 }
