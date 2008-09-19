@@ -45,8 +45,7 @@ public class BeanContainerBeanContextFactory implements BeanContextFactory<Objec
     */
    public void destroyBean(BeanContext<Object> bean)
    {
-      // TODO Auto-generated method stub
-
+      container.getEJBContainer().destroyBeanContext(bean);
    }
 
    public void setContainer(BeanContainer container)

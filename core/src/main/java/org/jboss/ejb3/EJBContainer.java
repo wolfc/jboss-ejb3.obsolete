@@ -315,6 +315,15 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       return JavaEEComponentHelper.createObjectName(deployment, unitName, ejbName);
    }
    
+   /**
+    * Do nothing.
+    * @param ctx
+    */
+   public void destroyBeanContext(org.jboss.ejb3.interceptors.container.BeanContext<?> ctx)
+   {
+      
+   }
+   
    // TODO: re-evaluate this exposure
    @Deprecated
    public Advisor getAdvisor()
@@ -1115,9 +1124,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
 
    public void invokePreDestroy(BeanContext beanContext)
    {
-      // This is the correct way to destroy an instance, do
-      // not call invokeCallback here.
-      beanContainer.destroy(beanContext);
+      invokeCallback(beanContext, PreDestroy.class);
    }
 
    public void invokePostActivate(BeanContext beanContext)
