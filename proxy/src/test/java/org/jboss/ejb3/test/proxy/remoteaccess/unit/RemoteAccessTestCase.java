@@ -162,25 +162,6 @@ public class RemoteAccessTestCase
       assertEquals(result, 1);
    }
 
-   /**
-    * Ensures that a SLSB Local Proxy may be looked up from a Remote Host.
-    * Invocation, however, is not tested (as this is expected to fail)
-    */
-   @Test
-   public void testStatelessLocalProxyLookupFromRemoteHost() throws Throwable
-   {
-      // Lookup 
-      Object bean = RemoteAccessTestCase.getContext().lookup(JNDI_NAME_SLSB_LOCAL);
-
-      // Ensure not null
-      assertNotNull("Local Proxy obtained from remote host is null", bean);
-
-      // Ensure correct type
-      assertTrue("Bean was not of expected type " + MyStatelessRemote.class.getName() + " but was instead " + bean,
-            bean instanceof MyStatelessRemote);
-
-   }
-
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
