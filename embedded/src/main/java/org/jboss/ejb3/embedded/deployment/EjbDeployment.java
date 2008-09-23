@@ -28,6 +28,8 @@ import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.cache.CacheFactoryRegistry;
+import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -81,9 +83,23 @@ public class EjbDeployment extends Ejb3Deployment
 
    @Inject
    @Override
+   public void setCacheFactoryRegistry(CacheFactoryRegistry registry)
+   {
+      super.setCacheFactoryRegistry(registry);
+   }
+   
+   @Inject
+   @Override
    public void setPoolFactoryRegistry(PoolFactoryRegistry poolFactoryRegistry)
    {
       super.setPoolFactoryRegistry(poolFactoryRegistry);
+   }
+   
+   @Inject
+   @Override
+   public void setPersistenceManagerFactoryRegistry(PersistenceManagerFactoryRegistry registry)
+   {
+      super.setPersistenceManagerFactoryRegistry(registry);
    }
    
    @Override
