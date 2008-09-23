@@ -36,6 +36,7 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.javaee.SimpleJavaEEModule;
+import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -83,7 +84,7 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       {
          try
          {
-            boolean stateful = ((JBossSessionBeanMetaData) metaData).isStateful();
+            boolean isStateful = ((JBossSessionBeanMetaData) metaData).isStateful();
             String domainName = metaData.getAopDomainName();
             if(domainName == null)
                domainName = deployment.getDefaultSLSBDomain();
@@ -91,7 +92,10 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
             if(domainDefintion == null)
                throw new DeploymentException("Can't find domain " + domainName + " for " + componentName);
             domain = (Domain) domainDefintion.getManager();
-            component = new StatelessContainer(classLoader, componentClassName, ejbName, domain, ctxProperties, deployment, (JBossSessionBeanMetaData) metaData);
+            if(isStateful)
+               component = new StatefulContainer(classLoader, componentClassName, ejbName, domain, ctxProperties, deployment, (JBossSessionBeanMetaData) metaData);
+            else
+               component = new StatelessContainer(classLoader, componentClassName, ejbName, domain, ctxProperties, deployment, (JBossSessionBeanMetaData) metaData);
          }
          catch (ClassNotFoundException e)
          {
