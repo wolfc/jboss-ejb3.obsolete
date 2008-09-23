@@ -20,8 +20,14 @@
       </property>
    </bean>
    
-   <bean name="EjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.EjbParsingDeployer"/>
-   <bean name="JBossEjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.JBossEjbParsingDeployer"/>
+   <bean name="EjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.EjbParsingDeployer">
+      <!-- We need to be fast, so no schema validation -->
+      <property name="useSchemaValidation">false</property>
+   </bean>
+   <bean name="JBossEjbParsingDeployer" class="org.jboss.ejb3.embedded.deployers.JBossEjbParsingDeployer">
+      <!-- We need to be fast, so no schema validation -->
+      <property name="useSchemaValidation">false</property>
+   </bean>
    <bean name="EjbAnnotationMetaDataDeployer" class="org.jboss.ejb3.embedded.deployers.EjbAnnotationMetaDataDeployer"/>
    
    <bean name="MergedJBossMetaDataDeployer" class="org.jboss.ejb3.embedded.deployers.MergedJBossMetaDataDeployer"/>
