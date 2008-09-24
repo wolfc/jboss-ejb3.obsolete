@@ -25,7 +25,6 @@
   <property name="installer.client" value="${installer.home}/client" />
   <property name="installer.lib" value="${installer.home}/lib" />
   <property name="installer.deploy" value="${installer.home}/deploy" />
-  <property name="jbossas.deployers.ejb3" value="deploy/deployers/ejb3.deployer" />
 
   <!-- Includefiles -->
   <property name="file.jbossas.remove.includes" value="conf/jbossas-ejb3-files-to-remove.txt" />
@@ -225,7 +224,7 @@
 
     <echo>Creating EJB3 Deployer for Server "${serverName}"</echo>
 
-    <copy todir="${jboss.home}/server/${serverName}/deployers/ejb3.deployer/" verbose="true">
+    <copy todir="${jboss.home}/server/${serverName}/deployers/ejb3.deployer/" verbose="true" overwrite="true">
       <fileset dir="${installer.deploy}" includesfile="${file.jbossas.deployer.ejb3.includes}" />
     </copy>
 
