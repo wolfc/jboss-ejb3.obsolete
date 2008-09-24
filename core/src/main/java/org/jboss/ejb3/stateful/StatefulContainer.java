@@ -1312,10 +1312,22 @@ public class StatefulContainer extends SessionSpecContainer
       StatefulSessionContainerMethodInvocation newStatefulInvocation = null;
 
       StatefulBeanContext ctx = null;
-      if (initParameterTypes.length > 0)
-         ctx = getCache().create(initParameterTypes, initParameterValues);
-      else
-         ctx = getCache().create(null, null);
+      
+      // ENC is required in scope to create a session
+      this.pushEnc();
+      
+      try
+      {
+         if (initParameterTypes.length > 0)
+            ctx = getCache().create(initParameterTypes, initParameterValues);
+         else
+            ctx = getCache().create(null, null);
+      }
+      finally
+      {
+         // Pop the ENC off the stack
+         this.popEnc();
+      }
 
       Object newId = ctx.getId();
       newStatefulInvocation = new StatefulSessionContainerMethodInvocation(info);
