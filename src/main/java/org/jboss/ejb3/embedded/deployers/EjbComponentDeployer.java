@@ -21,11 +21,6 @@
  */
 package org.jboss.ejb3.embedded.deployers;
 
-import java.util.Hashtable;
-
-import org.jboss.aop.AspectManager;
-import org.jboss.aop.Domain;
-import org.jboss.aop.DomainDefinition;
 import org.jboss.beans.metadata.spi.BeanMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
@@ -33,13 +28,11 @@ import org.jboss.deployers.spi.deployer.helpers.AbstractSimpleRealDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.embedded.deployment.EmbeddedDescriptorHandler;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.javaee.SimpleJavaEEModule;
-import org.jboss.ejb3.stateful.StatefulContainer;
-import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -72,38 +65,19 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       
       String ejbName = metaData.getEjbName();
       String componentName = JavaEEComponentHelper.createObjectName(module, ejbName);
-      String componentClassName = metaData.getEjbClass();
       
-      ClassLoader classLoader = unit.getClassLoader();
-      Domain domain;
-      Hashtable ctxProperties = null;
       Ejb3Deployment deployment = unit.getAttachment(Ejb3Deployment.class);
       
       EJBContainer component;
-      if(metaData instanceof JBossSessionBeanMetaData)
+      try
       {
-         try
-         {
-            boolean isStateful = ((JBossSessionBeanMetaData) metaData).isStateful();
-            String domainName = metaData.getAopDomainName();
-            if(domainName == null)
-               domainName = deployment.getDefaultSLSBDomain();
-            DomainDefinition domainDefintion = AspectManager.instance().getContainer(domainName);
-            if(domainDefintion == null)
-               throw new DeploymentException("Can't find domain " + domainName + " for " + componentName);
-            domain = (Domain) domainDefintion.getManager();
-            if(isStateful)
-               component = new StatefulContainer(classLoader, componentClassName, ejbName, domain, ctxProperties, deployment, (JBossSessionBeanMetaData) metaData);
-            else
-               component = new StatelessContainer(classLoader, componentClassName, ejbName, domain, ctxProperties, deployment, (JBossSessionBeanMetaData) metaData);
-         }
-         catch (ClassNotFoundException e)
-         {
-            throw new DeploymentException("Unable to find class " + componentClassName + " in class loader " + classLoader, e);
-         }
+         EmbeddedDescriptorHandler handler = new EmbeddedDescriptorHandler(deployment, metaData.getEjbJarMetaData());
+         component = handler.createEJBContainer(metaData);
       }
-      else
-         throw new DeploymentException("Can't deploy " + metaData.getEjbName() + ", " + metaData.getClass() + " is not supported");
+      catch(Exception e)
+      {
+         throw new DeploymentException(e);
+      }
       
       BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(componentName, component.getClass().getName());
       builder.setConstructorValue(component);
