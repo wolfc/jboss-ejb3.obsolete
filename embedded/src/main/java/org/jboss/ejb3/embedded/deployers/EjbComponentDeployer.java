@@ -22,12 +22,16 @@
 package org.jboss.ejb3.embedded.deployers;
 
 import org.jboss.beans.metadata.spi.BeanMetaData;
+import org.jboss.beans.metadata.spi.DemandMetaData;
+import org.jboss.beans.metadata.spi.DependencyMetaData;
+import org.jboss.beans.metadata.spi.SupplyMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.helpers.AbstractSimpleRealDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.MCDependencyPolicy;
 import org.jboss.ejb3.embedded.deployment.EmbeddedDescriptorHandler;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
@@ -49,10 +53,21 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       addOutput(BeanMetaData.class);
    }
 
-   protected void addDependencies(BeanMetaDataBuilder builder, DeploymentUnit unit, JBossEnterpriseBeanMetaData metaData)
+   protected void addDependencies(BeanMetaDataBuilder builder, DeploymentUnit unit, EJBContainer component)
    {
       // TODO: ask something else for that name
       builder.addDependency("org.jboss.ejb3.deployment:" + unit.getParent().getSimpleName());
+      
+      // Hmm, should not cast, EjbDeployment knows the type
+      MCDependencyPolicy dependencyPolicy = (MCDependencyPolicy) component.getDependencyPolicy();
+      
+      // Translating back and forth, could be done in 1 step.
+      for(DemandMetaData demand : dependencyPolicy.getDemands())
+         builder.addDemand(demand.getDemand());
+      for(DependencyMetaData dependency : dependencyPolicy.getDependencies())
+         builder.addDependency(dependency.getDependency());
+      for(SupplyMetaData supply : dependencyPolicy.getSupplies())
+         builder.addSupply(supply.getSupply());
    }
    
    @Override
@@ -81,7 +96,7 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       
       BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(componentName, component.getClass().getName());
       builder.setConstructorValue(component);
-      addDependencies(builder, unit, metaData);
+      addDependencies(builder, unit, component);
       
       unit.addAttachment(BeanMetaData.class, builder.getBeanMetaData());
    }
