@@ -30,6 +30,7 @@ import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
+import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -61,8 +62,7 @@ public class EjbDeployment extends Ejb3Deployment
    
    public DependencyPolicy createDependencyPolicy(JavaEEComponent component)
    {
-      //throw new RuntimeException("NYI");
-      return null;
+      return new JBoss5DependencyPolicy(component);
    }
 
    protected PolicyConfiguration createPolicyConfiguration() throws Exception

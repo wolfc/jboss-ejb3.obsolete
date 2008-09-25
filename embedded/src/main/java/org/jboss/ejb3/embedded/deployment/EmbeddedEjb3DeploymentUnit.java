@@ -67,14 +67,9 @@ public class EmbeddedEjb3DeploymentUnit implements DeploymentUnit
       throw new RuntimeException("NYI");
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.DeploymentUnit#getClassLoader()
-    */
    public ClassLoader getClassLoader()
    {
-      // TODO Auto-generated method stub
-      //return null;
-      throw new RuntimeException("NYI");
+      return unit.getClassLoader();
    }
 
    /* (non-Javadoc)
