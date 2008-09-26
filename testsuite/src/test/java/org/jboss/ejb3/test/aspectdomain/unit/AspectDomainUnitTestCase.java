@@ -21,11 +21,11 @@
  */
 package org.jboss.ejb3.test.aspectdomain.unit;
 
-import org.jboss.ejb3.test.aspectdomain.Stateful;
+import junit.framework.Test;
 
+import org.jboss.ejb3.test.aspectdomain.Stateful;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Comment
@@ -45,14 +45,14 @@ extends JBossTestCase
    
    public void testAspectDomain() throws Exception
    {
-     Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
+     Stateful stateful = (Stateful)getInitialContext().lookup("Stateful/remote");
      String result = stateful.test();
      assertEquals("TestInterceptor", result);
    }
    
    public void testDeploymentDescriptorAspectDomain() throws Exception
    {
-     Stateful stateful = (Stateful)getInitialContext().lookup("DeploymentDescriptorStateful");
+     Stateful stateful = (Stateful)getInitialContext().lookup("DeploymentDescriptorStateful/remote");
      String result = stateful.test();
      assertEquals("TestInterceptor", result);
    }

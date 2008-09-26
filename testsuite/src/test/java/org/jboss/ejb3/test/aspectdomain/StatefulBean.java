@@ -28,7 +28,6 @@ import org.jboss.ejb3.annotation.AspectDomain;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Pool;
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -39,7 +38,6 @@ import org.jboss.logging.Logger;
  */
 @Stateful(name="Stateful")
 @Remote(org.jboss.ejb3.test.aspectdomain.Stateful.class)
-@RemoteBinding(jndiBinding = "Stateful")
 @AspectDomain("Test Aspect Domain")
 @Pool(value="ThreadlocalPool", maxSize=30, timeout=10000)
 @Cache("StatefulTreeCache")

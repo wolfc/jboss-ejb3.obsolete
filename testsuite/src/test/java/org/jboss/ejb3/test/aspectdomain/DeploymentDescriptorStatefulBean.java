@@ -27,7 +27,6 @@ import javax.ejb.Stateful;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Pool;
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -38,7 +37,6 @@ import org.jboss.logging.Logger;
  */
 @Stateful(name="DeploymentDescriptorStateful")
 @Remote(org.jboss.ejb3.test.aspectdomain.Stateful.class)
-@RemoteBinding(jndiBinding = "DeploymentDescriptorStateful")
 @Pool(value="ThreadlocalPool", maxSize=30, timeout=10000)
 @Cache("StatefulTreeCache")
 @CacheConfig(name="jboss.cache:service=EJB3SFSBClusteredCache", maxSize=100000, idleTimeoutSeconds=300)
