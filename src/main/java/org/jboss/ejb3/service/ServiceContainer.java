@@ -50,7 +50,6 @@ import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
-import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
@@ -488,7 +487,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    @Override
    protected StatefulContainerInvocation populateInvocation(StatefulContainerInvocation invocation)
    {
-      invocation.setTargetObject(singleton);
       invocation.setBeanContext(beanContext);
       return invocation;
    }
