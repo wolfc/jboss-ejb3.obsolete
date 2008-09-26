@@ -40,6 +40,7 @@ import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
@@ -47,6 +48,7 @@ import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -76,7 +78,7 @@ public abstract class AbstractEJB3TestCase
     * Types of Containers Supported
     */
    enum ContainerType{
-      SFSB,SLSB
+      SFSB,SLSB,SERVICE
    }
 
    @AfterClass
@@ -185,6 +187,8 @@ public abstract class AbstractEJB3TestCase
       {
          sessionType = ContainerType.SFSB;
       }
+      else if(beanMetaData.isService())
+         sessionType = ContainerType.SERVICE;
 
       // Ensure jndi.properties is accessible
       log.info("Found: " + cl.getResource("jndi.properties"));
@@ -247,6 +251,17 @@ public abstract class AbstractEJB3TestCase
        */
       switch (type)
       {
+         case SERVICE:
+            try
+            {
+               domain = getDomain("Service Bean");
+               container = new ServiceContainer(null, loader, beanClassName, ejbName, domain, ctxProperties, deployment, (JBossServiceBeanMetaData) md);
+            }
+            catch (ClassNotFoundException cnfe)
+            {
+               throw new RuntimeException("Could not create SLSB Container for " + beanClassName, cnfe);
+            }
+            break;
          case SFSB :
             try
             {
