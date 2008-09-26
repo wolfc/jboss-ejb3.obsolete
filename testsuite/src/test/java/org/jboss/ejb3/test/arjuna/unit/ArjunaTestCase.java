@@ -21,14 +21,18 @@
   */
 package org.jboss.ejb3.test.arjuna.unit;
 
-import org.jboss.ejb3.test.arjuna.StatefulTx;
-import org.jboss.ejb3.test.arjuna.Entity;
-import org.jboss.logging.Logger;
-import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
+import org.jboss.ejb3.test.arjuna.Entity;
+import org.jboss.ejb3.test.arjuna.StatefulTx;
+import org.jboss.logging.Logger;
+import org.jboss.test.JBossTestCase;
+
 /**
+ * Make sure we can run with Arjuna TM.
+ * 
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * @deprecated
  */
 public class ArjunaTestCase
 extends JBossTestCase
@@ -42,7 +46,7 @@ extends JBossTestCase
    
    public void testStatefulTx() throws Exception
    {     
-      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx");
+      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx/remote");
       assertNotNull(stateful);
       
       boolean arjunaTransacted = stateful.isArjunaTransactedRequired();

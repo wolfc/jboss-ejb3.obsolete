@@ -30,7 +30,6 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.JndiInject;
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -38,7 +37,6 @@ import org.jboss.logging.Logger;
  */
 @Stateful(name="StatefulTx")
 @Remote(StatefulTx.class)
-@RemoteBinding(jndiBinding = "StatefulTx")
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED) 
 public class StatefulTxBean implements StatefulTx
 {
