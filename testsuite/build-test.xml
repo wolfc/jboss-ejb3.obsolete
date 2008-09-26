@@ -93,9 +93,7 @@
   <property name="location.dependencies.unpacked.jboss-test:jboss.test" value="${location.dependencies.unpacked}/jboss-test"/>
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
   <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate.jar"/>
-	<property name="location.dependencies.lib.org.jboss.aop:aop" value="${location.dependencies.lib}/jboss-aop.jar"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
-	<property name="location.dependencies.lib.trove:trove" value="${location.dependencies.lib}/trove.jar"/>
   <property name="location.dependencies.lib.org.jboss.jbossas:server-manager" value="${location.dependencies.lib}/jboss-server-manager.jar"/>
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
   <property name="location.dependencies.lib.hsqldb:hsqldb" value="${location.dependencies.lib}/hsqldb.jar"/>
@@ -369,11 +367,12 @@
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
-  	
-  	<!-- Cient JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
-  	<pathelement location="${location.dependencies.lib.org.jboss.aop:aop}" />
-  	<pathelement location="${location.dependencies.lib.trove:trove}" />
 
+    <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
+    <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/lib/jboss-aop-jdk50.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/lib/trove.jar"/>
+    
     <!-- webservice tests -->
 
     <pathelement location="${env.JBOSS_HOME}/client/jbossws-client.jar"/>
