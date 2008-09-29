@@ -29,7 +29,6 @@ import javax.ejb.Stateless;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.PropertyConfigurator;
-import org.jboss.ejb3.annotation.RemoteBinding;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -37,7 +36,6 @@ import org.jboss.ejb3.annotation.RemoteBinding;
  */
 @Stateless(name="Unshared")
 @Remote(Session30.class)
-@RemoteBinding(jndiBinding = "Unshared")
 public class UnsharedBean implements Session30
 {
    private Category log;

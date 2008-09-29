@@ -29,7 +29,6 @@ import javax.ejb.Stateless;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.PropertyConfigurator;
-import org.jboss.ejb3.annotation.RemoteBinding;
 
 /**
  * @version <tt>$Revision$</tt>
@@ -37,7 +36,6 @@ import org.jboss.ejb3.annotation.RemoteBinding;
  */
 @Stateless(name="Session30")
 @Remote(Session30.class)
-@RemoteBinding(jndiBinding = "Session30")
 public class Session30Bean implements Session30
 {
    private Category log;

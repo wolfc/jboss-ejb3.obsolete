@@ -21,13 +21,12 @@
  */
 package org.jboss.ejb3.test.classloader.unit;
 
-import junit.framework.Test;
-
 import javax.naming.InitialContext;
 
-import org.jboss.test.JBossTestCase;
+import junit.framework.Test;
 
 import org.jboss.ejb3.test.classloader.Session30;
+import org.jboss.test.JBossTestCase;
 
 /** 
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -44,21 +43,21 @@ public class ClassloaderUnitTestCase extends JBossTestCase
    public void testEJBOverride() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session30 stateless = (Session30)jndiContext.lookup("Session30");
+      Session30 stateless = (Session30)jndiContext.lookup("Session30/remote");
       assertNull(stateless.checkVersion());
    }
    
    public void testSharedRepository() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session30 stateless = (Session30)jndiContext.lookup("Shared");
+      Session30 stateless = (Session30)jndiContext.lookup("Shared/remote");
       assertNull(stateless.checkVersion());
    }
    
    public void testUnharedRepository() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Session30 stateless = (Session30)jndiContext.lookup("Unshared");
+      Session30 stateless = (Session30)jndiContext.lookup("Unshared/remote");
       Throwable t = stateless.checkVersion();
       assertNotNull(t);
       assertTrue(t instanceof java.lang.NoSuchMethodException);
