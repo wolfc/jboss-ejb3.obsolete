@@ -127,6 +127,7 @@ import org.jboss.ejb3.annotation.impl.RunAsPrincipalImpl;
 import org.jboss.ejb3.annotation.impl.SecurityDomainImpl;
 import org.jboss.ejb3.annotation.impl.SerializedConcurrentAccessImpl;
 import org.jboss.ejb3.annotation.impl.ServiceImpl;
+import org.jboss.ejb3.annotation.impl.StatefulImpl;
 import org.jboss.ejb3.annotation.impl.StatelessImpl;
 import org.jboss.ejb3.annotation.impl.TransactionAttributeImpl;
 import org.jboss.ejb3.annotation.impl.TransactionManagementImpl;
@@ -453,6 +454,12 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       StatefulContainer container = super.getStatefulContainer(ejbIndex, enterpriseBean);
 
       container.setAssemblyDescriptor(dd.getAssemblyDescriptor());
+
+      StatefulImpl annotation = new StatefulImpl(ejbName);
+      if (enterpriseBean != null && !isAnnotatedBean())
+      {
+         addClassAnnotation(container, annotation);
+      }
 
       if(enterpriseBean instanceof JBossSessionBeanMetaData)
          addInterfaces(container, (JBossSessionBeanMetaData) enterpriseBean);
@@ -2078,6 +2085,11 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
       */
    }
 
+   private void addClassAnnotation(EJBContainer container, Annotation annotation)
+   {
+      addClassAnnotation(container, annotation.annotationType(), annotation);
+   }
+   
    private void addClassAnnotation(EJBContainer container, Class<? extends Annotation> annotationClass, Annotation annotation)
    {
       log.debug("adding class annotation " + annotationClass.getName() + " to "
