@@ -173,7 +173,7 @@ public abstract class AbstractEJB3TestCase
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
 
       // Ensure a Session Bean
-      assert beanMetaData.isSession() : "The specified EJB must be a Session Bean";
+      assert beanMetaData.isSession() || beanMetaData.isService() : "The specified EJB must be a Session Bean or a Service Bean";
 
       /*
        * Determine type
