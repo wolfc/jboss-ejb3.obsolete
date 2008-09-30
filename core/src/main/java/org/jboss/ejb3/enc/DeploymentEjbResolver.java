@@ -21,16 +21,17 @@
  */
 package org.jboss.ejb3.enc;
 
+import java.util.Iterator;
+
+import javax.naming.NameNotFoundException;
+
+import org.jboss.ejb3.Container;
+import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.Container;
-import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.logging.Logger;
-
-import javax.naming.NameNotFoundException;
-import java.util.Iterator;
 
 /**
  * Class to resolve EJB containers from ejb-ref or @EJB metadata
@@ -42,6 +43,7 @@ import java.util.Iterator;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
+@Deprecated
 public abstract class DeploymentEjbResolver
 {
    private static final Logger log = Logger.getLogger(DeploymentEjbResolver.class);

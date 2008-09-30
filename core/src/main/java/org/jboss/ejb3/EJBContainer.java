@@ -72,7 +72,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.interceptor.InterceptorInjector;
@@ -1492,11 +1491,6 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    public String getDeploymentDescriptorType()
    {
       return "ejb-jar.xml";
-   }
-
-   public PersistenceUnitDeployment getPersistenceUnitDeployment(String unitName) throws NameNotFoundException
-   {
-      return deployment.getPersistenceUnitDeployment(unitName);
    }
 
    public String getEjbJndiName(Class businessInterface) throws NameNotFoundException

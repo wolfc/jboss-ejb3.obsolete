@@ -35,7 +35,6 @@ import org.hibernate.SessionFactory;
 import org.jboss.ejb3.annotation.IgnoreDependency;
 import org.jboss.ejb3.entity.InjectedEntityManagerFactory;
 import org.jboss.ejb3.entity.InjectedSessionFactory;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
 import org.jboss.jpa.spi.PersistenceUnitRegistry;
 import org.jboss.logging.Logger;
@@ -125,20 +124,7 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
          container.getDependencyPolicy().addDependency(dependency);
          return;
       }
-      log.warn("Container " + container + " does not implement ExtendedInjectionContainer, doing old style PersistenceUnit resolving");
-      PersistenceUnitDeployment deployment = null;
-      // look in EAR first
-      deployment = container.getPersistenceUnitDeployment(unitName);
-      if (deployment != null)
-      {
-         container.getDependencyPolicy().addDependency(deployment.getKernelName());
-         log.debug("***** adding PU dependency from located persistence unit: " + deployment.getKernelName());
-         return;
-      }
-      // probably not deployed yet.
-      // todo not sure if we should do this in JBoss 5
-      log.warn("Could not find PU dependency for " + PersistenceUnitDeployment.getDefaultKernelName(unitName) + ". Waiting for dependency to resolve");
-      container.getDependencyPolicy().addDependency(PersistenceUnitDeployment.getDefaultKernelName(unitName));
+      throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + unitName);
    }
 
    public static ManagedEntityManagerFactory getManagedEntityManagerFactory(InjectionContainer container, String unitName)
@@ -150,18 +136,8 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
          String beanName = eic.resolvePersistenceUnitSupplier(unitName);
          return ((org.jboss.jpa.deployment.PersistenceUnitDeployment) PersistenceUnitRegistry.getPersistenceUnit(beanName)).getManagedFactory();
       }
-      log.warn("Container " + container + " does not implement ExtendedInjectionContainer");
-      PersistenceUnitDeployment deployment = container.getPersistenceUnitDeployment(unitName);
-      if (deployment != null)
-      {
-         return deployment.getManagedFactory();
-      }
-      else
-      {
-         throw new NameNotFoundException("Unable to find persistence unit: " + unitName + " for deployment: " + container.getIdentifier());
-      }
+      throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + unitName);
    }
-
 
    public static EntityManagerFactory getEntityManagerFactory(PersistenceUnit ref, InjectionContainer container) throws NameNotFoundException
    {
@@ -184,17 +160,7 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
          ManagedEntityManagerFactory managedFactory = ((org.jboss.jpa.deployment.PersistenceUnitDeployment) PersistenceUnitRegistry.getPersistenceUnit(beanName)).getManagedFactory();
          return new InjectedEntityManagerFactory(managedFactory);
       }
-      log.warn("Container " + container + " does not implement ExtendedInjectionContainer");
-      PersistenceUnitDeployment deployment = container.getPersistenceUnitDeployment(unitName);
-      if (deployment != null)
-      {
-         ManagedEntityManagerFactory managedFactory = deployment.getManagedFactory();
-         return new InjectedEntityManagerFactory(managedFactory);
-      }
-      else
-      {
-         return null;
-      }
+      throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + unitName);
    }
 
 
@@ -207,17 +173,7 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
          ManagedEntityManagerFactory managedFactory = ((org.jboss.jpa.deployment.PersistenceUnitDeployment) PersistenceUnitRegistry.getPersistenceUnit(beanName)).getManagedFactory();
          return new InjectedSessionFactory(managedFactory);
       }
-      log.warn("Container " + container + " does not implement ExtendedInjectionContainer");
-      PersistenceUnitDeployment deployment = container.getPersistenceUnitDeployment(ref);
-      if (deployment != null)
-      {
-         ManagedEntityManagerFactory managedFactory = deployment.getManagedFactory();
-         return new InjectedSessionFactory(managedFactory);
-      }
-      else
-      {
-         return null;
-      }
+      throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + ref);
    }
 
    public void handleMethodAnnotations(Method method, InjectionContainer container, Map<AccessibleObject, Injector> injectors)

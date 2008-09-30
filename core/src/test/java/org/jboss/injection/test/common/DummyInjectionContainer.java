@@ -166,4 +166,8 @@ public class DummyInjectionContainer implements InjectionContainer
       return null;
    }
 
+   public String resolvePersistenceUnitSupplier(String unitName)
+   {
+      throw new RuntimeException("NYI");
+   }
 }

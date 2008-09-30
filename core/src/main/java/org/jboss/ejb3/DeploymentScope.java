@@ -29,10 +29,12 @@ import org.jboss.ejb3.javaee.JavaEEApplication;
 
 /**
  * Abstraction for accessing contents of an EAR
- *
+ * 
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
+ * @deprecated looking up stuff should happen through resolvers 
  */
+@Deprecated
 public interface DeploymentScope extends JavaEEApplication
 {
    public Collection<Ejb3Deployment> getEjbDeployments();

@@ -33,7 +33,6 @@ import javax.naming.NameNotFoundException;
 
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.DependencyPolicy;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.metadata.javaee.spec.RemoteEnvironment;
 import org.jboss.virtual.VirtualFile;
 
@@ -66,9 +65,6 @@ public interface InjectionContainer
    VirtualFile getRootFile();
 
    Context getEnc();
-
-   @Deprecated
-   PersistenceUnitDeployment getPersistenceUnitDeployment(String unitName) throws NameNotFoundException;
 
    Container resolveEjbContainer(String link, Class<?> businessIntf);
    Container resolveEjbContainer(Class<?> businessIntf) throws NameNotFoundException;
