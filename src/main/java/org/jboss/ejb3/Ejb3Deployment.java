@@ -26,6 +26,7 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -47,9 +48,6 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.lang.ClassHelper;
-import org.jboss.ejb3.enc.EjbModulePersistenceUnitResolver;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
-import org.jboss.ejb3.entity.SecondLevelCacheUtil;
 import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
@@ -71,8 +69,6 @@ import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.javaee.spec.Environment;
 import org.jboss.metadata.javaee.spec.MessageDestinationsMetaData;
-import org.jboss.metadata.jpa.spec.PersistenceMetaData;
-import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 import org.jboss.system.ServiceMBeanSupport;
 import org.jboss.virtual.VirtualFile;
 
@@ -94,18 +90,13 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    private JBossMetaData metaData;
    
-   private PersistenceMetaData persistenceUnitsMetaData;
-
    protected DeploymentUnit unit;
 
    protected LinkedHashMap<ObjectName, Container> ejbContainers = new LinkedHashMap<ObjectName, Container>();
 
-   private boolean processPersistenceUnits = true;
    protected boolean hasEntities;
 
    protected List<String> explicitEntityClasses = new ArrayList<String>();
-
-   protected List<PersistenceUnitDeployment> persistenceUnitDeployments = new ArrayList<PersistenceUnitDeployment>();
 
    protected String defaultSLSBDomain = "Stateless Bean";
 
@@ -126,8 +117,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    protected DeploymentScope deploymentScope;
 
-   protected EjbModulePersistenceUnitResolver persistenceUnitResolver;
-
    // For backwards compatibility initialize to the default.
    private MessageDestinationReferenceResolver messageDestinationReferenceResolver = new DefaultMessageDestinationReferenceResolver();
    
@@ -144,29 +133,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    
    private PersistenceUnitDependencyResolver persistenceUnitDependencyResolver;
 
-   @Deprecated
-   public Ejb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData, PersistenceMetaData persistenceUnitsMetaData)
-   {
-      assert unit != null : "unit is null";
-      
-      this.unit = unit;
-      this.deploymentScope = deploymentScope;
-      this.metaData = metaData;
-      this.persistenceUnitsMetaData = persistenceUnitsMetaData;
-      try
-      {
-         initialContext = InitialContextFactory.getInitialContext(unit.getJndiProperties());
-      }
-      catch (NamingException e)
-      {
-         throw new RuntimeException(e);
-      }
-      persistenceUnitResolver = new EjbModulePersistenceUnitResolver(persistenceUnitDeployments, deploymentScope, ejbContainers);
-      MessageDestinationsMetaData destinations = null;
-      if (metaData != null && metaData.getAssemblyDescriptor() != null)
-         destinations = metaData.getAssemblyDescriptor().getMessageDestinations();
-   }
-   
    /**
     * Do not deploy persistence unit anymore.
     * 
@@ -177,10 +143,23 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
     */
    public Ejb3Deployment(org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit, DeploymentUnit unit, DeploymentScope deploymentScope, JBossMetaData metaData)
    {
-      this(unit, deploymentScope, metaData, null);
-      
+      assert unit != null : "unit is null";
       assert deploymentUnit != null : "deploymentUnit is null";
       
+      this.unit = unit;
+      this.deploymentScope = deploymentScope;
+      this.metaData = metaData;
+      try
+      {
+         initialContext = InitialContextFactory.getInitialContext(unit.getJndiProperties());
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException(e);
+      }
+      MessageDestinationsMetaData destinations = null;
+      if (metaData != null && metaData.getAssemblyDescriptor() != null)
+         destinations = metaData.getAssemblyDescriptor().getMessageDestinations();
       this.deploymentUnit = deploymentUnit;
    }
 
@@ -268,9 +247,15 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       this.poolFactoryRegistry = poolFactoryRegistry;
    }
 
+   /**
+    * @deprecated processing persistence units is no longer supported, use jpa-deployers
+    * @param b
+    */
+   @Deprecated
    public void setProcessPersistenceUnits(boolean b)
    {
-      this.processPersistenceUnits = b;
+      if(b)
+         log.warn("EJBTHREE-1508: Processing persistence units is no longer supported");
    }
    
    /**
@@ -388,21 +373,12 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       return ejbContainers;
    }
 
-   public PersistenceUnitDeployment getPersistenceUnitDeployment(String unitName) throws NameNotFoundException
+   @Deprecated
+   public List<?> getPersistenceUnitDeployments()
    {
-      return persistenceUnitResolver.getPersistenceUnitDeployment(unitName);
+      log.warn("EJBTHREE-1508: Quering Ejb3Deployment for persistence unit deployments is no longer supported");
+      return Collections.EMPTY_LIST;
    }
-
-   public PersistenceUnitDeployment getPersistenceUnitDeploymentInternal(String unitName)
-   {
-      return persistenceUnitResolver.getPersistenceUnitDeploymentInternal(unitName);
-   }
-
-   public List<PersistenceUnitDeployment> getPersistenceUnitDeployments()
-   {
-      return persistenceUnitDeployments;
-   }
-
 
    public EJBContainer getEjbContainer(String ejbLink, Class businessIntf)
    {
@@ -511,8 +487,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
          deploy();
 
-         initializePersistenceUnits();
-         
          registerDeployment();
 
          log.debug("EJB3 deployment time took: " + (System.currentTimeMillis() - start));
@@ -533,7 +507,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    
    protected void reinitialize() throws Exception
    {
-      initializePersistenceUnits();
       reinitialize = false;
    }
 
@@ -544,8 +517,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
          if (reinitialize)
             reinitialize();
          
-         startPersistenceUnits();
-
          for (Object o : ejbContainers.values())
          {
             Container con = (Container) o;
@@ -588,7 +559,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
             log.debug("error trying to stop ejb container", e);
          }
       }
-      stopPersistenceUnits();
       
       reinitialize = true;
    }
@@ -716,98 +686,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       }
    }
 
-   protected void initializePersistenceUnits() throws Exception
-   {
-      hasEntities = persistenceUnitsMetaData != null && processPersistenceUnits;
-
-      if (!hasEntities)
-         return;
-
-      if (unit.getClasses() != null)
-      {
-         for (Class<?> explicit : unit.getClasses())
-         {
-            if (explicit.isAnnotationPresent(Entity.class))
-            {
-               explicitEntityClasses.add(explicit.getName());
-            }
-         }
-      }
-
-      // scope the unitName if this is an ejb archive
-      // todo revert to this: List<PersistenceMetadata> persistenceMetadata = PersistenceXmlLoader.deploy(persistenceXmlUrl, new HashMap(), new EJB3DTDEntityResolver());
-      List<PersistenceUnitMetaData> pumds = persistenceUnitsMetaData.getPersistenceUnits();
-      for (PersistenceUnitMetaData metaData : pumds)
-      {
-         String earShortName = deploymentScope == null ? null : deploymentScope.getShortName();
-         boolean isScoped = ejbContainers.size() > 0;
-
-         Map<String, String> properties = metaData.getProperties();
-         if (properties == null)
-         {
-            properties = new HashMap<String, String>();
-            metaData.setProperties(properties);
-         }
-         // Ensure 2nd level cache entries are segregated from other deployments
-         String cache_prefix = properties.get(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX);
-         if (cache_prefix == null)
-         {
-            // Create a region_prefix for the 2nd level cache to ensure
-            // deployments are segregated
-            String jarName = isScoped ? unit.getShortName() : null;
-            cache_prefix = SecondLevelCacheUtil.createCacheRegionPrefix(earShortName, jarName, metaData.getName());
-            properties.put(SecondLevelCacheUtil.HIBERNATE_CACHE_REGION_PREFIX, cache_prefix);
-         }
-         PersistenceUnitDeployment deployment = new PersistenceUnitDeployment(initialContext, this, explicitEntityClasses, metaData, earShortName, unit.getShortName(), isScoped);
-         PersistenceUnitRegistry.register(deployment);
-         persistenceUnitDeployments.add(deployment);
-      }
-   }
-
    public abstract DependencyPolicy createDependencyPolicy(JavaEEComponent component);
-
-   protected void startPersistenceUnits()
-   {
-      if (persistenceUnitDeployments == null)
-         return;
-
-      for (PersistenceUnitDeployment entityDeployment : persistenceUnitDeployments)
-      {
-         if (entityDeployment != null)
-         {
-            DependencyPolicy policy = createDependencyPolicy(entityDeployment);
-            entityDeployment.addDependencies(policy);
-            kernelAbstraction.install(entityDeployment.getKernelName(), policy, unit, entityDeployment);
-         }
-      }
-   }
-
-   protected void stopPersistenceUnits()
-   {
-      if (persistenceUnitDeployments == null)
-         return;
-
-      for (PersistenceUnitDeployment entityDeployment : persistenceUnitDeployments)
-      {
-         try
-         {
-            PersistenceUnitRegistry.unregister(entityDeployment);
-            if (entityDeployment != null)
-            {
-               kernelAbstraction.uninstall(entityDeployment.getKernelName());
-            }
-         }
-         catch (Exception e)
-         {
-            log.debug("error trying to shut down persistence unit", e);
-         }
-      }
-      
-      persistenceUnitDeployments = new ArrayList<PersistenceUnitDeployment>();
-
-   }
-
-   
 
    public void destroy() //throws Exception
    {

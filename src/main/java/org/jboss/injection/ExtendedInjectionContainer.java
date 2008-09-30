@@ -27,5 +27,13 @@ package org.jboss.injection;
  */
 public interface ExtendedInjectionContainer extends InjectionContainer
 {
+   /**
+    * Find the MC bean that supplies the specified persistence unit.
+    * 
+    * @param unitName the name of the persistence unit
+    * @return the name of the persistence unit supplier
+    * 
+    * TODO: this method should be on InjectionContainer
+    */
    String resolvePersistenceUnitSupplier(String unitName);
 }

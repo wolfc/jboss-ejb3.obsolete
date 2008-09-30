@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 import javax.security.jacc.PolicyConfiguration;
 
+import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentUnit;
 import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.DeploymentUnit;
@@ -51,7 +52,7 @@ public class MockEjb3Deployment extends Ejb3Deployment
 {
    public MockEjb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope)
    {
-      super(unit, deploymentScope, null, null);
+      super(new AbstractDeploymentUnit(), unit, deploymentScope, null);
       PoolFactoryRegistry poolRegistry = new PoolFactoryRegistry();
       HashMap<String, Class<? extends PoolFactory>> poolFactories = new HashMap<String, Class<? extends PoolFactory>>();
       poolFactories.put("ThreadlocalPool", ThreadlocalPoolFactory.class);
