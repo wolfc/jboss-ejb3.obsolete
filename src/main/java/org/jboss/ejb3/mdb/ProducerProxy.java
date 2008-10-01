@@ -24,6 +24,7 @@ package org.jboss.ejb3.mdb;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
@@ -55,10 +56,13 @@ public class ProducerProxy implements InvocationHandler, Serializable
    public Object invoke(Object proxy, Method method, Object[] args)
            throws Throwable
    {
-      if (method.getName().equals("getProducerManager"))
+      String methodName = method.getName();
+      if (methodName.equals("getProducerManager"))
       {
          return producer;
       }
+      else if(methodName.equals("toString"))
+         return toString();
       long hash = MethodHashing.calculateHash(method);
       MethodInvocation sri = new MethodInvocation(interceptors, hash, method, method, null);
       sri.setArguments(args);
