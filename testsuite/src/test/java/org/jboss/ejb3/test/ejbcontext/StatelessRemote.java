@@ -19,5 +19,7 @@ public interface StatelessRemote extends EJBObject
 {
    String JNDI_NAME = "Stateless/remote";
    
+   void noop();
+   
    public Class<?> testInvokedBusinessInterface() throws Exception;
 }

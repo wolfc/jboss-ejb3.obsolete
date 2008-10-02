@@ -26,7 +26,6 @@ import javax.ejb.Local;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 
-import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -34,7 +33,6 @@ import org.jboss.logging.Logger;
  */
 @Stateful(name="StatefulLocalOnly")
 @Local(StatefulLocalOnly.class)
-@LocalBinding(jndiBinding="StatefulLocalOnly")
 public class StatefulLocalOnlyBean
    implements StatefulLocalOnly
 {

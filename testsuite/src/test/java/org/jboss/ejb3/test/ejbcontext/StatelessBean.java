@@ -33,9 +33,6 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.naming.InitialContext;
 
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.logging.Logger;
 
 
@@ -48,12 +45,8 @@ import org.jboss.logging.Logger;
 @Stateless(name="Stateless")
 @LocalHome(StatelessLocalHome.class)
 @RemoteHome(StatelessRemoteHome.class)
-@Local({StatelessLocalBusiness.class,StatelessLocal.class})
-@Remote({StatelessBusinessRemote.class,StatelessRemote.class})
-@LocalBinding(jndiBinding = StatelessLocal.JNDI_NAME)
-@RemoteBindings({
-@RemoteBinding(jndiBinding = StatelessRemote.JNDI_NAME),
-@RemoteBinding(jndiBinding = StatelessBusinessRemote.JNDI_NAME)})
+@Local(StatelessLocalBusiness.class)
+@Remote(StatelessBusinessRemote.class)
 public class StatelessBean extends BaseBean
    implements org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote, StatelessLocalBusiness
 {
@@ -64,7 +57,7 @@ public class StatelessBean extends BaseBean
    SessionContext sessionContext;
    
    StatelessLocal ejbLocalObject;
-   org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote ejbObject;
+   StatelessRemote ejbObject;
    
    public void noop()
    {
@@ -122,7 +115,7 @@ public class StatelessBean extends BaseBean
    public void postConstruct()
    {
       ejbLocalObject = (StatelessLocal)sessionContext.getEJBLocalObject();
-      ejbObject = (org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote)sessionContext.getEJBObject();
+      ejbObject = (StatelessRemote)sessionContext.getEJBObject();
    }
 
 }

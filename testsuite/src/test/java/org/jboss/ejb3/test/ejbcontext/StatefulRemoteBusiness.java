@@ -33,7 +33,7 @@ import javax.ejb.Remote;
 @Remote
 public interface StatefulRemoteBusiness
 {
-   String JNDI_NAME = "StatefulBean/remote";
+   String JNDI_NAME = "Stateful/remote";
    
    public Class testInvokedBusinessInterface2() throws Exception;
    

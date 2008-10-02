@@ -26,16 +26,12 @@ import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
-import javax.ejb.Local;
 import javax.ejb.LocalHome;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
 import javax.naming.InitialContext;
 
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.logging.Logger;
 
 /**
@@ -47,19 +43,11 @@ import org.jboss.logging.Logger;
 @Stateful(name="Stateful")
 @LocalHome(StatefulLocalHome.class)
 @RemoteHome(StatefulRemoteHome.class)
-@Remote({org.jboss.ejb3.test.ejbcontext.Stateful.class, StatefulRemoteBusiness.class,StatefulRemote.class})
-@Local(StatefulLocal.class)
-@LocalBinding(jndiBinding = StatefulLocal.JNDI_NAME)
-@RemoteBindings(
-{@RemoteBinding(jndiBinding = StatefulRemoteBusiness.JNDI_NAME),
-      @RemoteBinding(jndiBinding = org.jboss.ejb3.test.ejbcontext.Stateful.JNDI_NAME)})
+@Remote({org.jboss.ejb3.test.ejbcontext.Stateful.class, StatefulRemoteBusiness.class})
 public class StatefulBean extends BaseBean
    implements org.jboss.ejb3.test.ejbcontext.Stateful, StatefulRemoteBusiness
 {
    private static final Logger log = Logger.getLogger(StatefulBean.class);
-   
-   @EJB(mappedName=StatefulRemoteBusiness.JNDI_NAME)
-   StatefulRemoteBusiness statefulRemote = null;
    
    @EJB StatefulLocalOnly statefulLocalOnly;
 
@@ -117,7 +105,7 @@ public class StatefulBean extends BaseBean
    
    public Class testLocalInvokedBusinessInterface() throws Exception
    {
-      return statefulRemote.testInvokedBusinessInterface2();
+      return sessionContext.getBusinessObject(StatefulRemoteBusiness.class).testInvokedBusinessInterface2();
    }
    
    @PostConstruct
