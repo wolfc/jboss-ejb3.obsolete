@@ -21,12 +21,13 @@
  */
 package org.jboss.ejb3.embedded;
 
+import java.util.Collection;
 import java.util.Map;
 
 import javax.ejb.EJBContainer;
 import javax.ejb.EJBException;
+import javax.ejb.spi.EJBContainerProvider;
 
-import org.jboss.ejb3.api.spi.EJBContainerProvider;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -34,10 +35,24 @@ import org.jboss.ejb3.api.spi.EJBContainerProvider;
  */
 public class JBossEJBContainerProvider implements EJBContainerProvider
 {
-   public EJBContainer createEJBContainer(Map<?, ?> properties, String... modules) throws EJBException
+   public EJBContainer createEJBContainer(Map<?, ?> properties) throws EJBException
    {
       try
       {
+         String modules[] = null;
+         if(properties != null)
+         {
+            Object o = properties.get(EJBContainer.EMBEDDABLE_MODULES_PROPERTY);
+            if(o != null)
+            {
+               if(o instanceof String)
+                  modules = new String[] { (String) o };
+               else if(o instanceof Collection)
+                  modules = toStringArray(o);
+               else
+                  throw new EJBException("Illegal type of " + EJBContainer.EMBEDDABLE_MODULES_PROPERTY + " (" + o.getClass().getName() + ") (EJB 3.1 22.2.2.2)");
+            }
+         }
          return new JBossEJBContainer(properties, modules);
       }
       catch(Throwable t)
@@ -50,5 +65,11 @@ public class JBossEJBContainerProvider implements EJBContainerProvider
             throw new EJBException((Exception) t);
          throw new RuntimeException(t);
       }
+   }
+   
+   @SuppressWarnings("unchecked")
+   private static final String[] toStringArray(Object o)
+   {
+      return ((Collection<String>) o).toArray(new String[0]);
    }
 }
