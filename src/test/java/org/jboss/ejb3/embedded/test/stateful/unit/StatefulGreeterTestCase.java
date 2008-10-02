@@ -55,7 +55,8 @@ public class StatefulGreeterTestCase
    {
       Properties properties = new Properties();
       String module = getURLToTestClasses();
-      EJBContainer.createEJBContainer(properties, module);
+      properties.setProperty(EJBContainer.EMBEDDABLE_MODULES_PROPERTY, module);
+      EJBContainer.createEJBContainer(properties);
    }
    
    private static String getURLToTestClasses()
