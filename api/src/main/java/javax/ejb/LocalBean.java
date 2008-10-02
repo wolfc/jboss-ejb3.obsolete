@@ -19,23 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.api.test.embedded;
+package javax.ejb;
 
-import java.util.Map;
-
-import javax.ejb.EJBContainer;
-import javax.ejb.EJBException;
-import javax.ejb.spi.EJBContainerProvider;
-
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * Designates that a session bean exposes a no-interface view. 
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
+ * @since 3.1
  */
-public class JBossEJBContainerProvider implements EJBContainerProvider
-{
-   public EJBContainer createEJBContainer(Map<?, ?> properties) throws EJBException
-   {
-      return new JBossEJBContainer(properties);
-   }
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface LocalBean {
+
 }
