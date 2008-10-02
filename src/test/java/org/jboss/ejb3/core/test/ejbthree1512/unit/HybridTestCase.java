@@ -26,6 +26,8 @@ import org.jboss.ejb3.core.test.ejbthree1512.HybridStatelessBean;
 import org.junit.BeforeClass;
 
 /**
+ * Test an EJB 3 bean with both an EJB 2.1 remote view and an EJB 3 remote business view.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */

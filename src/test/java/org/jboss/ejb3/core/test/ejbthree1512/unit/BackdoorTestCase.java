@@ -19,31 +19,39 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.core.test.ejbthree1512;
+package org.jboss.ejb3.core.test.ejbthree1512.unit;
 
-import javax.annotation.Resource;
-import javax.ejb.Remote;
-import javax.ejb.RemoteHome;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
+import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
+import org.jboss.ejb3.core.test.ejbthree1512.HybridStatelessBean;
+import org.jboss.ejb3.core.test.ejbthree1512.MyStateless21;
+import org.jboss.ejb3.core.test.ejbthree1512.MyStatelessRemote;
+import org.junit.BeforeClass;
 
 /**
- * Create a backdoor to get the remote interface. :-)
+ * Use the backdoor to get the EJB 2.1 remote view.
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Stateless
-@Remote(MyStatelessRemote.class)
-@RemoteHome(MyStateless21Home.class)
-public class HybridStatelessBean extends BaseStatelessBean implements MyStatelessRemote
+public class BackdoorTestCase extends BaseRemoteViewTestCase
 {
-   @Resource
-   private SessionContext ctx;
-   
-   public MyStateless21 getEJBObject()
+   @BeforeClass
+   public static void beforeClass() throws Exception
    {
-      MyStateless21 me = (MyStateless21) ctx.getEJBObject();
-      return me;
+      AbstractEJB3TestCase.beforeClass();
+      
+      containers.add(deploySessionEjb(HybridStatelessBean.class));
+   }
+   
+   @Override
+   protected String getEjbName()
+   {
+      return "HybridStatelessBean";
+   }
+   
+   @Override
+   protected MyStateless21 getRemoteView() throws Exception
+   {
+      return lookup(getEjbName() + "/remote", MyStatelessRemote.class).getEJBObject();
    }
 }

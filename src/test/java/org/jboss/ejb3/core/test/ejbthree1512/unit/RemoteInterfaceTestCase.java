@@ -26,6 +26,8 @@ import org.jboss.ejb3.core.test.ejbthree1512.MyStatelessBean;
 import org.junit.BeforeClass;
 
 /**
+ * Test an EJB 3 bean with just an EJB 2.1 remote interface view.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
