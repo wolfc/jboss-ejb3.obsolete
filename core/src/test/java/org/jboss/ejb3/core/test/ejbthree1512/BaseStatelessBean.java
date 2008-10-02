@@ -21,26 +21,15 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1512;
 
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class BaseStatelessBean implements MyStatelessRemote
+public class BaseStatelessBean
 {
-   @Resource
-   private SessionContext ctx;
-   
    public String sayHi(String name)
    {
       return "Hi " + name;
-   }
-   
-   public String sayHiThroughHandle(String name)
-   {
-      MyStateless21 me = (MyStateless21) ctx.getEJBObject();
-      return me.sayHi(name);
    }
 }

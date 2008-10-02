@@ -57,19 +57,24 @@ public abstract class BaseRemoteViewTestCase extends AbstractEJB3TestCase
    
    protected abstract String getEjbName();
    
-   @Test
-   public void testCreate() throws Exception
+   protected MyStateless21 getRemoteView() throws Exception
    {
       MyStateless21Home home = lookup(getEjbName() + "/home", MyStateless21Home.class);
       MyStateless21 bean = home.create();
+      return bean;
+   }
+   
+   @Test
+   public void testCreate() throws Exception
+   {
+      MyStateless21 bean = getRemoteView();
       assertNotNull(bean);
    }
    
    @Test
    public void testInvocation() throws Exception
    {
-      MyStateless21Home home = lookup(getEjbName() + "/home", MyStateless21Home.class);
-      MyStateless21 bean = home.create();
+      MyStateless21 bean = getRemoteView();
       String now = new Date().toString();
       String actual = bean.sayHi(now);
       assertEquals("Hi " + now, actual);
@@ -78,8 +83,7 @@ public abstract class BaseRemoteViewTestCase extends AbstractEJB3TestCase
    @Test
    public void testGetHandle() throws Exception
    {
-      MyStateless21Home home = lookup(getEjbName() + "/home", MyStateless21Home.class);
-      MyStateless21 bean = home.create();
+      MyStateless21 bean = getRemoteView();
       Handle handle = bean.getHandle();
       assertNotNull(handle);
    }

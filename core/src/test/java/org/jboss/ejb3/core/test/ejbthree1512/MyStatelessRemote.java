@@ -28,5 +28,5 @@ package org.jboss.ejb3.core.test.ejbthree1512;
  */
 public interface MyStatelessRemote extends MyStateless
 {
-   String sayHiThroughHandle(String name);
+   MyStateless21 getEJBObject();
 }
