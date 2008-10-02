@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.api.spi;
+package javax.ejb.spi;
 
 import java.util.Map;
 
@@ -27,10 +27,26 @@ import javax.ejb.EJBContainer;
 import javax.ejb.EJBException;
 
 /**
+ * The EJBContainerProvider SPI is used by the embeddable container bootstrap class to
+ * initialize a suitable embeddable container. 
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
+ * @since 3.1
  */
 public interface EJBContainerProvider
 {
-   EJBContainer createEJBContainer(Map<?, ?> properties, String... modules) throws EJBException;
+   /**
+    * Called by the embeddable container bootstrap process to find a suitable embeddable container
+    * implementation. An embeddable container provider may deem itself as appropriate for the
+    * embeddable application if any of the following are true : The javax.ejb.embeddable.initial
+    * property was included in the Map passed to createEJBContainer and the value of the property is
+    * the provider's implementation class. No javax.ejb.embeddable.initial property was specified.
+    * If a provider does not qualify as the provider for the embeddable application, it must return null.
+    * 
+    * @param properties
+    * @return EJBContainer instance or null
+    * @throws EJBException
+    */
+   EJBContainer createEJBContainer(Map<?, ?> properties) throws EJBException;
 }

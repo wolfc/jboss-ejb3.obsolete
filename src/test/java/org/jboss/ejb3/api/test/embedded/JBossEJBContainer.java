@@ -35,7 +35,7 @@ public class JBossEJBContainer extends EJBContainer
     * @param properties
     * @param modules
     */
-   protected JBossEJBContainer(Map<?, ?> properties, String[] modules)
+   protected JBossEJBContainer(Map<?, ?> properties)
    {
       // TODO Auto-generated constructor stub
    }

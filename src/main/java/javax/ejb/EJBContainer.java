@@ -35,9 +35,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ejb.spi.EJBContainerProvider;
 import javax.naming.Context;
 
-import org.jboss.ejb3.api.spi.EJBContainerProvider;
 import org.jboss.ejb3.api.spi.EJBContainerWrapper;
 
 /**
@@ -50,6 +50,7 @@ import org.jboss.ejb3.api.spi.EJBContainerWrapper;
 public abstract class EJBContainer
 {
    public static final String EMBEDDABLE_INITIAL = "javax.ejb.embeddable.initial";
+   public static final String EMBEDDABLE_MODULES_PROPERTY = "javax.ejb.embeddable.modules";
    
    private static EJBContainerWrapper currentEJBContainer;
    
@@ -82,22 +83,20 @@ public abstract class EJBContainer
    
    /**
     * Create and initialize an embeddable EJB container with an 
-    * optional set of configuration properties and names of modules to be initialized. 
+    * set of configuration properties and names of modules to be initialized. 
     * 
     * @param properties One or more spec-defined or vendor-specific properties. 
-    *   The spec reserves the prefix "javax.ejb." for spec-defined properties. Can be null.
-    * @param modules Specific set of module names to be initialized. Can be null. 
-    *   If null, defaults to module scanning algorithm in createEJBContainer(). 
+    *   The spec reserves the prefix "javax.ejb." for spec-defined properties.
     * @return EJBContainer instance
     * @throws EJBException Thrown if the container or application could not 
     *   be successfully initialized.
     */
-   public static EJBContainer createEJBContainer(Map<?, ?> properties, String... modules)
+   public static EJBContainer createEJBContainer(Map<?, ?> properties)
       throws EJBException
    {
       for(EJBContainerProvider factory : factories)
       {
-         EJBContainer container = factory.createEJBContainer(properties, modules);
+         EJBContainer container = factory.createEJBContainer(properties);
          if(container != null)
          {
             currentEJBContainer = new EJBContainerWrapper(container);
@@ -105,28 +104,6 @@ public abstract class EJBContainer
          }
       }
       throw new EJBException("Unable to instantiate container with factories " + factories);
-   }
-   
-   /**
-    * Create and initialize an embeddable EJB container with an 
-    * optional set of configuration properties and names of modules to be initialized. 
-    * 
-    * @param properties One or more spec-defined or vendor-specific properties. 
-    *   The spec reserves the prefix "javax.ejb." for spec-defined properties. Can be null.
-    * @param modules Specific set of module names to be initialized. Can be null. 
-    *   If null, defaults to module scanning algorithm in createEJBContainer(). 
-    * @return EJBContainer instance
-    * @throws EJBException Thrown if the container or application could not 
-    *   be successfully initialized.
-    */
-   @Deprecated
-   public static EJBContainer createEJBContainer(Map<String, Object> properties, Set<String> modules)
-      throws EJBException
-   {
-      String[] modulesArray = null;
-      if(modules != null)
-         modulesArray = modules.toArray(new String[0]);
-      return createEJBContainer(properties, modulesArray);
    }
    
    private static List<String> factoryNamesFromReader(BufferedReader reader) throws IOException
