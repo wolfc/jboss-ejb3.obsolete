@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 
 /**
  * StatefulRemoteProxyInvocationHandler
@@ -66,7 +67,14 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
          final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
       super(containerName, containerGuid, interceptors, businessInterfaceType);
-      this.setUrl(url);
+      
+      // Adjust URL if not specified to a default
+      String remotingUrl = url;
+      if (remotingUrl == null || remotingUrl.trim().length() == 0)
+      {
+         remotingUrl = ProxyRemotingUtils.getDefaultClientBinding();
+      }
+      this.setUrl(remotingUrl);
    }
 
    // --------------------------------------------------------------------------------||

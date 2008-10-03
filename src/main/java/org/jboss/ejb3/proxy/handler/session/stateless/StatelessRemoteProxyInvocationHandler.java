@@ -29,6 +29,7 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.remoting.InvokerLocator;
 
 /**
@@ -70,7 +71,14 @@ public class StatelessRemoteProxyInvocationHandler extends StatelessProxyInvocat
          final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
       super(containerName, containerGuid, interceptors, businessInterfaceType);
-      this.setUrl(url);
+
+      // Adjust URL if not specified to a default
+      String remotingUrl = url;
+      if (remotingUrl == null || remotingUrl.trim().length() == 0)
+      {
+         remotingUrl = ProxyRemotingUtils.getDefaultClientBinding();
+      }
+      this.setUrl(remotingUrl);
    }
 
    // --------------------------------------------------------------------------------||

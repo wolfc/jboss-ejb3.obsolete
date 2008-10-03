@@ -42,6 +42,7 @@ import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -78,21 +79,6 @@ public abstract class JndiSessionRegistrarBase
    private static final String KEY_PREFIX_PROXY_FACTORY_REGISTRY = "ProxyFactory/";
 
    private static final String OBJECT_FACTORY_CLASSNAME_PREFIX = "Proxy for: ";
-
-   /**
-    * The name under which the Remoting Connector is bound in MC
-    */
-   private static final String OBJECT_NAME_REMOTING_CONNECTOR = "org.jboss.ejb3.RemotingConnector";
-
-   /**
-    * The default URL for InvokerLocator in the case @RemoteBinding does not specify it
-    */
-   protected static String DEFAULT_CLIENT_BINDING;
-
-   /**
-    * The default URL for InvokerLocator if if cannot be read from the EJB3 Remoting Connector
-    */
-   protected static final String DEFAULT_CLIENT_BINDING_IF_CONNECTOR_NOT_FOUND = "socket://0.0.0.0:3873";
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -243,7 +229,7 @@ public abstract class JndiSessionRegistrarBase
          if (url == null || url.trim().equals(""))
          {
             // Use the binding on the EJB3 Remoting Connector
-            url = this.getDefaultClientBinding();
+            url = ProxyRemotingUtils.getDefaultClientBinding();
             remoteBinding.setClientBindUrl(url);
          }
          // Create and register a remote proxy factory
@@ -976,55 +962,6 @@ public abstract class JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-
-   /**
-    * Obtains the default client binding
-    * 
-    * Will return the value of the InvokerLocator
-    * used by the EJB3 Remoting Connector
-    * 
-    * EJBTHREE-1419
-    */
-   protected synchronized String getDefaultClientBinding()
-   {
-
-      // If the binding has not yet been set
-      if (DEFAULT_CLIENT_BINDING == null)
-      {
-
-         try
-         {
-            // Lookup the Connector in MC
-            Connector connector = Ejb3RegistrarLocator.locateRegistrar().lookup(OBJECT_NAME_REMOTING_CONNECTOR,
-                  Connector.class);
-
-            // Use the binding specified by the Connector
-            try
-            {
-               DEFAULT_CLIENT_BINDING = connector.getInvokerLocator();
-            }
-            catch (Exception e)
-            {
-               throw new RuntimeException("Could not obtain " + InvokerLocator.class.getSimpleName()
-                     + " from EJB3 Remoting Connector", e);
-            }
-         }
-         // The EJB3 Remoting Connector was not found in MC
-         catch (NotBoundException nbe)
-         {
-            // Log a warning
-            log.warn("Could not find the EJB3 Remoting Connector bound in the Object Store (MC) at the expected name: "
-                  + OBJECT_NAME_REMOTING_CONNECTOR + ".  Defaulting a client bind URL to "
-                  + DEFAULT_CLIENT_BINDING_IF_CONNECTOR_NOT_FOUND);
-
-            // Set a default URL
-            DEFAULT_CLIENT_BINDING = DEFAULT_CLIENT_BINDING_IF_CONNECTOR_NOT_FOUND;
-         }
-      }
-
-      // Return
-      return DEFAULT_CLIENT_BINDING;
-   }
 
    public String getSessionProxyObjectFactoryType()
    {
