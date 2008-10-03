@@ -39,6 +39,7 @@ import org.jboss.ejb3.annotation.impl.RemoteBindingsImpl;
 import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
+import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
@@ -48,6 +49,7 @@ import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
+@Deprecated
 public class ProxyDeployer
 {
    private static final Logger log = Logger.getLogger(ProxyDeployer.class);
@@ -117,7 +119,8 @@ public class ProxyDeployer
             String factoryImplementationRegistryKey = binding.factory();
             if (factoryImplementationRegistryKey.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
             {
-               factory = container.getProxyFactory(binding);
+               //TODO Only used in @Service now, this whole class is @Deprecated
+               factory = ((ServiceContainer)container).getProxyFactoryForService(binding);
             }
             else
             {

@@ -27,12 +27,9 @@ import java.rmi.NoSuchObjectException;
 import java.rmi.Remote;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
@@ -63,17 +60,13 @@ import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
-import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.serial.io.MarshalledObjectForLocalCalls;
 
 /**
@@ -129,7 +122,7 @@ public abstract class SessionContainer extends EJBContainer
     * @param binding
     * @return
     */
-   protected abstract RemoteProxyFactory getProxyFactory(RemoteBinding binding);
+   protected abstract org.jboss.ejb3.proxy.factory.session.SessionProxyFactory getProxyFactory(RemoteBinding binding);
    
    public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
 

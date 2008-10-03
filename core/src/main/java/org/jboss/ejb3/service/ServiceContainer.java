@@ -60,6 +60,7 @@ import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
@@ -67,6 +68,7 @@ import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
+import org.jboss.util.NotImplementedException;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -132,7 +134,19 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
    
    @Override
-   protected RemoteProxyFactory getProxyFactory(RemoteBinding binding)
+   protected SessionProxyFactory getProxyFactory(RemoteBinding binding)
+   {
+      throw new NotImplementedException(
+            "@Service does not yet use EJB3 Proxy Implementation, call 'getProxyFactoryForService' instead");
+   }
+
+   /**
+    * @param binding
+    * @return
+    * @deprecated Until @Service uses EJB3 Proxy
+    */
+   @Deprecated
+   public RemoteProxyFactory getProxyFactoryForService(RemoteBinding binding)
    {
       // TODO Implement clustering
       return new ServiceRemoteProxyFactory(this, binding);
