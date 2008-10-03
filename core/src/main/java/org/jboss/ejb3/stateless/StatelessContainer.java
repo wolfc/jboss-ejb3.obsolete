@@ -402,8 +402,8 @@ public class StatelessContainer extends SessionSpecContainer
           */
 
          // Cast
-         assert invocation instanceof StatefulRemoteInvocation : SessionContainer.class.getName()
-               + ".dynamicInoke supports only " + StatefulRemoteInvocation.class.getSimpleName()
+         assert invocation instanceof MethodInvocation : SessionContainer.class.getName()
+               + ".dynamicInoke supports only " + MethodInvocation.class.getSimpleName()
                + ", but has been passed: " + invocation;
          MethodInvocation si = (MethodInvocation) invocation;
 
