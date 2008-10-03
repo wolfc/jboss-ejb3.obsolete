@@ -13,7 +13,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-proxy</artifactId>
-  <version>0.1.7-SNAPSHOT</version>
+  <version>0.1.7</version>
   <name>JBoss EJB 3.0 Proxy</name>
   <description>JBoss EJB3 Proxy Component</description>
   <url>http://www.jboss.org/jbossejb3</url>
@@ -146,4 +146,10 @@
     </dependency>        
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-0.1.7</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-0.1.7</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-0.1.7</url>
+  </scm>
 </project>
