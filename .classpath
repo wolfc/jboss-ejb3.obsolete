@@ -5,4 +5,5 @@
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="var" path="M2_REPO/ant/ant/1.5/ant-1.5.jar"/>
   <classpathentry kind="var" path="M2_REPO/ant-contrib/ant-contrib/1.0b2/ant-contrib-1.0b2.jar" sourcepath="M2_REPO/ant-contrib/ant-contrib/1.0b2/ant-contrib-1.0b2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/ejb3/jboss-ejb3-common/0.1.6/jboss-ejb3-common-0.1.6.jar" sourcepath="M2_REPO/org/jboss/ejb3/jboss-ejb3-common-0.1.6-sources.jar"/>
 </classpath>
