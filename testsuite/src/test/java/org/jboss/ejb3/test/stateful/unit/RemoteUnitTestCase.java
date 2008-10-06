@@ -48,7 +48,6 @@ import org.jboss.ejb3.test.stateful.Stateful;
 import org.jboss.ejb3.test.stateful.Stateful21;
 import org.jboss.ejb3.test.stateful.StatefulHome;
 import org.jboss.ejb3.test.stateful.StatefulInvoker;
-import org.jboss.ejb3.test.stateful.StatefulLocal;
 import org.jboss.ejb3.test.stateful.StatefulTimeout;
 import org.jboss.ejb3.test.stateful.StatefulTx;
 import org.jboss.ejb3.test.stateful.Stateless;
@@ -252,7 +251,7 @@ extends JBossTestCase
       client.setSimple("somebody", "password");
       client.login();
       
-      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx");
+      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTxBean/remote");
       assertNotNull(stateful);
       
       boolean transacted = stateful.isLocalTransacted();
@@ -278,7 +277,7 @@ extends JBossTestCase
       client.setSimple("somebody", "password");
       client.login();
       
-      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTx");
+      StatefulTx stateful = (StatefulTx)getInitialContext().lookup("StatefulTxBean/remote");
       assertNotNull(stateful);
       
       try

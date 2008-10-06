@@ -29,7 +29,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.JndiInject;
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.logging.Logger;
 
@@ -39,9 +38,8 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-@Stateful(name="StatefulTx")
+@Stateful
 @Remote(StatefulTx.class)
-@RemoteBinding(jndiBinding = "StatefulTx")
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED) 
 @SecurityDomain("test")
 public class StatefulTxBean implements StatefulTx
