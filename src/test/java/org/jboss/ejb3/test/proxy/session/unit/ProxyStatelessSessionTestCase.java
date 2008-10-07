@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.test.proxy.common.SessionTestCaseBase;
 import org.jboss.ejb3.test.proxy.common.Utils;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
@@ -42,7 +43,7 @@ import org.junit.Test;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
+public class ProxyStatelessSessionTestCase extends SessionTestCaseBase
 {
 
    // --------------------------------------------------------------------------------||
@@ -128,7 +129,7 @@ public class ProxyStatelessSessionTestCase extends ProxySessionTestCaseBase
    public static void setUpBeforeClass() throws Throwable
    {
       // Create Bootstrap and Deploy
-      ProxySessionTestCaseBase.setUpBeforeClass();
+      SessionTestCaseBase.setUpBeforeClass();
 
       // Deploy MC Beans
       ProxyStatelessSessionTestCase.bootstrap.deploy(ProxyStatelessSessionTestCase.class);
