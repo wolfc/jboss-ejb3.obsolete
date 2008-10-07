@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- Remoting Proxy Factory Registry -->
+   <bean name="EJB3RemoteProxyFactoryRegistry" class="org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- RemoteProxyFactory -->
+            <entry>
+               <key>RemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.RemoteProxyFactory</value>
+            </entry>
+            <!-- IORFactory -->
+            <!-- Only available in AS 
+            <entry>
+               <key>IORFactory</key>
+               <value>org.jboss.ejb3.iiop.IORFactory</value>
+            </entry>
+            -->
+            <!-- ServiceRemoteProxyFactory -->
+            <entry>
+               <key>ServiceRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory</value>
+            </entry>
+            <!-- StatefulClusterProxyFactory -->
+            <entry>
+               <key>StatefulClusterProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulClusterProxyFactory</value>
+            </entry>
+            <!-- StatefulRemoteProxyFactory -->
+            <entry>
+               <key>StatefulRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory</value>
+            </entry>
+            <!-- StatelessClusterProxyFactory -->
+            <entry>
+               <key>StatelessClusterProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory</value>
+            </entry>
+            <!-- StatelessRemoteProxyFactory -->
+            <entry>
+               <key>StatelessRemoteProxyFactory</key>
+               <value>org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory</value>
+            </entry>            
+         </map>
+      </property>
+   </bean>
+</deployment>

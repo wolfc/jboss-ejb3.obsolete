@@ -98,6 +98,8 @@ public class OverriddenProxyFactoryTestCase extends AbstractEJB3TestCase
    public static void beforeClass() throws Exception
    {
       AbstractEJB3TestCase.beforeClass();
+      
+      deploy("org/jboss/ejb3/core/test/regression/ejbthree1253/remoteproxyfactoryregistry-beans.xml");
    }
 
    @AfterClass

@@ -22,7 +22,9 @@
 package org.jboss.ejb3.core.test.common;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -74,6 +76,8 @@ public abstract class AbstractEJB3TestCase
    
    private static InitialContext initialContext;
    
+   private static List<SessionContainer> containers = new ArrayList<SessionContainer>();
+   
    /**
     * Types of Containers Supported
     */
@@ -84,6 +88,10 @@ public abstract class AbstractEJB3TestCase
    @AfterClass
    public static void afterClass() throws Exception
    {
+      for(SessionContainer container : containers)
+         unregisterContainer(container);
+      containers.clear();
+      
       if(initialContext != null)
          initialContext.close();
       initialContext = null;
@@ -115,7 +123,11 @@ public abstract class AbstractEJB3TestCase
          Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
       }
 
-      deploy("basicbootstrap-beans.xml");
+      deploy("namingserver-beans.xml");
+      deploy("transactionmanager-beans.xml");
+      deploy("statefulcontainer-beans.xml");
+      deploy("statelesscontainer-beans.xml");
+      deploy("connector-beans.xml");
 
       // TODO: AspectDeployment
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
@@ -127,7 +139,7 @@ public abstract class AbstractEJB3TestCase
       initialContext = new InitialContext();
    }
 
-   private static void deploy(String resourceName)
+   protected static void deploy(String resourceName)
    {
       URL url = Thread.currentThread().getContextClassLoader().getResource(resourceName);
       if (url == null)
@@ -222,6 +234,8 @@ public abstract class AbstractEJB3TestCase
       // Deploy and register
       registerContainer(container);
 
+      containers.add(container);
+      
       // Return
       return container;
    }
@@ -344,6 +358,8 @@ public abstract class AbstractEJB3TestCase
          return;
 
       unregisterContainer(container);
+      
+      containers.remove(container);
    }
    
    private static void unregisterContainer(SessionContainer container)
