@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.session.unit;
+package org.jboss.ejb3.test.proxy.common;
 
 import java.net.URL;
 
@@ -30,7 +30,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 
 /**
- * ProxySessionTestCaseBase
+ * SessionTestCaseBase
  * 
  * Operations common to Proxy Session Test Cases
  *
@@ -38,7 +38,7 @@ import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class ProxySessionTestCaseBase
+public abstract class SessionTestCaseBase
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -46,7 +46,7 @@ public abstract class ProxySessionTestCaseBase
 
    protected static EmbeddedTestMcBootstrap bootstrap;
 
-   private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
+   public static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
 
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
