@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- REMOTING -->
+      
+   <bean name="ServerConfiguration" class="org.jboss.remoting.ServerConfiguration">
+      <property name="invocationHandlers">
+         <map keyClass="java.lang.String" valueClass="java.lang.String">
+            <entry>
+               <key>AOP</key>
+               <value>org.jboss.aspects.remoting.AOPRemotingInvocationHandler</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <bean name="org.jboss.ejb3.RemotingConnector" class="org.jboss.remoting.transport.Connector">
+      <property name="invokerLocator">socket://0.0.0.0:3875</property>
+      <property name="serverConfiguration"><inject bean="ServerConfiguration"/></property>
+   </bean>
+</deployment>
