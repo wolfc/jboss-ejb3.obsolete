@@ -1156,9 +1156,15 @@ public class StatefulContainer extends SessionSpecContainer
          
          // Determine if local/remote
          boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
-         
+
+         // Get the metadata
+         JBossSessionBeanMetaData smd = this.getMetaData();
+
+         // Get the appropriate JNDI Name
+         String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
+
          // Find the Proxy Factory Key for this SFSB
-         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(this.getMetaData(), isLocal);
+         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
 
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
@@ -1250,8 +1256,14 @@ public class StatefulContainer extends SessionSpecContainer
          // Determine if local/remote
          boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
          
+         // Get the metadata
+         JBossSessionBeanMetaData smd = this.getMetaData();
+
+         // Get the appropriate JNDI Name
+         String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
+         
          // Find the Proxy Factory Key for this SFSB
-         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(this.getMetaData(), isLocal);
+         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
 
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
@@ -1429,8 +1441,14 @@ public class StatefulContainer extends SessionSpecContainer
       JndiStatefulSessionRegistrar sfsbJndiRegistrar = Ejb3RegistrarLocator
             .locateRegistrar().lookup(sfsbJndiRegistrarObjectStoreBindName,JndiStatefulSessionRegistrar.class);
       
+      // Get the metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+
+      // Get the appropriate JNDI Name
+      String jndiName = !isRemote ? smd.getLocalJndiName() : smd.getJndiName();
+      
       // Find the Proxy Factory Key for this SFSB
-      String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(this.getMetaData(), !isRemote);
+      String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
       
       // Lookup the Proxy Factory in the Object Store
       StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,

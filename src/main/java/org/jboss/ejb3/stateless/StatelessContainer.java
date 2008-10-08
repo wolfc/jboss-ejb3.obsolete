@@ -604,9 +604,15 @@ public class StatelessContainer extends SessionSpecContainer
 
          // Determine if local/remote
          boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
+         
+         // Get the metadata
+         JBossSessionBeanMetaData smd = this.getMetaData();
+
+         // Get the appropriate JNDI Name
+         String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
 
          // Find the Proxy Factory Key for this SLSB
-         String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(this.getMetaData(), isLocal);
+         String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
 
          // Lookup the Proxy Factory in the Object Store
          StatelessSessionProxyFactoryBase proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
