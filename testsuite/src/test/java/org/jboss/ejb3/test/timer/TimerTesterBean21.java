@@ -26,7 +26,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TimedObject;
 import javax.ejb.Timer;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -36,7 +35,6 @@ import org.jboss.logging.Logger;
  * @version $Revision$
  */
 @Stateless
-@RemoteBinding(jndiBinding="TimerTesterBean21")
 @Remote(TimerTester.class)
 public class TimerTesterBean21 extends BaseTimerTesterBean implements TimerTester, TimedObject
 {

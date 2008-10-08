@@ -23,9 +23,10 @@ package org.jboss.ejb3.test.timer.unit;
 
 import java.util.Date;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.timer.TimerTester;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Sample client for the jboss container.
@@ -102,7 +103,7 @@ extends JBossTestCase
    
    public void testSimple21() throws Exception
    {
-      TimerTester test = (TimerTester) this.getInitialContext().lookup("TimerTesterBean21");
+      TimerTester test = (TimerTester) this.getInitialContext().lookup("TimerTesterBean21/remote");
       test.startTimer(5000);
       test.accessTimer();
       Thread.sleep(6000);
