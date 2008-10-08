@@ -99,15 +99,15 @@ public class MetaDataHelper
             .getEnterpriseBean(ejbName);
       assert beanMetaDataDelegate!=null : "Bean metadata for " + ejbName + " could not be found";
 
-      // Mock up a @RemoteBinding if none specified but are required
-      if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
-            && (beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0))
-      {
-         List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
-         RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
-         remoteBindings.add(remoteBinding);
-         beanMetaDataDelegate.setRemoteBindings(remoteBindings);
-      }
+//      // Mock up a @RemoteBinding if none specified but are required
+//      if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
+//            && (beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0))
+//      {
+//         List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
+//         RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
+//         remoteBindings.add(remoteBinding);
+//         beanMetaDataDelegate.setRemoteBindings(remoteBindings);
+//      }
       
 //      // Mock up @Resource field-level annotation
 //      //TODO Remove when handled by JBoss50Creator
