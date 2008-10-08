@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.ejb.EJBException;
 import javax.ejb.Handle;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -49,6 +50,8 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.asynch.FutureHolder;
+import org.jboss.ejb.AllowedOperationsAssociation;
+import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.annotation.LocalBinding;
@@ -68,6 +71,8 @@ import org.jboss.ejb3.timerservice.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.util.NotImplementedException;
 
 /**
@@ -84,6 +89,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    private TimerService timerService;
    private Object mbean = new ServiceDelegateWrapper(this);
    
+   private Method timeoutMethod;
+   
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
 
@@ -93,32 +100,29 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
       this.mbeanServer = server;
+      
+      initializeTimeoutMethod();
    }
 
+   // TODO: integrate with StatelessContainer.callTimeout
    public void callTimeout(Timer timer) throws Exception
    {
-      /*
-      Method timeout = callbackHandler.getTimeoutCallback();
-      if (timeout == null) throw new EJBException("No method has been annotated with @Timeout");
+      if (timeoutMethod == null) throw new EJBException("No method has been annotated with @Timeout");
       Object[] args = {timer};
       AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsFlags.IN_EJB_TIMEOUT);
       try
       {
-         localInvoke(timeout, args);
+         localInvoke(timeoutMethod, args);
       }
-      catch(Throwable throwable)
+      catch (Throwable throwable)
       {
          if (throwable instanceof Exception) throw (Exception) throwable;
-         if(throwable instanceof Error) throw (Error) throwable;
          throw new RuntimeException(throwable);
       }
       finally
       {
          AllowedOperationsAssociation.popInMethodFlag();
       }
-      */
-      // FIXME: interceptors
-      throw new RuntimeException("NYI");
    }
 
    @Override
@@ -150,6 +154,16 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       // TODO Implement clustering
       return new ServiceRemoteProxyFactory(this, binding);
+   }
+   
+   // TODO: integrate with StatelessContainer.initializeTimeout
+   private void initializeTimeoutMethod()
+   {
+      JBossSessionBeanMetaData metaData = getMetaData();
+      NamedMethodMetaData timeoutMethodMetaData = null;
+      if(metaData != null)
+         timeoutMethodMetaData = metaData.getTimeoutMethod();
+      this.timeoutMethod = getTimeoutCallback(timeoutMethodMetaData, getBeanClass());
    }
    
    public Serializable createSession(Class<?> initTypes[], Object initArgs[])
