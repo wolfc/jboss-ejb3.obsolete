@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,6 +48,7 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.proxy.handler.session.stateless.StatelessRemoteProxyInvocationHandler;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
@@ -71,6 +73,8 @@ import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
 import org.jboss.ejb3.test.proxy.jndiregistrar.BindingTest;
+import org.jboss.ejb3.test.proxy.jndiregistrar.ClientBindUrlBindingTest;
+import org.jboss.ejb3.test.proxy.jndiregistrar.ClientBindUrlTestBean;
 import org.jboss.ejb3.test.proxy.jndiregistrar.JndiBindingTestBean;
 import org.jboss.ejb3.test.proxy.jndiregistrar.LocalJndiBindingTest;
 import org.jboss.ejb3.test.proxy.jndiregistrar.RemoteJndiBindingTest;
@@ -91,8 +95,8 @@ import org.junit.Test;
  * Tests for verifying that the EJB proxies are bound correctly to the JNDI
  * and also unbound properly on undeploying the bean. 
  * 
- *
  * @author Jaikiran Pai
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
 public class JNDIBindingTestCase
@@ -230,6 +234,58 @@ public class JNDIBindingTestCase
       BindingTest test3 = (BindingTest) location3;
       String result3 = test3.echo(testMessage);
       TestCase.assertEquals(testMessage, result3);
+      
+      // Unbind and test
+      this.unbindAndTest(context, this.sessionContainer);
+   }
+   
+   /**
+    * Ensures that bindings at N Remote Locations, each with separate
+    * clientBindUrls, have the proper URL for the InvokerLocator
+    * 
+    * EJBTHREE-1515
+    */
+   @Test
+   public void testExplicitClientBindUrls() throws Throwable
+   {
+      // Create and bind the bean into JNDI
+      this.sessionContainer = Utils.createSlsb(ClientBindUrlTestBean.class);
+      Ejb3RegistrarLocator.locateRegistrar().bind(this.sessionContainer.getName(), this.sessionContainer);
+
+      // Get a JNDI Context
+      Context context = new InitialContext(); // Props from jndi.properties on Client CP
+
+      /*
+       * Test Location 1
+       */
+      
+      // Lookup
+      Object obj1 = context.lookup(ClientBindUrlBindingTest.JNDI_BINDING_1);
+      
+      // Get the underlying URL
+      StatelessRemoteProxyInvocationHandler handler1 = (StatelessRemoteProxyInvocationHandler)Proxy.getInvocationHandler(obj1);
+      String url1 = handler1.getUrl();
+      
+      // Test
+      TestCase.assertEquals(ClientBindUrlBindingTest.CLIENT_BIND_URL_1, url1);
+      
+      /*
+       * Test Location 2
+       */
+      
+      // Lookup
+      Object obj2 = context.lookup(ClientBindUrlBindingTest.JNDI_BINDING_2);
+      
+      // Get the underlying URL
+      StatelessRemoteProxyInvocationHandler handler2 = (StatelessRemoteProxyInvocationHandler)Proxy.getInvocationHandler(obj2);
+      String url2 = handler2.getUrl();
+      
+      // Test
+      TestCase.assertEquals(ClientBindUrlBindingTest.CLIENT_BIND_URL_2, url2);
+      
+      /*
+       * Cleanup
+       */
       
       // Unbind and test
       this.unbindAndTest(context, this.sessionContainer);
