@@ -99,38 +99,6 @@ public class MetaDataHelper
             .getEnterpriseBean(ejbName);
       assert beanMetaDataDelegate!=null : "Bean metadata for " + ejbName + " could not be found";
 
-//      // Mock up a @RemoteBinding if none specified but are required
-//      if ((beanMetaDataDelegate.getBusinessRemotes() != null || beanMetaDataDelegate.getHome() != null)
-//            && (beanMetaDataDelegate.getRemoteBindings() == null || beanMetaDataDelegate.getRemoteBindings().size() == 0))
-//      {
-//         List<RemoteBindingMetaData> remoteBindings = new ArrayList<RemoteBindingMetaData>();
-//         RemoteBindingMetaData remoteBinding = new RemoteBindingMetaData();
-//         remoteBindings.add(remoteBinding);
-//         beanMetaDataDelegate.setRemoteBindings(remoteBindings);
-//      }
-      
-//      // Mock up @Resource field-level annotation
-//      //TODO Remove when handled by JBoss50Creator
-//      // http://www.jboss.com/index.html?module=bb&op=viewtopic&t=139578
-//      Field[] fields = beanImplClass.getFields();
-//      for (Field field : fields)
-//      {
-//         Resource resource = field.getAnnotation(Resource.class);
-//         if (resource != null)
-//         {
-//            Class<?> type = field.getType();
-//            if (type.equals(SessionContext.class))
-//            {
-//               ResourceReferenceMetaData ref = createResourceEnvRef(resource, field);
-//               JBossEnvironmentRefsGroupMetaData jndiEnvRefs = new JBossEnvironmentRefsGroupMetaData();
-//               jndiEnvRefs.setResourceReferences(new ResourceReferencesMetaData());
-//               beanMetaDataDelegate.setJndiEnvironmentRefsGroup(jndiEnvRefs);
-//               ResourceReferencesMetaData refs = beanMetaDataDelegate.getResourceReferences();
-//               refs.add(ref);
-//            }
-//         }
-//      }
-
       // Use a Session JNDI Binding Policy for the metadata
       JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate,
             new BasicJndiBindingPolicy());
