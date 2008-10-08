@@ -29,7 +29,7 @@
          </remove-method>
       </session>
       <session>
-         <ejb-name>OverrideConcurrentStateful</ejb-name>
+         <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
          <remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</remote>
          <ejb-class>org.jboss.ejb3.test.stateful.ConcurrentStatefulBean</ejb-class>
          <session-type>Stateful</session-type>

@@ -8,7 +8,7 @@
    <jmx-name>test.ejb3:name=Bill,service=EJB3</jmx-name>
    <enterprise-beans>
       <session>
-         <ejb-name>OverrideConcurrentStateful</ejb-name>
+         <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
          <jndi-name>OverrideConcurrentStateful</jndi-name>
          <concurrent>false</concurrent>
       </session>
