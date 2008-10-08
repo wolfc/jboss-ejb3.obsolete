@@ -34,7 +34,6 @@ import org.jboss.logging.Logger;
  */
 @Stateful
 @Remote(ConcurrentStateful.class)
-@RemoteBinding(jndiBinding = "ConcurrentStateful")
 @SerializedConcurrentAccess
 public class ConcurrentStatefulBean implements ConcurrentStateful
 {
