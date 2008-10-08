@@ -930,6 +930,7 @@ public class JNDIBindingTestCase
     * 4 - Remote home jndi name
     * 5 - Interface specific business remote jndi names
     * 6 - Interface specific business local jndi names
+    * 7 - @RemoteBinding.jndiBinding entries
     * ) 
     * for different objects associated with the <code>sessionContainer</code>
     * 
