@@ -128,17 +128,11 @@ extends JBossTestCase
       public boolean removed = false;
       public Exception failure = null;
       
-      public ConcurrentStatefulTimeoutClient(int id, int wait)
+      public ConcurrentStatefulTimeoutClient(int id, int wait) throws Exception
       {
-         try
-         {
-            this.id = id;
-            this.wait = wait;
-            sfsb = (StatefulTimeout)getInitialContext().lookup("StatefulClusteredTimeoutBean/remote");
-         }
-         catch (Exception e)
-         {
-         }
+         this.id = id;
+         this.wait = wait;
+         sfsb = (StatefulTimeout)getInitialContext().lookup("StatefulClusteredTimeoutBean/remote");
       }
       
       public void run()
@@ -168,6 +162,8 @@ extends JBossTestCase
             catch (Exception e)
             {
                failure = e;
+               log.debug("Concurrent invocation failed on " + sfsb, e);
+               return;
             }
          }
       }
@@ -685,7 +681,7 @@ extends JBossTestCase
    
    public void testConcurrentAccess() throws Exception
    {
-      ConcurrentStateful stateful = (ConcurrentStateful) new InitialContext().lookup("ConcurrentStateful");
+      ConcurrentStateful stateful = (ConcurrentStateful) new InitialContext().lookup("ConcurrentStatefulBean/remote");
       stateful.getState();
       
       StatefulInvoker[] invokers = new StatefulInvoker[2];
