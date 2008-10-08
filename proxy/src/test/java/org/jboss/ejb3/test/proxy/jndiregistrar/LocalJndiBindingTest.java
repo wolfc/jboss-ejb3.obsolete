@@ -19,32 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.binding;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
+package org.jboss.ejb3.test.proxy.jndiregistrar;
 
 /**
- * JndiBindingTestBean
+ * LocalJndiBindingTest
  * 
- * Tests EJB for explicit JNDI Bindings
+ * Local Business Interface defining an overridden
+ * JNDI Binding
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateless
-@Remote(RemoteJndiBindingTest.class)
-@Local(LocalJndiBindingTest.class)
-@RemoteBindings(
-{@RemoteBinding(jndiBinding = RemoteJndiBindingTest.JNDI_BINDING_1),
-      @RemoteBinding(jndiBinding = RemoteJndiBindingTest.JNDI_BINDING_2)})
-@LocalBinding(jndiBinding = LocalJndiBindingTest.JNDI_BINDING)
-public class JndiBindingTestBean extends JndiBindingTestBeanBase implements RemoteJndiBindingTest, LocalJndiBindingTest
+public interface LocalJndiBindingTest extends BindingTest
 {
-
+   /*
+    * Define an overridden JNDI Binding
+    */
+   String JNDI_BINDING = "MyOverriddenBinding/local";
 }
