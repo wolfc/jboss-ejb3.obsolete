@@ -36,6 +36,8 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
+import junit.framework.TestCase;
+
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.annotation.LocalBinding;
@@ -68,6 +70,10 @@ import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocal;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessLocalHome;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemoteHome;
+import org.jboss.ejb3.test.proxy.jndiregistrar.BindingTest;
+import org.jboss.ejb3.test.proxy.jndiregistrar.JndiBindingTestBean;
+import org.jboss.ejb3.test.proxy.jndiregistrar.LocalJndiBindingTest;
+import org.jboss.ejb3.test.proxy.jndiregistrar.RemoteJndiBindingTest;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
@@ -180,6 +186,87 @@ public class JNDIBindingTestCase
          }
       }
 
+   }
+   
+   /**
+    * Ensures that bindings at N Remote Locations are made and may be
+    * invoked upon, and that all associated bindings are cleansed on undeploy
+    * 
+    * EJBTHREE-1515
+    */
+   @Test
+   public void testMultipleRemoteJndiBindings() throws Throwable
+   {
+      // Create and bind the bean into JNDI
+      this.sessionContainer = Utils.createSlsb(JndiBindingTestBean.class);
+      Ejb3RegistrarLocator.locateRegistrar().bind(this.sessionContainer.getName(), this.sessionContainer);
+      
+      // Initialize
+      String testMessage = "Find me at N JNDI Locations";
+
+      // Get a JNDI Context
+      Context context = new InitialContext(); // Props from jndi.properties on Client CP
+
+      // Lookup JNDI Binding Test EJB at Location 1, and invoke
+      Object location1 = context.lookup(RemoteJndiBindingTest.JNDI_BINDING_1);
+      TestCase.assertNotNull("Expected remote binding in JNDI at " + location1 + " was not found", location1);
+      TestCase.assertTrue(location1 instanceof BindingTest);
+      BindingTest test1 = (BindingTest) location1;
+      String result1 = test1.echo(testMessage);
+      TestCase.assertEquals(testMessage, result1);
+
+      // Lookup JNDI Binding Test EJB at Location 2, and invoke
+      Object location2 = context.lookup(RemoteJndiBindingTest.JNDI_BINDING_2);
+      TestCase.assertNotNull("Expected remote binding in JNDI at " + location2 + " was not found", location2);
+      TestCase.assertTrue(location2 instanceof BindingTest);
+      BindingTest test2 = (BindingTest) location2;
+      String result2 = test2.echo(testMessage);
+      TestCase.assertEquals(testMessage, result2);
+
+      // Lookup JNDI Binding Test EJB at Location 3, and invoke
+      Object location3 = context.lookup(RemoteJndiBindingTest.JNDI_BINDING_DECLARED_BY_BUSINESS_INTERFACE);
+      TestCase.assertNotNull("Expected remote binding in JNDI at " + location3 + " was not found", location2);
+      TestCase.assertTrue(location3 instanceof BindingTest);
+      BindingTest test3 = (BindingTest) location3;
+      String result3 = test3.echo(testMessage);
+      TestCase.assertEquals(testMessage, result3);
+      
+      // Unbind and test
+      this.unbindAndTest(context, this.sessionContainer);
+   }
+
+   /**
+    * Ensures that an alternate local binding is made and may 
+    * be invoked upon, and that all associated bindings are cleansed 
+    * upon undeploy
+    * 
+    * EJBTHREE-1515
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testAlternateLocalJndiBinding() throws Throwable
+   {
+      // Create and bind the bean into JNDI
+      this.sessionContainer = Utils.createSlsb(JndiBindingTestBean.class);
+      Ejb3RegistrarLocator.locateRegistrar().bind(this.sessionContainer.getName(), this.sessionContainer);
+      
+      // Initialize
+      String testMessage = "Find me at Overridden Local JNDI Location";
+
+      // Get a JNDI Context
+      Context context = new InitialContext(); // Props from jndi.properties on Client CP
+
+      // Lookup JNDI Binding Test EJB at alternate local location, and invoke
+      Object localLocation = context.lookup(LocalJndiBindingTest.JNDI_BINDING);
+      TestCase.assertNotNull("Expected local binding in JNDI at " + localLocation + " was not found", localLocation);
+      TestCase.assertTrue(localLocation instanceof BindingTest);
+      BindingTest test = (BindingTest) localLocation;
+      String result = test.echo(testMessage);
+      TestCase.assertEquals(testMessage, result);
+      
+      // Unbind and test
+      this.unbindAndTest(context, this.sessionContainer);
    }
 
    /**
@@ -862,6 +949,20 @@ public class JNDIBindingTestCase
       jndiNames.add(metadata.getLocalHomeJndiName());
       // remote home jndi name
       jndiNames.add(metadata.getHomeJndiName());
+      
+      // Remote Bindings
+      List<RemoteBindingMetaData> remoteBindings = metadata.getRemoteBindings();
+      if (remoteBindings != null)
+      {
+         for (RemoteBindingMetaData remoteBinding : remoteBindings)
+         {
+            String remoteBindingJndiName = remoteBinding.getJndiName();
+            if (remoteBindingJndiName != null && remoteBindingJndiName.trim().length() > 0)
+            {
+               jndiNames.add(remoteBindingJndiName);
+            }
+         }
+      }
 
       // Interface specific Business remote jndi names
       BusinessRemotesMetaData businessRemotesMetadata = metadata.getBusinessRemotes();
@@ -925,6 +1026,11 @@ public class JNDIBindingTestCase
             logger.debug("Object associated with " + jndiName + " has been successfully unbound");
             continue;
 
+         }
+         catch(Throwable t)
+         {
+            throw new RuntimeException("JNDI Name " + jndiName
+                  + " was not unbound, and further an exception was raised upon lookup", t);
          }
 
       }

@@ -19,25 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.binding;
+package org.jboss.ejb3.test.proxy.jndiregistrar;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+
+import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteBindings;
 
 /**
- * JndiBindingTestBeanBase
+ * JndiBindingTestBean
  * 
- * Common base for @RemoteBinding test EJBs
+ * Tests EJB for explicit JNDI Bindings
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class JndiBindingTestBeanBase implements BindingTest
+@Stateless
+@Remote(RemoteJndiBindingTest.class)
+@Local(LocalJndiBindingTest.class)
+@RemoteBindings(
+{@RemoteBinding(jndiBinding = RemoteJndiBindingTest.JNDI_BINDING_1),
+      @RemoteBinding(jndiBinding = RemoteJndiBindingTest.JNDI_BINDING_2)})
+@LocalBinding(jndiBinding = LocalJndiBindingTest.JNDI_BINDING)
+public class JndiBindingTestBean extends JndiBindingTestBeanBase implements RemoteJndiBindingTest, LocalJndiBindingTest
 {
-
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.test.proxy.binding.BindingTest#echo(java.lang.String)
-    */
-   public String echo(String param)
-   {
-      return param;
-   }
 
 }
