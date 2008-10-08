@@ -531,6 +531,20 @@ public abstract class JndiSessionRegistrarBase
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultRemoteAddress + "\"");
          this.unbind(context, defaultRemoteAddress);
+         
+         // Unbind all @RemoteBinding.jndiBindings
+         List<RemoteBindingMetaData> remoteBindings = smd.getRemoteBindings();
+         if (remoteBindings != null)
+         {
+            for (RemoteBindingMetaData remoteBinding : remoteBindings)
+            {
+               String remoteBindingJndiName = remoteBinding.getJndiName();
+               if (remoteBindingJndiName != null && remoteBindingJndiName.trim().length() > 0)
+               {
+                  this.unbind(context, remoteBindingJndiName);
+               }
+            }
+         }
 
          // Unbind ObjectFactory specific to each Remote Business Interface
          if (businessRemotes != null)
