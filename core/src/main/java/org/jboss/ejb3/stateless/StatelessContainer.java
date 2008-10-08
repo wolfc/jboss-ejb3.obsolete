@@ -55,7 +55,6 @@ import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.cache.ClusteredStatefulCache;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -68,10 +67,7 @@ import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateless.BaseStatelessRemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateless.StatelessClusterProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
@@ -79,6 +75,7 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
 import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.ejb3.util.CollectionHelper;
 import org.jboss.injection.WebServiceContextProxy;
 import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
@@ -695,7 +692,7 @@ public class StatelessContainer extends SessionSpecContainer
    }
 
    @Override
-   public Object getBusinessObject(BeanContext ctx, Class intf)
+   public <T> T getBusinessObject(BeanContext<?> ctx, Class<T> intf)
    {
       assert intf != null : "intf is null";
       
@@ -707,8 +704,8 @@ public class StatelessContainer extends SessionSpecContainer
           */
          Set<String> businessInterfaceNames = new HashSet<String>();
          JBossSessionBeanMetaData smd= (JBossSessionBeanMetaData)this.getXml();
-         businessInterfaceNames.addAll(smd.getBusinessRemotes());
-         businessInterfaceNames.addAll(smd.getBusinessLocals());
+         CollectionHelper.addAllIfSet(businessInterfaceNames, smd.getBusinessRemotes());
+         CollectionHelper.addAllIfSet(businessInterfaceNames, smd.getBusinessLocals());
          
          String interfaceName = intf.getName();
          
@@ -716,7 +713,7 @@ public class StatelessContainer extends SessionSpecContainer
             throw new IllegalStateException("Cannot find BusinessObject for interface: " + interfaceName);
          
          String jndiName = this.getXml().determineResolvedJndiName(interfaceName);
-         return getInitialContext().lookup(jndiName);
+         return intf.cast(getInitialContext().lookup(jndiName));
       }
       catch (NamingException e)
       {
