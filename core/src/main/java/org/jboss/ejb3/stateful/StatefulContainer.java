@@ -1164,7 +1164,7 @@ public class StatefulContainer extends SessionSpecContainer
          String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
 
          // Find the Proxy Factory Key for this SFSB
-         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
+         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
 
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
@@ -1263,7 +1263,7 @@ public class StatefulContainer extends SessionSpecContainer
          String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
          
          // Find the Proxy Factory Key for this SFSB
-         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
+         String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
 
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
@@ -1448,7 +1448,7 @@ public class StatefulContainer extends SessionSpecContainer
       String jndiName = !isRemote ? smd.getLocalJndiName() : smd.getJndiName();
       
       // Find the Proxy Factory Key for this SFSB
-      String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
+      String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, !isRemote);
       
       // Lookup the Proxy Factory in the Object Store
       StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,

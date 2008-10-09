@@ -75,16 +75,17 @@ public class StatefulSessionClusteredProxyFactory extends StatefulSessionRemoteP
     *       for which this ProxyFactory is to generate Proxies
     * @param url The URL to use for remoting
     * @param advisor The Advisor for proxies created by this factory
+    * @param interceptorStack
     */
-   public StatefulSessionClusteredProxyFactory(final String name, final String containerName, final String containerGuid,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url, final Advisor advisor,
-         ProxyClusteringRegistry registry)
+   public StatefulSessionClusteredProxyFactory(final String name, final String containerName,
+         final String containerGuid, final JBossSessionBeanMetaData metadata, final ClassLoader classloader,
+         final String url, final Advisor advisor, ProxyClusteringRegistry registry, final String interceptorStack)
    {
       // Call Super
-      super(name, containerName, containerGuid, metadata, classloader, url, advisor);
-      
+      super(name, containerName, containerGuid, metadata, classloader, url, advisor, interceptorStack);
+
       assert registry != null : "registry is null";
-      
+
       this.registry = registry;
    }
 

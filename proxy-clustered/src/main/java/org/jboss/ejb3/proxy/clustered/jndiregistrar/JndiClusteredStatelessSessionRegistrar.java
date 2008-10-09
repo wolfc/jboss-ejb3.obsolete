@@ -101,11 +101,11 @@ public class JndiClusteredStatelessSessionRegistrar extends JndiClusteredSession
    @Override
    protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
          final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
-         final Advisor advisor)
+         final Advisor advisor, final String interceptorStack)
    {
       // Create
-      SessionProxyFactory factory = new StatelessSessionClusteredProxyFactory(name, containerName, containerGuid, smd, cl,
-            url, advisor, getRegistry());
+      SessionProxyFactory factory = new StatelessSessionClusteredProxyFactory(name, containerName, containerGuid, smd,
+            cl, url, advisor, getRegistry(), interceptorStack);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

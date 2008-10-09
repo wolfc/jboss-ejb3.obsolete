@@ -230,7 +230,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteJndiName = smd.getJndiName();
 
          // Create and register a remote proxy factory
-         String defaultRemoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName);
+         String defaultRemoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName, smd, false);
          SessionProxyFactory factory = this.createRemoteProxyFactory(defaultRemoteProxyFactoryKey, containerName,
                containerGuid, smd, cl, defaultClientBindUrl, advisor, null);
          try
@@ -354,7 +354,8 @@ public abstract class JndiSessionRegistrarBase
                    */
 
                   // Create and register a remote proxy factory specific to this binding
-                  String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName);
+                  String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName, smd,
+                        false);
                   SessionProxyFactory remoteBindingProxyFactory = null;
                   boolean reregister = true;
                   try
@@ -447,7 +448,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalJndiName = smd.getLocalJndiName();
 
          // Create and register a local proxy factory
-         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName);
+         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName, smd, true);
          SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, containerGuid,
                smd, cl, advisor);
          try
@@ -595,7 +596,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultRemoteJndiName = smd.getJndiName();
 
          // Find and deregister a remote proxy factory
-         String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName);
+         String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName, smd, false);
          this.deregisterProxyFactory(remoteProxyFactoryKey);
 
          // Determine if remote home and business remotes are bound to same JNDI Address
@@ -630,7 +631,8 @@ public abstract class JndiSessionRegistrarBase
                   this.unbind(context, remoteBindingJndiName);
 
                   // Find and deregister the remote proxy factory
-                  String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName);
+                  String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName, smd,
+                        false);
                   this.deregisterProxyFactory(remoteBindingProxyFactoryKey);
                }
             }
@@ -655,7 +657,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalJndiName = smd.getLocalJndiName();
 
          // Remove local proxy factory
-         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName);
+         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName,smd,true);
          this.deregisterProxyFactory(localProxyFactoryKey);
 
          // Determine if local home and business locals are bound to same JNDI Address
@@ -958,8 +960,10 @@ public abstract class JndiSessionRegistrarBase
     * ProxyFactory/(jndiName)
     * 
     * @param jndiName
+    * @param smd
+    * @param isLocal
     */
-   public String getProxyFactoryRegistryKey(String jndiName)
+   public String getProxyFactoryRegistryKey(String jndiName, JBossSessionBeanMetaData smd, boolean isLocal)
    {
       // Initialize
       String suffix = null;

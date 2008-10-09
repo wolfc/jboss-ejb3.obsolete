@@ -188,14 +188,14 @@ public abstract class JndiClusteredSessionRegistrarBase
    // --------------------------------------------------------------------------------||
 
    @Override
-   public String getProxyFactoryRegistryKey(JBossSessionBeanMetaData md, boolean isLocal)
+   public String getProxyFactoryRegistryKey(String jndiName, JBossSessionBeanMetaData smd, boolean isLocal)
    {
-      String key = super.getProxyFactoryRegistryKey(md, isLocal);
+      String key = super.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
       if (!isLocal)
       {
-         ClusterConfigMetaData ccmd = md.getClusterConfig();
+         ClusterConfigMetaData ccmd = smd.getClusterConfig();
          assert ccmd != null : ClusterConfigMetaData.class.getSimpleName() + " not found in metadata";
-         key += "/" + ProxyClusteringRegistry.getPartitionName(md.getClusterConfig());
+         key += "/" + ProxyClusteringRegistry.getPartitionName(smd.getClusterConfig());
       }
       return key;
    }
