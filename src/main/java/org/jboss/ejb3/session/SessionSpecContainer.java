@@ -391,6 +391,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
        */
 
       // Is this a Remote Interface ?
+      boolean isLocal = false;
       String ejb2xRemoteInterface = smd.getRemote();
       if (ejb2xInterface.equals(ejb2xRemoteInterface))
       {
@@ -406,6 +407,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          if (ejb2xInterface.equals(ejb2xLocalInterface))
          {
             // Mark as found
+            isLocal = true;
             jndiName = smd.getLocalJndiName();
          }
       }
@@ -419,7 +421,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       }
 
       // Lookup
-      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName);
+      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, smd, isLocal);
       Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
 
       // Cast

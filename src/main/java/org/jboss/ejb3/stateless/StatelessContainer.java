@@ -609,7 +609,7 @@ public class StatelessContainer extends SessionSpecContainer
          String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
 
          // Find the Proxy Factory Key for this SLSB
-         String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName);
+         String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
 
          // Lookup the Proxy Factory in the Object Store
          StatelessSessionProxyFactoryBase proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
