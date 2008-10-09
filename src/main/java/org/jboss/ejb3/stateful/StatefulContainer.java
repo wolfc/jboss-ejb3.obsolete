@@ -241,7 +241,7 @@ public class StatefulContainer extends SessionSpecContainer
          assert registry != null : "Could not find " + ProxyClusteringRegistry.class.getSimpleName() + " in the "
                + Ejb3Registrar.class.getSimpleName() + " under name " + mcName;
          factory = new StatefulSessionClusteredProxyFactory(this.getName(), this.getName(), Ejb3Registry.guid(this),
-               this.getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor(), registry);
+               this.getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor(), registry, null);
       }
       else
       {
