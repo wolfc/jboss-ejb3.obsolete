@@ -97,15 +97,16 @@ public class JndiClusteredStatefulSessionRegistrar extends JndiClusteredSessionR
     * @param cl The ClassLoader for this EJB Container
     * @param url The URL to use for Remoting
     * @param advisor The Advisor for proxies created by this factory
+    * @param interceptorStack
     */
    @Override
    protected SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
          final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
-         final Advisor advisor)
+         final Advisor advisor, final String interceptorStack)
    {
       // Create
-      SessionProxyFactory factory = new StatefulSessionClusteredProxyFactory(name, containerName, containerGuid, smd, cl,
-            url, advisor, getRegistry());
+      SessionProxyFactory factory = new StatefulSessionClusteredProxyFactory(name, containerName, containerGuid, smd,
+            cl, url, advisor, getRegistry(), interceptorStack);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);
