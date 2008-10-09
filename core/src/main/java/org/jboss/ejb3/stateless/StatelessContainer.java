@@ -168,7 +168,7 @@ public class StatelessContainer extends SessionSpecContainer
       else
       {
          factory = new StatelessSessionRemoteProxyFactory(this.getName(), this.getName(), Ejb3Registry.guid(this), this
-               .getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor());
+               .getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor(), null);
       }
 
       // Start the factory

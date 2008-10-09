@@ -197,17 +197,17 @@ public abstract class JndiSessionRegistrarBase
       /*
        * Bind Remote ObjectFactories to JNDI
        */
-      
+
       // If there's a remote view
       if (hasRemoteView)
       {
          // Initialize a default clientBindUrl
          String defaultClientBindUrl = ProxyRemotingUtils.getDefaultClientBinding();
-         
+
          /*
           * Create reference addresses for remote bindings
           */
-         
+
          // Initialize Reference Addresses to attach to remote JNDI References
          List<RefAddr> refAddrsForRemote = new ArrayList<RefAddr>();
 
@@ -225,34 +225,34 @@ public abstract class JndiSessionRegistrarBase
          /*
           * Set up default remote binding
           */
-         
+
          // Get the default remote JNDI Name
          String defaultRemoteJndiName = smd.getJndiName();
-         
+
          // Create and register a remote proxy factory
          String defaultRemoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName);
          SessionProxyFactory factory = this.createRemoteProxyFactory(defaultRemoteProxyFactoryKey, containerName,
-               containerGuid, smd, cl, defaultClientBindUrl, advisor);
+               containerGuid, smd, cl, defaultClientBindUrl, advisor, null);
          try
          {
             this.registerProxyFactory(defaultRemoteProxyFactoryKey, factory, smd);
          }
-         catch(DuplicateBindException dbe)
+         catch (DuplicateBindException dbe)
          {
             throw new RuntimeException(dbe);
          }
-         
+
          // Get Classname to set for Reference
          String defaultRemoteClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForRemote);
 
          // Create a Reference
          Reference defaultRemoteRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
                + defaultRemoteClassName, defaultRemoteProxyFactoryKey, containerName, false);
-         
+
          /*
           * Set up references for Home
           */
-         
+
          // Determine if remote home and business remotes are bound to same JNDI Address
          boolean bindRemoteAndHomeTogether = this.isHomeAndBusinessBoundTogether(smd, false);
          if (bindRemoteAndHomeTogether)
@@ -283,26 +283,26 @@ public abstract class JndiSessionRegistrarBase
 
             bindingSet.addHomeRemoteBinding(new JndiReferenceBinding(homeAddress, homeRef));
          }
-         
+
          /*
           * If no @RemoteBindings are defined, make a default remote binding 
           */
-         
+
          // Get RemoteBindings
          List<RemoteBindingMetaData> remoteBindings = smd.getRemoteBindings();
-         
+
          // If there are no @RemoteBindings defined
-         if(remoteBindings==null)
+         if (remoteBindings == null)
          {
             // Use the default Client Bind URL
             String clientBindUrl = defaultClientBindUrl;
-            
+
             // Create a default remote remoting RefAddr, using the default (as none was explicitly-specified)
             RefAddr defaultRemoteRemotingRefAddr = this.createRemotingRefAddr(clientBindUrl);
-            
+
             // Add a Reference Address for the Remoting URL
             refAddrsForRemote.add(defaultRemoteRemotingRefAddr);
-            
+
             /*
              * Bind ObjectFactory for default remote businesses (and home if bound together)
              */
@@ -320,7 +320,7 @@ public abstract class JndiSessionRegistrarBase
             log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
                   + defaultRemoteJndiName + "\"");
             bindingSet.addDefaultRemoteBinding(new JndiReferenceBinding(defaultRemoteJndiName, defaultRemoteRef));
-            
+
          }
          // Remote Bindings are defined, create a binding for each
          else
@@ -328,7 +328,7 @@ public abstract class JndiSessionRegistrarBase
             /*
              * Bind all explicitly-declared remote bindings
              */
-            
+
             // For each of the explicitly-defined @RemoteBindings
             for (RemoteBindingMetaData binding : remoteBindings)
             {
@@ -346,10 +346,13 @@ public abstract class JndiSessionRegistrarBase
                      clientBindUrl = remoteBindingClientBindUrl;
                   }
 
+                  // Get the interceptor stack
+                  String interceptorStack = binding.getInterceptorStack();
+
                   /*
                    * Obtain a Proxy Factory for this Binding
                    */
-                  
+
                   // Create and register a remote proxy factory specific to this binding
                   String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName);
                   SessionProxyFactory remoteBindingProxyFactory = null;
@@ -373,7 +376,7 @@ public abstract class JndiSessionRegistrarBase
 
                   // Create the Proxy Factory
                   remoteBindingProxyFactory = this.createRemoteProxyFactory(remoteBindingProxyFactoryKey,
-                        containerName, containerGuid, smd, cl, clientBindUrl, advisor);
+                        containerName, containerGuid, smd, cl, clientBindUrl, advisor, interceptorStack);
                   try
                   {
                      this.registerProxyFactory(remoteBindingProxyFactoryKey, remoteBindingProxyFactory, smd);
@@ -382,7 +385,7 @@ public abstract class JndiSessionRegistrarBase
                   {
                      throw new RuntimeException(dbe);
                   }
-                  
+
                   // Create a default remote remoting RefAddr, using the default (as none was explicitly-specified)
                   RefAddr remoteBindingRemotingRefAddr = this.createRemotingRefAddr(clientBindUrl);
 
@@ -390,13 +393,13 @@ public abstract class JndiSessionRegistrarBase
                   Reference remoteBindingRef = createStandardReference(
                         JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + defaultRemoteClassName,
                         remoteBindingProxyFactoryKey, containerName, false);
-                  
+
                   // Add a Reference Address for the Remoting URL
                   log.debug("Adding " + RefAddr.class.getSimpleName() + " to @RemoteBinding "
-                        + Reference.class.getSimpleName() + ": Type \"" + remoteBindingRemotingRefAddr.getType() + "\", Content \""
-                        + remoteBindingRemotingRefAddr.getContent() + "\"");
+                        + Reference.class.getSimpleName() + ": Type \"" + remoteBindingRemotingRefAddr.getType()
+                        + "\", Content \"" + remoteBindingRemotingRefAddr.getContent() + "\"");
                   remoteBindingRef.add(remoteBindingRemotingRefAddr);
-                  
+
                   // Add all Reference Addresses for @RemoteBinding Reference
                   for (RefAddr refAddr : refAddrsForRemote)
                   {
@@ -407,7 +410,8 @@ public abstract class JndiSessionRegistrarBase
                   }
 
                   // Create the binding
-                  JndiReferenceBinding remoteBindingJndiBinding = new JndiReferenceBinding(remoteBindingJndiName, remoteBindingRef);
+                  JndiReferenceBinding remoteBindingJndiBinding = new JndiReferenceBinding(remoteBindingJndiName,
+                        remoteBindingRef);
 
                   // Add the binding
                   bindingSet.addDefaultRemoteBinding(remoteBindingJndiBinding);
@@ -441,7 +445,7 @@ public abstract class JndiSessionRegistrarBase
       {
          // Get the default local JNDI Name
          String defaultLocalJndiName = smd.getLocalJndiName();
-         
+
          // Create and register a local proxy factory
          String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName);
          SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, containerGuid,
@@ -450,7 +454,7 @@ public abstract class JndiSessionRegistrarBase
          {
             this.registerProxyFactory(localProxyFactoryKey, factory, smd);
          }
-         catch(DuplicateBindException dbe)
+         catch (DuplicateBindException dbe)
          {
             throw new RuntimeException(dbe);
          }
@@ -586,7 +590,7 @@ public abstract class JndiSessionRegistrarBase
       {
          // Obtain RemoteBinding URL
          List<RemoteBindingMetaData> remoteBindings = smd.getRemoteBindings();
-         
+
          // Get Default Remote JNDI Name
          String defaultRemoteJndiName = smd.getJndiName();
 
@@ -613,7 +617,7 @@ public abstract class JndiSessionRegistrarBase
          log.debug("Default Remote Business View for EJB " + smd.getEjbName() + " to be unbound from JNDI at \""
                + defaultRemoteJndiName + "\"");
          this.unbind(context, defaultRemoteJndiName);
-         
+
          // Unbind all @RemoteBinding.jndiBindings
          if (remoteBindings != null)
          {
@@ -719,10 +723,12 @@ public abstract class JndiSessionRegistrarBase
     * @param cl The ClassLoader for this EJB Container
     * @param url The URL to use for Remoting
     * @param advisor The Advisor for proxies created by this factory
+    * @param interceptorStackName The name of the client-side interceptor stack to use.
+    *       If null the default will apply.
     */
    protected abstract SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
          final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
-         final Advisor advisor);
+         final Advisor advisor, final String interceptorStackName);
 
    // --------------------------------------------------------------------------------||
    // Helper Methods -----------------------------------------------------------------||
@@ -1063,7 +1069,7 @@ public abstract class JndiSessionRegistrarBase
       {
          Ejb3RegistrarLocator.locateRegistrar().unbind(name);
       }
-      catch(NotBoundException nbe)
+      catch (NotBoundException nbe)
       {
          // Swallow, already deregistered
       }

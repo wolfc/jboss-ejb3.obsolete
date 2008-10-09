@@ -176,7 +176,7 @@ public class SlsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
       // Create the Factory
       StatelessSessionRemoteProxyFactory factory = new StatelessSessionRemoteProxyFactory(
             StatelessSessionRemoteProxyFactory.class.getName(), container.getName(), container.getName(), container
-                  .getMetaData(), container.getClassLoader(), null, ProxyEqualityTestCaseBase.advisor);
+                  .getMetaData(), container.getClassLoader(), null, ProxyEqualityTestCaseBase.advisor, null);
 
       // Start
       factory.start();
