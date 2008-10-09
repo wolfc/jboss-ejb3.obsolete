@@ -47,7 +47,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
 
    private static final Logger log = Logger.getLogger(StatefulSessionRemoteProxyFactory.class);
 
-   private static final String STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
+   private static final String DEFAULT_STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS = "StatefulSessionClientInterceptors";
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -57,6 +57,11 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
     * URL to be used in Remoting
     */
    private String url;
+
+   /**
+    * Name of the interceptor stack to use (overrides the default)
+    */
+   private String interceptorStackName;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -74,13 +79,17 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
     *       for which this ProxyFactory is to generate Proxies
     * @param url The URL to use for remoting
     * @param advisor The Advisor for proxies created by this factory
+    * @param interceptorStackName The name of the client-side interceptor stack to use.
+    *       If null the default will apply.
     */
    public StatefulSessionRemoteProxyFactory(final String name, final String containerName, final String containerGuid,
-         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url, final Advisor advisor)
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url,
+         final Advisor advisor, final String interceptorStackName)
    {
       // Call Super
       super(name, containerName, containerGuid, metadata, classloader, advisor);
       this.setUrl(url);
+      this.setInterceptorStackName(interceptorStackName);
    }
 
    // --------------------------------------------------------------------------------||
@@ -128,7 +137,18 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    @Override
    protected String getInterceptorStackName()
    {
-      return StatefulSessionRemoteProxyFactory.STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
+      // Initialize to default
+      String stackName = StatefulSessionRemoteProxyFactory.DEFAULT_STACK_NAME_STATEFUL_SESSION_CLIENT_INTERCEPTORS;
+
+      // Override if specified
+      String overrideName = this.interceptorStackName;
+      if (overrideName != null && overrideName.trim().length() > 0)
+      {
+         stackName = overrideName;
+      }
+
+      // Return
+      return stackName;
    }
 
    // --------------------------------------------------------------------------------||
@@ -153,7 +173,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       // Return
       return handler;
    }
-   
+
    @Override
    protected SessionProxyInvocationHandler createBusinessDefaultInvocationHandler()
    {
@@ -184,5 +204,10 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
    public void setUrl(String url)
    {
       this.url = url;
+   }
+
+   protected void setInterceptorStackName(String interceptorStackName)
+   {
+      this.interceptorStackName = interceptorStackName;
    }
 }
