@@ -29,7 +29,19 @@ package org.jboss.ejb3.test.singleton;
  */
 public interface SingletonRemote
 {
+   /**
+    * @return current number of created instances (must always be 1)
+    */
    int getInstanceCount();
 
-   void testWriteLock(long pause);
+   /**
+    * This method demonstrates that once one thread is entered an instance method
+    * no other thread can enter any method of the same instance in case of write concurrency.
+    */
+   void writeLock(long pause);
+   
+   /**
+    * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
+    */
+   int getReadLock(int expectedCurrentValue, long timeout);
 }

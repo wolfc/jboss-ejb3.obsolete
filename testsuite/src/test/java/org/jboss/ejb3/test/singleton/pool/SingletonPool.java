@@ -21,8 +21,9 @@
  */
 package org.jboss.ejb3.test.singleton.pool;
 
+import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.pool.StrictMaxPool;
+import org.jboss.ejb3.pool.AbstractPool;
 
 /**
  * A SingletonPool.
@@ -30,11 +31,57 @@ import org.jboss.ejb3.pool.StrictMaxPool;
  * @author <a href="alex@jboss.com">Alexey Loubyansky</a>
  * @version $Revision: 1.1 $
  */
-public class SingletonPool extends StrictMaxPool
+public class SingletonPool extends AbstractPool
 {
+   private BeanContext<?> instance;
+   
    @Override
    public void initialize(Container container, int maxSize, long timeout)
    {
-      super.initialize(container, 1, 11000);
+      super.initialize(container, 1, timeout);
+      instance = create(null, null);
+      System.out.println("SingletonPool.initialize: maxSize=" + maxSize);
+   }
+   
+   @Override
+   public void setMaxSize(int maxSize)
+   {
+      if(maxSize != 1)
+         throw new IllegalArgumentException("Maximum size for this pool must be 1: " + maxSize);
+   }
+
+   public void destroy()
+   {
+      if(instance != null)
+         discard(instance);
+   }
+
+   public BeanContext<?> get()
+   {
+      return instance;
+   }
+
+   public BeanContext<?> get(Class<?>[] initTypes, Object[] initValues)
+   {
+      return instance;
+   }
+
+   public int getAvailableCount()
+   {
+      return 1;
+   }
+
+   public int getCurrentSize()
+   {
+      return getCreateCount() - getRemoveCount();
+   }
+
+   public int getMaxSize()
+   {
+      return 1;
+   }
+
+   public void release(BeanContext<?> obj)
+   {
    }
 }

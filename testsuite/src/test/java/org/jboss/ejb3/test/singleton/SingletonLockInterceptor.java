@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.singleton;
 
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
+import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.aop.AbstractInterceptor;
 import org.jboss.logging.Logger;
 
@@ -46,8 +47,8 @@ public class SingletonLockInterceptor extends AbstractInterceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      /* way to get to the metadata and determine whether the method has READ or WRITE lock
       EJBContainer container = getEJBContainer(invocation);
+      /* way to get to the metadata and determine whether the method has READ or WRITE lock
       JBossEnterpriseBeanMetaData xml = container.getXml();
       if(xml != null)
          log.info("metadata is available");
@@ -57,7 +58,11 @@ public class SingletonLockInterceptor extends AbstractInterceptor
       boolean isReadMethod = false;
       MethodInvocation mi = (MethodInvocation) invocation;
       if(mi.getMethod() != null)
-         isReadMethod = mi.getMethod().getName().startsWith("get");
+      {
+         String methodName = mi.getMethod().getName();
+         isReadMethod = methodName.startsWith("get") || methodName.startsWith("is");
+         log.info(container.getEjbName() + '.' + methodName + " is read concurrency: " + isReadMethod);
+      }
       
       lock.sync();
       try

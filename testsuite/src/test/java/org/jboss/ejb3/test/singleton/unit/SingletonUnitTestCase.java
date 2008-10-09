@@ -66,7 +66,11 @@ public class SingletonUnitTestCase extends JBossTestCase
       undeploy("singleton-test.jar");
    }
    
-   public void testWriteLock() throws Exception
+   /**
+    * This method demonstrates that once one thread is entered an instance method
+    * no other thread can enter any method of the same instance in case of write concurrency.
+    */
+   public void testWriteConcurrency() throws Exception
    {
       final SingletonRemote remote = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
 
@@ -81,7 +85,7 @@ public class SingletonUnitTestCase extends JBossTestCase
             {
                try
                {
-                  remote.testWriteLock((long) (1000*Math.random()));
+                  remote.writeLock((long) (1000*Math.random()));
                }
                catch(Throwable t)
                {
@@ -121,6 +125,68 @@ public class SingletonUnitTestCase extends JBossTestCase
       }
 
       assertNull("One of the threads failed: " + sawFailedThread[0], sawFailedThread[0]);
+      assertEquals(1, remote.getInstanceCount());
+   }
+
+   /**
+    * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
+    */
+   public void testReadConcurrency() throws Throwable
+   {
+      final SingletonRemote remote = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
+
+      final Throwable error[] = new Throwable[1];
+      final int[] results = new int[2];
+      final Thread[] threads = new Thread[2];
+      for(int i = 0; i < threads.length; ++i)
+      {
+         final int threadIndex = i;
+         threads[i] = new Thread(new Runnable()
+         {
+            public void run()
+            {
+               try
+               {
+                  results[threadIndex] = remote.getReadLock(threadIndex, 1000);
+               }
+               catch(Throwable t)
+               {
+                  log.error(t);
+                  error[0] = t;
+               }
+               finally
+               {
+                  synchronized (results)
+                  {
+                     results.notify();
+                  }
+               }
+            }
+         });
+      }
+
+      for(int i = 0; i < threads.length; ++i)
+         threads[i].start();
+
+      synchronized(results)
+      {
+         while((results[0] == 0 || results[1] == 0) && error[0] == null)
+         {
+            try
+            {
+               results.wait();
+            }
+            catch(InterruptedException e)
+            {
+            }
+         }
+      }
+
+      if(error[0] != null)
+         throw error[0];
+      
+      assertEquals(2, results[0]);
+      assertEquals(2, results[1]);
       assertEquals(1, remote.getInstanceCount());
    }
 }

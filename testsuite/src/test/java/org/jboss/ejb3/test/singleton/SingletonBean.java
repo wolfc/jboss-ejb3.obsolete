@@ -47,6 +47,9 @@ public class SingletonBean implements SingletonRemote
    private static Object instanceLock = new Object();
    private static Thread lockerThread;
    
+   // some instance variable
+   private int value;
+   
    // instance initialization
    {
       synchronized(instanceCount)
@@ -60,7 +63,11 @@ public class SingletonBean implements SingletonRemote
       return instanceCount;
    }
    
-   public void testWriteLock(long pause)
+   /**
+    * This method demonstrates that once one thread is entered an instance method
+    * no other thread can enter any method of the same instance in case of write concurrency.
+    */
+   public void writeLock(long pause)
    {
       Thread currentThread = Thread.currentThread();
       synchronized(instanceLock)
@@ -69,7 +76,6 @@ public class SingletonBean implements SingletonRemote
             lockerThread = currentThread;
          else if(!lockerThread.equals(currentThread))
          {
-            //System.out.println("Another thread is active in the instance: " + lockerThread + ", current thread: " + currentThread);
             throw new IllegalStateException("Another thread is active in the instance: " + lockerThread + ", current thread: " + currentThread);
          }
       }
@@ -86,10 +92,70 @@ public class SingletonBean implements SingletonRemote
       {
          if(!currentThread.equals(lockerThread))
          {
-            //System.out.println("Another thread is active in the instance: " + lockerThread + ", current thread: " + currentThread);
             throw new IllegalStateException("Another thread is/was active in the instance: " + lockerThread + ", current thread: " + currentThread);
          }
          lockerThread = null;
       }
+   }
+   
+   /**
+    * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
+    *  
+    * 1. check that the value (instance variable) is equal to the expectedCurrentValue.
+    *    If it's not then wait for the other thread to set it to the expectedCurrentValue.
+    * 2. increase the value
+    * 3. if the expectedCurrentValue != 0 then just return the current value.
+    *    Otherwise wait for the other thread to change the value and return the current value.
+    *    
+    * if waiting takes longer than timeout then throw an exception.
+    */
+   public int getReadLock(int expectedCurrentValue, long timeout)
+   {
+      long startTime = System.currentTimeMillis();
+      synchronized(instanceLock)
+      {
+         // make sure value has the expected value
+         while(expectedCurrentValue != this.value)
+         {
+            if (System.currentTimeMillis() - startTime > timeout)
+               throw new IllegalStateException("The method took too long.");
+            try
+            {
+               instanceLock.wait(timeout);
+            }
+            catch (InterruptedException e)
+            {
+            }            
+         }
+
+         // at this point value == expectedCurrentValue
+         if(expectedCurrentValue != this.value)
+            throw new IllegalStateException("Unexpected instance variable value. Expected " + expectedCurrentValue + " but was " + this.value);
+
+         // increase the value
+         ++this.value;
+         instanceLock.notify();
+         
+         if(expectedCurrentValue == 0)
+         {
+            // wait until the other thread increases the current value
+            startTime = System.currentTimeMillis();
+            while (this.value == expectedCurrentValue + 1)
+            {
+               if (System.currentTimeMillis() - startTime > timeout)
+                  throw new IllegalStateException("The method took too long.");
+
+               try
+               {
+                  instanceLock.wait(timeout);
+               }
+               catch (InterruptedException e)
+               {
+               }
+            }
+         }
+      }
+      
+      return this.value;
    }
 }
