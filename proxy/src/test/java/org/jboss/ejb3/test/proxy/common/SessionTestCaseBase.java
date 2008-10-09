@@ -28,6 +28,7 @@ import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
+import org.jboss.logging.Logger;
 
 /**
  * SessionTestCaseBase
@@ -44,9 +45,11 @@ public abstract class SessionTestCaseBase
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   private static final Logger log = Logger.getLogger(SessionTestCaseBase.class);
+
    protected static EmbeddedTestMcBootstrap bootstrap;
 
-   public static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
+   protected static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
 
    // --------------------------------------------------------------------------------||
    // Lifecycle Methods --------------------------------------------------------------||
@@ -62,12 +65,24 @@ public abstract class SessionTestCaseBase
 
       // Load ejb3-interceptors-aop.xml into AspectManager
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
-      URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
+      String ejb3InterceptorsAopFilename = getEjb3InterceptorsAopFilename();
+      URL url = cl.getResource(ejb3InterceptorsAopFilename);
       if (url == null)
       {
          throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
-               + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
+               + " with definitions from XML as file " + ejb3InterceptorsAopFilename + " could not be found");
       }
       AspectXmlLoader.deployXML(url);
+      log.info("Deployed AOP XML: " + ejb3InterceptorsAopFilename);
    }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   protected static String getEjb3InterceptorsAopFilename()
+   {
+      return SessionTestCaseBase.FILENAME_EJB3_INTERCEPTORS_AOP;
+   }
+
 }
