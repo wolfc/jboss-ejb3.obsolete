@@ -51,7 +51,7 @@ public class EmbeddedTestMcBootstrap extends BasicBootstrap
 
    private static final Logger log = Logger.getLogger(EmbeddedTestMcBootstrap.class);
 
-   private static final String DEFAULT_SUFFIX_DEPLOYABLE_XML = "-beans.xml";
+   private static final String DEFAULT_SUFFIX_DEPLOYABLE_XML = "-jboss-beans.xml";
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
