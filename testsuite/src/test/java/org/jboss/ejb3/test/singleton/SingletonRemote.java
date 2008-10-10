@@ -43,5 +43,5 @@ public interface SingletonRemote
    /**
     * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
     */
-   int getReadLock(int expectedCurrentValue, long timeout);
+   int getReadLock(int valueThreshold, long timeout);
 }

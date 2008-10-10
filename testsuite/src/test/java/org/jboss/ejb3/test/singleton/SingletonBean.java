@@ -101,57 +101,34 @@ public class SingletonBean implements SingletonRemote
    /**
     * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
     *  
-    * 1. check that the value (instance variable) is equal to the expectedCurrentValue.
-    *    If it's not then wait for the other thread to set it to the expectedCurrentValue.
-    * 2. increase the value
-    * 3. if the expectedCurrentValue != 0 then just return the current value.
-    *    Otherwise wait for the other thread to change the value and return the current value.
+    * 1. Increase the current value
+    * 2. If the current value is less than valueThreshold then wait and let other threads to increase the value
+    *    until it reaches the valueThreshold.
+    * 3. Return the current value (which should be equal to valueThreshold).
     *    
     * if waiting takes longer than timeout then throw an exception.
     */
-   public int getReadLock(int expectedCurrentValue, long timeout)
+   public int getReadLock(int valueThreshold, long timeout)
    {
-      long startTime = System.currentTimeMillis();
       synchronized(instanceLock)
       {
-         // make sure value has the expected value
-         while(expectedCurrentValue != this.value)
+         ++this.value;
+
+         instanceLock.notify();
+         
+         // wait until the other thread increases the current value
+         long startTime = System.currentTimeMillis();
+         while (this.value < valueThreshold)
          {
             if (System.currentTimeMillis() - startTime > timeout)
                throw new IllegalStateException("The method took too long.");
+
             try
             {
                instanceLock.wait(timeout);
             }
             catch (InterruptedException e)
             {
-            }            
-         }
-
-         // at this point value == expectedCurrentValue
-         if(expectedCurrentValue != this.value)
-            throw new IllegalStateException("Unexpected instance variable value. Expected " + expectedCurrentValue + " but was " + this.value);
-
-         // increase the value
-         ++this.value;
-         instanceLock.notify();
-         
-         if(expectedCurrentValue == 0)
-         {
-            // wait until the other thread increases the current value
-            startTime = System.currentTimeMillis();
-            while (this.value == expectedCurrentValue + 1)
-            {
-               if (System.currentTimeMillis() - startTime > timeout)
-                  throw new IllegalStateException("The method took too long.");
-
-               try
-               {
-                  instanceLock.wait(timeout);
-               }
-               catch (InterruptedException e)
-               {
-               }
             }
          }
       }

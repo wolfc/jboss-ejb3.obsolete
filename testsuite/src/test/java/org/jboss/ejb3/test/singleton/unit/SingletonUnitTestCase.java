@@ -135,19 +135,20 @@ public class SingletonUnitTestCase extends JBossTestCase
    {
       final SingletonRemote remote = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
 
+      final Thread[] threads = new Thread[5];
+      final int[] results = new int[threads.length];
       final Throwable error[] = new Throwable[1];
-      final int[] results = new int[2];
-      final Thread[] threads = new Thread[2];
+      final int[] finishedThreads = new int[1];
       for(int i = 0; i < threads.length; ++i)
       {
          final int threadIndex = i;
-         threads[i] = new Thread(new Runnable()
+         threads[threadIndex] = new Thread(new Runnable()
          {
             public void run()
             {
                try
                {
-                  results[threadIndex] = remote.getReadLock(threadIndex, 1000);
+                  results[threadIndex] = remote.getReadLock(threads.length, 1000);
                }
                catch(Throwable t)
                {
@@ -156,9 +157,10 @@ public class SingletonUnitTestCase extends JBossTestCase
                }
                finally
                {
-                  synchronized (results)
+                  synchronized (finishedThreads)
                   {
-                     results.notify();
+                     ++finishedThreads[0];
+                     finishedThreads.notify();
                   }
                }
             }
@@ -168,13 +170,13 @@ public class SingletonUnitTestCase extends JBossTestCase
       for(int i = 0; i < threads.length; ++i)
          threads[i].start();
 
-      synchronized(results)
+      synchronized(finishedThreads)
       {
-         while((results[0] == 0 || results[1] == 0) && error[0] == null)
+         while(finishedThreads[0] < threads.length)
          {
             try
             {
-               results.wait();
+               finishedThreads.wait();
             }
             catch(InterruptedException e)
             {
@@ -185,8 +187,9 @@ public class SingletonUnitTestCase extends JBossTestCase
       if(error[0] != null)
          throw error[0];
       
-      assertEquals(2, results[0]);
-      assertEquals(2, results[1]);
+      for(int i = 0; i < threads.length; ++i)
+         assertEquals(threads.length, results[i]);
+
       assertEquals(1, remote.getInstanceCount());
    }
 }
