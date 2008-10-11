@@ -61,7 +61,7 @@ public class SingletonLockInterceptor extends AbstractInterceptor
       {
          String methodName = mi.getMethod().getName();
          isReadMethod = methodName.startsWith("get") || methodName.startsWith("is");
-         log.info(container.getEjbName() + '.' + methodName + " is read concurrency: " + isReadMethod);
+         //log.info(container.getEjbName() + '.' + methodName + " is read concurrency: " + isReadMethod);
       }
       
       lock.sync();

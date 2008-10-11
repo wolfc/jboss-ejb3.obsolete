@@ -50,6 +50,9 @@ public class SingletonBean implements SingletonRemote
    // some instance variable
    private int value;
    
+   // the name of the last executed method
+   private String lastReturnedValueMethod;
+   
    // instance initialization
    {
       synchronized(instanceCount)
@@ -101,27 +104,35 @@ public class SingletonBean implements SingletonRemote
    /**
     * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
     *  
-    * 1. Increase the current value
-    * 2. If the current value is less than valueThreshold then wait and let other threads to increase the value
+    * 1. if current value is bigger than or equal the valueThreshold then return the current value.
+    * 2. Increase the current value
+    * 3. If the current value is less than valueThreshold then wait and let other threads to increase the value
     *    until it reaches the valueThreshold.
-    * 3. Return the current value (which should be equal to valueThreshold).
+    * 4. Return the current value (which should be bigger than or equal to valueThreshold).
     *    
     * if waiting takes longer than timeout then throw an exception.
     */
-   public int getReadLock(int valueThreshold, long timeout)
+   public int getValue(int valueThreshold, long timeout)
    {
-      synchronized(instanceLock)
+      synchronized (instanceLock)
       {
+         if (value >= valueThreshold)
+         {
+            lastReturnedValueMethod = "getValue";
+            return value;
+         }
+
          ++this.value;
 
          instanceLock.notify();
-         
+
          // wait until the other thread increases the current value
          long startTime = System.currentTimeMillis();
          while (this.value < valueThreshold)
          {
-            if (System.currentTimeMillis() - startTime > timeout)
-               throw new IllegalStateException("The method took too long.");
+            long waitTime = System.currentTimeMillis() - startTime;
+            if (waitTime > timeout)
+               throw new IllegalStateException("The method took too long. Timeout=" + timeout + ", waitTime=" + waitTime + ", value=" + value);
 
             try
             {
@@ -131,8 +142,29 @@ public class SingletonBean implements SingletonRemote
             {
             }
          }
+
+         lastReturnedValueMethod = "getValue";
+         instanceLock.notify();
+         return this.value;
       }
-      
-      return this.value;
+   }
+   
+   public int setValue(int newValue)
+   {
+      try
+      {
+         int prev = this.value;
+         this.value = newValue;
+         return prev;
+      }
+      finally
+      {
+         lastReturnedValueMethod = "setValue";
+      }
+   }
+   
+   public String getLastReturnedValueMethod()
+   {
+      return lastReturnedValueMethod;
    }
 }

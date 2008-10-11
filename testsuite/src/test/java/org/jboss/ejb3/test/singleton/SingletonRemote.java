@@ -43,5 +43,20 @@ public interface SingletonRemote
    /**
     * This method demonstrates that two threads can be active in the same session bean instance in case of read concurrency.
     */
-   int getReadLock(int valueThreshold, long timeout);
+   int getValue(int valueThreshold, long timeout);
+   
+   /**
+    * Sets the new value and returns the previous one.
+    * 
+    * @param i  new value
+    * @return  previous value
+    */
+   int setValue(int i);
+   
+   /**
+    * Returns the name of the last executed method
+    * 
+    * @return
+    */
+   String getLastReturnedValueMethod();
 }
