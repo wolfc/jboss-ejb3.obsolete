@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
   *
@@ -19,26 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.ejbthree1130;
-
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.RemoteBinding;
+package org.jboss.ejb3.proxy.spi.common;
 
 /**
- * A Test Bean implementing a Remote Business Interface
- * and defining a LocalBinding
+ * ErrorCodes
  * 
- * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
+ * Contract for Error Codes used by EJB3 Proxy
+ * 
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateless
-@Remote(TestRemoteBusiness.class)
-@RemoteBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
-@LocalBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
-public class TestBean implements TestRemoteBusiness
+public interface ErrorCodes
 {
+   /*
+    * Error Codes to be included in error messages for reference
+    */
 
+   public static final String ERROR_MESSAGE_CODE_EJBTHREE1130 = "EJBTHREE-1130";
 }
