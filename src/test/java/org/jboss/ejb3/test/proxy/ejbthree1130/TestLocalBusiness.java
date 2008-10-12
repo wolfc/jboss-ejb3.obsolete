@@ -22,12 +22,12 @@
 package org.jboss.ejb3.test.proxy.ejbthree1130;
 
 /**
- * A Test Remote Business Interface
+ * A Test Local Business Interface
  * 
  * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
  * @version $Revision: $
  */
-public interface TestRemoteBusiness
+public interface TestLocalBusiness
 {
-   String JNDI_NAME = "TestBeanOverriddenBinding/remote";
+   String JNDI_NAME = "TestBeanOverriddenBinding/local";
 }

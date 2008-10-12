@@ -21,13 +21,26 @@
  */
 package org.jboss.ejb3.test.proxy.ejbthree1130;
 
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+
+import org.jboss.ejb3.annotation.LocalBinding;
+import org.jboss.ejb3.annotation.RemoteBinding;
+
 /**
- * A Test Remote Business Interface
+ * TestNoLocalBusinessInterfaceWithLocalBindingBean
+ * 
+ * A Test Bean implementing a Remote Business Interface
+ * and defining a LocalBinding
  * 
  * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
  * @version $Revision: $
  */
-public interface TestRemoteBusiness
+@Stateless
+@Remote(TestRemoteBusiness.class)
+@RemoteBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
+@LocalBinding(jndiBinding = TestRemoteBusiness.JNDI_NAME)
+public class TestNoLocalBusinessInterfaceWithLocalBindingBean implements TestRemoteBusiness
 {
-   String JNDI_NAME = "TestBeanOverriddenBinding/remote";
+
 }
