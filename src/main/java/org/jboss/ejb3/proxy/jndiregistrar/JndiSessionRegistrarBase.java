@@ -35,6 +35,7 @@ import javax.naming.spi.ObjectFactory;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
+import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
@@ -43,6 +44,7 @@ import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
+import org.jboss.ejb3.proxy.spi.common.ErrorCodes;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -325,6 +327,36 @@ public abstract class JndiSessionRegistrarBase
          // Remote Bindings are defined, create a binding for each
          else
          {
+
+            /*
+             * EJBTHREE-1130
+             * 
+             * Ensure we've got remote business interfaces, otherwise
+             * throw an error to the bean provider
+             */
+
+            // Get the remote business interface
+            String remoteBusinessInterface = smd.getRemote();
+
+            // Check that it's provided
+            if (remoteBusinessInterface == null || remoteBusinessInterface.trim().length() > 0)
+            {
+               // We've got an invalid @RemoteBindings definition with no proper
+               // remote business interface; throw an error
+
+               /*
+                * Maintainer's note: The Unit Test will check for the String "EJBTHREE-1130"
+                * in this error message
+                */
+               throw new RuntimeException("Encountered EJB " + smd.getName() + " with @"
+                     + RemoteBindings.class.getName() + " defined but with no remote business interface.  ["
+                     + ErrorCodes.ERROR_MESSAGE_CODE_EJBTHREE1130 + "]");
+            }
+
+            /*
+             * EJBTHREE-1130 OK, continue along
+             */
+
             /*
              * Bind all explicitly-declared remote bindings
              */
@@ -659,7 +691,7 @@ public abstract class JndiSessionRegistrarBase
          String defaultLocalJndiName = smd.getLocalJndiName();
 
          // Remove local proxy factory
-         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName,smd,true);
+         String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName, smd, true);
          this.deregisterProxyFactory(localProxyFactoryKey);
 
          // Determine if local home and business locals are bound to same JNDI Address
@@ -959,7 +991,7 @@ public abstract class JndiSessionRegistrarBase
     * Returns the name of the unique key under which a Proxy Factory will 
     * be registered.  Will follow form:
     * 
-    * ProxyFactory/(jndiName)
+    * ProxyFactory/{ejbName}/{jndiName}
     * 
     * @param jndiName
     * @param smd
@@ -978,7 +1010,7 @@ public abstract class JndiSessionRegistrarBase
             + " key prefix for binding to registry is not specified";
 
       // Assemble and return
-      String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + suffix;
+      String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + smd.getEjbName() + "/" + suffix;
       return key;
    }
 
