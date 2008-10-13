@@ -23,25 +23,27 @@ package org.jboss.ejb3.test.singleton;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jboss.ejb3.annotation.AspectDomain;
 import org.jboss.ejb3.annotation.Pool;
 
 /**
- * A SingletonBean.
+ * A SingletonBean2.
  * 
  * @author <a href="alex@jboss.com">Alexey Loubyansky</a>
  * @version $Revision: 1.1 $
  */
-@Stateless(name="SingletonBean")
-@Remote(SingletonRemote.class)
+@Stateless(name="SingletonBean2")
+@Remote(SingletonRemote2.class)
 @Pool (value="SingletonPool")
 @AspectDomain(value = "Singleton Stateless Bean")
-public class SingletonBean extends AbstractSingletonBean implements SingletonRemote
+public class SingletonBean2 extends AbstractSingletonBean implements SingletonRemote2
 {
    // counter for created instances
    private static Integer instanceCount = 0;
-   
+
    // instance initialization
    {
       synchronized(instanceCount)
@@ -53,5 +55,22 @@ public class SingletonBean extends AbstractSingletonBean implements SingletonRem
    public int getInstanceCount()
    {
       return instanceCount;
+   }
+   
+   public int setValueToSingleton1Value(int singleton1ValueThreshold, long singleton1Timeout)
+   {
+      SingletonRemote singleton;
+      try
+      {
+         singleton = (SingletonRemote) new InitialContext().lookup("SingletonBean/remote");
+      }
+      catch (NamingException e)
+      {
+         throw new IllegalStateException("Failed to lookup SingletonBean/remote: " + e.getMessage());
+      }
+     
+      value = singleton.getValue(singleton1ValueThreshold, singleton1Timeout);
+      
+      return value;
    }
 }

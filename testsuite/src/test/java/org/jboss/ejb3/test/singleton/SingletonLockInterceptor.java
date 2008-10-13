@@ -47,7 +47,7 @@ public class SingletonLockInterceptor extends AbstractInterceptor
 
    public Object invoke(Invocation invocation) throws Throwable
    {
-      EJBContainer container = getEJBContainer(invocation);
+      //EJBContainer container = getEJBContainer(invocation);
       /* way to get to the metadata and determine whether the method has READ or WRITE lock
       JBossEnterpriseBeanMetaData xml = container.getXml();
       if(xml != null)
@@ -56,12 +56,15 @@ public class SingletonLockInterceptor extends AbstractInterceptor
       
       // for now consider methods starting with "get" as having READ lock
       boolean isReadMethod = false;
+      String methodName = null;
       MethodInvocation mi = (MethodInvocation) invocation;
       if(mi.getMethod() != null)
       {
-         String methodName = mi.getMethod().getName();
+         methodName = mi.getMethod().getName();
          isReadMethod = methodName.startsWith("get") || methodName.startsWith("is");
          //log.info(container.getEjbName() + '.' + methodName + " is read concurrency: " + isReadMethod);
+         //if(mi.getArguments() != null && mi.getArguments().length > 0)
+         //   methodName += "(" + mi.getArguments()[0] + ')';
       }
       
       lock.sync();
@@ -75,6 +78,7 @@ public class SingletonLockInterceptor extends AbstractInterceptor
          
          while(wait)
          {
+            //log.info(methodName + " is waiting; active threads=" + lock.activeThreads);
             synchronized (lock)
             {
                lock.releaseSync();
@@ -95,7 +99,9 @@ public class SingletonLockInterceptor extends AbstractInterceptor
             else
                wait = lock.hasActiveThreads();
          }
-         
+
+         //log.info(methodName + " coming through; active threads=" + lock.activeThreads);
+
          lock.increaseActiveThreads();
          if(!isReadMethod)
             lock.setWriteInProgress(true);
@@ -120,6 +126,7 @@ public class SingletonLockInterceptor extends AbstractInterceptor
          }
          finally
          {
+            //log.info(methodName + " is done; active threads=" + lock.activeThreads);
             lock.releaseSync();
          }
       }

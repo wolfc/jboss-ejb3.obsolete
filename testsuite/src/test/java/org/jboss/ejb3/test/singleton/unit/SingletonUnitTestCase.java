@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.singleton.unit;
 
 
 import org.jboss.ejb3.test.singleton.SingletonRemote;
+import org.jboss.ejb3.test.singleton.SingletonRemote2;
 import org.jboss.test.JBossTestCase;
 
 import junit.framework.Test;
@@ -67,8 +68,8 @@ public class SingletonUnitTestCase extends JBossTestCase
    }
    
    /**
-    * This method demonstrates that once one thread is entered an instance method
-    * no other thread can enter any method of the same instance in case of write concurrency.
+    * This method demonstrates that once one thread has entered an instance method with write concurrency
+    * no other thread can proceed with the invocation of any method on the same instance.
     */
    public void testWriteConcurrency() throws Exception
    {
@@ -106,9 +107,7 @@ public class SingletonUnitTestCase extends JBossTestCase
       }
       
       for(Thread t : threads)
-      {
          t.start();
-      }
       
       synchronized(finishedCount)
       {
@@ -133,71 +132,36 @@ public class SingletonUnitTestCase extends JBossTestCase
     */
    public void testReadConcurrency() throws Throwable
    {
-      final SingletonRemote remote = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
+      final SingletonRemote singleton = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
 
-      final Thread[] threads = new Thread[5];
-      final int[] results = new int[threads.length];
-      final Throwable error[] = new Throwable[1];
-      final int[] finishedThreads = new int[1];
+      GetValueThread[] threads = new GetValueThread[5];
       for(int i = 0; i < threads.length; ++i)
-      {
-         final int threadIndex = i;
-         threads[threadIndex] = new Thread(new Runnable()
-         {
-            public void run()
-            {
-               try
-               {
-                  results[threadIndex] = remote.getValue(threads.length, 1000);
-               }
-               catch(Throwable t)
-               {
-                  log.error(t);
-                  error[0] = t;
-               }
-               finally
-               {
-                  synchronized (finishedThreads)
-                  {
-                     ++finishedThreads[0];
-                     finishedThreads.notify();
-                  }
-               }
-            }
-         });
-      }
+         threads[i] = new GetValueThread(singleton, threads.length);
 
-      for(int i = 0; i < threads.length; ++i)
-         threads[i].start();
-
-      synchronized(finishedThreads)
-      {
-         while(finishedThreads[0] < threads.length)
-         {
-            try
-            {
-               finishedThreads.wait();
-            }
-            catch(InterruptedException e)
-            {
-            }
-         }
-      }
-
-      if(error[0] != null)
-         throw error[0];
+      for(GetValueThread thread : threads)
+         thread.start();
       
-      for(int i = 0; i < threads.length; ++i)
-         assertEquals(threads.length, results[i]);
-
-      assertEquals(1, remote.getInstanceCount());
+      for(GetValueThread thread : threads)
+      {
+         thread.waitOnTheResult();
+         thread.assertResult(threads.length);
+      }
+      
+      assertEquals(1, singleton.getInstanceCount());
    }
-
+   
+   public void testWriteThreadWaitingOnReadThreadsToComplete() throws Throwable
+   {
+      // run a few times
+      for(int i = 0; i < 10; ++i)
+         writeThreadWaitingOnReadThreadsToComplete();
+   }
+   
    /**
     * This method demonstrates that an invocation of a method with write concurrency
     * can't proceed until all the currently in progress methods with read concurrency are done.
     */
-   public void testWriteThreadWaitingOnReadThreadsToComplete() throws Throwable
+   private void writeThreadWaitingOnReadThreadsToComplete() throws Throwable
    {
       final SingletonRemote singleton = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
 
@@ -229,31 +193,29 @@ public class SingletonUnitTestCase extends JBossTestCase
       // current value should now be 3
       // this getter will make it 4 and resume getter4
       getter = new GetValueThread(singleton, 4);
-      assertFalse(getter6.isDone());
-      assertFalse(getter5.isDone());
-      assertFalse(getter4.isDone());
+      getter6.assertNotDone();
+      getter5.assertNotDone();
+      getter4.assertNotDone();
       getter.start();
       
       getter.waitOnTheResult();
-      assertTrue(getter.isDone());
       getter.assertResult(4);
       
       getter4.waitOnTheResult();
-      assertTrue(getter4.isDone());
       getter4.assertResult(4);
       
       // at this point getter5 and getter6 are blocked
       // invoke setter (which would block until the getters are done) and set the value to 1 again
       setter = new SetValueThread(singleton, 1);
-      assertFalse(getter6.isDone());
-      assertFalse(getter5.isDone());
+      getter6.assertNotDone();
+      getter5.assertNotDone();
       setter.start();
       
       // invoke getter again which would unblock getter5
       getter = new GetValueThread(singleton, 5);
-      assertFalse(getter6.isDone());
-      assertFalse(getter5.isDone());
-      assertFalse(setter.isDone());
+      getter6.assertNotDone();
+      getter5.assertNotDone();
+      setter.assertNotDone();
       getter.start();
 
       getter.waitOnTheResult();
@@ -261,11 +223,11 @@ public class SingletonUnitTestCase extends JBossTestCase
       getter5.waitOnTheResult();
       getter5.assertResult(5);
       
-      // at this point getter5 is blocked and blocking the setter
-      // invoke getter again and unblock getter5
+      // at this point getter6 is blocked and blocking the setter
+      // invoke getter again and unblock getter6
       getter = new GetValueThread(singleton, 6);
-      assertFalse(getter6.isDone());
-      assertFalse(setter.isDone());
+      getter6.assertNotDone();
+      setter.assertNotDone();
       getter.start();
       
       // wait for the results on all threads
@@ -287,6 +249,87 @@ public class SingletonUnitTestCase extends JBossTestCase
       getter.assertResult(1);
       
       assertEquals(1, singleton.getInstanceCount());
+   }
+
+   /**
+    * This method demonstrates that invocations of a method with read concurrency
+    * can't proceed until the currently in progress method with write concurrency is done.
+    */
+   public void testReadThreadsWaitingOnWriteThreadToComplete() throws Throwable
+   {
+      final SingletonRemote singleton1 = (SingletonRemote) getInitialContext().lookup("SingletonBean/remote");
+      final SingletonRemote2 singleton2 = (SingletonRemote2) getInitialContext().lookup("SingletonBean2/remote");
+      
+      // initialize both to 0
+      SetValueThread setter = new SetValueThread(singleton1, 0);
+      setter.start();
+      setter.waitOnTheResult();
+      
+      GetValueThread getter = new GetValueThread(singleton1);
+      getter.start();
+      getter.waitOnTheResult();
+      assertEquals(0, getter.getResult());
+
+      setter = new SetValueThread(singleton2, 0);
+      setter.start();
+      setter.waitOnTheResult();
+      
+      getter = new GetValueThread(singleton2);
+      getter.start();
+      getter.waitOnTheResult();
+      assertEquals(0, getter.getResult());
+
+      // invoke getter on singleton with threshold 2
+      GetValueThread singleton1Getter2 = new GetValueThread(singleton1, 2);
+      singleton1Getter2.start();
+      
+      // invoke setValueToSingleton1Value with threshold 3 for singleton1
+      // this will unblock singletonGetter2
+      AbstractValueThread setValueToSingleton1Value = new AbstractValueThread(singleton2)
+      {
+         @Override
+         protected int execute(SingletonRemote singleton)
+         {
+            return ((SingletonRemote2)singleton).setValueToSingleton1Value(3, 10000);
+         }
+      };
+      setValueToSingleton1Value.start();
+
+      // wait for the singleton1Getter2 to come back
+      singleton1Getter2.waitOnTheResult();
+      singleton1Getter2.assertResult(2);
+      
+      // now callGetSingleton1Value is blocked in singleton1
+      setValueToSingleton1Value.assertNotDone();
+
+      // start a few read threads on the singleton2
+      // setValueToSingleton1Value will set singleton2.value to 3
+      GetValueThread singleton2GetterA = new GetValueThread(singleton2, 4);
+      singleton2GetterA.start();
+      GetValueThread singleton2GetterB = new GetValueThread(singleton2, 4);
+      singleton2GetterB.start();
+
+      // unblock callGetSingleton1Value
+      GetValueThread singleton1Getter3 = new GetValueThread(singleton1, 3);
+      setValueToSingleton1Value.assertNotDone();
+      singleton2GetterA.assertNotDone();
+      singleton2GetterB.assertNotDone();
+      
+      singleton1Getter3.start();
+      singleton1Getter3.waitOnTheResult();
+      singleton1Getter3.assertResult(3);
+      
+      setValueToSingleton1Value.waitOnTheResult();
+      setValueToSingleton1Value.assertResult(3);
+      
+      singleton2GetterA.waitOnTheResult();
+      singleton2GetterA.assertResult(4);
+      
+      singleton2GetterB.waitOnTheResult();
+      singleton2GetterB.assertResult(4);
+      
+      assertEquals(1, singleton1.getInstanceCount());
+      assertEquals(1, singleton2.getInstanceCount());
    }
    
    private static abstract class AbstractValueThread extends Thread
@@ -355,11 +398,24 @@ public class SingletonUnitTestCase extends JBossTestCase
       {
          return error;
       }
-      
-      public void assertResult(int expected)
+
+      public void assertDone()
       {
          if(error != null)
             fail(error.getMessage());
+         assertTrue(done[0]);
+      }
+
+      public void assertNotDone()
+      {
+         if(error != null)
+            fail(error.getMessage());
+         assertFalse(done[0]);
+      }
+      
+      public void assertResult(int expected)
+      {
+         assertDone();
          assertEquals(expected, result);
       }
    }
@@ -393,7 +449,7 @@ public class SingletonUnitTestCase extends JBossTestCase
 
       public GetValueThread(SingletonRemote singleton, int valueThreshold)
       {
-         this(singleton, valueThreshold, 2000);
+         this(singleton, valueThreshold, 10000);
       }
       
       public GetValueThread(SingletonRemote singleton, int valueThreshold, int timeout)

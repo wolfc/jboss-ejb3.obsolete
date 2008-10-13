@@ -21,37 +21,13 @@
  */
 package org.jboss.ejb3.test.singleton;
 
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
-import org.jboss.ejb3.annotation.AspectDomain;
-import org.jboss.ejb3.annotation.Pool;
-
 /**
- * A SingletonBean.
+ * A SingletonRemote2.
  * 
  * @author <a href="alex@jboss.com">Alexey Loubyansky</a>
  * @version $Revision: 1.1 $
  */
-@Stateless(name="SingletonBean")
-@Remote(SingletonRemote.class)
-@Pool (value="SingletonPool")
-@AspectDomain(value = "Singleton Stateless Bean")
-public class SingletonBean extends AbstractSingletonBean implements SingletonRemote
+public interface SingletonRemote2 extends SingletonRemote
 {
-   // counter for created instances
-   private static Integer instanceCount = 0;
-   
-   // instance initialization
-   {
-      synchronized(instanceCount)
-      {
-         ++instanceCount;
-      }
-   }
-   
-   public int getInstanceCount()
-   {
-      return instanceCount;
-   }
+   int setValueToSingleton1Value(int valueThreshold, long timeout);
 }
