@@ -407,6 +407,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          if (ejb2xInterface.equals(ejb2xLocalInterface))
          {
             // Mark as found
+            foundInterface = true;
             isLocal = true;
             jndiName = smd.getLocalJndiName();
          }
