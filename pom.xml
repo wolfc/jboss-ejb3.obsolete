@@ -41,7 +41,7 @@
   <!-- Properties -->
 
   <properties>
-    <version.org.jboss.jboss-as>5.0.0.CR1</version.org.jboss.jboss-as>
+    <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
   </properties>
 
   <!-- Build Information -->
@@ -205,7 +205,7 @@
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-vfs</artifactId>
-      <version>2.0.0.Beta13</version>
+      <version>2.0.0.CR1</version>
     </dependency>
     
     <dependency>
