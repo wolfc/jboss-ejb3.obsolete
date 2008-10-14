@@ -21,7 +21,7 @@
 
   <properties>
     <!-- Version of JBoss AS Facilities we depend upon -->
-    <version.org.jboss.jboss-as>5.0.0.CR1</version.org.jboss.jboss-as>
+    <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
   </properties>
 
   <build>

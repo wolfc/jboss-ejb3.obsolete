@@ -34,7 +34,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MC
 {
@@ -85,7 +85,7 @@ public class MC
          throw context.getError();
       
       if(context.getState() != ControllerState.INSTALLED) {
-         System.err.println(context.getDependencyInfo().getUnresolvedDependencies());
+         System.err.println(context.getDependencyInfo().getUnresolvedDependencies(ControllerState.INSTALLED));
       }
       // TODO: it can be stalled because of dependencies
       assert context.getState() == ControllerState.INSTALLED;
