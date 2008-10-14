@@ -110,6 +110,7 @@
   <property name="location.client.lib.jboss-jaxws" value="${location.client.lib}/jboss-jaxws.jar"/>
   <property name="location.client.lib.jbossws-client" value="${location.client.lib}/jbossws-client.jar"/>
   <property name="location.client.lib.jboss-mdr" value="${location.client.lib}/jboss-mdr.jar"/>
+  <property name="location.client.lib.apache.log4j" value="${location.client.lib}/log4j.jar"/>
     
   <!-- EJB3 Internal Artifacts -->
   <property name="artifact.ejb3.cache" value="${location.dependencies.lib}/jboss-ejb3-cache.jar"/>
@@ -370,8 +371,9 @@
 
     <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
     <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
-    <pathelement location="${env.JBOSS_HOME}/lib/jboss-aop-jdk50.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/lib/jboss-aop.jar"/>
     <pathelement location="${env.JBOSS_HOME}/lib/trove.jar"/>
+    <pathelement path="${location.client.lib.apache.log4j}" />
     
     <!-- webservice tests -->
 
