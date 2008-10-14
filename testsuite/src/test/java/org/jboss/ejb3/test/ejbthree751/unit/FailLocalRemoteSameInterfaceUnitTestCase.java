@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.ejbthree751.unit;
 
 import junit.framework.Test;
 
+import org.jboss.ejb3.common.spi.ErrorCodes;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -63,8 +64,11 @@ public class FailLocalRemoteSameInterfaceUnitTestCase extends JBossTestCase
          for(Throwable t = e;t != null; t = t.getCause())
          {
             // See ProxyFactoryHelper.getLocalInterfaces
-            if(t.getMessage().contains("EJB3 Spec 4.6.7, Bullet 5.4"))
+            String message = t.getMessage();
+            if (message.contains(ErrorCodes.ERROR_CODE_EJBTHREE751))
+            {
                return;
+            }
          }
          e.printStackTrace();
          fail("Exception did not contain expected message");
