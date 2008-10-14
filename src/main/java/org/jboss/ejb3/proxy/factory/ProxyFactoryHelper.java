@@ -54,6 +54,7 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.annotation.impl.LocalImpl;
 import org.jboss.ejb3.annotation.impl.RemoteImpl;
 import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.common.spi.ErrorCodes;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.logging.Logger;
@@ -226,9 +227,12 @@ public class ProxyFactoryHelper
             {
                if (localInterface.equals(remoteInterface))
                {
+                  /*
+                   * The error code in this message is checked by the ejbthree751 integration test
+                   */
                   throw new RuntimeException("@Remote and @Local may not both be specified on the same interface \""
                         + remoteInterface.toString() + "\" for EJB \"" + container.getEjbName()
-                        + "\" per EJB3 Spec 4.6.6, Bullet 5.4");
+                        + "\" per EJB3 Spec 4.6.6, Bullet 5.4 [" + ErrorCodes.ERROR_CODE_EJBTHREE751 + "]");
                }
             }
          }
