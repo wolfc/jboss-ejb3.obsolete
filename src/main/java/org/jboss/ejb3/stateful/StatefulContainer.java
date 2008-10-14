@@ -441,9 +441,9 @@ public class StatefulContainer extends SessionSpecContainer
             
             SerializableMethod invoked = new SerializableMethod(method, method.getClass());
             
-            //StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
-            StatefulSessionContainerMethodInvocation nextInvocation = new StatefulSessionContainerMethodInvocation(info);
-            nextInvocation.setSessionId(id);
+            StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
+            //StatefulSessionContainerMethodInvocation nextInvocation = new StatefulSessionContainerMethodInvocation(info);
+            //nextInvocation.setSessionId(id);
             nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
             
