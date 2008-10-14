@@ -58,7 +58,7 @@ public class StatefulBean extends BaseBean
    public void testEjbContext() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      EJBContext ejbContext = (EJBContext)jndiContext.lookup("java:comp.ejb3/EJBContext");
+      EJBContext ejbContext = (EJBContext)jndiContext.lookup("java:comp/EJBContext");
       log.info("EJBContext " + ejbContext);
    }
    
