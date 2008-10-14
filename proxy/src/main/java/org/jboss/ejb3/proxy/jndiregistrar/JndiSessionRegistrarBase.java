@@ -779,13 +779,22 @@ public abstract class JndiSessionRegistrarBase
    protected void bind(final Context context, final JndiReferenceBindingSet bindings, final boolean useRebind,
          final boolean bindLocals)
    {
+      StringBuffer sb = new StringBuffer();
+      sb.append("Bound the following Entries in Global JNDI:\n\n");
+      
       for (JndiReferenceBinding binding : bindings.getDefaultRemoteBindings())
       {
+         sb.append("\t");
+         sb.append(binding.getJndiName());
+         sb.append(" - EJB3.x Default Remote Business Interface\n");
          bind(context, binding, useRebind);
       }
 
       for (JndiReferenceBinding binding : bindings.getHomeRemoteBindings())
       {
+         sb.append("\t");
+         sb.append(binding.getJndiName());
+         sb.append(" - EJB2.x Remote Home Interface\n");
          bind(context, binding, useRebind);
       }
 
@@ -793,6 +802,9 @@ public abstract class JndiSessionRegistrarBase
       {
          for (JndiReferenceBinding binding : businessBindings)
          {
+            sb.append("\t");
+            sb.append(binding.getJndiName());
+            sb.append(" - EJB3.x Remote Business Interface\n");
             bind(context, binding, useRebind);
          }
       }
@@ -801,11 +813,17 @@ public abstract class JndiSessionRegistrarBase
       {
          for (JndiReferenceBinding binding : bindings.getDefaultLocalBindings())
          {
+            sb.append("\t");
+            sb.append(binding.getJndiName());
+            sb.append(" - EJB3.x Default Local Business Interface\n");
             bind(context, binding, useRebind);
          }
 
          for (JndiReferenceBinding binding : bindings.getHomeLocalBindings())
          {
+            sb.append("\t");
+            sb.append(binding.getJndiName());
+            sb.append(" - EJB2.x Local Home Interface\n");
             bind(context, binding, useRebind);
          }
 
@@ -813,10 +831,15 @@ public abstract class JndiSessionRegistrarBase
          {
             for (JndiReferenceBinding binding : businessBindings)
             {
+               sb.append("\t");
+               sb.append(binding.getJndiName());
+               sb.append(" - EJB3.x Local Business Interface\n");
                bind(context, binding, useRebind);
             }
          }
       }
+      
+      log.info(sb.toString());
    }
 
    protected void bind(Context context, JndiReferenceBinding binding, boolean useRebind)
