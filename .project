@@ -2,16 +2,13 @@
   <name>jboss-ejb3-embedded</name>
   <comment>The JBoss EJB 3 Embedded component implements all functionality
     specified in Chapter 22 (Embeddable Usage) of the EJB 3.1 specification.</comment>
-  <projects/>
+  <projects>
+    <project>jboss-ejb3-api</project>
+  </projects>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
     </buildCommand>
-    <!-- 
-    <buildCommand>
-      <name>org.maven.ide.eclipse.maven2Builder</name>
-    </buildCommand>
-    -->
   </buildSpec>
   <natures>
     <nature>org.eclipse.jdt.core.javanature</nature>
