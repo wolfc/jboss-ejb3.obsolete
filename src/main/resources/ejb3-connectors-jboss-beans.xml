@@ -29,7 +29,7 @@
         <parameter>
           <null />
         </parameter>
-        <parameter>socket://${host}:${port}</parameter>
+        <parameter>socket://${jboss.bind.address}:${port}</parameter>
         <parameter>
           <null />
         </parameter>
