@@ -41,10 +41,9 @@ public interface StatefulSessionProxyFactory extends SessionProxyFactory
    /**
     * Create an EJB2.x Home Proxy
     * 
-    * @param sessionId
     * @return
     */
-   Object createProxyHome(Serializable sessionId);
+   Object createProxyHome();
 
    /**
     * Create an EJB3 Business proxy with no 
