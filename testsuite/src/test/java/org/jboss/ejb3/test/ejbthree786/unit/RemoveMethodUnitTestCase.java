@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.ejbthree786.unit;
 
+import java.rmi.NoSuchObjectException;
+
 import javax.ejb.EJBObject;
 import javax.ejb.NoSuchEJBException;
 import javax.rmi.PortableRemoteObject;
@@ -104,11 +106,19 @@ public class RemoveMethodUnitTestCase extends JBossTestCase
       {
          session.test();
       }
-      catch (NoSuchEJBException nsee)
+      catch (Exception e)
       {
-         removed = true;
+         Class<?> expectedCause = NoSuchObjectException.class;
+         if (e.getCause().getClass().getName().equals(expectedCause.getName()))
+         {
+            removed = true;
+         }
+         else
+         {
+            fail("Exception received, " + e + ", was not expected and should have had root cause of " + expectedCause);
+         }
       }
-      assertTrue(removed);
+      assertTrue("SFSB instance was not removed as expected",removed);
 
    }
 
