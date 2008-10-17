@@ -2287,7 +2287,7 @@
 
       <copy todir="${build.lib}">
          <fileset dir="${resources}/test/ejbthree994">
-            <include name="ejbthree994-connectors-service.xml"/>
+            <include name="ejbthree994-connectors-jboss-beans.xml"/>
          </fileset>
       </copy>
    </target>

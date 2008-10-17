@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  
+  EJB3 Connectors
+  
+  For use in EJBTHREE-994 Tests
+  
+-->
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+
+  <!-- 
+    
+    Remoting
+    
+  -->
+
+  <!-- Remoting  Configuration -->
+  <bean name="ServerConfiguration-EJBTHREE994"
+    class="org.jboss.remoting.ServerConfiguration">
+    <property name="invocationHandlers">
+      <map keyClass="java.lang.String" valueClass="java.lang.String">
+        <entry>
+          <key>AOP</key>
+          <value>
+            org.jboss.aspects.remoting.AOPRemotingInvocationHandler
+          </value>
+        </entry>
+      </map>
+    </property>
+  </bean>
+
+  <!-- Remoting Connectors -->
+  
+  <bean name="org.jboss.ejb3.RemotingConnector-EJBTHREE994-2"
+    class="org.jboss.remoting.transport.Connector">
+    <property name="invokerLocator">socket://${jboss.bind.address}:3874</property>
+    <property name="serverConfiguration">
+      <inject bean="ServerConfiguration-EJBTHREE994" />
+    </property>
+  </bean>
+  
+  <bean name="org.jboss.ejb3.RemotingConnector-EJBTHREE994-3"
+    class="org.jboss.remoting.transport.Connector">
+    <property name="invokerLocator">socket://${jboss.bind.address}:3875</property>
+    <property name="serverConfiguration">
+      <inject bean="ServerConfiguration-EJBTHREE994" />
+    </property>
+  </bean>
+
+</deployment>

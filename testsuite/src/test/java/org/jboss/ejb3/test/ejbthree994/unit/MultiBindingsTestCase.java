@@ -28,7 +28,6 @@ import java.lang.reflect.Proxy;
 import junit.framework.Test;
 
 import org.jboss.ejb3.test.ejbthree994.BusinessInterface;
-import org.jboss.remoting.InvokerLocator;
 import org.jboss.test.JBossTestCase;
 
 
@@ -49,20 +48,10 @@ public class MultiBindingsTestCase extends JBossTestCase
    private static String getProxyUri(Object proxy) throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException
    {
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      Field f = handler.getClass().getDeclaredField("uri");
+      Field f = handler.getClass().getDeclaredField("url");
       f.setAccessible(true);
-      InvokerLocator locator = (InvokerLocator) f.get(handler);
-      return locator.getOriginalURI();
-   }
-
-   private static String getBindingName()
-   {
-      String bindingName = System.getProperty("jboss.bind.address");
-      if (bindingName == null)
-      {
-         bindingName = "127.0.0.1";
-      }
-      return bindingName;
+      String url = (String)f.get(handler);
+      return url;
    }
    
    public void test1() throws Exception
@@ -73,7 +62,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 123 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://" + getBindingName() + ":3873/");
+         assertTrue(proxyUri.contains(":3873"));
       }
 
       {
@@ -82,7 +71,7 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 456 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://" + getBindingName() + ":3874/");
+         assertTrue(proxyUri.contains(":3874"));
       }
       
       {
@@ -91,14 +80,14 @@ public class MultiBindingsTestCase extends JBossTestCase
          assertEquals(actual, "*** 789 ***");
          
          String proxyUri = getProxyUri(bean);
-         assertEquals(proxyUri, "socket://" + getBindingName() + ":3875/");
+         assertTrue(proxyUri.contains(":3875"));
       }
 
    }
    
    public static Test suite() throws Exception
    {
-      return getDeploySetup(MultiBindingsTestCase.class, "ejbthree994-connectors-service.xml,ejbthree994.jar");
+      return getDeploySetup(MultiBindingsTestCase.class, "ejbthree994-connectors-jboss-beans.xml,ejbthree994.jar");
    }
 
 }
