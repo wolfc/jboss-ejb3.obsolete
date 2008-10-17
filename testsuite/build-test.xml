@@ -4054,13 +4054,6 @@
        </fileset>
     </jar>
 
-    <!-- Copy the optimistic locking JBC config to ${build.lib} so we can deploy it -->
-    <copy todir="${build.lib}">
-       <fileset dir="${resources}/test/clusteredentity/optimistic">
-          <include name="optimistic-entity-cache-*.xml"/>
-       </fileset>
-    </copy>
-
    </target>
 
    <target name="clusteredsession"
