@@ -2,14 +2,23 @@
 
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
+   <!-- 
+      HA services use a Cache for state management; this bean shields
+      HAPartition from having to directly use the JBoss Cache API.
+    -->
+   <bean name="Ejb3IsLocalTestPartitionCacheHandler"
+         class="org.jboss.ha.framework.server.HAPartitionCacheHandlerImpl">
+         <property name="cacheManager"><inject bean="CacheManager"/></property>
+         <property name="cacheConfigName">ha-partition</property>
+   </bean>
+   
    <bean name="Ejb3IsLocalTestPartition"
    		 class="org.jboss.ha.framework.server.ClusterPartition">
    		 
-      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.ClusterPartitionMBean.class)</annotation>
+      <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.ClusterPartitionMBean.class)</annotation>  	
       
-   	<!-- ClusterPartition requires a Cache for state management -->
-      <property name="cacheManager"><inject bean="CacheManager"/></property>
-      <property name="cacheConfigName">ha-partition</property>               
+      <!-- ClusterPartition requires a Cache for state management -->
+      <property name="cacheHandler"><inject bean="Ejb3IsLocalTestPartitionCacheHandler"/></property>             
                 
       <!-- Name of the partition being built -->
       <property name="partitionName">Ejb3IsLocalTestPartition</property>
@@ -33,7 +42,8 @@
       <property name="distributedStateImpl">
          <bean name="Ejb3IsLocalTestDistributedState"
              class="org.jboss.ha.framework.server.DistributedStateImpl">         
-            <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=DistributedState,partitionName=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.DistributedStateImplMBean.class, registerDirectly=true)</annotation>                  
+            <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=DistributedState,partitionName=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.DistributedStateImplMBean.class, registerDirectly=true)</annotation>
+            <property name="cacheHandler"><inject bean="Ejb3IsLocalTestPartitionCacheHandler"/></property>                  
          </bean>
       </property>
       
