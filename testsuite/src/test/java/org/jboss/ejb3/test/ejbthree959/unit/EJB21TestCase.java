@@ -21,8 +21,9 @@
  */
 package org.jboss.ejb3.test.ejbthree959.unit;
 
+import java.rmi.NoSuchObjectException;
+
 import javax.ejb.NoSuchEJBException;
-import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 
 import junit.framework.Test;
@@ -90,38 +91,51 @@ public class EJB21TestCase extends JBossTestCase
    {
       Status status = getStatus();
       status.reset();
-      
+
+      String notResetMessage = "Status Not Reset";
+      assertEquals(notResetMessage, 0, status.getCreateCalls());
+      assertEquals(notResetMessage, 0, status.getPassivateCalls());
+      assertEquals(notResetMessage, 0, status.getActivateCalls());
+      assertEquals(notResetMessage, 0, status.getRemoveCalls());
+
       MyStatefulHome home = getMyStatefulHome();
+      assertEquals("Created on Home Lookup?", 0, status.getCreateCalls());
       MyStateful bean = home.create();
-      
-      assertEquals(1, status.getCreateCalls());
-      
+
+      assertEquals("Create lifecycle callback count unexpected", 1, status.getCreateCalls());
+
       bean.setName("testLifeCycle");
       String expected = "Hi testLifeCycle";
       String actual = bean.sayHi();
       assertEquals(expected, actual);
-      
+
       sleep(10000);
-      
-      assertEquals(1, status.getPassivateCalls());
-      
+
+      assertEquals("Passivate lifecycle callback count unexpected", 1, status.getPassivateCalls());
+
       actual = bean.sayHi();
       assertEquals(expected, actual);
-      
-      assertEquals(1, status.getActivateCalls());
-      
+
+      assertEquals("Activate lifecycle callback count unexpected", 1, status.getActivateCalls());
+
       bean.remove();
-      
-      assertEquals(1, status.getRemoveCalls());
-      
+
+      assertEquals("Remote lifecycle callback count unexpected", 1, status.getRemoveCalls());
+
       try
       {
          bean.sayHi();
          fail("expected no such ejb exception");
       }
-      catch(NoSuchEJBException e)
+      catch (Exception e)
       {
-         // good
+         if (e.getCause().getClass().getName().equals(NoSuchObjectException.class.getName()))
+         {
+            // good
+            return;
+         }
+
+         throw e;
       }
    }
    
