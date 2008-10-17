@@ -25,6 +25,7 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -39,14 +40,24 @@ import junit.framework.Test;
  */
 public class DBSetup extends TestSetup
 {
+   private static final String HYPERSONIC_DIR = "output/hypersonic";
+   private static final String DB_NAME = "clusteredentity-db";
+   private final boolean deleteInTearDown;
+   
    public DBSetup(Test test)
    {
+      this(test, true);
+   }
+   
+   public DBSetup(Test test, boolean deleteInTearDown)
+   {
       super(test);
+      this.deleteInTearDown = deleteInTearDown;
    }
 
    protected void setUp() throws Exception
    {
-         File hypersoniDir = new File("output/hypersonic");
+         File hypersoniDir = new File(HYPERSONIC_DIR);
          if (!hypersoniDir.exists())
          {
             hypersoniDir.mkdirs();
@@ -57,7 +68,7 @@ public class DBSetup extends TestSetup
             throw new IOException("Failed to create directory: " + hypersoniDir);
          }
       
-         File dbPath = new File(hypersoniDir, "clusteredentity-db");
+         File dbPath = new File(hypersoniDir, DB_NAME);
 
          // Start DB in new thread, or else it will block us
          DBThread serverThread = new DBThread(dbPath);
@@ -88,6 +99,26 @@ public class DBSetup extends TestSetup
       Connection conn = DriverManager.getConnection(dbURL, "sa", "");
       Statement statement = conn.createStatement();      
       statement.executeQuery("SHUTDOWN COMPACT");
+      
+      if (deleteInTearDown)
+      {
+         File hypersonicDir = new File(HYPERSONIC_DIR);
+         if (hypersonicDir.exists() && hypersonicDir.isDirectory())
+         {
+            FileFilter filter = new FileFilter() {
+               public boolean accept(File file) 
+               {
+                  return file.getName().indexOf(DB_NAME) >= 0;
+               }
+            };
+            
+            File[] dbFiles = hypersonicDir.listFiles(filter);
+            for (File file : dbFiles)
+            {
+               file.delete();
+            }
+         }
+      }
       
    }
 
