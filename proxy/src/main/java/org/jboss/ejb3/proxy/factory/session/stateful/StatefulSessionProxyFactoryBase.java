@@ -129,18 +129,6 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    // --------------------------------------------------------------------------------||
 
    /**
-    * Create an EJB2.x Home Proxy
-    * 
-    * @return
-    */
-   @Override
-   public Object createProxyHome()
-   {
-      Serializable sessionId = this.getNewSessionId();
-      return this.createProxyHome(sessionId);
-   }
-
-   /**
     * Create an EJB3 Business proxy with no 
     * specific target business interface.  The 
     * returned proxy will implement all appropriate
@@ -195,13 +183,10 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * @param sessionId
     * @return
     */
-   public Object createProxyHome(Serializable sessionId)
+   public Object createProxyHome()
    {
       // Obtain Proxy using Super Implementation
       Object proxy = super.createProxyHome();
-
-      // Associate with session
-      this.associateProxyWithSession(proxy, sessionId);
 
       // Return
       return proxy;
