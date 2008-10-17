@@ -5,7 +5,7 @@
    http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
    version="1.0"> 
    <persistence-unit name="tempdb">
-      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <jta-data-source>java:/ClusteredSessionTestDS</jta-data-source>
       <properties>
           <property name="hibernate.session_factory_name" value="tempdb"/>
           <property name="hibernate.hbm2ddl.auto" value="create-drop"/>

@@ -44,7 +44,7 @@ public class ScopedExtendedPersistenceUnitTestCase extends ExtendedPersistenceUn
    {
       TestSuite suite = new TestSuite();
       Test t1 = getDeploySetup(ScopedExtendedPersistenceUnitTestCase.class,
-                               "clusteredsession-xpc-scoped.jar");
+                               "clusteredsession-ds.xml, clusteredsession-xpc-scoped.jar");
 
       suite.addTest(t1);
 

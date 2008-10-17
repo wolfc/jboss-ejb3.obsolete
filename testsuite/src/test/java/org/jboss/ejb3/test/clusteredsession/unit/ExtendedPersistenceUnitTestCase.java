@@ -63,7 +63,7 @@ public class ExtendedPersistenceUnitTestCase
    {
       TestSuite suite = new TestSuite();
       Test t1 = getDeploySetup(ExtendedPersistenceUnitTestCase.class,
-                               "clusteredsession-xpc.jar");
+                               "clusteredsession-ds.xml, clusteredsession-xpc.jar");
 
       suite.addTest(t1);
 
