@@ -61,19 +61,6 @@ public class SuperBeanTesterUnitTestCase extends JBossTestCase
    }
 
    /**
-    * Ensures that a local view of a business interface implemented by a
-    * superclass of an EJB's Implementation Class is deployed; won't be
-    * invokable as unit test runs in separate JVM
-    * 
-    * @throws Exception
-    */
-   public void testSuperLocalDeployed() throws Exception
-   {
-      MyStatelessLocal session = (MyStatelessLocal) getInitialContext().lookup(MyStatelessLocal.JNDI_NAME_LOCAL);
-      assertNotNull(session);
-   }
-
-   /**
     * Ensures that dependencies may be made upon EJBs with
     * 
     * @Local implemented by superclass of an EJB's Implementation Class, and
