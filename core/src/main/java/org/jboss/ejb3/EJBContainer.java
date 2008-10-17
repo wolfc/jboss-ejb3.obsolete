@@ -71,6 +71,7 @@ import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
+import org.jboss.ejb3.common.spi.ErrorCodes;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
@@ -652,13 +653,15 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    /**
     * Ensures that the bean does not implement any one interface as both @Local and @Remote
+    * 
+    * EJBTHREE-1025
     *
     * @throws EJBException If the bean does implements any one interface as both @Local and @Remote
     */
    protected void checkForDuplicateLocalAndRemoteInterfaces() throws EJBException
    {
       // Initialize issue used in Error Message
-      String issue = "(EJBTHREE-1025)";
+      String issue = "[" + ErrorCodes.ERROR_CODE_EJBTHREE1025 + "]";
 
       // Obtain annotations, if found
       Local local = (Local) resolveAnnotation(Local.class);

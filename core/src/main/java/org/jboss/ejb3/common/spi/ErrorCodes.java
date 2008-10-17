@@ -35,4 +35,6 @@ public interface ErrorCodes
     * Error Codes
     */
    String ERROR_CODE_EJBTHREE751 = "EJBTHREE-751";
+   
+   String ERROR_CODE_EJBTHREE1025 = "EJBTHREE-1025";
 }

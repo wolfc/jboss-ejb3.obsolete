@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.ejbthree1025.unit;
 
 import junit.framework.Test;
 
-import org.jboss.deployers.spi.DeploymentException;
+import org.jboss.ejb3.common.spi.ErrorCodes;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -55,29 +55,32 @@ public class FailLocalRemoteNotSpecifiedUnitTestCase extends JBossTestCase
    public void testDeploymentFailure() throws Exception
    {
 
-      // Define expected exception
-      Class exceptionExpected = DeploymentException.class;
+      // Define expected message
+      String expectedErrorCode = ErrorCodes.ERROR_CODE_EJBTHREE1025;
 
       try
       {
          redeploy("ejbthree1025.jar");
-         fail("Should throw " + exceptionExpected.getName());
+         fail("Should throw exception with" + expectedErrorCode);
       }
       catch (Exception e)
       {
          // Ensure expected error is thrown
-         if (e.getClass().equals(exceptionExpected))
+         String errorMessage = e.getCause().getMessage();
+         if (errorMessage.contains(expectedErrorCode))
          {
             // Log Success for clarity
-            log.info("testDeploymentFailure SUCCESS; \"" + exceptionExpected.getName()
+            log.info("testDeploymentFailure SUCCESS; \"" + expectedErrorCode
                   + "\" received as expected for illegal construct");
             return;
          }
 
          // Proper exception was not thrown
          log.error(e);
-         fail("Exception received, " + e.getClass().getName() + ", was not expected : " + exceptionExpected.getName());
+         fail("Exception received, " + e + ", did not have expected error code " + expectedErrorCode);
 
       }
+
+      fail("Deployment should not have suceeded.");
    }
 }
