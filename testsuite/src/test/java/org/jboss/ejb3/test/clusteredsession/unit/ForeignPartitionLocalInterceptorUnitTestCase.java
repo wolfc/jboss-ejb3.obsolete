@@ -87,12 +87,12 @@ public class ForeignPartitionLocalInterceptorUnitTestCase extends InvokeLocalTes
    
    public void testNonClusteredStatefulGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatefulRemote", false, true);      
+      stayLocalTest("NonClusteredStatefulRemote", false, false);      
    }
    
    public void testNonClusteredStatelessGoesRemote() throws Exception
    {
-      stayLocalTest("NonClusteredStatelessRemote", false, true);    
+      stayLocalTest("NonClusteredStatelessRemote", false, false);    
    }
 
    private void cleanDeployments() throws Exception
