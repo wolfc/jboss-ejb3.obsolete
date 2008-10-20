@@ -55,6 +55,13 @@
         <include>org/jboss/ejb3/metamodel/**/*.class</include>
         <include>org/jboss/injection/**/*.class</include>
         <include>org/jboss/ejb3/ThreadLocalENCFactory.class</include>
+        
+        <!-- EJBTHREE-1531: EJB3 app-client launcher -->
+        <include>org/jboss/ejb3/DependencyPolicy.class</include>
+        <include>org/jboss/ejb3/entity/PersistenceUnitDeployment.class</include>
+        <include>org/jboss/ejb3/deployers/JBoss5DependencyPolicy.class</include>
+        <include>org/jboss/ejb3/MCDependencyPolicy.class</include>
+        
       </includes>
     </fileSet>
 
