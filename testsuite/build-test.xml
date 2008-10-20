@@ -2726,6 +2726,7 @@
       <jar jarfile="${build.lib}/singleton-test.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/singleton/*.class"/>
+            <include name="org/jboss/ejb3/test/singleton/lock/*.class"/>
          </fileset>
          <fileset dir="${resources}/test/singleton">
             <include name="aspectdomain-ejb3-interceptors-aop.xml"/>

@@ -25,6 +25,9 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.aop.AbstractInterceptor;
+import org.jboss.ejb3.test.singleton.lock.Lock;
+import org.jboss.ejb3.test.singleton.lock.LockFactory;
+import org.jboss.ejb3.test.singleton.lock.SimpleReadWriteLockFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -38,7 +41,14 @@ public class SingletonLockInterceptor extends AbstractInterceptor
    private static final Logger log = Logger.getLogger(SingletonLockInterceptor.class);
 
    // container/instance lock
-   private final Lock lock = new Lock();
+   private final Lock readLock;
+   private final Lock writeLock;
+   
+   {
+      LockFactory factory = new  SimpleReadWriteLockFactory(); //JUCReadWriteLockFactory();
+      readLock = factory.createLock(true);
+      writeLock = factory.createLock(false);
+   }
    
    public String getName()
    {
@@ -67,143 +77,15 @@ public class SingletonLockInterceptor extends AbstractInterceptor
          //   methodName += "(" + mi.getArguments()[0] + ')';
       }
       
-      lock.sync();
-      try
-      {
-         boolean wait;
-         if(isReadMethod)
-            wait = lock.isWriteInProgress();
-         else
-            wait = lock.hasActiveThreads();
-         
-         while(wait)
-         {
-            //log.info(methodName + " is waiting; active threads=" + lock.activeThreads);
-            synchronized (lock)
-            {
-               lock.releaseSync();
-
-               try
-               {
-                  lock.wait();
-               }
-               catch (InterruptedException e)
-               {
-               }
-            }
-            
-            lock.sync();
-            
-            if(isReadMethod)
-               wait = lock.isWriteInProgress();
-            else
-               wait = lock.hasActiveThreads();
-         }
-
-         //log.info(methodName + " coming through; active threads=" + lock.activeThreads);
-
-         lock.increaseActiveThreads();
-         if(!isReadMethod)
-            lock.setWriteInProgress(true);
-      }
-      finally
-      {
-         lock.releaseSync();
-      }
-      
+      Lock lock = isReadMethod ? readLock : writeLock;      
+      lock.lock();
       try
       {
          return invocation.invokeNext();
       }
       finally
       {
-         lock.sync();
-         try
-         {
-            lock.decreaseActiveThreads();
-            if(!isReadMethod)
-               lock.setWriteInProgress(false);
-         }
-         finally
-         {
-            //log.info(methodName + " is done; active threads=" + lock.activeThreads);
-            lock.releaseSync();
-         }
-      }
-   }
-   
-   private static class Lock
-   {
-      private int activeThreads;
-
-      private Thread synched;
-      private int synchedDepth;
-   
-      private boolean writeInProgress;
-      
-      public void increaseActiveThreads()
-      {
-         ++activeThreads;
-      }
-      
-      public void decreaseActiveThreads()
-      {
-         --activeThreads;
-      }
-      
-      public boolean hasActiveThreads()
-      {
-         return activeThreads > 0;
-      }
-      
-      public boolean isWriteInProgress()
-      {
-         return writeInProgress;
-      }
-      
-      public void setWriteInProgress(boolean writeInProgress)
-      {
-         this.writeInProgress = writeInProgress;
-      }
-      
-      /**
-       * A method that checks if the calling thread has the lock, and if it
-       * does not blocks until the lock is available. If there is no current owner
-       * of the lock, or the calling thread already owns the lock then the
-       * calling thread will immeadiately acquire the lock.
-       */ 
-      public void sync()
-      {
-         synchronized (this)
-         {
-            Thread thread = Thread.currentThread();
-            while (synched != null && !synched.equals(thread))
-            {
-               try
-               {
-                  this.wait();
-               }
-               catch (InterruptedException ex)
-               { /* ignore */
-               }
-            }
-
-            synched = thread;
-
-            if(synchedDepth > 0)
-               throw new IllegalStateException("At the moment synchedDepth shouldn't be more than 1");
-            ++synchedDepth;
-         }
-      }
-    
-      public void releaseSync()
-      {
-         synchronized(this)
-         {
-            if (--synchedDepth == 0)
-               synched = null;
-            this.notify();
-         }
+         lock.unlock();
       }
    }
 }
