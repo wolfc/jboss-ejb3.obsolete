@@ -31,10 +31,14 @@ import org.jboss.test.JBossClusteredTestCase;
 /**
  * Base class for tests involving clustered entities with a scoped classloader.
  *
+ * FIXME. Have all tests provide a region prefix in their config; test in jpa-deployers
+ * that persistent unit deployments that don't specify a region prefix have one
+ * synthetically created and don't retest that here.  This avoids the problem
+ * discussed in {@link #createCacheRegionPrefix(String, String, String)}.
+ * 
  * @author Brian Stansberry
  * @version $Id: EntityUnitTestCase.java 57207 2006-09-26 12:06:13Z dimitris@jboss.org $
  */
-
 public class EntityClassloaderTestBase
 extends JBossClusteredTestCase
 {
@@ -349,29 +353,33 @@ extends JBossClusteredTestCase
       return PERSISTENCE_UNIT_NAME;
    }
    
+   /**
+    * FIXME this is a duplication of an implementation detail and makes
+    * the whole test fragile. If the way the kernel name for a 
+    * PersistenceUnitDeployment is created changes leading to test failures,
+    * this method should be changed.
+    *  
+    * @param earName name of the ear containing the persistence unit, sans ".ear"
+    *                or null if there is no ear
+    * @param jarName name of the jar containing the persistence unit, sans ".jar"
+    * @param unitName name of the persistence unit
+    * 
+    * @return string matching the expected kernel name of a PersistenceUnitDeployment
+    *         packaged
+    */
    public static String createCacheRegionPrefix(String earName, String jarName, String unitName)
    {
-      StringBuilder sb = new StringBuilder();
+      StringBuilder sb = new StringBuilder("persistence.unit:unitName=");
       if (earName != null)
       {
          sb.append(earName);
-         if (!earName.endsWith(".ear")) 
-            sb.append("_ear");
-         sb.append(",");
-      }
-      if (jarName != null)
-      {
+         sb.append(".ear/");
          sb.append(jarName);
-         if (!jarName.endsWith(".jar"))
-            sb.append("_jar");
-         sb.append(",");
+         sb.append(".jar");
       }
+      sb.append('#');
       sb.append(unitName);
-      String raw = sb.toString();
-      // Replace any '.' otherwise the JBoss Cache integration may replace
-      // it with a '/' and it will become a level in the FQN
-      String escaped = raw.replace('.', '_');
-      return escaped;
+      return sb.toString();
    }
 
    protected boolean isOptimistic()
