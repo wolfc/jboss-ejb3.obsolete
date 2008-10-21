@@ -232,12 +232,11 @@ public class EntityQueryTestBean implements EntityQueryTest
    
    private boolean getSawRegion(String regionName, Set<Fqn<String>> sawEvent)
    {
-      boolean saw = false;
-      Fqn<String> fqn = Fqn.fromString(regionName);
+      boolean saw = false;      
       for (Iterator<Fqn<String>> it = sawEvent.iterator(); it.hasNext();)
       {
          Fqn<String> modified = (Fqn<String>) it.next();
-         if (modified.isChildOf(fqn))
+         if (modified.toString().indexOf(regionName) > -1)
          {
             it.remove();
             saw = true;
