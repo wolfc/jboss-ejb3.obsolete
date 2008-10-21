@@ -575,11 +575,6 @@
     </dependency>
 
     <dependency>
-       <groupId>org.jboss.ws.native</groupId>
-       <artifactId>jbossws-native-jaxws-ext</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
       <version>1.6.0</version>
