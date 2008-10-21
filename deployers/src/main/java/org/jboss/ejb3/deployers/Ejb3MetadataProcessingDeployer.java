@@ -65,12 +65,12 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
    /**
     * Deployer Input, set to merged metadata
     */
-   private static final String INPUT = "merged.org.jboss.metadata.ejb.jboss.JBossMetaData";
+   private static final String INPUT = "merged." + JBossMetaData.class.getName();
 
    /**
     * Deployer Output, the Processed metadata
     */
-   public static final String OUTPUT = "processedMetadata." + Ejb3MetadataProcessingDeployer.class.getSimpleName();
+   public static final String OUTPUT = "processed." + JBossMetaData.class.getName();
 
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
