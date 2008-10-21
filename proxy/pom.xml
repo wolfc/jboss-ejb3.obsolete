@@ -107,7 +107,7 @@
      <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>0.1.4-SNAPSHOT</version>
+      <version>1.0.0-Beta1</version>
       <scope>test</scope>
     </dependency>
 
