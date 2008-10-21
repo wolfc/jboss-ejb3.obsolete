@@ -21,12 +21,10 @@
  */
 package org.jboss.injection;
 
-import org.w3c.dom.Element;
+import java.security.Principal;
 
-import javax.xml.ws.EndpointReference;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
-import java.security.Principal;
 
 /**
  * WebServiceContext proxy that delegates to a ThreadLocal.
@@ -62,6 +60,7 @@ public class WebServiceContextProxy implements WebServiceContext
    }
 
    // These are no longer in the WebServiceContext API?
+   // EJBTHREE-1536
 //   public EndpointReference getEndpointReference(Element... elements)
 //   {
 //      return delegate().getEndpointReference(elements);
@@ -96,14 +95,16 @@ public class WebServiceContextProxy implements WebServiceContext
          throw EX;
       }
 
-      public EndpointReference getEndpointReference(Element... elements)
-      {
-         throw EX;
-      }
-
-      public <T extends EndpointReference> T getEndpointReference(Class<T> aClass, Element... elements)
-      {
-         throw EX;
-      }
+      // These are no longer in the WebServiceContext API?
+      // EJBTHREE-1536
+//      public EndpointReference getEndpointReference(Element... elements)
+//      {
+//         throw EX;
+//      }
+//
+//      public <T extends EndpointReference> T getEndpointReference(Class<T> aClass, Element... elements)
+//      {
+//         throw EX;
+//      }
    }
 }
