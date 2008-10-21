@@ -112,6 +112,7 @@
     <version.org.jboss.microcontainer_jboss-container>2.0.0.CR2</version.org.jboss.microcontainer_jboss-container>
     <version.org.jboss.microcontainer_jboss-kernel>2.0.0.CR2</version.org.jboss.microcontainer_jboss-kernel>
     <version.org.jboss.ws_jbossws-spi>1.0.3.GA</version.org.jboss.ws_jbossws-spi>
+    <version.org.jboss.ws.native.jbossws-native-jaxws-ext>3.0.4.GA</version.org.jboss.ws.native.jbossws-native-jaxws-ext>
    
     <!-- Miscellaneous -->
     <jvmargs />
@@ -448,6 +449,12 @@
         <groupId>org.jboss.ws</groupId>
         <artifactId>jbossws-spi</artifactId>
         <version>${version.org.jboss.ws_jbossws-spi}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.ws.native</groupId>
+        <artifactId>jbossws-native-jaxws-ext</artifactId>
+        <version>${version.org.jboss.ws.native.jbossws-native-jaxws-ext}</version>
       </dependency>
 
       <!-- JBoss Test -->
