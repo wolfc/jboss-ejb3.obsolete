@@ -61,15 +61,16 @@ public class WebServiceContextProxy implements WebServiceContext
       return delegate().isUserInRole(string);
    }
 
-   public EndpointReference getEndpointReference(Element... elements)
-   {
-      return delegate().getEndpointReference(elements);
-   }
-
-   public <T extends EndpointReference> T getEndpointReference(Class<T> aClass, Element... elements)
-   {
-      return delegate().getEndpointReference(aClass, elements);
-   }
+   // These are no longer in the WebServiceContext API?
+//   public EndpointReference getEndpointReference(Element... elements)
+//   {
+//      return delegate().getEndpointReference(elements);
+//   }
+//
+//   public <T extends EndpointReference> T getEndpointReference(Class<T> aClass, Element... elements)
+//   {
+//      return delegate().getEndpointReference(aClass, elements);
+//   }
 
    private WebServiceContext delegate()
    {
