@@ -253,7 +253,7 @@ public class EjbMetadataJndiPolicyDecoratorDeployer extends AbstractDeployer
       {
          // Default to BasicJndiBindingPolicy
          policy = new BasicJndiBindingPolicy();
-         log.warn("Defaulting to " + DefaultJndiBindingPolicy.class.getSimpleName() + " of \""
+         log.debug("Defaulting to " + DefaultJndiBindingPolicy.class.getSimpleName() + " of \""
                + BasicJndiBindingPolicy.class.getName() + "\" for Session Bean " + md.getEjbName());
       }
 
