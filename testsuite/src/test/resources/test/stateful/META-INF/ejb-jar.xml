@@ -19,6 +19,10 @@
             <retain-if-exception>false</retain-if-exception>
          </remove-method>
       </session>
+      <!-- 
+      
+      There's no EJB with name CustomRemoveBean ?
+      
       <session>
          <ejb-name>CustomRemoveBean</ejb-name>
          <remove-method>
@@ -27,7 +31,7 @@
             </bean-method>
             <retain-if-exception>false</retain-if-exception>
          </remove-method>
-      </session>
+      </session>  -->
       <session>
          <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
          <remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</remote>
