@@ -4058,8 +4058,7 @@
    </target>
 
    <target name="clusteredsession"
-      description="Builds all jar files."
-      >
+      description="Builds all jar files.">
 
       <mkdir dir="${build.lib}"/>
 
@@ -4095,6 +4094,8 @@
             <include name="org/jboss/ejb3/test/stateful/nested/base/std/*.class"/>
          </fileset>
       </jar>
+   	
+   	<copy todir="${build.lib}" file="${resources}/test/clusteredsession/xpc/clusteredsession-ds.xml"/>
    	
       <jar jarfile="${build.lib}/clusteredsession-xpc.jar">
          <fileset dir="${build.classes}">
