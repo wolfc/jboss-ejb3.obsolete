@@ -39,6 +39,7 @@
     <module>common</module>
     <module>core</module>
     <module>cache</module>
+    <module>deployers</module>
     <module>embedded</module>
     <module>ext-api</module>
     <module>ext-api-impl</module>
