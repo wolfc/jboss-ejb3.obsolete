@@ -58,16 +58,10 @@ public class EjbMetadataJndiPolicyDecoratorDeployer extends AbstractDeployer
 
    private static final Logger log = Logger.getLogger(EjbMetadataJndiPolicyDecoratorDeployer.class);
 
-   //TODO
-   /*
-    * This is reflected in the public static field:
-    * public static final String EJB_MERGED_ATTACHMENT_NAME = "merged."+JBossMetaData.class.getName();
-    * ...of the MergedJBossMetaDataDeployer, which is not currently visible from here
-    */
    /**
-    * Deployer Input, set to merged metadata
+    * Deployer Input, set to processed metadata
     */
-   private static final String INPUT = "merged.org.jboss.ejb.deployers.MergedJBossMetaDataDeployer";
+   private static final String INPUT = Ejb3MetadataProcessingDeployer.OUTPUT;
 
    /**
     * Deployer Output flag signaling that this deployer has been run
