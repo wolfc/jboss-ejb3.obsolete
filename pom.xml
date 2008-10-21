@@ -1,56 +1,60 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<!-- Parent -->
-	<parent>
-		<groupId>org.jboss.ejb3</groupId>
-		<artifactId>jboss-ejb3-build</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-	</parent>
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0-Beta5</version>
+  </parent>
 
-	<!-- Model Version -->
-	<modelVersion>4.0.0</modelVersion>
+  <!-- Model Version -->
+  <modelVersion>4.0.0</modelVersion>
 
-	<!-- Artifact Configuration -->
-	<groupId>org.jboss.ejb3</groupId>
-	<artifactId>jboss-ejb3-deployers</artifactId>
-	<name>JBoss EJB3 Deployers</name>
-	<version>0.1.0-SNAPSHOT</version>
-	<description>Deployers conforming to the MC Deployers SPI for EJB3</description>
-	
-	<!-- Properties -->
-	<properties>
-	
-	 <!-- Versioning -->
-	 <version.org.jboss.deployers.jboss_deployers_spi>2.0.0.CR2</version.org.jboss.deployers.jboss_deployers_spi>
-	
-	</properties>
+  <!-- Artifact Configuration -->
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-deployers</artifactId>
+  <name>JBoss EJB3 Deployers</name>
+  <version>0.1.0</version>
+  <description>
+    Deployers conforming to the MC Deployers SPI for EJB3
+  </description>
 
-	<!-- Dependencies -->
-	<dependencies>
+  <!-- Properties -->
+  <properties>
 
-		<!-- JUnit -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+    <!-- Versioning -->
+    <version.org.jboss.deployers.jboss_deployers_spi>2.0.0.CR2</version.org.jboss.deployers.jboss_deployers_spi>
 
-		<dependency>
-			<groupId>org.jboss.metadata</groupId>
-			<artifactId>jboss-metadata</artifactId>
-		</dependency>
+  </properties>
 
-		<!-- MC Deployers SPI -->
-		<dependency>
-			<groupId>org.jboss.deployers</groupId>
-			<artifactId>jboss-deployers-spi</artifactId>
-			<version>${version.org.jboss.deployers.jboss_deployers_spi}</version>
-		</dependency>
+  <!-- Dependencies -->
+  <dependencies>
 
-	</dependencies>
+    <!-- JUnit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
+
+    <!-- MC Deployers SPI -->
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-spi</artifactId>
+      <version>${version.org.jboss.deployers.jboss_deployers_spi}</version>
+    </dependency>
+
+  </dependencies>
 
 
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-0.1.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-0.1.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-0.1.0</url>
+  </scm>
 </project>
