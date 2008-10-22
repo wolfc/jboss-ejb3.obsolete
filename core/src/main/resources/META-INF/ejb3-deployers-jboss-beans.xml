@@ -350,4 +350,12 @@
       <parameter><inject bean="org.jboss.ejb3.ProxyClusteringRegistry"/></parameter>
     </constructor>
   </bean>
+
+  <!-- EJB3 ProcessorChain Deployer -->
+  <bean name="Ejb3MetadataProcessingDeployer"
+    class="org.jboss.ejb3.deployers.Ejb3MetadataProcessingDeployer" />
+  <!-- EJB3 JNDI Policy Decorator Deployer -->
+  <bean name="EjbMetadataJndiPolicyDecoratorDeployer"
+    class="org.jboss.ejb3.deployers.EjbMetadataJndiPolicyDecoratorDeployer" />
+
 </deployment>
