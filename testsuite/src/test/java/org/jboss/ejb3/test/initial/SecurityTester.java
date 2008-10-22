@@ -25,8 +25,6 @@ import javax.ejb.EJBAccessException;
 import javax.naming.InitialContext;
 
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 
@@ -44,7 +42,7 @@ public class SecurityTester implements SecurityTesterMBean
    public void testSecurityAssociation() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/local");
+      SecuredTest test = (SecuredTest) ctx.lookup("initial-ejb3-test/SecuredTestBean/local");
 
       SecurityClient client = SecurityClientFactory.getSecurityClient();
       client.setSimple("somebody", "password");
@@ -102,7 +100,7 @@ public class SecurityTester implements SecurityTesterMBean
    {
       
       InitialContext ctx = new InitialContext();
-      SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/local");
+      SecuredTest test = (SecuredTest) ctx.lookup("initial-ejb3-test/SecuredTestBean/local");
 
       SecurityClient sc = SecurityClientFactory.getSecurityClient();
       sc.setSimple("somebody","password");

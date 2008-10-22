@@ -39,7 +39,7 @@ public class TxTester implements TxTesterMBean
    {
       InitialContext ctx = new InitialContext();
       TransactionManager tm = TransactionManagerLocator.locateTransactionManager();
-      TestLocal test = (TestLocal) ctx.lookup("TestBean/local");
+      TestLocal test = (TestLocal) ctx.lookup("initial-ejb3-test/TestBean/local");
       callNever(tm, test);
       callNotSupported(tm, test);
       callSupportsWithTx(tm, test);

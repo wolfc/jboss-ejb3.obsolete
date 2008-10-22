@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.initial;
 
 import java.util.Map;
+
 import javax.naming.InitialContext;
 
 /**
@@ -35,8 +36,8 @@ public class Tester implements TesterMBean
    public void testSLSBCollocation() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      TestLocal local = (TestLocal) ctx.lookup("TestBean/local");
-      TestRemote remote = (TestRemote) ctx.lookup("TestBean/remote");
+      TestLocal local = (TestLocal) ctx.lookup("initial-ejb3-test/TestBean/local");
+      TestRemote remote = (TestRemote) ctx.lookup("initial-ejb3-test/TestBean/remote");
 
       if (local.getObject() != TestBean.obj) throw new RuntimeException("Local call not equal");
       if (local.getObject() == remote.getObject()) throw new RuntimeException("Remote should not be equal");
@@ -60,8 +61,8 @@ public class Tester implements TesterMBean
    public void testSFSBCollocation() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      StatefulTestLocal local = (StatefulTestLocal) ctx.lookup("StatefulTestBean/local");
-      StatefulTestRemote remote = (StatefulTestRemote) ctx.lookup("StatefulTestBean/remote");
+      StatefulTestLocal local = (StatefulTestLocal) ctx.lookup("initial-ejb3-test/StatefulTestBean/local");
+      StatefulTestRemote remote = (StatefulTestRemote) ctx.lookup("initial-ejb3-test/StatefulTestBean/remote");
 
       if (local.getObject() != StatefulTestBean.obj) throw new RuntimeException("Local call not equal");
       if (local.getObject() == remote.getObject()) throw new RuntimeException("Remote should not be equal");
@@ -84,7 +85,7 @@ public class Tester implements TesterMBean
    public void test() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      Test test = (Test) ctx.lookup("TestBean/local");
+      Test test = (Test) ctx.lookup("initial-ejb3-test/TestBean/local");
       String echo = test.testMe("echo");
       if (!"echo".equals(echo)) throw new RuntimeException("ECHO FAILED!");
    }
@@ -92,7 +93,7 @@ public class Tester implements TesterMBean
    public void statefulTest() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      StatefulTestLocal test = (StatefulTestLocal) ctx.lookup("StatefulTestBean/local");
+      StatefulTestLocal test = (StatefulTestLocal) ctx.lookup("initial-ejb3-test/StatefulTestBean/local");
       test.setState("hello world");
       if (!test.getState().equals("hello world")) throw new Exception("state was not retained");
    }
@@ -100,7 +101,7 @@ public class Tester implements TesterMBean
    public void testInterceptors() throws Exception
    {
       InitialContext ctx = new InitialContext();
-      InterceptedSLTest test = (InterceptedSLTest) ctx.lookup("InterceptedSLTestBean/local");
+      InterceptedSLTest test = (InterceptedSLTest) ctx.lookup("initial-ejb3-test/InterceptedSLTestBean/local");
       int ret = test.testMethod(5);
       int expected = 3010;
 
@@ -122,9 +123,9 @@ public class Tester implements TesterMBean
    {
       //Check the correct callbacks get invoked
       InitialContext ctx = new InitialContext();
-      TestStatus status = (TestStatus) ctx.lookup("TestStatusBean/remote");
+      TestStatus status = (TestStatus) ctx.lookup("initial-ejb3-test/TestStatusBean/remote");
       status.clear();
-      InterceptedSLTest test = (InterceptedSLTest) ctx.lookup("InterceptedSLTestBean/local");
+      InterceptedSLTest test = (InterceptedSLTest) ctx.lookup("initial-ejb3-test/InterceptedSLTestBean/local");
       test.testMethod(5);
       if (!status.postConstruct()) throw new Exception("PostConstruct should be called for SLSB");
       if (status.prePassivate()) throw new Exception("PrePassivate should not be called for SLSB");

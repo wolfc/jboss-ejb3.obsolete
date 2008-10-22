@@ -24,18 +24,18 @@ package org.jboss.ejb3.test.initial.unit;
 import javax.ejb.EJBAccessException;
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
+
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.initial.ClassInjected;
 import org.jboss.ejb3.test.initial.InterceptedSFTest;
-import org.jboss.ejb3.test.initial.SecuredTest; 
+import org.jboss.ejb3.test.initial.SecuredTest;
 import org.jboss.ejb3.test.initial.StatefulTestRemote;
 import org.jboss.ejb3.test.initial.TestRemote;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Sample client for the jboss container.
@@ -61,7 +61,7 @@ extends JBossTestCase
 
    public void testStateful() throws Exception
    {
-      StatefulTestRemote test = (StatefulTestRemote) getInitialContext().lookup("StatefulTestBean/remote");
+      StatefulTestRemote test = (StatefulTestRemote) getInitialContext().lookup("initial-ejb3-test/StatefulTestBean/remote");
       test.setState("hello world");
       assertEquals(test.getState(), "hello world");
       test.endSession();
@@ -70,7 +70,7 @@ extends JBossTestCase
 
    public void testSimple() throws Exception
    {
-      TestRemote test = (TestRemote) this.getInitialContext().lookup("TestBean/remote");
+      TestRemote test = (TestRemote) this.getInitialContext().lookup("initial-ejb3-test/TestBean/remote");
       String echo = test.testMe("echo");
       assertEquals(echo, "echo");
    }
@@ -79,7 +79,7 @@ extends JBossTestCase
    {
       // Test basic tx propagation
       UserTransaction ut = (UserTransaction) getInitialContext().lookup("UserTransaction");
-      TestRemote test = (TestRemote) this.getInitialContext().lookup("TestBean/remote");
+      TestRemote test = (TestRemote) this.getInitialContext().lookup("initial-ejb3-test/TestBean/remote");
       ut.begin();
       test.mandatory();
       // call mandatory a second time to test that TX has been dissacciated correctly
@@ -92,7 +92,7 @@ extends JBossTestCase
    {
       // Test basic security propagation
       InitialContext ctx = getInitialContext();
-      SecuredTest test = (SecuredTest) ctx.lookup("SecuredTestBean/remote");
+      SecuredTest test = (SecuredTest) ctx.lookup("initial-ejb3-test/SecuredTestBean/remote");
       
       SecurityClient client = SecurityClientFactory.getSecurityClient();
       client.setSimple("somebody", "password");
@@ -153,7 +153,7 @@ extends JBossTestCase
 
    public void testInterceptors() throws Exception
    {
-      InterceptedSFTest test = (InterceptedSFTest) this.getInitialContext().lookup("InterceptedSFTestBean/remote");
+      InterceptedSFTest test = (InterceptedSFTest) this.getInitialContext().lookup("initial-ejb3-test/InterceptedSFTestBean/remote");
       int ret = test.testMethod(5);
       int expected = 1010;
       if (ret != expected) throw new Exception("return value was not " + expected + ", it was: " + ret);
@@ -162,9 +162,9 @@ extends JBossTestCase
    public void testCallbacks() throws Exception
    {
       org.jboss.ejb3.test.initial.TestStatus status =
-      (org.jboss.ejb3.test.initial.TestStatus) getInitialContext().lookup("TestStatusBean/remote");
+      (org.jboss.ejb3.test.initial.TestStatus) getInitialContext().lookup("initial-ejb3-test/TestStatusBean/remote");
       status.clear();
-      InterceptedSFTest test = (InterceptedSFTest) getInitialContext().lookup("InterceptedSFTestBean/remote");
+      InterceptedSFTest test = (InterceptedSFTest) getInitialContext().lookup("initial-ejb3-test/InterceptedSFTestBean/remote");
 
       test.testMethod(5);
       int val = test.getVal();
@@ -172,7 +172,7 @@ extends JBossTestCase
       if (!status.postConstruct()) throw new Exception("PostConstruct should be called for SFSB");
 
       //Exhaust cache to force passivation
-      InterceptedSFTest test2 = (InterceptedSFTest) getInitialContext().lookup("InterceptedSFTestBean/remote");
+      InterceptedSFTest test2 = (InterceptedSFTest) getInitialContext().lookup("initial-ejb3-test/InterceptedSFTestBean/remote");
       test2.testMethod(3);
 
       if (!status.prePassivate()) throw new Exception("PrePassivate should be called for SFSB");
@@ -191,7 +191,7 @@ extends JBossTestCase
 
    public void testClassInjected() throws Exception
    {
-      ClassInjected test = (ClassInjected)getInitialContext().lookup("ClassInjectedBean/remote");
+      ClassInjected test = (ClassInjected)getInitialContext().lookup("initial-ejb3-test/ClassInjectedBean/remote");
       assertTrue(test.isInjected());
    }
 
