@@ -194,7 +194,8 @@ public abstract class JndiClusteredSessionRegistrarBase
       if (!isLocal)
       {
          ClusterConfigMetaData ccmd = smd.getClusterConfig();
-         assert ccmd != null : ClusterConfigMetaData.class.getSimpleName() + " not found in metadata";
+         assert ccmd != null : ClusterConfigMetaData.class.getSimpleName()
+               + " not found in metadata, specified only in XML? [EJBTHREE-1539]";
          key += "/" + ProxyClusteringRegistry.getPartitionName(smd.getClusterConfig());
       }
       return key;
