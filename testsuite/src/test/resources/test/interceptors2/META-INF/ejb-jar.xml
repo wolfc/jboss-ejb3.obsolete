@@ -9,7 +9,7 @@
    <enterprise-beans>
        <session>
           <ejb-name>XMLOnlySLSB</ejb-name>
-          <remote>org.jboss.ejb3.test.interceptors2.XMLOnlySLSBRemote</remote>
+          <business-remote>org.jboss.ejb3.test.interceptors2.XMLOnlySLSBRemote</business-remote>
           <ejb-class>org.jboss.ejb3.test.interceptors2.XMLOnlySLSB</ejb-class>
            <session-type>Stateless</session-type>
            <transaction-type>Container</transaction-type>
