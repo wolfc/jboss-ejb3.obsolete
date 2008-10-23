@@ -34,8 +34,8 @@ import javax.persistence.EntityManager;
 
 import org.hibernate.Session;
 import org.hibernate.ejb.HibernateEntityManager;
-import org.jboss.ejb3.entity.ManagedEntityManagerFactoryHelper;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.jpa.util.ManagedEntityManagerFactoryHelper;
 
 /**
  * Handle method execution delegation to an Hibernate session following the transaction scoped persistence context rules

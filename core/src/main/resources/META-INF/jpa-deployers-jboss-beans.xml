@@ -7,6 +7,8 @@
    
    <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DefaultPersistenceUnitDependencyResolver"/>
    
+   <bean name="XPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
+   
    <bean name="PersistenceParsingDeployer" class="org.jboss.jpa.deployers.PersistenceParsingDeployer"/>
 
    <bean name="PersistenceDeployer" class="org.jboss.jpa.deployers.PersistenceDeployer"/>

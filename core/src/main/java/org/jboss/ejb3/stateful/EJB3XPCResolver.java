@@ -19,27 +19,40 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.entity;
+package org.jboss.ejb3.stateful;
 
-import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
-import org.jboss.jpa.deployment.PersistenceUnitDeployment;
-import org.jboss.jpa.spi.PersistenceUnitRegistry;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
+import org.jboss.jpa.spi.XPCResolver;
 
 /**
+ * EJB 3 Stateful beans are the only XPC aware components at the moment.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ManagedEntityManagerFactoryHelper
+public class EJB3XPCResolver implements XPCResolver
 {
-   public static ManagedEntityManagerFactory getManagedEntityManagerFactory(String kernelName)
+   /**
+    * Query the current stateful bean contexts for the specified XPC.
+    */
+   public EntityManager getExtendedPersistenceContext(String kernelName)
    {
-      PersistenceUnitDeployment pu = (PersistenceUnitDeployment) PersistenceUnitRegistry.getPersistenceUnit(kernelName);
-      if(pu != null)
-         return pu.getManagedFactory();
-      // Legacy
-      org.jboss.ejb3.entity.PersistenceUnitDeployment oldPu = org.jboss.ejb3.PersistenceUnitRegistry.getPersistenceUnit(kernelName);
-      if(oldPu != null)
-         return oldPu.getManagedFactory();
+      StatefulBeanContext beanContext = StatefulBeanContext.currentBean.get();
+      
+      EntityManager em;
+      if (beanContext != null)
+      {
+         List<StatefulBeanContext> beanContexts = StatefulBeanContext.currentBean.getList();
+         for( StatefulBeanContext bc : beanContexts)
+         {
+            em = bc.getExtendedPersistenceContext(kernelName);
+            if (em != null)
+               return em;
+         }
+      }
       return null;
    }
 }

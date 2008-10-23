@@ -34,7 +34,6 @@ import javax.naming.NameNotFoundException;
 
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.DependencyPolicy;
-import org.jboss.ejb3.entity.PersistenceUnitDeployment;
 import org.jboss.injection.EncInjector;
 import org.jboss.injection.InjectionContainer;
 import org.jboss.injection.Injector;
@@ -132,11 +131,6 @@ public class DummyInjectionContainer implements InjectionContainer
    }
 
    public List<Injector> getInjectors()
-   {
-      return null;
-   }
-
-   public PersistenceUnitDeployment getPersistenceUnitDeployment(String unitName) throws NameNotFoundException
    {
       return null;
    }
