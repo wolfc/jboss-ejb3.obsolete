@@ -1,9 +1,9 @@
 <classpath>
   <classpathentry kind="src" path="src/main/java"/>
   <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
-  <classpathentry kind="src" path="src/test/java" output="target/tests-classes"/>
-  <classpathentry kind="src" path="src/test/resources" output="target/tests-classes" excluding="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="src" path="src/test/java" output="eclipse-target/tests-classes"/>
+  <classpathentry kind="src" path="src/test/resources" output="eclipse-target/tests-classes" excluding="**/*.java"/>
+  <classpathentry kind="output" path="eclipse-target/classes"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="var" path="M2_REPO/javax/activation/activation/1.0.2/activation-1.0.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/wutka-dtdparser/dtdparser121/1.2.1/dtdparser121-1.2.1.jar"/>
@@ -27,10 +27,10 @@
   <classpathentry kind="var" path="M2_REPO/org/jboss/metadata/jboss-metadata/1.0.0-SNAPSHOT/jboss-metadata-1.0.0-SNAPSHOT.jar" sourcepath="M2_REPO/org/jboss/metadata/jboss-metadata/1.0.0-SNAPSHOT/jboss-metadata-1.0.0-SNAPSHOT-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/man/jboss-metatype/2.0.0.CR1/jboss-metatype-2.0.0.CR1.jar" sourcepath="M2_REPO/org/jboss/man/jboss-metatype/2.0.0.CR1/jboss-metatype-2.0.0.CR1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-reflect/2.0.0.CR1/jboss-reflect-2.0.0.CR1.jar" sourcepath="M2_REPO/org/jboss/jboss-reflect/2.0.0.CR1/jboss-reflect-2.0.0.CR1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-transaction-api/1.0.1.CR2/jboss-transaction-api-1.0.1.CR2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/javaee/jboss-transaction-api/1.0.1.CR2/jboss-transaction-api-1.0.1.CR2.jar" sourcepath="M2_REPO/org/jboss/javaee/jboss-transaction-api/1.0.1.CR2/jboss-transaction-api-1.0.1.CR2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/jboss-vfs/2.0.0.CR1/jboss-vfs-2.0.0.CR1.jar" sourcepath="M2_REPO/org/jboss/jboss-vfs/2.0.0.CR1/jboss-vfs-2.0.0.CR1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/jboss/ws/jbossws-spi/1.0.3.GA/jbossws-spi-1.0.3.GA.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/jboss/jbossxb/2.0.0.CR13/jbossxb-2.0.0.CR13.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/jboss/jbossxb/2.0.0.CR13/jbossxb-2.0.0.CR13.jar" sourcepath="M2_REPO/org/jboss/jbossxb/2.0.0.CR13/jbossxb-2.0.0.CR13-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.4/junit-4.4.jar" sourcepath="M2_REPO/junit/junit/4.4/junit-4.4-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/apache-xerces/xercesImpl/2.9.1/xercesImpl-2.9.1.jar"/>
   <classpathentry kind="var" path="M2_REPO/apache-xerces/xml-apis/2.9.1/xml-apis-2.9.1.jar"/>
