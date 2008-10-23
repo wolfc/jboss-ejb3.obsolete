@@ -45,6 +45,7 @@ import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.metadata.CollectionMetadata;
 import org.hibernate.stat.Statistics;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.jpa.util.ManagedEntityManagerFactoryHelper;
 
 /**
  * Comment

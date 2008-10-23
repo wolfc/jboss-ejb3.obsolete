@@ -32,6 +32,7 @@ import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.jpa.util.ManagedEntityManagerFactoryHelper;
 import org.jboss.logging.Logger;
 
 /**

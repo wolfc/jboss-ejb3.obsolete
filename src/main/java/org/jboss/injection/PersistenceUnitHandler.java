@@ -33,9 +33,9 @@ import javax.persistence.PersistenceUnits;
 
 import org.hibernate.SessionFactory;
 import org.jboss.ejb3.annotation.IgnoreDependency;
-import org.jboss.ejb3.entity.InjectedEntityManagerFactory;
 import org.jboss.ejb3.entity.InjectedSessionFactory;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.jpa.injection.InjectedEntityManagerFactory;
 import org.jboss.jpa.spi.PersistenceUnitRegistry;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.javaee.spec.PersistenceUnitReferenceMetaData;

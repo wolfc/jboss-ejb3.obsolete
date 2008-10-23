@@ -30,11 +30,11 @@ import javax.persistence.PersistenceContextType;
 
 import org.hibernate.Session;
 import org.jboss.ejb3.entity.ExtendedEntityManager;
-import org.jboss.ejb3.entity.TransactionScopedEntityManager;
 import org.jboss.ejb3.entity.hibernate.ExtendedSessionInvocationHandler;
 import org.jboss.ejb3.entity.hibernate.TransactionScopedSessionInvocationHandler;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.jpa.deployment.ManagedEntityManagerFactory;
+import org.jboss.jpa.tx.TransactionScopedEntityManager;
 import org.jboss.util.naming.Util;
 
 /**
