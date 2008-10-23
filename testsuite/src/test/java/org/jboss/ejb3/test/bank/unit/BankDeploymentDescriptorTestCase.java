@@ -31,6 +31,8 @@ import junit.framework.Test;
 import org.jboss.ejb3.ClientKernelAbstraction;
 import org.jboss.ejb3.KernelAbstractionFactory;
 import org.jboss.ejb3.test.bank.Bank;
+import org.jboss.ejb3.test.bank.Bank21;
+import org.jboss.ejb3.test.bank.BankHome;
 import org.jboss.ejb3.test.bank.Teller;
 import org.jboss.ejb3.test.bank.TellerInterceptor;
 import org.jboss.ejb3.test.bank.TestStatus;
@@ -230,7 +232,9 @@ public class BankDeploymentDescriptorTestCase
    public void testStatefulBank21() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME + "21");
+      BankHome home = (BankHome) jndiContext.lookup(Bank.JNDI_NAME + "21");
+      assertNotNull(home);
+      Bank21 bank = home.create();
       assertNotNull(bank);
       
       SecurityClient sc = SecurityClientFactory.getSecurityClient();
@@ -403,7 +407,9 @@ public class BankDeploymentDescriptorTestCase
    public void testSessionContextForEjb21() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME + "21");
+      BankHome home = (BankHome) jndiContext.lookup(Bank.JNDI_NAME + "21");
+      assertNotNull(home);
+      Bank21 bank = home.create();
       assertNotNull(bank);
       assertTrue("setSessionContext(ctx) should have been invoked", bank.hasSessionContext());
    }

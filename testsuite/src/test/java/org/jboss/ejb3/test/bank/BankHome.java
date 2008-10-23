@@ -43,7 +43,7 @@ public interface BankHome extends EJBHome
    // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
-   public Bank create() throws RemoteException, CreateException;
+   public Bank21 create() throws RemoteException, CreateException;
 
 }
 

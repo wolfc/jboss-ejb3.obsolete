@@ -23,9 +23,7 @@
       </session>
       <session>
          <ejb-name>Bank21</ejb-name>
-         <remote-binding>
-            <jndi-name>bank/Bank21</jndi-name>
-         </remote-binding>
+         <home-jndi-name>bank/Bank21</home-jndi-name>
       </session>
       <session>
          <ejb-name>Teller</ejb-name>
