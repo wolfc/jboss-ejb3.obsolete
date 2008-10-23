@@ -33,6 +33,7 @@ import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.process.chain.ProcessorChain;
 import org.jboss.metadata.process.chain.ejb.jboss.JBossMetaDataProcessorChain;
 import org.jboss.metadata.process.processor.JBossMetaDataProcessor;
+import org.jboss.metadata.process.processor.ejb.jboss.ClusterConfigDefaultValueProcessor;
 import org.jboss.metadata.process.processor.ejb.jboss.JBossMetaDataValidatorChainProcessor;
 import org.jboss.metadata.process.processor.ejb.jboss.SetDefaultLocalBusinessInterfaceProcessor;
 
@@ -191,6 +192,9 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
       // JBMETA-122 Implicit Local Business Interface
       ClassLoader deploymentCl = du.getClassLoader();
       processors.add(new SetDefaultLocalBusinessInterfaceProcessor<JBossMetaData>(deploymentCl));
+
+      // JBMETA-133, EJBTHREE-1539 Default ClusterConfig
+      processors.add(ClusterConfigDefaultValueProcessor.INSTANCE);
 
       // JBMETA-118 Validation
       processors.add(JBossMetaDataValidatorChainProcessor.INSTANCE);
