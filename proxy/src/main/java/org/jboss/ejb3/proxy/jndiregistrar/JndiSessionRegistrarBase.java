@@ -22,6 +22,7 @@
 package org.jboss.ejb3.proxy.jndiregistrar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -779,15 +780,17 @@ public abstract class JndiSessionRegistrarBase
    protected void bind(final Context context, final JndiReferenceBindingSet bindings, final boolean useRebind,
          final boolean bindLocals)
    {
+      // Initialize
+      Collection<JndiReferenceBinding> addressesToBind = new ArrayList<JndiReferenceBinding>();
       StringBuffer sb = new StringBuffer();
-      sb.append("Bound the following Entries in Global JNDI:\n\n");
+      sb.append("Binding the following Entries in Global JNDI:\n\n");
       
       for (JndiReferenceBinding binding : bindings.getDefaultRemoteBindings())
       {
          sb.append("\t");
          sb.append(binding.getJndiName());
          sb.append(" - EJB3.x Default Remote Business Interface\n");
-         bind(context, binding, useRebind);
+         addressesToBind.add(binding);
       }
 
       for (JndiReferenceBinding binding : bindings.getHomeRemoteBindings())
@@ -795,7 +798,7 @@ public abstract class JndiSessionRegistrarBase
          sb.append("\t");
          sb.append(binding.getJndiName());
          sb.append(" - EJB2.x Remote Home Interface\n");
-         bind(context, binding, useRebind);
+         addressesToBind.add(binding);
       }
 
       for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessRemoteBindings().values())
@@ -805,7 +808,7 @@ public abstract class JndiSessionRegistrarBase
             sb.append("\t");
             sb.append(binding.getJndiName());
             sb.append(" - EJB3.x Remote Business Interface\n");
-            bind(context, binding, useRebind);
+            addressesToBind.add(binding);
          }
       }
 
@@ -816,7 +819,7 @@ public abstract class JndiSessionRegistrarBase
             sb.append("\t");
             sb.append(binding.getJndiName());
             sb.append(" - EJB3.x Default Local Business Interface\n");
-            bind(context, binding, useRebind);
+            addressesToBind.add(binding);
          }
 
          for (JndiReferenceBinding binding : bindings.getHomeLocalBindings())
@@ -824,7 +827,7 @@ public abstract class JndiSessionRegistrarBase
             sb.append("\t");
             sb.append(binding.getJndiName());
             sb.append(" - EJB2.x Local Home Interface\n");
-            bind(context, binding, useRebind);
+            addressesToBind.add(binding);
          }
 
          for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessLocalBindings().values())
@@ -834,12 +837,19 @@ public abstract class JndiSessionRegistrarBase
                sb.append("\t");
                sb.append(binding.getJndiName());
                sb.append(" - EJB3.x Local Business Interface\n");
-               bind(context, binding, useRebind);
+               addressesToBind.add(binding);
             }
          }
       }
       
+      // Log
       log.info(sb.toString());
+      
+      // Bind all addresses
+      for(JndiReferenceBinding binding : addressesToBind)
+      {
+         bind(context, binding, useRebind);
+      }
    }
 
    protected void bind(Context context, JndiReferenceBinding binding, boolean useRebind)
