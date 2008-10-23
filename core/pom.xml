@@ -42,6 +42,7 @@
 
   <properties>
     <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
+    <version.sun-jaxws>2.1.1</version.sun-jaxws>
   </properties>
 
   <!-- Build Information -->
@@ -173,6 +174,10 @@
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
       <exclusions>
+        <exclusion>
+          <groupId>jboss.jbossws</groupId>
+          <artifactId>jboss-jaxws</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.jboss.javaee</groupId>
           <artifactId>jboss-javaee</artifactId>
@@ -537,6 +542,10 @@
           <groupId>org.jboss.jbossas</groupId>
           <artifactId>jboss-as-security</artifactId>
         </exclusion>        
+        <exclusion>
+          <groupId>org.jboss.ws.native</groupId>
+          <artifactId>jbossws-native-jaxws</artifactId>
+        </exclusion>
       </exclusions>      
       <scope>provided</scope>
     </dependency>
@@ -580,6 +589,18 @@
       <version>1.6.0</version>
     </dependency>
     
+    <dependency>
+      <groupId>sun-jaxws</groupId>
+      <artifactId>jaxws-api</artifactId>
+      <version>${version.sun-jaxws}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>sun-jaxws</groupId>
+      <artifactId>jsr181-api</artifactId>
+      <version>${version.sun-jaxws}</version>
+    </dependency>
+
     <dependency>
       <groupId>trove</groupId>
       <artifactId>trove</artifactId>
