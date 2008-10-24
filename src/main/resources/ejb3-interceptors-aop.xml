@@ -143,6 +143,11 @@
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.BlockContainerShutdownInterceptor"/>
       </bind>
+      
+      <stack name="LifecycleCallbackStack">
+         <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
+         <advice name="setup" aspect="InvocationContextInterceptor"/>
+      </stack>
    </domain>
    
    
