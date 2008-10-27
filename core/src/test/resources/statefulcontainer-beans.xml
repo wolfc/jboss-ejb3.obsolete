@@ -9,8 +9,32 @@
             <!-- StatefulSessionFilePersistenceManager -->
             <entry>
                <key>StatefulSessionFilePersistenceManager</key>
-               <!-- A dummy persistence manager which doesn't rely on the jboss mbean -->
-               <value>org.jboss.ejb3.test.cachepassivation.MyStatefulSessionFilePersistenceManagerFactory</value>
+               <value>org.jboss.ejb3.cache.simple.StatefulSessionFilePersistenceManagerFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <!-- EJB3 Cache Factory Registry -->
+   <bean name="EJB3CacheFactoryRegistry" class="org.jboss.ejb3.cache.CacheFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- NoPassivationCache -->
+            <entry>
+               <key>NoPassivationCache</key>
+               <value>org.jboss.ejb3.cache.NoPassivationCacheFactory</value>
+            </entry>
+            <!-- SimpleStatefulCache -->
+            <entry>
+               <key>SimpleStatefulCache</key>
+               <value>org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory</value>
+            </entry>
+            <!-- StatefulTreeCache -->
+            <entry>
+               <key>StatefulTreeCache</key>
+               <value>org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory</value>
             </entry>
          </map>
       </property>

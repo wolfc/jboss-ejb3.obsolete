@@ -37,6 +37,8 @@ import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.InitialContextFactory;
+import org.jboss.ejb3.cache.CacheFactoryRegistry;
+import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
@@ -73,6 +75,8 @@ public abstract class AbstractEJB3TestCase
    private static final String DOMAIN_NAME_SFSB = "Stateful Bean";
    
    private static final String OBJECT_STORE_NAME_PM_FACTORY_REGISTRY = "EJB3PersistenceManagerFactoryRegistry";
+   
+   private static final String OBJECT_STORE_NAME_CACHE_FACTORY_REGISTRY = "EJB3CacheFactoryRegistry";
    
    private static InitialContext initialContext;
    
@@ -215,16 +219,19 @@ public abstract class AbstractEJB3TestCase
       DeploymentUnit unit = new MockDeploymentUnit();
       Ejb3Deployment deployment = new MockEjb3Deployment(unit, null);
       
-      // Is SFSB, manually set a PM Factory Registry
+      // Is SFSB, manually set a PM Factory Registry and Cache Factory
       //TODO C'mon, here?  Much better elsewhere.
-      if(sessionType.equals(ContainerType.SFSB))
+      if (sessionType.equals(ContainerType.SFSB))
       {
-         // Lookup PM Factory Registry in MC
+         // Lookup Factory Registries in MC
          PersistenceManagerFactoryRegistry registry = Ejb3RegistrarLocator.locateRegistrar().lookup(
                AbstractEJB3TestCase.OBJECT_STORE_NAME_PM_FACTORY_REGISTRY, PersistenceManagerFactoryRegistry.class);
+         CacheFactoryRegistry cacheFactoryRegistry = Ejb3RegistrarLocator.locateRegistrar().lookup(
+               AbstractEJB3TestCase.OBJECT_STORE_NAME_CACHE_FACTORY_REGISTRY, CacheFactoryRegistry.class);
 
          // Set on the deployment
          deployment.setPersistenceManagerFactoryRegistry(registry);
+         deployment.setCacheFactoryRegistry(cacheFactoryRegistry);
       }
 
       // Create a Session Container
