@@ -24,15 +24,12 @@ package org.jboss.ejb3.core.test.ejbthree1549.unit;
 import static org.junit.Assert.assertFalse;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
-import org.jboss.ejb3.cache.simple.SimpleStatefulCache;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
 import org.jboss.ejb3.core.test.ejbthree1549.BlockingPersistenceManager;
@@ -68,32 +65,6 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
 
    private static final Logger log = Logger.getLogger(PassivationDoesNotPreventNewActivityUnitTestCase.class);
 
-   private static Map getCacheMap(SimpleStatefulCache cache)
-   {
-      try
-      {
-         Field f = SimpleStatefulCache.class.getDeclaredField("cacheMap");
-         f.setAccessible(true);
-         return (Map) f.get(cache);
-      }
-      catch(SecurityException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch(NoSuchFieldException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalArgumentException e)
-      {
-         throw new RuntimeException(e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
-   
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -247,10 +218,6 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
          // Wait to allow passivation to actually start
          Thread.sleep(2000);
 
-         StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy.getInvocationHandler(bean1);
-         Serializable sessionId = handler.getSessionId();
-         assertFalse("bean was not removed from cache", getCacheMap((SimpleStatefulCache) ((StatefulContainer) container).getCache()).containsKey(sessionId));
-         
          /*
           * At this point, we've told the passivation Thread to start, and have 
           * locked it from completing.  So let's try our test in another Thread
@@ -293,7 +260,23 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
 
          // Allow the Persistence Manager to finish up
          BlockingPersistenceManager.LOCK.unlock();
+         
+         // We need to allow time to let PM do its thing, so use the lock to block then release
+         Thread.sleep(150); // Just to make sure the PM gets the lock back first
+         BlockingPersistenceManager.LOCK.lock(); // Block until PM is done
+         BlockingPersistenceManager.LOCK.unlock(); // PM must be done, we don't really need the lock, release it
       }
+      
+      
+      /*
+       * Here we ensure that the session was removed from the internal cacheMap
+       */
+      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
+            .getInvocationHandler(bean1);
+      Serializable sessionId = handler.getSessionId();
+      boolean beanIsInCache = ((ForcePassivationCache) ((StatefulContainer) container).getCache())
+            .doesCacheMapContainKey(sessionId);
+      assertFalse("bean was not removed from cache", beanIsInCache);
 
       // Ensure we're good
       TestCase.assertTrue("The test did not succeed", testSucceeded);
