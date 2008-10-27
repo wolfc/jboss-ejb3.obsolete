@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1549;
 
+import java.io.Serializable;
+
 import org.jboss.ejb3.cache.simple.SimpleStatefulCache;
 import org.jboss.logging.Logger;
 
@@ -59,6 +61,27 @@ public class ForcePassivationCache extends SimpleStatefulCache
          // Notify that passivation should run
          log.info("Notifying passivation via manual force...");
          PASSIVATION_LOCK.notify();
+      }
+   }
+
+   /**
+    * Exposed for testing only
+    * 
+    * Returns whether or not the internal cacheMap contains
+    * the specified key
+    * 
+    * @return
+    */
+   public boolean doesCacheMapContainKey(Serializable sessionId)
+   {
+      // Get the cacheMap
+      CacheMap cm = this.cacheMap;
+      
+      // Synchronize on it
+      synchronized(cm)
+      {
+         // Return whether the specified key was found
+         return cm.containsKey(sessionId);
       }
    }
 
@@ -103,7 +126,7 @@ public class ForcePassivationCache extends SimpleStatefulCache
             log.info("Waiting to be notified to run passivation...");
             PASSIVATION_LOCK.wait();
          }
-         
+
          // Log that we've been notified
          log.info("Notified to run passivation");
       }
