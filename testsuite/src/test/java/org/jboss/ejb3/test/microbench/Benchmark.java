@@ -45,7 +45,7 @@ public class Benchmark implements BenchmarkMBean
 
    public long benchLocalStateless30(int iterations) throws Exception
    {
-      StatelessLocal local = (StatelessLocal) new InitialContext().lookup("StatelessBean/local");
+      StatelessLocal local = (StatelessLocal) new InitialContext().lookup("benchmark-ejb3-test/StatelessBean/local");
       long start = System.currentTimeMillis();
       for (int i = 0; i < iterations; i++)
       {

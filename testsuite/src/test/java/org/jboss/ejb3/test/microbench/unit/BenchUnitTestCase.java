@@ -61,7 +61,7 @@ public class BenchUnitTestCase
 
    public void testRemoteBenchmark() throws Exception
    {
-      StatelessRemote remote = (StatelessRemote) getInitialContext().lookup("StatelessBean/remote");
+      StatelessRemote remote = (StatelessRemote) getInitialContext().lookup("benchmark-ejb3-test/StatelessBean/remote");
       StatelessHomeRemote home = (StatelessHomeRemote) getInitialContext().lookup("StatelessBean21Remote");
       StatelessRemote21 remote21 = home.create();
 
