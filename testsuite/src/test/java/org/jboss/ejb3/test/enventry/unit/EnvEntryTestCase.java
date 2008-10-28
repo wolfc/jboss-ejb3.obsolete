@@ -50,7 +50,7 @@ public class EnvEntryTestCase extends JBossTestCase
 
    public void testEnvEntries() throws Exception
    {
-      TestEnvEntry test = (TestEnvEntry)getInitialContext().lookup("TestEnvEntry");
+      TestEnvEntry test = (TestEnvEntry) getInitialContext().lookup(TestEnvEntry.JNDI_NAME);
       assertNotNull(test);
       
       int maxExceptions = test.getMaxExceptions();
@@ -62,7 +62,7 @@ public class EnvEntryTestCase extends JBossTestCase
       int numExceptions = test.getNumExceptions();
       assertEquals(10, numExceptions);
       
-      TestEnvEntry etest = (TestEnvEntry)getInitialContext().lookup("ExtendedTestEnvEntry");
+      TestEnvEntry etest = (TestEnvEntry) getInitialContext().lookup("ExtendedTestEnvEntryJndiName");
       assertNotNull(etest);
       
       maxExceptions = etest.getMaxExceptions();
@@ -109,7 +109,7 @@ public class EnvEntryTestCase extends JBossTestCase
 
    public void testJNDI() throws Exception
    {
-      TestEnvEntry test = (TestEnvEntry)getInitialContext().lookup("TestEnvEntry");
+      TestEnvEntry test = (TestEnvEntry) getInitialContext().lookup(TestEnvEntry.JNDI_NAME);
       assertNotNull(test);
       
       assertEquals(15, test.checkJNDI());

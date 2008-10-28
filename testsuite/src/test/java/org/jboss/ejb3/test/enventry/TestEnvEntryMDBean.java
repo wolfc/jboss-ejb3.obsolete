@@ -21,13 +21,11 @@
  */
 package org.jboss.ejb3.test.enventry;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -35,8 +33,6 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.jboss.logging.Logger;
 

@@ -25,11 +25,8 @@ import javax.annotation.Resource;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -37,12 +34,10 @@ import org.jboss.logging.Logger;
  */
 @Stateless(name="TestEnvEntry")
 @Remote(TestEnvEntry.class)
-@RemoteBinding(jndiBinding="TestEnvEntry")
-public class TestEnvEntryBean
+@RemoteBinding(jndiBinding = TestEnvEntry.JNDI_NAME)
+public class TestEnvEntryBean extends TestEnvEntryBeanBase
    implements TestEnvEntry
 {
-   private static final Logger log = Logger.getLogger(TestEnvEntryBean.class);
-   
    @Resource(name="maxExceptions") private int maxExceptions = 4;
    
    @Resource private int numExceptions = 3;
@@ -52,27 +47,21 @@ public class TestEnvEntryBean
    
    private int minExceptions = 1;
    
-   public int checkJNDI() throws NamingException
-   {
-      InitialContext ctx = new InitialContext();
-      int rtn = (Integer) ctx.lookup("java:comp/env/maxExceptions");
-      if (rtn != (Integer)sessionCtx.lookup("maxExceptions")) throw new RuntimeException("Failed to match env lookup");
-      return rtn;
+   public int getMaxExceptions(){
+      return this.maxExceptions;
    }
    
-   public int getMaxExceptions()
-   {
-      return maxExceptions;
+   public int getNumExceptions(){
+      return this.numExceptions;
    }
    
-   public int getNumExceptions()
-   {
-      return numExceptions;
+   public int getMinExceptions(){
+      return this.minExceptions;
    }
    
-   public int getMinExceptions()
+   public SessionContext getSessionContext()
    {
-      return minExceptions;
+      return this.sessionCtx;
    }
 
 }

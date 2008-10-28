@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.enventry;
 
 import javax.annotation.Resource;
 import javax.ejb.Remote;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -34,15 +35,18 @@ import org.jboss.logging.Logger;
  */
 @Stateless(name="ExtendedTestEnvEntry")
 @Remote(TestEnvEntry.class)
-@RemoteBinding(jndiBinding="ExtendedTestEnvEntry")
+@RemoteBinding(jndiBinding="ExtendedTestEnvEntryJndiName")
 public class ExtendedTestEnvEntryBean
-   extends TestEnvEntryBean
+   extends TestEnvEntryBeanBase
 {
    private static final Logger log = Logger.getLogger(ExtendedTestEnvEntryBean.class);
    
    @Resource(name="maxExceptions") private int maxExceptions = 3;
    
    @Resource private int numExceptions = 2;
+   
+   @Resource
+   SessionContext sessionCtx;
    
    private int minExceptions = 0;
    
@@ -61,4 +65,9 @@ public class ExtendedTestEnvEntryBean
       return minExceptions;
    }
 
+   public SessionContext getSessionContext()
+   {
+      return this.sessionCtx;
+   }
+   
 }

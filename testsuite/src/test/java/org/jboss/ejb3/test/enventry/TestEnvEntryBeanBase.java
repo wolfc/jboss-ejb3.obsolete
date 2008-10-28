@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -21,21 +21,37 @@
  */
 package org.jboss.ejb3.test.enventry;
 
+import javax.ejb.SessionContext;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.jboss.logging.Logger;
+
 /**
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version <tt>$Revision$</tt>
+ * TestEnvEntryBeanBase
+ * 
+ * Common base class for "enventry" test EJBs
+ *
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-public interface TestEnvEntry
+public abstract class TestEnvEntryBeanBase implements TestEnvEntry
 {
-   String JNDI_NAME = "TestEnvEntryJndiBinding";
+  private static final Logger log = Logger.getLogger(TestEnvEntryBeanBase.class);
    
-   int checkJNDI() throws NamingException;
+   public int checkJNDI() throws NamingException
+   {
+      InitialContext ctx = new InitialContext();
+      int rtn = (Integer) ctx.lookup("java:comp/env/maxExceptions");
+      if (rtn != (Integer)getSessionContext().lookup("maxExceptions")) throw new RuntimeException("Failed to match env lookup");
+      return rtn;
+   }
    
-   int getMaxExceptions();
+   public abstract int getMaxExceptions();
    
-   int getMinExceptions();
+   public abstract int getNumExceptions();
    
-   int getNumExceptions();
+   public abstract int getMinExceptions();
+   
+   public abstract SessionContext getSessionContext();
 }
