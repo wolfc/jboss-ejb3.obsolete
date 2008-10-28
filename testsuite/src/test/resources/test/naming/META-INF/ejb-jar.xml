@@ -13,7 +13,7 @@
       <session>
          <description>A session bean on looks up stuff in the ENC</description>
          <ejb-name>ENCBean</ejb-name>
-         <remote>org.jboss.ejb3.test.naming.TestENC</remote>
+         <business-remote>org.jboss.ejb3.test.naming.TestENC</business-remote>
          <ejb-class>org.jboss.ejb3.test.naming.TestENCBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -165,7 +165,7 @@
       <session>
          <description>Referenced Bean0 Create by TestENCHome2</description>
          <ejb-name>ENCBean0</ejb-name>
-         <remote>org.jboss.ejb3.test.naming.TestENC</remote>
+         <business-remote>org.jboss.ejb3.test.naming.TestENC</business-remote>
          <ejb-class>org.jboss.ejb3.test.naming.TestENCBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -179,7 +179,7 @@
       <session>
          <description>Referenced Bean1</description>
          <ejb-name>ENCBean1</ejb-name>
-         <remote>org.jboss.ejb3.test.naming.TestENC</remote>
+         <business-remote>org.jboss.ejb3.test.naming.TestENC</business-remote>
          <ejb-class>org.jboss.ejb3.test.naming.TestENCBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -194,7 +194,7 @@
          <description>A bean with a JNDI name that cannot be used in a JMX
             ObjectName</description>
          <ejb-name>ENCBean2</ejb-name>
-         <remote>org.jboss.ejb3.test.naming.TestENC</remote>
+         <business-remote>org.jboss.ejb3.test.naming.TestENC</business-remote>
          <ejb-class>org.jboss.ejb3.test.naming.TestENCBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -208,7 +208,7 @@
       <session>
          <description>A deployment that is secured</description>
          <ejb-name>SecuredENCBean</ejb-name>
-         <remote>org.jboss.ejb3.test.naming.TestENC</remote>
+         <business-remote>org.jboss.ejb3.test.naming.TestENC</business-remote>
          <ejb-class>org.jboss.ejb3.test.naming.TestENCBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>

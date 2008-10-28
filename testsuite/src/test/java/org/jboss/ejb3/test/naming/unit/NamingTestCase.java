@@ -22,12 +22,10 @@
 package org.jboss.ejb3.test.naming.unit;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.jboss.logging.Logger;
-import org.jboss.test.JBossTestCase;
 
 import org.jboss.ejb3.test.naming.Stateful;
+import org.jboss.logging.Logger;
+import org.jboss.test.JBossTestCase;
 
 /**
  * @version <tt>$Revision$</tt>

@@ -59,7 +59,7 @@ public class ENCUnitTestCase extends JBossTestCase
       client.setSimple("jduke", "theduke");
       client.login();
       
-      TestENC bean = (TestENC)getInitialContext().lookup("ENCBean");
+      TestENC bean = (TestENC)getInitialContext().lookup("ENCBeanJndiName");
       getLog().debug("Created ENCBean");
       bean.accessENC();
       bean.remove();
@@ -76,7 +76,7 @@ public class ENCUnitTestCase extends JBossTestCase
       client.setSimple("jduke", "theduke");
       client.login();
       
-      TestENC bean = (TestENC)getInitialContext().lookup("ENCBean0");
+      TestENC bean = (TestENC)getInitialContext().lookup("ENCBean0JndiName");
       getLog().debug("Created ENCBean0");
       bean.accessENC();
       bean.remove();
