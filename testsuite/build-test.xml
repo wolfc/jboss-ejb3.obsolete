@@ -132,6 +132,9 @@
   <!-- Define common JVM Arguments for all EJB3 JBossAS Runtimes -->
   <property name="ejb3.jboss.jvmargs" value="-Xmx512m -XX:MaxPermSize=256m -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true"/>
   
+  <!-- Extra options for ejbthree1504 -->
+  <property name="ejbthree1504.jboss.jvmargs" value="${ejb3.jboss.jvmargs} -Dcom.sun.management.jmxremote"/>  
+  
   <!-- Define JVM Arguments for specific EJB3 JBossAS Runtimes -->
   <property name="ssl-args" value="-Djavax.net.ssl.keyStore=${jboss.dist}/server/ejb3-ssl/conf/localhost.keystore -Djavax.net.ssl.keyStorePassword=opensource"/>
   
@@ -204,6 +207,11 @@
     <server name="statefulproxyfactoryoverride" host="${node0}">
       <jvmarg value="${ejb3.jboss.jvmargs}" />
     </server>
+    
+    <!-- ejbthree1504 -->
+    <server name="ejbthree1504" host="${node0}">
+      <jvmarg value="${ejbthree1504.jboss.jvmargs}" />
+    </server>  	    
     
     <!-- node0 -->
     <server name="node0" host="${node0}">
@@ -2446,6 +2454,10 @@
       <build-simple-jar name="ejbthree1339"/>
    </target>
 
+   <target name="ejbthree1504">
+      <build-simple-jar name="ejbthree1504"/>
+   </target>  
+  
    <target name="jbas4489"
       description="Builds a simple jar files."
       >
@@ -4228,6 +4240,7 @@
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
+      ejbthree1504,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
@@ -5247,6 +5260,27 @@
       </antcall>
 
       <server:stop name="statefulproxyfactoryoverride" />
+   </target>
+  
+   <target name="ejbthree1504-test" depends="init">
+      <delete dir="${jboss.dist}/server/ejbthree1504" failonerror="false"/>
+     
+      <create-config baseconf="all" newconf="ejbthree1504">
+         <patternset>
+            <include name="conf/**"/>
+            <include name="deploy*/**"/>
+            <include name="lib/**"/>
+          <include name="deployers/**"/>
+         </patternset>
+      </create-config>
+          
+      <server:start name="ejbthree1504"/>
+
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1504"/>
+      </antcall>
+
+      <server:stop name="ejbthree1504" />
    </target>
 
    <target name="ssl-simple-test" depends="init">

@@ -24,13 +24,14 @@ package org.jboss.injection;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.mx.util.MBeanProxyExt;
+import org.jboss.mx.util.MBeanServerLocator;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
+ * @author <a href="mailto:galder.zamarreno@jboss.com">Galder Zamarreno</a>
  * @version $Revision$
  */
 public class DependsMethodInjector implements Injector
@@ -62,7 +63,7 @@ public class DependsMethodInjector implements Injector
       }
       else
       {
-         MBeanServer server = (MBeanServer) MBeanServerFactory.findMBeanServer(null).get(0);
+         MBeanServer server = MBeanServerLocator.locateJBoss();
          value = MBeanProxyExt.create(clazz, on, server);
       }
 
