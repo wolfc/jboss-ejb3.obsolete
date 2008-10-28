@@ -42,6 +42,7 @@ public class CommonInterceptor
    public void preDestroy(InvocationContext ctx) throws Exception
    {
       log.debug("preDestroy " + ctx);
+      InterceptorChain.add(getClass());
       preDestroys++;
       ctx.proceed();
    }
@@ -51,6 +52,7 @@ public class CommonInterceptor
       log.debug("postConstruct " + ctx);
       if(ctx.getTarget() == null)
          throw new IllegalStateException("target is null");
+      InterceptorChain.add(getClass());
       postConstructs++;
       ctx.proceed();
    }
@@ -58,6 +60,7 @@ public class CommonInterceptor
    public Object aroundInvoke(InvocationContext ctx) throws Exception
    {
       log.debug("aroundInvoke " + ctx);
+      InterceptorChain.add(getClass());
       aroundInvokes++;
       return ctx.proceed();
    }

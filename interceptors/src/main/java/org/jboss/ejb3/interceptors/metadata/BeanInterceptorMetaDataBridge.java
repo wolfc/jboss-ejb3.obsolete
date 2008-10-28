@@ -83,8 +83,8 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    private ExcludeDefaultInterceptors excludeDefaultInterceptors;
    
    //Method-level things
-   private Map<DeclaredMethodSignature, Interceptors> methodInterceptors = new HashMap<DeclaredMethodSignature, Interceptors>(); 
-   private Map<DeclaredMethodSignature, InterceptorOrder> methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrder>();
+   private Map<DeclaredMethodSignature, InterceptorsImpl> methodInterceptors = new HashMap<DeclaredMethodSignature, InterceptorsImpl>(); 
+   private Map<DeclaredMethodSignature, InterceptorOrderImpl> methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrderImpl>();
    private Map<DeclaredMethodSignature, ExcludeDefaultInterceptors> methodExcludeDefaultInterceptors = new HashMap<DeclaredMethodSignature, ExcludeDefaultInterceptors>();
    private Map<DeclaredMethodSignature, ExcludeClassInterceptors> methodExcludeClassInterceptors = new HashMap<DeclaredMethodSignature, ExcludeClassInterceptors>();
    
@@ -367,7 +367,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    {
       if (bindings != null && bindings.size() > 0)
       {
-         this.methodInterceptors = new HashMap<DeclaredMethodSignature, Interceptors>();
+         this.methodInterceptors = new HashMap<DeclaredMethodSignature, InterceptorsImpl>();
          for (InterceptorBindingMetaData binding : bindings)
          {
             NamedMethodMetaData method = binding.getMethod();
@@ -380,7 +380,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             {
                if(!matches(refMethod, method))
                   continue;
-               InterceptorsImpl interceptors = (InterceptorsImpl)methodInterceptors.get(refMethod);
+               InterceptorsImpl interceptors = methodInterceptors.get(refMethod);
                if (interceptors == null)
                {
                   interceptors = new InterceptorsImpl();
@@ -397,7 +397,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    {
       if (bindings != null && bindings.size() > 0)
       {
-         this.methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrder>();
+         this.methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrderImpl>();
          for (InterceptorBindingMetaData binding : bindings)
          {
             NamedMethodMetaData method = binding.getMethod();
@@ -410,7 +410,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
             {
                if(!matches(refMethod, method))
                   continue;
-               InterceptorOrderImpl interceptors = (InterceptorOrderImpl)methodInterceptors.get(refMethod);
+               InterceptorOrderImpl interceptors = methodInterceptorOrders.get(refMethod);
                if (interceptors == null)
                {
                   interceptors = new InterceptorOrderImpl();
