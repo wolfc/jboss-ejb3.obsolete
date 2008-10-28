@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar xmlns="http://java.sun.com/xml/ns/javaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+   version="3.0">
+   <display-name>EJBTHREE-1542</display-name>
+   <!-- We don't merge annotation with metadata, so defining bean here also -->
+   <enterprise-beans>
+      <session>
+         <ejb-name>OrderedSLSB</ejb-name>
+      </session>
+   </enterprise-beans>
+   <!-- Only needed for common interceptor -->
+   <interceptors>
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.common.CommonInterceptor</interceptor-class>
+         <around-invoke>
+            <method-name>aroundInvoke</method-name>
+         </around-invoke>
+         <post-construct>
+            <lifecycle-callback-method>postConstruct</lifecycle-callback-method>
+         </post-construct>
+         <pre-destroy>
+            <lifecycle-callback-method>preDestroy</lifecycle-callback-method>
+         </pre-destroy>
+      </interceptor>
+   </interceptors>
+   <assembly-descriptor>
+      <!-- Add a common interceptor -->
+      <interceptor-binding>
+         <ejb-name>*</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.common.CommonInterceptor</interceptor-class>
+      </interceptor-binding>
+      <!-- Override the annotated method interceptor, so methodInterceptors gets filled -->
+      <!-- This is not in ejb3-testsuite, but when running in AS it's a result of annotation metadata view -->
+      <interceptor-binding>
+         <ejb-name>OrderedSLSB</ejb-name>
+         <interceptor-class>org.jboss.ejb3.test.interceptors.ejbthree1542.XMLMethodInterceptor</interceptor-class>
+         <method>
+            <method-name>overLoadedMethod</method-name>
+            <method-params>
+               <method-param>java.lang.String</method-param>
+            </method-params>
+         </method>
+      </interceptor-binding>
+      <!-- Change the order which results in the CCE -->
+      <interceptor-binding>
+         <ejb-name>OrderedSLSB</ejb-name>
+         <interceptor-order>
+            <interceptor-class>org.jboss.ejb3.test.interceptors.ejbthree1542.XMLMethodInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors.common.CommonInterceptor</interceptor-class>
+         </interceptor-order>
+         <method>
+            <method-name>overLoadedMethod</method-name>
+            <method-params>
+               <method-param>java.lang.String</method-param>
+            </method-params>
+         </method>
+      </interceptor-binding>
+   </assembly-descriptor>
+</ejb-jar>
