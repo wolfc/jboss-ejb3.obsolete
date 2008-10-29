@@ -31,11 +31,13 @@ import junit.framework.Test;
 
 import org.jboss.ejb3.mdb.ProducerManager;
 import org.jboss.ejb3.mdb.ProducerObject;
+import org.jboss.ejb3.test.common.EJB3TestCase;
+import org.jboss.ejb3.test.interceptors2.AnnotatedClassInterceptor;
 import org.jboss.ejb3.test.interceptors2.AnnotatedClassInterceptor3;
+import org.jboss.ejb3.test.interceptors2.AnnotatedMethodInterceptor;
 import org.jboss.ejb3.test.interceptors2.AnnotatedMethodInterceptor4;
 import org.jboss.ejb3.test.interceptors2.AnnotatedOnlySLSB;
 import org.jboss.ejb3.test.interceptors2.AnnotatedOnlySLSBRemote;
-import org.jboss.ejb3.test.interceptors2.AnnotatedClassInterceptor;
 import org.jboss.ejb3.test.interceptors2.DefaultInterceptor;
 import org.jboss.ejb3.test.interceptors2.DefaultOnlyProducer;
 import org.jboss.ejb3.test.interceptors2.DefaultOnlySLSBRemote;
@@ -43,7 +45,6 @@ import org.jboss.ejb3.test.interceptors2.DefaultOnlyServiceRemote;
 import org.jboss.ejb3.test.interceptors2.InheritingSFSB;
 import org.jboss.ejb3.test.interceptors2.InheritingSFSBRemote;
 import org.jboss.ejb3.test.interceptors2.Interception;
-import org.jboss.ejb3.test.interceptors2.AnnotatedMethodInterceptor;
 import org.jboss.ejb3.test.interceptors2.MethodOnlyInterceptedSLSBRemote;
 import org.jboss.ejb3.test.interceptors2.MixedClassInterceptor;
 import org.jboss.ejb3.test.interceptors2.MixedConfigSFSB;
@@ -60,15 +61,13 @@ import org.jboss.ejb3.test.interceptors2.XMLClassInterceptor3;
 import org.jboss.ejb3.test.interceptors2.XMLMethodInterceptor;
 import org.jboss.ejb3.test.interceptors2.XMLOnlySLSB;
 import org.jboss.ejb3.test.interceptors2.XMLOnlySLSBRemote;
-import org.jboss.test.JBossTestCase;
 
 /**
  * 
  * @author <a href="kabir.khan@jboss.com">Kabir Khan</a>
  * @version $Revision$
  */
-public class InterceptorsTestCase
-extends JBossTestCase
+public class InterceptorsTestCase extends EJB3TestCase
 {
    org.jboss.logging.Logger log = getLog();
 
