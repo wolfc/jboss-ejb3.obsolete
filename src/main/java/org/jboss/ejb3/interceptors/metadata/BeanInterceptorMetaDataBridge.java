@@ -25,6 +25,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +62,7 @@ import org.jboss.metadata.ejb.spec.AroundInvokesMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorBindingsMetaData;
 import org.jboss.metadata.ejb.spec.InterceptorClassesMetaData;
+import org.jboss.metadata.ejb.spec.MethodParametersMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.metadata.spi.signature.DeclaredMethodSignature;
 import org.jboss.metadata.spi.signature.Signature;
@@ -74,6 +77,29 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
 {
    private static final Logger log = Logger.getLogger(BeanInterceptorMetaDataBridge.class);
 
+   private static Comparator<InterceptorBindingMetaData> mostSpecificFirst = new Comparator<InterceptorBindingMetaData>() {
+      public int compare(InterceptorBindingMetaData o1, InterceptorBindingMetaData o2)
+      {
+         return score(o2) - score(o1);
+      }
+      
+      private int score(InterceptorBindingMetaData binding)
+      {
+         int s = 0;
+         NamedMethodMetaData method = binding.getMethod();
+         if(method != null)
+         {
+            s++;
+            MethodParametersMetaData params = binding.getMethod().getMethodParams();
+            if(params != null)
+            {
+               s += 1 + params.size();
+            }
+         }
+         return s;
+      }
+   };
+   
    private volatile boolean initialisedBean;
    
    //Class level stuff
@@ -112,6 +138,29 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       initialise();
    }
 
+   /**
+    * Find the best/first matching binding for the specified method.
+    * 
+    * @param bindings sorted bindings
+    * @param refMethod
+    * @return the binding or null
+    */
+   private static InterceptorBindingMetaData findBestMatch(List<InterceptorBindingMetaData> bindings, DeclaredMethodSignature refMethod)
+   {
+      for (InterceptorBindingMetaData binding : bindings)
+      {
+         NamedMethodMetaData method = binding.getMethod();
+
+         // TODO: this is weird, it should have been caught earlier (invalid xml)
+         if(method.getMethodName() == null)
+            continue;
+         
+         if(matches(refMethod, method))
+            return binding;
+      }
+      return null;
+   }
+   
    protected Class<?> getBeanClass()
    {
       return beanClass;
@@ -397,19 +446,15 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
    {
       if (bindings != null && bindings.size() > 0)
       {
+         Collections.sort(bindings, mostSpecificFirst);
+         
          this.methodInterceptorOrders = new HashMap<DeclaredMethodSignature, InterceptorOrderImpl>();
-         for (InterceptorBindingMetaData binding : bindings)
+         for(DeclaredMethodSignature refMethod : methods)
          {
-            NamedMethodMetaData method = binding.getMethod();
-
-            // TODO: this is weird, it should have been caught earlier (invalid xml)
-            if(method.getMethodName() == null)
-               continue;
-            
-            for (DeclaredMethodSignature refMethod : methods)
+            // find the best matching interceptor-order
+            InterceptorBindingMetaData binding = findBestMatch(bindings, refMethod);
+            if(binding != null)
             {
-               if(!matches(refMethod, method))
-                  continue;
                InterceptorOrderImpl interceptors = methodInterceptorOrders.get(refMethod);
                if (interceptors == null)
                {
@@ -418,7 +463,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
                }
                add(interceptors, classLoader, binding);
             }
-         }
+         }         
       }
    }
    
@@ -500,13 +545,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       if(!signature.getName().equals(method.getMethodName()))
          return false;
       if(method.getMethodParams() == null)
-      {
-         if(signature.getParameters() == null || signature.getParameters().length == 0)
-            return true;
-         else
-            return false;
-               
-      }
+         return true;
       return Arrays.equals(signature.getParameters(), method.getMethodParams().toArray());
    }
    
