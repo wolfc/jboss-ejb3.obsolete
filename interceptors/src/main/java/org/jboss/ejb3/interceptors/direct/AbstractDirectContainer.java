@@ -126,7 +126,16 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
    @SuppressWarnings("unchecked")
    public <R> R invoke(BeanContext<T> target, String methodName, Object ... args) throws Throwable
    {
-      Method method = ClassHelper.getMethod(target.getInstance().getClass(), methodName);
+      Method method;
+      if(args != null)
+      {
+         Class<?> params[] = new Class<?>[args.length];
+         for(int i = 0; i < params.length; i++)
+            params[i] = args[i].getClass();
+         method = ClassHelper.getMethod(target.getInstance().getClass(), methodName, params);
+      }
+      else
+         method = ClassHelper.getMethod(target.getInstance().getClass(), methodName);
       return (R) invoke(target, method, args);
    }
    

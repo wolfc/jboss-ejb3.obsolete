@@ -24,6 +24,7 @@ package org.jboss.ejb3.interceptors.lang;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,40 @@ import java.util.Map;
  */
 public class ClassHelper
 {
+   private static Map<Class<?>, Class<?>> primitiveWrapperMap = new HashMap<Class<?>, Class<?>>();
+   static
+   {
+      primitiveWrapperMap.put(Boolean.TYPE, Boolean.class);
+      primitiveWrapperMap.put(Byte.TYPE, Byte.class);
+      primitiveWrapperMap.put(Character.TYPE, Character.class);
+      primitiveWrapperMap.put(Short.TYPE, Short.class);
+      primitiveWrapperMap.put(Integer.TYPE, Integer.class);
+      primitiveWrapperMap.put(Long.TYPE, Long.class);
+      primitiveWrapperMap.put(Double.TYPE, Double.class);
+      primitiveWrapperMap.put(Float.TYPE, Float.class);
+      primitiveWrapperMap.put(Void.TYPE, Void.TYPE);
+   }
+
+   private static boolean checkParameters(Class<?> parameterTypes[], Class<?> methodParameterTypes[])
+   {
+      if(parameterTypes.length != methodParameterTypes.length)
+         return false;
+      for(int i = 0; i < parameterTypes.length; i++)
+      {
+         Class<?> methodParameterType = methodParameterTypes[i];
+         if(methodParameterType.isPrimitive())
+            methodParameterType = primitiveWrapperMap.get(methodParameterType);
+         Class<?> parameterType = parameterTypes[i];
+         if(parameterType.isPrimitive())
+            parameterType = primitiveWrapperMap.get(parameterType);
+         if(!methodParameterType.isAssignableFrom(parameterType))
+         {
+            return false;
+         }
+      }
+      return true;
+   }
+   
    /**
     * Returns all public, private and package protected methods including
     * inherited ones.
@@ -101,13 +136,27 @@ public class ClassHelper
       Method m = getDeclaredMethod(cls, methodName, params);
       if (m == null)
       {
-         throw new NoSuchMethodException("No method named " + methodName + " in " + cls + " (or super classes)");
+         throw new NoSuchMethodException("No method named " + methodName + "(" + (params != null ? Arrays.toString(params) : "") + ") in " + cls + " (or super classes)");
       }
       return m;
    }
    
    private static Method getDeclaredMethod(Class<?> cls, String methodName, Class<?> ... params)
    {
+      Method methods[] = cls.getDeclaredMethods();
+      for(Method method : methods)
+      {
+         if(method.getName().equals(methodName))
+         {
+            if(params == null)
+               return method;
+            Class<?> methodParameterTypes[] = method.getParameterTypes();
+            if(params.length != methodParameterTypes.length)
+               continue;
+            if(checkParameters(params, methodParameterTypes))
+               return method;
+         }
+      }
      try
       {
          return cls.getDeclaredMethod(methodName, params);
