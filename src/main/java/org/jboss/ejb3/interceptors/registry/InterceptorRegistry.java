@@ -184,7 +184,13 @@ public class InterceptorRegistry
          {
             List<Class<?>> orderedInterceptorClasses = Arrays.asList(order.value());
             if(!orderedInterceptorClasses.containsAll(methodApplicableInterceptorClasses))
-               throw new IllegalStateException("EJB3 12.8.2 footnote 59: all applicable method interceptors must be listed in the interceptor order");
+            {
+               log.debug("applicable interceptors: " + methodApplicableInterceptorClasses);
+               log.debug("interceptor order: " + orderedInterceptorClasses);
+               List<Class<?>> subset = new ArrayList<Class<?>>(methodApplicableInterceptorClasses);
+               subset.removeAll(orderedInterceptorClasses);
+               throw new IllegalStateException("EJB3 12.8.2 footnote 59: all applicable method interceptors must be listed in the interceptor order for bean " + advisor.getName() + " method " + beanMethod + ", missing " + subset);
+            }
             methodApplicableInterceptorClasses = orderedInterceptorClasses;
          }
          applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
