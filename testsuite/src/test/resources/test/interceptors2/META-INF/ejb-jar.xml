@@ -275,9 +275,14 @@
       </interceptor-binding>
       <interceptor-binding>
          <ejb-name>OrderedSLSB</ejb-name>
+         <!-- Not specifying all interceptors is no longer accepted (EJB3.0 12.8.2 footnote 59) -->
          <interceptor-order>
-	         <interceptor-class>org.jboss.ejb3.test.interceptors2.XMLClassInterceptor3</interceptor-class>
-	         <interceptor-class>org.jboss.ejb3.test.interceptors2.AnnotatedMethodInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.XMLClassInterceptor3</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.AnnotatedMethodInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.AnnotatedClassInterceptor3</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.DefaultInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.XMLMethodInterceptor</interceptor-class>
+            <interceptor-class>org.jboss.ejb3.test.interceptors2.MixedMethodInterceptor</interceptor-class>
          </interceptor-order>
          <method>
            <method-name>methodNotSpecifyingAll</method-name>
