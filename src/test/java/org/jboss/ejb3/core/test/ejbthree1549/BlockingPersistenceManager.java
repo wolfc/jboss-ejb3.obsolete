@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1549;
 
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -47,9 +49,19 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
    private static final Logger log = Logger.getLogger(BlockingPersistenceManager.class);
 
    /**
-    * Publicly-accessible lock to allow tests to block passivation
+    * Publicly-accessible lock
+    * 
+    * Used by the test to block the act of passivation
     */
-   public static final Lock LOCK = new ReentrantLock();
+   public static final Lock PASSIVATION_LOCK = new ReentrantLock();
+
+   /**
+    * Publicly-accessible barrier
+    * 
+    * Will block until both the test and the PM agree that passivation 
+    * should take place
+    */
+   public static final CyclicBarrier BARRIER = new CyclicBarrier(2);
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
@@ -58,21 +70,46 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
    @Override
    public void passivateSession(StatefulBeanContext ctx)
    {
-      // Block until the lock may be acquired, 
-      // may currently be held by the test Thread
-      LOCK.lock();
 
       try
       {
-         // Mock Passivate
-         log.info("Mock Passivation on " + ctx);
+         /*
+          * Block until the lock may be acquired,
+          * may currently be held by the test Thread until the test is ready.
+          * So here both the test and passivation will block until this barrier
+          * is agreed by both Threads to be released
+          */
+         log.info("Waiting until the test is ready for passivation to start...");
+         BARRIER.await();
+
+         // Block until the test releases this lock
+         log.info("Blocking until the test tells us that the act of passivation may continue...");
+         PASSIVATION_LOCK.lock();
+
+         try
+         {
+            // Mock Passivate
+            log.info("Mock Passivation on " + ctx);
+         }
+         finally
+         {
+            // Release the passivation lock
+            log.info("We're done with passivation, letting the lock go.");
+            PASSIVATION_LOCK.unlock();
+         }
+      }
+      catch (InterruptedException e)
+      {
+         throw new RuntimeException("Barrier was interrupted prematurely", e);
+      }
+      catch (BrokenBarrierException e)
+      {
+         throw new RuntimeException("Barrier was broken prematurely", e);
       }
       finally
       {
-         // Release the lock
-         LOCK.unlock();
+         // Reset the Barrier
+         BARRIER.reset();
       }
-
    }
-
 }

@@ -22,8 +22,11 @@
 package org.jboss.ejb3.core.test.ejbthree1549;
 
 import java.io.Serializable;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 import org.jboss.ejb3.cache.simple.SimpleStatefulCache;
+import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,7 +46,16 @@ public class ForcePassivationCache extends SimpleStatefulCache
 
    private static final Logger log = Logger.getLogger(ForcePassivationCache.class);
 
-   private static final Object PASSIVATION_LOCK = new Object();
+   /**
+    * Shared barrier between the Cache and the test so that 
+    * the test may block until passivation is completed
+    */
+   public static final CyclicBarrier POST_PASSIVATE_BARRIER = new CyclicBarrier(2);
+
+   /**
+    * Internal lock used to manually block the passivation task from running
+    */
+   private static final Object START_PASSIVATION_LOCK = new Object();
 
    // --------------------------------------------------------------------------------||
    // Functional Methods -------------------------------------------------------------||
@@ -56,11 +68,40 @@ public class ForcePassivationCache extends SimpleStatefulCache
    {
       // Get a lock
       log.info("Awaiting lock to force passivation");
-      synchronized (PASSIVATION_LOCK)
+      synchronized (START_PASSIVATION_LOCK)
       {
          // Notify that passivation should run
          log.info("Notifying passivation via manual force...");
-         PASSIVATION_LOCK.notify();
+         START_PASSIVATION_LOCK.notify();
+      }
+   }
+
+   /**
+    * Manually sets the session with the specified sessionId
+    * past expiry for passivation
+    * 
+    * @param sessionId
+    */
+   public void makeSessionEligibleForPassivation(Serializable sessionId)
+   {
+      // Get the cacheMap
+      CacheMap cm = this.cacheMap;
+
+      // Synchronize on it
+      synchronized (cm)
+      {
+         // Find the session
+         StatefulBeanContext session = (StatefulBeanContext) cm.get(sessionId);
+
+         // Synchronize on the session
+         synchronized (session)
+         {
+            // Get now
+            long now = System.currentTimeMillis();
+
+            // Manually set past expiry
+            session.lastUsed = (now - (sessionTimeout * 1000)) - 1;
+         }
       }
    }
 
@@ -76,9 +117,9 @@ public class ForcePassivationCache extends SimpleStatefulCache
    {
       // Get the cacheMap
       CacheMap cm = this.cacheMap;
-      
+
       // Synchronize on it
-      synchronized(cm)
+      synchronized (cm)
       {
          // Return whether the specified key was found
          return cm.containsKey(sessionId);
@@ -112,23 +153,53 @@ public class ForcePassivationCache extends SimpleStatefulCache
     */
    private class BlockingPassivationTask extends SessionTimeoutTask
    {
+
       public BlockingPassivationTask(String name)
       {
          super(name);
       }
 
+      @Override
       public void block() throws InterruptedException
       {
          // Get a lock on our monitor
-         synchronized (PASSIVATION_LOCK)
+         synchronized (START_PASSIVATION_LOCK)
          {
             // Wait until we're signaled
             log.info("Waiting to be notified to run passivation...");
-            PASSIVATION_LOCK.wait();
+            START_PASSIVATION_LOCK.wait();
          }
 
          // Log that we've been notified
          log.info("Notified to run passivation");
+      }
+
+      @Override
+      public void passivationCompleted()
+      {
+         // Call super
+         super.passivationCompleted();
+
+         // Tell the barrier we've arrived
+         try
+         {
+            log.info("Waiting on the post-passivate barrier...");
+            POST_PASSIVATE_BARRIER.await();
+         }
+         catch (InterruptedException e)
+         {
+            throw new RuntimeException("Post Passivate prematurely interrupted", e);
+         }
+         catch (BrokenBarrierException e)
+         {
+            throw new RuntimeException("Post Passivate prematurely broken", e);
+         }
+         finally
+         {
+            // Reset the barrier
+            log.info("Post-passivate of PM is done, resetting the barrier");
+            POST_PASSIVATE_BARRIER.reset();
+         }
       }
    }
 
