@@ -1,0 +1,10 @@
+<aop xmlns="urn:jboss:aop-beans:1.0">
+   <interceptor class="org.jboss.ejb3.test.ejbthree1023.TestInterceptor"/>
+   
+   <bind pointcut="execution(* org.jboss.ejb3.test.ejbthree1023.AnnotatedLocalBean->woven())">
+      <interceptor-ref name="org.jboss.ejb3.test.ejbthree1023.TestInterceptor"/>
+   </bind>
+   <bind pointcut="execution(* org.jboss.ejb3.test.ejbthree1023.DefaultLocalBean->woven())">
+      <interceptor-ref name="org.jboss.ejb3.test.ejbthree1023.TestInterceptor"/>
+   </bind>
+</aop>

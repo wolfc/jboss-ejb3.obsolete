@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <description>jBoss test application </description>
+   <display-name>Test</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>StatefulBean</ejb-name>
+         <home>org.jboss.ejb3.test.stateful.StatefulHome</home>
+         <ejb-class>org.jboss.ejb3.test.stateful.StatefulBean</ejb-class>
+         <remove-method>
+            <bean-method>
+               <method-name>remove</method-name>
+            </bean-method>
+            <retain-if-exception>false</retain-if-exception>
+         </remove-method>
+      </session>
+      <!-- 
+      
+      There's no EJB with name CustomRemoveBean ?
+      
+      <session>
+         <ejb-name>CustomRemoveBean</ejb-name>
+         <remove-method>
+            <bean-method>
+               <method-name>destroy</method-name>
+            </bean-method>
+            <retain-if-exception>false</retain-if-exception>
+         </remove-method>
+      </session>  -->
+      <session>
+         <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
+         <remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</remote>
+         <ejb-class>org.jboss.ejb3.test.stateful.ConcurrentStatefulBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+      <session>
+         <ejb-name>StatefulTimeoutBean2</ejb-name>
+         <ejb-class>org.jboss.ejb3.test.stateful.StatefulTimeoutBean</ejb-class>
+         <session-type>Stateful</session-type>
+      </session>
+      <session>
+         <ejb-name>StatefulClusteredTimeoutBean2</ejb-name>
+         <ejb-class>org.jboss.ejb3.test.stateful.StatefulClusteredTimeoutBean</ejb-class>
+         <session-type>Stateful</session-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

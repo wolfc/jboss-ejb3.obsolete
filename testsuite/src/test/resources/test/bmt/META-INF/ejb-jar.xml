@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <description>jBoss test application</description>
+   <display-name>Test</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>DeploymentDescriptorTester</ejb-name>
+         <remote>org.jboss.ejb3.test.bmt.DeploymentDescriptorTesterRemote</remote>
+         <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorTesterBean</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Container</transaction-type>
+      </session>
+      <session>
+         <ejb-name>DeploymentDescriptorStateless</ejb-name>
+		 <local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatelessLocal</local>
+         <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatelessBean</ejb-class>
+         <session-type>Stateless</session-type>
+         <transaction-type>Bean</transaction-type>
+      </session>
+      <session>
+         <ejb-name>DeploymentDescriptorStateful</ejb-name>
+         <local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatefulLocal</local>
+         <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatefulBean</ejb-class>
+         <session-type>Stateful</session-type>
+         <transaction-type>Bean</transaction-type>
+      </session>
+   </enterprise-beans>
+</ejb-jar>

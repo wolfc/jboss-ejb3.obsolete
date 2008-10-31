@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop xmlns="urn:jboss:aop-beans:1.0">
+   <interceptor class="org.jboss.ejb3.test.aspectdomain.TestInterceptor" scope="PER_VM"/>
+
+   <domain name="Test Aspect Domain">
+      <bind pointcut="execution(* *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.test.aspectdomain.TestInterceptor"/>
+      </bind>
+   </domain>
+</aop>

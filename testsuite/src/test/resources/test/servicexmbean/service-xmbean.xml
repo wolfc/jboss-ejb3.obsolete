@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mbean PUBLIC
+        "-//JBoss//DTD JBOSS XMBEAN 1.0//EN"
+        "http://www.jboss.org/j2ee/dtd/jboss_xmbean_1_0.dtd">
+<mbean>
+
+    <description>EJB3 Service XMBean Example</description>
+    
+    <class>org.jboss.ejb3.test.servicexmbean.ServiceOne</class>
+   
+    <!-- Constructors -->
+    <constructor>
+        <description>The default constructor</description>
+        <name>ServiceOne</name>
+    </constructor>
+
+    <!-- Attributes -->
+    
+    <attribute access="read-write" getMethod="getStringAttribute" setMethod="setStringAttribute">
+        <description>Test attribute</description>
+        <name>StringAttribute</name>
+        <type>java.lang.String</type>
+    </attribute>
+
+    <!-- Operations -->
+    <operation>
+        <description>Resets</description>
+        <name>testOperation</name>
+        <return-type>java.lang.Void</return-type>
+    </operation>
+</mbean>
+
