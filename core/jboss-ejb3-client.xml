@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<assembly xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.0.0.xsd"
+>
+  <id>client</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>target/classes</directory>
+      <outputDirectory></outputDirectory>
+      <includes>
+        <include>org/jboss/ejb3/EJB3Util.class</include>
+        <include>org/jboss/ejb3/JndiUtil.class</include>
+        <include>org/jboss/ejb3/Ejb3Registry.class</include>
+        <include>org/jboss/ejb3/InitialContextFactory.class</include>
+        <include>org/jboss/ejb3/asynchronous/*</include>
+        <include>org/jboss/ejb3/interceptor/ClientInterceptorUtil.class</include>
+        <include>org/jboss/ejb3/mdb/ConsumerManager.class</include>
+        <include>org/jboss/ejb3/mdb/Producer*.class</include>
+        <include>org/jboss/ejb3/remoting/ClusteredIsLocalInterceptor.*</include>
+        <include>org/jboss/ejb3/remoting/IsLocalInterceptor.*</include>
+        <include>org/jboss/ejb3/remoting/IsLocalProxyFactoryInterceptor.*</include>
+        <include>org/jboss/ejb3/stateful/ForwardId.class</include>
+        <include>org/jboss/ejb3/stateful/StatefulRemoteInvocation.class</include>
+        <include>org/jboss/ejb3/ProxyUtils.class</include>
+        <include>org/jboss/ejb3/**/*Proxy.class</include>
+        <include>org/jboss/ejb3/**/*InvocationHandler.class</include>
+        <include>org/jboss/ejb3/**/*Handle*Impl.class</include>
+        <include>org/jboss/ejb3/**/*HandleImpl.class</include>
+        <include>org/jboss/ejb3/*Container.class</include>
+        <include>org/jboss/ejb3/session/SessionContainer.class</include>
+        <include>org/jboss/ejb3/**/*ProxyFactory.class</include>
+        <include>org/jboss/ejb3/proxy/**/*.class</include>
+        <include>org/jboss/ejb3/*ServiceServer*.class</include>
+        <include>org/jboss/ejb3/*KernelAbstraction*.class</include>
+        <include>org/jboss/ejb3/statistics/*.class</include>
+        <include>org/jboss/ejb3/javaee/*.class</include>
+
+        <!-- EJBTHREE-485: include>java assist proxy stuff -->
+        <include>org/jboss/ejb3/stateless/Javassist*.class</include>
+
+        <!-- EJBTHREE-667: include>object factory -->
+        <include>org/jboss/ejb3/naming/client/**/*.class</include>
+        <include>org/jboss/ejb3/naming/BrainlessContext.class</include>
+
+        <!-- EJBTHREE-718: client container -->
+        <include>org/jboss/ejb3/client/**/*.class</include>
+        <include>org/jboss/ejb3/metamodel/**/*.class</include>
+        <include>org/jboss/injection/**/*.class</include>
+        <include>org/jboss/ejb3/ThreadLocalENCFactory.class</include>
+        
+        <!-- EJBTHREE-1531: EJB3 app-client launcher -->
+        <include>org/jboss/ejb3/DependencyPolicy.class</include>
+        <include>org/jboss/ejb3/entity/PersistenceUnitDeployment.class</include>
+        <include>org/jboss/ejb3/deployers/JBoss5DependencyPolicy.class</include>
+        <include>org/jboss/ejb3/MCDependencyPolicy.class</include>
+        
+      </includes>
+    </fileSet>
+
+  </fileSets>
+</assembly>

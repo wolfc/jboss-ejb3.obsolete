@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <bean name="DataSourceDependencyResolver" class="org.jboss.as.jpa.resolvers.JBossASDataSourceDependencyResolver"/>
+   
+   <bean name="JavaEEModuleInformer" class="org.jboss.as.javaee.SimpleJavaEEModuleInformer"/>
+   
+   <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DefaultPersistenceUnitDependencyResolver"/>
+   
+   <bean name="XPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
+   
+   <bean name="PersistenceParsingDeployer" class="org.jboss.jpa.deployers.PersistenceParsingDeployer"/>
+
+   <bean name="PersistenceDeployer" class="org.jboss.jpa.deployers.PersistenceDeployer"/>
+   <bean name="PersistenceUnitDeployer" class="org.jboss.jpa.deployers.PersistenceUnitDeployer">
+      <property name="defaultPersistenceProperties">
+         <map keyClass="java.lang.String" valueClass="java.lang.String">
+            <entry>
+               <key>hibernate.transaction.manager_lookup_class</key>
+               <value>org.hibernate.transaction.JBossTransactionManagerLookup</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+</deployment>

@@ -1,0 +1,610 @@
+<!--
+  vi:ts=2:sw=2:expandtab
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0-Beta5</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <artifactId>jboss-ejb3-core</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>JBoss EJB 3.0 Core</name>
+  <url>http://labs.jboss.com/jbossejb3</url>
+  <description>JBoss EJB 3.0 Core</description>
+
+  <repositories>
+    <!-- APIviz repository -->
+    <repository>
+      <id>apiviz.release</id>
+      <name>APIviz releases</name>
+      <url>http://apiviz.googlecode.com/svn/site/repo/mvn/release</url>
+      <releases>
+
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
+  <!-- Properties -->
+
+  <properties>
+    <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
+    <version.sun-jaxws>2.1.1</version.sun-jaxws>
+  </properties>
+
+  <!-- Build Information -->
+  <build>
+
+    <plugins>
+
+      <!-- Assembly Plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id><!-- this is used for inheritance merges -->
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- JBoss EJB3 Client JAR -->
+          <descriptors>
+            <descriptor>jboss-ejb3-client.xml</descriptor>
+          </descriptors>
+          <attach>true</attach>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+<!--
+        <executions>
+          <execution>
+            <id>attach-javadoc</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+-->
+        <configuration>
+          <doclet>net.gleamynode.apiviz.APIviz</doclet>
+          <docletArtifact>
+            <groupId>net.gleamynode.apiviz</groupId>
+            <artifactId>apiviz</artifactId>
+            <version>1.0.3</version>
+          </docletArtifact>
+<!--
+          <aggregate>true</aggregate>
+          <encoding>UTF-8</encoding>
+          <locale>en_US</locale>
+-->
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+  <!-- Dependencies -->
+
+  <dependencies>
+
+    <!-- Because AOP doesn't declare a proper dependency -->
+    <dependency>
+      <groupId>javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.7.1.GA</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.xml.soap</groupId>
+      <artifactId>saaj-api</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>jboss.jbossts</groupId>
+      <artifactId>jbossjta</artifactId>
+      <version>4.3.0.GA</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- To actually run SimpleTransactionService -->
+    <dependency>
+      <groupId>jboss.jbossts</groupId>
+      <artifactId>jbossts-common</artifactId>
+      <version>4.3.0.GA</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.2.6.ga</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-annotations</artifactId>
+      <version>3.3.1.GA</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+      <version>3.3.2.GA</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss.jbossws</groupId>
+          <artifactId>jboss-jaxws</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.javaee</groupId>
+          <artifactId>jboss-javaee</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.test</groupId>
+      <artifactId>jboss-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-server-manager</artifactId>
+      <scope>test</scope>      
+    </dependency>  
+      
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-transaction-spi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-vfs</artifactId>
+      <version>2.0.0.CR1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.naming</groupId>
+      <artifactId>jnpserver</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>        
+      </exclusions>      
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop-aspects</artifactId>
+    </dependency>
+    
+    <!-- used in the basicbootstrap-beans.xml -->
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop-deployer-jdk50</artifactId>
+      <version>2.0.0.CR10</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.cache</groupId>
+      <artifactId>jbosscache-core</artifactId>
+      <!-- not used anywhere else -->
+      <version>2.1.1.GA</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.javaee</groupId>
+          <artifactId>jboss-javaee</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-aspects-test</artifactId>
+      <version>1.0.0.Beta1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-remoting-aspects</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-client</artifactId>
+      <version>1.1.0.CR4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.aspects</groupId>
+          <artifactId>jboss-remoting-aspects</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>jboss.remoting</groupId>
+          <artifactId>jboss-remoting</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.aop</groupId>
+          <artifactId>jboss-aop</artifactId>            
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-server-api</artifactId>
+      <version>1.1.0.CR4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-common-core</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-core</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-pojo</artifactId>            
+        </exclusion>
+        <exclusion>
+          <groupId>jgroups</groupId>
+          <artifactId>jgroups</artifactId>            
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-async</artifactId>
+      <version>0.1.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-cache</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+
+    <dependency>
+    	<groupId>org.jboss.ejb3</groupId>
+    	<artifactId>jboss-ejb3-deployers</artifactId>
+    	<version>0.1.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-common</artifactId>
+      <version>1.0.0-Beta1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-security</artifactId>
+      <version>1.0.0-Beta1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api</artifactId>
+      <version>0.4</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-ext-api-impl</artifactId>
+      <version>0.4.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-interceptors</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-metadata</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy-clustered</artifactId>
+      <version>1.0.0-Beta1</version>
+    </dependency>
+   
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-test</artifactId>
+      <version>0.1.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-transactions</artifactId>
+      <version>0.13.6</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.embedded</groupId>
+      <artifactId>jboss-embedded</artifactId>
+      <version>beta3</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-core-spi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-ejb-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jacc-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jca-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jms-api</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-servlet-api</artifactId>
+    </dependency>
+    
+    <!-- those needs to be removed - EJBTHREE-1340 -->
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-main</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
+    </dependency>     
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-system</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-aop-mc-int</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-impl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-spi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-system-jmx</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>javassist</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-aop-mc-int</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-impl</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-spi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-mbeans</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-test</artifactId>
+        </exclusion>        
+      </exclusions>      
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-j2se</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-container</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <!-- this needs to be removed - EJBTHREE-1343 -->
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-server</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-remoting</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-metadata</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss.jbossas</groupId>
+          <artifactId>jboss-as-security</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss.ws.native</groupId>
+          <artifactId>jbossws-native-jaxws</artifactId>
+        </exclusion>
+      </exclusions>      
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.jpa</groupId>
+      <artifactId>jboss-jpa-deployers</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-core-spi</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-kernel</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jboss-security-spi</artifactId>
+      <version>2.0.2.CR5</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbosssx</artifactId>
+      <version>2.0.2.CR5</version>
+    </dependency>
+    
+     <dependency>
+      <groupId>org.jboss.ws</groupId>
+      <artifactId>jbossws-spi</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>quartz</groupId>
+      <artifactId>quartz</artifactId>
+      <version>1.6.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>sun-jaxws</groupId>
+      <artifactId>jaxws-api</artifactId>
+      <version>${version.sun-jaxws}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>sun-jaxws</groupId>
+      <artifactId>jsr181-api</artifactId>
+      <version>${version.sun-jaxws}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>trove</groupId>
+      <artifactId>trove</artifactId>
+    </dependency>
+    
+  </dependencies>
+</project>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- EJB3 Persistence Manager Factory Registry -->
+   <bean name="EJB3PersistenceManagerFactoryRegistry" class="org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- StatefulSessionFilePersistenceManager -->
+            <entry>
+               <key>StatefulSessionFilePersistenceManager</key>
+               <value>org.jboss.ejb3.cache.simple.StatefulSessionFilePersistenceManagerFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <!-- EJB3 Cache Factory Registry -->
+   <bean name="EJB3CacheFactoryRegistry" class="org.jboss.ejb3.cache.CacheFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- NoPassivationCache -->
+            <entry>
+               <key>NoPassivationCache</key>
+               <value>org.jboss.ejb3.cache.NoPassivationCacheFactory</value>
+            </entry>
+            <!-- SimpleStatefulCache -->
+            <entry>
+               <key>SimpleStatefulCache</key>
+               <value>org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory</value>
+            </entry>
+            <!-- StatefulTreeCache -->
+            <entry>
+               <key>StatefulTreeCache</key>
+               <value>org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <!-- SFSB JNDI Registrar -->
+   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
+      class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
+      <constructor>
+         <parameter>
+            org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
+         </parameter>
+      </constructor>
+      <depends>NamingServer</depends>
+   </bean>
+</deployment>
