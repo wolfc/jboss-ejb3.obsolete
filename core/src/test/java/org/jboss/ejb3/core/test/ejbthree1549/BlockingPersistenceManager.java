@@ -71,7 +71,7 @@ public class BlockingPersistenceManager implements StatefulSessionPersistenceMan
     */
    public static final CyclicBarrier BARRIER = new CyclicBarrier(2);
    
-   private Map<Object, MarshalledObject<StatefulBeanContext>> passivated = new ConcurrentHashMap<Object, MarshalledObject<StatefulBeanContext>>();
+   private Map<Object, MarshalledObject> passivated = new ConcurrentHashMap<Object, MarshalledObject>();
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
@@ -80,12 +80,12 @@ public class BlockingPersistenceManager implements StatefulSessionPersistenceMan
    public StatefulBeanContext activateSession(Object id)
    {
       log.info("Activating " + id);
-      MarshalledObject<StatefulBeanContext> o = passivated.remove(id);
+      MarshalledObject o = passivated.remove(id);
       if(o == null)
          throw new EJBException("Can't find bean " + id);
       try
       {
-         return o.get();
+         return (StatefulBeanContext)o.get();
       }
       catch (IOException e)
       {
@@ -134,7 +134,7 @@ public class BlockingPersistenceManager implements StatefulSessionPersistenceMan
          {
             // Mock Passivate
             log.info("Mock Passivation on " + ctx.getId());
-            passivated.put(ctx.getId(), new MarshalledObject<StatefulBeanContext>(ctx));
+            passivated.put(ctx.getId(), new MarshalledObject(ctx));
          }
          catch(IOException e)
          {
@@ -164,7 +164,7 @@ public class BlockingPersistenceManager implements StatefulSessionPersistenceMan
    
    public void removePassivated(Object id)
    {
-      MarshalledObject<StatefulBeanContext> o = passivated.remove(id);
+      MarshalledObject o = passivated.remove(id);
       if(o == null)
          throw new EJBException("Can't find bean " + id);
    }
