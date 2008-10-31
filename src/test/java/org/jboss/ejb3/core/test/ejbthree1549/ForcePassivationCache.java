@@ -56,6 +56,7 @@ public class ForcePassivationCache extends SimpleStatefulCache
     * Internal lock used to manually block the passivation task from running
     */
    private static final Object START_PASSIVATION_LOCK = new Object();
+   private static volatile boolean passivationForced = false;
 
    // --------------------------------------------------------------------------------||
    // Functional Methods -------------------------------------------------------------||
@@ -75,6 +76,7 @@ public class ForcePassivationCache extends SimpleStatefulCache
       log.info("Awaiting lock to force passivation");
       synchronized (START_PASSIVATION_LOCK)
       {
+         passivationForced = true;
          // Notify that passivation should run
          log.info("Notifying passivation via manual force...");
          START_PASSIVATION_LOCK.notify();
@@ -170,9 +172,13 @@ public class ForcePassivationCache extends SimpleStatefulCache
          // Get a lock on our monitor
          synchronized (START_PASSIVATION_LOCK)
          {
-            // Wait until we're signaled
-            log.info("Waiting to be notified to run passivation...");
-            START_PASSIVATION_LOCK.wait();
+            if(!passivationForced)
+            {
+               // Wait until we're signaled
+               log.info("Waiting to be notified to run passivation...");
+               START_PASSIVATION_LOCK.wait();
+            }
+            passivationForced = false;
          }
 
          // Log that we've been notified

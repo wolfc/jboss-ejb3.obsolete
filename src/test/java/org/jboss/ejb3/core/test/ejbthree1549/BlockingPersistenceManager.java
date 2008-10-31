@@ -21,12 +21,20 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1549;
 
+import java.io.IOException;
+import java.rmi.MarshalledObject;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jboss.ejb3.cache.simple.StatefulSessionFilePersistenceManager;
+import javax.ejb.EJBException;
+
+import org.jboss.ejb3.Container;
+import org.jboss.ejb3.cache.simple.StatefulSessionPersistenceManager;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 import org.jboss.logging.Logger;
 
@@ -40,7 +48,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class BlockingPersistenceManager extends StatefulSessionFilePersistenceManager
+public class BlockingPersistenceManager implements StatefulSessionPersistenceManager
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -62,12 +70,48 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
     * should take place
     */
    public static final CyclicBarrier BARRIER = new CyclicBarrier(2);
+   
+   private Map<Object, MarshalledObject<StatefulBeanContext>> passivated = new ConcurrentHashMap<Object, MarshalledObject<StatefulBeanContext>>();
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   @Override
+   public StatefulBeanContext activateSession(Object id)
+   {
+      log.info("Activating " + id);
+      MarshalledObject<StatefulBeanContext> o = passivated.remove(id);
+      if(o == null)
+         throw new EJBException("Can't find bean " + id);
+      try
+      {
+         return o.get();
+      }
+      catch (IOException e)
+      {
+         throw new EJBException(e);
+      }
+      catch (ClassNotFoundException e)
+      {
+         throw new EJBException(e);
+      }
+   }
+
+   public void destroy() throws Exception
+   {
+      passivated.clear();
+   }
+
+   public List<StatefulBeanContext> getPassivatedBeans()
+   {
+      // very stupid and slow, don't do this
+      throw new RuntimeException("NYI");
+   }
+
+   public void initialize(Container container) throws Exception
+   {
+   }
+   
    public void passivateSession(StatefulBeanContext ctx)
    {
 
@@ -90,6 +134,11 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
          {
             // Mock Passivate
             log.info("Mock Passivation on " + ctx.getId());
+            passivated.put(ctx.getId(), new MarshalledObject<StatefulBeanContext>(ctx));
+         }
+         catch(IOException e)
+         {
+            throw new EJBException(e);
          }
          finally
          {
@@ -112,4 +161,12 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
          BARRIER.reset();
       }
    }
+   
+   public void removePassivated(Object id)
+   {
+      MarshalledObject<StatefulBeanContext> o = passivated.remove(id);
+      if(o == null)
+         throw new EJBException("Can't find bean " + id);
+   }
+
 }

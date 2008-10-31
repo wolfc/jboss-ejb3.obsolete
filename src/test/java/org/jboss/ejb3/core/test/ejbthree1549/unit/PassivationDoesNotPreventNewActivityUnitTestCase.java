@@ -21,8 +21,8 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1549.unit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
@@ -143,16 +143,13 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       ForcePassivationCache.POST_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
       log.info("Test sees Cache reports passivation completed.");
       
-      try
-      {
-         next = result.get(5, TimeUnit.SECONDS);
-         log.info("Got counter from " + sessionId + ": " + next);
-         fail("bean was passivated during this call");
-      }
-      catch(Exception e)
-      {
-         // good
-      }
+      int duringPassivation = result.get(5, TimeUnit.SECONDS);
+      log.info("Got counter from " + sessionId + ": " + duringPassivation);
+      
+      int postPassivation = bean.getNextCounter();
+      log.info("Got counter from " + sessionId + ": " + postPassivation);
+      
+      assertEquals("the postPassivation counter should be 1 higher than the previous (during passivation)", duringPassivation + 1, postPassivation);
    }
    
    /**
