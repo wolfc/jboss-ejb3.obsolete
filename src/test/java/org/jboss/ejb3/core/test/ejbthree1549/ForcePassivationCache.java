@@ -61,6 +61,11 @@ public class ForcePassivationCache extends SimpleStatefulCache
    // Functional Methods -------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   public void clear()
+   {
+      cacheMap.clear();
+   }
+   
    /**
     * Triggers passivation to run
     */

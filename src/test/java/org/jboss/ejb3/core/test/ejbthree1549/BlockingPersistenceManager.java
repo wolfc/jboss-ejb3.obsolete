@@ -89,7 +89,7 @@ public class BlockingPersistenceManager extends StatefulSessionFilePersistenceMa
          try
          {
             // Mock Passivate
-            log.info("Mock Passivation on " + ctx);
+            log.info("Mock Passivation on " + ctx.getId());
          }
          finally
          {
