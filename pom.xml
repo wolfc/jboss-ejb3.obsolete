@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<!-- 
+  The parent maven for the ejb3 project
+
+  This pom aggregates the subproject pom
+  
+  To build this project maven 2 should be installed and in the system path.  From the command line
+  run "mvn" from the build directory and "install" will be used as the default goal.  In order to use 
+  the "deploy" goal, the mvn.cvs.root should be specified in settings.xml.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss</groupId>
+    <artifactId>jboss-parent</artifactId>
+    <version>3</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-parent</artifactId>
+  <version>0.11.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBoss EJB 3.0 Aggregator</name>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+  <description>
+    The JBoss EJB 3.0 Implementation
+  </description>
+
+  <!-- Aggregate Modules -->
+  <modules>
+    <module>api</module>
+    <module>build</module>
+    <module>common</module>
+    <module>core</module>
+    <module>cache</module>
+    <module>deployers</module>
+    <module>embedded</module>
+    <module>ext-api</module>
+    <module>ext-api-impl</module>
+    <module>injection</module>
+    <module>installer</module>
+    <module>interceptors</module>
+    <!-- <module>locator</module> -->
+    <module>metadata</module>
+    <module>plugin</module>
+    <module>pool</module>
+    <module>proxy</module>
+    <module>proxy-clustered</module>
+    <!-- module>sandbox</module -->
+    <module>security</module>
+    <module>test</module>
+    <module>transactions</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>eclipse</id>
+      <build>
+        <defaultGoal>process-test-resources</defaultGoal>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
