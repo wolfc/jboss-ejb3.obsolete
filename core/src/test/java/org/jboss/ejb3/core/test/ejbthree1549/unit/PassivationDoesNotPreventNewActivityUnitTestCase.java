@@ -39,7 +39,6 @@ import org.jboss.ejb3.core.test.ejbthree1549.ForcePassivationCacheFactory;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulBean;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulLocal;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulLocalProxyInvocationHandler;
-import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
@@ -61,7 +60,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static SessionContainer container;
+   private static StatefulContainer container;
 
    private static final Logger log = Logger.getLogger(PassivationDoesNotPreventNewActivityUnitTestCase.class);
 
@@ -197,8 +196,16 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       log.info("Got counter from bean1 : " + next);
       TestCase.assertEquals("SFSB did not return expected next counter", 0, next);
 
+      // Get our bean's Session ID
+      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
+            .getInvocationHandler(bean1);
+      Serializable sessionId = handler.getSessionId();
+
+      // Get the Cache
+      ForcePassivationCache cache = (ForcePassivationCache) container.getCache();
+
       // Get the lock to block the PM, now
-      boolean gotLock = BlockingPersistenceManager.LOCK.tryLock();
+      boolean gotLock = BlockingPersistenceManager.PASSIVATION_LOCK.tryLock();
 
       // Once PM lock is acquired, everything is in "try" so we release in "finally"
       try
@@ -207,16 +214,25 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
          TestCase.assertTrue("Test was not able to immediately get the lock to block the PersistenceManager", gotLock);
          log.info("Locked " + BlockingPersistenceManager.class.getSimpleName());
 
-         // Wait to allow bean to be eligible for passivation
-         long sleepTime = MyStatefulLocal.PASSIVATION_TIMEOUT * 1000 + 1000; // Add 1/2 a second to the configured passivation timeout
-         Thread.sleep(sleepTime);
+         /*
+          * Mark our session as expired
+          */
+
+         // Mark
+         cache.makeSessionEligibleForPassivation(sessionId);
+
+         /*
+          * Passivate
+          */
 
          // Trigger Passivation
          ForcePassivationCache.forcePassivation();
          log.info("Passivation forced, carrying out test");
 
-         // Wait to allow passivation to actually start
-         Thread.sleep(2000);
+         // Block until the PM is ready to passivate
+         log.info("Waiting on common barrier for PM to run...");
+         BlockingPersistenceManager.BARRIER.await();
+         log.info("PM and test have met barrier, passivation running (but will be blocked to complete by test)");
 
          /*
           * At this point, we've told the passivation Thread to start, and have 
@@ -259,23 +275,19 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       {
 
          // Allow the Persistence Manager to finish up
-         BlockingPersistenceManager.LOCK.unlock();
-         
-         // We need to allow time to let PM do its thing, so use the lock to block then release
-         Thread.sleep(150); // Just to make sure the PM gets the lock back first
-         BlockingPersistenceManager.LOCK.lock(); // Block until PM is done
-         BlockingPersistenceManager.LOCK.unlock(); // PM must be done, we don't really need the lock, release it
+         log.info("Letting the PM perform passivation...");
+         BlockingPersistenceManager.PASSIVATION_LOCK.unlock();
       }
-      
-      
+
+      // We need to allow time to let the Cache finish passivation, so block until it's done
+      log.info("Waiting on Cache to tell us passivation is completed...");
+      ForcePassivationCache.POST_PASSIVATE_BARRIER.await();
+      log.info("Test sees Cache reports passivation completed.");
+
       /*
        * Here we ensure that the session was removed from the internal cacheMap
        */
-      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
-            .getInvocationHandler(bean1);
-      Serializable sessionId = handler.getSessionId();
-      boolean beanIsInCache = ((ForcePassivationCache) ((StatefulContainer) container).getCache())
-            .doesCacheMapContainKey(sessionId);
+      boolean beanIsInCache = cache.doesCacheMapContainKey(sessionId);
       assertFalse("bean was not removed from cache", beanIsInCache);
 
       // Ensure we're good
@@ -339,7 +351,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       // Deploy the test SFSB
       Class<?> ejbImplClass = MyStatefulBean.class;
       log.info("Deploying SFSB: " + ejbImplClass.getName());
-      container = deploySessionEjb(ejbImplClass);
+      container = (StatefulContainer) deploySessionEjb(ejbImplClass);
    }
 
    @AfterClass
