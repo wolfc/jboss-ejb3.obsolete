@@ -114,9 +114,11 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
          ForcePassivationCache.forcePassivation();
          log.info("Passivation forced, carrying out test");
 
+         ForcePassivationCache.PRE_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+         
          // Block until the PM is ready to passivate
          log.info("Waiting on common barrier for PM to run...");
-         BlockingPersistenceManager.BARRIER.await();
+         BlockingPersistenceManager.BARRIER.await(5, TimeUnit.SECONDS);
          log.info("PM and test have met barrier, passivation running (but will be blocked to complete by test)");
          
          Callable<Integer> task = new Callable<Integer>() {
@@ -130,6 +132,87 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
          
          // TODO: there is no way to know where we are in StatefulInstanceInterceptor
          Thread.sleep(5000);   
+      }
+      finally
+      {
+         // Allow the Persistence Manager to finish up
+         log.info("Letting the PM perform passivation...");
+         BlockingPersistenceManager.PASSIVATION_LOCK.unlock();
+      }
+      
+      // We need to allow time to let the Cache finish passivation, so block until it's done
+      log.info("Waiting on Cache to tell us passivation is completed...");
+      ForcePassivationCache.POST_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+      log.info("Test sees Cache reports passivation completed.");
+      
+      int duringPassivation = result.get(5, TimeUnit.SECONDS);
+      log.info("Got counter from " + sessionId + ": " + duringPassivation);
+      
+      int postPassivation = bean.getNextCounter();
+      log.info("Got counter from " + sessionId + ": " + postPassivation);
+      
+      assertEquals("the postPassivation counter should be 1 higher than the previous (during passivation)", duringPassivation + 1, postPassivation);
+   }
+   
+   @Test
+   public void testInvokeSameSessionDuringPrePassivation() throws Throwable
+   {
+      final MyStatefulLocal bean = lookup(MyStatefulLocal.JNDI_NAME, MyStatefulLocal.class);
+      
+      // Get our bean's Session ID
+      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy.getInvocationHandler(bean);
+      Serializable sessionId = handler.getSessionId();
+
+      // Invoke upon our bean
+      int next = bean.getNextCounter();
+      log.info("Got counter from " + sessionId + ": " + next);
+      TestCase.assertEquals("SFSB did not return expected next counter", 0, next);
+
+      // Get the Cache
+      ForcePassivationCache cache = (ForcePassivationCache) container.getCache();
+
+      // Get the lock to block the PM, now
+      boolean gotLock = BlockingPersistenceManager.PASSIVATION_LOCK.tryLock();
+
+      Future<Integer> result;
+      // Once PM lock is acquired, everything is in "try" so we release in "finally"
+      try
+      {
+         // Ensure we got the PM lock, else fail the test
+         TestCase.assertTrue("Test was not able to immediately get the lock to block the PersistenceManager", gotLock);
+         log.info("Locked " + BlockingPersistenceManager.class.getSimpleName());
+         
+         // Mark
+         cache.makeSessionEligibleForPassivation(sessionId);
+
+         /*
+          * Passivate
+          */
+
+         // Trigger Passivation
+         ForcePassivationCache.forcePassivation();
+         log.info("Passivation forced, carrying out test");
+
+         Callable<Integer> task = new Callable<Integer>() {
+            public Integer call() throws Exception
+            {
+               return bean.getNextCounter();
+            }
+         };
+         ExecutorService executor = Executors.newFixedThreadPool(1);
+         result = executor.submit(task);
+         
+         // TODO: there is no way to know where we are in StatefulInstanceInterceptor
+         Thread.sleep(5000);
+         
+         ForcePassivationCache.PRE_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+         
+         // Block until the PM is ready to passivate
+         /* we're not passivating, we yanked it out
+         log.info("Waiting on common barrier for PM to run...");
+         BlockingPersistenceManager.BARRIER.await(5, TimeUnit.SECONDS);
+         log.info("PM and test have met barrier, passivation running (but will be blocked to complete by test)");
+         */
       }
       finally
       {
@@ -313,9 +396,11 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
          ForcePassivationCache.forcePassivation();
          log.info("Passivation forced, carrying out test");
 
+         ForcePassivationCache.PRE_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+         
          // Block until the PM is ready to passivate
          log.info("Waiting on common barrier for PM to run...");
-         BlockingPersistenceManager.BARRIER.await();
+         BlockingPersistenceManager.BARRIER.await(5, TimeUnit.SECONDS);
          log.info("PM and test have met barrier, passivation running (but will be blocked to complete by test)");
 
          /*
@@ -365,7 +450,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
 
       // We need to allow time to let the Cache finish passivation, so block until it's done
       log.info("Waiting on Cache to tell us passivation is completed...");
-      ForcePassivationCache.POST_PASSIVATE_BARRIER.await();
+      ForcePassivationCache.POST_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
       log.info("Test sees Cache reports passivation completed.");
 
       /*
@@ -442,6 +527,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
    public void after()
    {
       ForcePassivationCache.POST_PASSIVATE_BARRIER.reset();
+      ForcePassivationCache.PRE_PASSIVATE_BARRIER.reset();
       ForcePassivationCache cache = (ForcePassivationCache) container.getCache();
       cache.clear();
    }

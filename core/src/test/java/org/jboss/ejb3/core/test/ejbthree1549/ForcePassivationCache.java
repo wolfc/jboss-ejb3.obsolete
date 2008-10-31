@@ -24,6 +24,8 @@ package org.jboss.ejb3.core.test.ejbthree1549;
 import java.io.Serializable;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jboss.ejb3.cache.simple.SimpleStatefulCache;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
@@ -57,6 +59,8 @@ public class ForcePassivationCache extends SimpleStatefulCache
     */
    private static final Object START_PASSIVATION_LOCK = new Object();
    private static volatile boolean passivationForced = false;
+   
+   public static final CyclicBarrier PRE_PASSIVATE_BARRIER = new CyclicBarrier(2);
 
    // --------------------------------------------------------------------------------||
    // Functional Methods -------------------------------------------------------------||
@@ -186,7 +190,7 @@ public class ForcePassivationCache extends SimpleStatefulCache
       }
 
       @Override
-      public void passivationCompleted()
+      protected void passivationCompleted()
       {
          // Call super
          super.passivationCompleted();
@@ -210,6 +214,29 @@ public class ForcePassivationCache extends SimpleStatefulCache
             // Reset the barrier
             log.info("Post-passivate of PM is done, resetting the barrier");
             POST_PASSIVATE_BARRIER.reset();
+         }
+      }
+      
+      @Override
+      protected void prePassivationCompleted()
+      {
+         super.prePassivationCompleted();
+         
+         try
+         {
+            PRE_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+         }
+         catch (BrokenBarrierException e)
+         {
+            throw new RuntimeException("PRE_PASSIVATE_BARRIER prematurely broken", e);
+         }
+         catch(InterruptedException e)
+         {
+            throw new RuntimeException(e);
+         }
+         catch(TimeoutException e)
+         {
+            throw new RuntimeException(e);
          }
       }
    }
