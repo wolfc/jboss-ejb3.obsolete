@@ -25,12 +25,12 @@ import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
 
 /**
- * ForcePassivationCacheFactory
+ * ForceEventsCacheFactory
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ForcePassivationCacheFactory implements Ejb3CacheFactory
+public class ForceEventsCacheFactory implements Ejb3CacheFactory
 {
 
    // --------------------------------------------------------------------------------||
@@ -40,7 +40,7 @@ public class ForcePassivationCacheFactory implements Ejb3CacheFactory
    /**
     * Name under which this Cache Factory will be bound into the registry
     */
-   public static final String REGISTRY_BIND_NAME = "ForcePassivationCache";
+   public static final String REGISTRY_BIND_NAME = "ForceEventsCache";
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
@@ -52,7 +52,7 @@ public class ForcePassivationCacheFactory implements Ejb3CacheFactory
     */
    public StatefulCache createCache()
    {
-      return new ForcePassivationCache();
+      return new ForceEventsCache();
    }
 
 }
