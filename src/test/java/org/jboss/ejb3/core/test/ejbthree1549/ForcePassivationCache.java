@@ -24,8 +24,6 @@ package org.jboss.ejb3.core.test.ejbthree1549;
 import java.io.Serializable;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jboss.ejb3.cache.simple.SimpleStatefulCache;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
@@ -224,17 +222,13 @@ public class ForcePassivationCache extends SimpleStatefulCache
          
          try
          {
-            PRE_PASSIVATE_BARRIER.await(5, TimeUnit.SECONDS);
+            PRE_PASSIVATE_BARRIER.await();
          }
          catch (BrokenBarrierException e)
          {
             throw new RuntimeException("PRE_PASSIVATE_BARRIER prematurely broken", e);
          }
          catch(InterruptedException e)
-         {
-            throw new RuntimeException(e);
-         }
-         catch(TimeoutException e)
          {
             throw new RuntimeException(e);
          }
