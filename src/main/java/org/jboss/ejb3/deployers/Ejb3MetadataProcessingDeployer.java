@@ -36,6 +36,7 @@ import org.jboss.metadata.process.processor.JBossMetaDataProcessor;
 import org.jboss.metadata.process.processor.ejb.jboss.ClusterConfigDefaultValueProcessor;
 import org.jboss.metadata.process.processor.ejb.jboss.JBossMetaDataValidatorChainProcessor;
 import org.jboss.metadata.process.processor.ejb.jboss.SetDefaultLocalBusinessInterfaceProcessor;
+import org.jboss.metadata.process.processor.ejb.jboss.SetExplicitLocalJndiNameProcessor;
 
 /**
  * Ejb3MetadataProcessingDeployer
@@ -195,6 +196,9 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
 
       // JBMETA-133, EJBTHREE-1539 Default ClusterConfig
       processors.add(ClusterConfigDefaultValueProcessor.INSTANCE);
+      
+      // JBMETA-143 Set explicit local JNDI name from @LocalBinding.jndiName
+      processors.add(SetExplicitLocalJndiNameProcessor.INSTANCE);
 
       // JBMETA-118 Validation
       processors.add(JBossMetaDataValidatorChainProcessor.INSTANCE);
