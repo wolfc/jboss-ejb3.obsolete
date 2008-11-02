@@ -197,7 +197,7 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
       // JBMETA-133, EJBTHREE-1539 Default ClusterConfig
       processors.add(ClusterConfigDefaultValueProcessor.INSTANCE);
       
-      // JBMETA-143 Set explicit local JNDI name from @LocalBinding.jndiName
+      // JBMETA-143 Set explicit local JNDI name from @LocalBinding.jndiBinding
       processors.add(SetExplicitLocalJndiNameProcessor.INSTANCE);
 
       // JBMETA-118 Validation
