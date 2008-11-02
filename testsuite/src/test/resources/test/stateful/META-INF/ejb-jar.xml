@@ -11,6 +11,7 @@
       <session>
          <ejb-name>StatefulBean</ejb-name>
          <home>org.jboss.ejb3.test.stateful.StatefulHome</home>
+         <remote>org.jboss.ejb3.test.stateful.Stateful21</remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulBean</ejb-class>
          <remove-method>
             <bean-method>
@@ -34,7 +35,6 @@
       </session>  -->
       <session>
          <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
-         <remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</remote>
          <ejb-class>org.jboss.ejb3.test.stateful.ConcurrentStatefulBean</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>
