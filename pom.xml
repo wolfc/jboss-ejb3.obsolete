@@ -250,7 +250,7 @@
       <groupId>org.jboss.cache</groupId>
       <artifactId>jbosscache-core</artifactId>
       <!-- not used anywhere else -->
-      <version>2.1.1.GA</version>
+      <version>3.0.0.CR3</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.javaee</groupId>
