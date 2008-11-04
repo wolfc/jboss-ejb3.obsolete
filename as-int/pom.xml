@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Beta6</version>
   </parent>
   
   <!-- Model Version -->
@@ -31,8 +31,8 @@
     into the AS
     
      -->
-    <version.org.jboss.ejb3_core>1.0.0-SNAPSHOT</version.org.jboss.ejb3_core>
-    <version.org.jboss.ejb3_deployers>0.1.1-SNAPSHOT</version.org.jboss.ejb3_deployers>
+    <version.org.jboss.ejb3_core>1.0.0-Beta6</version.org.jboss.ejb3_core>
+    <version.org.jboss.ejb3_deployers>0.1.1</version.org.jboss.ejb3_deployers>
   
   </properties>
   
