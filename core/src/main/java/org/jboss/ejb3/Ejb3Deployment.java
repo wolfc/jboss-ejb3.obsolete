@@ -264,7 +264,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
     *
     * @return
     */
-   public String getScopeKernelName()
+   private String getScopeKernelName()
    {
       String scopedKernelName = "";
       if (deploymentScope != null)
@@ -417,7 +417,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    
    protected void registerDeployment() throws Exception
    {
-      String on = "jboss.j2ee:jar=" + this.getName() + ",service=EJB3";
+      String on = Ejb3Module.BASE_EJB3_JMX_NAME + this.getScopeKernelName();
       if (metaData != null && metaData.getEnterpriseBeans() != null && metaData.getEnterpriseBeans().getEjbJarMetaData() != null)
       {
          String jmxName = metaData.getEnterpriseBeans().getEjbJarMetaData().getJmxName();
