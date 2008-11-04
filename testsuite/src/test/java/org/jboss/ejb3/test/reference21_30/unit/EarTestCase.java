@@ -53,7 +53,7 @@ public class EarTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Test3Home test3Home = (Test3Home) jndiContext.lookup("Test3/home");
+      Test3Home test3Home = (Test3Home) jndiContext.lookup("multideploy/Test3/home");
       Test3 test3 = test3Home.create(); 
       assertNotNull(test3);
       test3.testAccess();
