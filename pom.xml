@@ -73,7 +73,7 @@
     <!-- The things to install -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-core</artifactId>
+      <artifactId>jboss-ejb3-as-int</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
     
@@ -112,11 +112,6 @@
       <version>1.0.0-Beta1</version>
     </dependency>
     
-    <dependency>
-      <groupId>org.jboss.jpa</groupId>
-      <artifactId>jboss-jpa-deployers</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-    </dependency>
   </dependencies>
   
 </project>
