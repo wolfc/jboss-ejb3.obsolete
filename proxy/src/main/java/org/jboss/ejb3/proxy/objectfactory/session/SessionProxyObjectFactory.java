@@ -21,12 +21,8 @@
  */
 package org.jboss.ejb3.proxy.objectfactory.session;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.naming.Name;
 
@@ -84,7 +80,7 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       SessionProxyFactory sFactory = null;
       try
       {
-         sFactory = SessionProxyFactory.class.cast(factory);
+         sFactory = this.getProxyFactoryClass().cast(factory);
       }
       catch (ClassCastException cce)
       {
@@ -134,64 +130,8 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
             log.debug("Created Proxy of type " + proxy.getClass().getSimpleName() + " for EJB3 Business Interface: "
                   + businessInterface);
 
-            /*
-             * We've got to ensure that the Proxy will be assignable to the target
-             * within this CL
-             */
-
-            // Get the TCL
-            ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-
-            // Get the Proxy's CL
-            ClassLoader proxyCl = proxy.getClass().getClassLoader();
-
-            // If the classloaders are not equal
-            if (tcl != proxyCl)
-            {
-               /*
-                * Reconstruct/redefine the Proxy in our CL
-                */
-
-               // Get the Proxy Class
-               Class<?> proxyClass = proxy.getClass();
-
-               // Ensure we've got a Proxy
-               assert Proxy.isProxyClass(proxyClass) : "Assumed Proxy is not an instance of " + Proxy.class.getName();
-
-               // Get the InvocationHandler
-               InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-
-               // Get the Interfaces
-               Class<?>[] proxyInterfaces = proxyClass.getInterfaces();
-
-               // Make a Set to hold the redefined classes
-               Set<Class<?>> ourClInterfaces = new HashSet<Class<?>>();
-
-               // For each interface defined by the Proxy
-               for (Class<?> proxyInterface : proxyInterfaces)
-               {
-                  // Get the FQN
-                  String proxyInterfaceName = proxyInterface.getName();
-                  
-                  // Redefine the class in our CL
-                  Class<?> ourDefinedProxyInterface = null;
-                  try
-                  {
-                     ourDefinedProxyInterface = Class.forName(proxyInterfaceName, false, tcl);
-                  }
-                  catch (ClassNotFoundException e)
-                  {
-                     throw new RuntimeException("Can not find interface declared by Proxy in our CL + " + tcl, e);
-                  }
-                  
-                  // Add the Class to the Set
-                  ourClInterfaces.add(ourDefinedProxyInterface);
-               }
-
-               // Redefine the Proxy in our CL
-               proxy = Proxy.newProxyInstance(tcl, ourClInterfaces.toArray(new Class<?>[]
-               {}), handler);
-            }
+            // Ensure the proxy is visible to the TCL
+            this.ensureProxyVisibleToTcl(proxy);
          }
          else
          {
@@ -222,7 +162,8 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
     * Obtains the type or supertype used by proxy factories for this Object Factory
     * @return
     */
-   protected Class<?> getProxyFactoryClass()
+   @Override
+   protected Class<SessionProxyFactory> getProxyFactoryClass()
    {
       return SessionProxyFactory.class;
    }
@@ -265,65 +206,6 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
 
       // Return
       return hasHome;
-   }
-
-   /**
-    * Looks to the metadata specified by the reference addresses to determine if
-    * an EJB3 Business View is defined here.  Additionally checks that both local 
-    * and remote business interfaces are not bound to the same JNDI Address
-    * 
-    * @param name
-    * @param referenceAddresses
-    * @return
-    */
-   protected boolean hasBusiness(Name name, Map<String, List<String>> referenceAddresses)
-   {
-      // Initialize
-      boolean hasBusiness = false;
-
-      // Obtain metadata
-      boolean hasLocalBusiness = this.hasLocalBusiness(referenceAddresses);
-      boolean hasRemoteBusiness = this.hasRemoteBusiness(referenceAddresses);
-
-      // Ensure both local and remote home are not specified here
-      String errorMessage = "ObjectFactory at JNDI \"" + name.toString()
-            + "\" contains references to both local and remote business interfaces";
-      assert !(hasLocalBusiness && hasRemoteBusiness) : errorMessage;
-      if (hasLocalBusiness && hasRemoteBusiness)
-      {
-         throw new RuntimeException(errorMessage);
-      }
-
-      // Set 
-      hasBusiness = hasLocalBusiness || hasRemoteBusiness;
-
-      // Return
-      return hasBusiness;
-
-   }
-
-   /**
-    * Determines if the specified metadata contains a type of local business
-    * 
-    * @param referenceAddresses
-    * @return
-    */
-   protected boolean hasLocalBusiness(Map<String, List<String>> referenceAddresses)
-   {
-      return referenceAddresses
-            .containsKey(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_LOCAL);
-   }
-
-   /**
-    * Determines if the specified metadata contains a type of remote business
-    * 
-    * @param referenceAddresses
-    * @return
-    */
-   protected boolean hasRemoteBusiness(Map<String, List<String>> referenceAddresses)
-   {
-      return referenceAddresses
-            .containsKey(ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_BUSINESS_INTERFACE_REMOTE);
    }
 
 }

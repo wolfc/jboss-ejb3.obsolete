@@ -105,4 +105,10 @@ public interface ObjectStoreBindings
    String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
          + "SFSBJndiRegistrar";
 
+   /**
+    * Bind name for @Service JNDI Registrar
+    */
+   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR
+         + "ServiceJndiRegistrar";
+
 }

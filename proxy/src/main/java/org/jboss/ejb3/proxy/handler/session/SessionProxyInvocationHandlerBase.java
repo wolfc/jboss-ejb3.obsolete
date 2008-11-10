@@ -24,9 +24,6 @@ package org.jboss.ejb3.proxy.handler.session;
 import java.io.Serializable;
 
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
 import org.jboss.logging.Logger;
 
@@ -68,33 +65,4 @@ public abstract class SessionProxyInvocationHandlerBase extends ProxyInvocationH
    {
       super(containerName, containerGuid, interceptors);
    }
-
-   /**
-    * Returns the container housed locally
-    * 
-    * @return
-    */
-   protected InvokableContext getContainerLocally()
-   {
-      // Lookup
-      Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(this.getContainerName());
-
-      // Ensure of correct type
-      assert obj instanceof InvokableContext : "Container retrieved from " + Ejb3Registrar.class.getSimpleName()
-            + " was not of expected type " + InvokableContext.class.getName() + " but was instead " + obj;
-
-      // Return
-      return (InvokableContext) obj;
-   }
-
-   // ------------------------------------------------------------------------------||
-   // Contracts --------------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /**
-    * Obtains the Container upon which this Proxy should invoke
-    * 
-    * @return
-    */
-   protected abstract InvokableContext getContainer();
 }

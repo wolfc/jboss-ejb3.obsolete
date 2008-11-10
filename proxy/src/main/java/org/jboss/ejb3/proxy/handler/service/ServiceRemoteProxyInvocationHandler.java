@@ -19,20 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.stateful;
+package org.jboss.ejb3.proxy.handler.service;
 
 import java.io.Serializable;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 
 /**
- * StatefulRemoteProxyInvocationHandler
+ * ServiceRemoteProxyInvocationHandler
+ * 
+ * Invocation Handler for Remote view of
+ * a @Service proxy
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocationHandlerBase implements Serializable
+public class ServiceRemoteProxyInvocationHandler extends ServiceProxyInvocationHandlerBase
+      implements
+         Serializable,
+         ServiceProxyInvocationHandler
 {
 
    // --------------------------------------------------------------------------------||
@@ -55,20 +62,21 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
     * Constructor
     * 
     * @param containerName The name of the target container
-    * @param containerGuid The globally-unique name of the container
-    * @param businessInterfaceType The possibly null businessInterfaceType
-    *   marking this invocation hander as specific to a given
-    *   EJB3 Business Interface
     * @param url The URL to the Remote Host
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatefulRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
-         final Interceptor[] interceptors, final String businessInterfaceType, final String url)
+   public ServiceRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors, final String url)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
+      super(containerName, containerGuid, interceptors);
 
-      // Set properties
-      this.setUrl(url);
+      // Adjust URL if not specified to a default
+      String remotingUrl = url;
+      if (remotingUrl == null || remotingUrl.trim().length() == 0)
+      {
+         remotingUrl = ProxyRemotingUtils.getDefaultClientBinding();
+      }
+      this.setUrl(remotingUrl);
    }
 
    // --------------------------------------------------------------------------------||
@@ -82,6 +90,27 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
    protected InvokableContext getContainer()
    {
       return this.createRemoteProxyToContainer(this.getUrl());
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Functional Methods -------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Creates and returns a Remoting Proxy to invoke upon the container
+    * 
+    * This implementation is marked as FIXME as remoting should be an add-on
+    * capability atop ejb3-proxy
+    * 
+    * @param url The location of the remote host holding the Container
+    * @return
+    */
+   //FIXME
+   protected InvokableContext createRemoteProxyToContainer(String url)
+   {
+      InvokableContext container = ProxyRemotingUtils.createRemoteProxyToContainer(this.getContainerName(), this
+            .getContainerGuid(), url, this.getInterceptors(), null);
+      return container;
    }
 
    // --------------------------------------------------------------------------------||
