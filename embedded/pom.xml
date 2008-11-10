@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-Beta1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -19,6 +19,10 @@
     specified in Chapter 22 (Embeddable Usage) of the EJB 3.1 specification.
   </description>
   
+  <properties>
+    <version.org.jboss.deployers>[2.0.0.CR5]</version.org.jboss.deployers>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -42,12 +46,12 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-reflect</artifactId>
-        <version>2.0.0.CR1</version>
+        <version>2.0.0.GA</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-kernel</artifactId>
-        <version>2.0.0.CR2</version>
+        <version>[2.0.0.CR5]</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -61,7 +65,7 @@
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-vfs</artifactId>
-      <version>2.0.0.CR1</version>
+      <version>2.0.0.CR3</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.aop</groupId>
@@ -77,7 +81,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
-      <version>1.0.0-Beta3</version>
+      <version>1.0.0-SNAPSHOT</version>
       <exclusions>
         <!-- 
         <exclusion>
@@ -118,26 +122,31 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-deployers</artifactId>
+      <version>0.1.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
-      <version>2.0.0.CR1</version>
+      <version>${version.org.jboss.deployers}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-impl</artifactId>
-      <version>[2.0.0.CR1]</version>
+      <version>${version.org.jboss.deployers}</version>
       <!-- scope>runtime</scope -->
     </dependency>
     <dependency>
       <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-vfs</artifactId>
-      <version>[2.0.0.CR1]</version>
+      <version>${version.org.jboss.deployers}</version>
       <!-- scope>runtime</scope -->
     </dependency>
     <dependency>
       <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-structure-spi</artifactId>
-      <version>2.0.0.CR1</version>
+      <version>${version.org.jboss.deployers}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.logging</groupId>
@@ -164,12 +173,12 @@
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-dependency</artifactId>
-      <version>2.0.0.CR1</version>
+      <version>[2.0.0.CR5]</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-kernel</artifactId>
-      <version>[2.0.0.CR1]</version>
+      <version>[2.0.0.CR5]</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.naming</groupId>
