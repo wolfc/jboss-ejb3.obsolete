@@ -24,30 +24,30 @@ package org.jboss.ejb3.proxy.jndiregistrar;
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
+import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
 /**
- * JndiStatefulSessionRegistrar
+ * JndiServiceRegistrar
  * 
  * Responsible for binding of ObjectFactories and
  * creation/registration of associated ProxyFactories, 
- * centralizing operations for SFSB Implementations
+ * centralizing operations for @Service Implementations
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
+public class JndiServiceRegistrar extends JndiSessionRegistrarBase
 {
 
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final Logger log = Logger.getLogger(JndiStatefulSessionRegistrar.class);
+   private static final Logger log = Logger.getLogger(JndiServiceRegistrar.class);
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -57,11 +57,11 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     * Creates a JNDI Registrar from the specified configuration properties, none of
     * which may be null.
     * 
-    * @param statelessSessionProxyObjectFactoryType String representation of the JNDI Object Factory to use for SLSBs
+    * @param serviceProxyObjectFactoryType String representation of the JNDI Object Factory to use for @Service
     */
-   public JndiStatefulSessionRegistrar(String statelessSessionProxyObjectFactoryType)
+   public JndiServiceRegistrar(String serviceProxyObjectFactoryType)
    {
-      super(statelessSessionProxyObjectFactoryType);
+      super(serviceProxyObjectFactoryType);
    }
 
    // --------------------------------------------------------------------------------||
@@ -69,7 +69,7 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
 
    /**
-    * Creates and returns a new local proxy factory for this SFSB
+    * Creates and returns a new local proxy factory for this @Service
     * 
     * @param name The unique name for the ProxyFactory
     * @param containerName The name of the Container upon which Proxies 
@@ -83,10 +83,10 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
    protected ProxyFactory createLocalProxyFactory(final String name, final String containerName,
          final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
    {
-      assert (smd instanceof JBossSessionBeanMetaData) : "Specified metadata was not of expected type "
-            + JBossSessionBeanMetaData.class.getSimpleName() + " but was instead " + smd;
-      JBossSessionBeanMetaData sessionMd = (JBossSessionBeanMetaData) smd;
-      return new StatefulSessionLocalProxyFactory(name, containerName, containerGuid, sessionMd, cl, advisor);
+      assert (smd instanceof JBossServiceBeanMetaData) : "Specified metadata was not of expected type "
+            + JBossServiceBeanMetaData.class.getSimpleName();
+      JBossServiceBeanMetaData serviceMd = (JBossServiceBeanMetaData) smd;
+      return new ServiceLocalProxyFactory(name, containerName, containerGuid, serviceMd, cl, advisor);
    }
 
    /**
@@ -109,15 +109,15 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
          final Advisor advisor, final String interceptorStackName)
    {
       // Ensure metadata is of expected type
-      assert (smd instanceof JBossSessionBeanMetaData) : "Specified metadata was not of expected type "
-            + JBossSessionBeanMetaData.class.getSimpleName() + " but was instead " + smd;
+      assert (smd instanceof JBossServiceBeanMetaData) : "Specified metadata was not of expected type "
+            + JBossServiceBeanMetaData.class.getSimpleName();
 
       // Cast
-      JBossSessionBeanMetaData sessionMd = (JBossSessionBeanMetaData) smd;
+      JBossServiceBeanMetaData serviceMd = (JBossServiceBeanMetaData) smd;
 
       // Create
-      ProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, containerGuid, sessionMd, cl,
-            url, advisor, interceptorStackName);
+      ProxyFactory factory = new ServiceRemoteProxyFactory(name, containerName, containerGuid, serviceMd, cl, url,
+            advisor, interceptorStackName);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

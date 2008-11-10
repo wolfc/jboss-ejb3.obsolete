@@ -19,33 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.stateful;
+package org.jboss.ejb3.proxy.factory.service;
 
-import java.io.Serializable;
+import java.util.Set;
 
+import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.handler.service.ServiceLocalProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.service.ServiceProxyInvocationHandler;
+import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
 /**
- * StatefulRemoteProxyInvocationHandler
+ * ServiceLocalProxyFactory
+ * 
+ * A @Service Proxy Factory for Local Views
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocationHandlerBase implements Serializable
+public class ServiceLocalProxyFactory extends ServiceProxyFactoryBase implements ServiceProxyFactory
 {
-
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private static final long serialVersionUID = 1L;
-
-   // --------------------------------------------------------------------------------||
-   // Instance Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   private String url;
+   private static final Logger logger = Logger.getLogger(ServiceLocalProxyFactory.class);
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -54,48 +53,52 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
    /**
     * Constructor
     * 
-    * @param containerName The name of the target container
+    * @param name The unique name for this ProxyFactory
+    * @param containerName The name of the InvokableContext (container)
+    *   upon which Proxies will invoke
     * @param containerGuid The globally-unique name of the container
-    * @param businessInterfaceType The possibly null businessInterfaceType
-    *   marking this invocation hander as specific to a given
-    *   EJB3 Business Interface
-    * @param url The URL to the Remote Host
-    * @param interceptors The interceptors to apply to invocations upon this handler
+    * @param metadata The metadata representing this SLSB
+    * @param classloader The ClassLoader associated with the StatelessContainer
+    *       for which this ProxyFactory is to generate Proxies
+    * @param advisor The Advisor for proxies created by this factory
     */
-   public StatefulRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
-         final Interceptor[] interceptors, final String businessInterfaceType, final String url)
+   public ServiceLocalProxyFactory(final String name, final String containerName, final String containerGuid,
+         final JBossServiceBeanMetaData metadata, final ClassLoader classloader, final Advisor advisor)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
-
-      // Set properties
-      this.setUrl(url);
+      // Call Super
+      super(name, containerName, containerGuid, metadata, classloader, advisor);
    }
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandlerBase#getContainer()
+   /**
+    * Returns the a Set of String representations of the Business Interface Types
+    * 
+    *  @return
     */
    @Override
-   protected InvokableContext getContainer()
+   protected final Set<String> getBusinessInterfaceTypes()
    {
-      return this.createRemoteProxyToContainer(this.getUrl());
+      return this.getMetadata().getBusinessLocals();
    }
 
-   // --------------------------------------------------------------------------------||
-   // Accessors / Mutators -----------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   public String getUrl()
+   @Override
+   protected ServiceProxyInvocationHandler createInvocationHandler()
    {
-      return url;
-   }
+      // Obtain container name
+      String containerName = this.getContainerName();
+      String containerGuid = this.getContainerGuid();
 
-   public void setUrl(String url)
-   {
-      this.url = url;
-   }
+      // Get Interceptors
+      Interceptor[] interceptors = this.getInterceptors();
 
+      // Create
+      ServiceProxyInvocationHandler handler = new ServiceLocalProxyInvocationHandler(containerName, containerGuid,
+            interceptors);
+
+      // Return
+      return handler;
+   }
 }

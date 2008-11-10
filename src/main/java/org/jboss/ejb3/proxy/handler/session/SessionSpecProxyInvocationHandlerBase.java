@@ -26,8 +26,6 @@ import java.lang.reflect.Method;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.logging.Logger;
 
 /**
@@ -47,6 +45,8 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
+   
+   private static final long serialVersionUID = 1L;
 
    private static final Logger log = Logger.getLogger(SessionSpecProxyInvocationHandlerBase.class);
 
@@ -86,46 +86,19 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    // Required Implementations -----------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
+   /**
+    * Required "invoke" as defined by InvocationHandler interface
+    */
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      // Attempt to handle directly
-      try
-      {
-         return this.handleInvocationDirectly(proxy, args, method);
-      }
-      // Ignore this, we just couldn't handle here
-      catch (NotEligibleForDirectInvocationException nefdie)
-      {
-         log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
-      }
-
       // Obtain an explicitly-specified actual class
       String actualClass = this.getBusinessInterfaceType();
 
       // Set the invoked method
       SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
 
-      /*
-       * Obtain the Container
-       */
-      InvokableContext container = this.getContainer();
-
-      /*
-       * Invoke
-       */
-
-      // Adjust args if null to empty array
-      if (args == null)
-      {
-         args = new Object[]
-         {};
-      }
-
-      // Invoke
-      Object result = container.invoke(proxy, invokedMethod, args);
-
-      // Return
-      return result;
+      // Use the overloaded implementation
+      return this.invoke(proxy, invokedMethod, args);
    }
 
    // ------------------------------------------------------------------------------||

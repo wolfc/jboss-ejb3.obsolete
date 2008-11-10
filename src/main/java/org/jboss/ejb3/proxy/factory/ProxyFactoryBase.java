@@ -193,7 +193,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    // --------------------------------------------------------------------------------||
 
    /**
-    * Lifecycle callback to be invoked by the ProxyFactoryDeployer
+    * Lifecycle callback to be invoked by 
     * before the ProxyFactory is able to service requests
     * 
     *  @throws Exception

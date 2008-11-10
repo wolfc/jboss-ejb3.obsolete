@@ -29,6 +29,10 @@ import java.util.Set;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
+import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.logging.Logger;
 
 /**
  * ProxyInvocationHandlerBase
@@ -53,6 +57,13 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
+
+   private static final long serialVersionUID = 1L;
+
+   /**
+    * Logger
+    */
+   private static final Logger log = Logger.getLogger(ProxyInvocationHandlerBase.class);
 
    /*
     * Method Names
@@ -189,9 +200,80 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
             + "\" is not eligible for direct handling by " + this);
    }
 
+   /**
+    * Returns the container housed locally
+    * 
+    * @return
+    */
+   protected InvokableContext getContainerLocally()
+   {
+      // Lookup
+      Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(this.getContainerName());
+
+      // Ensure of correct type
+      assert obj instanceof InvokableContext : "Container retrieved from " + Ejb3Registrar.class.getSimpleName()
+            + " was not of expected type " + InvokableContext.class.getName() + " but was instead " + obj;
+
+      // Return
+      return (InvokableContext) obj;
+   }
+
+   /**
+    * Overloaded "invoke" which takes into account a {@link SerializableMethod} 
+    * view
+    * 
+    * @param proxy
+    * @param method
+    * @param args
+    * @return
+    * @throws Throwable
+    */
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   {
+      // Attempt to handle directly
+      try
+      {
+         return this.handleInvocationDirectly(proxy, args, method.toMethod());
+      }
+      // Ignore this, we just couldn't handle here
+      catch (NotEligibleForDirectInvocationException nefdie)
+      {
+         log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
+      }
+
+      /*
+       * Obtain the Container
+       */
+      InvokableContext container = this.getContainer();
+
+      /*
+       * Invoke
+       */
+
+      // Adjust args if null to empty array
+      if (args == null)
+      {
+         args = new Object[]
+         {};
+      }
+
+      // Invoke
+      Object result = container.invoke(proxy, method, args);
+
+      // Return
+      return result;
+   }
+
    // ------------------------------------------------------------------------------||
    // Contracts --------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the Container upon which this Proxy should invoke
+    * 
+    * @return
+    */
+   protected abstract InvokableContext getContainer();
 
    /**
     * Handles invocation of "equals(Object)" upon the Proxy 

@@ -24,16 +24,13 @@ package org.jboss.ejb3.proxy.handler.session.stateful;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.net.MalformedURLException;
 
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
-import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.logging.Logger;
-import org.jboss.remoting.InvokerLocator;
 import org.jboss.util.NotImplementedException;
 
 /**
@@ -202,45 +199,17 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
    /**
     * Creates and returns a Remoting Proxy to invoke upon the container
     * 
+    * This implementation is marked as FIXME as remoting should be an add-on
+    * capability atop ejb3-proxy
+    * 
     * @param url The location of the remote host holding the Container
     * @return
     */
+   //FIXME
    protected InvokableContext createRemoteProxyToContainer(String url)
    {
-      // Create an InvokerLocator
-      InvokerLocator locator = null;
-      try
-      {
-         locator = new InvokerLocator(url);
-      }
-      catch (MalformedURLException e)
-      {
-         throw new RuntimeException("Could not create " + InvokerLocator.class.getSimpleName() + " to url \"" + url
-               + "\"", e);
-      }
-
-      /*
-       * Define interceptors
-       */
-
-      // Get interceptors from the stack
-      Interceptor[] interceptors = this.getInterceptors();
-
-      /*
-       * Create Proxy
-       */
-
-      // Create a POJI Proxy to the Container
-      String containerName = this.getContainerName();
-      assert containerName != null && containerName.trim().length() > 0 : "Container Name must be set";
-      PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(this.getContainerName(), this
-            .getContainerGuid(), locator, interceptors, this.getSessionId());
-      Class<?>[] interfaces = new Class<?>[]
-      {InvokableContext.class};
-      InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),
-            interfaces, handler);
-
-      // Return
+      InvokableContext container = ProxyRemotingUtils.createRemoteProxyToContainer(this.getContainerName(), this
+            .getContainerGuid(), url, this.getInterceptors(), this.getSessionId());
       return container;
    }
 

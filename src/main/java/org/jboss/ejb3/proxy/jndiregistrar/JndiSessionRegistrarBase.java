@@ -41,7 +41,6 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.logging.Logger;
@@ -232,7 +231,7 @@ public abstract class JndiSessionRegistrarBase
 
          // Create and register a remote proxy factory
          String defaultRemoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName, smd, false);
-         SessionProxyFactory factory = this.createRemoteProxyFactory(defaultRemoteProxyFactoryKey, containerName,
+         ProxyFactory factory = this.createRemoteProxyFactory(defaultRemoteProxyFactoryKey, containerName,
                containerGuid, smd, cl, defaultClientBindUrl, advisor, null);
          try
          {
@@ -361,13 +360,13 @@ public abstract class JndiSessionRegistrarBase
 
                // Create and register a remote proxy factory specific to this binding
                String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName, smd, false);
-               SessionProxyFactory remoteBindingProxyFactory = null;
+               ProxyFactory remoteBindingProxyFactory = null;
                boolean reregister = true;
                try
                {
                   // Check if it's already available
                   remoteBindingProxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(
-                        remoteBindingProxyFactoryKey, SessionProxyFactory.class);
+                        remoteBindingProxyFactoryKey, ProxyFactory.class);
                }
                catch (NotBoundException nbe)
                {
@@ -453,8 +452,8 @@ public abstract class JndiSessionRegistrarBase
 
          // Create and register a local proxy factory
          String localProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultLocalJndiName, smd, true);
-         SessionProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, containerGuid,
-               smd, cl, advisor);
+         ProxyFactory factory = this.createLocalProxyFactory(localProxyFactoryKey, containerName, containerGuid, smd,
+               cl, advisor);
          try
          {
             this.registerProxyFactory(localProxyFactoryKey, factory, smd);
@@ -715,8 +714,8 @@ public abstract class JndiSessionRegistrarBase
     * @param cl The ClassLoader for this EJB Container
     * @param advisor The Advisor for proxies created by this factory
     */
-   protected abstract SessionProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
+   protected abstract ProxyFactory createLocalProxyFactory(final String name, final String containerName,
+         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
@@ -732,8 +731,8 @@ public abstract class JndiSessionRegistrarBase
     * @param interceptorStackName The name of the client-side interceptor stack to use.
     *       If null the default will apply.
     */
-   protected abstract SessionProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
+   protected abstract ProxyFactory createRemoteProxyFactory(final String name, final String containerName,
+         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final String url,
          final Advisor advisor, final String interceptorStackName);
 
    // --------------------------------------------------------------------------------||
@@ -784,7 +783,7 @@ public abstract class JndiSessionRegistrarBase
       Collection<JndiReferenceBinding> addressesToBind = new ArrayList<JndiReferenceBinding>();
       StringBuffer sb = new StringBuffer();
       sb.append("Binding the following Entries in Global JNDI:\n\n");
-      
+
       for (JndiReferenceBinding binding : bindings.getDefaultRemoteBindings())
       {
          sb.append("\t");
@@ -841,12 +840,12 @@ public abstract class JndiSessionRegistrarBase
             }
          }
       }
-      
+
       // Log
       log.info(sb.toString());
-      
+
       // Bind all addresses
-      for(JndiReferenceBinding binding : addressesToBind)
+      for (JndiReferenceBinding binding : addressesToBind)
       {
          bind(context, binding, useRebind);
       }
