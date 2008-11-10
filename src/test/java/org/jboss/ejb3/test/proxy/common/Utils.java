@@ -22,9 +22,11 @@
 package org.jboss.ejb3.test.proxy.common;
 
 import org.jboss.ejb3.test.common.MetaDataHelper;
+import org.jboss.ejb3.test.proxy.common.container.ServiceContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
 import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
@@ -89,6 +91,38 @@ public class Utils
 
       // Make a Container
       StatefulContainer container = new StatefulContainer(beanMetaData, Thread.currentThread().getContextClassLoader());
+
+      // Return
+      return container;
+   }
+
+   /**
+    * Creates and returns a @Service Container for the Service Implementation Class specified
+    * 
+    * @param sfsbImplementationClass
+    * @return
+    * @throws Throwable
+    */
+   public static ServiceContainer createService(Class<?> serviceImplementationClass) throws Throwable
+   {
+      // Get Metadata
+      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(serviceImplementationClass);
+
+      // Ensure @Service
+      if (!beanMetaData.isService())
+      {
+         throw new RuntimeException("Specified implementation class for @Service was not a Service Bean: "
+               + serviceImplementationClass.getName());
+      }
+
+      // Cast
+      JBossServiceBeanMetaData smd = (JBossServiceBeanMetaData) beanMetaData;
+
+      // Decorate Metadata
+      beanMetaData = new JBossSessionPolicyDecorator(smd, new BasicJndiBindingPolicy());
+
+      // Make a Container
+      ServiceContainer container = new ServiceContainer(smd, Thread.currentThread().getContextClassLoader());
 
       // Return
       return container;
