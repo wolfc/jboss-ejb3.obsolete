@@ -35,7 +35,7 @@ public interface MyStatefulLocal
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   String JNDI_NAME = "TestSFSB/local";
+   String JNDI_NAME = "MyStatefulBean/local";
 
    int PASSIVATION_TIMEOUT = 1;
 

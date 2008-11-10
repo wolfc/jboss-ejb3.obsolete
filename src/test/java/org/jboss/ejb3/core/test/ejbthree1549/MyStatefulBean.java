@@ -47,6 +47,7 @@ import org.jboss.ejb3.annotation.PersistenceManager;
  */
 @Stateful
 @Local(MyStatefulLocal.class)
+// Note that jndi bindings are ignore in the unit tests
 @LocalBinding(jndiBinding = MyStatefulLocal.JNDI_NAME)
 /*
  * Use a CacheFactory that is extended to enable 
