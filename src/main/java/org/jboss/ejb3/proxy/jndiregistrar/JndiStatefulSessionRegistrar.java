@@ -27,7 +27,6 @@ import org.jboss.ejb3.proxy.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
@@ -81,12 +80,9 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     */
    @Override
    protected ProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor)
    {
-      assert (smd instanceof JBossSessionBeanMetaData) : "Specified metadata was not of expected type "
-            + JBossSessionBeanMetaData.class.getSimpleName() + " but was instead " + smd;
-      JBossSessionBeanMetaData sessionMd = (JBossSessionBeanMetaData) smd;
-      return new StatefulSessionLocalProxyFactory(name, containerName, containerGuid, sessionMd, cl, advisor);
+      return new StatefulSessionLocalProxyFactory(name, containerName, containerGuid, smd, cl, advisor);
    }
 
    /**
@@ -105,19 +101,12 @@ public class JndiStatefulSessionRegistrar extends JndiSessionRegistrarBase
     */
    @Override
    protected ProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final String url,
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
          final Advisor advisor, final String interceptorStackName)
    {
-      // Ensure metadata is of expected type
-      assert (smd instanceof JBossSessionBeanMetaData) : "Specified metadata was not of expected type "
-            + JBossSessionBeanMetaData.class.getSimpleName() + " but was instead " + smd;
-
-      // Cast
-      JBossSessionBeanMetaData sessionMd = (JBossSessionBeanMetaData) smd;
-
       // Create
-      ProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, containerGuid, sessionMd, cl,
-            url, advisor, interceptorStackName);
+      ProxyFactory factory = new StatefulSessionRemoteProxyFactory(name, containerName, containerGuid, smd, cl, url,
+            advisor, interceptorStackName);
 
       // Register with Remoting
       log.debug("Registering with Remoting Dispatcher under name \"" + factory.getName() + "\": " + factory);

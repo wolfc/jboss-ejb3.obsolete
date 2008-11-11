@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.service;
+package org.jboss.ejb3.proxy.factory.session.service;
 
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
-import org.jboss.ejb3.proxy.handler.service.ServiceProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.service.ServiceProxyInvocationHandler;
 import org.jboss.ejb3.proxy.intf.ServiceProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
@@ -99,7 +99,7 @@ public abstract class ServiceProxyFactoryBase extends ProxyFactoryBase implement
     * 
     * @return
     */
-   public Object createProxy()
+   public Object createProxyDefault()
    {
       // Obtain Constructor to Default Proxy
       Constructor<?> constructor = this.getProxyConstructor();

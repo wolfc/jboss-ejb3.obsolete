@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.naming.Name;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.objectfactory.Ejb3RegistrarProxyObjectFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.logging.Logger;
@@ -77,16 +77,16 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
       boolean hasBusiness = this.hasBusiness(name, referenceAddresses);
 
       // Cast
-      SessionProxyFactory sFactory = null;
+      SessionSpecProxyFactory sFactory = null;
       try
       {
-         sFactory = this.getProxyFactoryClass().cast(factory);
+         sFactory = (SessionSpecProxyFactory) this.getProxyFactoryClass().cast(factory);
       }
       catch (ClassCastException cce)
       {
          throw new RuntimeException(ProxyFactory.class.getSimpleName() + " used in "
                + SessionProxyObjectFactory.class.getSimpleName() + " must be of type "
-               + SessionProxyFactory.class.getName() + " but was instead " + factory, cce);
+               + SessionSpecProxyFactory.class.getName() + " but was instead " + factory, cce);
       }
 
       // If home and business are bound together
@@ -163,9 +163,9 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
     * @return
     */
    @Override
-   protected Class<SessionProxyFactory> getProxyFactoryClass()
+   protected Class<SessionSpecProxyFactory> getProxyFactoryClass()
    {
-      return SessionProxyFactory.class;
+      return SessionSpecProxyFactory.class;
    }
 
    // --------------------------------------------------------------------------------||
