@@ -115,9 +115,8 @@
     <!-- Copy all binaries to "client" -->
     <antcall target="install-client" />
 
-    <!-- Copy all binaries to "lib" directory of each server -->
-    <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
-    <foreach list="${servers.clustered}" delimiter=";" param="serverName" target="install-libs" inheritall="true" />
+    <!-- Copy all binaries to shared "lib" directory -->
+  	<antcall target="install-libs" />
 
     <!-- Copy all deployable files to "deploy" directory of each server -->
     <foreach list="${servers.unclustered}" delimiter=";" param="serverName" target="install-deploy" inheritall="true" />
@@ -168,15 +167,14 @@
 
   <!-- 
   
-  Installs binaries to the "lib" directory of the
-  specified "serverName"
+  Installs binaries to the shared server "lib" directory
   
   -->
   <target name="install-libs">
 
-    <echo>Installing EJB3 Binaries to "lib" of Server "${serverName}"</echo>
+    <echo>Installing EJB3 Binaries to shared server "lib"</echo>
 
-    <copy todir="${jboss.home}/server/${serverName}/lib" verbose="true">
+    <copy todir="${jboss.home}/server/lib" verbose="true">
       <fileset dir="${installer.lib}" includesfile="${file.jbossas.serverlib.includes}" />
     </copy>
 
