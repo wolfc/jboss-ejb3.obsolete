@@ -129,6 +129,7 @@ public abstract class AbstractEJB3TestCase
 
       deploy("namingserver-beans.xml");
       deploy("transactionmanager-beans.xml");
+      deploy("servicecontainer-beans.xml");
       deploy("statefulcontainer-beans.xml");
       deploy("statelesscontainer-beans.xml");
       deploy("connector-beans.xml");

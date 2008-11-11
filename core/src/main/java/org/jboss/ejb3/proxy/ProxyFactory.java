@@ -28,6 +28,7 @@ package org.jboss.ejb3.proxy;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision$
  */
+@Deprecated
 public interface ProxyFactory
 {
    /**

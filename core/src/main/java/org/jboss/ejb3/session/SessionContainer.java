@@ -51,17 +51,19 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Module;
+import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
+import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ha.framework.server.HATarget;
@@ -79,6 +81,12 @@ public abstract class SessionContainer extends EJBContainer
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(SessionContainer.class);
+   
+   // ------------------------------------------------------------------------------||
+   // Instance Members -------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   private JndiSessionRegistrarBase jndiRegistrar;
 
    protected ProxyDeployer proxyDeployer;
    private Map<String, HATarget> clusterFamilies;
@@ -114,7 +122,7 @@ public abstract class SessionContainer extends EJBContainer
     * Create a local proxy factory.
     * @return
     */
-   protected abstract ProxyFactory getProxyFactory(LocalBinding binding);
+   protected abstract SessionProxyFactory getProxyFactory(LocalBinding binding);
    
    /**
     * Create a remote proxy factory on the given binding.
@@ -155,9 +163,22 @@ public abstract class SessionContainer extends EJBContainer
    {
       super.lockedStart();
       this.registerWithAopDispatcher();
-      
-      //TODO Remove
-      //      proxyDeployer.start();
+
+      // Obtain registrar
+      JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
+
+      // Bind all appropriate references/factories to Global JNDI for Client access, if a JNDI Registrar is present
+      if (registrar != null)
+      {
+         String guid = Ejb3Registry.guid(this);
+         registrar.bindEjb(this.getInitialContext(), this.getMetaData(), this.getClassloader(), this.getObjectName()
+               .getCanonicalName(), guid, this.getAdvisor());
+      }
+      else
+      {
+         log.warn("No " + JndiSessionRegistrarBase.class.getSimpleName()
+               + " was found; byassing binding of Proxies to " + this.getName() + " in Global JNDI.");
+      }
    }
    
    /**
@@ -189,15 +210,7 @@ public abstract class SessionContainer extends EJBContainer
 
    protected void lockedStop() throws Exception
    {
-      //TODO Remove
-//      try
-//      {
-//         proxyDeployer.stop();
-//      }
-//      catch (Exception ignore)
-//      {
-//         log.debug("Proxy deployer stop failed", ignore);
-//      }
+
       try
       {
          Dispatcher.singleton.unregisterTarget(getObjectName().getCanonicalName());
@@ -206,6 +219,17 @@ public abstract class SessionContainer extends EJBContainer
       {
          log.debug("Dispatcher unregister target failed", ignore);
       }
+      
+      // Deregister with Remoting
+      Dispatcher.singleton.unregisterTarget(this.getName());
+
+      // Unbind applicable JNDI Entries
+      JndiSessionRegistrarBase jndiRegistrar = this.getJndiRegistrar();
+      if (jndiRegistrar != null)
+      {
+         jndiRegistrar.unbindEjb(this.getInitialContext(), this.getMetaData());
+      }
+      
       super.lockedStop();
    }
 
@@ -245,6 +269,69 @@ public abstract class SessionContainer extends EJBContainer
          throw new RuntimeException(e);
       }
       return virtualMethods;
+   }
+   
+   // --------------------------------------------------------------------------------||
+   // Contracts ----------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected abstract String getJndiRegistrarBindName();
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the JndiSessionRegistrarBase from MC, null if not found
+    * 
+    * @return
+    */
+   protected JndiSessionRegistrarBase getJndiRegistrar()
+   {
+      // If defined already, use it
+      if (this.jndiRegistrar != null)
+      {
+         return this.jndiRegistrar;
+      }
+
+      // Initialize
+      String jndiRegistrarBindName = this.getJndiRegistrarBindName();
+
+      // Obtain Registrar
+      Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
+
+      // Lookup
+      Object obj = null;
+      try
+      {
+         obj = registrar.lookup(jndiRegistrarBindName);
+         this.setJndiRegistrar(jndiRegistrar);
+      }
+      // If not installed, warn and return null
+      catch (NotBoundException e)
+      {
+         log.warn("No " + JndiSessionRegistrarBase.class.getName()
+               + " was found installed in the ObjectStore (Registry) at " + jndiRegistrarBindName);
+         return null;
+
+      }
+
+      // Cast
+      JndiSessionRegistrarBase jndiRegistrar = (JndiSessionRegistrarBase) obj;
+
+      // Return
+      return jndiRegistrar;
+   }
+
+   public void setJndiRegistrar(JndiSessionRegistrarBase jndiRegistrar)
+   {
+      this.jndiRegistrar = jndiRegistrar;
    }
    
    

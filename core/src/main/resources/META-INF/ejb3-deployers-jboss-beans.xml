@@ -324,6 +324,16 @@
         org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
     </constructor>
+  </bean>  
+  
+  <!-- @Service JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.ServiceJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiServiceRegistrar">
+    <constructor>
+      <parameter>
+        org.jboss.ejb3.proxy.objectfactory.session.service.ServiceProxyObjectFactory
+      </parameter>
+    </constructor>
   </bean>
    
   <bean name="org.jboss.ejb3.ProxyClusteringRegistry"
