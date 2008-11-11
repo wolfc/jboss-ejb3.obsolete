@@ -54,5 +54,11 @@ public interface ClusteredObjectStoreBindings extends ObjectStoreBindings
     */
    String CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
          + "ClusteredSFSBJndiRegistrar";
+   
+   /**
+    * Bind name for @Service JNDI Registrar
+    */
+   String CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
+         + "ClusteredServiceJndiRegistrar";
 
 }
