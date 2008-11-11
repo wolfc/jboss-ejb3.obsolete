@@ -65,6 +65,7 @@ import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
@@ -203,7 +204,7 @@ public class StatelessContainer extends SessionSpecContainer
    @Override
    public Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception
    {
-      SessionProxyFactory proxyFactory = this.getProxyFactory(binding);
+      SessionSpecProxyFactory proxyFactory = (SessionSpecProxyFactory) this.getProxyFactory(binding);
       return proxyFactory.createProxyEjb2x();
    }
    
