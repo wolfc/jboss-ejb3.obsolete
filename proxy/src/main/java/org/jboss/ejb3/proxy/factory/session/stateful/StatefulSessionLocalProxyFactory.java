@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulLocalProxyInvocationHandler;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -38,7 +38,9 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactoryBase implements SessionProxyFactory
+public class StatefulSessionLocalProxyFactory extends StatefulSessionProxyFactoryBase
+      implements
+         SessionSpecProxyFactory
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||

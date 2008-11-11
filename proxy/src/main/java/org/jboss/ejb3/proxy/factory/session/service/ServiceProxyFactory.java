@@ -19,9 +19,9 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.service;
+package org.jboss.ejb3.proxy.factory.session.service;
 
-import org.jboss.ejb3.proxy.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 
 /**
  * ServiceProxyFactory
@@ -33,13 +33,7 @@ import org.jboss.ejb3.proxy.factory.ProxyFactory;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface ServiceProxyFactory extends ProxyFactory
+public interface ServiceProxyFactory extends SessionProxyFactory
 {
-   /**
-    * Create a JBoss Service EJB3 proxy implementing all appropriate
-    * business interfaces. 
-    * 
-    * @return
-    */
-   Object createProxy();
+
 }

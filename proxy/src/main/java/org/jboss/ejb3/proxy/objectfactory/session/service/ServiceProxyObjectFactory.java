@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.objectfactory.service;
+package org.jboss.ejb3.proxy.objectfactory.session.service;
 
 import java.util.List;
 import java.util.Map;
@@ -27,9 +27,9 @@ import java.util.Map;
 import javax.naming.Name;
 
 import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.factory.service.ServiceProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.service.ServiceProxyFactory;
+import org.jboss.ejb3.proxy.objectfactory.Ejb3RegistrarProxyObjectFactory;
 import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
-import org.jboss.ejb3.proxy.objectfactory.ProxyObjectFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ServiceProxyObjectFactory extends ProxyObjectFactory
+public class ServiceProxyObjectFactory extends Ejb3RegistrarProxyObjectFactory
 {
    // --------------------------------------------------------------------------------||
    // Class Members  -----------------------------------------------------------------||
@@ -100,7 +100,7 @@ public class ServiceProxyObjectFactory extends ProxyObjectFactory
       if (hasBusiness)
       {
          // Use a general-purpose proxy for all business interfaces
-         proxy = sFactory.createProxy();
+         proxy = sFactory.createProxyDefault();
          log.debug("Created Proxy of type " + proxy.getClass().getSimpleName() + ".");
 
       }

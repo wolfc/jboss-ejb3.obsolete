@@ -51,7 +51,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implements SessionProxyFactory
+public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implements SessionSpecProxyFactory
 {
 
    // --------------------------------------------------------------------------------||
@@ -207,7 +207,7 @@ public abstract class SessionProxyFactoryBase extends ProxyFactoryBase implement
 
          // Create a new Proxy instance
          Object proxy = constructor.newInstance(handler);
-         
+
          // Return
          return proxy;
       }

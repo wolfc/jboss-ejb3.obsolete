@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,24 +19,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.jboss.ejb3.proxy.handler.service;
-
-import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
+package org.jboss.ejb3.proxy.factory.session;
 
 /**
- * ServiceProxyInvocationHandler
+ * SessionSpecProxyFactory
  * 
- * Defines contract for operations required of
- * a JBoss Service Bean Proxy Invocation Handler 
- * 
+ * Contract for a Proxy Factory responsible
+ * for creation of both EJB3 and EJB2.x 
+ * Session Bean Proxies as defined by the EJB3 
+ * specification
+ *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
- * @version $Revision: 72638 $
+ * @version $Revision: $
  */
-public interface ServiceProxyInvocationHandler extends ProxyInvocationHandler, InvocationHandler, Serializable
+public interface SessionSpecProxyFactory extends SessionProxyFactory
 {
+   /**
+    * Create an EJB2.x Home Proxy
+    * 
+    * @return
+    */
+   Object createProxyHome();
 
+   /**
+    * Create an EJB3 Business Proxy specific to the specified
+    * target business interface name (expressed as 
+    * a fully-qualified class name)
+    * 
+    * @param businessInterfaceName
+    * @return
+    */
+   Object createProxyBusiness(String businessInterfaceName);
+
+   /**
+    * Create an EJB2.x Proxy 
+    * 
+    * @return
+    */
+   Object createProxyEjb2x();
 }

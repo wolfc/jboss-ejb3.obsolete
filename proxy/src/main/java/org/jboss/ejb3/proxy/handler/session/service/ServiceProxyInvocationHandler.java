@@ -19,33 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.session;
 
-import org.jboss.ejb3.proxy.factory.ProxyFactory;
+package org.jboss.ejb3.proxy.handler.session.service;
+
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+
+import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
 
 /**
- * SessionProxyFactory
+ * ServiceProxyInvocationHandler
  * 
- * Contract for a Proxy Factory responsible
- * for creation of both EJB3 and EJB2.x 
- * Session Bean Proxies
- *
+ * Defines contract for operations required of
+ * a JBoss Service Bean Proxy Invocation Handler 
+ * 
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
- * @version $Revision: $
+ * @version $Revision: 72638 $
  */
-public interface SessionProxyFactory extends ProxyFactory
+public interface ServiceProxyInvocationHandler extends ProxyInvocationHandler, InvocationHandler, Serializable
 {
 
-   /**
-    * Create an EJB3 Business proxy with no 
-    * specific target business interface.  The 
-    * returned proxy will implement all appropriate
-    * business interfaces.  Additionally, if
-    * the Home interface is bound alongside 
-    * the Default (same JNDI Name), this 
-    * Proxy will implement the Home interface as well. 
-    * 
-    * @return
-    */
-   Object createProxyDefault();
 }

@@ -108,7 +108,7 @@ public interface ObjectStoreBindings
    /**
     * Bind name for @Service JNDI Registrar
     */
-   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR
+   String OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE = ObjectStoreBindings.OBJECTSTORE_NAMESPACE_JNDI_REGISTRAR_SESSION
          + "ServiceJndiRegistrar";
 
 }

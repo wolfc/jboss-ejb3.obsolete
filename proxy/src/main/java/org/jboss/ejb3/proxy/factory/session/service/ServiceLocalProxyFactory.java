@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.factory.service;
+package org.jboss.ejb3.proxy.factory.session.service;
 
 import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.handler.service.ServiceLocalProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.service.ServiceProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.service.ServiceLocalProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.service.ServiceProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 

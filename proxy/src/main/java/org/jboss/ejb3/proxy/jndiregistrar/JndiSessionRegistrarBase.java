@@ -715,7 +715,7 @@ public abstract class JndiSessionRegistrarBase
     * @param advisor The Advisor for proxies created by this factory
     */
    protected abstract ProxyFactory createLocalProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final Advisor advisor);
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
@@ -732,7 +732,7 @@ public abstract class JndiSessionRegistrarBase
     *       If null the default will apply.
     */
    protected abstract ProxyFactory createRemoteProxyFactory(final String name, final String containerName,
-         final String containerGuid, final JBossEnterpriseBeanMetaData smd, final ClassLoader cl, final String url,
+         final String containerGuid, final JBossSessionBeanMetaData smd, final ClassLoader cl, final String url,
          final Advisor advisor, final String interceptorStackName);
 
    // --------------------------------------------------------------------------------||

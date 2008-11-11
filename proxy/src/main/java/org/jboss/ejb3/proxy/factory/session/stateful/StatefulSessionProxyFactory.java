@@ -23,7 +23,7 @@ package org.jboss.ejb3.proxy.factory.session.stateful;
 
 import java.io.Serializable;
 
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 
 /**
  * StatefulSessionProxyFactory
@@ -36,7 +36,7 @@ import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionProxyFactory extends SessionProxyFactory
+public interface StatefulSessionProxyFactory extends SessionSpecProxyFactory
 {
    /**
     * Create an EJB2.x Home Proxy
