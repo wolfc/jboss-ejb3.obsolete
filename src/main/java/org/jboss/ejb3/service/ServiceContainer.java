@@ -613,12 +613,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
     */
    public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
-      // Extract reflection properties
-      String[] signature = method.getArgumentTypes();
-      String methodName = method.getName();
-
-      // Pass along to overloaded implementation
-      return this.invoke(methodName, args, signature);
+      return this.localInvoke(method.toMethod(), args);
    }
    
    public Object invoke(String actionName, Object params[], String signature[]) throws MBeanException,
