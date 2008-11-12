@@ -9,8 +9,8 @@
       <service>
          <ejb-name>ServiceSix</ejb-name>
          <ejb-class>org.jboss.ejb3.test.service.ServiceSix</ejb-class>
-         <local>org.jboss.ejb3.test.service.ServiceSixLocal</local>
-         <remote>org.jboss.ejb3.test.service.ServiceSixRemote</remote>
+         <business-local>org.jboss.ejb3.test.service.ServiceSixLocal</business-local>
+         <business-remote>org.jboss.ejb3.test.service.ServiceSixRemote</business-remote>
          <management>org.jboss.ejb3.test.service.ServiceSixManagement</management>
          <jndi-name>serviceSix/remote</jndi-name>
          <local-jndi-name>serviceSix/local</local-jndi-name>
