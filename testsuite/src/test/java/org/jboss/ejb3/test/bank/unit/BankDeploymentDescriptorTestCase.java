@@ -250,11 +250,12 @@ public class BankDeploymentDescriptorTestCase
  
    public void testCallbackListenersAndInteceptors() throws Exception
    {
+      TestStatus status = (TestStatus) getInitialContext().lookup("TestStatusBean/remote");
+      status.clear();
+      
       InitialContext jndiContext = new InitialContext();
       Bank bank = (Bank) jndiContext.lookup(Bank.JNDI_NAME);
       assertNotNull(bank);
-      TestStatus status = (TestStatus) getInitialContext().lookup("TestStatusBean/remote");
-      status.clear();
       
       SecurityClient sc = SecurityClientFactory.getSecurityClient();
       sc.setSimple(new SimplePrincipal("teller"), "password".toCharArray());
