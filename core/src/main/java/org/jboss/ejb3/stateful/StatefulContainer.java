@@ -73,7 +73,6 @@ import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulLocalProxyFactory;
@@ -898,14 +897,23 @@ public class StatefulContainer extends SessionSpecContainer
    */
 
    public void invokeInit(Object bean, Class[] initParameterTypes,
+         Object[] initParameterValues)
+   {
+      invokeInit(bean, bean.getClass(), initParameterTypes, initParameterValues);
+   }
+   
+   private void invokeInit(Object bean, Class<?> cls, Class<?>[] initParameterTypes,
                           Object[] initParameterValues)
    {
+      Class<?> superclass = cls.getSuperclass();
+      if(superclass != null)
+         invokeInit(bean, superclass, initParameterTypes, initParameterValues);
       int numParameters = 0;
       if(initParameterTypes != null)
          numParameters = initParameterTypes.length;
       try
       {
-         for(Method method : bean.getClass().getDeclaredMethods())
+         for(Method method : cls.getDeclaredMethods())
          {
             if(numParameters != method.getParameterTypes().length)
                continue;
