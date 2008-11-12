@@ -59,6 +59,7 @@ import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
@@ -1211,11 +1212,11 @@ public class StatefulContainer extends SessionSpecContainer
          RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
          if (homeAnnotation != null)
             home = homeAnnotation.value();
-         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
-         if (remoteBindingAnnotation != null)
-            homeHandle = new HomeHandleImpl(remoteBindingAnnotation
-                    .jndiBinding());
-
+         
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
          EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass,
                  true, false, homeHandle);
 
@@ -1226,12 +1227,10 @@ public class StatefulContainer extends SessionSpecContainer
       {
          HomeHandleImpl homeHandle = null;
 
-         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
-         if (remoteBindingAnnotation != null)
-            homeHandle = new HomeHandleImpl(remoteBindingAnnotation
-                    .jndiBinding());
-
-
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
          InvocationResponse response = marshallResponse(statefulInvocation, homeHandle, null);
          return response;
       }
