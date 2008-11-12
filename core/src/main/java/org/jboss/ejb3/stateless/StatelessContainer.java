@@ -34,6 +34,7 @@ import javax.ejb.EJBException;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.RemoteHome;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.naming.NamingException;
@@ -55,6 +56,7 @@ import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -69,6 +71,7 @@ import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
+import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
@@ -677,7 +680,8 @@ public class StatelessContainer extends SessionSpecContainer
    protected Object invokeHomeMethod(MethodInfo info, MethodInvocation invocation) throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
-      if (unadvisedMethod.getName().equals("create"))
+      String methodName = unadvisedMethod.getName();
+      if (methodName.equals("create"))
       {
          SerializableMethod method = new SerializableMethod(unadvisedMethod);
          Object[] arguments = invocation.getArguments();
@@ -685,9 +689,42 @@ public class StatelessContainer extends SessionSpecContainer
          Object proxy = this.invokeHomeCreate(method, arguments);
          return proxy;
       }
-      else
-      // remove
+      // TODO: should be handled locally
+      else if(methodName.equals("getEJBMetaData"))
       {
+         Class<?> remote = null;
+         Class<?> home = null;
+         Class<?> pkClass = Object.class;
+         HomeHandleImpl homeHandle = null;
+
+         Class<?>[] remotes = ProxyFactoryHelper.getRemoteInterfaces(this);
+         if (remotes != null && remotes.length > 0)
+         {
+            remote = remotes[0];
+         }
+         RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
+         if (homeAnnotation != null)
+            home = homeAnnotation.value();
+         
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
+         EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass,
+                 true, false, homeHandle);
+
+         return metadata;
+      }
+      // TODO: should be handled locally
+      else if(methodName.equals("getHomeHandle"))
+      {
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         return new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+      }
+      else
+      {
+         // remove
          return null;
       }
    }
