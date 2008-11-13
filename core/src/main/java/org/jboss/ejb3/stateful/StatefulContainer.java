@@ -1140,6 +1140,74 @@ public class StatefulContainer extends SessionSpecContainer
       return isAnnotationPresent(Clustered.class);
    }
 
+   @Override
+   protected Object invokeHomeCreate(Method method, Object[] args) throws Exception
+   {
+      // TODO: this is almost identical to SessionSpecContainer.invokeHomeCreate, so unify
+      
+      // Hold the JNDI Name
+      String jndiName = null;
+
+      // Flag for if we've found the interface
+      boolean foundInterface = false;
+
+      // Name of the EJB2.x Interface Class expected
+      String ejb2xInterface = method.getReturnType().getName();
+
+      // Get Metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+
+      /*
+       * Determine if the expected type is found in metadata as a EJB2.x Interface 
+       */
+
+      // Is this a Remote Interface ?
+      boolean isLocal = false;
+      String ejb2xRemoteInterface = smd.getRemote();
+      if (ejb2xInterface.equals(ejb2xRemoteInterface))
+      {
+         // We've found it, it's false
+         foundInterface = true;
+         jndiName = smd.getJndiName();
+      }
+
+      // Is this a local interface?
+      if (!foundInterface)
+      {
+         String ejb2xLocalInterface = smd.getLocal();
+         if (ejb2xInterface.equals(ejb2xLocalInterface))
+         {
+            // Mark as found
+            foundInterface = true;
+            isLocal = true;
+            jndiName = smd.getLocalJndiName();
+         }
+      }
+
+      // If we haven't yet found the interface
+      if (!foundInterface)
+      {
+         throw new RuntimeException("Specified return value for " + method + " notes an EJB 2.x interface: "
+               + ejb2xInterface + "; this could not be found as either a valid remote or local interface for EJB "
+               + this.getEjbName());
+      }
+      
+      // Lookup
+      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, smd, isLocal);
+      Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
+      
+      // Cast
+      assert factory instanceof StatefulSessionProxyFactory : "Specified factory " + factory.getClass().getName() + " is not of type "
+         + StatefulSessionProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName() + ", but was instead " + factory;
+      StatefulSessionProxyFactory statefulFactory = null;
+      statefulFactory = StatefulSessionProxyFactory.class.cast(factory);
+      
+      Serializable sessionId = createSession(method.getParameterTypes(), args);
+      Object proxy = statefulFactory.createProxyEjb2x(sessionId);
+      
+      return proxy;
+   }
+   
    protected InvocationResponse invokeHomeMethod(MethodInfo info,
          StatefulRemoteInvocation statefulInvocation) throws Throwable
    {
