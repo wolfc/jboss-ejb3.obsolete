@@ -172,7 +172,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
 
          if (unadvisedMethod != null && isHomeMethod(unadvisedSerializableMethod))
          {
-            return invokeHomeMethod(method, args);
+            return invokeHomeMethod(actualMethod, args);
          }
          else if (unadvisedMethod != null && this.isEjbObjectMethod(unadvisedSerializableMethod))
          {
@@ -347,7 +347,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * @return
     * @throws Exception
     */
-   protected Object invokeHomeCreate(SerializableMethod method, Object args[]) throws Exception
+   protected Object invokeHomeCreate(Method method, Object args[]) throws Exception
    {
 
       /*
@@ -361,7 +361,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       boolean foundInterface = false;
 
       // Name of the EJB2.x Interface Class expected
-      String ejb2xInterface = method.getReturnType();
+      String ejb2xInterface = method.getReturnType().getName();
 
       // Get Metadata
       JBossSessionBeanMetaData smd = this.getMetaData();
@@ -423,7 +423,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * TODO: work in progress (refactor both invokeHomeMethod's, localHomeInvoke)
     */
    //TODO
-   private Object invokeHomeMethod(SerializableMethod method, Object args[]) throws Exception
+   private Object invokeHomeMethod(Method method, Object args[]) throws Exception
    {
       if (method.getName().equals(Ejb2xMethodNames.METHOD_NAME_HOME_CREATE))
       {

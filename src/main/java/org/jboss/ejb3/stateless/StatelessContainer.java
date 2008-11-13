@@ -683,10 +683,9 @@ public class StatelessContainer extends SessionSpecContainer
       String methodName = unadvisedMethod.getName();
       if (methodName.equals("create"))
       {
-         SerializableMethod method = new SerializableMethod(unadvisedMethod);
          Object[] arguments = invocation.getArguments();
          // EJBTHREE-1512 Pass along the request to the proper home create method
-         Object proxy = this.invokeHomeCreate(method, arguments);
+         Object proxy = this.invokeHomeCreate(unadvisedMethod, arguments);
          return proxy;
       }
       // TODO: should be handled locally
