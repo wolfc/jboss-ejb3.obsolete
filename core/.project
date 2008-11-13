@@ -3,13 +3,11 @@
   <comment>JBoss EJB 3.0 Core</comment>
   <projects/>
   <buildSpec>
-    <!-- 
-    <buildCommand>
-      <name>org.maven.ide.eclipse.maven2Builder</name>
-    </buildCommand>
-    -->
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
     </buildCommand>
   </buildSpec>
   <natures>
