@@ -20,5 +20,7 @@ import javax.ejb.EJBHome;
  */
 public interface StatelessRemoteHome extends EJBHome
 {
+   String JNDI_NAME = "Stateless/home";
+   
    StatelessRemote create() throws RemoteException, CreateException;
 }

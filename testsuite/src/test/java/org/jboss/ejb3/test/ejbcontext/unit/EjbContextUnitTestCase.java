@@ -29,6 +29,7 @@ import org.jboss.ejb3.test.ejbcontext.Stateful;
 import org.jboss.ejb3.test.ejbcontext.StatefulRemoteBusiness;
 import org.jboss.ejb3.test.ejbcontext.StatelessBusinessRemote;
 import org.jboss.ejb3.test.ejbcontext.StatelessRemote;
+import org.jboss.ejb3.test.ejbcontext.StatelessRemoteHome;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
@@ -128,13 +129,21 @@ public class EjbContextUnitTestCase extends JBossTestCase
    {
       StatelessBusinessRemote stateless1 = (StatelessBusinessRemote) getInitialContext().lookup(
             StatelessBusinessRemote.JNDI_NAME);
-      StatelessRemote stateless2 = (StatelessRemote) getInitialContext().lookup(StatelessRemote.JNDI_NAME);
+      StatelessRemoteHome home = (StatelessRemoteHome) getInitialContext().lookup(StatelessRemoteHome.JNDI_NAME);
+      StatelessRemote stateless2 = home.create();
 
       Class<?> interfc = stateless1.testInvokedBusinessInterface();
       assertEquals(interfc, StatelessBusinessRemote.class);
 
-      interfc = stateless2.testInvokedBusinessInterface();
-      assertEquals(interfc, StatelessRemote.class);
+      try
+      {
+         interfc = stateless2.testInvokedBusinessInterface();
+         fail("EJB 3.0 4.5.2 getInvokedBusinessInterface is illegal when bean is invoked through 2.1 view");
+      }
+      catch(EJBException e)
+      {
+         // good
+      }
 
       StatelessBusinessRemote stateless = (StatelessBusinessRemote) stateless1
             .testBusinessObject(StatelessBusinessRemote.class);
