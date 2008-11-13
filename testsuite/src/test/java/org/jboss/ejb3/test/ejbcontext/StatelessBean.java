@@ -101,7 +101,7 @@ public class StatelessBean extends BaseBean
          throw new Exception("EJBLocalObject does not match originating bean: " + state + " != " + "testSessionContext");
       
       EJBObject ejbObject = stateful.getEJBObject();
-      Stateful sameBean = (Stateful)ejbObject;
+      StatefulRemote sameBean = (StatefulRemote) ejbObject;
       state = sameBean.getState();
       if (!state.equals("testSessionContext"))
          throw new Exception("EJBObject does not match originating bean: " + state + " != " + "testSessionContext");

@@ -17,5 +17,5 @@ import javax.ejb.EJBObject;
  */
 public interface StatefulRemote extends EJBObject
 {
-
+   String getState();
 }
