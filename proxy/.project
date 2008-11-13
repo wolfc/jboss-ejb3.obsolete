@@ -1,9 +1,7 @@
 <projectDescription>
   <name>jboss-ejb3-proxy</name>
   <comment>JBoss EJB3 Proxy Component</comment>
-  <projects>
-    <project>jboss-ejb3-test</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
       <name>org.eclipse.jdt.core.javabuilder</name>
