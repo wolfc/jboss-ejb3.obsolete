@@ -67,14 +67,14 @@
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jboss-security-spi</artifactId>
-      <version>2.0.2.CR3</version>
+      <version>2.0.2.SP1</version>
     </dependency>
 
     <!-- JBoss Security Impl -->
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbosssx</artifactId>
-      <version>2.0.2.CR3</version>
+      <version>2.0.2.SP1</version>
     </dependency>
 
     <!-- JACC API -->
