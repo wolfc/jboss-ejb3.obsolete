@@ -143,7 +143,7 @@ public class ClassHelper
    
    private static Method getDeclaredMethod(Class<?> cls, String methodName, Class<?> ... params)
    {
-      Method methods[] = cls.getDeclaredMethods();
+      Method methods[] = SecurityActions.getDeclaredMethods(cls);
       for(Method method : methods)
       {
          if(method.getName().equals(methodName))
@@ -213,7 +213,7 @@ public class ClassHelper
    {
       if(cls == null) return;
       populateAllMethods(cls.getSuperclass(), methods);
-      for(Method method : cls.getDeclaredMethods())
+      for(Method method : SecurityActions.getDeclaredMethods(cls))
          methods.add(method);
    }
 
