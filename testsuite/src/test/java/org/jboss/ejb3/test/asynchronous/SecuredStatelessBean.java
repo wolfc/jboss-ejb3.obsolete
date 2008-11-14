@@ -21,7 +21,8 @@
  */
 package org.jboss.ejb3.test.asynchronous;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -32,9 +33,8 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
-import org.jboss.aspects.asynch.Future;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.asynchronous.Asynch;
+import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -64,7 +64,7 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
    @RolesAllowed("allowed")
    public int method(int i)
    {
-      SecuredStatelessLocal asynchLocal = (SecuredStatelessLocal)Asynch.getAsynchronousProxy(local);
+      SecuredStatelessLocal asynchLocal = AsyncUtils.mixinAsync(local);
 
       asynchLocal.excludedMethod(i);
       Object ret = getReturnOrException(asynchLocal);
@@ -88,7 +88,7 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
    {
       try
       {
-         Future future = Asynch.getFutureResult(proxy);
+         Future<?> future = AsyncUtils.getFutureResult(proxy);
 
          while (!future.isDone())
          {
@@ -96,7 +96,7 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
          }
          return future.get();
       }
-      catch(InvocationTargetException e)
+      catch(ExecutionException e)
       {
          return e.getCause();
       }
