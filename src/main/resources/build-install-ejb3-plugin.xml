@@ -28,7 +28,7 @@
 
   <!-- Includefiles -->
   <property name="file.jbossas.remove.includes" value="conf/jbossas-ejb3-files-to-remove.txt" />
-  <property name="file.jbossas.serverlib.includes" value="conf/jbossas-ejb3-files-to-place-in-serverlib.txt" />
+  <property name="file.jbossas.commonlib.includes" value="conf/jbossas-ejb3-files-to-place-in-commonlib.txt" />
   <property name="file.jbossas.client.includes" value="conf/jbossas-ejb3-files-to-place-in-client.txt" />
   <property name="file.jbossas.deploy.unclustered.includes" value="conf/jbossas-ejb3-files-to-place-in-deploy-unclustered.txt" />
   <property name="file.jbossas.deploy.clustered.includes" value="conf/jbossas-ejb3-files-to-place-in-deploy-clustered.txt" />
@@ -172,10 +172,10 @@
   -->
   <target name="install-libs">
 
-    <echo>Installing EJB3 Binaries to shared server "lib"</echo>
+    <echo>Installing EJB3 Binaries to common "lib"</echo>
 
-    <copy todir="${jboss.home}/server/lib" verbose="true">
-      <fileset dir="${installer.lib}" includesfile="${file.jbossas.serverlib.includes}" />
+    <copy todir="${jboss.home}/common/lib" verbose="true">
+      <fileset dir="${installer.lib}" includesfile="${file.jbossas.commonlib.includes}" />
     </copy>
 
   </target>
