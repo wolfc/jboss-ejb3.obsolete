@@ -132,8 +132,9 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       /*
        * Replace the TCL with the CL for this Container
        */
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(this.getClassloader());
+      ClassLoader oldLoader = SecurityActions.getContextClassLoader();
+      
+      SecurityActions.setContextClassLoader(this.getClassloader());
       
       try
       {
@@ -221,7 +222,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       finally
       {
          invokedMethod.pop();
-         Thread.currentThread().setContextClassLoader(oldLoader);
+         SecurityActions.setContextClassLoader(oldLoader);
       }
    }
 
