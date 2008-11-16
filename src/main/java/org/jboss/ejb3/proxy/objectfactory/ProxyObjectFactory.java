@@ -289,7 +289,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
     * 
     * @param proxy
     */
-   protected void ensureProxyVisibleToTcl(Object proxy)
+   protected Object redefineProxyInTcl(Object proxy)
    {
       /*
        * We've got to ensure that the Proxy will be assignable to the target
@@ -348,6 +348,13 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          // Redefine the Proxy in our CL
          proxy = Proxy.newProxyInstance(tcl, ourClInterfaces.toArray(new Class<?>[]
          {}), handler);
+
+         // Return the new Proxy
+         return proxy;
+      }
+      else
+      {
+         return proxy;
       }
    }
 
