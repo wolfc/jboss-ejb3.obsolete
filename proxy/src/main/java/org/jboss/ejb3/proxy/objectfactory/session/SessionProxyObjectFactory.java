@@ -131,7 +131,7 @@ public abstract class SessionProxyObjectFactory extends Ejb3RegistrarProxyObject
                   + businessInterface);
 
             // Ensure the proxy is visible to the TCL
-            this.ensureProxyVisibleToTcl(proxy);
+            proxy = this.redefineProxyInTcl(proxy);
          }
          else
          {

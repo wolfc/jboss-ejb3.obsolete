@@ -80,7 +80,21 @@ public class FieldBeanProperty extends AbstractAccessibleObjectBeanProperty<Fiel
       }
       catch(IllegalArgumentException e)
       {
-         String msg = "failed to set value " + value + " on field " + field;
+         String msg = "failed to set value " + value + " on field " + field; 
+         
+         // Help out with the error message; let the developer know if the 
+         // value and target field CLs are not equal
+         ClassLoader fieldLoader = field.getType().getClassLoader();
+         ClassLoader valueLoader = value.getClass().getClassLoader();
+         boolean equalLoaders = fieldLoader.equals(valueLoader);
+         if (!equalLoaders)
+         {
+            log.error("Field Classloader: " + fieldLoader + "\nValue ClassLoader: " + valueLoader + "\nEqual Loaders: "
+                  + equalLoaders);
+            msg = msg + "; Reason: ClassLoaders of value and target are not equal";
+
+         }
+         
          log.error(msg, e);
          throw new IllegalArgumentException(msg);
       }
