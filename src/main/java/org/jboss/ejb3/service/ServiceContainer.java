@@ -305,7 +305,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       catch (Exception e)
       {
          log.error("Encountered an error in start of " + this.getMetaData().getEjbName(), e);
-         this.lockedStop();
+         try
+         {
+            lockedStop();
+         }
+         catch(Exception stopEx)
+         {
+            log.error("Error during forced container stop", stopEx);
+         }
+         throw e;
       }
    }
 
@@ -548,7 +556,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
             if (beanContext == null)
             {
                beanContext = createBeanContext();
-               beanContext.initialiseInterceptorInstances();
+               pushEnc();
+               try
+               {
+                  beanContext.initialiseInterceptorInstances();
+               }
+               finally
+               {
+                  popEnc();
+               }
             }
          }
       }

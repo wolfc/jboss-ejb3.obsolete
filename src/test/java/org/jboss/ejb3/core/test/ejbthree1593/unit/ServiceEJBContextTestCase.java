@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,31 +19,32 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.service;
+package org.jboss.ejb3.core.test.ejbthree1593.unit;
 
-import javax.ejb.EJBContext;
-
-import org.jboss.ejb3.session.SessionBeanContext;
+import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
+import org.jboss.ejb3.core.test.ejbthree1593.MyService;
+import org.jboss.ejb3.core.test.ejbthree1593.MyServiceBean;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
- * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
- * @version $Revision$
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public class ServiceBeanContext extends SessionBeanContext<ServiceContainer>
+public class ServiceEJBContextTestCase extends AbstractEJB3TestCase
 {
-   public ServiceBeanContext(ServiceContainer container, Object bean)
+   @BeforeClass
+   public static void beforeClass() throws Exception
    {
-      super(container, bean);
+      AbstractEJB3TestCase.beforeClass();
+      
+      deploySessionEjb(MyServiceBean.class);
    }
-
-   public void remove()
+   
+   @Test
+   public void testInjection() throws Exception
    {
-
-   }
-
-   @Override
-   public EJBContext getEJBContext()
-   {
-      return new ServiceSessionContextImpl(this);
+      MyService service = lookup("MyServiceBean/local", MyService.class);
+      service.testEjbContext();
    }
 }
