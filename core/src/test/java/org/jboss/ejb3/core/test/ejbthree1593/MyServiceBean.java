@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,31 +19,30 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.service;
+package org.jboss.ejb3.core.test.ejbthree1593;
 
+import javax.annotation.Resource;
 import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.interceptor.Interceptors;
 
-import org.jboss.ejb3.session.SessionBeanContext;
+import org.jboss.ejb3.annotation.Service;
 
 /**
- * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
- * @version $Revision$
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public class ServiceBeanContext extends SessionBeanContext<ServiceContainer>
+@Service
+@Local(MyService.class)
+@Interceptors(MyServiceInterceptor.class)
+public class MyServiceBean implements MyService
 {
-   public ServiceBeanContext(ServiceContainer container, Object bean)
+   @Resource
+   private EJBContext ctx;
+   
+   public void testEjbContext()
    {
-      super(container, bean);
-   }
-
-   public void remove()
-   {
-
-   }
-
-   @Override
-   public EJBContext getEJBContext()
-   {
-      return new ServiceSessionContextImpl(this);
+      if(ctx == null)
+         throw new IllegalStateException("ctx was not injected");
    }
 }
