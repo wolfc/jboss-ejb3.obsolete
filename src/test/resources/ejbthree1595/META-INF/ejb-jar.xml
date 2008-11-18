@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ejb-jar
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                            http://java.sun.com/xml/ns/javaee/ejb-jar_3_0.xsd"
+        version="3.0">
+   <display-name>ParameterSignatureTest</display-name>
+   <enterprise-beans>
+      <session>
+         <ejb-name>XMLOnlySLSB</ejb-name>
+         <business-local>org.jboss.ejb3.interceptors.test.ejbthree1595.XMLOnlySLSBLocal</business-local>
+         <ejb-class>org.jboss.ejb3.interceptors.test.ejbthree1595.XMLOnlySLSB</ejb-class>
+         <session-type>Stateless</session-type>
+      </session>
+   </enterprise-beans>
+   <interceptors>
+      <interceptor>
+         <interceptor-class>org.jboss.ejb3.interceptors.test.ejbthree1595.XMLMethodInterceptor</interceptor-class>
+         <around-invoke>
+            <method-name>intercept</method-name>
+         </around-invoke>
+      </interceptor>
+   </interceptors>
+   <assembly-descriptor>
+      <interceptor-binding>
+         <ejb-name>XMLOnlySLSB</ejb-name>
+         <interceptor-class>org.jboss.ejb3.interceptors.test.ejbthree1595.XMLMethodInterceptor</interceptor-class>
+         <method>
+            <method-name>overloadedMethod</method-name>
+            <method-params>
+               <method-param>long</method-param>
+               <method-param>java.lang.String[][]</method-param>
+            </method-params>
+         </method>
+      </interceptor-binding>
+   </assembly-descriptor>
+</ejb-jar>
