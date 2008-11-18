@@ -145,7 +145,7 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
     * @param refMethod
     * @return the binding or null
     */
-   private static InterceptorBindingMetaData findBestMatch(List<InterceptorBindingMetaData> bindings, DeclaredMethodSignature refMethod)
+   private InterceptorBindingMetaData findBestMatch(List<InterceptorBindingMetaData> bindings, DeclaredMethodSignature refMethod)
    {
       for (InterceptorBindingMetaData binding : bindings)
       {
@@ -540,13 +540,17 @@ public class BeanInterceptorMetaDataBridge extends EnvironmentInterceptorMetaDat
       }
    }
 
-   private static boolean matches(DeclaredMethodSignature signature, NamedMethodMetaData method)
+   private boolean matches(DeclaredMethodSignature signature, NamedMethodMetaData method)
    {
       if(!signature.getName().equals(method.getMethodName()))
          return false;
       if(method.getMethodParams() == null)
          return true;
-      return Arrays.equals(signature.getParameters(), method.getMethodParams().toArray());
+      Class<?> parameterTypes[] = signature.getParametersTypes(beanClass);
+      String parameters[] = new String[parameterTypes.length];
+      for(int i = 0; i < parameters.length; i++)
+         parameters[i] = parameterTypes[i].getCanonicalName();
+      return Arrays.equals(parameters, method.getMethodParams().toArray());
    }
    
    @Override
