@@ -1269,17 +1269,6 @@
       </jar>
    </target>
 
-   <target name="dd">
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/dd.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/dd/*.class"/>
-         </fileset>
-      </jar>
-   </target>
-
    <target name="pool">
 
       <mkdir dir="${build.lib}"/>
@@ -4278,9 +4267,6 @@
       <condition property="client.run.classpath" value="dd.web.client.classpath">
          <equals arg1="${test}" arg2="dd/web"/>
       </condition>
-      <condition property="client.run.classpath" value="dd.classpath">
-         <equals arg1="${test}" arg2="dd"/>
-      </condition>
       <condition property="client.run.classpath" value="iiop.client.classpath">
          <equals arg1="${test}" arg2="iiop"/>
       </condition>
@@ -4842,9 +4828,6 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="security"/>
-      </antcall>
-      <antcall target="test" inheritRefs="true">
-         <param name="test" value="dd"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="bank"/>
