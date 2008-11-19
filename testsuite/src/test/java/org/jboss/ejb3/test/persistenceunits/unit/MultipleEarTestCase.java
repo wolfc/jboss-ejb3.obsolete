@@ -21,18 +21,23 @@
  */
 package org.jboss.ejb3.test.persistenceunits.unit;
 
+import java.util.Map;
+
+import junit.framework.Test;
+
+import org.jboss.deployers.client.spi.IncompleteDeploymentException;
+import org.jboss.deployers.client.spi.IncompleteDeployments;
+import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.test.persistenceunits.Entity1;
 import org.jboss.ejb3.test.persistenceunits.Entity2;
 import org.jboss.ejb3.test.persistenceunits.EntityTest;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public class MultipleEarTestCase
-extends JBossTestCase
+public class MultipleEarTestCase extends JBossTestCase
 {
    private static final Logger log = Logger.getLogger(MultipleEarTestCase.class);
 
@@ -71,6 +76,23 @@ extends JBossTestCase
       }
    }
 
+   public void testServerFound() throws Exception
+   {
+      try
+      {
+         serverFound();
+      }
+      catch(DeploymentException e)
+      {
+         IncompleteDeploymentException cause = (IncompleteDeploymentException) e.getCause();
+         IncompleteDeployments incomplete = cause.getIncompleteDeployments();
+         Map<String, Throwable> deploymentsInError = incomplete.getDeploymentsInError();
+         assertEquals("only persistenceunitscope-test2.ear should have failed", 1, deploymentsInError.size());
+         Map.Entry<String, Throwable> entry = deploymentsInError.entrySet().iterator().next();
+         assertTrue(entry.getKey().endsWith("persistenceunitscope-test2.ear"));
+         assertTrue(entry.getValue().getMessage().contains("Can't find a persistence unit named 'Entity1'"));
+      }
+   }
 
    public static Test suite() throws Exception
    {

@@ -5,7 +5,7 @@
   <display-name>EAR test</display-name>
   
   <module>
-    <ejb>lib/persistenceunitscope.jar</ejb>
+    <ejb>persistenceunitscope.jar</ejb>
   </module>
 </application>
 

@@ -5,11 +5,11 @@
   <display-name>EAR test</display-name>
   
   <module>
-    <ejb>lib/persistenceunitscope1.jar</ejb>
+    <ejb>persistenceunitscope1.jar</ejb>
   </module>
   
   <module>
-    <ejb>lib/persistenceunitscope-slsb.jar</ejb>
+    <ejb>persistenceunitscope-slsb.jar</ejb>
   </module>
 </application>
 

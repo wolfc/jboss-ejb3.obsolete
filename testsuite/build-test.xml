@@ -2903,7 +2903,7 @@
       </jar>
 	
 	  <ear earfile="${build.lib}/persistenceunitscope-test.ear" appxml="${resources}/test/persistenceunits/application.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope.jar"/>
          </zipfileset>
 	     <fileset dir="${resources}/test/persistenceunits">
@@ -2912,7 +2912,7 @@
       </ear>
    	
    	  <ear earfile="${build.lib}/persistenceunitscope-test1.ear" appxml="${resources}/test/persistenceunits/application1.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope1.jar"/>
 	        <include name="persistenceunitscope-slsb.jar"/>
          </zipfileset>
@@ -2922,7 +2922,7 @@
       </ear>
 	
 	  <ear earfile="${build.lib}/persistenceunitscope-test2.ear" appxml="${resources}/test/persistenceunits/application2.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope2.jar"/>
 	        <include name="persistenceunitscope-slsb.jar"/>
          </zipfileset>
@@ -2951,7 +2951,7 @@
       </jar>
 	
 	  <ear earfile="${build.lib}/persistenceunitsharedentity-test.ear" appxml="${resources}/test/persistenceunits/sharedEntityApplication.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitsharedentity1.jar"/>
 			<include name="persistenceunitsharedentity2.jar"/>
          </zipfileset>
