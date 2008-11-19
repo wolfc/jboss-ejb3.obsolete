@@ -4233,7 +4233,7 @@
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
-      exception, dd/override, stateless, dd/mdb, bank, dd, longlived, xmlcfg, hbm, pkg, regressionHHH275,
+      exception, dd/override, stateless, dd/mdb, bank, longlived, xmlcfg, hbm, pkg, regressionHHH275,
       entityexception, asynchronous, consumer, clusteredentity, secondary, stateful, service, lob, cache, initial,
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
