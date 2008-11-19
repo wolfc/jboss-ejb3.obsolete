@@ -385,8 +385,8 @@
     
     <!-- webservice tests -->
 
-    <pathelement location="${env.JBOSS_HOME}/client/jbossws-client.jar"/>
-    <pathelement location="${env.JBOSS_HOME}/client/jboss-jaxws.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jbossws-native-client.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jbossws-native-jaxws.jar"/>
     <pathelement location="${env.JBOSS_HOME}/client/jaxb-api.jar"/>
     <pathelement location="${env.JBOSS_HOME}/lib/endorsed/xercesImpl.jar"/>
     <pathelement location="${env.JBOSS_HOME}/lib/endorsed/jboss-appclient.jar"/>
