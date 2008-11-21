@@ -120,8 +120,15 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
       if(container instanceof ExtendedInjectionContainer)
       {
          ExtendedInjectionContainer eic = (ExtendedInjectionContainer) container;
-         String dependency = eic.resolvePersistenceUnitSupplier(unitName);
-         container.getDependencyPolicy().addDependency(dependency);
+         try
+         {
+            String dependency = eic.resolvePersistenceUnitSupplier(unitName);
+            container.getDependencyPolicy().addDependency(dependency);
+         }
+         catch(IllegalArgumentException e)
+         {
+            throw new IllegalArgumentException("Container " + container + " failed to resolve persistence unit " + unitName, e);
+         }
          return;
       }
       throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + unitName);
