@@ -6,8 +6,8 @@
         version="3.0">
   <enterprise-beans>
     <session>
-      <ejb-name>SecurityDomainTest</ejb-name>
-      <remote>org.jboss.ejb3.test.securitydomain.SecurityDomainTest</remote>
+      <ejb-name>SecurityDomainTestEJB</ejb-name>
+      <business-remote>org.jboss.ejb3.test.securitydomain.SecurityDomainTest</business-remote>
       <ejb-class>org.jboss.ejb3.test.securitydomain.SecurityDomainTestBean</ejb-class>
       <session-type>Stateless</session-type>
       <transaction-type>Container</transaction-type>

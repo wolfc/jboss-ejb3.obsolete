@@ -21,13 +21,12 @@
  */
 package org.jboss.ejb3.test.securitydomain.unit;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.securitydomain.SecurityDomainTest;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
