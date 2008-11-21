@@ -93,6 +93,7 @@
   <property name="location.dependencies.unpacked.jboss-test:jboss.test" value="${location.dependencies.unpacked}/jboss-test"/>
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
 	<property name="location.dependencies.lib.ejb3persistence" value="${location.dependencies.lib}/ejb3-persistence.jar"/>
+	<property name="location.dependencies.lib.jbosssx" value="${location.dependencies.lib}/jbosssx.jar"/>
   <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate.jar"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
   <property name="location.dependencies.lib.org.jboss.jbossas:server-manager" value="${location.dependencies.lib}/jboss-server-manager.jar"/>
@@ -350,6 +351,9 @@
 
     <!-- JBoss Test Project -->
     <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+  	
+    <!-- JBoss SX -->
+    <pathelement path="${location.dependencies.lib.jbosssx}" />
   	
   	<!-- EJB3 Persistence -->
   	<pathelement path="${location.dependencies.lib.ejb3persistence}" />
