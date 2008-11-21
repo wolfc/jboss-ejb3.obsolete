@@ -34,7 +34,7 @@ import org.jboss.ejb3.annotation.SecurityDomain;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-@Stateless(name="Stateless")
+@Stateless
 @Remote(org.jboss.ejb3.test.mdb.Stateless.class)
 @RemoteBinding(jndiBinding = "Stateless")
 @SecurityDomain("other")
