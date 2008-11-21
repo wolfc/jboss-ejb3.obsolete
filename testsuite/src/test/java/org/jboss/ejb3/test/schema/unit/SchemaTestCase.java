@@ -27,6 +27,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
@@ -42,8 +43,6 @@ import org.xml.sax.SAXParseException;
  */
 public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 {
-   Exception caughtException = null;
-
    private static final Logger log = Logger.getLogger(SchemaTestCase.class);
 
    private static final String LOCATION_RESOURCES_TEST = "../src/test/resources/test";
@@ -114,11 +113,9 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/securitydomain/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/security/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/service/META-INF/ejb-jar.xml", builder);
-      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/standalone/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/stateful/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/txexceptions/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/unauthenticatedprincipal/META-INF/ejb-jar.xml", builder);
-      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/webservices/META-INF/ejb-jar.xml", builder);
    }
 
    /*
@@ -154,7 +151,6 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/clusteredsession/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/clusteredsession/scoped/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/consumer/META-INF/jboss.xml", builder);
-      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dd/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dd/mdb/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dd/web/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dependency/META-INF/jboss.xml", builder);
@@ -197,39 +193,20 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 
    }
 
-   /*
-    * This test has been removed as the documentation is
-    * now in Freezone on JBoss Labs, and outside of EJB3 Core
-    */
-//   public void testTutorialJBoss() throws Exception
-//   {
-//      DocumentBuilder builder = getDocumentBuilder();
-//
-//      validateFile("../docs/tutorial/consumer_deployment_descriptor/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/dependency/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/ejb21_client_adaptors/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/jboss_deployment_descriptor/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/jboss_resource_ref/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/jca/inflow/quartz/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/jca/inflow/swiftmq/resources/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/mdb_deployment_descriptor/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/reference21_30/META-INF/jboss2.xml", builder);
-//      validateFile("../docs/tutorial/reference21_30/META-INF/jboss3.xml", builder);
-//      validateFile("../docs/tutorial/service_deployment_descriptor/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/stateful_deployment_descriptor/META-INF/jboss.xml", builder);
-//      validateFile("../docs/tutorial/stateless_deployment_descriptor/META-INF/jboss.xml", builder);
-//   }
-
    private void validateFile(String filename, DocumentBuilder builder) throws Exception
    {
       File xmlFile = new File(filename);
-      System.out.println("Parsing and validating " + filename);
-      Document dom = builder.parse(xmlFile);
-
-      if (caughtException != null)
-         throw caughtException;
-
-      System.out.println("Success parsing " + filename);
+      log.info("Parsing and validating " + filename);
+      try
+      {
+         builder.parse(xmlFile);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Exception parsing " + filename, e);
+      }
+      
+      log.info("Success parsing " + filename);
    }
 
    private DocumentBuilder getDocumentBuilder() throws Exception
@@ -256,19 +233,19 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 
    public void fatalError(SAXParseException e)
    {
-      System.out.println("fatalError " + e);
-      caughtException = e;
+      this.error(e);
    }
 
    public void error(SAXParseException e)
    {
-      System.out.println("Error " + e);
-      caughtException = e;
+      log.error("Error: " + e);
+      TestCase.fail(e.toString());
    }
 
    public void warning(SAXParseException e)
    {
-      System.out.println("Warning " + e);
+      log.info("Warning: " + e);
+      TestCase.fail(e.toString());
    }
 
 }
