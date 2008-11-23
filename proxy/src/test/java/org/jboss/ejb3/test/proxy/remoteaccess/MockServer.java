@@ -1,3 +1,24 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+  *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
 package org.jboss.ejb3.test.proxy.remoteaccess;
 
 import java.net.URL;
@@ -13,6 +34,9 @@ import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
 import org.jboss.logging.Logger;
+import org.jboss.remoting.InvokerLocator;
+import org.jboss.remoting.ServerInvocationHandler;
+import org.jboss.remoting.transport.Connector;
 
 /**
  * MockServer
@@ -31,16 +55,47 @@ public class MockServer
    // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(MockServer.class);
-
-   private static MockServer server;
+   
+   /**
+    * Invocation request to the MockServer will be handler by this
+    * invocation handler
+    */
+   private ServerInvocationHandler mockServerInvocationHandler;
    
    private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
+   
+   /**
+    * Various possible server status
+    */
+   public enum MockServerStatus
+   {
+      STARTED, STOPPED
+   }
+   
+   /**
+    * 
+    * Various possible server requests
+    */
+   public enum MockServerRequest
+   {
+      START, STOP
+   }
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    private EmbeddedTestMcBootstrap bootstrap;
+   
+   /**
+    * Accept requests from client using this {@link Connector} 
+    */
+   private Connector remoteConnector;
+   
+   /**
+    * The current state of the server 
+    */
+   private MockServerStatus currentStatus = MockServerStatus.STOPPED;
 
    /**
     * The Test Class using this launcher
@@ -53,10 +108,28 @@ public class MockServer
 
    /**
     * Constructor
+    * Configures and creates a socket based {@link Connector} which will
+    * accept (start/stop) requests from client 
     */
-   public MockServer(Class<?> testClass)
+   public MockServer(Class<?> testClass, String serverHost, int port)
    {
       this.setTestClass(testClass);
+      String uri = "socket://" + serverHost + ":" + port;
+      try
+      {
+         InvokerLocator invokerLocator = new InvokerLocator(uri);
+         
+         this.remoteConnector = new Connector(invokerLocator);
+         this.remoteConnector.create();
+         this.mockServerInvocationHandler = new MockServerInvocationHandler(this);
+         this.remoteConnector.addInvocationHandler("EJB3Test", this.mockServerInvocationHandler);
+         
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Could not start server at " + uri, e);
+      } 
+      
    }
 
    // --------------------------------------------------------------------------------||
@@ -72,7 +145,7 @@ public class MockServer
    {
 
       // Assert test class passed in
-      assert args.length == 1 : "String fully-qualified name of test class is the required first argument";
+      assert args.length > 2 : "Parameters requried (in that order): <Fully qualified test case name> <serverBindAddress> <serverPort> ";
 
       // Get Test Class
       String testClassname = args[0];
@@ -87,12 +160,18 @@ public class MockServer
       }
 
       // Create a new Launcher
-      MockServer launcher = new MockServer(testClass);
-      MockServer.setServer(launcher);
-
-      // Initialize the launcher in a new Thread
-      new Startup(launcher).start();
-
+      // the serverBindAddress and the port are always the last two arguments
+      MockServer launcher = new MockServer(testClass,args[args.length - 2],Integer.parseInt(args[args.length -1]));
+      try
+      {
+         // Ready to receive (start/stop) requests
+         launcher.acceptRequests();
+      }
+      catch (Throwable e)
+      {
+         throw new RuntimeException("Exception while waiting for requests ",e);
+      }
+      
    }
 
    // --------------------------------------------------------------------------------||
@@ -105,12 +184,11 @@ public class MockServer
     */
    protected void initialize() throws Throwable
    {
-
       // Create and set a new MC Bootstrap 
       this.setBootstrap(EmbeddedTestMcBootstrap.createEmbeddedMcBootstrap());
 
       // Add a Shutdown Hook
-      Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+      //Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
       // Bind the Ejb3Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
@@ -146,93 +224,83 @@ public class MockServer
       // Install into MC
       this.getBootstrap().installInstance(slsbContainer.getName(), slsbContainer);
       this.getBootstrap().installInstance(sfsbContainer.getName(), sfsbContainer);
-
+      
    }
-
-   // --------------------------------------------------------------------------------||
-   // Inner Classes ------------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   protected static class Startup extends Thread implements Runnable
-   {
-
-      // --------------------------------------------------------------------------------||
-      // Instance Members ---------------------------------------------------------------||
-      // --------------------------------------------------------------------------------||
-
-      private MockServer launcher;
-
-      // --------------------------------------------------------------------------------||
-      // Constructor --------------------------------------------------------------------||
-      // --------------------------------------------------------------------------------||
-
-      /**
-       * Constructor
-       */
-      public Startup(MockServer launcher)
-      {
-         this.setLauncher(launcher);
-      }
-
-      // --------------------------------------------------------------------------------||
-      // Overridden Implementations -----------------------------------------------------||
-      // --------------------------------------------------------------------------------||
-
-      /**
-       * Starts the Remote Launcher
-       */
-      @Override
-      public void run()
-      {
-         // Initialize
-         try
-         {
-            this.getLauncher().initialize();
-         }
-         catch (Throwable e)
-         {
-            throw new RuntimeException("Could not initialize " + this.getLauncher(), e);
-         }
-
-         // Run
-         while (true);
-      }
-
-      // --------------------------------------------------------------------------------||
-      // Accessors / Mutators -----------------------------------------------------------||
-      // --------------------------------------------------------------------------------||
-
-      public MockServer getLauncher()
-      {
-         return launcher;
-      }
-
-      public void setLauncher(MockServer launcher)
-      {
-         this.launcher = launcher;
-      }
-   }
-
+   
    /**
-    * Shutdown Hook for the MockServer
+    * Starts the server <br>
+    * 
+    * @throws IllegalStateException If the server is not in {@link MockServerStatus.STOPPED}
+    *           state 
+    * @throws Throwable
     */
-   protected static class ShutdownHook extends Thread implements Runnable
+   public void start() throws Throwable
    {
-
-      // --------------------------------------------------------------------------------||
-      // Overridden Implementations -----------------------------------------------------||
-      // --------------------------------------------------------------------------------||
-
-      /**
-       * Shuts down the Bootstrap
-       */
-      @Override
-      public void run()
+      // Server will be started only if current state is STOPPED
+      if (!this.currentStatus.equals(MockServerStatus.STOPPED))
       {
-         getServer().bootstrap.shutdown();
+         throw new IllegalStateException("Cannot start MockServer when its in " + getStatus() + " state");
       }
+      initialize();
+      this.currentStatus = MockServerStatus.STARTED;
+      log.info("MockServer started");
    }
-
+   
+   /**
+    * Stops the server <br>
+    * 
+    * @throws IllegalStateException If the server is not in {@link MockServerStatus.STARTED} 
+    *           state
+    */
+   public void stop()
+   {
+      // Server will be stopped only if current state is STARTED
+      if (!this.currentStatus.equals(MockServerStatus.STARTED))
+      {
+         throw new IllegalStateException("Cannot stop MockServer when its in " + getStatus() + " state");
+      }
+      this.bootstrap.shutdown();
+      this.currentStatus = MockServerStatus.STOPPED;
+      log.info("MockServer stopped");
+      
+      // Note: Do not stop the Connector which is waiting for clients to 
+      // connect. Letting the Connector remain in waiting state will allow
+      // clients to restart this MockServer by sending the MockServerRequest.START
+      // request again.
+   }
+   
+   /**
+    * 
+    * @return Returns the current status of the server
+    */
+   public MockServerStatus getStatus()
+   {
+      return this.currentStatus;
+   }
+   
+   /**
+    * Start accepting requests <br>
+    * This is a blocking call and will wait for clients to connect
+    * 
+    * @see {@link Connector#start()}
+    * @throws Throwable
+    */
+   protected void acceptRequests() throws Throwable
+   {
+      this.remoteConnector.start();
+   }
+   
+   /**
+    * 
+    * @param serverInvocationHandler The {@link ServerInvocationHandler} to
+    *   handle requests
+    */
+   protected void setInvocationHandler(ServerInvocationHandler serverInvocationHandler)
+   {
+      this.mockServerInvocationHandler = serverInvocationHandler;
+      
+   }
+   
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
@@ -256,15 +324,6 @@ public class MockServer
    {
       this.testClass = testClass;
    }
-
-   public static MockServer getServer()
-   {
-      return server;
-   }
-
-   public static void setServer(MockServer server)
-   {
-      MockServer.server = server;
-   }
+   
 
 }
