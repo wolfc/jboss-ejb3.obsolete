@@ -31,9 +31,6 @@ import javax.jms.QueueReceiver;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
@@ -47,8 +44,7 @@ import org.jboss.ejb3.test.security.SessionFacade;
 import org.jboss.ejb3.test.security.StatefulSession;
 import org.jboss.ejb3.test.security.StatelessSession;
 import org.jboss.logging.Logger;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.auth.login.XMLLoginConfigImpl; 
+import org.jboss.security.auth.login.XMLLoginConfigImpl;
 import org.jboss.test.JBossTestCase;
 
 
@@ -613,7 +609,7 @@ private void logout() throws Exception
 public static Test suite() throws Exception
 {
    try {
-      Configuration.setConfiguration(new XMLLoginConfigImpl());
+      Configuration.setConfiguration(XMLLoginConfigImpl.getInstance());
       return getDeploySetup(EJBSpecUnitTestCase.class, "security-spec.sar,security.jar");
    }
    catch (Exception e)

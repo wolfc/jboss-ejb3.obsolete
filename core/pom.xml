@@ -275,6 +275,13 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
+      <exclusions>
+        <!-- Conflicts with org.jboss.security:jbosssx -->
+        <exclusion>
+          <groupId>org.jboss.security</groupId>
+          <artifactId>jbosssx-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
@@ -542,6 +549,11 @@
           <groupId>org.jboss.jbossas</groupId>
           <artifactId>jboss-as-security</artifactId>
         </exclusion>        
+        <!-- Conflicts with org.jboss.security:jbosssx -->
+        <exclusion>
+          <groupId>org.jboss.security</groupId>
+          <artifactId>jbosssx-client</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.jboss.ws.native</groupId>
           <artifactId>jbossws-native-jaxws</artifactId>
@@ -575,7 +587,7 @@
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbosssx</artifactId>
-      <version>2.0.2.CR5</version>
+      <version>2.0.2.SP2</version>
     </dependency>
     
      <dependency>

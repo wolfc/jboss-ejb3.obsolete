@@ -80,7 +80,7 @@ extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      Configuration.setConfiguration(new XMLLoginConfigImpl());
+      Configuration.setConfiguration(XMLLoginConfigImpl.getInstance());
       return getDeploySetup(Tck5SecTestCase.class, "tck5sec-test.ear");
 
    }
