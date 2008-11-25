@@ -345,10 +345,35 @@ public abstract class JndiSessionRegistrarBase
 
                // Get the client bind URL
                String clientBindUrl = defaultClientBindUrl;
+
+               // Override the client bind URL with that associated with @RemoteBinding.invokerName
+               String remoteBindingInvokerBindName = binding.getInvokerName();
+               boolean remoteBindingInvokerNameDefined = remoteBindingInvokerBindName != null
+                     && remoteBindingInvokerBindName.trim().length() > 0;
+               if (remoteBindingInvokerNameDefined)
+               {
+                  clientBindUrl = ProxyRemotingUtils.getClientBinding(remoteBindingInvokerBindName);
+                  log.debug("Using client bind URL of " + clientBindUrl + " as specified by invokerName "
+                        + remoteBindingInvokerBindName + " for EJB " + smd.getName() + " with JNDI Binding: "
+                        + remoteBindingJndiName);
+               }
+
+               // Override the client bind URL with that specified from @RemoteBinding.clientBindUrl
                String remoteBindingClientBindUrl = binding.getClientBindUrl();
                if (remoteBindingClientBindUrl != null && remoteBindingClientBindUrl.trim().length() > 0)
                {
                   clientBindUrl = remoteBindingClientBindUrl;
+                  log.debug("Using client bind URL of " + clientBindUrl + " as specified by clientBindUrl "
+                        + remoteBindingClientBindUrl + " for EJB " + smd.getName() + " with JNDI Binding: "
+                        + remoteBindingJndiName);
+
+                  // Warn the user if he's provided two overrides
+                  if (remoteBindingInvokerNameDefined)
+                  {
+                     log.warn("Both invokerName and clientBindUrl have been specified on "
+                           + RemoteBindingMetaData.class.getSimpleName() + " for EJB " + smd.getName()
+                           + "; clientBindUrl takes priority");
+                  }
                }
 
                // Get the interceptor stack
