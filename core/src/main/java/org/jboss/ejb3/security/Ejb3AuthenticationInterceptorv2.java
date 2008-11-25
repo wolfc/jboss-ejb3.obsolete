@@ -34,6 +34,8 @@ import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.logging.Logger;
 import org.jboss.security.ISecurityManagement;
+import org.jboss.security.RunAs;
+import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityUtil;
 import org.jboss.security.javaee.EJBAuthenticationHelper;
@@ -126,7 +128,7 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          {
             throw new RuntimeException(e);
          } 
-         boolean trustedCaller = helper.isTrusted();
+         boolean trustedCaller = hasIncomingRunAsIdentity(sc) || helper.isTrusted();
          if(!trustedCaller)
          {
             Subject subject = new Subject();
@@ -181,5 +183,12 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
    private ISecurityManagement getSecurityManagement() throws Exception
    {
       Class<?> clazz = SecurityActions.loadClass("org.jboss.security.integration.JNDIBasedSecurityManagement");
-      return (ISecurityManagement) clazz.newInstance();    }
+      return (ISecurityManagement) clazz.newInstance();    
+   }
+   
+   private boolean hasIncomingRunAsIdentity(SecurityContext sc)
+   {
+      RunAs incomingRunAs = sc.getIncomingRunAs();
+      return incomingRunAs != null && incomingRunAs instanceof RunAsIdentity;
+   }
 }
