@@ -21,22 +21,14 @@
  */
 package org.jboss.ejb3.deployers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.ejb3.common.metadata.MetadataUtil;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.process.chain.ProcessorChain;
-import org.jboss.metadata.process.chain.ejb.jboss.JBossMetaDataProcessorChain;
-import org.jboss.metadata.process.processor.JBossMetaDataProcessor;
-import org.jboss.metadata.process.processor.ejb.jboss.ClusterConfigDefaultValueProcessor;
-import org.jboss.metadata.process.processor.ejb.jboss.JBossMetaDataValidatorChainProcessor;
-import org.jboss.metadata.process.processor.ejb.jboss.SetDefaultLocalBusinessInterfaceProcessor;
-import org.jboss.metadata.process.processor.ejb.jboss.SetExplicitLocalJndiNameProcessor;
 
 /**
  * Ejb3MetadataProcessingDeployer
@@ -121,8 +113,8 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
          return;
       }
 
-      // Get a Processor Chain
-      ProcessorChain<JBossMetaData> chain = this.getProcessorChain(du);
+      // Get the Processor Chain
+      ProcessorChain<JBossMetaData> chain = MetadataUtil.getPostMergeMetadataProcessorChain(du.getClassLoader());
 
       // Create new processed metadata
       JBossMetaData processedMetadata = chain.process(md);
@@ -130,85 +122,4 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
       // Set the processed metadata as the output
       du.addAttachment(OUTPUT, processedMetadata, JBossMetaData.class);
    }
-
-   // ------------------------------------------------------------------------------||
-   // Internal Helper Methods ------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /**
-    * Obtains the ProcessorChain to be run on the merged metadata
-    * 
-    * @param du
-    */
-   protected ProcessorChain<JBossMetaData> getProcessorChain(DeploymentUnit du)
-   {
-      // Initialize
-      ProcessorChain<JBossMetaData> chain = new JBossMetaDataProcessorChain<JBossMetaData>();
-      StringBuffer logMessage = new StringBuffer("Creating ");
-      logMessage.append(ProcessorChain.class.getSimpleName());
-      logMessage.append(" with the following Processors:");
-
-      // Obtain processors to put in the chain
-      Collection<JBossMetaDataProcessor<JBossMetaData>> processors = this.getProcessors(du);
-
-      // For each of the processors
-      if (processors != null)
-      {
-         for (JBossMetaDataProcessor<JBossMetaData> processor : processors)
-         {
-            // Add to the chain
-            chain.addProcessor(processor);
-            logMessage.append(" ");
-            logMessage.append(processor);
-         }
-      }
-
-      // Log
-      log.debug(logMessage.toString());
-
-      // Return
-      return chain;
-
-   }
-
-   /**
-    * Obtains the processors to use in the ProcessorChain to be run 
-    * on the merged metadata attachment of the DeploymentUnit
-    * 
-    * @param du
-    * @return
-    */
-   @SuppressWarnings("unchecked")
-   protected Collection<JBossMetaDataProcessor<JBossMetaData>> getProcessors(DeploymentUnit du)
-   {
-      // Initialize
-      Collection<JBossMetaDataProcessor<JBossMetaData>> processors = new ArrayList<JBossMetaDataProcessor<JBossMetaData>>();
-
-      /*
-       * Add processors
-       * 
-       * Maintainer's note: The order here is preserved
-       */
-
-      // JBMETA-122 Implicit Local Business Interface
-      ClassLoader deploymentCl = du.getClassLoader();
-      processors.add(new SetDefaultLocalBusinessInterfaceProcessor<JBossMetaData>(deploymentCl));
-
-      // JBMETA-133, EJBTHREE-1539 Default ClusterConfig
-      processors.add(ClusterConfigDefaultValueProcessor.INSTANCE);
-      
-      // JBMETA-143 Set explicit local JNDI name from @LocalBinding.jndiBinding
-      processors.add(SetExplicitLocalJndiNameProcessor.INSTANCE);
-
-      // JBMETA-118 Validation
-      processors.add(JBossMetaDataValidatorChainProcessor.INSTANCE);
-
-      /*
-       * End Processor Adding
-       */
-
-      // Return
-      return processors;
-   }
-
 }

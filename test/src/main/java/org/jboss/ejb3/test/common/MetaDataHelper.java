@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 
 import org.jboss.annotation.javaee.Descriptions;
+import org.jboss.ejb3.common.metadata.MetadataUtil;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.annotation.creator.ProcessorUtils;
 import org.jboss.metadata.annotation.creator.ejb.jboss.JBoss50Creator;
@@ -41,10 +42,9 @@ import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.BasicJndiBindingPolicy;
 import org.jboss.metadata.ejb.jboss.jndipolicy.plugins.JBossSessionPolicyDecorator;
-import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
-import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 import org.jboss.metadata.javaee.spec.ResourceInjectionTargetMetaData;
 import org.jboss.metadata.javaee.spec.ResourceReferenceMetaData;
+import org.jboss.metadata.process.chain.ProcessorChain;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
@@ -94,49 +94,15 @@ public class MetaDataHelper
       // Use a Session JNDI Binding Policy for the metadata
       JBossSessionPolicyDecorator beanMetaData = new JBossSessionPolicyDecorator(beanMetaDataDelegate,
             new BasicJndiBindingPolicy());
-
+      
       /*
-       * Log Out JNDI Names
+       * Mock the post-merge processing deployers
        */
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+      ProcessorChain<JBossMetaData> chain = MetadataUtil.getPostMergeMetadataProcessorChain(cl);
+      chain.process(metadata);
 
-      // Business Remotes
-      BusinessRemotesMetaData businessRemotes = beanMetaData.getBusinessRemotes();
-      if (businessRemotes != null)
-      {
-         log.info("Business Remote JNDI Name: " + beanMetaData.getJndiName()); // [beanName]/remote
-         for (String businessInterface : beanMetaData.getBusinessRemotes())
-         {
-            log.info("Business Remote JNDI Name for " + businessInterface + ": "
-                  + beanMetaData.determineResolvedJndiName(businessInterface));
-         }
-      }
-
-      // Business Locals
-      BusinessLocalsMetaData businessLocals = beanMetaData.getBusinessLocals();
-      if (businessLocals != null)
-      {
-         log.info("Local JNDI Name: " + beanMetaData.getLocalJndiName()); // [beanName]/local
-         for (String businessInterface : beanMetaData.getBusinessLocals())
-         {
-            log.info("Business Local JNDI Name for " + businessInterface + ": "
-                  + beanMetaData.determineResolvedJndiName(businessInterface));
-         }
-      }
-
-      // Local Home
-      String localHome = beanMetaData.getLocalHome();
-      if (localHome != null && !localHome.trim().equals(""))
-      {
-         log.info("Local Home JNDI Name: " + beanMetaData.determineResolvedJndiName(localHome));
-      }
-
-      // Home
-      String home = beanMetaData.getHome();
-      if (home != null && !home.trim().equals(""))
-      {
-         log.info("Home JNDI Name: " + beanMetaData.determineResolvedJndiName(home));
-      }
-
+      // Return
       return beanMetaData;
    }
 
