@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.proxy.jndiregistrar;
 
+import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
@@ -37,13 +38,17 @@ import org.jboss.ejb3.annotation.RemoteBindings;
  * @version $Revision: $
  */
 @Stateless
+@Local(LocalJndiBindingTest.class)
 @Remote(ClientBindUrlBindingTest.class)
 @RemoteBindings(
 {
       @RemoteBinding(jndiBinding = ClientBindUrlBindingTest.JNDI_BINDING_1, clientBindUrl = ClientBindUrlBindingTest.CLIENT_BIND_URL_1),
       @RemoteBinding(jndiBinding = ClientBindUrlBindingTest.JNDI_BINDING_2, clientBindUrl = ClientBindUrlBindingTest.CLIENT_BIND_URL_2)})
 @LocalBinding(jndiBinding = LocalJndiBindingTest.JNDI_BINDING)
-public class ClientBindUrlTestBean extends JndiBindingTestBeanBase implements ClientBindUrlBindingTest
+public class ClientBindUrlTestBean extends JndiBindingTestBeanBase
+      implements
+         ClientBindUrlBindingTest,
+         LocalJndiBindingTest
 {
 
 }
