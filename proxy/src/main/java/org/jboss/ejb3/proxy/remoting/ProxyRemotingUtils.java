@@ -59,7 +59,10 @@ public class ProxyRemotingUtils
    private static final String OBJECT_NAME_REMOTING_CONNECTOR = "org.jboss.ejb3.RemotingConnector";
 
    /**
-    * The default URL for InvokerLocator in the case @RemoteBinding does not specify it
+    * The default URL for InvokerLocator in the case @RemoteBinding 
+    * does not specify it
+    * 
+    * Synchronization policy on "this"
     */
    protected static String DEFAULT_CLIENT_BINDING;
 
@@ -86,17 +89,12 @@ public class ProxyRemotingUtils
       // If the binding has not yet been set
       if (DEFAULT_CLIENT_BINDING == null)
       {
-
          try
          {
-            // Lookup the Connector in MC
-            Connector connector = Ejb3RegistrarLocator.locateRegistrar().lookup(OBJECT_NAME_REMOTING_CONNECTOR,
-                  Connector.class);
-
             // Use the binding specified by the Connector
             try
             {
-               DEFAULT_CLIENT_BINDING = connector.getInvokerLocator();
+               DEFAULT_CLIENT_BINDING = getClientBinding(OBJECT_NAME_REMOTING_CONNECTOR);
             }
             catch (Exception e)
             {
@@ -119,6 +117,48 @@ public class ProxyRemotingUtils
 
       // Return
       return DEFAULT_CLIENT_BINDING;
+   }
+
+   /**
+    * Obtains the client binding for the specified 
+    * invokerName (supplied as the Object Store bind name in
+    * MC)
+    * 
+    * @param invokerName
+    * @return
+    * @throws NotBoundException If the specified invokerName is not bound in MC
+    */
+   public static String getClientBinding(String invokerName) throws NotBoundException
+   {
+      // Initialize
+      String url = null;
+      Connector connector = null;
+
+      // Lookup the Connector in MC
+      try
+      {
+         connector = Ejb3RegistrarLocator.locateRegistrar().lookup(invokerName, Connector.class);
+      }
+      catch (NotBoundException nbe)
+      {
+         // Log and rethrow
+         log.warn("Could not find the remoting connector for the specified invoker name, " + invokerName + " in MC");
+         throw nbe;
+      }
+
+      // Use the binding specified by the Connector
+      try
+      {
+         url = connector.getInvokerLocator();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Could not obtain " + InvokerLocator.class.getSimpleName()
+               + " from EJB3 Remoting Connector", e);
+      }
+
+      // Return
+      return url;
    }
 
    /**
