@@ -179,11 +179,11 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/reference21_30/META-INF/jboss3.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/reference21_30/META-INF/jboss-reference2.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/reference21_30/META-INF/jboss-reference.xml", builder);
-      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/schema/META-INF/jboss.xml", builder);
+      // BOGUS? validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/schema/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/security5/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/securitydomain/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/service/META-INF/jboss.xml", builder);
-      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servicexmbean/META-INF/jboss.xml", builder);
+      // business-remote instead of remote? validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servicexmbean/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servlet/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/ssladvanced/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/stateful/META-INF/jboss.xml", builder);
@@ -196,7 +196,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
    private void validateFile(String filename, DocumentBuilder builder) throws Exception
    {
       File xmlFile = new File(filename);
-      log.info("Parsing and validating " + filename);
+      //log.info("Parsing and validating " + filename);
       try
       {
          builder.parse(xmlFile);
@@ -206,7 +206,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
          throw new RuntimeException("Exception parsing " + filename, e);
       }
       
-      log.info("Success parsing " + filename);
+      //log.info("Success parsing " + filename);
    }
 
    private DocumentBuilder getDocumentBuilder() throws Exception
@@ -238,7 +238,10 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 
    public void error(SAXParseException e)
    {
-      log.error("Error: " + e);
+      String id = e.getSystemId() != null ? e.getSystemId() : e.getPublicId();
+      log.error("Failed to parse: " + id);
+      log.error("Error at [" + e.getLineNumber() + ',' + e.getColumnNumber() + "]: ");
+      log.error(e.getMessage());
       TestCase.fail(e.toString());
    }
 

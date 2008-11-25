@@ -49,10 +49,6 @@
             	<ejb-ref-type>Session</ejb-ref-type>
             	<remote>org.jboss.ejb3.test.consumer.StatelessRemote</remote>
             	<ejb-link>StatelessBean</ejb-link>
-            	<injection-target>
-               		<injection-target-class>org.jboss.ejb3.test.consumer.DeploymentDescriptorQueueTestConsumer</injection-target-class>
-               		<injection-target-name>stateless</injection-target-name>
-            	</injection-target>
             	<jndi-name>StatelessBean/remote</jndi-name>
          	</ejb-ref>
 			<ejb-local-ref>
@@ -60,11 +56,15 @@
             	<ejb-ref-type>Session</ejb-ref-type>
             	<local>org.jboss.ejb3.test.consumer.StatelessLocal</local>
             	<ejb-link>StatelessBean</ejb-link>
+                <local-jndi-name>StatelessBean/local</local-jndi-name>
             	<injection-target>
                		<injection-target-class>org.jboss.ejb3.test.consumer.DeploymentDescriptorQueueTestConsumer</injection-target-class>
                		<injection-target-name>setStatelessLocal</injection-target-name>
             	</injection-target>
-                <local-jndi-name>StatelessBean/local</local-jndi-name>
+            	<injection-target>
+               		<injection-target-class>org.jboss.ejb3.test.consumer.DeploymentDescriptorQueueTestConsumer</injection-target-class>
+               		<injection-target-name>stateless</injection-target-name>
+            	</injection-target>
          	</ejb-local-ref>
             <resource-ref>
             	<res-ref-name>testDatasource</res-ref-name>

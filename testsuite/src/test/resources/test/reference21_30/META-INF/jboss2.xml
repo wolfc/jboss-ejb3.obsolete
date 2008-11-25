@@ -7,8 +7,7 @@
         version="3.0">
    <enterprise-beans>
       <session>
-         <ejb-name>ejb/Test2</ejb-name>
-         <jndi-name>Test2</jndi-name>
+         <ejb-name>ejb_Test2</ejb-name>
          <ejb-ref>
 		    <ejb-ref-name>ejb/Test3Home</ejb-ref-name>
 		    <jndi-name>Test3/home</jndi-name>
@@ -17,6 +16,9 @@
             <ejb-ref-name>ejb/Test3</ejb-ref-name>
             <jndi-name>Test3Remote</jndi-name>
          </ejb-ref>
+
+         <jndi-name>Test2</jndi-name>
+
       </session>
    </enterprise-beans>
 </jboss>

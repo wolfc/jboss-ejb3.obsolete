@@ -8,7 +8,6 @@
     <enterprise-beans>
         <session>
             <ejb-name>ENCBean</ejb-name>
-            <jndi-name>ENCBeanJndiName</jndi-name>
 
             <resource-ref>
                 <res-ref-name>jdbc/DefaultDS</res-ref-name>
@@ -32,6 +31,8 @@
                <message-destination-ref-name>mdr/ConsumesProducesJNDIName</message-destination-ref-name>
                <jndi-name>queue/A</jndi-name>
             </message-destination-ref>
+
+            <jndi-name>ENCBeanJndiName</jndi-name>
 
         </session>
          <session>

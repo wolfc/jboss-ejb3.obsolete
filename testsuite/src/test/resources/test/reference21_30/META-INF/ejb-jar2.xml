@@ -4,7 +4,7 @@
 <ejb-jar>
 	<enterprise-beans>
 		<session>
-        	<ejb-name>ejb/Test2</ejb-name>
+        	<ejb-name>ejb_Test2</ejb-name>
          	<home>org.jboss.ejb3.test.reference21_30.Test2Home</home>
          	<remote>org.jboss.ejb3.test.reference21_30.Test2</remote>
          	<ejb-class>org.jboss.ejb3.test.reference21_30.Test2Bean</ejb-class>
