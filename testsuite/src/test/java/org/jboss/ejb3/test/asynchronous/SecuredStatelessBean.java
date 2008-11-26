@@ -27,11 +27,13 @@ import java.util.concurrent.Future;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
@@ -46,9 +48,6 @@ import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
 @Local(SecuredStatelessLocal.class)
 public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStatelessLocal
 {
-   @EJB
-   public SecuredStatelessLocal local;
-
    @PermitAll
    public int uncheckedMethod(int i)
    {
@@ -64,6 +63,17 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
    @RolesAllowed("allowed")
    public int method(int i)
    {
+      
+      SecuredStatelessLocal local = null;
+      try
+      {
+         Context context = new InitialContext();
+         local = (SecuredStatelessLocal) context.lookup(SecuredStatelessBean.class.getSimpleName() + "/local");
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException(e);
+      }
       SecuredStatelessLocal asynchLocal = AsyncUtils.mixinAsync(local);
 
       asynchLocal.excludedMethod(i);
