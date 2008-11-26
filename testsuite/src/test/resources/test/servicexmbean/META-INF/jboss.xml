@@ -8,9 +8,9 @@
    <enterprise-beans>
       <service>
          <ejb-name>ServiceOneDeploymentDescriptor</ejb-name>
+         <business-remote>org.jboss.ejb3.test.servicexmbean.ServiceOneRemote</business-remote>
          <ejb-class>org.jboss.ejb3.test.servicexmbean.ServiceOneDeploymentDescriptor</ejb-class>
          <object-name>jboss.ejb3.test:service=ServiceOneDeploymentDescriptor</object-name>
-         <remote>org.jboss.ejb3.test.servicexmbean.ServiceOneRemote</remote>
          <xmbean>resource:service-xmbean.xml</xmbean>
          <jndi-name>ServiceOneDeploymentDescriptor/remote</jndi-name>
       </service>
