@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.test.asynchronous.unit;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
@@ -35,7 +34,6 @@ import junit.framework.Test;
 
 import org.jboss.ejb3.common.proxy.plugins.async.AsyncProvider;
 import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
-import org.jboss.ejb3.proxy.JBossProxy;
 import org.jboss.ejb3.test.asynchronous.SecuredStatelessRemote;
 import org.jboss.ejb3.test.asynchronous.ServiceRemote;
 import org.jboss.ejb3.test.asynchronous.StatefulClusteredRemote;
