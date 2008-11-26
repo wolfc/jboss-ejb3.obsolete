@@ -183,7 +183,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/security5/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/securitydomain/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/service/META-INF/jboss.xml", builder);
-      // business-remote instead of remote? validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servicexmbean/META-INF/jboss.xml", builder);
+      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servicexmbean/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servlet/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/ssladvanced/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/stateful/META-INF/jboss.xml", builder);
