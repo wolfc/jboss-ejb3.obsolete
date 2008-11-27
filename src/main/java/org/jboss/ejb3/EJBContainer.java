@@ -67,6 +67,7 @@ import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.beans.metadata.api.annotations.Inject;
+import org.jboss.beans.metadata.api.model.InjectOption;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -1558,7 +1559,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       beanContainer.reinitializeAdvisor();
    }
    
-   @Inject
+   @Inject(option=InjectOption.OPTIONAL)
    public void setCachedConnectionManager(CachedConnectionManager ccm)
    {
       this.cachedConnectionManager = ccm;
