@@ -98,6 +98,11 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       builder.setConstructorValue(component);
       addDependencies(builder, unit, component);
       
-      unit.addAttachment(BeanMetaData.class, builder.getBeanMetaData());
+      DeploymentUnit parent = unit.getParent();
+      assert parent != null : "parent should not be null of component " + unit;
+      
+      // add the bean meta data to the parent, because else scope merging won't occur (whatever that is)
+      // (e.g. the bean won't get injected)
+      parent.addAttachment(BeanMetaData.class + ":" + componentName, builder.getBeanMetaData());
    }
 }

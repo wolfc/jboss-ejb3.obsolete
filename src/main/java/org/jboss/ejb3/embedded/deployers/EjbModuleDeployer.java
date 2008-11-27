@@ -72,12 +72,20 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
       {
          log.info("Found " + metaData + " in " + unit);
          
+         // FIXME
+         if(metaData.getEnterpriseBeans() == null)
+         {
+            log.warn(unit + " contains no beans");
+            return;
+         }
+         
          Ejb3Deployment module = createModule(unit, metaData);
          unit.addAttachment(Ejb3Deployment.class, module);
          
-         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder("org.jboss.ejb3.deployment:" + unit.getSimpleName(), module.getClass().getName());
+         String name = "org.jboss.ejb3.deployment:" + unit.getSimpleName();
+         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(name, module.getClass().getName());
          builder.setConstructorValue(module);
-         unit.addAttachment(BeanMetaData.class, builder.getBeanMetaData());
+         unit.addAttachment(BeanMetaData.class + ":" + name, builder.getBeanMetaData());
          
          for(JBossEnterpriseBeanMetaData bean : metaData.getEnterpriseBeans())
          {
@@ -93,6 +101,12 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
 
       public void undeploy(DeploymentUnit unit, JBossMetaData metaData)
       {
+         // FIXME
+         if(metaData.getEnterpriseBeans() == null)
+         {
+            return;
+         }
+         
          for(JBossEnterpriseBeanMetaData bean : metaData.getEnterpriseBeans())
          {
             unit.removeComponent(bean.getEjbName());
