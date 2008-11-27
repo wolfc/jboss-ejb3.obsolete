@@ -28,6 +28,7 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.aop.AbstractInterceptor;
+import org.jboss.logging.Logger;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -35,6 +36,7 @@ import org.jboss.ejb3.aop.AbstractInterceptor;
  */
 public class CachedConnectionInterceptor extends AbstractInterceptor
 {
+   private static final Logger log = Logger.getLogger(CachedConnectionInterceptor.class);
    private final Set<String> unsharableResources;
    
    public CachedConnectionInterceptor(Set<String> unsharableResources)
@@ -47,6 +49,11 @@ public class CachedConnectionInterceptor extends AbstractInterceptor
       EJBContainerInvocation<EJBContainer, BeanContext<?>> containerInvocation = (EJBContainerInvocation<EJBContainer, BeanContext<?>>) invocation;
       EJBContainer container = getEJBContainer(invocation);
       CachedConnectionManager ccm = container.getCachedConnectionManager();
+      if(ccm == null)
+      {
+         log.warn("EJBTHREE-1028: No ejb3 CachedConnectionManager installed");
+         return containerInvocation.invokeNext();
+      }
       Object key = containerInvocation.getBeanContext().getInstance();
       ccm.pushMetaDataAwareObject(key, unsharableResources);
       try
