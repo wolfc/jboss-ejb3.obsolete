@@ -201,11 +201,6 @@
       <artifactId>jboss-server-manager</artifactId>
       <scope>test</scope>      
     </dependency>  
-      
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-transaction-spi</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>org.jboss</groupId>
@@ -280,6 +275,10 @@
         <exclusion>
           <groupId>org.jboss.security</groupId>
           <artifactId>jbosssx-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-transaction-spi</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -402,7 +401,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-transactions</artifactId>
-      <version>0.13.6</version>
+      <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>
