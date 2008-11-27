@@ -164,6 +164,8 @@
                 <exclude>org.jboss:javassist</exclude>
                 <!-- deprecated, should be org.jboss.metadata:jboss-metadata -->
                 <exclude>org.jboss:jboss-metadata</exclude>
+                <!-- deprecated, should be org.jboss.integration:jboss-transaction-spi -->
+                <exclude>org.jboss:jboss-transaction-spi</exclude>
                 <!-- deprecated, split up into multiple components -->
                 <exclude>org.jboss.microcontainer:jboss-container</exclude>
                 <!-- deprecated, should be org.jboss.deployers:jboss-deployers-core-spi -->
