@@ -85,6 +85,8 @@ public class JBossEJBContainer extends EJBContainer
          
          deploy("META-INF/jpa-deployers-beans.xml");
          
+         deploy("META-INF/ejb-container-beans.xml");
+         
          deployMain("ejb3-interceptors-aop.xml");
          
          deployModules(modules);
