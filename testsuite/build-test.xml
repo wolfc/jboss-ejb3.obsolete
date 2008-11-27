@@ -2334,6 +2334,10 @@
       <build-simple-jar name="ejbthree1025"/>
    </target>
 	
+   <target name="ejbthree1028" description="Builds a simple jar file.">
+      <build-simple-jar name="ejbthree1028"/>
+   </target>
+   
 	<target name="ejbthree1040"
       description="Builds a simple jar files."
       >	      
@@ -4231,7 +4235,9 @@
       ejbthree832, ejbthree921, ejbthree936,
       ejbthree939,
       ejbthree953, ejbthree957, ejbthree959, ejbthree963, ejbthree967, ejbthree971, ejbthree973, ejbthree985, ejbthree986,
-      ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025, ejbthree1040,
+      ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025,
+      ejbthree1028,
+      ejbthree1040,
       ejbthree1057, ejbthree1059, ejbthree1060,
       ejbthree1062,
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
@@ -4977,6 +4983,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1025"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1028"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1040"/>

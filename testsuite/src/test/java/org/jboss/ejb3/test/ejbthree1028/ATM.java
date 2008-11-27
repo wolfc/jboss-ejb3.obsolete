@@ -19,34 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.common;
+package org.jboss.ejb3.test.ejbthree1028;
 
-import org.jboss.test.JBossTestCase;
+import javax.ejb.Remote;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class EJB3TestCase extends JBossTestCase
+@Remote
+public interface ATM
 {
-   protected EJB3TestCase(String name)
-   {
-      super(name);
-   }
-
-   protected <T> T lookup(String name, Class<T> expectedType) throws Exception
-   {
-      return expectedType.cast(getInitialContext().lookup(name));
-   }
+   long createAccount(double balance);
    
-   /**
-    * Make sure the deployment is successful.
-    * @throws Exception
-    */
-   public final void testServerFound() throws Exception
-   {
-      // we don't want this done in suite, because then the individual
-      // failure count for this test would go down. (1 failure instead of many)
-      serverFound();
-   }
+   double getBalance(long id);
+   
+   double depositTwiceWithRollback(long id, double a1, double a2);
+   
+   double withdrawTwiceWithRollback(long id, double a1, double a2);
 }

@@ -19,34 +19,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.common;
+package org.jboss.ejb3.test.ejbthree1028;
 
-import org.jboss.test.JBossTestCase;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class EJB3TestCase extends JBossTestCase
+@Entity
+public class Account
 {
-   protected EJB3TestCase(String name)
+   private long id;
+   private double balance; // don't look, not financially save
+   
+   public double getBalance()
    {
-      super(name);
-   }
-
-   protected <T> T lookup(String name, Class<T> expectedType) throws Exception
-   {
-      return expectedType.cast(getInitialContext().lookup(name));
+      return balance;  
    }
    
-   /**
-    * Make sure the deployment is successful.
-    * @throws Exception
-    */
-   public final void testServerFound() throws Exception
+   @Id
+   @GeneratedValue
+   public long getId()
    {
-      // we don't want this done in suite, because then the individual
-      // failure count for this test would go down. (1 failure instead of many)
-      serverFound();
+      return id;
+   }
+   
+   public void setBalance(double balance)
+   {
+      this.balance = balance;
+   }
+   
+   public void setId(long id)
+   {
+      this.id = id;
    }
 }

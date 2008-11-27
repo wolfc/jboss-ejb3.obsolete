@@ -38,7 +38,6 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.InitialContextFactory;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
-import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
@@ -133,6 +132,7 @@ public abstract class AbstractEJB3TestCase
       deploy("statefulcontainer-beans.xml");
       deploy("statelesscontainer-beans.xml");
       deploy("connector-beans.xml");
+      deploy("container-beans.xml");
 
       // TODO: AspectDeployment
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
@@ -350,6 +350,24 @@ public abstract class AbstractEJB3TestCase
          throw new RuntimeException("Object Store already has binding under " + containerName, dbe);
       }
 
+      // make sure we're installed
+      try
+      {
+         bootstrap.lookup(containerName, Object.class);
+      }
+      catch(RuntimeException e)
+      {
+         throw e;
+      }
+      catch(Error e)
+      {
+         throw e;
+      }
+      catch(Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
+      
       // Return
       return container;
    }

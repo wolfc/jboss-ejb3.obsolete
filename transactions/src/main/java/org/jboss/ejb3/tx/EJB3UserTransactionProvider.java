@@ -19,34 +19,49 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.common;
+package org.jboss.ejb3.tx;
 
-import org.jboss.test.JBossTestCase;
+import org.jboss.tm.usertx.UserTransactionProvider;
+import org.jboss.tm.usertx.UserTransactionRegistry;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @version $Revision: $
  */
-public abstract class EJB3TestCase extends JBossTestCase
+public class EJB3UserTransactionProvider implements UserTransactionProvider
 {
-   protected EJB3TestCase(String name)
-   {
-      super(name);
-   }
+   /** The singleton */
+   private static EJB3UserTransactionProvider singleton = new EJB3UserTransactionProvider();
+   
+   /** The registry */
+   private volatile UserTransactionRegistry registry;
 
-   protected <T> T lookup(String name, Class<T> expectedType) throws Exception
-   {
-      return expectedType.cast(getInitialContext().lookup(name));
+   private EJB3UserTransactionProvider()
+   {   
    }
    
    /**
-    * Make sure the deployment is successful.
-    * @throws Exception
+    * Get the singleton
+    * 
+    * @return the singleton
     */
-   public final void testServerFound() throws Exception
+   public static EJB3UserTransactionProvider getSingleton()
    {
-      // we don't want this done in suite, because then the individual
-      // failure count for this test would go down. (1 failure instead of many)
-      serverFound();
+      return singleton;
+   }
+   
+   public void setTransactionRegistry(UserTransactionRegistry registry)
+   {
+      this.registry = registry;
+   }
+
+   /**
+    * Fire the user transaction started event
+    */
+   void userTransactionStarted() 
+   {
+      assert registry != null : "registry is null";
+      registry.userTransactionStarted();
    }
 }

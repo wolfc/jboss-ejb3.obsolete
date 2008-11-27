@@ -66,12 +66,14 @@ import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
 import org.jboss.ejb3.common.spi.ErrorCodes;
+import org.jboss.ejb3.connectionmanager.CachedConnectionManager;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
@@ -189,6 +191,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    private ReadWriteLock containerLock = new ReentrantReadWriteLock();
    
    private static final Interceptor[] currentInvocationStack = new Interceptor[] { new CurrentInvocationInterceptor() };
+   
+   private CachedConnectionManager cachedConnectionManager;
    
    /**
     * @param name                  Advisor name
@@ -723,6 +727,11 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       return encInjectors;
    }
 
+   public CachedConnectionManager getCachedConnectionManager()
+   {
+      return cachedConnectionManager;
+   }
+   
    public ClassLoader getClassloader()
    {
       return classloader;
@@ -1547,6 +1556,12 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       // FIXME: because of the flaked life cycle of an EJBContainer (we add annotations after it's been
       // constructed), we must reinitialize the whole thing. 
       beanContainer.reinitializeAdvisor();
+   }
+   
+   @Inject
+   public void setCachedConnectionManager(CachedConnectionManager ccm)
+   {
+      this.cachedConnectionManager = ccm;
    }
    
    public void setDirectContainer(DirectContainer<EJBContainer> container)

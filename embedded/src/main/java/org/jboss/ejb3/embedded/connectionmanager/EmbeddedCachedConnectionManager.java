@@ -19,34 +19,26 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.common;
+package org.jboss.ejb3.embedded.connectionmanager;
 
-import org.jboss.test.JBossTestCase;
+import java.util.Set;
+
+import javax.resource.ResourceException;
+
+import org.jboss.ejb3.connectionmanager.CachedConnectionManager;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class EJB3TestCase extends JBossTestCase
+public class EmbeddedCachedConnectionManager implements CachedConnectionManager
 {
-   protected EJB3TestCase(String name)
+   public void popMetaDataAwareObject(Set<String> unsharableResources) throws ResourceException
    {
-      super(name);
    }
 
-   protected <T> T lookup(String name, Class<T> expectedType) throws Exception
+   public void pushMetaDataAwareObject(Object key, Set<String> unsharableResources) throws ResourceException
    {
-      return expectedType.cast(getInitialContext().lookup(name));
    }
-   
-   /**
-    * Make sure the deployment is successful.
-    * @throws Exception
-    */
-   public final void testServerFound() throws Exception
-   {
-      // we don't want this done in suite, because then the individual
-      // failure count for this test would go down. (1 failure instead of many)
-      serverFound();
-   }
+
 }
