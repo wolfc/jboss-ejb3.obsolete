@@ -31,5 +31,4 @@ public interface TesterMBean
    void testSLLocalAsynchronous() throws Exception;
    void testSFLocalAsynchronous() throws Exception;
    void testServiceLocalAsynchronous() throws Exception;
-   void testLocalAsynchTransaction() throws Exception;
 }

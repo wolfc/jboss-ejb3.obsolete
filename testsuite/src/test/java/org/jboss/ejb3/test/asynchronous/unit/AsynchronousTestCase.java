@@ -21,14 +21,11 @@
  */
 package org.jboss.ejb3.test.asynchronous.unit;
 
-import java.util.Collection;
 import java.util.concurrent.Future;
 
 import javax.ejb.EJBAccessException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-import javax.transaction.RollbackException;
-import javax.transaction.UserTransaction;
 
 import junit.framework.Test;
 
@@ -40,7 +37,6 @@ import org.jboss.ejb3.test.asynchronous.StatefulClusteredRemote;
 import org.jboss.ejb3.test.asynchronous.StatefulRemote;
 import org.jboss.ejb3.test.asynchronous.StatelessClusteredRemote;
 import org.jboss.ejb3.test.asynchronous.StatelessRemote;
-import org.jboss.ejb3.test.asynchronous.TxSessionRemote;
 import org.jboss.logging.Logger;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
@@ -192,116 +188,13 @@ public class AsynchronousTestCase extends JBossTestCase
       ret = getReturnOrException(ap);
       assertTrue("SecurityException not thrown: " + ret, ret instanceof EJBAccessException);
    }
-
-   public void testRemoteAsynchTransaction() throws Exception
-   {
-      TxSessionRemote tester = (TxSessionRemote) getInitialContext().lookup("TxSessionBean/remote");
-      TxSessionRemote asynchTester = AsyncUtils.mixinAsync(tester);
-      AsyncProvider ap = (AsyncProvider) asynchTester;
-      UserTransaction tx = (UserTransaction)getInitialContext().lookup("UserTransaction");
-
-      //Add some entries in different threads and commit
-      tx.begin();
-      tester.createFruit("apple", false);
-      tester.createFruit("pear", false);
-      tester.createFruit("tomato", false);
-
-      asynchTester.createVeg("Potato", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Turnip", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Carrot", false);
-      waitForProvider(ap);
-      tx.commit();
-
-      tx.begin();
-      Collection entries = tester.getEntries();
-      tx.commit();
-      assertEquals("Wrong number of entries", 6, entries.size());
-
-      //Cleanup synchronously
-      tx.begin();
-      tester.cleanAll();
-      tx.commit();
-
-      tx.begin();
-      entries = tester.getEntries();
-      tx.commit();
-      assertEquals("Wrong number of entries", 0, entries.size());
-
-      //Add some entries in different threads and rollback
-      tx.begin();
-      tester.createFruit("apple", false);
-      tester.createFruit("pear", false);
-      tester.createFruit("tomato", false);
-
-      asynchTester.createVeg("Potato", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Turnip", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Carrot", false);
-      waitForProvider(ap);
-      tx.rollback();
-
-      tx.begin();
-      entries = tester.getEntries();
-      tx.commit();
-
-      assertEquals("Wrong number of entries", 0, entries.size());
-
-      //Add some entries in different threads and rollback from within Tx
-      tx.begin();
-      tester.createFruit("apple", false);
-      tester.createFruit("pear", false);
-      tester.createFruit("tomato", true);
-
-      asynchTester.createVeg("Potato", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Turnip", false);
-      waitForProvider(ap);
-      asynchTester.createVeg("Carrot", true);
-      waitForProvider(ap);
-
-      boolean rollbackException = false;
-      try
-      {
-         tx.commit();
-      }
-      catch(RollbackException e)
-      {
-         rollbackException = true;
-      }
-
-      assertTrue("RollbackException not picked up", rollbackException);
-
-      tx.begin();
-      entries = tester.getEntries();
-      tx.commit();
-      assertEquals("Wrong number of entries", 0, entries.size());
-   }
-
-   public void testLocalAsynchTransaction() throws Exception
-   {
-	  MBeanServerConnection server = getServer();
-      ObjectName testerName = new ObjectName("jboss.ejb3:service=Tester,test=asynchronous");
-      Object[] params = {};
-      String[] sig = {};
-      server.invoke(testerName, "testLocalAsynchTransaction", params, sig);
-
-   }
-
+   
    private Object getReturnOrException(AsyncProvider provider) throws Exception
    {
       Future<?> future = provider.getFutureResult();
 
       waitForFuture(future);
       return future.get();
-   }
-
-   private void waitForProvider(AsyncProvider provider) throws InterruptedException
-   {
-      Future<?> future = provider.getFutureResult();
-      waitForFuture(future);
    }
 
    private void waitForFuture(Future<?> future) throws InterruptedException
