@@ -9,6 +9,16 @@
    
    <bean name="DefaultPersistenceProperties" class="org.jboss.ejb3.DefaultPersistenceProperties"/>
 
+   <bean name="Ejb3DependenciesDeployer" class="org.jboss.ejb3.deployers.Ejb3DependenciesDeployer">
+      <!-- TODO: allow for configuration
+      <property name="dependencies">
+         <dependency xmlns="urn:jboss:dependency:1.0">
+            <item>javax.transaction.TransactionManager</item>
+         </dependency>
+      </property>
+      -->
+   </bean>
+   
    <bean name="Ejb3Deployer" class="org.jboss.ejb3.deployers.Ejb3Deployer">
       <install bean="ManagedDeploymentCreator" method="addVersionedAttachmentType">
          <parameter>
