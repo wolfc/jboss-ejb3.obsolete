@@ -83,6 +83,7 @@ public class DDValidationUnitTestCase extends JBossTestCase
       VALIDATE_PATTERNS.add(Pattern.compile("application.*\\.xml")); // application, application-client pattern
       
       ignore("schema/META-INF/jboss.xml");
+      ignore("schema/META-INF/ejb-jar.xml");
    }
    
    /**
@@ -119,8 +120,6 @@ public class DDValidationUnitTestCase extends JBossTestCase
 
    public void testValidation() throws Exception
    {
-      getLog().info(RESOURCES.getAbsolutePath() + ", " + RESOURCES.isDirectory());      
-      
       List<String> invalidList = new ArrayList<String>();
       scan(RESOURCES, invalidList, false);
       assertTrue("No descriptors were found", total > 0);

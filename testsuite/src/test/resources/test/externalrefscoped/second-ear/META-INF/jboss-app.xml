@@ -1,3 +1,7 @@
+<!DOCTYPE jboss-app
+    PUBLIC "-//JBoss//DTD Java EE Application 5.0//EN"
+    "http://www.jboss.org/j2ee/dtd/jboss-app_5_0.dtd">
+
 <jboss-app>
   <loader-repository>org.jboss.test:name=externalrefscoped,ear=second</loader-repository>
 </jboss-app>

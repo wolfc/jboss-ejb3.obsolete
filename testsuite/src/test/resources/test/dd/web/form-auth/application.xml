@@ -9,6 +9,7 @@
    <module>
       <web>
          <web-uri>form-auth.war</web-uri>
+         <context-root>/form-auth</context-root>
       </web>
    </module>
 
