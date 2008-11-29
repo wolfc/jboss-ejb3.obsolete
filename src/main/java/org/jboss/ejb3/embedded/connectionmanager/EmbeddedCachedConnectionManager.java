@@ -25,19 +25,21 @@ import java.util.Set;
 
 import javax.resource.ResourceException;
 
-import org.jboss.ejb3.connectionmanager.CachedConnectionManager;
+import org.jboss.jca.spi.ComponentStack;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class EmbeddedCachedConnectionManager implements CachedConnectionManager
+public class EmbeddedCachedConnectionManager implements ComponentStack
 {
-   public void popMetaDataAwareObject(Set<String> unsharableResources) throws ResourceException
+   @SuppressWarnings("unchecked")
+   public void popMetaAwareObject(Set unsharableResources) throws ResourceException
    {
    }
 
-   public void pushMetaDataAwareObject(Object key, Set<String> unsharableResources) throws ResourceException
+   @SuppressWarnings("unchecked")
+   public void pushMetaAwareObject(Object key, Set unsharableResources) throws ResourceException
    {
    }
 
