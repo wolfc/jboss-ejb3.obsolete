@@ -171,6 +171,12 @@
     </dependency>
     
     <dependency>
+      <groupId>org.jboss.integration</groupId>
+      <artifactId>jboss-jca-spi</artifactId>
+      <version>5.0.3.GA</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
       <exclusions>

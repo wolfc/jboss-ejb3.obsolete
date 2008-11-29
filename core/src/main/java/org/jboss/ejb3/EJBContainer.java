@@ -57,6 +57,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
+import javax.transaction.TransactionManager;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
@@ -67,14 +68,12 @@ import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.beans.metadata.api.annotations.Inject;
-import org.jboss.beans.metadata.api.model.InjectOption;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.PoolDefaults;
 import org.jboss.ejb3.aop.BeanContainer;
 import org.jboss.ejb3.common.spi.ErrorCodes;
-import org.jboss.ejb3.connectionmanager.CachedConnectionManager;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
@@ -105,6 +104,7 @@ import org.jboss.injection.PersistenceContextHandler;
 import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.injection.ResourceHandler;
 import org.jboss.injection.WebServiceRefHandler;
+import org.jboss.jca.spi.ComponentStack;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -193,7 +193,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    private static final Interceptor[] currentInvocationStack = new Interceptor[] { new CurrentInvocationInterceptor() };
    
-   private CachedConnectionManager cachedConnectionManager;
+   private ComponentStack cachedConnectionManager;
    
    /**
     * @param name                  Advisor name
@@ -728,7 +728,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       return encInjectors;
    }
 
-   public CachedConnectionManager getCachedConnectionManager()
+   public ComponentStack getCachedConnectionManager()
    {
       return cachedConnectionManager;
    }
@@ -1559,8 +1559,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       beanContainer.reinitializeAdvisor();
    }
    
-   @Inject(option=InjectOption.OPTIONAL)
-   public void setCachedConnectionManager(CachedConnectionManager ccm)
+   @Inject
+   public void setCachedConnectionManager(ComponentStack ccm)
    {
       this.cachedConnectionManager = ccm;
    }
@@ -1593,6 +1593,14 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    private Lock getContainerLock()
    {
       return this.containerLock.writeLock();
+   }
+   
+   // to make sure we have a dependency on the TransactionManager
+   // note that the actual tx interceptors don't make use of the injected tm
+   @Inject
+   public void setTransactionManager(TransactionManager tm)
+   {
+      
    }
    
    public String toString()
