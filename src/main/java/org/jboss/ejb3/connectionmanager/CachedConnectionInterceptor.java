@@ -28,6 +28,7 @@ import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.EJBContainerInvocation;
 import org.jboss.ejb3.aop.AbstractInterceptor;
+import org.jboss.jca.spi.ComponentStack;
 import org.jboss.logging.Logger;
 
 /**
@@ -48,21 +49,21 @@ public class CachedConnectionInterceptor extends AbstractInterceptor
    {
       EJBContainerInvocation<EJBContainer, BeanContext<?>> containerInvocation = (EJBContainerInvocation<EJBContainer, BeanContext<?>>) invocation;
       EJBContainer container = getEJBContainer(invocation);
-      CachedConnectionManager ccm = container.getCachedConnectionManager();
+      ComponentStack ccm = container.getCachedConnectionManager();
       if(ccm == null)
       {
          log.warn("EJBTHREE-1028: No ejb3 CachedConnectionManager installed");
          return containerInvocation.invokeNext();
       }
       Object key = containerInvocation.getBeanContext().getInstance();
-      ccm.pushMetaDataAwareObject(key, unsharableResources);
+      ccm.pushMetaAwareObject(key, unsharableResources);
       try
       {
          return containerInvocation.invokeNext();
       }
       finally
       {
-         ccm.popMetaDataAwareObject(unsharableResources);
+         ccm.popMetaAwareObject(unsharableResources);
       }
    }
 }

@@ -5,7 +5,4 @@
       <depends>UserTransactionRegistry</depends>
       <constructor factoryClass="org.jboss.ejb3.tx.EJB3UserTransactionProvider" factoryMethod="getSingleton"/>
    </bean>
-   
-   <bean name="EJB3CachedConnectionManagerBridge" class="org.jboss.as.ejb3.connectionmanager.CachedConnectionManagerBridge">
-   </bean>
 </deployment>
