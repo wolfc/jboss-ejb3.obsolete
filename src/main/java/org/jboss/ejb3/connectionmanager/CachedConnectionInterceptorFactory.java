@@ -51,6 +51,9 @@ public class CachedConnectionInterceptorFactory extends AbstractInterceptorFacto
             String jndiName = resRef.getJndiName();
             if(jndiName == null)
                jndiName = resRef.getResolvedJndiName();
+            // for res-url resources
+            if(jndiName == null)
+               continue;
             int i = jndiName.indexOf(':');
             if(jndiName.charAt(i + 1) == '/')
                i++;
