@@ -28,7 +28,7 @@
     into the AS
     
      -->
-    <version.org.jboss.ejb3_core>1.0.0-Beta9</version.org.jboss.ejb3_core>
+    <version.org.jboss.ejb3_core>1.0.0-SNAPSHOT</version.org.jboss.ejb3_core>
     <version.org.jboss.ejb3_deployers>0.1.2</version.org.jboss.ejb3_deployers>
   
   </properties>
