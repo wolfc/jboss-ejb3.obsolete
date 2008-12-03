@@ -39,7 +39,6 @@ public class LazyTransactionEnlistmentUnitTestCase extends EJB3TestCase
    
    public static Test suite() throws Exception
    {
-      // do not deploy any jars
       return getDeploySetup(LazyTransactionEnlistmentUnitTestCase.class, "ejbthree1028.jar");
    }
    
