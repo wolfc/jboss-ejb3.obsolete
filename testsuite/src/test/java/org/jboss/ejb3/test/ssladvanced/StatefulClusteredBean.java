@@ -39,8 +39,8 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 @Stateful
 @Clustered
 @RemoteBindings({
-   @RemoteBinding(clientBindUrl="sslsocket://0.0.0.0:3843", jndiBinding="StatefulClusteredSSL"),
-   @RemoteBinding(clientBindUrl="socket://0.0.0.0:3873", jndiBinding="StatefulClusteredNormal")
+   @RemoteBinding(clientBindUrl="sslsocket://127.0.0.1:3843", jndiBinding="StatefulClusteredSSL"),
+   @RemoteBinding(clientBindUrl="socket://127.0.0.1:3873", jndiBinding="StatefulClusteredNormal")
 })
 @Remote(BusinessInterface.class)
 public class StatefulClusteredBean implements BusinessInterface, Serializable

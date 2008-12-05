@@ -33,7 +33,7 @@ import org.jboss.logging.Logger;
  */
 @Stateless
 @Remote(StatelessRemote.class)
-@RemoteBinding(clientBindUrl="socket://0.0.0.0:3875")
+@RemoteBinding(clientBindUrl="socket://127.0.0.1:3875")
 @Pool(value="ThreadlocalPool", maxSize=20, timeout=10000)
 public class ThreadLocalPoolStatelessBean implements StatelessRemote
 {
