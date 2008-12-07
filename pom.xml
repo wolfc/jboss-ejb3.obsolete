@@ -136,6 +136,7 @@
           <optimize>true</optimize>
           <compilerVersion>1.5</compilerVersion>
           <fork>true</fork>
+          <executable>${JAVA_HOME}/bin/javac</executable>          
         </configuration>
       </plugin>
 
