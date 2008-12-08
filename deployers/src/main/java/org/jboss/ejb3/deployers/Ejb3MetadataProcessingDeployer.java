@@ -25,6 +25,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.ejb3.common.deployers.spi.AttachmentNames;
 import org.jboss.ejb3.common.metadata.MetadataUtil;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -50,21 +51,15 @@ public class Ejb3MetadataProcessingDeployer extends AbstractDeployer
 
    private static final Logger log = Logger.getLogger(Ejb3MetadataProcessingDeployer.class);
 
-   //TODO
-   /*
-    * This is reflected in the public static field:
-    * public static final String EJB_MERGED_ATTACHMENT_NAME = "merged."+JBossMetaData.class.getName();
-    * ...of the MergedJBossMetaDataDeployer, which is not currently visible from here
-    */
    /**
     * Deployer Input, set to merged metadata
     */
-   private static final String INPUT = "merged." + JBossMetaData.class.getName();
+   private static final String INPUT = AttachmentNames.MERGED_METADATA;
 
    /**
     * Deployer Output, the Processed metadata
     */
-   public static final String OUTPUT = "processed." + JBossMetaData.class.getName();
+   public static final String OUTPUT = AttachmentNames.PROCESSED_METADATA;
 
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
