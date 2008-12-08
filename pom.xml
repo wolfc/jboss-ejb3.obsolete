@@ -446,6 +446,12 @@
         <artifactId>jboss-deployers-core-spi</artifactId>
         <version>${version.org.jboss.deployers}</version>
       </dependency>
+      
+      <dependency>
+        <groupId>org.jboss.deployers</groupId>
+        <artifactId>jboss-deployers-spi</artifactId>
+        <version>${version.org.jboss.deployers}</version>
+      </dependency>
 
        <dependency>
         <groupId>org.jboss.ws</groupId>
