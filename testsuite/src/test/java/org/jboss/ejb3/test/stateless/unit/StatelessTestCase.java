@@ -23,18 +23,16 @@ package org.jboss.ejb3.test.stateless.unit;
 
 import javax.ejb.EJBAccessException;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.stateless.AnonymousStateless;
 import org.jboss.ejb3.test.stateless.CheckedStateless;
-import org.jboss.ejb3.test.stateless.UnsecuredStateless;
 import org.jboss.ejb3.test.stateless.RunAsStateless;
-import org.jboss.ejb3.test.stateless.RunAsStatelessLocal;
+import org.jboss.ejb3.test.stateless.UnsecuredStateless;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -84,7 +82,10 @@ public class StatelessTestCase extends JBossTestCase
       int result = checked.method(1);
       assertEquals(1,result);
       
+      client.logout();
+      
       client.setSimple("rolefail", "password");
+      client.login();
       
       try {
          checked.method(2);
