@@ -10,7 +10,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-embedded</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-Alpha1</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Embedded</name>
   <url>http://www.jboss.org</url>
@@ -220,4 +220,10 @@
       <version>4.4.0.CR1</version>
     </dependency>
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-embedded-1.0.0-Alpha1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-embedded-1.0.0-Alpha1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-embedded-1.0.0-Alpha1</url>
+  </scm>
 </project>
