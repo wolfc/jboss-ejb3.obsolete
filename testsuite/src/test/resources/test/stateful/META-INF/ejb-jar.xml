@@ -35,17 +35,20 @@
       </session>  -->
       <session>
          <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
+         <business-remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.ConcurrentStatefulBean</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>
       </session>
       <session>
          <ejb-name>StatefulTimeoutBean2</ejb-name>
+         <business-remote>org.jboss.ejb3.test.stateful.StatefulTimeout</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulTimeoutBean</ejb-class>
          <session-type>Stateful</session-type>
       </session>
       <session>
          <ejb-name>StatefulClusteredTimeoutBean2</ejb-name>
+         <business-remote>org.jboss.ejb3.test.stateful.StatefulTimeout</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulClusteredTimeoutBean</ejb-class>
          <session-type>Stateful</session-type>
       </session>

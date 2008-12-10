@@ -26,6 +26,10 @@
             <remove-timeout-seconds>3</remove-timeout-seconds>
             <cache-name>jboss.cache:service=EJB3SFSBClusteredCache</cache-name>
          </cache-config>
+         <!-- TODO: if I don't specify cluster-config I get a NPE -->
+         <cluster-config>
+            <partition-name>${jboss.partition.name:DefaultPartition}</partition-name>
+         </cluster-config>
       </session>
    </enterprise-beans>
 </jboss>
