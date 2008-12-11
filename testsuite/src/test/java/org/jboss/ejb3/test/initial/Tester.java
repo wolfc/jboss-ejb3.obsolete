@@ -127,7 +127,9 @@ public class Tester implements TesterMBean
       status.clear();
       InterceptedSLTest test = (InterceptedSLTest) ctx.lookup("initial-ejb3-test/InterceptedSLTestBean/local");
       test.testMethod(5);
-      if (!status.postConstruct()) throw new Exception("PostConstruct should be called for SLSB");
+      // PostConstruct test is invalid, because you can't assume that postConstruct is called during the lookup
+      // the instance might already be available from a previous call or prefill of the pool.
+      //if (!status.postConstruct()) throw new Exception("PostConstruct should be called for SLSB");
       if (status.prePassivate()) throw new Exception("PrePassivate should not be called for SLSB");
       if (status.postActivate()) throw new Exception("PostActivate should not be called for SLSB");
 
