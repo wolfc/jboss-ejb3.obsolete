@@ -22,6 +22,8 @@
 package org.jboss.ejb3.security;
 
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 
 import javax.ejb.EJBAccessException;
 import javax.security.auth.Subject;
@@ -37,6 +39,7 @@ import org.jboss.security.ISecurityManagement;
 import org.jboss.security.RunAs;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextFactory;
 import org.jboss.security.SecurityUtil;
 import org.jboss.security.javaee.EJBAuthenticationHelper;
 import org.jboss.security.javaee.SecurityHelperFactory;
@@ -94,9 +97,7 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
           * of the existing sc. For remote calls, we create a new security context with the information
           * from the invocation sc
           */
-         SecurityContext sc = null; 
-
-         sc = SecurityActions.createSecurityContext(domainValue);
+         final SecurityContext sc = SecurityActions.createSecurityContext(domainValue);
          
          if(shelper.isLocalCall(mi))
          {
@@ -116,7 +117,15 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          SecurityActions.setSecurityContext(sc);
             
          //TODO: Need to get the SecurityManagement instance
-         sc.setSecurityManagement(getSecurityManagement());
+         AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+         {
+            public Object run() throws Exception
+            {
+               sc.setSecurityManagement(getSecurityManagement());
+               return null;
+            }
+         });
+         
            
          //Check if there is a RunAs configured and can be trusted 
          EJBAuthenticationHelper helper = null;
