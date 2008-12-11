@@ -208,6 +208,7 @@ public class DDValidationUnitTestCase extends JBossTestCase
             else
             {
                getLog().error(msg.toString());
+               System.err.println(msg.toString());
             }
 
             invalidList.add(msg.toString());
