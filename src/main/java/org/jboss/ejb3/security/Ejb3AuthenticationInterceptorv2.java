@@ -39,7 +39,6 @@ import org.jboss.security.ISecurityManagement;
 import org.jboss.security.RunAs;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextFactory;
 import org.jboss.security.SecurityUtil;
 import org.jboss.security.javaee.EJBAuthenticationHelper;
 import org.jboss.security.javaee.SecurityHelperFactory;
