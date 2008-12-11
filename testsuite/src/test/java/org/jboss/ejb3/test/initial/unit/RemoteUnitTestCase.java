@@ -104,9 +104,11 @@ extends JBossTestCase
       test.testDefault();
       System.out.println("Calling secured()....");
       test.secured();
+      client.logout();
 
       System.out.println("Calling security fine grain tests....");
       client.setSimple("authfail", "password");
+      client.login();
 
       boolean securityFailure = true;
       try
@@ -123,7 +125,9 @@ extends JBossTestCase
       if (securityFailure) throw new RuntimeException("auth failure was not caught for method");
 
       securityFailure = true;
+      client.logout();
       client.setSimple("rolefail", "password");
+      client.login();
       try
       {
          test.secured();
@@ -135,7 +139,9 @@ extends JBossTestCase
       }
       if (securityFailure) throw new RuntimeException("role failure was not caught for method");
 
+      client.logout();
       client.setSimple("somebody","password");
+      client.login();
       log.info("test exclusion");
       securityFailure = true;
       try
@@ -148,7 +154,7 @@ extends JBossTestCase
          securityFailure = false;
       }
       if (securityFailure) throw new RuntimeException("excluded failure was not caught for method");
-
+      client.logout();
    }
 
    public void testInterceptors() throws Exception
