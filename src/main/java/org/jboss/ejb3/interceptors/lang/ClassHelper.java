@@ -157,9 +157,10 @@ public class ClassHelper
                return method;
          }
       }
-     try
+     
+      try
       {
-         return cls.getDeclaredMethod(methodName, params);
+         return SecurityActions.getDeclaredMethod(cls, methodName, params);
       }
       catch (NoSuchMethodException e1)
       {

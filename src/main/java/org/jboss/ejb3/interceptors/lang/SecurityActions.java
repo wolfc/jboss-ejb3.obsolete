@@ -24,6 +24,8 @@ package org.jboss.ejb3.interceptors.lang;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * Privileged Blocks
@@ -41,6 +43,28 @@ class SecurityActions
             return cls.getDeclaredMethods();
          }
       });
+   }
+   
+   static Method getDeclaredMethod(final Class<?> clazz, final String methodName, final Class<?>[] params)
+         throws NoSuchMethodException
+   {
+      try
+      {
+         return AccessController.doPrivileged(new PrivilegedExceptionAction<Method>()
+         {
+            public Method run() throws NoSuchMethodException
+            {
+
+               return clazz.getDeclaredMethod(methodName, params);
+
+            }
+         });
+      }
+      catch (PrivilegedActionException pae)
+      {
+         // Only checked exceptions are wrapped, so this cast should be safe
+         throw (NoSuchMethodException) pae.getException();
+      }
    }
 
 }
