@@ -45,7 +45,7 @@ public interface Stateful extends ConcurrentStateful
    public void testExceptionCause() throws Exception;
    public void testSerializedState(String state);
    
-   public void remove();
+   public void removeMe();
    public int beansRemoved();
    
    void testResources() throws Exception;

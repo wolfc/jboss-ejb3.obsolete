@@ -229,7 +229,7 @@ public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
    }
    
    // @Remove from xml
-   public void remove()
+   public void removeMe()
    {
       ++beansRemoved;
    }

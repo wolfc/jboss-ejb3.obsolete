@@ -187,7 +187,7 @@ extends JBossTestCase
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
       stateful.setState("state");
-      stateful.remove();
+      stateful.removeMe();
       
       ObjectName deployment = new ObjectName("test.ejb3:name=Bill,service=EJB3");
 
@@ -198,7 +198,7 @@ extends JBossTestCase
       stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
       stateful.setState("state");
-      stateful.remove();
+      stateful.removeMe();
    }
    
    public void testSmallCache() throws Exception
@@ -624,11 +624,12 @@ extends JBossTestCase
       client.setSimple("somebody", "password");
       client.login();
       
-      System.out.println("testPassivation");
       Stateful stateful = (Stateful)getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
       
-      stateful.remove(); 
+      int startingRemoveCount = stateful.beansRemoved();
+      
+      stateful.removeMe(); 
       try
       {
          stateful.getState();
@@ -642,7 +643,7 @@ extends JBossTestCase
       assertNotNull(stateful);
       stateful.setState("InMyTimeOfDying");
       
-      stateful.remove(); 
+      stateful.removeMe(); 
       try
       {
          stateful.getState();
@@ -656,7 +657,7 @@ extends JBossTestCase
       assertNotNull(home);
       Stateful21 stateful21 = (Stateful21)home.create(); 
       assertNotNull(stateful21);
-      stateful21.remove();
+      stateful21.removeMe();
       
       try
       {
@@ -669,7 +670,7 @@ extends JBossTestCase
       
       stateful = (Stateful)getInitialContext().lookup("Stateful");
       int beansRemoved = stateful.beansRemoved();
-      assertEquals(3, beansRemoved);
+      assertEquals(3, beansRemoved - startingRemoveCount);
    }
 
    public void testRemoveWithRollback() throws Exception
