@@ -1,0 +1,14 @@
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<comment>
+		This file contains the action to take when a known issue is encountered.
+		
+		The following actions are allowed:
+		- fail : fail the test (set this when an issue is resolved)
+		- ignore : do nothing
+		- show : show the issue on System.err
+	</comment>
+	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploymentFailureWithRequiredFlagSet">show</entry>
+	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndJbossXml">show</entry>
+	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndEjbJarXml">show</entry>
+</properties>
