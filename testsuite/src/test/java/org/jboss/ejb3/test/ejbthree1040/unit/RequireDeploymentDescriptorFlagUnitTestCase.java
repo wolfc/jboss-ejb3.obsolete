@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.ejbthree1040.unit;
 
 import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.naming.NameNotFoundException;
@@ -220,6 +221,10 @@ public final class RequireDeploymentDescriptorFlagUnitTestCase extends JBossTest
       catch(AttributeNotFoundException e)
       {
          fail("Attribute not found " + RequireDeploymentDescriptorFlagUnitTestCase.ATTRIBUTE_REQUIRE_DEPLOYMENT_DESCRIPTOR + " on " + this.on);
+      }
+      catch(InstanceNotFoundException e)
+      {
+         fail(this.on + " does not expose a MBean interface");
       }
    }
 
