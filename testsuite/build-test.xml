@@ -4337,6 +4337,7 @@
          <sysproperty key="jbosstest.cluster.node1.jndi.url" value="${node1.jndi.url}"/>
          <sysproperty key="java.naming.provider.url" value="${test.jndi.url}"/>
 
+         <sysproperty key="knownIssuesFile" value="${resources}/known-issues.xml"/>
 
          <jvmarg line="${jvmargs}" />
          <jvmarg line="-ea" />
@@ -4345,7 +4346,8 @@
          -->
 
          <classpath>
-           
+            <pathelement path="${location.target}/jboss-ejb3-testsuite.jar"/>
+            
            <path refid="test.classpath" />
            
             <!-- 
@@ -4395,7 +4397,12 @@
          </classpath>
 
          <formatter type="plain" usefile="true"/>
-         <formatter type="xml" usefile="true" unless="test.extension"/>
+         <!-- 
+         <formatter type="xml" classname="org.jboss.ejb3.testsuite.ant.taskdefs.optional.junit.KnownIssuesXMLJunitResultFormatter"
+            usefile="true" unless="test.extension"/>
+            -->
+         <formatter type="xml" classname="org.jboss.ejb3.testsuite.Hack"
+            usefile="true" unless="test.extension"/>
          <sysproperty key="jboss-junit-configuration" value="${jboss-junit-configuration}"/>  
          <formatter type="xml" classname="org.jboss.ant.taskdefs.XMLJUnitMultipleResultFormatter" 
                     extension="-${test.extension}.xml" usefile="true" if="test.extension"/>
