@@ -377,5 +377,29 @@
   <!-- EJB3 JNDI Policy Decorator Deployer -->
   <bean name="EjbMetadataJndiPolicyDecoratorDeployer"
     class="org.jboss.ejb3.deployers.EjbMetadataJndiPolicyDecoratorDeployer" />
+    
+  <!-- EJB Reference Resolver -->
+  <bean name="org.jboss.ejb3.EjbReferenceResolver" class="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver">
+    <constructor factoryClass="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolverFactory"
+                 factoryMethod="newInstance">
+      <parameter>org.jboss.ejb3.common.resolvers.plugins.FirstMatchEjbReferenceResolver</parameter>
+    </constructor>
+  </bean>
+  
+  <!-- Add Annotation Plugins upon installation -->
+  <bean name="org.jboss.ejb3.AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService" 
+    class="org.jboss.ejb3.mcint.annotationadaptor.AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService">
+    <constructor>
+      <parameter><inject bean="jboss.kernel:service=Kernel"/></parameter>
+    </constructor>
+  </bean>
+    
+  <!-- EJB Reference Annotation Plugin -->
+  <bean name="org.jboss.ejb3.EjbReferenceAnnotationPlugin"
+    class="org.jboss.ejb3.mcint.metadata.plugins.EjbReferenceAnnotationPlugin">
+    <constructor>
+      <parameter><inject bean="org.jboss.ejb3.EjbReferenceResolver" /></parameter>
+    </constructor>
+  </bean>
 
 </deployment>
