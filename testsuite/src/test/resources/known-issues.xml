@@ -8,6 +8,9 @@
 		- ignore : do nothing
 		- show : show the issue on System.err
 	</comment>
+	<!-- EJBTHREE-1627 -->
+	<entry key="org.jboss.ejb3.test.deployer.unit.DeployerUnitTestCase.testDeployEjb3ExtensionOnly">show</entry>
+	<!-- EJBTHREE-1040 -->
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploymentFailureWithRequiredFlagSet">show</entry>
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndJbossXml">show</entry>
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndEjbJarXml">show</entry>
