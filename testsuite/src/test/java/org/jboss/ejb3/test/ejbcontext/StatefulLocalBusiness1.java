@@ -21,21 +21,13 @@
  */
 package org.jboss.ejb3.test.ejbcontext;
 
-import javax.ejb.Remote;
-
-
 /**
- * Comment
+ * StatefulLocalBusiness1
  *
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version $Revision$
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-@Remote
-public interface StatefulRemoteBusiness
+public interface StatefulLocalBusiness1 extends Stateful
 {
-   String JNDI_NAME = "Stateful/remote";
-   
-   public Class testInvokedBusinessInterface2() throws Exception;
-   
-   Object testLocalOnlyGetBusinessObject() throws Exception;
+
 }

@@ -66,11 +66,11 @@ public class StatelessBean extends BaseBean
    
    public void testEjbContextLookup() throws Exception
    {
-      Stateful stateful = (Stateful)sessionContext.lookup(Stateful.JNDI_NAME);
+      Stateful stateful = (Stateful) sessionContext.lookup(StatefulBean.class.getSimpleName() + "/remote");
       stateful.test();
    }
    
-   public Class testInvokedBusinessInterface() throws Exception
+   public Class<?> testInvokedBusinessInterface() throws Exception
    {
       return sessionContext.getInvokedBusinessInterface();
    }
@@ -90,7 +90,7 @@ public class StatelessBean extends BaseBean
    public void testSessionContext() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Stateful stateful = (Stateful)jndiContext.lookup(Stateful.JNDI_NAME);
+      Stateful stateful = (Stateful) jndiContext.lookup(StatefulBean.class.getSimpleName() + "/remote");
       stateful.setState("testSessionContext");
       
       EJBLocalObject ejbLocalObject = stateful.getEJBLocalObject();

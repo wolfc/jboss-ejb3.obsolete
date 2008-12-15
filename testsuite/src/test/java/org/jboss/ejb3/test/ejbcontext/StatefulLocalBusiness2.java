@@ -21,34 +21,13 @@
  */
 package org.jboss.ejb3.test.ejbcontext;
 
-import javax.ejb.EJBLocalObject;
-import javax.ejb.EJBObject;
-
-
 /**
- * Comment
+ * StatefulLocalBusiness2
  *
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
- * @version $Revision$
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
+ * @version $Revision: $
  */
-public interface Stateful extends Base
-{   
-   public void testEjbContext() throws Exception;
-
-   public void test();
-
-   public Class<?> testInvokedBusinessInterface() throws Exception;
-   
-   public Class<?> testInvokedBusinessInterface2() throws Exception;
-
-   public Object getBusinessObject() throws Exception;
-
-   String getState();
-
-   void setState(String state);
-   
-   EJBLocalObject getEJBLocalObject();
-   
-   EJBObject getEJBObject();
+public interface StatefulLocalBusiness2 extends Stateful
+{
 
 }
