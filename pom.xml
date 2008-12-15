@@ -49,6 +49,7 @@
     <module>interceptors</module>
     <!-- <module>locator</module> -->
     <module>metadata</module>
+    <module>mc-int</module>
     <module>plugin</module>
     <module>pool</module>
     <module>proxy</module>
