@@ -20,6 +20,27 @@
   <description>JBoss EJB 3.x Integration with JBoss Microcontainer</description>
   <url>http://www.jboss.org/jbossejb3/</url>
 
+  <!-- Build Configuration -->
+  <build>
+
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- 
+          
+          TEMPORARY TESTS DISABLED (until mocks are complete)
+          
+           -->
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
   <!-- Dependencies -->
 
   <!--

@@ -84,5 +84,10 @@
       <version>1.0.0-Beta3</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-spi</artifactId>
+    </dependency>
+    
   </dependencies>
 </project>
