@@ -21,6 +21,11 @@
  */
 package org.jboss.ejb3.service;
 
+import javax.ejb.EJBLocalObject;
+import javax.ejb.EJBObject;
+import javax.ejb.SessionContext;
+import javax.xml.rpc.handler.MessageContext;
+
 import org.jboss.ejb3.EJBContextImpl;
 
 /**
@@ -28,6 +33,7 @@ import org.jboss.ejb3.EJBContextImpl;
  * @version $Revision: $
  */
 public class ServiceSessionContextImpl extends EJBContextImpl<ServiceContainer, ServiceBeanContext>
+   implements SessionContext
 {
    /**
     * @param beanContext
@@ -35,5 +41,30 @@ public class ServiceSessionContextImpl extends EJBContextImpl<ServiceContainer, 
    protected ServiceSessionContextImpl(ServiceBeanContext beanContext)
    {
       super(beanContext);
+   }
+
+   public <T> T getBusinessObject(Class<T> businessInterface) throws IllegalStateException
+   {
+      return container.getBusinessObject(beanContext, businessInterface);
+   }
+
+   public EJBLocalObject getEJBLocalObject() throws IllegalStateException
+   {
+      throw new RuntimeException("NYI");
+   }
+
+   public EJBObject getEJBObject() throws IllegalStateException
+   {
+      throw new RuntimeException("NYI");
+   }
+
+   public Class<?> getInvokedBusinessInterface() throws IllegalStateException
+   {
+      throw new RuntimeException("NYI");
+   }
+
+   public MessageContext getMessageContext() throws IllegalStateException
+   {
+      throw new RuntimeException("NYI");
    }
 }
