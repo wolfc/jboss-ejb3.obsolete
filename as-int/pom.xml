@@ -30,6 +30,7 @@
      -->
     <version.org.jboss.ejb3_core>1.0.0-SNAPSHOT</version.org.jboss.ejb3_core>
     <version.org.jboss.ejb3_deployers>0.1.2</version.org.jboss.ejb3_deployers>
+    <version.org.jboss.ejb3_mc.int>0.1.0-SNAPSHOT</version.org.jboss.ejb3_mc.int>
   
   </properties>
   
@@ -54,6 +55,13 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-deployers</artifactId>
       <version>${version.org.jboss.ejb3_deployers}</version>
+    </dependency>
+    
+    <!-- jboss-ejb3-mc-int -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-mc-int</artifactId>
+      <version>${version.org.jboss.ejb3_mc.int}</version>
     </dependency>
      
     <!-- All other dependencies -->
