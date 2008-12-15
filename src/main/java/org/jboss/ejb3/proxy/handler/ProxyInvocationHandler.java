@@ -37,5 +37,5 @@ import java.lang.reflect.InvocationHandler;
  */
 public interface ProxyInvocationHandler extends InvocationHandler, Serializable
 {
-   Object getAsynchronousProxy(Object proxy);
+   
 }
