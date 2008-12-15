@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.servlet.unit;
 
+import java.io.IOException;
 import java.net.URL;
 
 import javax.management.Attribute;
@@ -60,6 +61,10 @@ public class EarServletUnitTestCase extends JBossTestCase
          
          URL url = new URL(baseURL+"servlet/EJBServlet");
          HttpUtils.accessURL(url);
+      }
+      catch(IOException e)
+      {
+         fail(e.getMessage());
       }
       finally
       {

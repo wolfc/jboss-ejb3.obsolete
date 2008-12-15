@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.servlet.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+
 import javax.ejb.EJB;
 import javax.naming.InitialContext;
 import javax.naming.NamingEnumeration;
@@ -31,16 +32,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jboss.ejb3.test.servlet.Session30Local;
-import org.jboss.ejb3.test.servlet.Session30Remote;
-import org.jboss.ejb3.test.servlet.Session30LocalHome;
+import org.jboss.ejb3.test.servlet.Session30BusinessRemote;
 import org.jboss.ejb3.test.servlet.Session30Home;
+import org.jboss.ejb3.test.servlet.Session30Local;
+import org.jboss.ejb3.test.servlet.Session30LocalHome;
+import org.jboss.ejb3.test.servlet.Session30Remote;
 import org.jboss.ejb3.test.servlet.StatelessLocal;
 import org.jboss.ejb3.test.servlet.TestObject;
 import org.jboss.ejb3.test.servlet.WarTestObject;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 
@@ -55,7 +55,7 @@ public class EJBServlet extends HttpServlet
    private static final Logger log = Logger.getLogger(EJBServlet.class);
    
    @EJB
-   Session30Remote injectedSession;
+   Session30BusinessRemote injectedSession;
    
    @EJB
    StatelessLocal injectedStateful;

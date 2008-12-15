@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,12 +21,14 @@
  */
 package org.jboss.ejb3.test.servlet;
 
-import javax.ejb.EJBObject;
+import javax.ejb.Local;
 
 /**
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public interface Session30Remote extends EJBObject, Session30
+@Local
+public interface Session30BusinessLocal extends Session30
 {
-}
 
+}

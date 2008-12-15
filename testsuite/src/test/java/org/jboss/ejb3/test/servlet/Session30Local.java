@@ -26,18 +26,7 @@ import javax.ejb.EJBLocalObject;
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface Session30Local extends EJBLocalObject
+public interface Session30Local extends EJBLocalObject, Session30
 {
-   void hello();
-   
-   void goodbye();
-   
-   String access(TestObject o);
-   
-   TestObject createTestObject();
-   
-   boolean checkEqPointer(TestObject to);
-   
-   WarTestObject getWarTestObject();
 }
 
