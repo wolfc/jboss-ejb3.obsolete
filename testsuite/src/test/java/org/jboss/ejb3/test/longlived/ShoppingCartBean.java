@@ -123,5 +123,10 @@ public class ShoppingCartBean implements ShoppingCart, Serializable
 
 
    @Remove
-   public void checkout() {}
+   public void checkout()
+   {
+      // contained stateful beans should be removed manually, there might be a reference
+      // lying out there.
+      contained.remove();
+   }
 }

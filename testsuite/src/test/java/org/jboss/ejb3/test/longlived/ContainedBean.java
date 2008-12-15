@@ -26,6 +26,7 @@ import java.io.Serializable;
 import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
+import javax.ejb.Remove;
 import javax.ejb.Stateful;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -98,5 +99,10 @@ public class ContainedBean implements Contained, Serializable
    public void destroy()
    {
       destroyed = true;
+   }
+   
+   @Remove
+   public void remove()
+   {  
    }
 }

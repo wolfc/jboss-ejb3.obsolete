@@ -38,4 +38,6 @@ public interface Contained
    void updateCustomer();
 
    boolean isActivated();
+   
+   void remove();
 }
