@@ -21,12 +21,11 @@
  */
 package org.jboss.ejb3.test.defaultremotebindings.unit;
 
-import javax.ejb.EJBAccessException;
+import junit.framework.Test;
 
 import org.jboss.ejb3.test.defaultremotebindings.StatelessRemote;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>

@@ -14,4 +14,6 @@
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploymentFailureWithRequiredFlagSet">show</entry>
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndJbossXml">show</entry>
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndEjbJarXml">show</entry>
+  <!-- EJBTHREE-1632 -->
+  <entry key="org.jboss.ejb3.test.defaultremotebindings.unit.DefaultRemoteBindingsTestCase.testDefault">show</entry>
 </properties>
