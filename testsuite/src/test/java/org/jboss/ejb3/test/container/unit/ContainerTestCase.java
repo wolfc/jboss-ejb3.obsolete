@@ -31,6 +31,7 @@ import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.test.reference21_30.Test2;
 import org.jboss.ejb3.test.reference21_30.Test2Home;
 import org.jboss.ejb3.test.reference21_30.Test3;
+import org.jboss.ejb3.test.reference21_30.Test3Business;
 import org.jboss.ejb3.test.service.ServiceSixRemote;
 import org.jboss.ejb3.test.stateful.Stateful;
 import org.jboss.logging.Logger;
@@ -60,7 +61,7 @@ extends JBossTestCase
    {
       InitialContext jndiContext = new InitialContext();
       
-      Test3 test3 = (Test3)jndiContext.lookup("Test3Remote");
+      Test3Business test3 = (Test3Business)jndiContext.lookup("Test3Remote");
       assertNotNull(test3);
       test3.testAccess();
       
