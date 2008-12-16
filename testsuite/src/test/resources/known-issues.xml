@@ -21,5 +21,7 @@
   <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testDurableTopic">show</entry>
   <!-- EJBTHREE-1634 -->
   <entry key="org.jboss.ejb3.test.deployer.unit.DeployerUnitTestCase.testDeployEjb3ExtensionOnly">show</entry>
-  
+  <!-- EJBTHREE-1222 / EJBTHREE-1621 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testRemoteNormalMethodNamedRemove">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testLocalNormalMethodNamedRemove">show</entry>
 </properties>
