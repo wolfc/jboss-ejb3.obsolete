@@ -22,10 +22,12 @@
 package org.jboss.ejb3.test.ejbthree1624;
 
 import javax.ejb.Remote;
-import javax.ejb.Stateless;
 
+import org.jboss.ejb3.annotation.Service;
+import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.logging.Logger;
 
 /**
@@ -36,9 +38,9 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateless
+@Service
 @Remote(AccessRemoteBusiness.class)
-public class AccessBean implements AccessRemoteBusiness
+public class AccessBean implements AccessRemoteBusiness, AccessManagement
 {
    // --------------------------------------------------------------------------------||
    // Functional Methods -------------------------------------------------------------||
@@ -46,35 +48,111 @@ public class AccessBean implements AccessRemoteBusiness
 
    private static final Logger log = Logger.getLogger(AccessBean.class);
 
+   private static final String beanBindName = "testMcBean";
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private McBean delegate;
+
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.test.ejbthreexxx.CalculatorBusiness#add(int[])
+   /**
+    * Adds the specified arguments by way of the 
+    * local business delegate
+    * 
+    * @param args
+    * @return
     */
-   public int add(int... args)
+   public int addUsingLocalBusinessView(int... args)
+   {
+      return delegate.addUsingLocalBusinessView(args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * remote business delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingRemoteBusinessView(int... args)
+   {
+      return delegate.addUsingRemoteBusinessView(args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * local component (EJB2.x) delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingLocalComponentView(int... args)
+   {
+      return delegate.addUsingLocalComponentView(args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * remote component (EJB2.x) delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingRemoteComponentView(int... args)
+   {
+      return delegate.addUsingRemoteComponentView(args);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Lifecycle Methods --------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Installs the MC Bean Delegate
+    */
+   public void start() throws Exception
    {
       // Initialize
       Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
-      String beanBindName = "testMcBean";
 
       // Make an POJO and install into MC
       McBean bean = new McBean();
-      registrar.rebind(beanBindName, bean);
+      try
+      {
+         registrar.bind(beanBindName, bean);
+      }
+      catch (DuplicateBindException e)
+      {
+         throw new RuntimeException("MC Bean already registered under " + beanBindName, e);
+      }
+      log.info("Installed MC Bean delegate " + bean + " at " + beanBindName);
 
-      // Get the POJO from MC
-      McBean beanFromMc = registrar.lookup(beanBindName, McBean.class);
-
-      // Invoke
-      int result = beanFromMc.add(1, 2, 3);
-      log.debug("Got result from MC Bean: " + result);
-
-      // Unbind MC Bean
-      registrar.unbind(beanBindName);
-
-      // Return
-      return result;
+      // Set delegate
+      this.delegate = bean;
    }
 
+   /**
+    * Removes the MC Bean Delegate
+    */
+   public void stop()
+   {
+      // Unbind MC Bean
+      try
+      {
+         Ejb3RegistrarLocator.locateRegistrar().unbind(beanBindName);
+      }
+      catch (NotBoundException nbe)
+      {
+         // Ignore  
+      }
+      log.info("Removed MC Bean Delegate from " + beanBindName);
+
+      // Null out delegate
+      this.delegate = null;
+   }
 }

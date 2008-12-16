@@ -22,46 +22,17 @@
 package org.jboss.ejb3.test.ejbthree1624;
 
 /**
- * AccessRemoteBusiness
+ * DelegateNotInjectedException
+ * 
+ * Thrown in the case an @EJB injection did not occur
+ * into the test MC Bean
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface AccessRemoteBusiness
+public class DelegateNotInjectedException extends IllegalStateException
 {
-   /**
-    * Adds the specified arguments by way of the 
-    * local business delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingLocalBusinessView(int... args);
 
-   /**
-    * Adds the specified arguments by way of the 
-    * remote business delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingRemoteBusinessView(int... args);
+   private static final long serialVersionUID = 1L;
 
-   /**
-    * Adds the specified arguments by way of the 
-    * local component (EJB2.x) delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingLocalComponentView(int... args);
-
-   /**
-    * Adds the specified arguments by way of the 
-    * remote component (EJB2.x) delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingRemoteComponentView(int... args);
 }

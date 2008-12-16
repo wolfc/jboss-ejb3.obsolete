@@ -21,47 +21,15 @@
  */
 package org.jboss.ejb3.test.ejbthree1624;
 
+import javax.ejb.EJBObject;
+
 /**
- * AccessRemoteBusiness
+ * CalculatorRemote
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface AccessRemoteBusiness
+public interface CalculatorRemote extends CalculatorService, EJBObject
 {
-   /**
-    * Adds the specified arguments by way of the 
-    * local business delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingLocalBusinessView(int... args);
 
-   /**
-    * Adds the specified arguments by way of the 
-    * remote business delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingRemoteBusinessView(int... args);
-
-   /**
-    * Adds the specified arguments by way of the 
-    * local component (EJB2.x) delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingLocalComponentView(int... args);
-
-   /**
-    * Adds the specified arguments by way of the 
-    * remote component (EJB2.x) delegate
-    * 
-    * @param args
-    * @return
-    */
-   public int addUsingRemoteComponentView(int... args);
 }

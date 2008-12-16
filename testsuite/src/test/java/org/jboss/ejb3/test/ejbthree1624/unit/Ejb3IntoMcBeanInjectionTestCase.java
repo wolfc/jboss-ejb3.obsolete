@@ -22,6 +22,8 @@
 package org.jboss.ejb3.test.ejbthree1624.unit;
 
 import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -42,6 +44,35 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
 {
 
    // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------|| 
+
+   /**
+    * The arguments to be passed along
+    */
+   private static final int[] args =
+   {1, 2, 3, 9};
+
+   /**
+    * The expected result of the tests
+    */
+   private static final int expectedResult;
+   static
+   {
+      int sum = 0;
+      for (int arg : args)
+      {
+         sum += arg;
+      }
+      expectedResult = sum;
+   }
+
+   /**
+    * The hook into the remote container
+    */
+   private static AccessRemoteBusiness accessBean;
+
+   // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------|| 
 
@@ -56,7 +87,10 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(Ejb3IntoMcBeanInjectionTestCase.class, "ejbthree1625.jar");
+      /*
+       * Get the deploy setup 
+       */
+      return getDeploySetup(Ejb3IntoMcBeanInjectionTestCase.class, "ejbthree1624.jar");
    }
 
    // --------------------------------------------------------------------------------||
@@ -69,18 +103,69 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
     */
    public void testLocalBusinessInterfaceInjectionIntoMcBean() throws Throwable
    {
-      // Get the naming context
-      Context context = this.getInitialContext();
-
-      // Get the access bean
-      AccessRemoteBusiness access = (AccessRemoteBusiness) context.lookup(AccessBean.class.getSimpleName() + "/remote");
-
-      // Invoke
-      int result = access.add(1, 2, 3);
-      int expected = 6;
-
       // Test
-      TestCase.assertEquals(expected, result);
+      TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalBusinessView(args));
+   }
+
+   /**
+    * Tests that a Remote Business interface can be resolved/injected 
+    * into an MC Bean
+    */
+   public void testRemoteBusinessInterfaceInjectionIntoMcBean() throws Throwable
+   {
+      // Test
+      TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteBusinessView(args));
+   }
+
+   /**
+    * Tests that a Local Home interface can be resolved/injected 
+    * into an MC Bean
+    */
+   public void testLocalHomeInterfaceInjectionIntoMcBean() throws Throwable
+   {
+      // Test
+      TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalComponentView(args));
+   }
+
+   /**
+    * Tests that a Remote Home interface can be resolved/injected 
+    * into an MC Bean
+    */
+   public void testRemoteHomeInterfaceInjectionIntoMcBean() throws Throwable
+   {
+      // Test
+      TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteComponentView(args));
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Internal Helper Methods --------------------------------------------------------||
+   // --------------------------------------------------------------------------------|| 
+
+   /**
+    * Returns the access bean, obtaining from JNDI if necessary 
+    */
+   private static synchronized AccessRemoteBusiness getAccessBean()
+   {
+      // If not yet obtained
+      if (accessBean == null)
+      {
+         // Get the naming context
+         Context context = null;
+         try
+         {
+            context = new InitialContext();
+
+            // Get the access bean
+            accessBean = (AccessRemoteBusiness) context.lookup(AccessBean.class.getSimpleName() + "/remote");
+         }
+         catch (NamingException ne)
+         {
+            throw new RuntimeException(ne);
+         }
+      }
+
+      // Return
+      return accessBean;
    }
 
 }

@@ -21,60 +21,161 @@
  */
 package org.jboss.ejb3.test.ejbthree1624;
 
+import java.rmi.RemoteException;
+
+import javax.ejb.CreateException;
 import javax.ejb.EJB;
+
+import org.jboss.logging.Logger;
 
 /**
  * McBean
  * 
  * A Simple POJO for testing, to be installed as an MC Bean
  * 
- * Business methods are delegated to the underlying instance,
- * an EJB which is to be injected
+ * Business methods are delegated to the underlying instances,
+ * EJBs which are to be injected
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
 public class McBean
 {
-   /**
-    * Injected member
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(McBean.class);
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /*
+    * Injected members
     */
    //TODO Field member cannot be named the same
    // as accessor / mutator methods?
    // http://www.jboss.com/index.html?module=bb&op=viewtopic&t=147055
    @EJB
-   private CalculatorLocalBusiness calc;
+   private CalculatorLocalBusiness calcLocalBusiness;
+
+   @EJB
+   private CalculatorRemoteBusiness calcRemoteBusiness;
+
+   @EJB
+   private CalculatorLocalHome calcLocalHome;
+
+   @EJB
+   private CalculatorHome calcRemoteHome;
+
+   // --------------------------------------------------------------------------------||
+   // Business Methods ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    /**
-    * Adds the specified arguments by way of the injected EJB
+    * Adds the specified arguments by way of the 
+    * local business delegate
     * 
     * @param args
     * @return
     */
-   public int add(int... args)
+   public int addUsingLocalBusinessView(int... args)
+   {
+      // Use the local business delegate
+      log.info("Adding using local business view...");
+      return this.add(calcLocalBusiness, args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * remote business delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingRemoteBusinessView(int... args)
+   {
+      // Use the remote business delegate
+      log.info("Adding using remote business view...");
+      return this.add(calcRemoteBusiness, args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * local component (EJB2.x) delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingLocalComponentView(int... args)
+   {
+      // Use the local component delegate via local home
+      log.info("Adding using local component view...");
+      CalculatorLocal local = null;
+      try
+      {
+         local = calcLocalHome.create();
+      }
+      catch (CreateException e)
+      {
+         throw new RuntimeException(e);
+      }
+      return this.add(local, args);
+   }
+
+   /**
+    * Adds the specified arguments by way of the 
+    * remote component (EJB2.x) delegate
+    * 
+    * @param args
+    * @return
+    */
+   public int addUsingRemoteComponentView(int... args)
+   {
+      // Use the remote component delegate via remote home
+      log.info("Adding using remote component view...");
+      CalculatorRemote remote = null;
+      try
+      {
+         remote = calcRemoteHome.create();
+      }
+      catch (CreateException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (RemoteException re)
+      {
+         throw new RuntimeException(re);
+      }
+      return this.add(remote, args);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Internal Helper Methods --------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Uses the specified delegate to add the specified arguments
+    * 
+    * @param delegate
+    * @param args
+    * @return
+    */
+   private int add(CalculatorService delegate, int... args) throws DelegateNotInjectedException
    {
       // Precondition check
-      CalculatorLocalBusiness calc = this.getCalculator();
-      if (calc == null)
+      if (delegate == null)
       {
-         throw new RuntimeException("Test fails, EJB instance not injected");
+         throw new DelegateNotInjectedException();
       }
 
-      // Return the sum
-      return calc.add(args);
+      // Log
+      log.info("Adding using " + delegate);
+
+      // Return
+      return delegate.add(args);
    }
 
-   public CalculatorLocalBusiness getCalculator()
-   {
-      return calc;
-   }
-
-   public void setCalculator(CalculatorLocalBusiness calc)
-   {
-      this.calc = calc;
-   }
-   
-
-   
-   
 }

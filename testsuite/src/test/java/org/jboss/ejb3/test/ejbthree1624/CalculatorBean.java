@@ -22,6 +22,9 @@
 package org.jboss.ejb3.test.ejbthree1624;
 
 import javax.ejb.Local;
+import javax.ejb.LocalHome;
+import javax.ejb.Remote;
+import javax.ejb.RemoteHome;
 import javax.ejb.Stateless;
 
 /**
@@ -35,7 +38,10 @@ import javax.ejb.Stateless;
  */
 @Stateless
 @Local(CalculatorLocalBusiness.class)
-public class CalculatorBean implements CalculatorLocalBusiness
+@Remote(CalculatorRemoteBusiness.class)
+@LocalHome(CalculatorLocalHome.class)
+@RemoteHome(CalculatorHome.class)
+public class CalculatorBean implements CalculatorLocalBusiness, CalculatorRemoteBusiness
 {
 
    /* (non-Javadoc)
