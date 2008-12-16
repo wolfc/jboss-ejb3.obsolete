@@ -70,7 +70,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
       this.checkEncInjectors = checkEncInjectors;
    }
    
-   private void createURLInjector(String encName, String mappedName, InjectionContainer container)
+   private static void createURLInjector(String encName, String mappedName, InjectionContainer container)
    {
       assert encName.length() > 0 : "encName is empty";
       assert mappedName.length() > 0 : "mappedName is empty";
@@ -182,7 +182,10 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          }
          else
          {
-            container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, envRef.getMappedName(), "<resource-ref>"));
+            if(envRef.getType().equals(URL.class.getName()))
+               createURLInjector(encName, mappedName, container);
+            else
+               container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, envRef.getMappedName(), "<resource-ref>"));
          }
          InjectionUtil.injectionTarget(encName, envRef, container, container.getEncInjections());
       }
