@@ -23,22 +23,18 @@ package org.jboss.ejb3.test.dd.mdb;
 
 import java.sql.Connection;
 
-import javax.annotation.Resource;
+import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
-import javax.ejb.EJBException;
-
-import javax.jms.MessageListener;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
-import org.jboss.logging.Logger;
 import org.jboss.ejb3.Container;
-import org.jboss.ejb3.test.dd.mdb.StatelessLocal;
-import org.jboss.ejb3.test.dd.mdb.StatelessRemote;
+import org.jboss.logging.Logger;
 
 /**
  * MessageBeanImpl.java
@@ -62,9 +58,10 @@ public class QueueBean implements MessageDrivenBean, MessageListener
 
    public QueueBean()
    {
-
+      log.info("Created");
    }
 
+   //@Resource //@see EJBTHREE-1633
    public void setMessageDrivenContext(MessageDrivenContext ctx) throws EJBException
    {
       this.ctx = ctx;
@@ -100,9 +97,10 @@ public class QueueBean implements MessageDrivenBean, MessageListener
    
    private void testInjections() throws Exception
    {
-      if(ctx == null)
-         throw new IllegalStateException("ctx is not set");
-      
+      if(ctx==null)
+      {
+         throw new IllegalStateException("EJBTHREE-1633, Missing setMessageDrivenContext");
+      }
       stateless.test();
       statelessLocal.testLocal();
       Connection conn = testDatasource.getConnection();

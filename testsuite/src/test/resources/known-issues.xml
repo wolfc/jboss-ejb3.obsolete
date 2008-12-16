@@ -16,4 +16,8 @@
 	<entry key="org.jboss.ejb3.test.ejbthree1040.unit.RequireDeploymentDescriptorFlagUnitTestCase.testDeploySuccessWithRequiredDdAndEjbJarXml">show</entry>
   <!-- EJBTHREE-1632 -->
   <entry key="org.jboss.ejb3.test.defaultremotebindings.unit.DefaultRemoteBindingsTestCase.testDefault">show</entry>
+  <!-- EJBTHREE-1633 -->
+  <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testQueue">show</entry>
+  <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testDurableTopic">show</entry>
+  
 </properties>

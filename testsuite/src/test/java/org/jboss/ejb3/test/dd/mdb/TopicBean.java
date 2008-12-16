@@ -21,14 +21,12 @@
  */
 package org.jboss.ejb3.test.dd.mdb;
 
-import javax.annotation.Resource;
+import javax.ejb.EJBException;
 import javax.ejb.MessageDrivenBean;
 import javax.ejb.MessageDrivenContext;
-import javax.ejb.EJBException;
-
 import javax.jms.JMSException;
-import javax.jms.MessageListener;
 import javax.jms.Message;
+import javax.jms.MessageListener;
 
 import org.jboss.logging.Logger;
 
@@ -53,7 +51,7 @@ public class TopicBean implements MessageDrivenBean, MessageListener
 
    }
 
-   @Resource
+   //@Resource //@see EJBTHREE-1633
    public void setMessageDrivenContext(MessageDrivenContext ctx) throws EJBException
    {
       this.ctx = ctx;
@@ -70,6 +68,10 @@ public class TopicBean implements MessageDrivenBean, MessageListener
 
    public void onMessage(Message message)
    {
+      if(ctx==null)
+      {
+         throw new IllegalStateException("EJBTHREE-1633, Missing setMessageDrivenContext");
+      }
       if (ctx.getRollbackOnly())
          throw new IllegalStateException("Error in transaction");
       log.debug("DEBUG: TopicBean got message" + message.toString());
