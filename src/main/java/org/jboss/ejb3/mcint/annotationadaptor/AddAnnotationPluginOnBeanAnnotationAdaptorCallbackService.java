@@ -77,6 +77,7 @@ public class AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService
       BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(beanAnnotationAdapterBindName, beanAnnotationAdapter
             .getClass().getName());
       bmdb.addMethodInstallCallback("addAnnotationPlugin");
+      bmdb.addMethodUninstallCallback("removeAnnotationPlugin");
       try
       {
          this.getKernel().getController().install(bmdb.getBeanMetaData(), beanAnnotationAdapter);
