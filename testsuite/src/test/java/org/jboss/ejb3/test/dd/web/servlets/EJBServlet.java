@@ -24,20 +24,21 @@ package org.jboss.ejb3.test.dd.web.servlets;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
+
+import javax.annotation.Resource;
+import javax.ejb.EJB;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
-import javax.persistence.EntityManagerFactory;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
-import javax.ejb.EJB;
-import javax.annotation.Resource;
 
 import org.jboss.ejb3.test.dd.web.ejb.Address;
 import org.jboss.ejb3.test.dd.web.interfaces.ReferenceTest;
@@ -46,8 +47,6 @@ import org.jboss.ejb3.test.dd.web.interfaces.StatelessSession;
 import org.jboss.ejb3.test.dd.web.interfaces.StatelessSessionLocal;
 import org.jboss.ejb3.test.dd.web.util.Util;
 import org.jboss.logging.Logger;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 
@@ -60,6 +59,8 @@ import org.jboss.security.client.SecurityClientFactory;
  */
 public class EJBServlet extends HttpServlet
 {
+   private static final long serialVersionUID = 1L;
+
    private static final Logger log = Logger.getLogger(EJBServlet.class);
 
    @EJB Session30 injectedSession30;
@@ -129,10 +130,10 @@ public class EJBServlet extends HttpServlet
          address.setZip("02116");
          
          Address address2 = new Address();
-         address.setStreet("Clarendon Street");
+         address.setStreet("Newbury Street");
          address.setCity("Boston");
          address.setState("MA");
-         address.setZip("02116");
+         address.setZip("02115");
 
          Address address3 = new Address();
          address.setStreet("Clarendon Street");

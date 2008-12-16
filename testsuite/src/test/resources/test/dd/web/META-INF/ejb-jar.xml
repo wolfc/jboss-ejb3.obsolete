@@ -93,8 +93,8 @@
       <session>
          <description>An EJB for testing in vm call optimization</description>
          <ejb-name>OptimizedEJB</ejb-name>
-         <remote>org.jboss.ejb3.test.dd.web.interfaces.StatelessSession</remote>
-         <local>org.jboss.ejb3.test.dd.web.interfaces.StatelessSessionLocal</local>
+         <business-local>org.jboss.ejb3.test.dd.web.interfaces.StatelessSessionLocal</business-local>
+         <business-remote>org.jboss.ejb3.test.dd.web.interfaces.StatelessSession</business-remote>
          <ejb-class>org.jboss.ejb3.test.dd.web.ejb.StatelessSessionBean2</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
