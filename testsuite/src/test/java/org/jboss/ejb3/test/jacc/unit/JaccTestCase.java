@@ -369,8 +369,6 @@ public class JaccTestCase extends JBossTestCase
       }
 
 
-      System.out.println("Deleting...");
-      stateless.deleteSomeEntity(e);
       System.out.println("Inserting...");
       e = stateless.insertSomeEntity();
 
@@ -423,7 +421,27 @@ public class JaccTestCase extends JBossTestCase
       }
    }
 
-
+   public void testSomeEntityDelete() throws Exception
+   {
+      Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
+      
+      SomeEntity e = stateless.insertSomeEntity();
+      
+      System.out.println("Deleting...");
+      try
+      {
+         stateless.deleteSomeEntity(e);
+      }
+      catch(EJBException ex)
+      {
+         fail(ex.getMessage());
+      }
+   }
+   
    private void hasSecurityOrEJBAccessException(Exception e)throws FailedException
    {
       Throwable t = e;
@@ -433,14 +451,15 @@ public class JaccTestCase extends JBossTestCase
          //System.out.println(t);
          String classname = t.getClass().getName();
          if (classname.equals(SecurityException.class.getName()) ||
-               classname.equals(EJBException.class.getName()) )
+               classname.equals(EJBException.class.getName()) ||
+               t instanceof EJBAccessException)
          {
             return;
          }
          t = t.getCause();
       }
 
-      throw new FailedException("SecurityException not thrown");
+      throw new FailedException("SecurityException not thrown", e);
    }
 
 
@@ -456,6 +475,11 @@ public class JaccTestCase extends JBossTestCase
       public FailedException(String msg)
       {
          super(msg);
+      }
+      
+      public FailedException(String msg, Throwable cause)
+      {
+         super(msg, cause);
       }
    }
 }
