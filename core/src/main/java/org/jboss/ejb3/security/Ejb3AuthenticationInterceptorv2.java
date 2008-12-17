@@ -40,6 +40,8 @@ import org.jboss.security.RunAs;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityUtil;
+import org.jboss.security.identity.Identity;
+import org.jboss.security.identity.plugins.SimpleIdentity;
 import org.jboss.security.javaee.EJBAuthenticationHelper;
 import org.jboss.security.javaee.SecurityHelperFactory;
 
@@ -140,9 +142,24 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          if(!trustedCaller)
          {
             Subject subject = new Subject();
-            //Authenticate the caller now
-            if(!helper.isValid(subject, method.getName()))
-               throw new EJBAccessException("Invalid User"); 
+            /**
+             * Special Case: Invocation has no principal set, 
+             * but an unauthenticatedPrincipal has been configured in JBoss DD
+             */
+            String unauthenticatedPrincipal = domain.unauthenticatedPrincipal();
+            if(sc.getUtil().getUserPrincipal() == null && unauthenticatedPrincipal !=null &&
+                  unauthenticatedPrincipal.length() > 0)
+            {
+               Identity unauthenticatedIdentity = new SimpleIdentity(unauthenticatedPrincipal);
+               sc.getSubjectInfo().addIdentity(unauthenticatedIdentity);
+               subject.getPrincipals().add(unauthenticatedIdentity.asPrincipal());
+            }
+            else
+            { 
+               //Authenticate the caller now
+               if(!helper.isValid(subject, method.getName()))
+                  throw new EJBAccessException("Invalid User"); 
+            }
             helper.pushSubjectContext(subject);
          }
          else
