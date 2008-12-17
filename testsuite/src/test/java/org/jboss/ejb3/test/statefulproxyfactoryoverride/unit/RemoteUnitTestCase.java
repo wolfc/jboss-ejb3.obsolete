@@ -22,9 +22,11 @@
 package org.jboss.ejb3.test.statefulproxyfactoryoverride.unit;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 
-import org.jboss.ejb3.test.statefulproxyfactoryoverride.ProxyFactoryInterface;
-
+import org.jboss.ejb3.test.statefulproxyfactoryoverride.NoOpException;
+import org.jboss.ejb3.test.statefulproxyfactoryoverride.StatefulRemote;
+import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -33,26 +35,51 @@ import org.jboss.test.JBossTestCase;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
 
-public class RemoteUnitTestCase
-extends JBossTestCase
+public class RemoteUnitTestCase extends JBossTestCase
 {
+   private static final Logger log = Logger.getLogger(RemoteUnitTestCase.class);
+
    public RemoteUnitTestCase(String name)
    {
       super(name);
    }
-   
+
    public void testRemoteBindingProxyFactory() throws Exception
    {
-      ProxyFactoryInterface stateful = (ProxyFactoryInterface)getInitialContext().lookup("Stateful");
+      StatefulRemote stateful = (StatefulRemote) getInitialContext().lookup("Stateful");
       assertNotNull(stateful);
-      stateful.method();
+      try
+      {
+         stateful.method();
+      }
+      catch (NoOpException noe)
+      {
+         // Expected
+         log.info("Got expected: " + noe);
+         return;
+      }
+
+      // Should not reach here
+      TestCase.fail("Custom Proxy Factory was not used");
    }
-   
+
    public void testDeploymentDescriptorRemoteBindingProxyFactory() throws Exception
    {
-      ProxyFactoryInterface stateful = (ProxyFactoryInterface)getInitialContext().lookup("StatefulDeploymentDescriptor");
+      StatefulRemote stateful = (StatefulRemote) getInitialContext().lookup("StatefulDeploymentDescriptor");
       assertNotNull(stateful);
-      stateful.method();
+      try
+      {
+         stateful.method();
+      }
+      catch (NoOpException noe)
+      {
+         // Expected
+         log.info("Got expected: " + noe);
+         return;
+      }
+
+      // Should not reach here
+      TestCase.fail("Custom Proxy Factory was not used");
    }
 
    public static Test suite() throws Exception

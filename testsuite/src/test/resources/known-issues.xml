@@ -37,4 +37,7 @@
   <entry key="org.jboss.ejb3.test.ejbthree1624.unit.Ejb3IntoMcBeanInjectionTestCase.testRemoteHomeInterfaceInjectionIntoMcBean">show</entry>
   <!-- EJBTHREE-1637 -->
   <entry key="org.jboss.ejb3.test.jacc.unit.JaccTestCase.testSomeEntityDelete">show</entry>
+  <!-- EJBTHREE-1640 -->
+  <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testRemoteBindingProxyFactory">show</entry>
+  <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testDeploymentDescriptorRemoteBindingProxyFactory">show</entry>
 </properties>
