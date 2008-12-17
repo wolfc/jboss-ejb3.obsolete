@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.deployer.unit;
 import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
@@ -98,6 +99,12 @@ extends JBossTestCase
       catch (AttributeNotFoundException e)
       {
          fail(name + " does not have attribute " + attribute.getName());
+      }
+      catch(MBeanException e)
+      {
+         if(e.getCause() instanceof InstanceNotFoundException)
+            fail(name + " does not expose a MBean interface");
+         throw e;
       }
    }
    
