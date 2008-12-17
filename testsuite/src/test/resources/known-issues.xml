@@ -40,4 +40,6 @@
   <!-- EJBTHREE-1640 -->
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testRemoteBindingProxyFactory">show</entry>
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testDeploymentDescriptorRemoteBindingProxyFactory">show</entry>
+  <!-- JBMETA-157 -->
+  <entry key="org.jboss.ejb3.test.naming.unit.NamingTestCase.testJndiOverride">show</entry>
 </properties>
