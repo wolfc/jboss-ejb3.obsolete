@@ -23,14 +23,16 @@ package org.jboss.ejb3.test.jaxws.unit;
 
 // $Id: ContextEJBTestCase.java 1874 2007-01-09 14:28:41Z thomas.diesler@jboss.com $
 
-import junit.framework.Test;
-import org.jboss.ejb3.test.jaxws.EndpointInterface;
-import org.jboss.test.JBossTestCase;
+import java.io.File;
+import java.net.URL;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.io.File;
-import java.net.URL;
+
+import junit.framework.Test;
+
+import org.jboss.ejb3.test.jaxws.EndpointInterface;
+import org.jboss.test.JBossTestCase;
 
 /**
  * Test JAXWS WebServiceContext
@@ -54,13 +56,13 @@ public class ContextEJBTestCase extends JBossTestCase
    public void testClientAccess() throws Exception
    {
       log.info("In case of connection exception, there is a host name defined in the wsdl, which used to be '@jbosstest.host.name@'");
-      URL wsdlURL = new File("../src/resources/test/jaxws/TestService.wsdl").toURL();
+      URL wsdlURL = new File("../src/test/resources/test/jaxws/TestService.wsdl").toURL();
       QName qname = new QName("http://org.jboss.ws/jaxws/context", "TestService");
       Service service = Service.create(wsdlURL, qname);
       EndpointInterface port = (EndpointInterface)service.getPort(EndpointInterface.class);
       
       String helloWorld = "Hello world!";
       Object retObj = port.echo(helloWorld);
-      assertEquals(helloWorld + "/" + helloWorld, retObj);
+      assertEquals(helloWorld, retObj);
    }
 }

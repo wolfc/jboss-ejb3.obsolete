@@ -32,7 +32,7 @@
     <!--
       <soap:address location="http://@jbosstest.host.name@:8080/jaxws-context"/>
     -->
-      <soap:address location="http://localhost:8080/jaxws-context"/>
+      <soap:address location="http://localhost:8080/jaxws-context/EndpointEJB"/>
     </port>
   </service>
 </definitions>
