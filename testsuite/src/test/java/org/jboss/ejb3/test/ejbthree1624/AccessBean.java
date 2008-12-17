@@ -122,14 +122,7 @@ public class AccessBean implements AccessRemoteBusiness, AccessManagement
 
       // Make an POJO and install into MC
       McBean bean = new McBean();
-      try
-      {
-         registrar.bind(beanBindName, bean);
-      }
-      catch (DuplicateBindException e)
-      {
-         throw new RuntimeException("MC Bean already registered under " + beanBindName, e);
-      }
+      registrar.rebind(beanBindName, bean);
       log.info("Installed MC Bean delegate " + bean + " at " + beanBindName);
 
       // Set delegate

@@ -109,8 +109,14 @@ public class McBean
     * @param args
     * @return
     */
-   public int addUsingLocalComponentView(int... args)
+   public int addUsingLocalComponentView(int... args) throws DelegateNotInjectedException
    {
+      // Precondition check
+      if (calcLocalHome == null)
+      {
+         throw new DelegateNotInjectedException();
+      }
+
       // Use the local component delegate via local home
       log.info("Adding using local component view...");
       CalculatorLocal local = null;
@@ -132,8 +138,14 @@ public class McBean
     * @param args
     * @return
     */
-   public int addUsingRemoteComponentView(int... args)
+   public int addUsingRemoteComponentView(int... args) throws DelegateNotInjectedException
    {
+      // Precondition check
+      if (calcRemoteHome == null)
+      {
+         throw new DelegateNotInjectedException();
+      }
+
       // Use the remote component delegate via remote home
       log.info("Adding using remote component view...");
       CalculatorRemote remote = null;

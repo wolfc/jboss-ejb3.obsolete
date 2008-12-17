@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.ejbthree1624.unit;
 
+import javax.ejb.EJBException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -30,6 +31,7 @@ import junit.framework.TestCase;
 
 import org.jboss.ejb3.test.ejbthree1624.AccessBean;
 import org.jboss.ejb3.test.ejbthree1624.AccessRemoteBusiness;
+import org.jboss.ejb3.test.ejbthree1624.DelegateNotInjectedException;
 import org.jboss.test.JBossTestCase;
 
 /**
@@ -104,7 +106,14 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
    public void testLocalBusinessInterfaceInjectionIntoMcBean() throws Throwable
    {
       // Test
-      TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalBusinessView(args));
+      try
+      {
+         TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalBusinessView(args));
+      }
+      catch (EJBException ejbe)
+      {
+         this.checkForFailCaseException(ejbe);
+      }
    }
 
    /**
@@ -114,7 +123,14 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
    public void testRemoteBusinessInterfaceInjectionIntoMcBean() throws Throwable
    {
       // Test
-      TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteBusinessView(args));
+      try
+      {
+         TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteBusinessView(args));
+      }
+      catch (EJBException ejbe)
+      {
+         this.checkForFailCaseException(ejbe);
+      }
    }
 
    /**
@@ -124,7 +140,15 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
    public void testLocalHomeInterfaceInjectionIntoMcBean() throws Throwable
    {
       // Test
-      TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalComponentView(args));
+      try
+      {
+         TestCase.assertEquals(expectedResult, getAccessBean().addUsingLocalComponentView(args));
+
+      }
+      catch (EJBException ejbe)
+      {
+         this.checkForFailCaseException(ejbe);
+      }
    }
 
    /**
@@ -134,12 +158,37 @@ public class Ejb3IntoMcBeanInjectionTestCase extends JBossTestCase
    public void testRemoteHomeInterfaceInjectionIntoMcBean() throws Throwable
    {
       // Test
-      TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteComponentView(args));
+      try
+      {
+         TestCase.assertEquals(expectedResult, getAccessBean().addUsingRemoteComponentView(args));
+      }
+      catch (EJBException ejbe)
+      {
+         this.checkForFailCaseException(ejbe);
+      }
    }
 
    // --------------------------------------------------------------------------------||
    // Internal Helper Methods --------------------------------------------------------||
    // --------------------------------------------------------------------------------|| 
+
+   /**
+    * Fails the test if any execption signaling failure is thrown
+    * (as opposed to erroring out)
+    * 
+    * @param ejbe The exception
+    */
+   private void checkForFailCaseException(EJBException ejbe)
+   {
+      if (ejbe.getCause() instanceof DelegateNotInjectedException)
+      {
+         TestCase.fail("Delegate was not injected, caught " + DelegateNotInjectedException.class.getName());
+      }
+      else
+      {
+         throw ejbe;
+      }
+   }
 
    /**
     * Returns the access bean, obtaining from JNDI if necessary 
