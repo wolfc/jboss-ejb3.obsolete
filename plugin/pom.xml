@@ -1,16 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  vi:ts=2:sw=2:expandtab:
--->
-
-<!-- 
-
-  This POM serves as Assembly for the JBoss EJB3 Plugin Installer
-
- -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   
   <!-- Parent -->
   <parent>
@@ -23,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-plugin</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0-Alpha1</version>
   <name>JBoss EJB 3.0 Plugin Installer Assembly</name>
   <description>JBoss EJB3 Plugin Installer Assembly</description>
   <packaging>pom</packaging>
@@ -120,4 +108,10 @@
     
   </dependencies>
   
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.0-Alpha1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.0-Alpha1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.0-Alpha1</url>
+  </scm>
 </project>
