@@ -67,42 +67,42 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-installer</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>1.0.0-Alpha1</version>
     </dependency>
 
     <!-- The things to install -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-as-int</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta11</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
       <classifier>client</classifier>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta4</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
       <classifier>client</classifier>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta11</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy</artifactId>
       <classifier>client</classifier>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta6</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-clustered</artifactId>
       <classifier>client</classifier>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta3</version>
     </dependency>
     
     <dependency>
@@ -115,7 +115,7 @@
     <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0.CR12</version>
     </dependency>
     
   </dependencies>
