@@ -29,6 +29,8 @@
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testLocalNormalMethodNamedRemove">show</entry>
   <!-- EJBTHREE-1637 -->
   <entry key="org.jboss.ejb3.test.jacc.unit.JaccTestCase.testSomeEntityDelete">show</entry>
+  <!-- EJBTHREE-1644 -->
+  <entry key="org.jboss.ejb3.test.security.unit.EJBSpecUnitTestCase.testDomainInteraction">show</entry>
   <!-- JBAS-6332 -->
   <entry key="org.jboss.ejb3.test.servlet.unit.ServletUnitTestCase.testEJBServlet">show</entry>
   <!-- EJBTHREE-1640 -->
