@@ -1848,63 +1848,6 @@
       </jar>
    </target>
 
-   <target name="servlet"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/servlet-ejbs.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/*.class"/>
-            <exclude name="org/jboss/ejb3/test/servlet/War*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/servlet">
-            <include name="*.properties"/>
-            <include name="META-INF/jboss.xml"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/servlet-client.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/War*.class"/>
-         </fileset>
-      </jar>
-
-      <war warfile="${build.lib}/servlet.war"
-         webxml="${build.resources}/test/servlet/WEB-INF/test-web.xml">
-         <webinf dir="${build.resources}/test/servlet/WEB-INF">
-            <include name="jboss-web.xml"/>
-         </webinf>
-         <classes dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/servlets/**"/>
-         </classes>
-         <lib dir="${build.lib}">
-            <include name="servlet-client.jar"/>
-         </lib>
-      </war>
-
-      <ear earfile="${build.lib}/servlet.ear"
-         appxml="${build.resources}/test/servlet/META-INF/application.xml"
-         manifest="${build.resources}/test/servlet/META-INF/MANIFEST.MF">
-         <fileset dir="${build.lib}">
-            <include name="servlet-ejbs.jar"/>
-            <include name="servlet.war"/>
-            <include name="servlet-client.jar"/>
-         </fileset>
-         <fileset dir="${resources}/test/servlet">
-            <include name="META-INF/jboss-app.xml"/>
-            <include name="servlet-security-service.xml"/>
-         </fileset>
-      </ear>
-
-      <copy todir="${build.lib}">
-         <fileset dir="${resources}/test/servlet">
-            <include name="servlet-security-service.xml"/>
-         </fileset>
-      </copy>
-   </target>
-
    <target name="ejbthree440"
       description="Builds all jar files."
       >
@@ -4231,7 +4174,7 @@
    
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
-      circulardependency, jsp, timerdependency, servicedependency, servlet, stateless14, webservices, ear, ejbthree440,
+      circulardependency, jsp, timerdependency, servicedependency, stateless14, webservices, ear, ejbthree440,
       ejbthree454, ejbthree471, 
    	  ejbthree653, ejbthree670, ejbthree712, ejbthree724, ejbthree751,
       ejbthree785, 
@@ -4913,9 +4856,6 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="jsp"/>
-      </antcall>
-      <antcall target="test" inheritRefs="true">
-         <param name="test" value="servlet"/>
       </antcall>
       <!--antcall target="test" inheritRefs="true">
          <param name="test" value="loginmodule"/>
