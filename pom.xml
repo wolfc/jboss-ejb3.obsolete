@@ -14,9 +14,9 @@
   
   <!-- Parent -->
   <parent>
-    <groupId>org.jboss</groupId>
-    <artifactId>jboss-parent</artifactId>
-    <version>3</version>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0-Beta10</version>
   </parent>
   
   <!-- Artifact Configuration -->
