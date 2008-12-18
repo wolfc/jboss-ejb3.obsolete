@@ -24,17 +24,6 @@
   <!-- EJBTHREE-1222 / EJBTHREE-1621 -->
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testRemoteNormalMethodNamedRemove">show</entry>
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testLocalNormalMethodNamedRemove">show</entry>
-  <!-- EJBTHREE-1624 -->
-  <!-- 
-  
-  Just needs a new dependency for the ValueMetaData
-  http://www.jboss.com/index.html?module=bb&op=viewtopic&p=4196761
-  
-   -->
-  <entry key="org.jboss.ejb3.test.ejbthree1624.unit.Ejb3IntoMcBeanInjectionTestCase.testLocalBusinessInterfaceInjectionIntoMcBean">show</entry>
-  <entry key="org.jboss.ejb3.test.ejbthree1624.unit.Ejb3IntoMcBeanInjectionTestCase.testRemoteBusinessInterfaceInjectionIntoMcBean">show</entry>
-  <entry key="org.jboss.ejb3.test.ejbthree1624.unit.Ejb3IntoMcBeanInjectionTestCase.testLocalHomeInterfaceInjectionIntoMcBean">show</entry>
-  <entry key="org.jboss.ejb3.test.ejbthree1624.unit.Ejb3IntoMcBeanInjectionTestCase.testRemoteHomeInterfaceInjectionIntoMcBean">show</entry>
   <!-- EJBTHREE-1637 -->
   <entry key="org.jboss.ejb3.test.jacc.unit.JaccTestCase.testSomeEntityDelete">show</entry>
   <!-- EJBTHREE-1640 -->
