@@ -1,3 +1,6 @@
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 	<comment>
@@ -26,6 +29,8 @@
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testLocalNormalMethodNamedRemove">show</entry>
   <!-- EJBTHREE-1637 -->
   <entry key="org.jboss.ejb3.test.jacc.unit.JaccTestCase.testSomeEntityDelete">show</entry>
+  <!-- JBAS-6332 -->
+  <entry key="org.jboss.ejb3.test.servlet.unit.ServletUnitTestCase.testEJBServlet">show</entry>
   <!-- EJBTHREE-1640 -->
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testRemoteBindingProxyFactory">show</entry>
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testDeploymentDescriptorRemoteBindingProxyFactory">show</entry>
