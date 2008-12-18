@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Beta10</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -358,7 +358,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta4</version>
     </dependency>
 
     <dependency>
@@ -382,7 +382,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta4</version>
     </dependency>
     
     <dependency>
@@ -394,7 +394,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta6</version>
     </dependency>
     
     <dependency>
