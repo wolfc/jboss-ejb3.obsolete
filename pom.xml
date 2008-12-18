@@ -1,24 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
-  vi:ts=2:sw=2:expandtab:
--->
-<!--
-  
-  The Installer Subproject of the EJB3 Module.
-  
-  This project alters an existing JBoss AS 5.0.x Installation
-  to use the latest release of the EJB3 Plugin
-  
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Define Parent -->
   <parent>
     <artifactId>jboss-ejb3-build</artifactId>
     <groupId>org.jboss.ejb3</groupId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Beta10</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -28,13 +14,13 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-installer</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0-Alpha1</version>
   <name>JBoss EJB 3.0 Plugin Installer</name>
   <description>Installer to patch existing JBoss AS 5.0.x Installation w/ EJB3 Plugin</description>
 
   <!-- Properties -->
   <properties>
-    <version.ant-contrib:ant-contrib>1.0b2</version.ant-contrib:ant-contrib>
+    <version.ant-contrib_ant-contrib>1.0b2</version.ant-contrib_ant-contrib>
   </properties>
 
   <!-- Dependencies -->
@@ -44,16 +30,22 @@
     <dependency>
       <groupId>ant-contrib</groupId>
       <artifactId>ant-contrib</artifactId>
-      <version>${version.ant-contrib:ant-contrib}</version>
+      <version>${version.ant-contrib_ant-contrib}</version>
     </dependency>
 
     <!-- EJB3 Common -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta4</version>
     </dependency>
     
   </dependencies>
 
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-installer-1.0.0-Alpha1</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-installer-1.0.0-Alpha1</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-installer-1.0.0-Alpha1</url>
+  </scm>
 </project>
