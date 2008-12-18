@@ -24,7 +24,7 @@ package org.jboss.ejb3.mcint.metadata.plugins;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
+import org.jboss.beans.metadata.plugins.AbstractDependencyValueMetaData;
 import org.jboss.deployers.client.spi.DeployerClient;
 import org.jboss.deployers.client.spi.Deployment;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
@@ -39,11 +39,16 @@ import org.jboss.reflect.spi.TypeInfo;
 
 /**
  * AbstractEjbReferenceValueMetadata
+ * 
+ * Describes both the requisite JNDI dependency and target Proxy for injection
+ * based upon a supplied resolver, reference, and naming context.  Will 
+ * search through all eligible EJB3 deployments available from the
+ * MainDeployer
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
+public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMetaData
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -53,6 +58,8 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
 
    private static final String MC_BEAN_NAME_MAIN_DEPLOYER = "MainDeployer";
 
+   private static final String DEPENDS_JNDI_PREFIX = "jndi:";
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||  
@@ -61,7 +68,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
 
    private EjbReference reference;
 
-   private Context context;
+   private Context namingContext;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -80,7 +87,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
       // Set properties
       this.setResolver(resolver);
       this.setReference(reference);
-      this.setContext(context);
+      this.setNamingContext(context);
    }
 
    // --------------------------------------------------------------------------------||
@@ -99,19 +106,29 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
       return this.resolveEjb();
    }
 
+   /**
+    * Used in defining the dependency
+    */
+   @Override
+   public Object getUnderlyingValue()
+   {
+      return DEPENDS_JNDI_PREFIX + this.getTargetJndiName();
+   }
+
    // --------------------------------------------------------------------------------||
    // Functional Methods -------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * Obtains the EJB from JNDI based upon the resolved JNDI name
+    * Obtains the target JNDI name, whose value is to be injected
+    * 
+    * @return The target JNDI Name
     */
-   protected Object resolveEjb()
+   protected String getTargetJndiName()
    {
       // Initialize
-      Object obj = null;
       String jndiName = null;
-      
+
       /*
        * Look through all EJB3 DeploymentUnits
        */
@@ -150,15 +167,32 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
          throw new UnresolvableReferenceException("Could not resolve in current deployments reference: " + reference);
       }
 
+      // Return the JNDI Name
+      return jndiName;
+   }
+
+   /**
+    * Obtains the EJB Proxy from JNDI based upon the resolved JNDI name
+    * 
+    * @return The Proxy to inject
+    */
+   protected Object resolveEjb()
+   {
+      // Initialize
+      Object obj = null;
+      String jndiName = this.getTargetJndiName();
+
       // Lookup 
       try
       {
-         obj = getContext().lookup(jndiName);
+         obj = getNamingContext().lookup(jndiName);
       }
       catch (NamingException e)
       {
          throw new RuntimeException("Could not obtain " + jndiName + "from JNDI", e);
       }
+
+      this.addDependencyItem();
 
       // Return
       return obj;
@@ -188,13 +222,14 @@ public class AbstractEjbReferenceValueMetadata extends AbstractValueMetaData
       this.resolver = resolver;
    }
 
-   protected Context getContext()
+   protected Context getNamingContext()
    {
-      return context;
+      return namingContext;
    }
 
-   protected void setContext(Context context)
+   protected void setNamingContext(Context context)
    {
-      this.context = context;
+      this.namingContext = context;
    }
+
 }
