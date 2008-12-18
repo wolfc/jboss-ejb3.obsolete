@@ -34,7 +34,7 @@
 
   <!-- Properties -->
   <properties>
-    <version.ant-contrib:ant-contrib>1.0b2</version.ant-contrib:ant-contrib>
+    <version.ant-contrib_ant-contrib>1.0b2</version.ant-contrib_ant-contrib>
   </properties>
 
   <!-- Dependencies -->
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>ant-contrib</groupId>
       <artifactId>ant-contrib</artifactId>
-      <version>${version.ant-contrib:ant-contrib}</version>
+      <version>${version.ant-contrib_ant-contrib}</version>
     </dependency>
 
     <!-- EJB3 Common -->
