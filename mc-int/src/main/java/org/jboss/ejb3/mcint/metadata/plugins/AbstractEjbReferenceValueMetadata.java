@@ -21,16 +21,15 @@
  */
 package org.jboss.ejb3.mcint.metadata.plugins;
 
+import java.util.Collection;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.jboss.beans.metadata.plugins.AbstractDependencyValueMetaData;
-import org.jboss.deployers.client.spi.DeployerClient;
-import org.jboss.deployers.client.spi.Deployment;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
-import org.jboss.deployers.structure.spi.main.MainDeployerStructure;
 import org.jboss.ejb3.common.deployers.spi.AttachmentNames;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.common.deployers.spi.Ejb3DeployerUtils;
 import org.jboss.ejb3.common.resolvers.spi.EjbReference;
 import org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver;
 import org.jboss.ejb3.common.resolvers.spi.UnresolvableReferenceException;
@@ -55,8 +54,6 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
    // --------------------------------------------------------------------------------||  
 
    private static final long serialVersionUID = 1L;
-
-   private static final String MC_BEAN_NAME_MAIN_DEPLOYER = "MainDeployer";
 
    private static final String DEPENDS_JNDI_PREFIX = "jndi:";
 
@@ -133,31 +130,28 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
        * Look through all EJB3 DeploymentUnits
        */
 
-      // Get at the MainDeployer
-      Object mainDeployer = Ejb3RegistrarLocator.locateRegistrar().lookup(MC_BEAN_NAME_MAIN_DEPLOYER);
-      assert mainDeployer instanceof DeployerClient && mainDeployer instanceof MainDeployerStructure : "Obtained Main Deployer is not of expected type";
-      DeployerClient dc = (DeployerClient) mainDeployer;
-      MainDeployerStructure mds = (MainDeployerStructure) mainDeployer;
+      // Get all EJB3 DUs
+      Collection<DeploymentUnit> dus = Ejb3DeployerUtils.getAllEjb3DeploymentUnitsInMainDeployer();
 
-      // Loop through each Deployment
-      for (Deployment d : dc.getTopLevel())
+      // Loop through each DeploymentUnit
+      if (dus != null)
       {
-         // Get the associated DU
-         DeploymentUnit du = mds.getDeploymentUnit(d.getName());
-
-         // Ensure it's an EJB3 DU (by looking for the processed metadata)
-         if (du.getAttachment(AttachmentNames.PROCESSED_METADATA, JBossMetaData.class) == null)
+         for (DeploymentUnit du : dus)
          {
-            continue;
-         }
+            // Ensure it's an EJB3 DU (by looking for the processed metadata)
+            if (du.getAttachment(AttachmentNames.PROCESSED_METADATA, JBossMetaData.class) == null)
+            {
+               continue;
+            }
 
-         // Try to resolve
-         jndiName = resolver.resolveEjb(du, reference);
+            // Try to resolve
+            jndiName = resolver.resolveEjb(du, reference);
 
-         // If we've resolved here, we're done
-         if (jndiName != null)
-         {
-            break;
+            // If we've resolved here, we're done
+            if (jndiName != null)
+            {
+               break;
+            }
          }
       }
 
