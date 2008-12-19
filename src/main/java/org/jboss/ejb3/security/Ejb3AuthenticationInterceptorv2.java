@@ -23,6 +23,7 @@ package org.jboss.ejb3.security;
 
 import java.lang.reflect.Method;
 import java.security.AccessController;
+import java.security.Principal;
 import java.security.PrivilegedExceptionAction;
 
 import javax.ejb.EJBAccessException;
@@ -79,108 +80,109 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          return invocation.invokeNext();
        
       SecurityContext prevSC = SecurityActions.getSecurityContext();
-      SecurityContext invSC = (SecurityContext) invocation.getMetaData("security","context"); 
-      
-      SecurityDomain domain = container.getAnnotation(SecurityDomain.class); 
-      
-      boolean domainExists = domain != null && domain.value() != null 
-                    && domain.value().length() > 0;
-       
-      /**
-       * TODO: Decide if you want to allow zero security based on non-availability
-       * of a security domain, as per the configuration on the container
-       */
-      if(domainExists)
-      {  
-         String domainValue = canonicalizeSecurityDomain(domain.value());
+      try
+      {
+         SecurityContext invSC = (SecurityContext) invocation.getMetaData("security","context"); 
          
-         /* Need to establish the security context. For local calls, we pick the outgoing runas
-          * of the existing sc. For remote calls, we create a new security context with the information
-          * from the invocation sc
+         SecurityDomain domain = container.getAnnotation(SecurityDomain.class); 
+         
+         boolean domainExists = domain != null && domain.value() != null 
+                       && domain.value().length() > 0;
+          
+         /**
+          * TODO: Decide if you want to allow zero security based on non-availability
+          * of a security domain, as per the configuration on the container
           */
-         final SecurityContext sc = SecurityActions.createSecurityContext(domainValue);
-         
-         if(shelper.isLocalCall(mi))
-         {
-            if(prevSC == null)
-               throw new IllegalStateException("Local Call: Security Context is null");
-            populateSecurityContext(sc, prevSC);  
-         }
-         else
-         { 
-           //Remote Invocation
-           if(invSC == null)
-             throw new IllegalStateException("Remote Call: Invocation Security Context is null");
-           
-           populateSecurityContext(sc, invSC); 
-         }
-         
-         SecurityActions.setSecurityContext(sc);
+         if(domainExists)
+         {  
+            String domainValue = canonicalizeSecurityDomain(domain.value());
             
-         //TODO: Need to get the SecurityManagement instance
-         AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
-         {
-            public Object run() throws Exception
-            {
-               sc.setSecurityManagement(getSecurityManagement());
-               return null;
-            }
-         });
-         
-           
-         //Check if there is a RunAs configured and can be trusted 
-         EJBAuthenticationHelper helper = null;
-         try
-         {
-            helper = SecurityHelperFactory.getEJBAuthenticationHelper(sc);
-         }
-         catch(Exception e)
-         {
-            throw new RuntimeException(e);
-         } 
-         boolean trustedCaller = hasIncomingRunAsIdentity(sc) || helper.isTrusted();
-         if(!trustedCaller)
-         {
-            Subject subject = new Subject();
-            /**
-             * Special Case: Invocation has no principal set, 
-             * but an unauthenticatedPrincipal has been configured in JBoss DD
+            /* Need to establish the security context. For local calls, we pick the outgoing runas
+             * of the existing sc. For remote calls, we create a new security context with the information
+             * from the invocation sc
              */
-            String unauthenticatedPrincipal = domain.unauthenticatedPrincipal();
-            if(sc.getUtil().getUserPrincipal() == null && unauthenticatedPrincipal !=null &&
-                  unauthenticatedPrincipal.length() > 0)
+            final SecurityContext sc = SecurityActions.createSecurityContext(domainValue);
+            
+            if(shelper.isLocalCall(mi))
             {
-               Identity unauthenticatedIdentity = new SimpleIdentity(unauthenticatedPrincipal);
-               sc.getSubjectInfo().addIdentity(unauthenticatedIdentity);
-               subject.getPrincipals().add(unauthenticatedIdentity.asPrincipal());
+               if(prevSC == null)
+                  throw new IllegalStateException("Local Call: Security Context is null");
+               populateSecurityContext(sc, prevSC);  
             }
             else
             { 
-               //Authenticate the caller now
-               if(!helper.isValid(subject, method.getName()))
-                  throw new EJBAccessException("Invalid User"); 
+              //Remote Invocation
+              if(invSC == null)
+                throw new IllegalStateException("Remote Call: Invocation Security Context is null");
+              
+              populateSecurityContext(sc, invSC); 
             }
-            helper.pushSubjectContext(subject);
+            
+            SecurityActions.setSecurityContext(sc);
+               
+            //TODO: Need to get the SecurityManagement instance
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+            {
+               public Object run() throws Exception
+               {
+                  sc.setSecurityManagement(getSecurityManagement());
+                  return null;
+               }
+            });
+            
+              
+            //Check if there is a RunAs configured and can be trusted 
+            EJBAuthenticationHelper helper = null;
+            try
+            {
+               helper = SecurityHelperFactory.getEJBAuthenticationHelper(sc);
+            }
+            catch(Exception e)
+            {
+               throw new RuntimeException(e);
+            } 
+            boolean trustedCaller = hasIncomingRunAsIdentity(sc) || helper.isTrusted();
+            if(!trustedCaller)
+            {
+               Subject subject = new Subject();
+               /**
+                * Special Case: Invocation has no principal set, 
+                * but an unauthenticatedPrincipal has been configured in JBoss DD
+                */
+               Principal userPrincipal = sc.getUtil().getUserPrincipal();
+               String unauthenticatedPrincipal = domain.unauthenticatedPrincipal();
+               if(userPrincipal == null && unauthenticatedPrincipal !=null &&
+                     unauthenticatedPrincipal.length() > 0)
+               {
+                  Identity unauthenticatedIdentity = new SimpleIdentity(unauthenticatedPrincipal);
+                  sc.getSubjectInfo().addIdentity(unauthenticatedIdentity);
+                  subject.getPrincipals().add(unauthenticatedIdentity.asPrincipal());
+               }
+               else
+               { 
+                  //Authenticate the caller now
+                  if(!helper.isValid(subject, method.getName()))
+                     throw new EJBAccessException("Invalid User"); 
+               }
+               helper.pushSubjectContext(subject);
+            }
+            else
+            {  
+               //Trusted caller. No need for authentication. Straight to authorization
+            } 
          }
          else
-         {  
-            //Trusted caller. No need for authentication. Straight to authorization
-         } 
-      }
-      else
-      {
-         //domain == null
-         /**
-          * Special Case when a bean with no security domain defined comes with a security
-          * context attached.
-          */
-         if(invSC != null)
          {
-            SecurityActions.setSecurityContext(invSC);
+            //domain == null
+            /**
+             * Special Case when a bean with no security domain defined comes with a security
+             * context attached.
+             */
+            if(invSC != null)
+            {
+               SecurityActions.setSecurityContext(invSC);
+            }
          }
-      }
-      try
-      {  
          return invocation.invokeNext();  
       }
       finally
