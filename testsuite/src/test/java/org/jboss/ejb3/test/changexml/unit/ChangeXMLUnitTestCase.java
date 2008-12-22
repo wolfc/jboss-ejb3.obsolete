@@ -23,11 +23,21 @@ package org.jboss.ejb3.test.changexml.unit;
 
 import java.io.File;
 
-import org.jboss.ejb3.test.changexml.TesterRemote;
-import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
+import org.jboss.ejb3.test.changexml.TesterRemote;
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
+import org.jboss.test.JBossTestCase;
+
 /**
+ * The purpose of this test is to show that the meta data bridges dynamically
+ * pick up configuration changes.
+ * 
+ * As an example we modify the security domain. Note that because we have
+ * an unauthenticated principal on the "other" security domain, we set some fake
+ * credentials to make sure the security domain gets exercised.
+ * 
  * @author <a href="mailto:adrian@jboss.com">Adrian Brock</a>
  */
 public class ChangeXMLUnitTestCase extends JBossTestCase
@@ -39,10 +49,20 @@ public class ChangeXMLUnitTestCase extends JBossTestCase
    
    public void testChangeXML() throws Exception
    {
-      TesterRemote tester = (TesterRemote)getInitialContext().lookup("TesterBean/remote");
-      String deployDir = System.getProperty("jbosstest.deploy.dir");
-      File file = new File(deployDir + "/" + "changexml.jar"); 
-      tester.runTest(file.toURL());
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("somebody", "password");
+      client.login();
+      try
+      {
+         TesterRemote tester = (TesterRemote)getInitialContext().lookup("TesterBean/remote");
+         String deployDir = System.getProperty("jbosstest.deploy.dir");
+         File file = new File(deployDir + "/" + "changexml.jar"); 
+         tester.runTest(file.toURL());
+      }
+      finally
+      {
+         client.logout();
+      }
    }
 
    public static Test suite() throws Exception
