@@ -22,6 +22,7 @@
 package org.jboss.ejb3.test.ejbthree973.unit;
 
 import javax.ejb.EJBAccessException;
+import javax.ejb.EJBTransactionRolledbackException;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
@@ -35,8 +36,6 @@ import junit.framework.Test;
 
 import org.jboss.ejb3.test.ejbthree973.SpyMe;
 import org.jboss.ejb3.test.ejbthree973.WhoAmI;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
@@ -86,7 +85,7 @@ public class AnonymousCallerPrincipalTestCase extends JBossTestCase
       }
       finally
       {
-         client.setSimple(null, null);
+         client.logout();
       }
    }
    
@@ -132,6 +131,13 @@ public class AnonymousCallerPrincipalTestCase extends JBossTestCase
       catch(EJBAccessException e)
       {
          // this is good
+      }
+      catch(EJBTransactionRolledbackException e)
+      {
+         Throwable t = e.getCause();
+         if(t != null && t instanceof RuntimeException)
+            fail(t.getMessage());
+         throw e;
       }
       
       String actual = bean.getCallerPrincipal();
