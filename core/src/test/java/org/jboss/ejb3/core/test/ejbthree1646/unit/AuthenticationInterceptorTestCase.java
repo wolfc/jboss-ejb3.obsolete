@@ -66,6 +66,19 @@ public class AuthenticationInterceptorTestCase extends AbstractEJB3TestCase
       container.setJaccContextId("test");
    }
    
+   private SecurityContext login(String name, Object credential) throws Exception
+   {
+      SecurityContext sc = SecurityContextFactory.createSecurityContext("test");
+      SecurityContextUtil util = sc.getUtil();
+      Principal principal = new SimplePrincipal(name);
+      Subject subject = new Subject();
+      subject.getPrincipals().add(principal);
+      subject.getPrivateCredentials().add(credential);
+      util.createSubjectInfo(principal, credential, subject);
+      SecurityContextAssociation.setSecurityContext(sc);
+      return sc;
+   }
+   
    @Test
    public void test1() throws Exception
    {
@@ -92,15 +105,7 @@ public class AuthenticationInterceptorTestCase extends AbstractEJB3TestCase
    {
       SecuredLocal bean = lookup("SecuredBean/local", SecuredLocal.class);
       
-      SecurityContext sc = SecurityContextFactory.createSecurityContext("test");
-      SecurityContextUtil util = sc.getUtil();
-      Principal principal = new SimplePrincipal("Admin");
-      Object credential = null;
-      Subject subject = new Subject();
-      subject.getPrincipals().add(principal);
-      subject.getPrivateCredentials().add(credential);
-      util.createSubjectInfo(principal, credential, subject);
-      SecurityContextAssociation.setSecurityContext(sc);
+      login("Admin", null);
       
       String me = bean.whoAmI();
       assertEquals("Admin", me);
@@ -109,19 +114,37 @@ public class AuthenticationInterceptorTestCase extends AbstractEJB3TestCase
    }
    
    @Test
+   public void testEquals() throws Exception
+   {
+      SecuredLocal bean = lookup("SecuredBean/local", SecuredLocal.class);
+      
+      login("Admin", null);
+      
+      Principal p1 = bean.getCallerPrincipal();
+      Principal p2 = bean.getCallerPrincipal();
+      
+      assertEquals(p1, p2);
+   }
+   
+   @Test
+   public void testSame() throws Exception
+   {
+      SecuredLocal bean = lookup("SecuredBean/local", SecuredLocal.class);
+      
+      login("Admin", null);
+      
+      Principal p1 = bean.getCallerPrincipal();
+      Principal p2 = bean.getCallerPrincipal();
+      
+      assertSame(p1, p2);
+   }
+   
+   @Test
    public void testSecurityContextAssociation() throws Exception
    {
       SecuredLocal bean = lookup("SecuredBean/local", SecuredLocal.class);
       
-      SecurityContext sc = SecurityContextFactory.createSecurityContext("test");
-      SecurityContextUtil util = sc.getUtil();
-      Principal principal = new SimplePrincipal("Invalid");
-      Object credential = null;
-      Subject subject = new Subject();
-      subject.getPrincipals().add(principal);
-      subject.getPrivateCredentials().add(credential);
-      util.createSubjectInfo(principal, credential, subject);
-      SecurityContextAssociation.setSecurityContext(sc);
+      SecurityContext sc = login("Invalid", null);
       
       try
       {
