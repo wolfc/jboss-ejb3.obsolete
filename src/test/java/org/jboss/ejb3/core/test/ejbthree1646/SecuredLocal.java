@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1646;
 
+import java.security.Principal;
+
 import javax.ejb.Local;
 
 /**
@@ -30,6 +32,8 @@ import javax.ejb.Local;
 @Local
 public interface SecuredLocal
 {
+   Principal getCallerPrincipal();
+   
    void onlyAdmin();
    
    String whoAmI();

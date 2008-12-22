@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1646;
 
+import java.security.Principal;
+
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.SessionContext;
@@ -38,6 +40,11 @@ public class SecuredBean implements SecuredLocal
 {
    @Resource
    private SessionContext ctx;
+   
+   public Principal getCallerPrincipal()
+   {
+      return ctx.getCallerPrincipal();
+   }
    
    @RolesAllowed("Admin")
    public void onlyAdmin()
