@@ -189,7 +189,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    protected boolean reinitialize = false;
    
    // To support clean startup/shutdown
-   private ReadWriteLock containerLock = new ReentrantReadWriteLock();
+   private ReadWriteLock containerLock = new ReentrantReadWriteLock(true);
    
    private static final Interceptor[] currentInvocationStack = new Interceptor[] { new CurrentInvocationInterceptor() };
    
