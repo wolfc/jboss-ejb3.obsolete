@@ -72,7 +72,10 @@ public class CustomerDAOBean implements CustomerDAO
       for (Iterator it = l.iterator() ; it.hasNext() ; )
       {
          Customer c = (Customer)it.next();
-         manager.remove(c);
+         // First we merge the Customer that might have been detached.
+         Customer mergedCustomer = manager.merge(c);
+         // Then we remove the customer
+         manager.remove(mergedCustomer);
       }
    }
 
