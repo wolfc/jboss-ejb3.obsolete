@@ -10,7 +10,7 @@
    <enterprise-beans>
       <session>
          <ejb-name>ShoppingCart</ejb-name>
-         <remote>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</remote>
+         <business-remote>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCart</business-remote>
          <ejb-class>org.jboss.tutorial.stateful_deployment_descriptor.bean.ShoppingCartBean</ejb-class>
          <session-type>Stateful</session-type>
          <remove-method>
