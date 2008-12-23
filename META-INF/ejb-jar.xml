@@ -10,8 +10,8 @@
    <enterprise-beans>
       <session>
          <ejb-name>Calculator</ejb-name>
-         <remote>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</remote>
-         <local>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</local>
+         <business-local>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorLocal</business-local>
+         <business-remote>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorRemote</business-remote>
          <ejb-class>org.jboss.tutorial.stateless_deployment_descriptor.bean.CalculatorBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
