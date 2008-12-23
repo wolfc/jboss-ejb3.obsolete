@@ -24,16 +24,13 @@ package org.jboss.ejb3.test.stateful.unit;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
-import org.jboss.ejb3.test.stateful.Stateful;
-
-import org.jboss.logging.Logger;
-import org.jboss.test.JBossTestCase;
 import junit.framework.Test;
 
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.SecurityAssociation;
+import org.jboss.ejb3.test.stateful.Stateful;
+import org.jboss.logging.Logger;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
+import org.jboss.test.JBossTestCase;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -42,37 +39,55 @@ public class MetricsUnitTestCase
 extends JBossTestCase
 {
    private static final Logger log = Logger.getLogger(MetricsUnitTestCase.class);
+   
+   private SecurityClient client = null;
 
    public MetricsUnitTestCase(String name)
    {
-
       super(name);
-
    }
    
-   public void testJmxMetrics() throws Exception
+   @Override
+   protected void setUp() throws Exception
    {
-      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      super.setUp();
+      
+      this.client = SecurityClientFactory.getSecurityClient();
       client.setSimple("somebody", "password");
       client.login();
-	      
-	   MBeanServerConnection server = getServer();
-	      
-	   testJmxMetrics(server, "Stateful", "jboss.j2ee:jar=stateful-test.jar,name=StatefulBean,service=EJB3");
-	   testJmxMetrics(server, "TreeCacheStateful", "jboss.j2ee:jar=stateful-test.jar,name=TreeCacheStatefulBean,service=EJB3");
+   }
+   
+   public static Test suite() throws Exception
+   {
+      return getDeploySetup(MetricsUnitTestCase.class, "stateful-test.jar");
+   }
+
+   @Override
+   protected void tearDown() throws Exception
+   {
+      if(client == null)
+         return;
+      client.logout();
+      client = null;
+      
+      super.tearDown();
    }
    
    protected void testJmxMetrics(MBeanServerConnection server, String jndiBinding, String objectName) throws Exception
    {
       ObjectName testerName = new ObjectName(objectName);
       
-      System.out.println("testPassivation");
+      // Establish how many beans are already active
+      int prevCount = (Integer)server.getAttribute(testerName, "CreateCount");
+      System.out.println("prevCount = " + prevCount);
+      assertTrue("can't have negative creation count", prevCount >= 0);
+      
       Stateful stateful = (Stateful)getInitialContext().lookup(jndiBinding);
       assertNotNull(stateful);
       stateful.setState("state");
       
       int count = (Integer)server.getAttribute(testerName, "CreateCount");
-      assertEquals(1, count);
+      assertEquals(1, count - prevCount);
       
       int size = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(1, size);
@@ -89,7 +104,7 @@ extends JBossTestCase
       assertEquals(0, size);
       
       count = (Integer)server.getAttribute(testerName, "PassivatedCount");
-      assertEquals(1, count);
+      assertEquals(1, count - prevCount);
       assertTrue(stateful.wasPassivated());
       
       assertEquals("state", stateful.getState());
@@ -106,10 +121,14 @@ extends JBossTestCase
       stateful.testResources();
       
       count = (Integer)server.getAttribute(testerName, "CreateCount");
-      assertEquals(2, count);
+      assertEquals(2, count - prevCount);
+      
+      // the injected beans are passivated at this point in time
       
       size = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(2, size);
+      
+      // keep in mind, we're not removing already injected beans
       
       size = (Integer)server.getAttribute(testerName, "RemoveCount");
       assertEquals(0, size);
@@ -130,9 +149,19 @@ extends JBossTestCase
       
    }
 
-   public static Test suite() throws Exception
+   public void testJmxMetricsStateful() throws Exception
    {
-      return getDeploySetup(MetricsUnitTestCase.class, "stateful-test.jar");
-   }
+      MBeanServerConnection server = getServer();
 
+      // Note: we got one creation in ServiceBean
+      
+      testJmxMetrics(server, "Stateful", "jboss.j2ee:jar=stateful-test.jar,name=StatefulBean,service=EJB3");
+   }
+   
+   public void testJmxMetricsTreeCacheStateful() throws Exception
+   {
+      MBeanServerConnection server = getServer();
+
+      testJmxMetrics(server, "TreeCacheStateful", "jboss.j2ee:jar=stateful-test.jar,name=TreeCacheStatefulBean,service=EJB3");
+   }
 }
