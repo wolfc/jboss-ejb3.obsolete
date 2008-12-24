@@ -21,7 +21,7 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.annotation.ejb.Producer;
+import org.jboss.ejb3.annotation.Producer;
 
 
 /**

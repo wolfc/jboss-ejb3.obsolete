@@ -21,17 +21,17 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.annotation.ejb.Producer;
-import org.jboss.annotation.ejb.Local;
-import org.jboss.annotation.ejb.Producer;
+import javax.ejb.Local;
 
+import org.jboss.ejb3.annotation.Producer;
 
 /**
  * comment
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-@Local @Producer
+@Local
+@Producer
 public interface ExampleProducerLocal extends ExampleProducer
 {
 

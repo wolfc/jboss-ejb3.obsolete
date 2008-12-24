@@ -22,20 +22,21 @@
 package org.jboss.tutorial.consumer.bean;
 
 import java.util.Map;
-import org.jboss.annotation.ejb.DeliveryMode;
-import org.jboss.annotation.ejb.MessageProperties;
-import org.jboss.annotation.ejb.Producer;
-import org.jboss.annotation.ejb.Local;
 
+import javax.ejb.Local;
+
+import org.jboss.ejb3.annotation.MessageProperties;
+import org.jboss.ejb3.annotation.Producer;
 
 /**
  * comment
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-@Local @Producer(connectionFactory="java:/JmsXA")
+@Local
+@Producer(connectionFactory = "java:/JmsXA")
 public interface ExampleProducerXA extends ExampleProducer
 {
-   @MessageProperties(delivery=DeliveryMode.PERSISTENT, priority=4)
+   @MessageProperties(delivery = org.jboss.ejb3.annotation.DeliveryMode.PERSISTENT, priority = 4)
    void method2(String msg, Map<String, String> map);
 }

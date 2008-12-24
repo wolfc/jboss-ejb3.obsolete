@@ -21,12 +21,10 @@
  */
 package org.jboss.tutorial.consumer.bean;
 
-import org.jboss.annotation.ejb.MessageProperties;
-import org.jboss.annotation.ejb.DeliveryMode;
-import org.jboss.annotation.ejb.DeliveryMode;
-import org.jboss.annotation.ejb.MessageProperties;
-
 import java.util.Map;
+
+import org.jboss.ejb3.annotation.DeliveryMode;
+import org.jboss.ejb3.annotation.MessageProperties;
 
 /**
  * comment
@@ -37,6 +35,6 @@ public interface ExampleProducer
 {
    void method1(String msg, int val);
 
-   @MessageProperties(delivery=DeliveryMode.NON_PERSISTENT)
+   @MessageProperties(delivery = DeliveryMode.NON_PERSISTENT)
    void method2(String msg, Map<String, String> map);
 }
