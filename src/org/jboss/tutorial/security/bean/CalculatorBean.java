@@ -28,8 +28,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
-import org.jboss.annotation.security.SecurityDomain;
-import org.jboss.annotation.security.SecurityDomain;
+import org.jboss.ejb3.annotation.SecurityDomain;
 
 @Stateless
 @SecurityDomain("other")

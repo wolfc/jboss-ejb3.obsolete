@@ -21,10 +21,11 @@
  */
 package org.jboss.tutorial.security.client;
 
-import java.util.Properties;
 import javax.ejb.EJBAccessException;
-import javax.naming.Context;
 import javax.naming.InitialContext;
+
+import org.jboss.security.client.SecurityClient;
+import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.tutorial.security.bean.Calculator;
 
 /**
@@ -35,11 +36,12 @@ public class Client
    public static void main(String[] args) throws Exception
    {
       // Establish the proxy with an incorrect security identity
-      Properties env = new Properties();
-      env.setProperty(Context.SECURITY_PRINCIPAL, "kabir");
-      env.setProperty(Context.SECURITY_CREDENTIALS, "invalidpassword");
-      env.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.security.jndi.JndiLoginInitialContextFactory");
-      InitialContext ctx = new InitialContext(env);
+      // Initially login with an incorrect password
+      SecurityClient securityClient = SecurityClientFactory.getSecurityClient();
+      securityClient.setSimple("kabir", "invalidpassword");
+      securityClient.login();
+
+      InitialContext ctx = new InitialContext();
       Calculator calculator = (Calculator) ctx.lookup("CalculatorBean/remote");
 
       System.out.println("Kabir is a student.");
@@ -57,8 +59,10 @@ public class Client
       System.out.println("Kabir does unchecked addition.");
 
       // Re-establish the proxy with the correct security identity
-      env.setProperty(Context.SECURITY_CREDENTIALS, "validpassword");
-      ctx = new InitialContext(env);
+      securityClient.logout();
+      securityClient.setSimple("kabir", "validpassword");
+      securityClient.login();
+
       calculator = (Calculator) ctx.lookup("CalculatorBean/remote");
 
       System.out.println("1 + 1 = " + calculator.add(1, 1));
@@ -68,7 +72,7 @@ public class Client
       {
          calculator.divide(16, 4);
       }
-      catch (javax.ejb.EJBAccessException  ex)
+      catch (javax.ejb.EJBAccessException ex)
       {
          System.out.println(ex.getMessage());
       }
