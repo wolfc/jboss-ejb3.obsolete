@@ -22,10 +22,8 @@
 package org.jboss.tutorial.consumer_deployment_descriptor.bean;
 
 import java.util.Map;
-import javax.ejb.ActivationConfigProperty;
+
 import javax.jms.Message;
-import org.jboss.annotation.ejb.Consumer;
-import org.jboss.annotation.ejb.CurrentMessage;
 
 public class ExampleConsumerBean implements ExampleProducerRemote, ExampleProducerLocal, ExampleProducerXA
 {

@@ -23,11 +23,13 @@ package org.jboss.tutorial.consumer_deployment_descriptor.bean;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.jboss.annotation.JndiInject;
+
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+
+import org.jboss.ejb3.annotation.JndiInject;
 import org.jboss.ejb3.mdb.ProducerManager;
 import org.jboss.ejb3.mdb.ProducerObject;
 
@@ -43,23 +45,25 @@ import org.jboss.ejb3.mdb.ProducerObject;
 public class TesterBean implements Tester
 {
    private ExampleProducerXA xa;
+
    private ProducerManager xaManager;
 
-   @JndiInject(jndiName="org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerXA")
+   @JndiInject(jndiName = "org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerXA")
    public void setXa(ExampleProducerXA xa)
    {
       this.xa = xa;
-      this.xaManager = ((ProducerObject)xa).getProducerManager();
+      this.xaManager = ((ProducerObject) xa).getProducerManager();
    }
 
    private ExampleProducer local;
+
    private ProducerManager localManager;
 
-   @JndiInject(jndiName="org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerLocal")
+   @JndiInject(jndiName = "org.jboss.tutorial.consumer_deployment_descriptor.bean.ExampleProducerLocal")
    public void setLocal(ExampleProducer local)
    {
       this.local = local;
-      this.localManager = ((ProducerObject)local).getProducerManager();
+      this.localManager = ((ProducerObject) local).getProducerManager();
    }
 
    @TransactionAttribute(TransactionAttributeType.REQUIRED)

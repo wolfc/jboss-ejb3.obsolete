@@ -22,11 +22,6 @@
 package org.jboss.tutorial.consumer_deployment_descriptor.bean;
 
 import java.util.Map;
-import org.jboss.annotation.ejb.DeliveryMode;
-import org.jboss.annotation.ejb.MessageProperties;
-import org.jboss.annotation.ejb.Producer;
-import org.jboss.annotation.ejb.Local;
-
 
 /**
  * comment

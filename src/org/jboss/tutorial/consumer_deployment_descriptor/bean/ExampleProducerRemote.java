@@ -21,9 +21,6 @@
  */
 package org.jboss.tutorial.consumer_deployment_descriptor.bean;
 
-import org.jboss.annotation.ejb.Producer;
-
-
 /**
  * comment
  *
