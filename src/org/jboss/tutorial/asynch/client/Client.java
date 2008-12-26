@@ -21,23 +21,25 @@
  */
 package org.jboss.tutorial.asynch.client;
 
-import javax.naming.InitialContext;
-import org.jboss.aspects.asynch.Future;
-import org.jboss.ejb3.asynchronous.Asynch;
-import org.jboss.tutorial.asynch.bean.Echo;
+import java.util.concurrent.Future;
 
+import javax.naming.InitialContext;
+
+import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
+import org.jboss.tutorial.asynch.bean.Echo;
 
 public class Client
 {
    public static void main(String[] args) throws Exception
    {
       InitialContext ctx = new InitialContext();
-      Echo echo = (Echo)ctx.lookup("EchoBean/remote");
+      Echo echo = (Echo) ctx.lookup("EchoBean/remote");
       System.out.println("-------- Synchronous call");
       String ret = echo.echo("normal call");
       System.out.println(ret);
 
-      Echo asynchEcho = (Echo) Asynch.getAsynchronousProxy(echo);
+      // Create the asynchronous proxy
+      Echo asynchEcho = AsyncUtils.mixinAsync(echo);
       System.out.println("-------- Asynchronous call");
       ret = asynchEcho.echo("asynchronous call");
       System.out.println("Direct return of async invocation is: " + ret);
@@ -47,16 +49,11 @@ public class Client
       System.out.println(ret);
 
       System.out.println("-------- Result of Asynchronous call");
-      Future future = Asynch.getFutureResult(asynchEcho);
+      Future<String> future = (Future<String>) AsyncUtils.getFutureResult(asynchEcho);
 
-      System.out.println("Waiting for asynbch invocation to complete");
-      while (!future.isDone())
-      {
-         Thread.sleep(100);
-      }
-      ret = (String)future.get();
+      // blocking call
+      ret = (String) future.get();
       System.out.println(ret);
-
 
    }
 }
