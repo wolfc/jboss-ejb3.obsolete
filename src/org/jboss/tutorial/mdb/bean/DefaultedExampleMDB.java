@@ -25,7 +25,7 @@ import javax.ejb.MessageDriven;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 
-import org.jboss.annotation.ejb.AspectDomain;
+import org.jboss.ejb3.annotation.AspectDomain;
 
 @MessageDriven
 @AspectDomain("Custom Message Driven Bean")
