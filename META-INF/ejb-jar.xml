@@ -39,19 +39,19 @@
       </interceptor-binding>
 	  <!-- Class interceptor that will apply to all methods for EmailSystemBean -->
 	   <interceptor-binding>
-         <ejb-name>org.jboss.tutorial.interceptor.bean.EmailSystemBean</ejb-name>
+         <ejb-name>EmailSystemBean</ejb-name>
          <interceptor-class>org.jboss.tutorial.interceptor.bean.OtherInterceptor</interceptor-class>
       </interceptor-binding>
 	   <!-- Method interceptor will apply to sendBookingCancellationMessage for EmailSystemBean -->
 	   <interceptor-binding>
-         <ejb-name>org.jboss.tutorial.interceptor.bean.EmailSystemBean</ejb-name>
+         <ejb-name>EmailSystemBean</ejb-name>
          <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
          <method>
            <method-name>sendBookingCancellationMessage</method-name>
          </method>
       </interceptor-binding>
 	   <interceptor-binding>
-         <ejb-name>org.jboss.tutorial.interceptor.bean.EmailSystemBean</ejb-name>
+         <ejb-name>EmailSystemBean</ejb-name>
          <exclude-default-interceptors>true</exclude-default-interceptors>
          <exclude-class-interceptors>true</exclude-class-interceptors>
          <method>
@@ -59,7 +59,7 @@
          </method>
       </interceptor-binding>
       <interceptor-binding>
-         <ejb-name>org.jboss.tutorial.interceptor.bean.EmailSystemBean</ejb-name>
+         <ejb-name>EmailSystemBean</ejb-name>
          <interceptor-order>
             <interceptor-class>org.jboss.tutorial.interceptor.bean.AccountsCancelInterceptor</interceptor-class>
             <interceptor-class>org.jboss.tutorial.interceptor.bean.DefaultInterceptor</interceptor-class>

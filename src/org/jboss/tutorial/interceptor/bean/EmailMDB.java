@@ -28,6 +28,7 @@ import javax.interceptor.AroundInvoke;
 import javax.ejb.ActivationConfigProperty;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import org.jboss.ejb3.annotation.Depends;
 
 @MessageDriven(activationConfig =
         {
