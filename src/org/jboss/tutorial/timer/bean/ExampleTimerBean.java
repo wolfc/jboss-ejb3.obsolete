@@ -38,6 +38,9 @@ public class ExampleTimerBean implements ExampleTimer
    public void scheduleTimer(long milliseconds)
    {
       ctx.getTimerService().createTimer(new Date(new Date().getTime() + milliseconds), "Hello World");
+      System.out.println("---------------------");
+      System.out.println("Created a timer event to be triggered after " + milliseconds + " milli seconds");
+      System.out.println("---------------------");
    }
 
    @Timeout

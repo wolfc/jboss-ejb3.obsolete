@@ -33,5 +33,6 @@ public class Client
       InitialContext ctx = new InitialContext();
       ExampleTimer timer = (ExampleTimer) ctx.lookup("ExampleTimerBean/remote");
       timer.scheduleTimer(5000);
+      System.out.println("Timer scheduled to trigger after 5 seconds");
    }
 }
