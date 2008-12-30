@@ -10,7 +10,9 @@
       <session>
          <ejb-name>StatefulTestBean</ejb-name>
          <security-identity>
-        	<run-as-principal>javajoe</run-as-principal>
+        	 <run-as>
+             <role-name>javajoe</role-name>
+           </run-as>
          </security-identity>
       </session>
    </enterprise-beans>
