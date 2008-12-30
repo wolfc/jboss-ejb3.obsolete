@@ -384,6 +384,9 @@
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
+    
+    <!-- Resources required on the client CP -->
+    <pathelement location="./target/tests-classes/" />
 
     <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
     <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
