@@ -1526,6 +1526,8 @@
 	<jar jarfile="${build.lib}/multideploy.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/reference21_30/Test2*.class"/>
+            <include name="org/jboss/ejb3/test/reference21_30/Test3Business.class"/>
+            <include name="org/jboss/ejb3/test/reference21_30/Test3Home.class"/>
          </fileset>
          <fileset dir="${resources}/test/reference21_30">
             <include name="META-INF/ejb-jar.xml"/>
