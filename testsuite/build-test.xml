@@ -386,7 +386,7 @@
     <pathelement location="${resources}/test" />
     
     <!-- Resources required on the client CP -->
-    <pathelement location="./target/tests-classes/" />
+    <pathelement location="${location.target}/tests-classes/" />
 
     <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
     <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
@@ -2476,6 +2476,10 @@
       <jar jarfile="${build.lib}/sf-clientejb.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/regression/scopedclassloader/Client*.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/StatelessRemote.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ValueObject.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/Customer.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ScopedException.class"/>
          </fileset>
       </jar>
 
