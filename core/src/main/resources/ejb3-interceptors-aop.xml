@@ -405,13 +405,13 @@
          <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
       </bind>
-      <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..))">
+      <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..)) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
-      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..))">
+      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="Basic Authorization"/>
       </bind>
-      <bind pointcut="execution(public * *->*(..))">
+      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
@@ -421,7 +421,7 @@
          <interceptor-ref name="org.jboss.ejb3.AllowedOperationsInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor"/>
       </bind>
-      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start())">
+      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop())">
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
@@ -432,13 +432,13 @@
          <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
       </bind>
-      <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..))">
+      <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..)) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
-      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..))">
+      <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="Basic Authorization"/>
       </bind>
-      <bind pointcut="execution(public * *->*(..))">
+      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->destroy())">
          <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
