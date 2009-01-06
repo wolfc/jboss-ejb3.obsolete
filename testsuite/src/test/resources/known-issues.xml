@@ -38,6 +38,9 @@
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testDeploymentDescriptorRemoteBindingProxyFactory">show</entry>
   <!-- EJBTHREE-1656 -->
   <entry key="org.jboss.ejb3.test.stateless.unit.StatelessTestCase.testTemplateInterfaceTx">show</entry>
+  <!-- EJBTHREE-1665 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testAnnotatedLocalInterfaceWovenBean">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testDefaultLocalInterfaceWovenBean">show</entry>
   <!-- JBMETA-157 -->
   <entry key="org.jboss.ejb3.test.naming.unit.NamingTestCase.testJndiOverride">show</entry>
 </properties>
