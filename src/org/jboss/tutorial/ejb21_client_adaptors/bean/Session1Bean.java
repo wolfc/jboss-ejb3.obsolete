@@ -21,51 +21,50 @@
  */
 package org.jboss.tutorial.ejb21_client_adaptors.bean;
 
-import javax.naming.*;
 import javax.ejb.EJB;
 import javax.ejb.EJBs;
-import javax.ejb.Remote;
-import javax.ejb.Stateful;
 import javax.ejb.Init;
 import javax.ejb.RemoteHome;
+import javax.ejb.Stateful;
+import javax.naming.InitialContext;
 
-import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.ejb3.Container;
 import org.jboss.logging.Logger;
 
 /**
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * @author Jaikiran Pai
  */
-@Stateful(name="Session1")
-@Remote(Session1Remote.class)
+@Stateful(name = "Session1")
 @RemoteHome(Session1RemoteHome.class)
-@RemoteBinding(jndiBinding = "Session1Remote")
-@EJBs({@EJB(name="session2", beanInterface=org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome.class, beanName="Session2")})
-public class Session1Bean 
+@EJBs(
+{@EJB(name = "session2", beanInterface = org.jboss.tutorial.ejb21_client_adaptors.bean.Session2LocalHome.class, beanName = "Session2")})
+public class Session1Bean
 {
    private static final Logger log = Logger.getLogger(Session1Bean.class);
-   
+
    private String initValue = null;
-   
+
    public String getInitValue()
    {
       return initValue;
    }
-   
+
    public String getLocalSession2InitValue() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
       Object s = jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
-      Session2LocalHome home = (Session2LocalHome)jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
+      Session2LocalHome home = (Session2LocalHome) jndiContext.lookup(Container.ENC_CTX_NAME + "/env/session2");
       Session2Local session2 = home.create("initialized");
       return session2.getInitValue();
    }
-   
+
    @Init
    public void ejbCreate()
    {
       initValue = "initialized";
+      log.info("ejbCreate() of " + this.getClass() + " called");
    }
-   
+
 }

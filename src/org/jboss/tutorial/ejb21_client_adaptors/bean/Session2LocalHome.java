@@ -28,7 +28,7 @@ import java.rmi.*;
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface Session2LocalHome extends EJBHome {
+public interface Session2LocalHome extends EJBLocalHome {
     
   public Session2Local create(String initValue) throws java.rmi.RemoteException, javax.ejb.CreateException;
 } 

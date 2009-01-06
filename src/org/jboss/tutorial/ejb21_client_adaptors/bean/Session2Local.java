@@ -21,14 +21,13 @@
  */
 package org.jboss.tutorial.ejb21_client_adaptors.bean;
 
-import javax.ejb.EJBObject;
+import javax.ejb.EJBLocalObject;
 
 /**
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface Session2Local extends EJBObject
+public interface Session2Local extends EJBLocalObject
 {
    String getInitValue();
 }
-

@@ -21,37 +21,35 @@
  */
 package org.jboss.tutorial.ejb21_client_adaptors.bean;
 
-import javax.ejb.Stateful;
-import javax.ejb.Local;
 import javax.ejb.Init;
 import javax.ejb.LocalHome;
+import javax.ejb.Stateful;
 
-import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.logging.Logger;
 
 /**
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * @author Jaikiran Pai
  */
-@Stateful(name="Session2")
-@Local(Session2Local.class)
+@Stateful(name = "Session2")
 @LocalHome(Session2LocalHome.class)
-@LocalBinding(jndiBinding = "Session2Local")
-public class Session2Bean 
+public class Session2Bean
 {
    private static final Logger log = Logger.getLogger(Session2Bean.class);
-   
+
    private String initValue = null;
-   
+
    public String getInitValue()
    {
       return initValue;
    }
-   
+
    @Init
    public void ejbCreate(String initValue)
    {
       this.initValue = initValue;
+      log.info("ejbCreate() of " + this.getClass() + " called with initValue= " + initValue);
    }
-   
+
 }
