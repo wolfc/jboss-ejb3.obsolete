@@ -21,6 +21,7 @@
   <entry key="org.jboss.ejb3.test.defaultremotebindings.unit.DefaultRemoteBindingsTestCase.testDefault">show</entry>
   <!-- EJBTHREE-1633 -->
   <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testQueue">show</entry>
+  <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testTopic">show</entry>
   <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testDurableTopic">show</entry>
   <!-- EJBTHREE-1634 -->
   <entry key="org.jboss.ejb3.test.deployer.unit.DeployerUnitTestCase.testDeployEjb3ExtensionOnly">show</entry>
