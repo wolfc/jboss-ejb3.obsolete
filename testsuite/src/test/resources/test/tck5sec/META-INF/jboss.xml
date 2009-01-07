@@ -10,10 +10,20 @@
       <session>
          <ejb-name>StatefulTestBean</ejb-name>
          <security-identity>
-        	 <run-as>
-             <role-name>javajoe</role-name>
-           </run-as>
+        	<run-as-principal>javajoe</run-as-principal>
          </security-identity>
       </session>
    </enterprise-beans>
+   <!-- EJBTHREE-1666: work around -->
+   <assembly-descriptor>
+      <security-role>
+         <role-name>Manager</role-name>
+         <principal-name>javajoe</principal-name>
+      </security-role>
+      <security-role>
+         <role-name>Employee</role-name>
+         <principal-name>javajoe</principal-name>
+         <principal-name>j2ee</principal-name>
+      </security-role>
+   </assembly-descriptor>
 </jboss>
