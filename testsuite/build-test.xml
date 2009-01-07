@@ -2407,6 +2407,10 @@
       <build-simple-jar name="ejbthree1504"/>
    </target>  
 	
+   <target name="ejbthree1530">
+      <build-simple-jar name="ejbthree1530"/>
+   </target> 
+	
    <target name="ejbthree1624">
       <build-simple-jar name="ejbthree1624"/>
    </target>
@@ -4199,7 +4203,7 @@
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
-      ejbthree1504, ejbthree1624,
+      ejbthree1504, ejbthree1530, ejbthree1624,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
@@ -5004,6 +5008,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1339"/>
+      </antcall>
+   	  <antcall target="test" inheritRefs="true">
+   	     <param name="test" value="ejbthree1530"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1624"/>
