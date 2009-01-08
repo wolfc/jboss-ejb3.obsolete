@@ -23,6 +23,7 @@ package org.jboss.ejb3;
 
 import java.util.Collection;
 import java.util.HashSet;
+
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -51,12 +52,12 @@ public class JmxDependencyPolicy implements DependencyPolicy
       dependencies.add(on);
    }
 
-   public Collection getDependencies()
+   public Collection<ObjectName> getDependencies()
    {
       return dependencies;
    }
 
-   public Collection getDependencies(Collection currentDependencies)
+   public Collection<ObjectName> getDependencies(Collection<ObjectName> currentDependencies)
    {
       dependencies.addAll(currentDependencies);
       return dependencies;
@@ -85,6 +86,16 @@ public class JmxDependencyPolicy implements DependencyPolicy
       {
          throw new RuntimeException(e);
       }
+   }
+   
+   public DependencyPolicy clone()
+   {
+      DependencyPolicy policy = new JmxDependencyPolicy();
+      for (ObjectName dependency : this.getDependencies())
+      {
+         policy.addDependency(dependency.getCanonicalName());
+      }
+      return policy;
    }
 
 }

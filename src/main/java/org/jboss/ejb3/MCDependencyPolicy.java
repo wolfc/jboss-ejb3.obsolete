@@ -153,4 +153,13 @@ public class MCDependencyPolicy implements DependencyPolicy
    {
       return supplies;
    }
+   
+   public DependencyPolicy clone()
+   {
+      MCDependencyPolicy clone = new MCDependencyPolicy(this.component);
+      clone.supplies.addAll(this.supplies);
+      clone.demands.addAll(this.demands);
+      clone.dependencies.addAll(this.dependencies);
+      return clone;
+   }
 }
