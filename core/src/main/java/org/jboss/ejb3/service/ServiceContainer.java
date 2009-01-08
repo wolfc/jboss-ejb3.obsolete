@@ -42,7 +42,6 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -59,7 +58,6 @@ import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.SecurityActions;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -81,7 +79,6 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
-import org.jboss.security.SecurityContext;
 import org.jboss.util.NotImplementedException;
 
 
@@ -583,13 +580,13 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
    }
 
-   @Deprecated
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-   {
-      log.warn("This call to dynamicInvoke(Object target, Invocation invocation) is "
-            + "@Deprecated, should be using dynamicInvoke(Invocation invocation)");
-      return this.dynamicInvoke(invocation);
-   }
+//   @Deprecated
+//   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
+//   {
+//      log.warn("This call to dynamicInvoke(Object target, Invocation invocation) is "
+//            + "@Deprecated, should be using dynamicInvoke(Invocation invocation)");
+//      return this.dynamicInvoke(invocation);
+//   }
 
    protected void initBeanContext() throws RuntimeException
    {

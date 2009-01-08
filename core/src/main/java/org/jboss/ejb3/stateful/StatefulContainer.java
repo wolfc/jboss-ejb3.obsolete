@@ -92,7 +92,6 @@ import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -507,9 +506,9 @@ public class StatefulContainer extends SessionSpecContainer
    
    /**
     * Remote Invocation entry point, as delegated from
-    * ClassProxyHack (Remoting Dispatcher)
+    * InvokableContextClassProxyHack (Remoting Dispatcher)
     */
-   //TODO
+   @Override
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       /*
@@ -727,124 +726,6 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
    
-   @Deprecated
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-   {
-      throw new NotImplementedException("Should be using dynamicInvoke(Invocation invocation)");
-   }
-//   /**
-//    * This should be a remote invocation call
-//    *
-//    * @param invocation
-//    * @return
-//    * @throws Throwable
-//    * @deprecated Use dynamicInvoke(Invocation invocation)
-//    */
-//   @Deprecated
-//   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-//   {
-//      long start = System.currentTimeMillis();
-//      
-//      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-//      EJBContainerInvocation newSi = null;
-//      pushEnc();
-//      try
-//      {
-//         Thread.currentThread().setContextClassLoader(classloader);
-//         MethodInvocation mi = (MethodInvocation)invocation;
-//         
-//         MethodInfo info = getAdvisor().getMethodInfo(mi.getMethodHash());
-//         if (info == null)
-//         {
-//            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
-//         }
-//         Method unadvisedMethod = info.getUnadvisedMethod();
-//         
-//         
-//         StatefulRemoteInvocation si = (StatefulRemoteInvocation) invocation;
-//         
-//
-//         InvocationResponse response = null;
-//         
-//         Object newId = null;
-//         
-//         try
-//         {
-//            invokeStats.callIn();
-//            
-//            if (info != null && unadvisedMethod != null && isHomeMethod(unadvisedMethod))
-//            {
-//               response = invokeHomeMethod(info, si);
-//            }
-//            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
-//            {
-//               response = invokeEJBObjectMethod(info, si);
-//            }
-//            else
-//            {
-//               if (unadvisedMethod.isBridge())
-//               {
-//                  unadvisedMethod = this.getNonBridgeMethod(unadvisedMethod);
-//                  info = super.getMethodInfo(unadvisedMethod);
-//               }
-//               
-//               if (si.getId() == null)
-//               {
-//                  StatefulBeanContext ctx = getCache().create(null, null);
-//                  newId = ctx.getId();
-//               }
-//               else
-//               {
-//                  newId = si.getId();
-//               }
-//               newSi = new StatefulContainerInvocation(info, newId);
-//               newSi.setArguments(si.getArguments());
-//               newSi.setMetaData(si.getMetaData());
-//               newSi.setAdvisor(getAdvisor());
-//   
-//               Object rtn = null;
-//                 
-//
-//               rtn = newSi.invokeNext();
-//
-//               response = marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
-//               if (newId != null) response.addAttachment(StatefulConstants.NEW_ID, newId);
-//            }
-//         }
-//         catch (Throwable throwable)
-//         {
-//            Throwable exception = throwable;
-//            if (newId != null)
-//            {
-//               exception = new ForwardId(throwable, newId);
-//            }
-//            Map responseContext = null;
-//            if (newSi != null) newSi.getResponseContextInfo();
-//            response = marshallException(invocation, exception, responseContext);
-//            return response;
-//         }
-//         finally
-//         {
-//            if (unadvisedMethod != null)
-//            {
-//               long end = System.currentTimeMillis();
-//               long elapsed = end - start;
-//               invokeStats.updateStats(unadvisedMethod, elapsed);
-//            }
-//            
-//            invokeStats.callOut();
-//         }
-//
-//         return response;
-//      }
-//      finally
-//      {
-//         Thread.currentThread().setContextClassLoader(oldLoader);
-//         popEnc();
-//      }
-//   }
-
-
    public TimerService getTimerService()
    {
       throw new UnsupportedOperationException("stateful bean doesn't support TimerService (EJB3 18.2#2)");

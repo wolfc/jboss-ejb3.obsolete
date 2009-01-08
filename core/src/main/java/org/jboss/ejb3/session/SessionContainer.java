@@ -46,6 +46,7 @@ import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
+import org.jboss.aop.proxy.ClassProxy;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.EJBContainer;
@@ -61,6 +62,7 @@ import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
@@ -77,7 +79,7 @@ import org.jboss.serial.io.MarshalledObjectForLocalCalls;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class SessionContainer extends EJBContainer
+public abstract class SessionContainer extends EJBContainer implements InvokableContext
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(SessionContainer.class);
@@ -132,7 +134,10 @@ public abstract class SessionContainer extends EJBContainer
     */
    protected abstract org.jboss.ejb3.proxy.factory.session.SessionProxyFactory getProxyFactory(RemoteBinding binding);
    
-   public abstract InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable;
+   /**
+    * Entry point for remoting-based invocations via InvokableContextClassProxyHack
+    */
+   public abstract InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable;
 
    public JBossSessionBeanMetaData getMetaData()
    {
@@ -182,12 +187,19 @@ public abstract class SessionContainer extends EJBContainer
    }
    
    /**
-    * Registers this Container with Remoting
+    * Registers this Container with Remoting / AOP Dispatcher
     */
    protected void registerWithAopDispatcher()
    {
+      String registrationName = this.getObjectName().getCanonicalName();
+      ClassProxy classProxy = new InvokableContextClassProxyHack(this);
+      
       // So that Remoting layer can reference this container easily.
-      Dispatcher.singleton.registerTarget(getObjectName().getCanonicalName(), new ClassProxyHack(this));
+      Dispatcher.singleton.registerTarget(registrationName, classProxy);
+      
+      // Log
+      log.debug("Registered " + this + " with " + Dispatcher.class.getName() + " via "
+            + InvokableContextClassProxyHack.class.getSimpleName() + " at key " + registrationName);
    }
 
    /**
