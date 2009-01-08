@@ -22,7 +22,10 @@
 package org.jboss.ejb3.service;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -39,6 +42,7 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -55,6 +59,7 @@ import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
+import org.jboss.ejb3.SecurityActions;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -76,6 +81,7 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
+import org.jboss.security.SecurityContext;
 import org.jboss.util.NotImplementedException;
 
 
@@ -103,6 +109,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
+   
+   /*
+    * Define lifecycle callback method names
+    */
+   
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_CREATE = "create";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_START = "start";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_STOP = "stop";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_DESTROY = "destroy";
 
    public ServiceContainer(MBeanServer server, ClassLoader cl, String beanClassName, String ejbName, Domain domain,
          Hashtable ctxProperties, Ejb3Deployment deployment, JBossServiceBeanMetaData beanMetaData)
@@ -234,11 +249,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       // EJBTHREE-655: fire up an instance for use as MBean delegate
       singleton = super.construct();
-
-      // won't work, before starting the management interface MBean injection must have been done.
-      //registerManagementInterface();
-
-      invokeOptionalMethod("create");
    }
 
    @Override
@@ -254,14 +264,14 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       Management man = (Management) resolveAnnotation(Management.class);
       if (man != null)
       {
-         Class iface = man.value();
+         Class<?> iface = man.value();
          if (iface != null)
          {
             interfaces.add(iface);
          }
       }
 
-      Class[] implIfaces = getBeanClass().getInterfaces();
+      Class<?>[] implIfaces = getBeanClass().getInterfaces();
       for (Class<?> iface : implIfaces)
       {
          if (iface.getAnnotation(Management.class) != null)
@@ -278,7 +288,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       singleton = super.construct();
 
-      invokeOptionalMethod("create");
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_CREATE);
    }
 
    @Override
@@ -299,8 +309,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          registerManagementInterface();
 
          TimerServiceFactory.getInstance().restoreTimerService(timerService);
-
-         invokeOptionalMethod("start");
+         invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
       }
       catch (Exception e)
       {
@@ -320,7 +329,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    @Override
    protected void lockedStop() throws Exception
    {
-      invokeOptionalMethod("stop");
+      // Make the lifecycle callback
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_STOP);
 
       if (timerService != null)
       {
@@ -328,22 +338,23 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          timerService = null;
       }
 
-      // TODO: EJBTHREE-655: shouldn't happen here, but in destroy
-      unregisterManagementInterface();
-
-      singleton = null;
-      beanContext = null;
-
       super.lockedStop();
 
    }
 
    public void destroy() throws Exception
    {
-      invokeOptionalMethod("destroy");
+      // Make the lifecycle callback
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_DESTROY);
 
-      //unregisterManagementInterface();
+      // Unregister w/ MBean Server
+      unregisterManagementInterface();
+      
+      // Null out
+      singleton = null;
+      beanContext = null;
 
+      // Call super impl
       super.destroy();
    }
 
@@ -362,6 +373,18 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       assert timerService != null : "Timer Service not yet initialized";
       return timerService;
    }
+   
+   private void setTcl(final ClassLoader cl)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Object>()
+      {
+         public Object run()
+         {
+            Thread.currentThread().setContextClassLoader(cl);
+            return null;
+         }
+      });
+   }
 
    /**
     * Invoke a method on the singleton without a specific security or transaction context.
@@ -370,19 +393,24 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
     */
    private void invokeOptionalMethod(String methodName)
    {
-      /* EJBTHREE-655 has been postponed
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader(); 
+      ClassLoader oldCl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      {
+         public ClassLoader run()
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
       try
       {
-         Thread.currentThread().setContextClassLoader(classloader);
-         Class parameterTypes[] = { };
-         Method method = clazz.getMethod(methodName, parameterTypes);
-         Object args[] = { };
-         method.invoke(singleton, args);
-      }
-      catch(NoSuchMethodException e)
-      {
-         // ignore
+         this.setTcl(this.getClassloader());
+         Class<?> parameterTypes[] =
+         {};
+         Method method = this.singleton.getClass().getMethod(methodName, parameterTypes);
+         Object[] args = new Object[]{};
+
+         // Invoke
+         log.warn("Attempting to invoke \"" + methodName + "()\" upon " + this.getBeanClassName() + "...");
+         method.invoke(this.singleton, args);
       }
       catch (IllegalArgumentException e)
       {
@@ -394,13 +422,23 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
       catch (InvocationTargetException e)
       {
-         throw new RuntimeException(e.getCause());
+         throw new RuntimeException(e);
+      }
+      catch (SecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (NoSuchMethodException e)
+      {
+         // Ignore
+         log.trace("Could not execute optional method \"" + methodName + "\" upon " + this.getBeanClassName()
+               + ", so ignoring");
       }
       finally
       {
-         Thread.currentThread().setContextClassLoader(oldLoader);
+         this.setTcl(oldCl);
       }
-      */
+
    }
 
    public void invokePostConstruct(BeanContext beanContext, Object[] params)
