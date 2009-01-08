@@ -409,7 +409,10 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          Object[] args = new Object[]{};
 
          // Invoke
-         log.warn("Attempting to invoke \"" + methodName + "()\" upon " + this.getBeanClassName() + "...");
+         if (log.isTraceEnabled())
+         {
+            log.trace("Attempting to invoke \"" + methodName + "()\" upon " + this.getBeanClassName() + "...");
+         }
          method.invoke(this.singleton, args);
       }
       catch (IllegalArgumentException e)
@@ -431,8 +434,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       catch (NoSuchMethodException e)
       {
          // Ignore
-         log.trace("Could not execute optional method \"" + methodName + "\" upon " + this.getBeanClassName()
-               + ", so ignoring");
+         if (log.isTraceEnabled())
+         {
+            log.trace("Could not execute optional method \"" + methodName + "\" upon " + this.getBeanClassName()
+                  + ", so ignoring");
+         }
       }
       finally
       {
