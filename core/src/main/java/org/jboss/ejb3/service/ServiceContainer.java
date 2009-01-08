@@ -56,6 +56,7 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
+import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.LocalBinding;
@@ -246,6 +247,10 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       // EJBTHREE-655: fire up an instance for use as MBean delegate
       singleton = super.construct();
+      
+      registerManagementInterface();
+      
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_CREATE);
    }
 
    @Override
@@ -301,9 +306,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          timerService = TimerServiceFactory.getInstance().createTimerService(this, this);
 
          injectDependencies(beanContext);
-
-         // TODO: EJBTHREE-655: shouldn't happen here, but in create
-         registerManagementInterface();
 
          TimerServiceFactory.getInstance().restoreTimerService(timerService);
          invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
@@ -580,14 +582,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
    }
 
-//   @Deprecated
-//   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-//   {
-//      log.warn("This call to dynamicInvoke(Object target, Invocation invocation) is "
-//            + "@Deprecated, should be using dynamicInvoke(Invocation invocation)");
-//      return this.dynamicInvoke(invocation);
-//   }
-
    protected void initBeanContext() throws RuntimeException
    {
       if (beanContext == null)
@@ -700,15 +694,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       try
       {
-         Management annotation = (Management) resolveAnnotation(Management.class);
+         Management annotation = this.getAnnotation(Management.class);
 
-         Class intf = null;
+         Class<?> intf = null;
          if (annotation != null)
             intf = annotation.value();
 
          if (intf == null)
          {
-            Class[] interfaces = this.getBeanClass().getInterfaces();
+            Class<?>[] interfaces = this.getBeanClass().getInterfaces();
             int interfaceIndex = 0;
             while (intf == null && interfaceIndex < interfaces.length)
             {
@@ -718,47 +712,64 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                   ++interfaceIndex;
             }
          }
+         
+         /*
+          * Construct a DependencyPolicy for the MBean which will also 
+          * define a demand upon this container
+          */
+         DependencyPolicy containerPolicy = this.getDependencyPolicy();
+         DependencyPolicy newPolicy = containerPolicy.clone();
+         String cName = this.getObjectName().getCanonicalName();
+         newPolicy.addDependency(cName);
+         
+         // Find MBean Server if not specified
+         if (mbeanServer == null)
+         {
+            try
+            {
+               mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
+            }
+            catch (IllegalStateException ise)
+            {
+               // Not found; ignore for now and we'll catch this later when we absolutely need MBean server
+               log.warn(ise);
+            }
+         }
+         
+         /*
+          * Construct the ObjectName
+          */
+         Service service = this.getAnnotation(Service.class);
+         String objname = service.objectName();
+         delegateObjectName = (objname == null || objname.equals("")) ? new ObjectName(getObjectName()
+               .getCanonicalName()
+               + ",type=ManagementInterface") : new ObjectName(objname);
 
+         // For @Management
          if (intf != null)
          {
-            if (mbeanServer == null)
-               mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
-
             if (mbeanServer == null)
                throw new RuntimeException("There is a @Management interface on " + ejbName
                      + " but the MBeanServer has not been initialized for it");
 
-            Service service = (Service) resolveAnnotation(Service.class);
-
-            String objname = service.objectName();
-            delegateObjectName = (objname == null || objname.equals("")) ? new ObjectName(getObjectName()
-                  .getCanonicalName()
-                  + ",type=ManagementInterface") : new ObjectName(service.objectName());
-
             delegate = new ServiceMBeanDelegate(mbeanServer, this, intf, delegateObjectName);
-
-            getDeployment().getKernelAbstraction().installMBean(delegateObjectName, getDependencyPolicy(), delegate);
+            
+            getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
          }
+         // XMBeans
          else
          {
-            Service service = (Service) resolveAnnotation(Service.class);
             if (service.xmbean().length() > 0)
             {
-               if (mbeanServer == null)
-                  mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
 
                if (mbeanServer == null)
                   throw new RuntimeException(ejbName
                         + "is defined as an XMBean, but the MBeanServer has not been initialized for it");
 
-               String objname = service.objectName();
-               delegateObjectName = (objname == null || objname.equals("")) ? new ObjectName(getObjectName()
-                     .getCanonicalName()
-                     + ",type=ManagementInterface") : new ObjectName(service.objectName());
 
                delegate = new ServiceMBeanDelegate(mbeanServer, this, service.xmbean(), delegateObjectName);
 
-               getDeployment().getKernelAbstraction().installMBean(delegateObjectName, getDependencyPolicy(), delegate);
+               getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
             }
          }
 

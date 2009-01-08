@@ -32,4 +32,6 @@ public interface DependencyPolicy
 {
    public void addDependency(String dependency);
    public void addDatasource(String jndiName);
+   public DependencyPolicy clone();
+   
 }
