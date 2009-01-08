@@ -573,23 +573,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       // Use legacy
       return this.isHandleMethod(invokingMethod);
    }
-   
-   /**
-    * Registers this Container with Remoting / AOP Dispatcher
-    */
-   @Override
-   protected void registerWithAopDispatcher()
-   {
-      String registrationName = this.getObjectName().getCanonicalName();
-      ClassProxy classProxy = new InvokableContextClassProxyHack(this);
-      
-      // So that Remoting layer can reference this container easily.
-      Dispatcher.singleton.registerTarget(registrationName, classProxy);
-      
-      // Log
-      log.debug("Registered " + this + " with " + Dispatcher.class.getName() + " via "
-            + InvokableContextClassProxyHack.class.getSimpleName() + " at key " + registrationName);
-   }
 
    // ------------------------------------------------------------------------------||
    // Lifecycle Methods ------------------------------------------------------------||

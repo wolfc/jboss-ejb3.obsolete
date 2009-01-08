@@ -21,14 +21,11 @@
  */
 package org.jboss.ejb3.session;
 
-import java.lang.reflect.Method;
-
 import org.jboss.aop.InstanceAdvisor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.proxy.ClassProxy;
 import org.jboss.aop.proxy.ProxyMixin;
-import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**

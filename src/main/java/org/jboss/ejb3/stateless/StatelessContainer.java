@@ -393,8 +393,9 @@ public class StatelessContainer extends SessionSpecContainer
    
    /**
     * Remote Invocation entry point, as delegated from
-    * ClassProxyHack (Remoting Dispatcher)
+    * InvokableContextClassProxyHack (Remoting Dispatcher)
     */
+   @Override
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       /*
@@ -517,84 +518,7 @@ public class StatelessContainer extends SessionSpecContainer
          Thread.currentThread().setContextClassLoader(originalLoader);
       }
    }
-
-   @Deprecated
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-   {
-      long start = System.currentTimeMillis();
-      
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
-         Thread.currentThread().setContextClassLoader(classloader);
-         MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
-         if (info == null)
-         {
-            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
-         }
-
-         Method unadvisedMethod = info.getUnadvisedMethod();
-         try
-         {
-            invokeStats.callIn();
-            
-            //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
-            Map responseContext = null;
-            Object rtn = null;
-            if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
-            {
-               rtn = invokeHomeMethod(info, si);
-            }
-            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
-            {
-               rtn = invokeEJBObjectMethod(info, si);
-            }
-            else
-            {
-
-               EJBContainerInvocation newSi = null;
-
-               newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
-               newSi.setArguments(si.getArguments());
-               newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(getAdvisor());
-               try
-               {
-                  rtn = newSi.invokeNext();
-                  responseContext = newSi.getResponseContextInfo();
-               }
-               catch (Throwable throwable)
-               {
-                  responseContext = newSi.getResponseContextInfo();
-                  return marshallException(invocation, throwable, responseContext);
-               }
-            }
-
-            InvocationResponse response = marshallResponse(invocation, rtn, responseContext);
-            return response;
-         }
-         finally
-         {
-            if (unadvisedMethod != null)
-            {
-               long end = System.currentTimeMillis();
-               long elapsed = end - start;
-               invokeStats.updateStats(unadvisedMethod, elapsed);
-            }
-            
-            invokeStats.callOut();
-            
-            //invokedMethod.pop();
-         }
-      }
-      finally
-      {
-         Thread.currentThread().setContextClassLoader(oldLoader);
-      }
-   }
-
-
+ 
    protected Object invokeEJBObjectMethod(MethodInfo info, MethodInvocation invocation) throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
