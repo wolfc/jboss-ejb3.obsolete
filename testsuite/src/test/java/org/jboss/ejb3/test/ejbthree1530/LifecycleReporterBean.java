@@ -21,45 +21,52 @@
  */
 package org.jboss.ejb3.test.ejbthree1530;
 
-import org.jboss.logging.Logger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 
 /**
- * LifecycleServiceBase
+ * LifecycleReporterBean
  * 
- * A base for a @Service that registers start() of its lifecycle
- * with a reporter
+ * Reports order in which lifecycle events of @Services 
+ * are registered
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public abstract class StartLifecycleRegisteringServiceBase implements LifecycleManagement
+@Stateless
+@Remote(LifecycleEventReporterRemoteBusiness.class)
+public class LifecycleReporterBean implements LifecycleEventReporterRemoteBusiness
 {
-
    // ----------------------------------------------------------------||
    // Class Members --------------------------------------------------||
    // ----------------------------------------------------------------||
 
-   private static final Logger log = Logger.getLogger(StartLifecycleRegisteringServiceBase.class);
+   /**
+    * Holds the name of each service as it reports it's been created, in order
+    */
+   public static List<String> CREATED_SERVICE_NAMES = new ArrayList<String>();
+
+   /**
+    * Holds the name of each service as it reports it's been started, in order
+    */
+   public static List<String> STARTED_SERVICE_NAMES = new ArrayList<String>();
 
    // ----------------------------------------------------------------||
    // Required Implementations ---------------------------------------||
    // ----------------------------------------------------------------||
 
-   public void start() throws Exception
+   public List<String> getServicesCreated()
    {
-      // Log and register
-      String objectName = this.getObjectName();
-      log.info("START: " + objectName);
-      StartLifecycleReporterBean.CREATED_SERVICE_NAMES.add(objectName);
+      return Collections.unmodifiableList(CREATED_SERVICE_NAMES);
    }
 
-   // ----------------------------------------------------------------||
-   // Contracts ------------------------------------------------------||
-   // ----------------------------------------------------------------||
-
-   /**
-    * Returns the ObjectName (String form) for this service
-    */
-   public abstract String getObjectName();
+   public List<String> getServicesStarted()
+   {
+      return Collections.unmodifiableList(STARTED_SERVICE_NAMES);
+   }
 
 }

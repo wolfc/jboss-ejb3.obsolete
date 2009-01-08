@@ -39,7 +39,7 @@ import org.jboss.ejb3.annotation.Service;
 @Management(LifecycleManagement.class)
 @Depends(Service2IsADependency.OBJECT_NAME)
 // < Defines the dependency, and hence order of startup
-public class Service1HasADependency extends StartLifecycleRegisteringServiceBase
+public class Service1HasADependency extends LifecycleEventRegisteringServiceBase
       implements
          LifecycleManagement
 {

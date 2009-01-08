@@ -32,7 +32,7 @@ import java.util.List;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StartLifecycleReporterRemoteBusiness
+public interface LifecycleEventReporterRemoteBusiness
 {
    // ----------------------------------------------------------------||
    // Contracts ------------------------------------------------------||
@@ -42,4 +42,9 @@ public interface StartLifecycleReporterRemoteBusiness
     * Obtains a list of the names (ObjectName) of services started, in order
     */
    List<String> getServicesStarted();
+   
+   /**
+    * Obtains a list of the names (ObjectName) of services started, in order
+    */
+   List<String> getServicesCreated();
 }

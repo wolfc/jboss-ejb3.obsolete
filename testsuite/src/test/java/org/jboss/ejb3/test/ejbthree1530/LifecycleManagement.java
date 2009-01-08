@@ -41,5 +41,7 @@ public interface LifecycleManagement
     */
 
    void start() throws Exception;
+   
+   void create() throws Exception;
 
 }

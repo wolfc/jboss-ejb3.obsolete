@@ -28,36 +28,36 @@ import javax.naming.Context;
 
 import junit.framework.Test;
 
-import org.jboss.ejb3.test.ejbthree1530.Service2IsADependency;
+import org.jboss.ejb3.test.ejbthree1530.LifecycleEventReporterRemoteBusiness;
+import org.jboss.ejb3.test.ejbthree1530.LifecycleReporterBean;
 import org.jboss.ejb3.test.ejbthree1530.Service1HasADependency;
-import org.jboss.ejb3.test.ejbthree1530.StartLifecycleReporterBean;
-import org.jboss.ejb3.test.ejbthree1530.StartLifecycleReporterRemoteBusiness;
+import org.jboss.ejb3.test.ejbthree1530.Service2IsADependency;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
 /**
  * ServiceStartOrderTestCase
  * 
- * Test Cases to ensure @Service lifecycle start() 
- * is called in proper order
+ * Test Cases to ensure @Service lifecycle events
+ * are called in proper order
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ServiceStartOrderTestCase extends JBossTestCase
+public class ServiceLifecycleCallbackOrderTestCase extends JBossTestCase
 {
 
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------|| 
 
-   private static final Logger log = Logger.getLogger(ServiceStartOrderTestCase.class);
+   private static final Logger log = Logger.getLogger(ServiceLifecycleCallbackOrderTestCase.class);
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------|| 
 
-   public ServiceStartOrderTestCase(String name)
+   public ServiceLifecycleCallbackOrderTestCase(String name)
    {
       super(name);
    }
@@ -71,7 +71,7 @@ public class ServiceStartOrderTestCase extends JBossTestCase
       /*
        * Get the deploy setup 
        */
-      return getDeploySetup(ServiceStartOrderTestCase.class, "ejbthree1530.jar");
+      return getDeploySetup(ServiceLifecycleCallbackOrderTestCase.class, "ejbthree1530.jar");
    }
 
    // --------------------------------------------------------------------------------||
@@ -84,31 +84,62 @@ public class ServiceStartOrderTestCase extends JBossTestCase
     */
    public void testDependentServiceStartedFirst() throws Throwable
    {
+      // Test
+      this.executeTestAsExpected(this.getLifecycleReporter().getServicesStarted());
+   }
 
+   /**
+    * Tests that the dependent service is created before the service declaring
+    * the dependency
+    */
+   public void testDependentServiceCreatedFirst() throws Throwable
+   {
+      // Test
+      this.executeTestAsExpected(this.getLifecycleReporter().getServicesCreated());
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Internal Helper Methods --------------------------------------------------------||
+   // --------------------------------------------------------------------------------|| 
+
+   /**
+    * Obtains the Lifecycle Reporter SLSB
+    */
+   private LifecycleEventReporterRemoteBusiness getLifecycleReporter() throws Throwable
+   {
       // Lookup the reporter
       Context context = this.getInitialContext();
-      Object obj = context.lookup(StartLifecycleReporterBean.class.getSimpleName() + "/remote");
-      StartLifecycleReporterRemoteBusiness reporter = (StartLifecycleReporterRemoteBusiness) obj;
+      Object obj = context.lookup(LifecycleReporterBean.class.getSimpleName() + "/remote");
+      LifecycleEventReporterRemoteBusiness reporter = (LifecycleEventReporterRemoteBusiness) obj;
+      return reporter;
+   }
 
-      // Initialize the expected start order
-      List<String> servicesStartedAsExpected = new ArrayList<String>();
-      servicesStartedAsExpected.add(Service2IsADependency.OBJECT_NAME);
-      servicesStartedAsExpected.add(Service1HasADependency.OBJECT_NAME);
-      log.info("Services Start Expected Order: " + servicesStartedAsExpected);
+   /**
+    * Tests that the actual lifecycle events took place 
+    * in the order expected, with the correct number of entries
+    * 
+    * @param actual
+    * @throws Throwable
+    */
+   private void executeTestAsExpected(List<String> actual) throws Throwable
+   {
+      // Initialize the expected order
+      List<String> lifecycleEventExpectedOrder = new ArrayList<String>();
+      lifecycleEventExpectedOrder.add(Service2IsADependency.OBJECT_NAME);
+      lifecycleEventExpectedOrder.add(Service1HasADependency.OBJECT_NAME);
 
-      // Get the actual start order
-      List<String> servicesStarted = reporter.getServicesStarted();
-      log.info("Services Start Actual Order: " + servicesStarted);
+      // Log
+      log.info("Lifecycle Events Expected Order: " + lifecycleEventExpectedOrder);
+      log.info("Lifecycle Events Actual Order: " + actual);
 
       // Test all is as expected
-      assertEquals("Wrong number of services reported as started", servicesStartedAsExpected.size(), servicesStarted
-            .size());
-      for (int i = 0; i < servicesStarted.size(); i++)
+      assertEquals("Wrong number of services lifecycle events reported as invoked", lifecycleEventExpectedOrder.size(),
+            actual.size());
+      for (int i = 0; i < actual.size(); i++)
       {
-         assertEquals("Service start order did not match expected", servicesStartedAsExpected.get(i), servicesStarted
+         assertEquals("Service lifecycle event order did not match expected", lifecycleEventExpectedOrder.get(i), actual
                .get(i));
       }
-
    }
 
 }

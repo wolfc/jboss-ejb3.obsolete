@@ -35,7 +35,7 @@ import org.jboss.ejb3.annotation.Service;
  */
 @Service(objectName = Service2IsADependency.OBJECT_NAME)
 @Management(LifecycleManagement.class)
-public class Service2IsADependency extends StartLifecycleRegisteringServiceBase implements LifecycleManagement
+public class Service2IsADependency extends LifecycleEventRegisteringServiceBase implements LifecycleManagement
 {
 
    // ----------------------------------------------------------------||

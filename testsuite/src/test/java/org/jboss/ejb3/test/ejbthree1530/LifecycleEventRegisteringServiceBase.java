@@ -21,42 +21,53 @@
  */
 package org.jboss.ejb3.test.ejbthree1530;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import org.jboss.logging.Logger;
 
 /**
- * StartLifecycleReporterBean
+ * LifecycleEventRegisteringServiceBase
  * 
- * Reports order in which start() lifecycle of @Services 
- * are registered
+ * A base for a @Service that registers lifecycle events
+ * with a reporter
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@Stateless
-@Remote(StartLifecycleReporterRemoteBusiness.class)
-public class StartLifecycleReporterBean implements StartLifecycleReporterRemoteBusiness
+public abstract class LifecycleEventRegisteringServiceBase implements LifecycleManagement
 {
+
    // ----------------------------------------------------------------||
    // Class Members --------------------------------------------------||
    // ----------------------------------------------------------------||
 
-   /**
-    * Holds the name of each service as it reports it's been started, in order
-    */
-   public static List<String> CREATED_SERVICE_NAMES = new ArrayList<String>();
+   private static final Logger log = Logger.getLogger(LifecycleEventRegisteringServiceBase.class);
 
    // ----------------------------------------------------------------||
    // Required Implementations ---------------------------------------||
    // ----------------------------------------------------------------||
 
-   public List<String> getServicesStarted()
+   public void start() throws Exception
    {
-      return Collections.unmodifiableList(CREATED_SERVICE_NAMES);
+      // Log and register
+      String objectName = this.getObjectName();
+      log.info("START: " + objectName);
+      LifecycleReporterBean.STARTED_SERVICE_NAMES.add(objectName);
    }
+   
+   public void create() throws Exception
+   {
+      // Log and register
+      String objectName = this.getObjectName();
+      log.info("CREATE: " + objectName);
+      LifecycleReporterBean.CREATED_SERVICE_NAMES.add(objectName);
+   }
+
+   // ----------------------------------------------------------------||
+   // Contracts ------------------------------------------------------||
+   // ----------------------------------------------------------------||
+
+   /**
+    * Returns the ObjectName (String form) for this service
+    */
+   public abstract String getObjectName();
 
 }
