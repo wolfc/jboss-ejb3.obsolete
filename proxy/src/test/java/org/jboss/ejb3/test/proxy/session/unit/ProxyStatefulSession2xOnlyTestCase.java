@@ -46,7 +46,7 @@ import org.junit.Test;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ProxyStatefulSession2xOnlyTestCase extends SessionTestCaseBase
+public class ProxyStatefulSession2xOnlyTestCase extends SessionTestCaseSupport
 {
 
    // --------------------------------------------------------------------------------||
@@ -84,6 +84,47 @@ public class ProxyStatefulSession2xOnlyTestCase extends SessionTestCaseBase
    {
       Object bean = ProxyStatefulSession2xOnlyTestCase.context.lookup("MyStateful2xOnlyBean/home");
       assertTrue(bean instanceof MyStatefulRemoteHome);
+   }
+
+   /**
+    * Test that there is NO binding for default business remote at beanname/remote
+    * 
+    * EJBTHREE-1668
+    * 
+    * @throws Exception
+    * @author Jaikiran Pai
+    */
+   @Test
+   public void testNoBindingForDefaultBusinessRemote() throws Exception
+   {
+      this.checkNoDefaultBusinessInterfaceBound(MyStateful2xOnlyBean.class, false);
+   }
+
+   /**
+    * Test that there is NO binding for default business local at beanname/local
+    *
+    * EJBTHREE-1668
+    * 
+    * @throws Exception
+    * @author Jaikiran Pai
+    */
+   @Test
+   public void testNoBindingForDefaultBusinessLocal() throws Exception
+   {
+      this.checkNoDefaultBusinessInterfaceBound(MyStateful2xOnlyBean.class, true);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the Context to be used for JNDI Operations 
+    */
+   @Override
+   protected Context getNamingContext()
+   {
+      return context;
    }
 
    // --------------------------------------------------------------------------------||
