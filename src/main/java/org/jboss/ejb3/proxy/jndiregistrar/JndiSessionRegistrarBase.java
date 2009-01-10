@@ -185,8 +185,10 @@ public abstract class JndiSessionRegistrarBase
       String remoteHome = StringUtils.adjustWhitespaceStringToNull(smd.getHome());
 
       // Determine if there are local/remote views
-      boolean hasLocalView = (localHome != null || (businessLocals != null && businessLocals.size() > 0));
-      boolean hasRemoteView = (remoteHome != null || (businessRemotes != null && businessRemotes.size() > 0));
+      boolean hasLocalBusinessView = (businessLocals != null && businessLocals.size() > 0);
+      boolean hasRemoteBusinessView = (businessRemotes != null && businessRemotes.size() > 0);
+      boolean hasLocalView = (localHome != null || hasLocalBusinessView);
+      boolean hasRemoteView = (remoteHome != null || hasRemoteBusinessView);
 
       /*
        * Create and Register Proxy Factories
@@ -291,8 +293,8 @@ public abstract class JndiSessionRegistrarBase
          // Get RemoteBindings
          List<RemoteBindingMetaData> remoteBindings = smd.getRemoteBindings();
 
-         // If there are no @RemoteBindings defined
-         if (remoteBindings == null)
+         // If there are no @RemoteBindings defined and there's a remote business (EJB3) view
+         if (remoteBindings == null && hasRemoteBusinessView)
          {
             // Use the default Client Bind URL
             String clientBindUrl = defaultClientBindUrl;
@@ -322,8 +324,13 @@ public abstract class JndiSessionRegistrarBase
             bindingSet.addDefaultRemoteBinding(new JndiReferenceBinding(defaultRemoteJndiName, defaultRemoteRef));
 
          }
+         
+         /*
+          * If there are @RemoteBindings and a remote view 
+          */
+         
          // Remote Bindings are defined, create a binding for each
-         else
+         else if (remoteBindings != null && hasRemoteView)
          {
 
             /*
@@ -530,33 +537,34 @@ public abstract class JndiSessionRegistrarBase
          /*
           * Bind ObjectFactory for default local businesses (and LocalHome if bound together)
           */
-
-         // Get Classname to set for Reference
-         String defaultLocalClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultLocal);
-
-         // Create a Reference
-         Reference defaultLocalRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
-               + defaultLocalClassName, localProxyFactoryKey, containerName, true);
-
-         // Add all Reference Addresses for Default Local Reference
-         for (RefAddr refAddr : refAddrsForDefaultLocal)
+         
+         if (hasLocalBusinessView)
          {
-            log.debug("Adding " + RefAddr.class.getSimpleName() + " to Default Local "
-                  + Reference.class.getSimpleName() + ": Type \"" + refAddr.getType() + "\", Content \""
-                  + refAddr.getContent() + "\"");
-            defaultLocalRef.add(refAddr);
-         }
+            // Get Classname to set for Reference
+            String defaultLocalClassName = this.getHumanReadableListOfInterfacesInRefAddrs(refAddrsForDefaultLocal);
 
-         // Bind the Default Local Reference to JNDI
-         String defaultLocalAddress = smd.getLocalJndiName();
-         log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
-               + defaultLocalAddress + "\"");
+            // Create a Reference
+            Reference defaultLocalRef = createStandardReference(
+                  JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + defaultLocalClassName,
+                  localProxyFactoryKey, containerName, true);
 
-         bindingSet.addDefaultLocalBinding(new JndiReferenceBinding(defaultLocalAddress, defaultLocalRef));
+            // Add all Reference Addresses for Default Local Reference
+            for (RefAddr refAddr : refAddrsForDefaultLocal)
+            {
+               log.debug("Adding " + RefAddr.class.getSimpleName() + " to Default Local "
+                     + Reference.class.getSimpleName() + ": Type \"" + refAddr.getType() + "\", Content \""
+                     + refAddr.getContent() + "\"");
+               defaultLocalRef.add(refAddr);
+            }
 
-         // Bind ObjectFactory specific to each Local Business Interface
-         if (businessLocals != null)
-         {
+            // Bind the Default Local Reference to JNDI
+            String defaultLocalAddress = smd.getLocalJndiName();
+            log.debug("Default Local Business View for EJB " + smd.getEjbName() + " to be bound into JNDI at \""
+                  + defaultLocalAddress + "\"");
+
+            bindingSet.addDefaultLocalBinding(new JndiReferenceBinding(defaultLocalAddress, defaultLocalRef));
+
+            // Bind ObjectFactory specific to each Local Business Interface
             for (String businessLocal : businessLocals)
             {
                RefAddr refAddr = new StringRefAddr(
