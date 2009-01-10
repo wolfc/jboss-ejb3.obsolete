@@ -12,3 +12,4 @@ jboss-ejb3-proxy-clustered.jar
 jboss-ejb3-security.jar
 jboss-ejb3-transactions.jar
 jboss-metadata.jar
+jboss-jpa-deployers.jar
