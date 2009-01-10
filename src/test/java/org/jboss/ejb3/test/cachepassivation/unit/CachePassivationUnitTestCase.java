@@ -84,7 +84,7 @@ public class CachePassivationUnitTestCase extends TestCase
       factories.put("MyStatefulSessionFilePersistenceManager", MyStatefulSessionFilePersistenceManagerFactory.class);
       PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry = new PersistenceManagerFactoryRegistry();
       persistenceManagerFactoryRegistry.setFactories(factories);
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       deployment.setPersistenceManagerFactoryRegistry(persistenceManagerFactoryRegistry);
       MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties,
             deployment);

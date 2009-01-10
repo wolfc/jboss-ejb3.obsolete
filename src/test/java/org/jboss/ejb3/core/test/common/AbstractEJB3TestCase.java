@@ -22,9 +22,12 @@
 package org.jboss.ejb3.core.test.common;
 
 import java.net.URL;
-import java.util.ArrayList;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
+import java.util.Set;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -51,6 +54,8 @@ import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.junit.AfterClass;
@@ -70,35 +75,37 @@ public abstract class AbstractEJB3TestCase
    private static final Logger log = Logger.getLogger(AbstractEJB3TestCase.class);
 
    private static final String DOMAIN_NAME_SLSB = "Stateless Bean";
-   
+
    private static final String DOMAIN_NAME_SFSB = "Stateful Bean";
-   
+
    private static final String OBJECT_STORE_NAME_PM_FACTORY_REGISTRY = "EJB3PersistenceManagerFactoryRegistry";
-   
+
    private static final String OBJECT_STORE_NAME_CACHE_FACTORY_REGISTRY = "EJB3CacheFactoryRegistry";
-   
+
    private static InitialContext initialContext;
-   
-   private static List<SessionContainer> containers = new ArrayList<SessionContainer>();
-   
+
+   private static Set<SessionContainer> allDeployedContainers = new HashSet<SessionContainer>();
+
    /**
     * Types of Containers Supported
     */
-   enum ContainerType{
-      SFSB,SLSB,SERVICE
+   enum ContainerType {
+      SFSB, SLSB, SERVICE
    }
 
    @AfterClass
    public static void afterClass() throws Exception
    {
-      for(SessionContainer container : containers)
-         unregisterContainer(container);
-      containers.clear();
-      
-      if(initialContext != null)
+      Set<SessionContainer> deployedContainers = new HashSet<SessionContainer>();
+      deployedContainers.addAll(allDeployedContainers);
+      for (SessionContainer container : deployedContainers)
+         undeployEjb(container);
+      allDeployedContainers.clear();
+
+      if (initialContext != null)
          initialContext.close();
       initialContext = null;
-      
+
       URL url = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
       if (url != null)
          AspectXmlLoader.undeployXML(url);
@@ -106,10 +113,10 @@ public abstract class AbstractEJB3TestCase
       if (bootstrap != null)
          bootstrap.shutdown();
       bootstrap = null;
-      
+
       // Unbind Registrar
       Ejb3RegistrarLocator.unbindRegistrar();
-     
+
    }
 
    @BeforeClass
@@ -140,7 +147,7 @@ public abstract class AbstractEJB3TestCase
          throw new IllegalStateException("Can't find ejb3-interceptors-aop.xml on class loader "
                + Thread.currentThread().getContextClassLoader());
       AspectXmlLoader.deployXML(url);
-      
+
       initialContext = new InitialContext();
    }
 
@@ -165,12 +172,105 @@ public abstract class AbstractEJB3TestCase
          throw new IllegalArgumentException("No such domain '" + domainName + "'");
       return (Domain) domainDef.getManager();
    }
-   
+
    protected static InitialContext getInitialContext()
    {
       return initialContext;
    }
-   
+
+   /**
+    * Creates and deploys a Session EJB represented by the specified implementation classes
+    * 
+    * @param beanImplementationClasses
+    * @return
+    */
+   public static Collection<SessionContainer> deploySessionEjbs(Class<?>[] beanImplementationClasses)
+   {
+      // Initialize
+      Collection<SessionContainer> containers = new HashSet<SessionContainer>();
+
+      // Obtain TCL
+      ClassLoader cl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      {
+         public ClassLoader run()
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
+
+      /*
+       * Create Metadata
+       */
+
+      // Create metadata
+      JBossMetaData jbossMetaData = MetaDataHelper.getMetaDataFromBeanImplClasses(beanImplementationClasses);
+
+      // Iterate through each EJB
+      for (JBossEnterpriseBeanMetaData beanMetaData : jbossMetaData.getEnterpriseBeans())
+      {
+
+         // Ensure a Session Bean
+         assert beanMetaData.isSession() || beanMetaData.isService() : "The specified EJB must be a Session Bean or a Service Bean";
+
+         // Cast 
+         JBossSessionBeanMetaData smd = (JBossSessionBeanMetaData) beanMetaData;
+
+         /*
+          * Determine type
+          */
+
+         // Initialize as SLSB
+         ContainerType sessionType = ContainerType.SLSB;
+
+         // Set as SFSB if stateful
+         if (smd.isStateful())
+         {
+            sessionType = ContainerType.SFSB;
+         }
+         else if (beanMetaData.isService())
+            sessionType = ContainerType.SERVICE;
+
+         // Ensure jndi.properties is accessible
+         log.info("Found: " + cl.getResource("jndi.properties"));
+
+         // Obtain properties required of container construction
+         String beanClassname = smd.getEjbClass();
+         Domain domain = getDomain(sessionType.equals(ContainerType.SLSB)
+               ? AbstractEJB3TestCase.DOMAIN_NAME_SLSB
+               : AbstractEJB3TestCase.DOMAIN_NAME_SFSB);
+         Hashtable<?, ?> ctxProperties = null;
+         DeploymentUnit unit = new MockDeploymentUnit();
+         Ejb3Deployment deployment = new MockEjb3Deployment(unit);
+
+         // Is SFSB, manually set a PM Factory Registry and Cache Factory
+         //TODO C'mon, here?  Much better elsewhere.
+         if (sessionType.equals(ContainerType.SFSB))
+         {
+            // Lookup Factory Registries in MC
+            PersistenceManagerFactoryRegistry registry = Ejb3RegistrarLocator.locateRegistrar().lookup(
+                  AbstractEJB3TestCase.OBJECT_STORE_NAME_PM_FACTORY_REGISTRY, PersistenceManagerFactoryRegistry.class);
+            CacheFactoryRegistry cacheFactoryRegistry = Ejb3RegistrarLocator.locateRegistrar().lookup(
+                  AbstractEJB3TestCase.OBJECT_STORE_NAME_CACHE_FACTORY_REGISTRY, CacheFactoryRegistry.class);
+
+            // Set on the deployment
+            deployment.setPersistenceManagerFactoryRegistry(registry);
+            deployment.setCacheFactoryRegistry(cacheFactoryRegistry);
+         }
+
+         // Create a Session Container
+         SessionContainer container = instanciateContainer(sessionType, cl, beanClassname, smd.getEjbName(), domain,
+               ctxProperties, deployment, smd);
+
+         // Deploy and register
+         registerContainer(container);
+         containers.add(container);
+
+      }
+
+      // Return
+      return containers;
+   }
+
    /**
     * Creates and deploys a Session EJB represented by the specified implementation class
     * 
@@ -179,75 +279,13 @@ public abstract class AbstractEJB3TestCase
     */
    public static SessionContainer deploySessionEjb(Class<?> beanImplementationClass)
    {
-      // Obtain TCL
-      ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
-      /*
-       * Create Metadata
-       */
-
-      // Create metadata
-      JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanImplementationClass);
-
-      // Ensure a Session Bean
-      assert beanMetaData.isSession() || beanMetaData.isService() : "The specified EJB must be a Session Bean or a Service Bean";
-
-      /*
-       * Determine type
-       */
-
-      // Initialize as SLSB
-      ContainerType sessionType = ContainerType.SLSB;
-
-      // Set as SFSB if stateful
-      if (beanMetaData.isStateful())
-      {
-         sessionType = ContainerType.SFSB;
-      }
-      else if(beanMetaData.isService())
-         sessionType = ContainerType.SERVICE;
-
-      // Ensure jndi.properties is accessible
-      log.info("Found: " + cl.getResource("jndi.properties"));
-
-      // Obtain properties required of container construction
-      String beanClassname = beanImplementationClass.getName();
-      String ejbName = beanImplementationClass.getSimpleName();
-      Domain domain = getDomain(sessionType.equals(ContainerType.SLSB)
-            ? AbstractEJB3TestCase.DOMAIN_NAME_SLSB
-            : AbstractEJB3TestCase.DOMAIN_NAME_SFSB);
-      Hashtable<?, ?> ctxProperties = null;
-      DeploymentUnit unit = new MockDeploymentUnit();
-      Ejb3Deployment deployment = new MockEjb3Deployment(unit, null);
-      
-      // Is SFSB, manually set a PM Factory Registry and Cache Factory
-      //TODO C'mon, here?  Much better elsewhere.
-      if (sessionType.equals(ContainerType.SFSB))
-      {
-         // Lookup Factory Registries in MC
-         PersistenceManagerFactoryRegistry registry = Ejb3RegistrarLocator.locateRegistrar().lookup(
-               AbstractEJB3TestCase.OBJECT_STORE_NAME_PM_FACTORY_REGISTRY, PersistenceManagerFactoryRegistry.class);
-         CacheFactoryRegistry cacheFactoryRegistry = Ejb3RegistrarLocator.locateRegistrar().lookup(
-               AbstractEJB3TestCase.OBJECT_STORE_NAME_CACHE_FACTORY_REGISTRY, CacheFactoryRegistry.class);
-
-         // Set on the deployment
-         deployment.setPersistenceManagerFactoryRegistry(registry);
-         deployment.setCacheFactoryRegistry(cacheFactoryRegistry);
-      }
-
-      // Create a Session Container
-      SessionContainer container = instanciateContainer(sessionType, cl, beanClassname, ejbName, domain, ctxProperties,
-            deployment, beanMetaData);
-
-      // Deploy and register
-      registerContainer(container);
-
-      containers.add(container);
-      
-      // Return
-      return container;
+      Collection<SessionContainer> containers = deploySessionEjbs(new Class<?>[]
+      {beanImplementationClass});
+      assert containers.size() == 1 : "Was only expected one " + SessionContainer.class.getSimpleName()
+            + " from bean impl class: " + beanImplementationClass;
+      return containers.iterator().next();
    }
-   
+
    /**
     * Instanciates the appropriate SessionContainer based on the specified arguments and returns it
     *  
@@ -273,11 +311,12 @@ public abstract class AbstractEJB3TestCase
        */
       switch (type)
       {
-         case SERVICE:
+         case SERVICE :
             try
             {
                domain = getDomain("Service Bean");
-               container = new ServiceContainer(null, loader, beanClassName, ejbName, domain, ctxProperties, deployment, (JBossServiceBeanMetaData) md);
+               container = new ServiceContainer(null, loader, beanClassName, ejbName, domain, ctxProperties,
+                     deployment, (JBossServiceBeanMetaData) md);
             }
             catch (ClassNotFoundException cnfe)
             {
@@ -311,12 +350,12 @@ public abstract class AbstractEJB3TestCase
       // Return
       return container;
    }
-   
+
    protected static <T> T lookup(String name, Class<T> type) throws NamingException
    {
       return type.cast(getInitialContext().lookup(name));
    }
-   
+
    /**
     * Deploys, registers the specified Session Container
     * 
@@ -330,6 +369,9 @@ public abstract class AbstractEJB3TestCase
       container.instantiated(); //TODO: Wickeness
       container.processMetadata();
       Ejb3Registry.register(container);
+
+      // Add as one of the deployed containers here
+      allDeployedContainers.add(container);
 
       // Register the Container in ObjectStore (MC) - will also invoke lifecycle
       String containerName = container.getObjectName().getCanonicalName();
@@ -355,19 +397,19 @@ public abstract class AbstractEJB3TestCase
       {
          bootstrap.lookup(containerName, Object.class);
       }
-      catch(RuntimeException e)
+      catch (RuntimeException e)
       {
          throw e;
       }
-      catch(Error e)
+      catch (Error e)
       {
          throw e;
       }
-      catch(Throwable t)
+      catch (Throwable t)
       {
          throw new RuntimeException(t);
       }
-      
+
       // Return
       return container;
    }
@@ -382,12 +424,15 @@ public abstract class AbstractEJB3TestCase
       // Igonre a null container (maybe deployment did not succeed)
       if (container == null)
          return;
+      if (!allDeployedContainers.contains(container))
+      {
+         return;
+      }
 
       unregisterContainer(container);
-      
-      containers.remove(container);
+
    }
-   
+
    private static void unregisterContainer(SessionContainer container)
    {
       // Unbind and call appropriate lifecycle events
@@ -400,5 +445,6 @@ public abstract class AbstractEJB3TestCase
          // Ignore
       }
       Ejb3Registry.unregister(container);
+      allDeployedContainers.remove(container);
    }
 }

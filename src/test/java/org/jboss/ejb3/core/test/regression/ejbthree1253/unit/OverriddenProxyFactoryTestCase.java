@@ -60,7 +60,7 @@ public class OverriddenProxyFactoryTestCase extends AbstractEJB3TestCase
       String ejbName = MyStatefulBean.class.getSimpleName();
       Domain domain = getDomain("Stateful Bean");
       Hashtable<?,?> ctxProperties = null;
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       deployment.setPersistenceManagerFactoryRegistry(getBootstrap().lookup("EJB3PersistenceManagerFactoryRegistry", PersistenceManagerFactoryRegistry.class));
       deployment.setRemoteProxyFactoryRegistry(getBootstrap().lookup("EJB3RemoteProxyFactoryRegistry", RemoteProxyFactoryRegistry.class));
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(MyStatefulBean.class);
