@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.proxy.session.unit;
 
 import static org.junit.Assert.assertTrue;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -38,10 +39,20 @@ import org.junit.Test;
 
 /**
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ProxyStatelessSession2xOnlyTestCase extends SessionTestCaseBase
+public class ProxyStatelessSession2xOnlyTestCase extends SessionTestCaseSupport
 {
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * JNDI Context
+    */
+   private static Context context;
 
    // --------------------------------------------------------------------------------||
    // Tests --------------------------------------------------------------------------||
@@ -50,19 +61,56 @@ public class ProxyStatelessSession2xOnlyTestCase extends SessionTestCaseBase
    @Test
    public void testLocalHome() throws Exception
    {
-      InitialContext ctx = new InitialContext();
-
-      Object bean = ctx.lookup("MyStateless2xOnlyBean/localHome");
+      Object bean = this.getNamingContext().lookup("MyStateless2xOnlyBean/localHome");
       assertTrue(bean instanceof MyStatelessLocalHome);
    }
 
    @Test
    public void testRemoteHome() throws Exception
    {
-      InitialContext ctx = new InitialContext();
-
-      Object bean = ctx.lookup("MyStateless2xOnlyBean/home");
+      Object bean = this.getNamingContext().lookup("MyStateless2xOnlyBean/home");
       assertTrue(bean instanceof MyStatelessRemoteHome);
+   }
+
+   /**
+    * Test that there is NO binding for default business remote at beanname/remote
+    * 
+    * EJBTHREE-1668
+    * 
+    * @throws Exception
+    * @author Jaikiran Pai
+    */
+   @Test
+   public void testNoBindingForDefaultBusinessRemote() throws Exception
+   {
+      this.checkNoDefaultBusinessInterfaceBound(MyStateless2xOnlyBean.class, false);
+   }
+
+   /**
+    * Test that there is NO binding for default business local at beanname/local
+    * 
+    * EJBTHREE-1668
+    * 
+    * @throws Exception
+    * @author Jaikiran Pai
+    */
+   @Test
+   public void testNoBindingForDefaultBusinessLocal() throws Exception
+   {
+      this.checkNoDefaultBusinessInterfaceBound(MyStateless2xOnlyBean.class, true);
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Implementations -------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the Context to be used for JNDI Operations 
+    */
+   @Override
+   protected Context getNamingContext()
+   {
+      return context;
    }
 
    // --------------------------------------------------------------------------------||
@@ -88,6 +136,9 @@ public class ProxyStatelessSession2xOnlyTestCase extends SessionTestCaseBase
 
       // Install
       Ejb3RegistrarLocator.locateRegistrar().bind(container.getName(), container);
+
+      // Create JNDI Context
+      context = new InitialContext(); // Props from CP jndi.properties
 
    }
 
