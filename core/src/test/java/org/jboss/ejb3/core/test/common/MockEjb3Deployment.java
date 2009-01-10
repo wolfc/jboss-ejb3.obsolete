@@ -35,6 +35,8 @@ import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.NoPassivationCacheFactory;
 import org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory;
 import org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory;
+import org.jboss.ejb3.common.resolvers.plugins.FirstMatchEjbReferenceResolver;
+import org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.pool.PoolFactory;
@@ -50,9 +52,33 @@ import org.jboss.ejb3.pool.ThreadlocalPoolFactory;
  */
 public class MockEjb3Deployment extends Ejb3Deployment
 {
-   public MockEjb3Deployment(DeploymentUnit unit, DeploymentScope deploymentScope)
+   public MockEjb3Deployment(DeploymentUnit unit)
    {
-      super(new AbstractDeploymentUnit(), unit, deploymentScope, null);
+      // TODO This should be replaced w/ a MockDeploymentUnit when completed, 
+      // to support nested deployments, @see ejb3-test MockDeploymentUnit
+      this(unit, new AbstractDeploymentUnit());
+   }
+
+   public MockEjb3Deployment(DeploymentUnit unit, org.jboss.deployers.structure.spi.DeploymentUnit du)
+   {
+      this(unit, du, null);
+   }
+
+   public MockEjb3Deployment(DeploymentUnit unit, org.jboss.deployers.structure.spi.DeploymentUnit du,
+         DeploymentScope scope)
+   {
+      super(du, unit, scope, null);
+
+      // Replace the scope if we haven't been given one (hacky, but there's
+      // a chicken/egg thing here as MockDeploymentScope requires the instance
+      // currently under construction, and DeploymentScope is @Deprecated anyway
+      // in favor of a pluggable resolver architecture, so this is a stop-gap
+      if (scope == null)
+      {
+         EjbReferenceResolver resolver = new FirstMatchEjbReferenceResolver();
+         this.deploymentScope = new MockDeploymentScope(this, du, resolver);
+      }
+
       PoolFactoryRegistry poolRegistry = new PoolFactoryRegistry();
       HashMap<String, Class<? extends PoolFactory>> poolFactories = new HashMap<String, Class<? extends PoolFactory>>();
       poolFactories.put("ThreadlocalPool", ThreadlocalPoolFactory.class);
