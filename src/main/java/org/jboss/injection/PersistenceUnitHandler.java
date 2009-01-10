@@ -50,6 +50,11 @@ import org.jboss.metadata.javaee.spec.RemoteEnvironment;
 public class PersistenceUnitHandler<X extends RemoteEnvironment> implements InjectionHandler<X>
 {
    private static final Logger log = Logger.getLogger(PersistenceUnitHandler.class);
+   
+   /**
+    * Contracted error message value, form may be checked from Integration Tests
+    */
+   public static final String ERROR_MESSAGE_FAILED_TO_RESOVLE_PU = " failed to resolve persistence unit ";
 
    public void loadXml(X xml, InjectionContainer container)
    {
@@ -127,7 +132,7 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
          }
          catch(IllegalArgumentException e)
          {
-            throw new IllegalArgumentException("Container " + container + " failed to resolve persistence unit " + unitName, e);
+            throw new IllegalArgumentException("Container " + container + ERROR_MESSAGE_FAILED_TO_RESOVLE_PU + unitName, e);
          }
          return;
       }
