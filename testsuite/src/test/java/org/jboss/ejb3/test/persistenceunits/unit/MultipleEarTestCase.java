@@ -31,6 +31,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.test.persistenceunits.Entity1;
 import org.jboss.ejb3.test.persistenceunits.Entity2;
 import org.jboss.ejb3.test.persistenceunits.EntityTest;
+import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
@@ -90,7 +91,11 @@ public class MultipleEarTestCase extends JBossTestCase
          assertEquals("only persistenceunitscope-test2.ear should have failed", 1, deploymentsInError.size());
          Map.Entry<String, Throwable> entry = deploymentsInError.entrySet().iterator().next();
          assertTrue(entry.getKey().endsWith("persistenceunitscope-test2.ear"));
-         assertTrue(entry.getValue().getMessage().contains("Can't find a persistence unit named 'Entity1'"));
+
+         // Check that it's Entity1 PU that cannot be resolved 
+         String message = entry.getValue().getMessage();
+         assertTrue(message.contains(PersistenceUnitHandler.ERROR_MESSAGE_FAILED_TO_RESOVLE_PU));
+         assertTrue(message.contains("Entity1"));
       }
    }
 
