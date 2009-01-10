@@ -1,5 +1,7 @@
 package org.jboss.ejb3.test.deployers;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,9 +14,11 @@ import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentUnit;
 /**
  * MockDeploymentUnit
  * 
+ * An implementation of DeploymentUnit used in EJB3 Testing, equipped with
+ * ability to:
+ * 
  * - Add attachments
  * - Manage the parent/child relationship
- * - toString()
  * - Get the ClassLoader
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
@@ -103,6 +107,12 @@ public class MockDeploymentUnit extends AbstractDeploymentUnit implements Deploy
    @Override
    public ClassLoader getClassLoader()
    {
-      return Thread.currentThread().getContextClassLoader();
+      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      {
+         public ClassLoader run()
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
    }
 }
