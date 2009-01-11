@@ -44,4 +44,7 @@
   <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testDefaultLocalInterfaceWovenBean">show</entry>
   <!-- JBMETA-157 -->
   <entry key="org.jboss.ejb3.test.naming.unit.NamingTestCase.testJndiOverride">show</entry>
+  <!-- EJBTHREE-1675 -->
+  <entry key="org.jboss.ejb3.test.invoker.unit.InvokerTestCase.testHttp">show</entry>
+ 
 </properties>
