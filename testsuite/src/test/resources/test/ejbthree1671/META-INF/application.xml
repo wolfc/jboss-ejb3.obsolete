@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<application>
+   <display-name>EJBTHREE-1671 Resource injection of application specific type</display-name>
+   <module>
+      <ejb>ejbthree1671.jar</ejb>
+   </module>
+</application>
