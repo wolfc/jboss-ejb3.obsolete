@@ -203,7 +203,8 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          {
             if(resTypeName != null)
             {
-               Class<?> resType = Class.forName(resTypeName);
+               // EJBTHREE-1671 : The resType class should be loaded through the container's classloader
+               Class<?> resType = Class.forName(resTypeName,false,container.getClassloader());
                if(EJBContext.class.isAssignableFrom(resType))
                {
                   InjectorFactory<?> factory = new InjectorFactory<EJBContextPropertyInjector>()
