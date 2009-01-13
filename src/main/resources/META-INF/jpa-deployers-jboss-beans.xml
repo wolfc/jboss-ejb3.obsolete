@@ -5,7 +5,11 @@
    
    <bean name="JavaEEModuleInformer" class="org.jboss.as.javaee.SimpleJavaEEModuleInformer"/>
    
-   <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DefaultPersistenceUnitDependencyResolver"/>
+   <!-- 
+      Either DefaultPersistenceUnitDependencyResolver for spec compliant resolving
+      or InterApplicationPersistenceUnitDependencyResolver for resolving beyond EARs.
+   -->
+   <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.InterApplicationPersistenceUnitDependencyResolver"/>
    
    <bean name="XPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
    
