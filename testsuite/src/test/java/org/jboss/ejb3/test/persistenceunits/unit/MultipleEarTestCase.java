@@ -120,9 +120,9 @@ public class MultipleEarTestCase extends JBossTestCase
          
          private boolean previousSetting = false;
          
-         private <T> T getAttribute(ObjectName on, String name) throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, IOException, Exception
+         private Object getAttribute(ObjectName on, String name) throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, IOException, Exception
          {
-            return (T) getServer().getAttribute(on, name);
+            return getServer().getAttribute(on, name);
          }
          
          // TODO: should come from JBossTestServices
@@ -140,7 +140,7 @@ public class MultipleEarTestCase extends JBossTestCase
          @Override
          protected void setUp() throws Exception
          {
-            previousSetting = getAttribute(on, "SpecCompliant");
+            previousSetting = (Boolean) getAttribute(on, "SpecCompliant");
             setAttribute(on, "SpecCompliant", true);
          }
          
