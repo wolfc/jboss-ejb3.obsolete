@@ -2,7 +2,7 @@
 
 <server>
 
-  <mbean code="org.jboss.remoting.transport.Connector" name="jboss.remoting:service=invoker,transport=servlet"
+  <mbean code="org.jboss.remoting.transport.Connector" name="jboss.remoting:service=connector,transport=servlet"
     display-name="Servlet transport Connector">
     <attribute name="InvokerLocator">servlet://${jboss.bind.address}:8080/servlet-invoker/ServerInvokerServlet</attribute>
     <attribute name="Configuration">
