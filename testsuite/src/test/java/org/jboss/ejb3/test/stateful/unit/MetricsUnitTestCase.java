@@ -77,6 +77,9 @@ extends JBossTestCase
    {
       ObjectName testerName = new ObjectName(objectName);
       
+      // Get the start cache size 
+      int startCacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      
       // Establish how many beans are already active
       int prevCount = (Integer)server.getAttribute(testerName, "CreateCount");
       System.out.println("prevCount = " + prevCount);
@@ -89,8 +92,9 @@ extends JBossTestCase
       int count = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(1, count - prevCount);
       
-      int size = (Integer)server.getAttribute(testerName, "CacheSize");
-      assertEquals(1, size);
+      // Ensure cache is incremented
+      int newCacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      assertEquals(startCacheSize+1, newCacheSize);
       
       assertEquals("state", stateful.getState());
       stateful.testSerializedState("state");
@@ -100,8 +104,8 @@ extends JBossTestCase
       assertFalse(stateful.testSessionContext());
       Thread.sleep(10 * 1000);
       
-      size = (Integer)server.getAttribute(testerName, "CacheSize");
-      assertEquals(0, size);
+      int cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      assertEquals(0, cacheSize);
       
       count = (Integer)server.getAttribute(testerName, "PassivatedCount");
       assertEquals(1, count - prevCount);
@@ -125,27 +129,27 @@ extends JBossTestCase
       
       // the injected beans are passivated at this point in time
       
-      size = (Integer)server.getAttribute(testerName, "CacheSize");
-      assertEquals(2, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      assertEquals(2, cacheSize);
       
       // keep in mind, we're not removing already injected beans
       
-      size = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(0, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(0, cacheSize);
       
       another.removeMe();
-      size = (Integer)server.getAttribute(testerName, "CacheSize");
-      assertEquals(1, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      assertEquals(1, cacheSize);
       
-      size = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(1, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(1, cacheSize);
       
       stateful.removeMe();
-      size = (Integer)server.getAttribute(testerName, "CacheSize");
-      assertEquals(0, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      assertEquals(0, cacheSize);
       
-      size = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(2, size);
+      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(2, cacheSize);
       
    }
 
