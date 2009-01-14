@@ -21,8 +21,21 @@
  */
 package org.jboss.ejb3.test.persistenceunits.unit;
 
+import java.io.IOException;
 import java.util.Map;
 
+import javax.management.Attribute;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.InvalidAttributeValueException;
+import javax.management.MBeanException;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import junit.extensions.TestSetup;
 import junit.framework.Test;
 
 import org.jboss.deployers.client.spi.IncompleteDeploymentException;
@@ -101,7 +114,43 @@ public class MultipleEarTestCase extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(MultipleEarTestCase.class, "persistenceunitscope-test1.ear, persistenceunitscope-test2.ear");
+      Test test = getDeploySetup(MultipleEarTestCase.class, "persistenceunitscope-test1.ear, persistenceunitscope-test2.ear");
+      TestSetup setup = new TestSetup(test) {
+         private ObjectName on = new ObjectName("jboss.pojo:name='PersistenceUnitDependencyResolver'");
+         
+         private boolean previousSetting = false;
+         
+         private <T> T getAttribute(ObjectName on, String name) throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, IOException, Exception
+         {
+            return (T) getServer().getAttribute(on, name);
+         }
+         
+         // TODO: should come from JBossTestServices
+         private MBeanServerConnection getServer() throws NamingException
+         {
+            String adaptorName = System.getProperty("jbosstest.server.name", "jmx/invoker/RMIAdaptor");
+            return (MBeanServerConnection) new InitialContext().lookup(adaptorName);
+         }
+         
+         private void setAttribute(ObjectName on, String name, Object value) throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, IOException, Exception
+         {
+            getServer().setAttribute(on, new Attribute(name, value));
+         }
+         
+         @Override
+         protected void setUp() throws Exception
+         {
+            previousSetting = getAttribute(on, "SpecCompliant");
+            setAttribute(on, "SpecCompliant", true);
+         }
+         
+         @Override
+         protected void tearDown() throws Exception
+         {
+            setAttribute(on, "SpecCompliant", previousSetting);
+         }
+      };
+      return setup;
    }
 
 }
