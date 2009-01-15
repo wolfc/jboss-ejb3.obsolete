@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-Beta11</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -17,7 +17,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0-Beta12</version>
   <name>JBoss EJB 3.0 Core</name>
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
@@ -358,7 +358,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta5</version>
     </dependency>
 
     <dependency>
@@ -394,7 +394,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy</artifactId>
-      <version>1.0.0-Beta6</version>
+      <version>1.0.0-Beta7</version>
     </dependency>
     
     <dependency>
@@ -406,7 +406,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0-Beta4</version>
       <scope>test</scope>
     </dependency>
 
@@ -576,7 +576,7 @@
     <dependency>
       <groupId>org.jboss.jpa</groupId>
       <artifactId>jboss-jpa-deployers</artifactId>
-      <version>1.0.0-Beta2</version>
+      <version>1.0.0-Beta5</version>
     </dependency>
 
     <dependency>
@@ -630,4 +630,10 @@
     </dependency>
     
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-1.0.0-Beta12</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-1.0.0-Beta12</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-core-1.0.0-Beta12</url>
+  </scm>
 </project>
