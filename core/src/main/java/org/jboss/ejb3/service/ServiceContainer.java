@@ -754,7 +754,32 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
             delegate = new ServiceMBeanDelegate(mbeanServer, this, intf, delegateObjectName);
             
-            getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
+            /*
+             * 
+             * This section is in place to replace the KernelAbstraction.installMBean
+             * method which will be removed JBossASKernel (AS/trunk/ejb3) for 5.0.1.
+             * 
+             * Here to be backwards-compatible with JBossAS 5.0.0.GA
+             * 
+             * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
+             * 
+             */
+            
+            // The old/deprecated access
+            //getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
+            
+            // Register w/ MBean Server
+            mbeanServer.registerMBean(delegate, delegateObjectName);
+            
+            // Install into MC
+            getDeployment().getKernelAbstraction().install(delegateObjectName.getCanonicalName(), newPolicy, null, delegate);
+
+            /*
+             * 
+             * End backwards-compatible replacement for:
+             * getDeployment().getKernelAbstraction().installMBean
+             * 
+             */
          }
          // XMBeans
          else
@@ -784,7 +809,28 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       if (delegate != null)
       {
-         getDeployment().getKernelAbstraction().uninstallMBean(delegateObjectName);
+         /*
+          * 
+          * This section is in place to replace the KernelAbstraction.uninstallMBean
+          * method which will be removed JBossASKernel (AS/trunk/ejb3) for 5.0.1.
+          * 
+          * Here to be backwards-compatible with JBossAS 5.0.0.GA
+          * 
+          * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
+          * 
+          */
+         
+         //getDeployment().getKernelAbstraction().uninstallMBean(delegateObjectName);
+         
+         mbeanServer.unregisterMBean(delegateObjectName);
+         
+         
+         /*
+          * 
+          * End backwards-compatible replacement for:
+          * getDeployment().getKernelAbstraction().uninstallMBean
+          * 
+          */
       }
    }
 
