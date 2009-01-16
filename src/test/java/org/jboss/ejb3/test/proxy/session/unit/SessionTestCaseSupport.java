@@ -25,9 +25,13 @@ import static org.junit.Assert.fail;
 
 import javax.naming.Binding;
 import javax.naming.Context;
+import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
 
+import junit.framework.TestCase;
+
 import org.jboss.ejb3.test.proxy.common.SessionTestCaseBase;
+import org.jboss.logging.Logger;
 
 /**
  * SessionTestCaseSupport
@@ -40,6 +44,12 @@ import org.jboss.ejb3.test.proxy.common.SessionTestCaseBase;
  */
 public abstract class SessionTestCaseSupport extends SessionTestCaseBase
 {
+
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(SessionTestCaseSupport.class);
 
    // --------------------------------------------------------------------------------||
    // Contracts ----------------------------------------------------------------------||
@@ -76,7 +86,16 @@ public abstract class SessionTestCaseSupport extends SessionTestCaseBase
       //
       // and "errors" out the testcase. Not exactly what i wanted. So instead to get the
       // test case failing, let's just check whether the jndi-name is present
-      NamingEnumeration<Binding> namingEnumeration = getNamingContext().listBindings(beanImplClass.getSimpleName());
+      String jndiBase = beanImplClass.getSimpleName();
+      NamingEnumeration<Binding> namingEnumeration = null;
+      try
+      {
+         namingEnumeration = getNamingContext().listBindings(jndiBase);
+      }
+      catch (NameNotFoundException nnfe)
+      {
+         TestCase.fail("JNDI Context at " + jndiBase + " could not be found");
+      }
       while (namingEnumeration.hasMore())
       {
          Binding binding = namingEnumeration.next();
@@ -90,4 +109,41 @@ public abstract class SessionTestCaseSupport extends SessionTestCaseBase
          }
       }
    }
+
+   /**
+    * Ensures that a proxy is bound at the specified JNDI name, and that it is
+    * assignable to both the business and home interfaces provided
+    * 
+    * @param jndiName
+    * @param businessInterface
+    * @param homeInterface
+    * @throws Exception
+    */
+   protected void checkBusinessAndHomeInterfacesBoundTogether(String jndiName, Class<?> businessInterface,
+         Class<?> homeInterface) throws Exception
+   {
+      // Lookup
+      Object obj = null;
+      try
+      {
+         obj = this.getNamingContext().lookup(jndiName);
+         log.info("Obtained from JNDI " + jndiName + ": " + obj);
+      }
+      // Make sure the target is bound
+      catch (NameNotFoundException nnfe)
+      {
+         TestCase.fail("Expected business/home proxy not found at " + jndiName);
+      }
+      // Make sure the result isn't null
+      TestCase.assertNotNull("Expected object from JNDI " + jndiName + " was null", obj);
+
+      // Ensure castable
+      String castErrorMessagePrefix = "Obtained proxy from JNDI " + jndiName + " which is not assignable to ";
+      TestCase.assertTrue(castErrorMessagePrefix + businessInterface.getName(), businessInterface.isAssignableFrom(obj
+            .getClass()));
+      TestCase.assertTrue(castErrorMessagePrefix + homeInterface.getName(), homeInterface.isAssignableFrom(obj
+            .getClass()));
+
+   }
+
 }
