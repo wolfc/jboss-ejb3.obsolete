@@ -980,6 +980,14 @@ public abstract class JndiSessionRegistrarBase
             // Not bound together
             return false;
          }
+         
+         // If no business locals defined
+         BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
+         if (businessLocals == null || businessLocals.size() == 0)
+         {
+            // Not bound together
+            return false;
+         }
 
          // Bind together if Local Default JNDI Name == Local Home JNDI Name
          bindTogether = smd.getLocalJndiName().equals(smd.getLocalHomeJndiName());
@@ -993,7 +1001,16 @@ public abstract class JndiSessionRegistrarBase
             // Not bound together
             return false;
          }
-         // Bind together if Local Default JNDI Name == Local Home JNDI Name
+         
+         // If no business remotes defined
+         BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
+         if (businessRemotes == null || businessRemotes.size() == 0)
+         {
+            // Not bound together
+            return false;
+         }
+         
+         // Bind together if Remote Default JNDI Name == Remote Home JNDI Name
          bindTogether = smd.getJndiName().equals(smd.getHomeJndiName());
       }
 
