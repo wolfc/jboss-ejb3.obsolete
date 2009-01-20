@@ -7,8 +7,6 @@
 
    <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.resolvers.DefaultMessageDestinationReferenceResolver"/>
    
-   <bean name="DefaultPersistenceProperties" class="org.jboss.ejb3.DefaultPersistenceProperties"/>
-
    <bean name="Ejb3DependenciesDeployer" class="org.jboss.ejb3.deployers.Ejb3DependenciesDeployer">
       <!-- TODO: allow for configuration
       <property name="dependencies">
@@ -44,7 +42,6 @@
       </uninstall>
       <property name="kernel"><inject bean="jboss.kernel:service=Kernel"/></property>
       <property name="mbeanServer"><inject bean="JMXKernel" property="mbeanServer"/></property>
-      <property name="defaultPersistenceProperties"><inject bean="DefaultPersistenceProperties" property="properties"/></property>
       <property name="cacheFactoryRegistry"><inject bean="EJB3CacheFactoryRegistry" /></property>
       <property name="poolFactoryRegistry"><inject bean="EJB3PoolFactoryRegistry" /></property>
       <property name="remoteProxyFactoryRegistry"><inject bean="EJB3RemoteProxyFactoryRegistry" /></property>
