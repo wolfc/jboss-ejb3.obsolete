@@ -4,7 +4,7 @@
   <parent>
     <artifactId>jboss-ejb3-build</artifactId>
     <groupId>org.jboss.ejb3</groupId>
-    <version>1.0.0-Beta10</version>
+    <version>1.0.0</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -70,14 +70,14 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- EJB3 Test -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
-      <version>1.0.0-Beta3</version>
+      <version>1.0.0</version>
       <scope>test</scope>
     </dependency>
 
