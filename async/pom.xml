@@ -14,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-async</artifactId>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Aspects [Async]</name>
   <description>The Java EJB3 Asynchronous Aspects</description>
@@ -30,6 +30,13 @@
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop-aspects</artifactId>
+      <version>2.0.0.SP1</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-test</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.aop</groupId>
@@ -45,7 +52,19 @@
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
       <version>1.0.1.CR2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-transaction-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-1.0.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-1.0.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-async-1.0.0</url>
+  </scm>
 </project>

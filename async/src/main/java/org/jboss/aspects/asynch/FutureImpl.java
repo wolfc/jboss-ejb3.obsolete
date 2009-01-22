@@ -21,11 +21,10 @@
   */
 package org.jboss.aspects.asynch;
 
-import EDU.oswego.cs.dl.util.concurrent.FutureResult;
+import java.lang.reflect.InvocationTargetException;
+
 import org.jboss.aop.Dispatcher;
 import org.jboss.util.id.GUID;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Comment
@@ -36,10 +35,10 @@ import java.lang.reflect.InvocationTargetException;
 public class FutureImpl
 implements RemotableFuture
 {
-   private FutureResult result;
+   private Future result;
    private GUID remoteObjectID;
 
-   public FutureImpl(FutureResult result)
+   public FutureImpl(Future result)
    {
       this.result = result;
    }
@@ -76,11 +75,11 @@ implements RemotableFuture
    {
       try
       {
-         Object rtn = result.timedGet(milliseconds);
+         Object rtn = result.get(milliseconds);
          release();
          return rtn;
       }
-      catch (EDU.oswego.cs.dl.util.concurrent.TimeoutException e)
+      catch (TimeoutException e)
       {
          throw new TimeoutException(e);
       }
@@ -93,7 +92,7 @@ implements RemotableFuture
 
    public boolean isDone()
    {
-      return result.isReady();
+      return result.isDone();
    }
 
 }
