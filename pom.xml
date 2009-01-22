@@ -14,7 +14,7 @@
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-deployers</artifactId>
   <name>JBoss EJB3 Deployers</name>
-  <version>0.1.4-SNAPSHOT</version>
+  <version>1.0.0</version>
   <description>
     Deployers conforming to the MC Deployers SPI for EJB3
   </description>
@@ -57,4 +57,10 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-1.0.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-1.0.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-deployers-1.0.0</url>
+  </scm>
 </project>
