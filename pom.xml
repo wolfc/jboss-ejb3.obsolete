@@ -334,7 +334,7 @@
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
-        <version>1.0.0.CR14</version>
+        <version>1.0.0.CR15</version>
       </dependency>
  
       <dependency>
