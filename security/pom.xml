@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -60,7 +60,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>0.13.5</version>
+      <version>1.0.0</version>
     </dependency>
     
     <!-- JBoss Security SPI -->
@@ -86,13 +86,13 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
-      <version>0.3</version>
+      <version>1.0.0</version>
     </dependency>
    
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
-      <version>0.3</version>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- JBoss AOP -->
@@ -115,7 +115,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
-      <version>0.13.0</version>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- JBoss Common Core -->
