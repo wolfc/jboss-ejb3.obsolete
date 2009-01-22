@@ -14,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-async</artifactId>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Aspects [Async]</name>
   <description>The Java EJB3 Asynchronous Aspects</description>
