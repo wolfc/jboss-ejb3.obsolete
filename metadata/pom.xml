@@ -10,7 +10,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-metadata</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Meta Data bridge</name>
   <url>http://www.jboss.org</url>
@@ -66,10 +66,4 @@
 
     <!-- TODO: javassist -->
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-1.0.0</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-1.0.0</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-metadata-1.0.0</url>
-  </scm>
 </project>
