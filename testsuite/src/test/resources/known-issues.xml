@@ -44,5 +44,9 @@
   <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testDefaultLocalInterfaceWovenBean">show</entry>
   <!-- JBMETA-157 -->
   <entry key="org.jboss.ejb3.test.naming.unit.NamingTestCase.testJndiOverride">show</entry>
- 
+  <!-- EJBTHREE-1647 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testStringInjectionUsingResourceMappedName">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntInjectionUsingResourceMappedName">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntegerInjectionUsingResourceMappedName">show</entry>
+  
 </properties>
