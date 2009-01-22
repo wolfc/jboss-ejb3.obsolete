@@ -4,7 +4,7 @@
   <parent>
     <artifactId>jboss-ejb3-build</artifactId>
     <groupId>org.jboss.ejb3</groupId>
-    <version>1.0.0-Beta10</version>
+    <version>1.0.0</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -14,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-test</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>JBoss EJB 3.0 Testing Libraries</name>
   <description>
     JBoss EJB 3.0 Testing Libraries
@@ -81,7 +81,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-Beta4</version>
+      <version>1.0.0</version>
     </dependency>
     
     <dependency>
@@ -90,4 +90,10 @@
     </dependency>
     
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-1.0.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-1.0.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-1.0.0</url>
+  </scm>
 </project>
