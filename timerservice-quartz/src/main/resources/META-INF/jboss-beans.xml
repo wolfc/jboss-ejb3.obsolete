@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <bean name="QuartzTimerServiceFactory" class="org.jboss.ejb3.timerservice.quartz.QuartzTimerServiceFactory">
+      <property name="dataSource">java:/DefaultDS</property>
+      <property name="properties">
+         <map class="java.util.Properties" keyClass="java.lang.String" valueClass="java.lang.String">
+            <entry><key>org.quartz.jobStore.class</key><value>org.quartz.impl.jdbcjobstore.JobStoreCMT</value></entry>
+            <entry><key>org.quartz.jobStore.nonManagedTXDataSource</key><value>myDS</value></entry>
+            <!-- We're using a non managed TX data source -->
+            <!-- TODO: in testing we're not using a JCA compliant data source as well -->
+            <entry><key>org.quartz.jobStore.dontSetAutoCommitFalse</key><value>true</value></entry>
+            <entry><key>org.quartz.jobStore.driverDelegateClass</key><value>org.quartz.impl.jdbcjobstore.HSQLDBDelegate</value></entry>
+            <entry><key>org.quartz.jobStore.tablePrefix</key><value>QRTZ_</value></entry>
+            <entry><key>org.quartz.jobStore.dataSource</key><value>myDS</value></entry>
+            
+            <!-- To get it to work with hypersonic -->
+            <!-- FIXME: this doesn't lock the row -->
+            <entry><key>org.quartz.jobStore.selectWithLockSQL</key><value>SELECT * FROM QRTZ_LOCKS WHERE lock_name = ?</value></entry>
+            
+            <!-- from quartz.properties -->
+            <entry><key>org.quartz.scheduler.instanceName</key><value>JBossEJB3QuartzScheduler</value></entry>
+            <entry><key>org.quartz.scheduler.rmi.export</key><value>false</value></entry>
+            <entry><key>org.quartz.scheduler.rmi.proxy</key><value>false</value></entry>
+            <entry><key>org.quartz.scheduler.wrapJobExecutionInUserTransaction</key><value>false</value></entry>
+               
+            <entry><key>org.quartz.threadPool.class</key><value>org.quartz.simpl.SimpleThreadPool</value></entry>
+            <entry><key>org.quartz.threadPool.threadCount</key><value>10</value></entry>
+            <entry><key>org.quartz.threadPool.threadPriority</key><value>5</value></entry>
+            <entry><key>org.quartz.threadPool.threadsInheritContextClassLoaderOfInitializingThread</key><value>true</value></entry>
+               
+            <entry><key>org.quartz.jobStore.misfireThreshold</key><value>60000</value></entry>
+         </map>
+      </property>
+      <property name="sqlProperties">
+         <map class="java.util.Properties" keyClass="java.lang.String" valueClass="java.lang.String">
+         <entry><key>CREATE_DB_ON_STARTUP</key><value>TRUE</value></entry>
+         
+         <entry><key>CREATE_TABLE_JOB_DETAILS</key><value>CREATE TABLE QRTZ_JOB_DETAILS(JOB_NAME VARCHAR(80) NOT NULL, JOB_GROUP VARCHAR(80) NOT NULL, 
+                        DESCRIPTION VARCHAR(120), JOB_CLASS_NAME VARCHAR(128) NOT NULL, IS_DURABLE VARCHAR(1) NOT NULL, 
+                        IS_VOLATILE VARCHAR(1) NOT NULL, IS_STATEFUL VARCHAR(1) NOT NULL, REQUESTS_RECOVERY VARCHAR(1) NOT NULL, 
+                        JOB_DATA BINARY NULL, PRIMARY KEY (JOB_NAME,JOB_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_JOB_LISTENERS</key><value>CREATE TABLE QRTZ_JOB_LISTENERS(JOB_NAME VARCHAR(80) NOT NULL, JOB_GROUP VARCHAR(80) NOT NULL, 
+                        JOB_LISTENER VARCHAR(80) NOT NULL, PRIMARY KEY (JOB_NAME,JOB_GROUP,JOB_LISTENER), FOREIGN KEY (JOB_NAME,JOB_GROUP) 
+                        REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_TRIGGERS</key><value>CREATE TABLE QRTZ_TRIGGERS(TRIGGER_NAME VARCHAR(80) NOT NULL, TRIGGER_GROUP VARCHAR(80) NOT NULL, 
+                        JOB_NAME VARCHAR(80) NOT NULL, JOB_GROUP VARCHAR(80) NOT NULL, IS_VOLATILE VARCHAR(1) NOT NULL, DESCRIPTION VARCHAR(120), 
+                        NEXT_FIRE_TIME NUMERIC(13), PREV_FIRE_TIME NUMERIC(13), TRIGGER_STATE VARCHAR(16) NOT NULL, 
+                        TRIGGER_TYPE VARCHAR(8) NOT NULL, START_TIME NUMERIC(13) NOT NULL, END_TIME NUMERIC(13), CALENDAR_NAME VARCHAR(80), 
+                        MISFIRE_INSTR NUMERIC(2), JOB_DATA BINARY NULL, PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP), FOREIGN KEY (JOB_NAME,JOB_GROUP) 
+                        REFERENCES QRTZ_JOB_DETAILS(JOB_NAME,JOB_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_SIMPLE_TRIGGERS</key><value>CREATE TABLE QRTZ_SIMPLE_TRIGGERS(TRIGGER_NAME VARCHAR(80) NOT NULL, 
+                        TRIGGER_GROUP VARCHAR(80) NOT NULL, REPEAT_COUNT NUMERIC(7) NOT NULL, REPEAT_INTERVAL NUMERIC(12) NOT NULL, 
+                        TIMES_TRIGGERED NUMERIC(7) NOT NULL, PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP), FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
+                        REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_CRON_TRIGGERS</key><value>CREATE TABLE QRTZ_CRON_TRIGGERS(TRIGGER_NAME VARCHAR(80) NOT NULL, 
+                        TRIGGER_GROUP VARCHAR(80) NOT NULL, CRON_EXPRESSION VARCHAR(80) NOT NULL, TIME_ZONE_ID VARCHAR(80), 
+                        PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP), FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
+                        REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_BLOB_TRIGGERS</key><value>CREATE TABLE QRTZ_BLOB_TRIGGERS(TRIGGER_NAME VARCHAR(80) NOT NULL, 
+                        TRIGGER_GROUP VARCHAR(80) NOT NULL, BLOB_DATA BINARY NULL, PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP), 
+                        FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_TRIGGER_LISTENERS</key><value>CREATE TABLE QRTZ_TRIGGER_LISTENERS(TRIGGER_NAME VARCHAR(80) NOT NULL, 
+                        TRIGGER_GROUP VARCHAR(80) NOT NULL, TRIGGER_LISTENER VARCHAR(80) NOT NULL, 
+                        PRIMARY KEY (TRIGGER_NAME,TRIGGER_GROUP,TRIGGER_LISTENER), FOREIGN KEY (TRIGGER_NAME,TRIGGER_GROUP) 
+                        REFERENCES QRTZ_TRIGGERS(TRIGGER_NAME,TRIGGER_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_CALENDARS</key><value>CREATE TABLE QRTZ_CALENDARS(CALENDAR_NAME VARCHAR(80) NOT NULL, CALENDAR BINARY NOT NULL, 
+                        PRIMARY KEY (CALENDAR_NAME))</value></entry>
+         <entry><key>CREATE_TABLE_PAUSED_TRIGGER_GRPS</key><value>CREATE TABLE QRTZ_PAUSED_TRIGGER_GRPS(TRIGGER_GROUP VARCHAR(80) NOT NULL, 
+                        PRIMARY KEY (TRIGGER_GROUP))</value></entry>
+         <entry><key>CREATE_TABLE_FIRED_TRIGGERS</key><value>CREATE TABLE QRTZ_FIRED_TRIGGERS(ENTRY_ID VARCHAR(95) NOT NULL, TRIGGER_NAME VARCHAR(80) NOT NULL, 
+                        TRIGGER_GROUP VARCHAR(80) NOT NULL, IS_VOLATILE VARCHAR(1) NOT NULL, INSTANCE_NAME VARCHAR(80) NOT NULL, 
+                        FIRED_TIME NUMERIC(13) NOT NULL, STATE VARCHAR(16) NOT NULL, JOB_NAME VARCHAR(80), JOB_GROUP VARCHAR(80), 
+                        IS_STATEFUL VARCHAR(1), REQUESTS_RECOVERY VARCHAR(1), PRIMARY KEY (ENTRY_ID))</value></entry>
+         <entry><key>CREATE_TABLE_SCHEDULER_STATE</key><value>CREATE TABLE QRTZ_SCHEDULER_STATE(INSTANCE_NAME VARCHAR(80) NOT NULL, 
+                        LAST_CHECKIN_TIME NUMERIC(13) NOT NULL, CHECKIN_INTERVAL NUMERIC(13) NOT NULL, RECOVERER VARCHAR(80), 
+                        PRIMARY KEY (INSTANCE_NAME))</value></entry>
+         <entry><key>CREATE_TABLE_LOCKS</key><value>CREATE TABLE QRTZ_LOCKS(LOCK_NAME VARCHAR(40) NOT NULL, PRIMARY KEY (LOCK_NAME))</value></entry>
+         <entry><key>INSERT_TRIGGER_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('TRIGGER_ACCESS')</value></entry>
+         <entry><key>INSERT_JOB_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('JOB_ACCESS')</value></entry>
+         <entry><key>INSERT_CALENDAR_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('CALENDAR_ACCESS')</value></entry>
+         <entry><key>INSERT_STATE_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('STATE_ACCESS')</value></entry>
+         <entry><key>INSERT_MISFIRE_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('MISFIRE_ACCESS')</value></entry>
+         </map>
+      </property>
+      <property name="transactionManager"><inject bean="XRealTransactionManager"/></property>
+   </bean>
+</deployment>
