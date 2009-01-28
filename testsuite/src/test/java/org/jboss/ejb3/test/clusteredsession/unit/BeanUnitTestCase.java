@@ -260,9 +260,9 @@ public class BeanUnitTestCase extends JBossClusteredTestCase
       getLog ().debug (node1);
 
       _sleep(300);
-      assertNotSame ("No failover has occured!", node1.nodeId, node2.nodeId);
+      assertFalse("Failover has occurred", node1.nodeId.equals(node2.nodeId));
 
-      assertEquals ("Value is not identical on replicated node", "Changed", node1.answer );
+      assertEquals ("Value is identical on replicated node", "Changed", node1.answer );
 
       stateful.remove();
       getLog().debug("ok");
