@@ -1,0 +1,18 @@
+<projectDescription>
+  <name>jboss-ejb3-timerservice-as5</name>
+  <comment>An implementation of an EJB TimerService that falls back to the TimerService
+    implementation in JBoss Application Server.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+  </natures>
+</projectDescription>

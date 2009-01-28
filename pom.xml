@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- Maven POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <artifactId>jboss-ejb3-timerservice-as5</artifactId>
+  <packaging>jar</packaging>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>JBoss EJB 3.x TimerService AS 5</name>
+  <description>
+    An implementation of an EJB TimerService that falls back to the TimerService
+    implementation in JBoss Application Server.
+  </description>
+  <url>http://labs.jboss.com/jbossejb3/</url>
+
+  <properties>
+    <version.org.jboss.jboss-as>5.0.0.GA</version.org.jboss.jboss-as>
+  </properties>
+  
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-timerservice-spi</artifactId>
+      <version>[0,)</version>
+    </dependency>
+    
+    <!-- this needs to be removed - EJBTHREE-1343 -->
+    <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-server</artifactId>
+      <version>${version.org.jboss.jboss-as}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jboss</groupId>
+          <artifactId>jboss-remoting</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-metadata</artifactId>
+        </exclusion>        
+        <exclusion>
+          <groupId>org.jboss.jbossas</groupId>
+          <artifactId>jboss-as-security</artifactId>
+        </exclusion>        
+        <!-- Conflicts with org.jboss.security:jbosssx -->
+        <exclusion>
+          <groupId>org.jboss.security</groupId>
+          <artifactId>jbosssx-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.ws.native</groupId>
+          <artifactId>jbossws-native-jaxws</artifactId>
+        </exclusion>
+      </exclusions>      
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
