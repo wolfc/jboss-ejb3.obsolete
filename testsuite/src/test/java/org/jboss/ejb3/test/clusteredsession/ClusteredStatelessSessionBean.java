@@ -24,12 +24,9 @@ import org.jboss.ejb3.annotation.Clustered;
 @Remote(ClusteredStatelessRemote.class)
 public class ClusteredStatelessSessionBean implements ClusteredStatelessRemote
 {
-   public transient VMID myId = null;
+   public static final VMID myId = new VMID();
+   
    public NodeAnswer getNodeState() {
-      if(myId == null)
-      {
-         myId = new VMID();
-      }
-      return new NodeAnswer(this.myId, "test");
+      return new NodeAnswer(myId, "test");
    }
 }
