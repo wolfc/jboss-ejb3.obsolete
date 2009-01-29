@@ -82,6 +82,6 @@
          <entry><key>INSERT_MISFIRE_ACCESS</key><value>INSERT INTO QRTZ_LOCKS values('MISFIRE_ACCESS')</value></entry>
          </map>
       </property>
-      <property name="transactionManager"><inject bean="XRealTransactionManager"/></property>
+      <property name="transactionManager"><inject bean="RealTransactionManager"/></property>
    </bean>
 </deployment>
