@@ -74,7 +74,7 @@
   <!-- Remoting Connector -->
   <bean name="org.jboss.ejb3.RemotingConnector"
     class="org.jboss.remoting.transport.Connector">
-    <property name="invokerLocator">socket://0.0.0.0:3873</property>
+    <property name="invokerLocator">socket://0.0.0.0:4873</property>
     <property name="serverConfiguration">
       <inject bean="ServerConfiguration" />
     </property>

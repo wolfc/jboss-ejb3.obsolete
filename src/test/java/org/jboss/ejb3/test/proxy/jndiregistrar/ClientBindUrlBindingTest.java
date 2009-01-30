@@ -35,9 +35,9 @@ public interface ClientBindUrlBindingTest extends BindingTest
    /*
     * Define some overridden clientBindUrls
     */
-   String CLIENT_BIND_URL_1 = "socket://localhost:3873";
+   String CLIENT_BIND_URL_1 = "socket://localhost:4873";
 
-   String CLIENT_BIND_URL_2 = "socket://127.0.0.1:3873";
+   String CLIENT_BIND_URL_2 = "socket://127.0.0.1:4873";
    
    /*
     * Define the JNDI Bindings
