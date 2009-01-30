@@ -133,6 +133,8 @@ public class Installer
     * Pointer to the installer JAR file
     */
    private JarFile installerJarFile;
+   
+   private boolean cleanup;
 
    // Main
 
@@ -153,17 +155,18 @@ public class Installer
       }
 
       // Create Installer
-      Installer installer = new Installer(jbossDir);
+      Installer installer = new Installer(jbossDir, args.length == 1);
 
       // Install
       installer.install();
    }
 
    // Constructor
-   public Installer(String jbossAsInstallationDirectory)
+   public Installer(String jbossAsInstallationDirectory, boolean cleanup)
    {
       // Set JBoss AS Install Location
       this.setJbossAsInstallationDirectory(new File(jbossAsInstallationDirectory));
+      this.cleanup = cleanup;
    }
 
    /**
@@ -178,7 +181,8 @@ public class Installer
       this.getPrintStream().println("Installing EJB3 Libraries to Temp Directory...");
 
       // Add Shutdown Hook
-      Runtime.getRuntime().addShutdownHook(new Shutdown());
+      if(cleanup)
+         Runtime.getRuntime().addShutdownHook(new Shutdown());
 
       // Ensure Installation is clean
       this.cleanup();
@@ -200,6 +204,11 @@ public class Installer
          this.copyFileFromJarToDirectory(this.getInstallerJarFile(), conf, this.getInstallationDirectory());
       }
 
+      for(JarEntry pkg : getAllJarEntriesInDirectory("packages"))
+      {
+         copyFileFromJarToDirectory(this.getInstallerJarFile(), pkg, this.getInstallationDirectory());
+      }
+      
       // Copy the buildfile to the installer temp directory
       this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
             Installer.FILENAME_BUILDFILE), this.getInstallationDirectory());

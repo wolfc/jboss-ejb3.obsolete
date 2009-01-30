@@ -132,8 +132,18 @@
     <!-- Rebuild Client JARs -->
     <antcall target="rebuild-jboss-ejb3-client" />
 
+    <foreach target="install-package" param="package.file">
+      <path>
+      	<fileset dir="packages" includesfile="packages/package-list.txt" />
+      </path>
+    </foreach>
   </target>
 
+  <target name="install-package">
+    <echo message="Installing package ${package.file}"/>
+    <ant antfile="${package.file}" target="install"/>
+  </target>
+  
   <!-- 
   
   Cleans existing EJB3 Binaries from
