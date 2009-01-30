@@ -1,0 +1,47 @@
+<?xml version='1.0' encoding="iso-8859-1"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3CR3//EN"
+                      "../../../../../docbook-support/support/docbook-dtd/docbookx.dtd"
+[
+<!ENTITY session                        SYSTEM "modules/session.xml">
+]>
+
+<book lang="en">
+
+   <bookinfo>
+      <title>JBoss EJB 3.0 Reference Documentation</title>
+      <subtitle>JBoss EJB 3.0 Reference Documentation</subtitle>
+      <releaseinfo>1.0.0</releaseinfo>
+   </bookinfo>
+
+   <toc/>
+
+   <preface id="preface" revision="1">
+      <title>Preface</title>
+
+      <para>
+        This isn't the only reference to learn EJB 3.0  Look in the JBoss EJB 3.0 tutorial
+         for loads of example programs and detailed text describing each example.
+      </para>
+
+      
+   </preface>
+
+&session;
+
+<!--   &ejbref; Sequence of steps for injection-->
+
+
+
+<!--   &entity_configuration; JACC-->
+
+
+<!-- 
+   &jboss_deployment_descriptor;
+
+   &partial_deployment_descriptors; -->
+
+
+
+   
+</book>
+
