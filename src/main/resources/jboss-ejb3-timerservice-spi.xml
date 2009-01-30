@@ -1,0 +1,14 @@
+<!-- 
+   vi:ts=3:sw:expandtab
+-->
+<project name="jboss-ejb3-timerservice-spi" default="install">
+   <import file="setup.xml"/>
+
+   <target name="install">
+      <copy file="lib/jboss-ejb3-timerservice-spi.jar" todir="${jboss.home}/common/lib" verbose="${verbose}"/>
+   </target>
+
+   <target name="uninstall">
+      <delete file="${jboss.home}/common/lib/jboss-ejb3-timerservice-spi.jar" verbose="${verbose}"/>
+   </target>
+</project>
