@@ -1,4 +1,3 @@
 ejb3-connectors-service.xml
 ejb3-container-jboss-beans.xml
 ejb3-interceptors-aop.xml
-ejb3-timer-service.xml
