@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2006, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,30 +19,34 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.timerservice.quartz;
+package org.jboss.ejb3.core.test.common.timerservice;
 
-import org.jboss.ejb3.timerservice.TimedObjectInvoker;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import javax.ejb.TimerService;
+
+import org.jboss.ejb3.timerservice.spi.TimedObjectInvoker;
+import org.jboss.ejb3.timerservice.spi.TimerServiceFactory;
+import org.jboss.logging.Logger;
 
 /**
- * Comment
- *
- * @author <a href="mailto:carlo@nerdnet.nl">Carlo de Wolf</a>
- * @version $Revision$
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public class QuartzTimerJob implements Job
+public class MockTimerServiceFactory implements TimerServiceFactory
 {
-   public void execute(JobExecutionContext context) throws JobExecutionException
+   private static Logger log = Logger.getLogger(MockTimerServiceFactory.class);
+   
+   public TimerService createTimerService(TimedObjectInvoker invoker)
    {
-      PersistentTimer timer = (PersistentTimer) context.getJobDetail().getJobDataMap().get("timer");
-      TimedObjectInvoker invoker = timer.getTimedObjectInvoker();
-      try {
-         invoker.callTimeout(timer.getTimer());
-      }
-      catch(Exception e) {
-         throw new JobExecutionException(e);
-      }
-   }  
+      log.warn("Running without a TimerService");
+      return null;
+   }
+
+   public void restoreTimerService(TimerService timerService)
+   {
+   }
+
+   public void suspendTimerService(TimerService timerService)
+   {
+   }
+
 }

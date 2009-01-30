@@ -46,6 +46,7 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aspects.asynch.FutureHolder;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
@@ -77,8 +78,8 @@ import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.session.SessionSpecContainer;
-import org.jboss.ejb3.timerservice.TimedObjectInvoker;
-import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.ejb3.timerservice.spi.TimedObjectInvoker;
+import org.jboss.ejb3.timerservice.spi.TimerServiceFactory;
 import org.jboss.ejb3.util.CollectionHelper;
 import org.jboss.injection.WebServiceContextProxy;
 import org.jboss.injection.lang.reflect.BeanProperty;
@@ -109,6 +110,8 @@ public class StatelessContainer extends SessionSpecContainer
    protected TimerService timerService;
    private Method timeout;
    private StatelessDelegateWrapper mbean = new StatelessDelegateWrapper(this);
+
+   private TimerServiceFactory timerServiceFactory;
 
    public StatelessContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
                              Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
@@ -246,9 +249,9 @@ public class StatelessContainer extends SessionSpecContainer
       {
          super.lockedStart();
          
-         timerService = TimerServiceFactory.getInstance().createTimerService(this, this);
+         timerService = timerServiceFactory.createTimerService(this);
          
-         TimerServiceFactory.getInstance().restoreTimerService(timerService);
+         timerServiceFactory.restoreTimerService(timerService);
       }
       catch (Exception e)
       {
@@ -269,7 +272,7 @@ public class StatelessContainer extends SessionSpecContainer
    {
       if (timerService != null)
       {
-         TimerServiceFactory.getInstance().removeTimerService(timerService);
+         timerServiceFactory.suspendTimerService(timerService);
          timerService = null;
       }
       
@@ -742,6 +745,20 @@ public class StatelessContainer extends SessionSpecContainer
    {
       return isClustered() ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB
                            : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SLSB;
+   }
+   
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.timerservice.spi.TimedObjectInvoker#getTimedObjectId()
+    */
+   public String getTimedObjectId()
+   {
+      return getDeploymentQualifiedName();
+   }
+   
+   @Inject
+   public void setTimerServiceFactory(TimerServiceFactory factory)
+   {
+      this.timerServiceFactory = factory;
    }
    
    static class WSCallbackImpl implements BeanContextLifecycleCallback
