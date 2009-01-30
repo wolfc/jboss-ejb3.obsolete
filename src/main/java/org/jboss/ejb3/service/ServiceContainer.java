@@ -53,6 +53,7 @@ import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.asynch.FutureHolder;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
@@ -73,8 +74,8 @@ import org.jboss.ejb3.proxy.factory.session.service.ServiceRemoteProxyFactory;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
-import org.jboss.ejb3.timerservice.TimedObjectInvoker;
-import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.ejb3.timerservice.spi.TimedObjectInvoker;
+import org.jboss.ejb3.timerservice.spi.TimerServiceFactory;
 import org.jboss.injection.Injector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
@@ -104,6 +105,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    private Object mbean = new ServiceDelegateWrapper(this);
 
    private Method timeoutMethod;
+
+   private TimerServiceFactory timerServiceFactory;
 
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
@@ -303,11 +306,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          initBeanContext();
 
          // make sure the timer service is there before injection takes place
-         timerService = TimerServiceFactory.getInstance().createTimerService(this, this);
+         timerService = timerServiceFactory.createTimerService(this);
 
          injectDependencies(beanContext);
 
-         TimerServiceFactory.getInstance().restoreTimerService(timerService);
+         timerServiceFactory.restoreTimerService(timerService);
          invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
       }
       catch (Exception e)
@@ -333,7 +336,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       if (timerService != null)
       {
-         TimerServiceFactory.getInstance().removeTimerService(timerService);
+         timerServiceFactory.suspendTimerService(timerService);
          timerService = null;
       }
 
@@ -690,6 +693,14 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       throw new NotImplementedException(this + " is no longer using unsupported (legacy) proxy impl from ejb3-core");
    }
 
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.timerservice.spi.TimedObjectInvoker#getTimedObjectId()
+    */
+   public String getTimedObjectId()
+   {
+      return getDeploymentQualifiedName();
+   }
+   
    private void registerManagementInterface()
    {
       try
@@ -837,5 +848,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    protected void removeHandle(Handle handle)
    {
       throw new RuntimeException("Don't do this");
+   }
+   
+   @Inject
+   public void setTimerServiceFactory(TimerServiceFactory factory)
+   {
+      this.timerServiceFactory = factory;
    }
 }

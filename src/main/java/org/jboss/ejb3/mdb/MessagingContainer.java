@@ -39,6 +39,7 @@ import javax.naming.NamingException;
 
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.EJBContainer;
@@ -49,8 +50,8 @@ import org.jboss.ejb3.annotation.ResourceAdapter;
 import org.jboss.ejb3.jms.JMSDestinationFactory;
 import org.jboss.ejb3.mdb.inflow.JBossMessageEndpointFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.timerservice.TimedObjectInvoker;
-import org.jboss.ejb3.timerservice.TimerServiceFactory;
+import org.jboss.ejb3.timerservice.spi.TimedObjectInvoker;
+import org.jboss.ejb3.timerservice.spi.TimerServiceFactory;
 import org.jboss.jms.jndi.JMSProviderAdapter;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -70,6 +71,8 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
    protected ActivationSpec activationSpec = new ActivationSpec();
    protected JBossMessageEndpointFactory messageEndpointFactory;
    private MessagingDelegateWrapper mbean = new MessagingDelegateWrapper(this);
+
+   private TimerServiceFactory timerServiceFactory;
 
    /**
     * Default destination type. Used when no message-driven-destination is given
@@ -168,11 +171,11 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
          
       innerStart();
 
-      timerService = TimerServiceFactory.getInstance().createTimerService(this, this);
+      timerService = timerServiceFactory.createTimerService(this);
 
       startProxies();
       
-      TimerServiceFactory.getInstance().restoreTimerService(timerService);
+      timerServiceFactory.restoreTimerService(timerService);
    }
 
    protected void innerStart() throws Exception
@@ -299,7 +302,7 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
    {
       if (timerService != null)
       {
-         TimerServiceFactory.getInstance().removeTimerService(timerService);
+         timerServiceFactory.suspendTimerService(timerService);
          timerService = null;
       }
 
@@ -619,5 +622,19 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
          return Integer.parseInt(keepAlive);
       else
          return 60000;
+   }
+   
+   /* (non-Javadoc)
+    * @see org.jboss.ejb3.timerservice.spi.TimedObjectInvoker#getTimedObjectId()
+    */
+   public String getTimedObjectId()
+   {
+      return getDeploymentQualifiedName();
+   }
+   
+   @Inject
+   public void setTimerServiceFactory(TimerServiceFactory factory)
+   {
+      this.timerServiceFactory = factory;
    }
 }
