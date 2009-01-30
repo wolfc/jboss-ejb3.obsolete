@@ -5,7 +5,7 @@
   <!-- Define an additional Remoting Connector -->
   <bean name="ejbthree1529.Connector"
     class="org.jboss.remoting.transport.Connector">
-    <property name="invokerLocator">socket://0.0.0.0:3874</property>
+    <property name="invokerLocator">socket://0.0.0.0:4874</property>
     <property name="serverConfiguration">
       <inject bean="ServerConfiguration" />
     </property>
