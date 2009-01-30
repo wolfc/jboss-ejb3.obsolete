@@ -11,6 +11,15 @@
     <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/resources</directory>
+      <excludes>
+        <exclude>installer.xml</exclude>
+      </excludes>
+      <outputDirectory>packages</outputDirectory>
+    </fileSet>
+  </fileSets>
   <dependencySets>
     <dependencySet>
       <outputFileNameMapping></outputFileNameMapping>
@@ -37,6 +46,8 @@
         <include>org.jboss.ejb3:jboss-ejb3-proxy:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-proxy-clustered:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-security:jar</include>
+        <include>org.jboss.ejb3:jboss-ejb3-timerservice-as5:jar</include>
+        <include>org.jboss.ejb3:jboss-ejb3-timerservice-spi:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-transactions:jar</include>
         <include>org.jboss.metadata:jboss-metadata:jar</include>
         <include>org.jboss.jpa:jboss-jpa-deployers:jar</include>

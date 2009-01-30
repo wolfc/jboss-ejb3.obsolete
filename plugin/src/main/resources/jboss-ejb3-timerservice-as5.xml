@@ -1,0 +1,16 @@
+<!-- 
+   vi:ts=3:sw:expandtab
+-->
+<project name="jboss-ejb3-timerservice-as5" default="install">
+   <import file="setup.xml"/>
+
+   <target name="install">
+      <copy file="lib/jboss-ejb3-timerservice-as5.jar" todir="${jboss.home}/server/all/deploy" verbose="${verbose}"/>
+      <copy file="lib/jboss-ejb3-timerservice-as5.jar" todir="${jboss.home}/server/default/deploy" verbose="${verbose}"/>
+   </target>
+
+   <target name="uninstall">
+      <delete file="${jboss.home}/server/all/deploy/jboss-ejb3-timerservice-as5.jar" verbose="${verbose}"/>
+      <delete file="${jboss.home}/server/default/deploy/jboss-ejb3-timerservice-as5.jar" verbose="${verbose}"/>
+   </target>
+</project>
