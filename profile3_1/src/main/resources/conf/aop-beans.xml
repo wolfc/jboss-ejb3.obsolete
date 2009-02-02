@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+<bean name="AspectManager" class="org.jboss.aop.AspectManager">
+      <constructor factoryClass="org.jboss.aop.AspectManager" factoryMethod="instance"/>
+   </bean>
+   
+   <bean name="AspectAppParsingDeployer" class="org.jboss.aop.deployers.AspectAppParsingDeployer"/>
+   <bean name="AspectDeployer" class="org.jboss.aop.deployers.AspectDeployer">
+      <property name="aspectManager"><inject bean="AspectManager"/></property>
+   </bean>
+</deployment>   

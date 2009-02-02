@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   
+   <!--  TODO: Jaikiran - Need to understand what this does. I keep seeing a new class being introduced in 
+   each component (ejb3-embedded, ejb3-timerservice etc...) just to do this similar stuff. Not sure how this
+   affects the deployments. Until then, let's reuse (copy) the one from ejb3-embedded -->
+   
+   <bean name="SimpleClassLoaderDeployer" class="org.jboss.ejb3.embedded.deployers.SimpleClassLoaderDeployer"/>
+   
+   <!-- The MainDeployer -->
+   <bean name="MainDeployer" class="org.jboss.deployers.plugins.main.MainDeployerImpl">
+      <property name="structuralDeployers"><inject bean="StructuralDeployers"/></property>
+      <property name="deployers"><inject bean="Deployers"/></property>
+      <!--property name="mgtDeploymentCreator"><inject bean="ManagedDeploymentCreator"/></property-->
+   </bean>
+      
+   <!-- The holder for deployers that determine structure -->
+   <bean name="StructuralDeployers" class="org.jboss.deployers.vfs.plugins.structure.VFSStructuralDeployersImpl">
+      <property name="structureBuilder">
+         <!-- The consolidator of the structure information -->
+         <bean name="StructureBuilder" class="org.jboss.deployers.vfs.plugins.structure.VFSStructureBuilder"/>
+      </property>
+      <!-- Accept any implementor of structure deployer -->
+      <incallback method="addDeployer"/>
+      <uncallback method="removeDeployer"/>
+   </bean>
+   
+   <!-- The holder for deployers that do real deployment -->
+   <bean name="Deployers" class="org.jboss.deployers.plugins.deployers.DeployersImpl">
+      <constructor><parameter><inject bean="jboss.kernel:service=KernelController"/></parameter></constructor>
+      <!-- Accept any implementor of deployer -->
+      <incallback method="addDeployer"/>
+      <uncallback method="removeDeployer"/>
+   </bean>
+   
+   <!-- File Structure -->
+   <bean name="FileStructure" class="org.jboss.deployers.vfs.plugins.structure.file.FileStructure"/>
+   
+   <!-- File Structure -->
+   <bean name="JARStructure" class="org.jboss.deployers.vfs.plugins.structure.jar.JARStructure"/>
+   
+   <!-- POJO Deployment -->
+   <bean name="BeanDeployer" class="org.jboss.deployers.vfs.deployer.kernel.BeanDeployer"/>
+   <bean name="KernelDeploymentDeployer" class="org.jboss.deployers.vfs.deployer.kernel.KernelDeploymentDeployer"/>
+   <bean name="BeanMetaDataDeployer" class="org.jboss.deployers.vfs.deployer.kernel.BeanMetaDataDeployer">
+      <constructor><parameter class="org.jboss.kernel.Kernel"><inject bean="jboss.kernel:service=Kernel"/></parameter></constructor>
+   </bean>
+   
+   <bean name="MBeanServer" class="javax.management.MBeanServer">
+      <constructor factoryClass="javax.management.MBeanServerFactory" factoryMethod="newMBeanServer"/>
+   </bean>
+   
+  <bean name="ManagedDeploymentCreator" class="org.jboss.deployers.plugins.managed.TypedManagedDeploymentCreator" />
+  
+  <!--  Classloading deployers -->
+     <bean name="ClassLoadingMetaDataParser" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer">
+      <constructor>
+         <parameter>org.jboss.classloading.spi.metadata.ClassLoadingMetaData</parameter>
+      </constructor>
+      <property name="name">jboss-classloading.xml</property>
+      <property name="buildManagedObject">true</property>
+   </bean>
+   <bean name="ClassLoadingDefaultDeployer" class="org.jboss.deployers.plugins.classloading.ClassLoadingDefaultDeployer">
+      <property name="defaultMetaData">
+         <classloading xmlns="urn:jboss:classloading:1.0" export-all="NON_EMPTY" import-all="true"/>
+      </property>
+   </bean>
+   <bean name="InMemoryClassesDeployer" class="org.jboss.deployers.vfs.plugins.classloader.InMemoryClassesDeployer"/>
+   <bean name="ClassLoaderClassPathDeployer" class="org.jboss.deployers.vfs.plugins.classloader.VFSClassLoaderClassPathDeployer"/>
+   <bean name="ClassLoaderDescribeDeployer" class="org.jboss.deployers.vfs.plugins.classloader.VFSClassLoaderDescribeDeployer">
+      <property name="classLoading"><inject bean="ClassLoading"/></property>
+   </bean>
+   <bean name="ClassLoaderDeployer" class="org.jboss.deployers.plugins.classloading.AbstractLevelClassLoaderSystemDeployer">
+      <property name="classLoading"><inject bean="ClassLoading"/></property>
+      <property name="system"><inject bean="ClassLoaderSystem"/></property>
+   </bean>
+  
+  <!-- AOP deployers -->
+  <bean name="AOPXMLMetaDataParserDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer">
+      <constructor>
+         <parameter>org.jboss.aop.microcontainer.beans.metadata.AOPDeployment</parameter>
+      </constructor>
+      <property name="suffix">-aop.xml</property>
+   </bean>
+   <bean name="AOPAnnotationMetaDataParserDeployer" class="org.jboss.aop.asintegration.jboss5.AOPAnnotationMetaDataParserDeployer">
+      <constructor>
+         <parameter><inject bean="AOPXMLMetaDataParserDeployer" property="relativeOrder"/></parameter>
+      </constructor>
+   </bean>
+  
+ 
+</deployment>
