@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<chapter id="EJB_Ref_Resolution">
+
+   <title>EJB reference resolution</title>
+
+   <sect5>
+      Introduction :
+      <para>
+         This section covers how JBoss implements @EJB and @Resource.  Please note that XML always overrides annotations.
+      </para>
+   </sect5>
+   <sect5>
+      EJB references :
+      <para>
+         Rules for the @EJB annotation
+         <itemizedlist>
+            <listitem>
+               The @EJB annotation also has a mappedName() attribute.  The specification leaves this a vendor specific metadata,
+               but JBoss recognizes mappedName() as the global JNDI name of the EJB you are referencing.  If you have specified
+               a mappedName(), then all other attributes are ignored and this global JNDI name is used for binding.
+            </listitem>
+            <listitem>
+               If you specify @EJB with no attributes defined:
+               <programlisting>
+               	<![CDATA[
+@EJB 
+ProcessPayment myEjbref;
+                    ]]>
+               </programlisting>
+               Then the following rules apply:
+               <itemizedlist>
+                 <listitem>
+	                 The EJB jar of the referencing bean is searched for an EJB with the interface, used in for @EJB injection. 
+	                 If there are more than one EJB that publishes same business interface, then an exception is thrown. If there is only one
+	                 bean with that interface then that one is used.
+                 </listitem>
+                 <listitem>
+                 	Search the EAR for EJBs that publish that interface. If there are duplicates, then an exception is thrown. Otherwise the matching 
+                 	bean is returned.
+                 </listitem>
+                 <listitem>
+                 	Search globally in JBoss for an EJB of that interface. Again, if duplicates, an exception is thrown.
+                 </listitem>
+               </itemizedlist>
+            </listitem>
+          	<listitem>
+          		@EJB.beanName() corresponds to <literal>&lt;ejb-link&gt;</literal>. If the beanName() is defined, then use the same algorithm 
+          		as @EJB with no attributes defined except use the beanName() as a key in the search. An exception to this rule is if you use 
+          		the ejb-link '#' syntax. The '#' syntax allows you to put a relative path to a jar in the EAR where the EJB you are 
+          		referencing lives. See spec for more details
+          	</listitem>
+         </itemizedlist>
+      </para>
+      <para>
+         For XML the same rules apply as annotations
+      </para>
+   </sect5>
+</chapter>
+

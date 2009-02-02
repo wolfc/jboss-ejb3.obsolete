@@ -3,14 +3,17 @@
                       "../../../../../docbook-support/support/docbook-dtd/docbookx.dtd"
 [
 <!ENTITY session                        SYSTEM "modules/session.xml">
+<!ENTITY ejbref                        SYSTEM "modules/ejbref.xml">
+<!ENTITY entity_configuration                        SYSTEM "modules/entity_configuration.xml">
 ]>
 
 <book lang="en">
 
    <bookinfo>
-      <title>JBoss EJB 3.0 Reference Documentation</title>
-      <subtitle>JBoss EJB 3.0 Reference Documentation</subtitle>
-      <releaseinfo>1.0.0</releaseinfo>
+      	<title>JBoss EJB 3.0 Reference Documentation</title>
+      	<subtitle>JBoss EJB 3.0 Reference Documentation</subtitle>
+      	<releaseinfo>1.0.0</releaseinfo>
+		<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="Author_Group.xml"/>
    </bookinfo>
 
    <toc/>
@@ -28,17 +31,10 @@
 
 &session;
 
-<!--   &ejbref; Sequence of steps for injection-->
+&ejbref; 
 
-
-
-<!--   &entity_configuration; JACC-->
-
-
-<!-- 
-   &jboss_deployment_descriptor;
-
-   &partial_deployment_descriptors; -->
+&entity_configuration;
+   
 
 
 

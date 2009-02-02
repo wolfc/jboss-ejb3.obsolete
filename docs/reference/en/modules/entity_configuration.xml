@@ -1,0 +1,246 @@
+<chapter id="entityconfig">
+
+   <title>Entity Configuration Files</title>
+
+   <sect5>
+      Introduction :
+      <para>
+         This section talks about various configuration parameters for getting entities to work within JBoss.
+         JBoss EJB 3.0 is built on top of the Hibernate ORM solution, and more specifically, the Hibernate Entity Manager.
+         This chapter explains the configurations related to the datasource, the persistence-unit and how they relate to each other.
+      </para>
+   </sect5>
+   <sect5>
+      Configuration Files :
+      <para>
+         To use EJB3 Entities within JBoss you'll need to do a few things.
+         <itemizedlist>
+            <listitem>
+               Configure a JBoss datasource using *-ds.xml file.  Check out the documentation at <ulink url="http://jboss.org/community/docs/DOC-9328">our wiki</ulink>
+               or you can view example configurations for many different datasources within:
+               %JBOSS_HOME%/docs/examples/jca
+            </listitem>
+            <listitem>
+               Create a persistence.xml file and place it in the META-INF folder of your jar
+            </listitem>
+         </itemizedlist>
+      </para>
+
+      <sect5>
+         Configure JBoss datasource :
+         <para>
+            For datasources,
+            JBoss comes with the Hypersonic SQL database
+            embedded within it and a default datasource available in JNDI under <literal>java:/DefaultDS</literal>.  Otherwise, you'll need to specify your own datasource.  Please refer to the JBoss AS guide or the wiki mentioned earlier, on how to create a JBoss connection pool.
+            Also, there are examples in the jboss distrubtion under %JBOSS_HOME%/docs/examples/jca.
+         </para>
+      </sect5>
+
+      <sect5>
+         persistence.xml and .jar files :
+         <para>
+            Entities are placed in a EJB-JAR .jar file or a .jar file all their own.  You must
+            also define a persistence.xml file that resides in the META-INF folder of the .jar file.  Here's an example of
+            a persistence.xml file.
+         </para>
+          <programlisting><![CDATA[
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+   version="1.0">
+
+   <persistence-unit name="manager1">
+       <jta-data-source>java:/DefaultDS</jta-data-source>
+       <jar-file>../MyApp.jar</jar-file>
+       <class>org.acme.Employee</class>
+       <class>org.acme.Person</class>
+       <class>org.acme.Address</class>
+       <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+       </properties>
+   </persistence-unit>
+</persistence>]]>
+          </programlisting>
+
+          <variablelist spacing="compact">
+             <varlistentry>
+                <term><code>name</code></term>
+                <listitem>
+                   <para>
+                      You are required to name your persistence unit.
+                      If your persistence classes are within a EJB JAR archive, and it is the only persistence
+                      unit defined, then you do not have to reference this name explicitly in your @PersistenceContext and @PersistenceUnit
+                      annotations.
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>jta-data-source</code>, <code>non-jta-data-source</code>
+      </term>
+                <listitem>
+                   <para>
+                      This is the JNDI name of where the javax.sql.DataSource is located.  This is ignored when *not* used within
+                      an application server.  When running outside of an application server, you must specify JDBC connections
+                      with Hibernate specific properties (see below).  If you're running inside JBoss, put the jndi name of the
+                      datasource you defined in the earlier section. 
+		<note>
+			<para>
+				JBoss by default binds the datasource to the java: namespace. Remember to use the java: while using the datasource name in the persistence.xml
+			</para>
+		</note>
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>jar-file and class</code></term>
+                <listitem>
+                   <para>
+                      The class element specifies a fully qualified classname that you will belong to the persistence unit.
+                      The jar-file element specifies another jar you want automatically scanned for @Entity classes.
+                      When using jar-file, you must specify a path relative to the jar file the persistence.xml
+                      file is in.
+                      By default also, the jar the persistence.xml file is placed in is scanned for @Entity classes
+                      as well.
+                   </para>
+                </listitem>
+             </varlistentry>
+             <varlistentry>
+                <term><code>properties</code></term>
+                <listitem>
+                   <para>
+                      The properties element is used to specify vendor specific properties.  This is where you will define
+                      your JBoss and Hibernate specific configurations.
+                   </para>
+                </listitem>
+             </varlistentry>
+          </variablelist>
+         <para>
+            JBoss EJB 3.0 is built on top of Hibernate 3.0 ORM solution.  You may need to provide information to Hibernate so that it knows
+            the database vendor dialect (MySQL, Oracle, etc...), caching, as well as other settings.  JBoss EJB 3.0 also has some specific
+            configurable properties as well.  Here's a table of properties.  We don't list all the Hibernate ones.  You can browse through the Hibernate documentation for those.
+         </para>
+         <table frame="topbot" id="3rdpartylibs">
+            <title>
+              Example Config Properties
+            </title>
+            <tgroup cols="2" rowsep="1" colsep="1">
+               <colspec colname="c1" colwidth="1*"/>
+               <colspec colname="c2" colwidth="2*"/>
+               <thead>
+                  <row>
+                     <entry align="center">
+                          Property
+                     </entry>
+                     <entry align="center">
+                          Description
+                     </entry>
+                  </row>
+               </thead>
+               <tbody>
+                  <row>
+                     <entry>
+                          hibernate.dialect
+                     </entry>
+                     <entry>
+                           Usually Hibernate can figure out the database dialect itself, but maybe not.
+                           Check the hibernate documentation for information on this
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          hibernate.hbm2ddl.auto=update
+                     </entry>
+                     <entry>
+                           Creates the database schema on deploy if it doesn't exist.  Alters it if it has changed.  Useful
+                           for when you want to generate database schema from entity beans
+                     </entry>
+                  </row>
+                  
+                  <row>
+                     <entry>
+                          jboss.entity.manager.jndi.name
+                     </entry>
+                     <entry>
+                           JBoss does not publish container managed EntityManagers in JNDI by default.  Use this to bind it.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.entity.manager.factory.jndi.name
+                     </entry>
+                     <entry>
+                           JBoss does not publish container managed EntityManagerFactorys in JNDI by default.  Use this to bind it.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.no.implicit.datasource.dependency
+                     </entry>
+                     <entry>
+                           JBoss tries to register deployment dependencies for datasource by guessing the dependency name
+                           based on the jndi name of the datasource.  Use this switch if the guess is wrong.
+                     </entry>
+                  </row>
+                  <row>
+                     <entry>
+                          jboss.depends.{some arbitrary name}
+                     </entry>
+                     <entry>
+		          Specify an MBean dependency for the persistence unit deployment.
+                     </entry>
+                  </row>
+               </tbody>
+             </tgroup>
+            </table>
+      </sect5>
+   </sect5>
+   <sect5>
+      EAR and WAR files :
+      <para>
+          You can deploy your EJB3 entities and the persistence-unit through WAR files too. You will have to place the jar containing the entities and META-INF/persistence.xml, in the .war/WEB-INF/lib folder.
+      </para>
+	<para>
+		For deploying through an EAR, you need not mention the jar containing the entities and the persistence-unit in the application.xml. If you place the jar at the root of the EAR, the persistence-unit and the entities will be deployed.
+	</para>
+
+   </sect5>
+   <sect5>
+      Referencing persistence units :
+      <sect5>
+         Scoped deployments :
+         <para>
+            If a persistence unit is defined in an EJB-JAR file it is not visible to other deployed jars
+            using the @PersistenceContext or @PersistenceUnit annotation.  This scoping is required by the specification.
+         </para>
+      </sect5>
+      <sect5>
+         <title>Referencing from Global JNDI</title>
+         <para>
+            Persistence units are not available within global JNDI unless you explicitly configure them
+            to do so.  There are two properties you can specify in your persistence.xml file to enable this.
+            <literal>jboss.entity.manager.jndi.name</literal> gives you a transaction scoped entity manager 
+            you can interact with.  <literal>jboss.entity.manager.factory.jndi.name</literal> binds the
+            entity manager factory into global JNDI.
+         </para>
+          <programlisting><![CDATA[
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+   http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+   version="1.0"> 
+   <persistence-unit name="manager1">
+      <jta-data-source>java:/DefaultDS</jta-data-source>
+      <properties>
+         <property name="jboss.entity.manager.jndi.name" value="java:/Manager1"/>
+         <property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/>
+      </properties>
+   </persistence-unit>
+</persistence>]]>
+          </programlisting>
+       </sect5>
+   </sect5>
+
+</chapter>
+
