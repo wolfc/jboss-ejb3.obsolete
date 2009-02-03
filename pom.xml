@@ -1,0 +1,80 @@
+<!--
+  vi:ts=2:sw=2:expandtab
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Parent -->
+  <parent>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <groupId>org.jboss.ejb3</groupId>
+    <version>1.0.2-SNAPSHOT</version>
+  </parent>
+  
+  <!-- POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+  
+  <!-- Artifact Information -->
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3</artifactId>
+  <packaging>pom</packaging>
+  <name>JBoss EJB3 Project</name>
+  <version>1.1.0-SNAPSHOT</version>
+  <description>Defines the dependency chain configuration of the JBoss EJB3 Project</description>
+  
+  <!-- Properties -->  
+  <properties>
+  
+    <!-- Versioning -->
+    
+    <!-- 
+    
+    Here we define the versions of projects within
+    the groupId org.jboss.ejb3 which are to be included
+    as dependencies and thus brought in transitively 
+    into the AS
+    
+     -->
+    <version.org.jboss.ejb3_core>1.1.0-SNAPSHOT</version.org.jboss.ejb3_core>
+    <version.org.jboss.ejb3_deployers>1.0.0</version.org.jboss.ejb3_deployers>
+    <version.org.jboss.ejb3_mc.int>1.0.0</version.org.jboss.ejb3_mc.int>
+  
+  </properties>
+    
+  <!-- Dependency Management -->
+  <dependencyManagement>
+    
+    <dependencies>
+    
+      <!-- EJB3 Internal Dependency Versions are defined here -->
+
+      <!--
+        TODO: Do we want to let ejb-core define the versions transitively?
+        Or define all versions explicitly?
+      -->
+      <!-- jboss-ejb3-core -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-core</artifactId>
+        <version>${version.org.jboss.ejb3_core}</version>
+      </dependency>
+      
+      <!-- jboss-ejb3-deployers -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-deployers</artifactId>
+        <version>${version.org.jboss.ejb3_deployers}</version>
+      </dependency>
+      
+      <!-- jboss-ejb3-mc-int -->
+      <dependency>
+        <groupId>org.jboss.ejb3</groupId>
+        <artifactId>jboss-ejb3-mc-int</artifactId>
+        <version>${version.org.jboss.ejb3_mc.int}</version>
+      </dependency>
+    
+    </dependencies>
+    
+  </dependencyManagement>
+  
+  
+</project>
