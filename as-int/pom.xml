@@ -1,10 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <!-- Parent -->
   <parent>
     <groupId>org.jboss.ejb3</groupId>
-    <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0</version>
+    <artifactId>jboss-ejb3</artifactId>
+    <version>1.1.0-SNAPSHOT</version>
   </parent>
   
   <!-- Model Version -->
@@ -14,23 +16,12 @@
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-as-int</artifactId>
   <name>JBoss EJB 3.x AS Integration</name>
+  <packaging>pom</packaging>
   <version>1.1.0-SNAPSHOT</version>
   <description>Integration of the EJB3 Project with JBoss Application Server</description>
   
   <!-- Properties -->
   <properties>
-  
-    <!-- 
-    
-    Here we define the versions of projects within
-    the groupId org.jboss.ejb3 which are to be included
-    as dependencies and thus brought in transitively 
-    into the AS
-    
-     -->
-    <version.org.jboss.ejb3_core>1.1.0-SNAPSHOT</version.org.jboss.ejb3_core>
-    <version.org.jboss.ejb3_deployers>1.0.0</version.org.jboss.ejb3_deployers>
-    <version.org.jboss.ejb3_mc.int>1.0.0</version.org.jboss.ejb3_mc.int>
   
   </properties>
   
@@ -47,21 +38,18 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
-      <version>${version.org.jboss.ejb3_core}</version>
     </dependency>
     
     <!-- jboss-ejb3-deployers -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-deployers</artifactId>
-      <version>${version.org.jboss.ejb3_deployers}</version>
     </dependency>
     
     <!-- jboss-ejb3-mc-int -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-mc-int</artifactId>
-      <version>${version.org.jboss.ejb3_mc.int}</version>
     </dependency>
      
     <!-- All other dependencies -->
