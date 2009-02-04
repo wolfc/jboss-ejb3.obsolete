@@ -21,6 +21,9 @@
  */
 package org.jboss.ejb3.profile3_1.test.deployment.unit;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -78,9 +81,12 @@ public class Profile3_1_DeploymentTestCase extends AbstractProfile3_1_TestCase
       logger.debug("Successfully looked up bean " + bean);
 
       // invoke a method
-      String message = bean.sayHello("newuser");
-      logger.debug("Bean returned message = " + message);
+      String message = "hello";
+      String returnedMessage = bean.echo(message);
+      logger.debug("Client sent message = " + message + " ; Bean returned message = " + returnedMessage );
+      
+      assertNotNull("Bean returned null message",returnedMessage);
+      assertEquals("Bean returned incorrect message",message,returnedMessage);
 
    }
-
 }

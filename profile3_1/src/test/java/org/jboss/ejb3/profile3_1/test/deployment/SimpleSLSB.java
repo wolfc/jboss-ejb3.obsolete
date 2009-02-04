@@ -36,8 +36,8 @@ import javax.ejb.Stateless;
 public class SimpleSLSB implements SimpleSLSBLocal
 {
 
-   public String sayHello(String name)
+   public String echo(String name)
    {
-      return "Profile3_1 says hello to " + name;
+      return name;
    }
 }

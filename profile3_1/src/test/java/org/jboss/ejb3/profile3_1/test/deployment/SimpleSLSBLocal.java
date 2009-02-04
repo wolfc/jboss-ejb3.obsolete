@@ -30,5 +30,5 @@ package org.jboss.ejb3.profile3_1.test.deployment;
  */
 public interface SimpleSLSBLocal
 {
-   String sayHello(String name);
+   String echo(String name);
 }
