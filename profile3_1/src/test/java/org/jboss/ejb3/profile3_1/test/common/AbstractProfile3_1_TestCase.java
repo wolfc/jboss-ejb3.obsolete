@@ -41,7 +41,8 @@ import org.jboss.virtual.VirtualFile;
 /**
  * AbstractProfile3_1_TestCase
  * 
- * This provides the necessary "profile3_1" runtime environment for testcases to run.
+ * This provides the necessary "profile3_1" profile for integration testing of
+ * components that make up this profile.
  *
  * @author Jaikiran Pai
  * @version $Revision: $
@@ -107,13 +108,20 @@ public abstract class AbstractProfile3_1_TestCase
     * This is where we place our configuration files which provide the runtime environment
     * for our "profile3_1". Ex: ejb3-deployer-jboss-beans.xml is placed here
     */
-   protected static final String SERVER_PROFILE3_1_DEPLOYERS_DIR_PATH = "src/main/resources/conf";
+   protected static final String SERVER_PROFILE3_1_DEPLOYERS_DIR_PATH = "src/main/resources/conf/deployers";
+   
+   /**
+    * This is where we place our applications to be deployed. The "applications" can also include
+    * EJB3 remoting connectors, interceptors etc...
+    */
+   protected static final String SERVER_PROFILE3_1_DEPLOY_DIR_PATH = "src/main/resources/conf/deploy";
 
    /**
     * Bootstrap the server.
-    * It first creates a server through the bootstrap.xml configuration file
-    * and once the server is started, it then deploys the deployers.
+    * It first creates a server through the bootstrap.xml. This does not start the profile3_1
+    * (i.e. it does NOT deploy the deployers or the applications). 
     * 
+    * @see #startProfile()
     * @throws Exception
     */
    public static void bootstrap() throws Exception
@@ -125,10 +133,9 @@ public abstract class AbstractProfile3_1_TestCase
       long start = System.currentTimeMillis();
       server.start();
       long end = System.currentTimeMillis();
-      logger.info("Profile3_1 server started in " + (end - start) + " milli sec.");
+      logger.info("Profile3_1 bootstrap started in " + (end - start) + " milli sec.");
 
-      // now deploy the Profile3_1 deployers
-      deploy(new File(SERVER_PROFILE3_1_DEPLOYERS_DIR_PATH).toURL());
+      
    }
 
    /**
@@ -142,6 +149,42 @@ public abstract class AbstractProfile3_1_TestCase
          server.shutdown();
          logger.info("Profile3_1 server has been shutdown");
       }
+   }
+   
+   /**
+    * Deploys the deployers and the applications
+    * to start the profile3_1
+    * 
+    * @throws Exception
+    */
+   public static void startProfile() throws Exception
+   {
+      logger.debug("Starting Profile3_1");
+      deployDeployers();
+      logger.debug("Profile3_1 deployers ready");
+      deployApplications();
+      logger.debug("Profile3_1 completely started");
+   }
+   
+   /**
+    * Deploys the deployers 
+    * 
+    * @throws Exception
+    */
+   public static void deployDeployers() throws Exception
+   {
+      // now deploy the Profile3_1 deployers
+      deploy(new File(SERVER_PROFILE3_1_DEPLOYERS_DIR_PATH).toURL());
+   }
+   
+   /**
+    * Deploy the applications (in deploy folder)
+    * 
+    * @throws Exception
+    */
+   public static void deployApplications() throws Exception
+   {
+      deploy(new File(SERVER_PROFILE3_1_DEPLOY_DIR_PATH).toURL());
    }
 
    /**
@@ -228,6 +271,10 @@ public abstract class AbstractProfile3_1_TestCase
     */
    protected static void deploy(URL deployURL) throws Exception
    {
+      if (deployURL == null)
+      {
+         throw new IllegalArgumentException("Null URL passed to deploy");
+      }
       logger.debug("Deploying " + deployURL);
       MainDeployer mainDeployer = getMainDeployer();
       VirtualFile root = VFS.getRoot(deployURL);
@@ -238,32 +285,48 @@ public abstract class AbstractProfile3_1_TestCase
 
    }
    
+//   /**
+//    * Deploys a class.
+//    * 
+//    * TODO: Jaikiran - This is in testing phase, since i am not yet sure whether we have a
+//    * deployer in EJB3 which works only on class instead of .jar, .ear components.
+//    * The main intention to allow deploying a class is to avoid the additional jar/ear creation
+//    * during testcases
+//    * 
+//    * NOT SUPPORTED
+//    * 
+//    * @param deployableClass
+//    * @throws Exception
+//    */
+//   protected static void deploy(Class<?> deployableClass) throws Exception
+//   {
+//      String classFQN = deployableClass.getName();
+//      String klass = classFQN.replaceAll("\\.", "/") + ".class";
+//      if (logger.isTraceEnabled())
+//      {
+//         logger.trace("Deploying class = " + klass);
+//      }
+//      URL classURL =Thread.currentThread().getContextClassLoader().getResource(klass);
+//      if (logger.isTraceEnabled())
+//      {
+//         logger.trace("URL form of class " + classFQN + " is = " + classURL);
+//      }
+//      deploy(classURL);
+//      
+//   }
+   
    /**
-    * Deploys a class.
-    * 
-    * TODO: Jaikiran - This is in testing phase, since i am not yet sure whether we have a
-    * deployer in EJB3 which works only on class instead of .jar, .ear components.
-    * The main intention to allow deploying a class is to avoid the additional jar/ear creation
-    * during testcases
-    * 
-    * 
-    * @param deployableClass
-    * @throws Exception
+    * Deploy a resource
     */
-   protected static void deploy(Class<?> deployableClass) throws Exception
+   protected static void deploy(String resourceName) throws Exception
    {
-      String classFQN = deployableClass.getName();
-      String klass = classFQN.replaceAll("\\.", "/") + ".class";
-      if (logger.isTraceEnabled())
+      if (resourceName == null)
       {
-         logger.trace("Deploying class = " + klass);
+         throw new IllegalArgumentException("Null resourceName passed to deploy");
       }
-      URL classURL =Thread.currentThread().getContextClassLoader().getResource(klass);
-      if (logger.isTraceEnabled())
-      {
-         logger.trace("URL form of class " + classFQN + " is = " + classURL);
-      }
-      deploy(classURL);
+      URL resourceURL = Thread.currentThread().getContextClassLoader().getResource(resourceName);
+      deploy(resourceURL);
+      
    }
 
    /**

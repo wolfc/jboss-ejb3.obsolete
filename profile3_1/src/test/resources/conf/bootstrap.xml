@@ -6,7 +6,7 @@
 	folder. But unfortunately, the org.jboss.bootstrap.xml.BootstrapParser expects the
 	bootstrap.xml to be present in ServerConfig.SERVER_CONFIG_URL -->
 	
-   <url>bootstrap/classloading.xml</url>
+   <!-- <url>bootstrap/classloading.xml</url> -->
    <url>bootstrap/naming.xml</url>
    <url>bootstrap/maindeployer.xml</url>
    

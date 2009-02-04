@@ -19,31 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.profile3_1.test.nointerface;
+package org.jboss.ejb3.profile3_1.test.deployment;
 
-import javax.ejb.Remote;
+import javax.ejb.Local;
 import javax.ejb.Stateless;
-
-import org.jboss.ejb3.annotation.RemoteBinding;
 
 /**
  * 
- * NoInterfaceStatelessBean
+ * SimpleSLSB
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
 @Stateless
-// For initial test adding this Remote interface. Once the
-// profile3_1 framework is ready, since this is "nointerface" testcase
-// we will remove this interface
-@Remote (TestRemote.class)
-@RemoteBinding (jndiBinding="HellJai")
-public class NoInterfaceStatelessBean implements TestRemote
+@Local(SimpleSLSBLocal.class)
+public class SimpleSLSB implements SimpleSLSBLocal
 {
 
-   public String sayHelloFromEJB31(String name)
+   public String sayHello(String name)
    {
-      return "EJB 3.1 says hello to " + name;
+      return "Profile3_1 says hello to " + name;
    }
 }

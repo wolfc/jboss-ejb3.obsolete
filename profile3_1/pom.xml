@@ -20,107 +20,168 @@
   <description>Profile3_1</description>
 
   <properties>
-    <version.org.jboss.ejb3.jboss-ejb3-embedded>1.0.0-Alpha1</version.org.jboss.ejb3.jboss-ejb3-embedded>
+    <version.org.jboss.ejb3.jboss-ejb3-embedded>1.0.0-SNAPSHOT</version.org.jboss.ejb3.jboss-ejb3-embedded>
     <version.org.jboss.deployers>2.0.3.GA</version.org.jboss.deployers>
     <version.org.jboss_jboss-vfs>2.0.1.GA</version.org.jboss_jboss-vfs>
     <version.org.jboss.bootstrap_jboss-bootstrap>0.1.0-SNAPSHOT</version.org.jboss.bootstrap_jboss-bootstrap>
     <version.org.jboss.jpa_jboss-jpa-deployers>1.0.0-Beta6</version.org.jboss.jpa_jboss-jpa-deployers>
   </properties>
   
-  
-  	<dependencies>
-    <dependency>
-    	<groupId>org.jboss.ejb3</groupId>
-    	<artifactId>jboss-ejb3-embedded</artifactId>
-    	<version>${version.org.jboss.ejb3.jboss-ejb3-embedded}</version>
-    	 <exclusions>
-    		<exclusion>
-          		<groupId>org.jboss</groupId>
-          		<artifactId>jboss-vfs</artifactId>
-        	</exclusion>
-    		<exclusion>
-          		<groupId>org.jboss.deployers</groupId>
-          		<artifactId>jboss-deployers-vfs</artifactId>
-        	</exclusion>
-        	<exclusion>
-          		<groupId>org.jboss.deployers</groupId>
-          		<artifactId>jboss-deployers-core-spi</artifactId>
-        	</exclusion>
-			<exclusion>
-          		<groupId>org.jboss.deployers</groupId>
-          		<artifactId>jboss-deployers-impl</artifactId>
-        	</exclusion>
-			<exclusion>
-          		<groupId>org.jboss.deployers</groupId>
-          		<artifactId>jboss-deployers-structure-spi</artifactId>
-        	</exclusion>
-			<exclusion>
-          		<groupId>org.jboss.jbossas</groupId>
-          		<artifactId>jboss-as-bootstrap</artifactId>
-        	</exclusion>
-									        	
-    	</exclusions> 
-    </dependency>	
-    <!-- Bootstrap -->
-    <dependency>
-      <groupId>org.jboss.bootstrap</groupId>
-      <artifactId>jboss-bootstrap</artifactId>
-      <version>${version.org.jboss.bootstrap_jboss-bootstrap}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- JBoss deployers -->
-    <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-vfs</artifactId>
-      <version>${version.org.jboss.deployers}</version>
-      <scope>test</scope>
-    </dependency>
-    
-    <!-- EJB3 deployers -->
-   	<dependency>
-   	  <groupId>org.jboss.ejb3</groupId>
-   	  <artifactId>jboss-ejb3-deployers</artifactId>
-	  <version>0.1.1</version>
-   	</dependency>
-   	
-   	<dependency>
-   	  <groupId>org.jboss.jbossas</groupId>
-   	  <artifactId>jboss-as-ejb3</artifactId>
-	  <version>5.0.0.GA</version>
-   	</dependency>
-   	
-    <dependency>
-      	<groupId>org.jboss</groupId>
-      	<artifactId>jboss-vfs</artifactId>
-    	<version>${version.org.jboss_jboss-vfs}</version>
-    </dependency>
-   
-   
-   <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-impl</artifactId>
-      <version>${version.org.jboss.deployers}</version>
+  <build>
+  	<plugins>
+      <!-- Let's build the test deployables through Ant -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-tests</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>integration-test</phase>
+            <configuration>
+              <tasks>
+                <!-- Execute the Test Build -->
+                <ant antfile="build-test.xml" target="main" />
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       
-    </dependency>
+      <!-- Surefire plugin for integration tests -->
+      <plugin>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <configuration>
+      	<!--  Disable unit tests -->
+        <skip>true</skip>
+         <redirectTestOutputToFile>true</redirectTestOutputToFile>
+         <printSummary>true</printSummary>
+         
+      </configuration>
+      <executions>
+        <execution>
+          <id>surefire-it</id>
+          <phase>integration-test</phase>
+          <goals>
+            <goal>test</goal>
+          </goals>
+          <configuration>
+            <skip>false</skip>
+            <additionalClasspathElements>
+            	<!--  The target/test-lib which we create contains the jars (deployables)
+            	which will be used by the tests -->
+              <additionalClasspathElement>
+                ${basedir}/target/test-lib
+              </additionalClasspathElement>
+            </additionalClasspathElements>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+     </plugins> 
+  
+  </build>
+  
+  
+	<dependencies>
+		<!--  EJB3 Embedded dependency. Needs to be removed once the
+		deployers in Embedded are moved to ejb3-deployers. EJBTHREE-1712 -->
+    	<dependency>
+	    	<groupId>org.jboss.ejb3</groupId>
+	    	<artifactId>jboss-ejb3-embedded</artifactId>
+	    	<version>${version.org.jboss.ejb3.jboss-ejb3-embedded}</version>
+	    	 <exclusions>
+	    		<exclusion>
+	          		<groupId>org.jboss</groupId>
+	          		<artifactId>jboss-vfs</artifactId>
+	        	</exclusion>
+	    		<exclusion>
+	          		<groupId>org.jboss.deployers</groupId>
+	          		<artifactId>jboss-deployers-vfs</artifactId>
+	        	</exclusion>
+	        	<exclusion>
+	          		<groupId>org.jboss.deployers</groupId>
+	          		<artifactId>jboss-deployers-core-spi</artifactId>
+	        	</exclusion>
+				<exclusion>
+	          		<groupId>org.jboss.deployers</groupId>
+	          		<artifactId>jboss-deployers-impl</artifactId>
+	        	</exclusion>
+				<exclusion>
+	          		<groupId>org.jboss.deployers</groupId>
+	          		<artifactId>jboss-deployers-structure-spi</artifactId>
+	        	</exclusion>
+				<exclusion>
+	          		<groupId>org.jboss.jbossas</groupId>
+	          		<artifactId>jboss-as-bootstrap</artifactId>
+	        	</exclusion>
+										        	
+	    	</exclusions> 
+	    </dependency>	
     
-    <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-structure-spi</artifactId>
-      <version>${version.org.jboss.deployers}</version>
-    </dependency>
-     
-     <dependency>
-      <groupId>org.jboss.deployers</groupId>
-      <artifactId>jboss-deployers-core-spi</artifactId>
-      <version>${version.org.jboss.deployers}</version>
-    </dependency>
+    <!-- Bootstrap -->
+    	<dependency>
+	      <groupId>org.jboss.bootstrap</groupId>
+	      <artifactId>jboss-bootstrap</artifactId>
+	      <version>${version.org.jboss.bootstrap_jboss-bootstrap}</version>
+	      <scope>test</scope>
+	    </dependency>
     
-    <!--  JPA deployers -->
-    <dependency>
-    	<groupId>org.jboss.jpa</groupId>
-    	<artifactId>jboss-jpa-deployers</artifactId>
-    	<version>${version.org.jboss.jpa_jboss-jpa-deployers}</version>
-    	<scope>runtime</scope>
-    </dependency>
+	    <!-- JBoss deployers -->
+	    <dependency>
+	      <groupId>org.jboss.deployers</groupId>
+	      <artifactId>jboss-deployers-vfs</artifactId>
+	      <version>${version.org.jboss.deployers}</version>
+	      <scope>test</scope>
+	    </dependency>
+	    
+	    <!-- EJB3 deployers -->
+	   	<dependency>
+	   	  <groupId>org.jboss.ejb3</groupId>
+	   	  <artifactId>jboss-ejb3-deployers</artifactId>
+		  <version>0.1.1</version>
+	   	</dependency>
+	   	
+	   	<dependency>
+	   	  <groupId>org.jboss.jbossas</groupId>
+	   	  <artifactId>jboss-as-ejb3</artifactId>
+		  <version>5.0.0.GA</version>
+	   	</dependency>
+	   	
+	    <dependency>
+	      	<groupId>org.jboss</groupId>
+	      	<artifactId>jboss-vfs</artifactId>
+	    	<version>${version.org.jboss_jboss-vfs}</version>
+	    </dependency>
+	   
+	   
+	   <dependency>
+	      <groupId>org.jboss.deployers</groupId>
+	      <artifactId>jboss-deployers-impl</artifactId>
+	      <version>${version.org.jboss.deployers}</version>
+	      
+	    </dependency>
+	    
+	    <dependency>
+	      <groupId>org.jboss.deployers</groupId>
+	      <artifactId>jboss-deployers-structure-spi</artifactId>
+	      <version>${version.org.jboss.deployers}</version>
+	    </dependency>
+	     
+	     <dependency>
+	      <groupId>org.jboss.deployers</groupId>
+	      <artifactId>jboss-deployers-core-spi</artifactId>
+	      <version>${version.org.jboss.deployers}</version>
+	    </dependency>
+	    
+	    <!--  JPA deployers -->
+	    <dependency>
+	    	<groupId>org.jboss.jpa</groupId>
+	    	<artifactId>jboss-jpa-deployers</artifactId>
+	    	<version>${version.org.jboss.jpa_jboss-jpa-deployers}</version>
+	    	<scope>runtime</scope>
+	    </dependency>
 	</dependencies>
 </project>

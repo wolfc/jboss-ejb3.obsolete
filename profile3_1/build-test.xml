@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project default="main" name="Profile3_1 Tests">
+
+	<property name="target.dir" value="${basedir}/target" />
+	<property name="test.lib.dir" value="${target.dir}/test-lib" />
+	<property name="test.classes.dir" value="${target.dir}/tests-classes" />
+
+	<target name="main" depends="prepare">
+		<antcall target="jars" />
+	</target>
+
+	<target name="prepare" depends="clean">
+		<mkdir dir="${test.lib.dir}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${test.lib.dir}" />
+	</target>
+
+	<target name="jars" depends="ejb3-profile-test">
+	
+	</target>
+	
+	<target name="ejb3-profile-test">
+		<jar destfile="${test.lib.dir}/ejb3-profile-test.jar">
+			<fileset dir="${test.classes.dir}">
+					<include name="org/jboss/ejb3/profile3_1/test/deployment/**/*.class"/>
+			</fileset>
+		</jar>
+	</target>
+</project>

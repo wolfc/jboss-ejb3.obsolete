@@ -42,7 +42,7 @@
    <!-- EJB3 ProcessorChain Deployer -->
    <bean name="Ejb3MetadataProcessingDeployer" class="org.jboss.ejb3.deployers.Ejb3MetadataProcessingDeployer" />
    
-   <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
+     <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>  
    <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer"/>
 
    <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.embedded.resolvers.EmbeddedMessageDestinationReferenceResolver"/>
@@ -126,5 +126,6 @@
          </parameter>
       </constructor>
    </bean>
+     
      
 </deployment>

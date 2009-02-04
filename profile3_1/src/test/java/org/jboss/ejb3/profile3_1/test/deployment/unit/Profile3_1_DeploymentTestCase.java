@@ -19,37 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.profile3_1.test.nointerface.unit;
+package org.jboss.ejb3.profile3_1.test.deployment.unit;
 
-import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
 
 import org.jboss.ejb3.profile3_1.test.common.AbstractProfile3_1_TestCase;
-import org.jboss.ejb3.profile3_1.test.nointerface.NoInterfaceStatelessBean;
+import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSBLocal;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * NoInterfaceBeanTestCase
+ * Profile3_1_DeploymentTestCase
+ * 
+ * Testcase to ensure that the profile3_1 bootstrap loads properly
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class NoInterfaceBeanTestCase extends AbstractProfile3_1_TestCase
+public class Profile3_1_DeploymentTestCase extends AbstractProfile3_1_TestCase
 {
    /**
     * Logger
     */
-   private static Logger logger = Logger.getLogger(NoInterfaceBeanTestCase.class);
+   private static Logger logger = Logger.getLogger(Profile3_1_DeploymentTestCase.class);
 
    @BeforeClass
    public static void beforeClass() throws Throwable
    {
       bootstrap();
+      startProfile();
    }
 
    @AfterClass
@@ -59,25 +60,26 @@ public class NoInterfaceBeanTestCase extends AbstractProfile3_1_TestCase
    }
 
    /**
-    * TODO: Jaikiran - This is currently in work-in-progress state. 
-    * The intention of this test (at present) is to ensure that the profile3_1 test framework is ready
-    * for use. This will just test that the bean gets deployed.
+    * This test ensures that the basic deployment support provided by
+    * profile3_1 component is working
+    * 
     * @throws Throwable
     */
    @Test
    public void testBeanDeployment() throws Throwable
    {
+      // Deploy the jar (containing the bean)
+      deploy(Thread.currentThread().getContextClassLoader().getResource("ejb3-profile-test.jar"));
+      logger.info("ejb3-profile-test.jar deployed");
 
-      // @see the javadoc of this method for more details about what this is expected to do
-      deploy(NoInterfaceStatelessBean.class);
-      
+      // lookup the bean
       Context ctx = new InitialContext();
-      NamingEnumeration<Binding> bindings = ctx.listBindings("");
-      while (bindings.hasMoreElements())
-      {
-         Binding binding = bindings.nextElement();
-         logger.info("JNDI Binding: " + binding.getName() + " val " + binding.getObject() + " class " + binding.getClass());
-      }
+      SimpleSLSBLocal bean = (SimpleSLSBLocal) ctx.lookup("SimpleSLSB/local");
+      logger.debug("Successfully looked up bean " + bean);
+
+      // invoke a method
+      String message = bean.sayHello("newuser");
+      logger.debug("Bean returned message = " + message);
 
    }
 
