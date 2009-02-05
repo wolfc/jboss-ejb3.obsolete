@@ -36,45 +36,34 @@
      -->
     <version.org.jboss.ejb3_core>1.1.0-SNAPSHOT</version.org.jboss.ejb3_core>
     <version.org.jboss.ejb3_deployers>1.0.0</version.org.jboss.ejb3_deployers>
-    <version.org.jboss.ejb3_mc.int>1.0.0</version.org.jboss.ejb3_mc.int>
   
   </properties>
     
-  <!-- Dependency Management -->
-  <dependencyManagement>
-    
-    <dependencies>
-    
-      <!-- EJB3 Internal Dependency Versions are defined here -->
+  <!-- Dependencies -->
+  <dependencies>
+  
+    <!-- EJB3 Internal Dependency Versions are defined here -->
 
-      <!--
-        TODO: Do we want to let ejb-core define the versions transitively?
-        Or define all versions explicitly?
-      -->
-      <!-- jboss-ejb3-core -->
-      <dependency>
-        <groupId>org.jboss.ejb3</groupId>
-        <artifactId>jboss-ejb3-core</artifactId>
-        <version>${version.org.jboss.ejb3_core}</version>
-      </dependency>
+    <!--
+      TODO: Do we want to let ejb-core define the versions transitively?
+      Or define all versions explicitly?
+    -->
+    <!-- jboss-ejb3-core -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-core</artifactId>
+      <version>${version.org.jboss.ejb3_core}</version>
+    </dependency>
       
-      <!-- jboss-ejb3-deployers -->
-      <dependency>
-        <groupId>org.jboss.ejb3</groupId>
-        <artifactId>jboss-ejb3-deployers</artifactId>
-        <version>${version.org.jboss.ejb3_deployers}</version>
-      </dependency>
-      
-      <!-- jboss-ejb3-mc-int -->
-      <dependency>
-        <groupId>org.jboss.ejb3</groupId>
-        <artifactId>jboss-ejb3-mc-int</artifactId>
-        <version>${version.org.jboss.ejb3_mc.int}</version>
-      </dependency>
+    <!-- jboss-ejb3-deployers -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-deployers</artifactId>
+      <version>${version.org.jboss.ejb3_deployers}</version>
+    </dependency>
+  
+  </dependencies>
     
-    </dependencies>
-    
-  </dependencyManagement>
   
   
 </project>
