@@ -17,7 +17,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-core</artifactId>
   <packaging>jar</packaging>
-  <version>1.1.0</version>
+  <version>1.1.1-SNAPSHOT</version>
   <name>JBoss EJB 3.0 Core</name>
   <url>http://labs.jboss.com/jbossejb3</url>
   <description>JBoss EJB 3.0 Core</description>
@@ -636,10 +636,4 @@
     </dependency>
     
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-core) jboss-ejb3-core-1.1.0</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-core) jboss-ejb3-core-1.1.0</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-core) jboss-ejb3-core-1.1.0</url>
-  </scm>
 </project>
