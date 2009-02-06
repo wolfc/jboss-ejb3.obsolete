@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -22,19 +22,26 @@
 package javax.ejb;
 
 /**
- * A Singleton bean's concurrency management type.
- * <ul>
- * <li>BEAN : Bean managed concurrency</li>
- * <li>CONCURRENCY_NOT_ALLOWED : Concurrency not allowed</li>
- * <li>CONTAINER : Container managed concurrency</li> 
- * </ul>
- *  
+ * This exception indicates that an attempt was made to perform an illegal loopback 
+ * invocation on a Singleton with container-managed concurrency. One possible cause 
+ * is a loopback call to a WRITE method where the current thread does not already 
+ * hold a WRITE lock. 
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  * @since 3.1
  */
-public enum ConcurrencyManagementType {
-   BEAN,
-   CONCURRENCY_NOT_ALLOWED,
-   CONTAINER
+public class IllegalLoopbackException extends ConcurrentAccessException
+{
+   private static final long serialVersionUID = 1L;
+
+   public IllegalLoopbackException()
+   {
+      super();
+   }
+
+   public IllegalLoopbackException(String message)
+   {
+      super(message);
+   }
 }

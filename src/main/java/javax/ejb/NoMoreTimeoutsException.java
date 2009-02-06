@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -22,19 +22,23 @@
 package javax.ejb;
 
 /**
- * A Singleton bean's concurrency management type.
- * <ul>
- * <li>BEAN : Bean managed concurrency</li>
- * <li>CONCURRENCY_NOT_ALLOWED : Concurrency not allowed</li>
- * <li>CONTAINER : Container managed concurrency</li> 
- * </ul>
- *  
+ * This exception indicates that a calendar-based timer will not result in any more timeouts. 
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  * @since 3.1
  */
-public enum ConcurrencyManagementType {
-   BEAN,
-   CONCURRENCY_NOT_ALLOWED,
-   CONTAINER
+public class NoMoreTimeoutsException extends EJBException
+{
+   private static final long serialVersionUID = 1L;
+
+   public NoMoreTimeoutsException()
+   {
+      super();
+   }
+
+   public NoMoreTimeoutsException(String message)
+   {
+      super(message);
+   }
 }
