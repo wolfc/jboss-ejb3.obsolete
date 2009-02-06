@@ -27,10 +27,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Specifies the amount of time in a given time unit that a concurrent access 
+ * Specifies the amount of time(in milliseconds) that a concurrent access 
  * attempt on a Singleton session bean should block before timing out. 
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -41,9 +40,7 @@ import java.util.concurrent.TimeUnit;
 @Retention(RUNTIME)
 public @interface AccessTimeout {
    /**
-    * The maximum time to wait for access.
+    * Timeout in milliseconds.
     */
-   long value();
-   
-   TimeUnit unit() default TimeUnit.MILLISECONDS;
+   int value();
 }
