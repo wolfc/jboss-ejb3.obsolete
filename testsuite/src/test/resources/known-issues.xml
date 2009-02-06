@@ -21,9 +21,12 @@
   <entry key="org.jboss.ejb3.test.defaultremotebindings.unit.DefaultRemoteBindingsTestCase.testDefault">show</entry>
   <!-- EJBTHREE-1633 -->
   <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testQueue">show</entry>
+  <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testTopic">show</entry>
   <entry key="org.jboss.ejb3.test.dd.mdb.unit.MDBUnitTestCase.testDurableTopic">show</entry>
   <!-- EJBTHREE-1634 -->
   <entry key="org.jboss.ejb3.test.deployer.unit.DeployerUnitTestCase.testDeployEjb3ExtensionOnly">show</entry>
+  <!-- EJBTHREE-1651 -->
+  <entry key="org.jboss.ejb3.test.ejbthree973.unit.AnonymousCallerPrincipalTestCase.testSpy">show</entry>
   <!-- EJBTHREE-1222 / EJBTHREE-1621 -->
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testRemoteNormalMethodNamedRemove">show</entry>
   <entry key="org.jboss.ejb3.test.ejbthree1222.unit.RegularRemoveMethodUnitTestCase.testLocalNormalMethodNamedRemove">show</entry>
@@ -34,6 +37,16 @@
   <!-- EJBTHREE-1640 -->
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testRemoteBindingProxyFactory">show</entry>
   <entry key="org.jboss.ejb3.test.statefulproxyfactoryoverride.unit.RemoteUnitTestCase.testDeploymentDescriptorRemoteBindingProxyFactory">show</entry>
+  <!-- EJBTHREE-1656 -->
+  <entry key="org.jboss.ejb3.test.stateless.unit.StatelessTestCase.testTemplateInterfaceTx">show</entry>
+  <!-- EJBTHREE-1665 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testAnnotatedLocalInterfaceWovenBean">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1023.unit.DefaultLocalInterfaceWovenBeanTestCase.testDefaultLocalInterfaceWovenBean">show</entry>
   <!-- JBMETA-157 -->
   <entry key="org.jboss.ejb3.test.naming.unit.NamingTestCase.testJndiOverride">show</entry>
+  <!-- EJBTHREE-1647 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testStringInjectionUsingResourceMappedName">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntInjectionUsingResourceMappedName">show</entry>
+  <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntegerInjectionUsingResourceMappedName">show</entry>
+  
 </properties>

@@ -56,7 +56,7 @@ public class JBossEJBContainer extends EJBContainer
    
    // stage 1
    private BasicBootstrap bootstrap = new BasicBootstrap();
-   private static Kernel kernel;
+   private Kernel kernel;
    private BasicXMLDeployer deployer;
    
    // stage 2
@@ -205,11 +205,6 @@ public class JBossEJBContainer extends EJBContainer
       if (context == null)
          return handleNotFoundContext(controller, name, state);
       return context;
-   }
-   
-   public static Kernel getKernel()
-   {
-      return kernel;
    }
    
    private URL getResource(String name) throws IllegalArgumentException

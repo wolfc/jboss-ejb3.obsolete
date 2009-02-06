@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server>
    <mbean code="org.jboss.mq.server.jmx.Queue"
-      name="jboss.mq.destination:service=Queue,name=queuetest">
+      name="jboss.mq.destination:service=Queue,name=inflowmdbtest">
       <attribute name="JNDIName">queue/inflowmdbtest</attribute>
       <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
    </mbean>

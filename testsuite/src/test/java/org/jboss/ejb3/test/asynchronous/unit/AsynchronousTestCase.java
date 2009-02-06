@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.asynchronous.unit;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.ejb.EJBAccessException;
@@ -163,7 +164,7 @@ public class AsynchronousTestCase extends JBossTestCase
       SecurityClient client = SecurityClientFactory.getSecurityClient();
       client.setSimple("rolefail","password");
       client.login();
-
+      
       asynchTester.method(61);
       Object ret = getReturnOrException(ap);
       assertTrue("SecurityException not thrown: " + ret, ret instanceof EJBAccessException);
@@ -176,13 +177,17 @@ public class AsynchronousTestCase extends JBossTestCase
       ret = getReturnOrException(ap);
       assertTrue("SecurityException not thrown: " + ret, ret instanceof EJBAccessException);
 
+      client.logout();
       client.setSimple("somebody","password");
+      client.login();
 
       asynchTester.method(64);
       ret = getReturnOrException(ap);
       assertEquals("Wrong return for authorized method", 64, ret);
       
+      client.logout();
       client.setSimple("nosuchuser","password");
+      client.login();
 
       asynchTester.method(65);
       ret = getReturnOrException(ap);
@@ -194,7 +199,15 @@ public class AsynchronousTestCase extends JBossTestCase
       Future<?> future = provider.getFutureResult();
 
       waitForFuture(future);
-      return future.get();
+      try
+      {
+         return future.get();
+      }
+      catch(ExecutionException e)
+      {
+         log.debug("Exception", e);
+         return e.getCause();
+      }
    }
 
    private void waitForFuture(Future<?> future) throws InterruptedException

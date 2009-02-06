@@ -49,10 +49,7 @@ import org.jboss.ejb3.api.spi.EJBContainerWrapper;
  */
 public abstract class EJBContainer
 {
-   public static final String EMBEDDABLE_APP_NAME_PROPERTY = "javax.ejb.embeddable.appName";
-   public static final String EMBEDDABLE_INITIAL_PROPERTY = "javax.ejb.embeddable.initial";
-   @Deprecated
-   public static final String EMBEDDABLE_INITIAL = EMBEDDABLE_INITIAL_PROPERTY;
+   public static final String EMBEDDABLE_INITIAL = "javax.ejb.embeddable.initial";
    public static final String EMBEDDABLE_MODULES_PROPERTY = "javax.ejb.embeddable.modules";
    
    private static EJBContainerWrapper currentEJBContainer;
@@ -175,7 +172,6 @@ public abstract class EJBContainer
     * @return EJBContainer instance, or null if none exists or if the last EJBContainer 
     *   instance has been closed.
     */
-   @Deprecated
    public static EJBContainer getCurrentEJBContainer()
    {
       if(currentEJBContainer != null && currentEJBContainer.isClosed())

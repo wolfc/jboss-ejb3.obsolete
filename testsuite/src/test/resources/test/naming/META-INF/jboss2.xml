@@ -8,7 +8,9 @@
     <enterprise-beans>
         <session>
             <ejb-name>StatefulOverrideBean</ejb-name>
-            <jndi-name>StatefulOverride</jndi-name>
+            <remote-binding>
+               <jndi-name>StatefulOverride</jndi-name>
+            </remote-binding>
         </session>
     </enterprise-beans>
 </jboss>
