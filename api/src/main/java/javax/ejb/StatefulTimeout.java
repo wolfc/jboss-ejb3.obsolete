@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,20 +21,26 @@
  */
 package javax.ejb;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.util.concurrent.TimeUnit;
+
 /**
- * A Singleton bean's concurrency management type.
- * <ul>
- * <li>BEAN : Bean managed concurrency</li>
- * <li>CONCURRENCY_NOT_ALLOWED : Concurrency not allowed</li>
- * <li>CONTAINER : Container managed concurrency</li> 
- * </ul>
- *  
+ * Specifies the amount of time a stateful session bean can be idle 
+ * ( not receive any client invocations ) before it is eligible 
+ * for removal by the container.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  * @since 3.1
  */
-public enum ConcurrencyManagementType {
-   BEAN,
-   CONCURRENCY_NOT_ALLOWED,
-   CONTAINER
+@Target(TYPE)
+@Retention(RUNTIME)
+public @interface StatefulTimeout {
+   long value();
+   
+   TimeUnit unit() default TimeUnit.MINUTES;
 }

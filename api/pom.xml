@@ -16,6 +16,47 @@
   <version>3.1.0-SNAPSHOT</version>
   <name>JBoss EJB 3.1 API</name>
   <description>JBoss EJB 3.1 API classes</description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <executable>${JDK6_HOME}/bin/javac</executable>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-jdk6</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>env.JDK6_HOME</property>
+                  <message>JDK6_HOME is not set</message>
+                </requireProperty>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkMode>once</forkMode>
+          <jvm>${JDK6_HOME}/bin/java</jvm>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
   
   <dependencies>
     <dependency>
@@ -31,9 +72,70 @@
     </dependency>
     
     <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-vfs</artifactId>
+      <version>2.0.1.GA</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-transaction-api</artifactId>
       <version>1.0.1.CR2</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+  
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>org/jboss/ejb3/api/test/signature/unit/SignatureUnitTestCase.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>signaturetest</id>
+      <activation>
+        <property>
+          <name>env.javax_ejb_jar_path</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>org/jboss/ejb3/api/test/signature/unit/SignatureUnitTestCase.java</include>
+              </includes>
+              <systemProperties>
+                <property>
+                  <name>javax.ejb.jar.path</name>
+                  <value>${env.javax_ejb_jar_path}</value>
+                </property>
+              </systemProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
