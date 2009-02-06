@@ -36,7 +36,6 @@ import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
 import org.jboss.ejb3.core.test.common.MockEjb3Deployment;
 import org.jboss.ejb3.core.test.regression.ejbthree1253.MyStateful;
 import org.jboss.ejb3.core.test.regression.ejbthree1253.MyStatefulBean;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.common.MetaDataHelper;
@@ -62,7 +61,6 @@ public class OverriddenProxyFactoryTestCase extends AbstractEJB3TestCase
       Hashtable<?,?> ctxProperties = null;
       Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       deployment.setPersistenceManagerFactoryRegistry(getBootstrap().lookup("EJB3PersistenceManagerFactoryRegistry", PersistenceManagerFactoryRegistry.class));
-      deployment.setRemoteProxyFactoryRegistry(getBootstrap().lookup("EJB3RemoteProxyFactoryRegistry", RemoteProxyFactoryRegistry.class));
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(MyStatefulBean.class);
       StatefulContainer container = new StatefulContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
       

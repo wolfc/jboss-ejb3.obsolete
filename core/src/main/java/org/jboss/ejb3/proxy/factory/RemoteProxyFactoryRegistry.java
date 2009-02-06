@@ -21,10 +21,6 @@
  */
 package org.jboss.ejb3.proxy.factory;
 
-import org.jboss.ejb3.remoting.LoadBalancePolicyNotRegisteredException;
-import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
-
-import java.util.Map;
 
 /**
  * Registry for all configured Remote Proxy Factory implementations
@@ -32,74 +28,18 @@ import java.util.Map;
  * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
  * @version $Revision: $
  */
+@Deprecated
 public class RemoteProxyFactoryRegistry
 {
-   // Instance Members
-   private Map<String, Class<? extends RemoteProxyFactory>> factories;
    
-   private Map<String, Class<LoadBalancePolicy>> loadBalancePolicies;
-  
-   // Accessors / Mutators
-
-   public Map<String, Class<? extends RemoteProxyFactory>> getFactories()
-   {
-      return factories;
-   }
-
-   public void setFactories(Map<String, Class<? extends RemoteProxyFactory>> factories)
-   {
-      this.factories = factories;
-   }
-   
-   public Map<String, Class<LoadBalancePolicy>> getLoadBalancePolicies()
-   {
-      return loadBalancePolicies;
-   }
-
-   public void setLoadBalancePolicies(Map<String, Class<LoadBalancePolicy>> loadBalancePolicies)
-   {
-      this.loadBalancePolicies = loadBalancePolicies;
-   }
-
-   // Functional Methods
-
-   /**
-    * Obtains the Proxy Factory Class with the specified registered name
+   /*
+    * EJBTHREE-1641
     * 
-    * @param name The registered name of the proxy factory to retrieve
-    * @return The Proxy Factory
+    * This is in place as a dummy class until this reference may be removed 
+    * safely from AS Ejb3Deployer.
+    * 
+    * ejb3-plugin must always be compatible with the last release of AS, 
+    * at time of this writing this is AS 5.0.0.GA.
     */
-   public Class<? extends RemoteProxyFactory> getProxyFactoryClass(String name) throws ProxyFactoryNotRegisteredException
-   {
-      // Obtain proxy factory
-      Class<? extends RemoteProxyFactory> proxyFactory = this.factories.get(name);
-
-      // Ensure registered
-      if (proxyFactory == null)
-      {
-         throw new ProxyFactoryNotRegisteredException("Remoting Proxy Factory with name " + name
-               + " is not registered.");
-      }
-      
-      // Return 
-      return proxyFactory;
-
-   }
    
-   public Class<LoadBalancePolicy> getLoadBalancePolicy(String name) throws LoadBalancePolicyNotRegisteredException
-   {
-      // Obtain Load Balance Policy
-      Class<LoadBalancePolicy> loadBalancePolicy = this.loadBalancePolicies.get(name);
-
-      // Ensure registered
-      if (loadBalancePolicy == null)
-      {
-         throw new LoadBalancePolicyNotRegisteredException("LoadBalancePolicy with name " + name
-               + " is not registered.");
-      }
-      
-      // Return 
-      return loadBalancePolicy;
-
-   }
 }

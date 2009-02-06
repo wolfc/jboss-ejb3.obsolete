@@ -24,10 +24,7 @@ package org.jboss.ejb3.session;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
@@ -36,10 +33,7 @@ import org.jboss.ejb3.annotation.defaults.RemoteBindingDefaults;
 import org.jboss.ejb3.annotation.impl.LocalBindingImpl;
 import org.jboss.ejb3.annotation.impl.RemoteBindingImpl;
 import org.jboss.ejb3.annotation.impl.RemoteBindingsImpl;
-import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
-import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
@@ -54,7 +48,6 @@ public class ProxyDeployer
 {
    private static final Logger log = Logger.getLogger(ProxyDeployer.class);
    private SessionContainer container;
-   private Map<Object, ProxyFactory> proxyFactories = new HashMap<Object, ProxyFactory>();
    private RemoteBindings remoteBindings;
    private LocalBinding localBinding;
 
@@ -96,51 +89,6 @@ public class ProxyDeployer
       }
    }
    
-   public Map<Object, ProxyFactory> getProxyFactories()
-   {
-      return proxyFactories;
-   }
-   
-   public ProxyFactory getProxyFactory(Object key)
-   {
-      return this.getProxyFactories().get(key);
-   }
-
-   public void start() throws Exception
-   {
-      if (remoteBindings != null)
-      {
-         RemoteBinding[] list = remoteBindings.value();
-         for(RemoteBinding binding : list)
-         {
-            assert binding.jndiBinding().length() != 0 : "jndiBinding not set on binding " + binding;
-            
-            RemoteProxyFactory factory;
-            String factoryImplementationRegistryKey = binding.factory();
-            if (factoryImplementationRegistryKey.equals(RemoteBindingDefaults.PROXY_FACTORY_DEFAULT))
-            {
-               //TODO Only used in @Service now, this whole class is @Deprecated
-               factory = ((ServiceContainer)container).getProxyFactoryForService(binding);
-            }
-            else
-            {
-               Class<? extends RemoteProxyFactory> remoteFactoryClass = container.getDeployment().getRemoteProxyFactoryRegistry().getProxyFactoryClass(binding.factory());
-               Constructor<? extends RemoteProxyFactory> constructor = getConstructor(remoteFactoryClass, container.getClass(), RemoteBinding.class);
-               factory = constructor.newInstance(container, binding);
-            }
-            factory.start();
-            proxyFactories.put(binding,factory);
-         }
-      }
-
-      if (localBinding != null)
-      {
-         ProxyFactory factory = container.getProxyFactory(localBinding);
-         factory.start();
-         proxyFactories.put(localBinding,factory);
-      }
-   }
-
    protected boolean hasJNDIBinding(String jndiName)
    {
       assert jndiName != null : "jndiName is null";
@@ -226,13 +174,4 @@ public class ProxyDeployer
       }
    }
 
-   public void stop() throws Exception
-   {
-      // Stop all proxy factories
-      Collection<ProxyFactory> proxyFactories = this.getProxyFactories().values();
-      for(ProxyFactory factory : proxyFactories)
-      {
-         factory.stop();
-      }
-   }
 }

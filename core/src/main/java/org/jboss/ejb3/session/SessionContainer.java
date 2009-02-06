@@ -48,7 +48,6 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.proxy.ClassProxy;
 import org.jboss.aop.util.MethodHashing;
-import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Module;
@@ -59,12 +58,11 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.ProxyUtils;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.remoting.IsLocalInterceptor;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -120,19 +118,43 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
       proxyDeployer = new ProxyDeployer(this);
    }
 
-   /**
-    * Create a local proxy factory.
-    * @return
-    */
-   protected abstract SessionProxyFactory getProxyFactory(LocalBinding binding);
+   protected SessionProxyFactory getProxyFactory(LocalBinding binding)
+   {
+      assert binding!=null : LocalBinding.class.getSimpleName() + " must be specified";
+      
+      // Get the Registry name
+      String proxyFactoryRegistryBindName = this.getJndiRegistrar().getProxyFactoryRegistryKey(binding.jndiBinding(), this.getMetaData(), true);
+      
+      // Return
+      return this.getProxyFactory(proxyFactoryRegistryBindName);
+   }
+   
+   protected SessionProxyFactory getProxyFactory(RemoteBinding binding)
+   {
+      assert binding!=null : RemoteBinding.class.getSimpleName() + " must be specified";
+      
+      // Get the Registry name
+      String proxyFactoryRegistryBindName = this.getJndiRegistrar().getProxyFactoryRegistryKey(binding.jndiBinding(), this.getMetaData(), true);
+      
+      // Return
+      return this.getProxyFactory(proxyFactoryRegistryBindName);
+   }
    
    /**
-    * Create a remote proxy factory on the given binding.
+    * Obtains the proxy factory bound at the specified registry name
     * 
-    * @param binding
+    * @param proxyFactoryRegistryBindName
     * @return
     */
-   protected abstract org.jboss.ejb3.proxy.factory.session.SessionProxyFactory getProxyFactory(RemoteBinding binding);
+   protected SessionProxyFactory getProxyFactory(String proxyFactoryRegistryBindName)
+   {
+      // Lookup
+      SessionProxyFactory factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryRegistryBindName,
+            SessionProxyFactory.class);
+
+      // Return
+      return factory;
+   }
    
    /**
     * Entry point for remoting-based invocations via InvokableContextClassProxyHack
@@ -584,7 +606,7 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
     * @deprecated Use "invoke" as defined by InvokableContext
     */
    @Deprecated
-   public Object invoke(SessionProxyFactory factory, Object id, Method method, Object args[], FutureHolder provider) throws Throwable
+   public Object invoke(SessionProxyFactory factory, Object id, Method method, Object args[]) throws Throwable
    {
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       pushEnc();
@@ -621,7 +643,6 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
          // allow a container to supplement information into an invocation
          nextInvocation = populateInvocation(nextInvocation);
 
-         ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
          return nextInvocation.invokeNext();
       }
       finally
@@ -640,7 +661,7 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
     */
    abstract public Serializable createSession(Class<?> initParameterTypes[], Object initParameterValues[]);
    
-   abstract public Object localInvoke(Object id, Method method, Object[] args, FutureHolder provider) throws Throwable;
+   abstract public Object localInvoke(Object id, Method method, Object[] args) throws Throwable;
    
    abstract public Object localHomeInvoke(Method method, Object[] args) throws Throwable;
    

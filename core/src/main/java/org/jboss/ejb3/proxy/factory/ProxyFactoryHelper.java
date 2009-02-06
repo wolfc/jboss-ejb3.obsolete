@@ -774,67 +774,67 @@ public class ProxyFactoryHelper
       return types;
    }
    
-   public static String getClientBindUrl(RemoteBinding binding) throws Exception
-   {
-      String clientBindUrl = binding.clientBindUrl();
-      if (clientBindUrl.trim().length() == 0)
-      {
-         if (binding.invokerName()!=null && binding.invokerName().trim().length() != 0)
-         {
-            try
-            {
-               ObjectName connectionON = new ObjectName(binding.invokerName());
-               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
-               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
-            }
-            catch (Exception e)
-            {
-               log.warn("Unable to find InvokerLocator " + binding.invokerName() + ". Using default. " + e);
-               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
-            }
-         }
-         else
-         {
-            try
-            {
-               ObjectName connectionON = new ObjectName("jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
-               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
-               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
-            }
-            catch (Exception e)
-            {
-               log.warn("Unable to find default InvokerLocator. Using default. " + e);
-               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
-            }
-         }
-      }
-      else if (clientBindUrl.indexOf("0.0.0.0") != -1)
-      {
-         KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
-         ObjectName query = new ObjectName("jboss.remoting:type=Connector,handler=ejb3,*");
-         Set mbeanSet = kernelAbstraction.getMBeans(query);
-         
-         URI targetUri = new URI(clientBindUrl);
-         Iterator mbeans = mbeanSet.iterator();
-         while (mbeans.hasNext())
-         {
-            ObjectInstance invokerInstance = (ObjectInstance)mbeans.next();
-            ObjectName invokerName = invokerInstance.getObjectName();
-            String invokerLocator = (String)kernelAbstraction.getAttribute(invokerName, "InvokerLocator");
-            URI uri = new URI(invokerLocator);
-          
-            if (uri.getScheme().equals(targetUri.getScheme()) && uri.getPort() == targetUri.getPort())
-            {
-               return invokerLocator;
-            }
-         }
-      }
-      
-      if (clientBindUrl == null)
-         clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
-      
-      return clientBindUrl;
-   }
+//   public static String getClientBindUrl(RemoteBinding binding) throws Exception
+//   {
+//      String clientBindUrl = binding.clientBindUrl();
+//      if (clientBindUrl.trim().length() == 0)
+//      {
+//         if (binding.invokerName()!=null && binding.invokerName().trim().length() != 0)
+//         {
+//            try
+//            {
+//               ObjectName connectionON = new ObjectName(binding.invokerName());
+//               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+//               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
+//            }
+//            catch (Exception e)
+//            {
+//               log.warn("Unable to find InvokerLocator " + binding.invokerName() + ". Using default. " + e);
+//               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+//            }
+//         }
+//         else
+//         {
+//            try
+//            {
+//               ObjectName connectionON = new ObjectName("jboss.remoting:type=Connector,name=DefaultEjb3Connector,handler=ejb3");
+//               KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+//               clientBindUrl = (String)kernelAbstraction.getAttribute(connectionON, "InvokerLocator");
+//            }
+//            catch (Exception e)
+//            {
+//               log.warn("Unable to find default InvokerLocator. Using default. " + e);
+//               clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+//            }
+//         }
+//      }
+//      else if (clientBindUrl.indexOf("0.0.0.0") != -1)
+//      {
+//         KernelAbstraction kernelAbstraction = KernelAbstractionFactory.getInstance();
+//         ObjectName query = new ObjectName("jboss.remoting:type=Connector,handler=ejb3,*");
+//         Set mbeanSet = kernelAbstraction.getMBeans(query);
+//         
+//         URI targetUri = new URI(clientBindUrl);
+//         Iterator mbeans = mbeanSet.iterator();
+//         while (mbeans.hasNext())
+//         {
+//            ObjectInstance invokerInstance = (ObjectInstance)mbeans.next();
+//            ObjectName invokerName = invokerInstance.getObjectName();
+//            String invokerLocator = (String)kernelAbstraction.getAttribute(invokerName, "InvokerLocator");
+//            URI uri = new URI(invokerLocator);
+//          
+//            if (uri.getScheme().equals(targetUri.getScheme()) && uri.getPort() == targetUri.getPort())
+//            {
+//               return invokerLocator;
+//            }
+//         }
+//      }
+//      
+//      if (clientBindUrl == null)
+//         clientBindUrl = RemoteProxyFactory.DEFAULT_CLIENT_BINDING;
+//      
+//      return clientBindUrl;
+//   }
    
    /**
     * Create a Proxy Constructor for the specified interfaces, using the specified CL

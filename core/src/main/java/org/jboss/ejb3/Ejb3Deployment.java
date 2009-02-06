@@ -121,7 +121,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    private MessageDestinationReferenceResolver messageDestinationReferenceResolver = new DefaultMessageDestinationReferenceResolver();
    
    protected CacheFactoryRegistry cacheFactoryRegistry;
-   protected RemoteProxyFactoryRegistry remoteProxyFactoryRegistry;
    protected PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry;
    protected PoolFactoryRegistry poolFactoryRegistry;
    
@@ -207,13 +206,17 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       this.cacheFactoryRegistry = registry;
    }
 
+   @Deprecated
    public RemoteProxyFactoryRegistry getRemoteProxyFactoryRegistry()
    {
-      return remoteProxyFactoryRegistry;
+      log.warn("[EJBTHREE-1641] NoOp getRemoteProxyFactoryRegistry; developers may ignore this message; it will be removed when backwards-compatibility between EJB3 and AS is resolved");
+      return null;
    }
+   
+   @Deprecated
    public void setRemoteProxyFactoryRegistry(RemoteProxyFactoryRegistry registry)
    {
-      this.remoteProxyFactoryRegistry = registry;
+      log.warn("[EJBTHREE-1641] NoOp setRemoteProxyFactoryRegistry; developers may ignore this message; it will be removed when backwards-compatibility between EJB3 and AS is resolved");
    }
 
    public PersistenceManagerFactoryRegistry getPersistenceManagerFactoryRegistry()

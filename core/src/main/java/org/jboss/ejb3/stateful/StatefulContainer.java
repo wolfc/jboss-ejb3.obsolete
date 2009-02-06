@@ -50,10 +50,8 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
-import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
@@ -65,19 +63,12 @@ import org.jboss.ejb3.cache.Ejb3CacheFactory;
 import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
-import org.jboss.ejb3.proxy.ProxyUtils;
-import org.jboss.ejb3.proxy.clustered.factory.session.stateful.StatefulSessionClusteredProxyFactory;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
-import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateful.StatefulLocalProxyFactory;
-import org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.impl.HomeHandleImpl;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
@@ -92,6 +83,7 @@ import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -158,108 +150,28 @@ public class StatefulContainer extends SessionSpecContainer
       return new StatefulBeanContext(this, construct());
    }
    
-   @Override
-   protected StatefulLocalProxyFactory getProxyFactory(LocalBinding binding)
+   public Object createProxyLocalEjb21(Object id, LocalBinding binding) throws Exception
    {
-      StatefulLocalProxyFactory factory = (StatefulLocalProxyFactory) this.proxyDeployer.getProxyFactory(binding);
-
-      if (factory == null)
-      {
-         factory = new StatefulLocalProxyFactory(this, binding);
-
-         try
-         {
-            factory.init();
-         }
-         catch (Exception e)
-         {
-            throw new RuntimeException(e);
-         }
-      }
-      
-      return factory;
-   }
-   
-   public Object createProxyLocalEjb21(Object id, LocalBinding binding, String businessInterfaceType) throws Exception
-   {
-      StatefulLocalProxyFactory proxyFactory = this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb21(id,businessInterfaceType);
-   }
-   
-   public Object createProxyRemoteEjb21(Object id, String businessInterfaceType) throws Exception
-   {
-      RemoteBinding binding = this.getRemoteBinding();
-      return this.createProxyRemoteEjb21(id,binding, businessInterfaceType);
-   }
-
-   public Object createProxyRemoteEjb21(Object id, RemoteBinding binding, String businessInterfaceType) throws Exception
-   { 
-      StatefulSessionProxyFactory proxyFactory = this.getProxyFactory(binding);
+      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory)this.getProxyFactory(binding);
       return proxyFactory.createProxyEjb2x((Serializable)id);
    }
    
-   public Object createProxyLocalEjb21(Object id, String businessInterfaceType) throws Exception
+   public Object createProxyRemoteEjb21(Object id) throws Exception
+   {
+      RemoteBinding binding = this.getRemoteBinding();
+      return this.createProxyRemoteEjb21(id,binding);
+   }
+
+   public Object createProxyRemoteEjb21(Object id, RemoteBinding binding) throws Exception
+   { 
+      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory)this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb2x((Serializable)id);
+   }
+   
+   public Object createProxyLocalEjb21(Object id) throws Exception
    {
       LocalBinding binding = this.getAnnotation(LocalBinding.class);
-      return this.createProxyLocalEjb21(id,binding, businessInterfaceType);
-   }
-   
-   @Override
-   public Object createProxyLocalEjb21(LocalBinding binding, String businessInterfaceType) throws Exception
-   {
-      Object id = this.createSession();
-      return this.createProxyLocalEjb21(id,binding, businessInterfaceType);
-   }
-
-   @Override
-   public Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception
-   {
-      Object id = this.createSession();
-      return this.createProxyRemoteEjb21(id, binding, businessInterfaceType);
-   }
-   
-   @Override
-   protected StatefulSessionProxyFactory getProxyFactory(RemoteBinding binding)
-   {
-      //TODO Should be obtained from JNDI Registrar, needs to be looked up by a @RemoteBinding key
-
-      /*
-       * In this implementation we just make a new Proxy Factory, for now
-       */
-
-      // Initialize
-      StatefulSessionProxyFactory factory = null;
-
-      // If Clustered
-      if (this.isAnnotationPresent(Clustered.class))
-      {
-         // Get the Proxy Clustering Registry
-         Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
-         String mcName = ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_PROXY_CLUSTERING_REGISTRY;
-         ProxyClusteringRegistry registry = (ProxyClusteringRegistry) registrar.lookup(mcName);
-         assert registry != null : "Could not find " + ProxyClusteringRegistry.class.getSimpleName() + " in the "
-               + Ejb3Registrar.class.getSimpleName() + " under name " + mcName;
-         factory = new StatefulSessionClusteredProxyFactory(this.getName(), this.getName(), Ejb3Registry.guid(this),
-               this.getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor(), registry, null);
-      }
-      else
-      {
-         factory = new StatefulSessionRemoteProxyFactory(this.getName(), this.getName(), Ejb3Registry.guid(this), this
-               .getMetaData(), this.getClassloader(), binding.clientBindUrl(), this.getAdvisor(), null);
-      }
-
-      // Start the Factory
-      try
-      {
-         factory.start();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Could not start " + factory, e);
-      }
-
-      // Return
-      return factory;
+      return this.createProxyLocalEjb21(id,binding);
    }
    
    public void destroy(StatefulBeanContext ctx)
@@ -364,15 +276,6 @@ public class StatefulContainer extends SessionSpecContainer
    }
 
    /**
-    * Performs a synchronous local invocation
-    */
-   public Object localInvoke(Object id, Method method, Object[] args)
-           throws Throwable
-   {
-      return localInvoke(id, method, args, null);
-   }
-
-   /**
     * Performs a synchronous or asynchronous local invocation
     *
     */
@@ -404,8 +307,7 @@ public class StatefulContainer extends SessionSpecContainer
     *
     * @param provider If null a synchronous invocation, otherwise an asynchronous
     */
-   public Object localInvoke(Object id, Method method, Object[] args,
-         FutureHolder provider) throws Throwable
+   public Object localInvoke(Object id, Method method, Object[] args) throws Throwable
    {
       long start = System.currentTimeMillis();
 
@@ -445,8 +347,6 @@ public class StatefulContainer extends SessionSpecContainer
             //nextInvocation.setSessionId(id);
             nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
-            
-            ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
             
             //invokedMethod.push(invoked);
             return nextInvocation.invokeNext();
@@ -957,39 +857,40 @@ public class StatefulContainer extends SessionSpecContainer
    private Object invokeLocalHomeMethod(MethodInfo info, Object[] args)
            throws Exception
    {
-      Method unadvisedMethod = info.getUnadvisedMethod();
-      if (unadvisedMethod.getName().startsWith("create"))
-      {
-         Class<?>[] initParameterTypes =
-                 {};
-         Object[] initParameterValues =
-                 {};
-         if (unadvisedMethod.getParameterTypes().length > 0)
-         {
-            initParameterTypes = unadvisedMethod.getParameterTypes();
-            initParameterValues = args;
-         }
-
-         LocalBinding binding = this.getAnnotation(LocalBinding.class);
-
-         StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
-         factory.init();
-
-         Object proxy = factory.createProxyEjb21(initParameterTypes,
-                 initParameterValues, unadvisedMethod.getReturnType().getName());
-
-         return proxy;
-      }
-      else if (unadvisedMethod.getName().equals("remove"))
-      {
-         remove(args[0]);
-
-         return null;
-      }
-      else
-      {
-         return null;
-      }
+      throw new NotImplementedException("EJBTHREE-1641");
+//      Method unadvisedMethod = info.getUnadvisedMethod();
+//      if (unadvisedMethod.getName().startsWith("create"))
+//      {
+//         Class<?>[] initParameterTypes =
+//                 {};
+//         Object[] initParameterValues =
+//                 {};
+//         if (unadvisedMethod.getParameterTypes().length > 0)
+//         {
+//            initParameterTypes = unadvisedMethod.getParameterTypes();
+//            initParameterValues = args;
+//         }
+//
+//         LocalBinding binding = this.getAnnotation(LocalBinding.class);
+//
+//         StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
+//         factory.init();
+//
+//         Object proxy = factory.createProxyEjb21(initParameterTypes,
+//                 initParameterValues, unadvisedMethod.getReturnType().getName());
+//
+//         return proxy;
+//      }
+//      else if (unadvisedMethod.getName().equals("remove"))
+//      {
+//         remove(args[0]);
+//
+//         return null;
+//      }
+//      else
+//      {
+//         return null;
+//      }
    }
    
    public Object createLocalProxy(Object id) throws Exception
@@ -999,21 +900,23 @@ public class StatefulContainer extends SessionSpecContainer
    
    public Object createLocalProxy(Object id, LocalBinding binding) throws Exception
    {
-      StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
-      factory.init();
-
-      return factory.createProxyBusiness(id);
+      throw new NotImplementedException("EJBTHREE-1641");
+//      StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
+//      factory.init();
+//
+//      return factory.createProxyBusiness(id);
    }
    
    public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
    {
-      StatefulRemoteProxyFactory factory = new StatefulRemoteProxyFactory(this, binding);
-      factory.init();
-
-      if (id != null)
-         return factory.createProxyBusiness(id,null);
-      else
-         return factory.createProxyBusiness();
+      throw new NotImplementedException("EJBTHREE-1641");
+//      StatefulRemoteProxyFactory factory = new StatefulRemoteProxyFactory(this, binding);
+//      factory.init();
+//
+//      if (id != null)
+//         return factory.createProxyBusiness(id,null);
+//      else
+//         return factory.createProxyBusiness();
    }
    
    public boolean isClustered()
