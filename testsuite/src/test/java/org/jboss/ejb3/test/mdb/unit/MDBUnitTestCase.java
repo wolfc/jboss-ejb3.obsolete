@@ -50,6 +50,8 @@ import org.jboss.ejb3.KernelAbstractionFactory;
 import org.jboss.ejb3.test.mdb.Stateless;
 import org.jboss.ejb3.test.mdb.TestStatus;
 import org.jboss.logging.Logger;
+import org.jboss.security.SecurityAssociation;
+import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
@@ -355,6 +357,64 @@ public class MDBUnitTestCase extends JBossTestCase
 
       Thread.sleep(2000);
       assertEquals(1, status.cmtQueueRan());
+   }
+
+   /**
+    * Test that expired messages are moved to a separate queue.
+    */
+   public void testExpiredMessagesMove() throws Exception
+   {
+      QueueConnection connection = null;
+      QueueSender sender = null;
+      QueueSession session = null;
+
+      QueueConnectionFactory factory = getQueueConnectionFactory();
+      connection = factory.createQueueConnection();
+      connection.start();
+      session = connection.createQueueSession(false,
+            QueueSession.AUTO_ACKNOWLEDGE);
+
+      Queue queue = (Queue) getInitialContext().lookup("queue/expirytest");
+      sender = session.createSender(queue);
+
+      Queue dlq = (Queue) getInitialContext().lookup("queue/DLQ");
+
+      removeAllMessagesFromDLQ();
+
+      long now = System.currentTimeMillis();
+
+      TextMessage message = session.createTextMessage();
+      message.setStringProperty("foo", "bar");
+      message.setStringProperty("null", null);
+      String text = "expire on server";
+      message.setText(text);
+      
+      sender.send(message, DeliveryMode.NON_PERSISTENT, 4, 1);
+
+      Thread.sleep(1000 * 5);
+
+      assertSize(session, queue, 0);
+      
+      /* TODO: await implementation of JBMESSAGING-126
+      assertSize(session, dlq, 1);
+
+      QueueReceiver receiver = session.createReceiver(dlq);
+      message = (TextMessage) receiver.receiveNoWait();
+      assertNotNull(message);
+      assertEquals("QUEUE.expirytest", message
+            .getStringProperty("JBOSS_ORIG_DESTINATION"));
+      assertTrue(message.getLongProperty("JBOSS_ORIG_EXPIRATION") > now);
+      assertEquals(0L, message.getJMSExpiration());
+      assertEquals(text, message.getText());
+      assertEquals("bar", message.getStringProperty("foo"));
+      assertNull(message.getStringProperty("null"));
+      
+      receiver.close();
+       */
+      sender.close();
+      
+      session.close();
+      connection.close();
    }
 
    public void testDlqMaxResent() throws Exception

@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 import org.jboss.util.xml.JBossEntityResolver;
+import org.w3c.dom.Document;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
 
@@ -183,6 +184,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/securitydomain/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/service/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servicexmbean/META-INF/jboss.xml", builder);
+      validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/servlet/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/ssladvanced/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/stateful/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/strictpool/META-INF/jboss.xml", builder);

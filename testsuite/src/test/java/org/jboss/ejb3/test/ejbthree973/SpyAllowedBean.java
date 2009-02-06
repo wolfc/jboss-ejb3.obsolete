@@ -21,11 +21,9 @@
  */
 package org.jboss.ejb3.test.ejbthree973;
 
-import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -42,9 +40,6 @@ import org.jboss.ejb3.annotation.SecurityDomain;
 @RolesAllowed("Spy")
 public class SpyAllowedBean implements SpyMe
 {
-   @Resource
-   private SessionContext ctx;
-   
    @EJB(beanName="WhoAmIBean")
    private WhoAmI whoAmIBean;
    
@@ -56,16 +51,7 @@ public class SpyAllowedBean implements SpyMe
    @RolesAllowed("nobody")
    public void notAllowed()
    {
-      String me;
-      try
-      {
-         me = ctx.getCallerPrincipal().getName();
-      }
-      catch(Exception e)
-      {
-         me = "<error: " + e.getMessage() + ">";
-      }
-      throw new RuntimeException(me + " should not come here");
+      throw new RuntimeException("should not come here");
    }
 
 }

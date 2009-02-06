@@ -24,6 +24,7 @@ package org.jboss.ejb3.test.ejbthree1624;
 import javax.ejb.Remote;
 
 import org.jboss.ejb3.annotation.Service;
+import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;

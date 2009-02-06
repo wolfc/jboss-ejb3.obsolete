@@ -21,19 +21,13 @@
  */
 package org.jboss.ejb3.test.invoker.unit;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Properties;
-
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
 
 import org.jboss.ejb3.test.invoker.StatelessRemote;
 import org.jboss.logging.Logger;
-import org.jboss.remoting.transport.http.WebServerError;
 import org.jboss.test.JBossTestCase;
+import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -47,43 +41,23 @@ public class InvokerTestCase extends JBossTestCase
    {
       super(name);
    }
-
+ 
    public void testHttp() throws Exception
    {
       Properties props = new Properties();
-      props.put("java.naming.factory.initial", "org.jboss.naming.HttpNamingContextFactory");
+      props.put("java.naming.factory.initial", "org.jboss.naming.HttpNamingContextFactory"); 
       props.put("java.naming.provider.url", "http://localhost:8080/invoker/JNDIFactory");
       props.put("java.naming.factory.url.pkgs", "org.jboss.naming");
       InitialContext jndiContext = new InitialContext(props);
       //InitialContext jndiContext = new InitialContext();
-
-      StatelessRemote stateless = null;
-      try
-      {
-         stateless = (StatelessRemote) jndiContext.lookup("StatelessHttp");
-      }
-      catch (NamingException ne)
-      {
-         Throwable namingCause = ne.getCause();
-         if (namingCause != null && namingCause instanceof UndeclaredThrowableException)
-         {
-            Throwable undeclaredCause = namingCause.getCause();
-            if (undeclaredCause != null && undeclaredCause instanceof WebServerError)
-            {
-               String error = "Test failed due to problem w/ remoting transport";
-               log.error(error + " :" + undeclaredCause);
-               TestCase.fail(error);
-            }
-         }
-      }
+      
+      StatelessRemote stateless = (StatelessRemote)jndiContext.lookup("StatelessHttp");
       assertNotNull(stateless);
-
-      try
+      
+      try 
       {
-         assertEquals("echo", stateless.echo("echo"));
-      }
-      catch (Exception e)
-      {
+      assertEquals("echo", stateless.echo("echo"));
+      } catch (Exception e){
          e.printStackTrace();
       }
    }

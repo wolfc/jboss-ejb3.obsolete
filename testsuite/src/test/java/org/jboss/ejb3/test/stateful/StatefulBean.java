@@ -59,7 +59,7 @@ import org.jboss.serial.io.JBossObjectOutputStream;
 @RemoteBinding(jndiBinding = "Stateful",
                interceptorStack="RemoteBindingStatefulSessionClientInterceptors",
                factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
-@CacheConfig(maxSize = 1000, idleTimeoutSeconds = 5)
+@CacheConfig(maxSize = 1000, idleTimeoutSeconds = 1)
 @SecurityDomain("test")
 @Resources({@Resource(name="jdbc/ds", mappedName="java:/DefaultDS")})
 public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful

@@ -28,6 +28,7 @@ import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.naming.Context;
 
 import junit.framework.Test;
 
@@ -37,6 +38,8 @@ import org.jboss.ejb3.test.service.ServiceSixRemote;
 import org.jboss.ejb3.test.service.ServiceTwoRemote;
 import org.jboss.ejb3.test.service.SessionRemote;
 import org.jboss.logging.Logger;
+import org.jboss.security.SecurityAssociation;
+import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
@@ -81,12 +84,11 @@ extends JBossTestCase
    
    public void testSecurityDomain() throws Exception
    {
-      SecurityClient client = SecurityClientFactory.getSecurityClient();
-      client.setSimple("invalid", "invalid");
-      client.login();
-      
       try
       {
+         SecurityClient client = SecurityClientFactory.getSecurityClient();
+         client.logout();
+         
          ServiceOneRemote test = (ServiceOneRemote) getInitialContext().lookup("ServiceOne/remote");
          test.testEjbInjection();
          fail("Should have thrown EJBAccessException");
@@ -94,10 +96,6 @@ extends JBossTestCase
       catch (javax.ejb.EJBAccessException e)
       {
          
-      }
-      finally
-      {
-         client.logout();
       }
    }
 

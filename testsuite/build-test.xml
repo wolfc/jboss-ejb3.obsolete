@@ -270,11 +270,6 @@
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
    </server>
-  	
-    <!-- ejbthree1671 -->
-    <server name="ejbthree1671" host="${node0}">
-      <jvmarg value="${ejb3.jboss.jvmargs}" />
-    </server>
 
   </server:config>
 
@@ -389,9 +384,6 @@
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
-    
-    <!-- Resources required on the client CP -->
-    <pathelement location="${location.target}/tests-classes/" />
 
     <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
     <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
@@ -1534,8 +1526,6 @@
 	<jar jarfile="${build.lib}/multideploy.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/reference21_30/Test2*.class"/>
-            <include name="org/jboss/ejb3/test/reference21_30/Test3Business.class"/>
-            <include name="org/jboss/ejb3/test/reference21_30/Test3Home.class"/>
          </fileset>
          <fileset dir="${resources}/test/reference21_30">
             <include name="META-INF/ejb-jar.xml"/>
@@ -2412,17 +2402,9 @@
       <build-simple-jar name="ejbthree1504"/>
    </target>  
 	
-   <target name="ejbthree1530">
-      <build-simple-jar name="ejbthree1530"/>
-   </target> 
-	
    <target name="ejbthree1624">
       <build-simple-jar name="ejbthree1624"/>
    </target>
-	
-	 <target name="ejbthree1647">
-	    <build-simple-jar name="ejbthree1647"/>
-	 </target>
 	
    <target name="jbas4489"
       description="Builds a simple jar files."
@@ -2489,10 +2471,6 @@
       <jar jarfile="${build.lib}/sf-clientejb.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/regression/scopedclassloader/Client*.class"/>
-            <include name="org/jboss/ejb3/test/regression/scopedclassloader/StatelessRemote.class"/>
-            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ValueObject.class"/>
-            <include name="org/jboss/ejb3/test/regression/scopedclassloader/Customer.class"/>
-            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ScopedException.class"/>
          </fileset>
       </jar>
 
@@ -4193,31 +4171,6 @@
          </fileset>
       </jar>
    </target>
-	
-	
-	<target name="ejbthree1671"
-	      description="Builds the ear and jar file(s) needed for testing EJBTHREE-1671."
-	      >
-
-	    <mkdir dir="${build.lib}"/>
-		<!--  First build the jar file containing the EJBs -->
-		<jar jarfile="${build.lib}/ejbthree1671.jar">
-	         <fileset dir="${build.classes}">
-	            <include name="org/jboss/ejb3/test/ejbthree1671/*.class"/>
-	         </fileset>
-		</jar>
-		<!--  Now build the EAR and include the EJB jar and the application.xml and jboss-app.xml -->
-		<jar jarfile="${build.lib}/ejbthree1671.ear">
-         	<fileset dir="${build.lib}">
-            	<include name="ejbthree1671.jar"/>
-         	</fileset>
-         	<fileset dir="${resources}/test/ejbthree1671">
-            	<include name="META-INF/application.xml"/>
-            	<include name="META-INF/jboss-app.xml"/>
-         		
-         	</fileset>
-      </jar>
-	</target>
    
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
@@ -4237,7 +4190,7 @@
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
-      ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,
+      ejbthree1504, ejbthree1624,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
@@ -4246,7 +4199,7 @@
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
-      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671"/>
+      statelesscreation, changexml, externalrefscoped, singleton"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
@@ -4513,7 +4466,15 @@
 
          <formatter type="plain" usefile="true"/>
          <formatter type="xml" usefile="true"/>
-         <test name="${test}" todir="${build.reports}"/>
+         <batchtest todir="${build.reports}"
+                       haltonerror="false"
+                       haltonfailure="false"
+                       fork="true">
+
+                       <fileset dir="${build.classes}">
+                          <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
+                       </fileset>
+                    </batchtest>
       </junit>
    </target>
 
@@ -5043,15 +5004,9 @@
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1339"/>
       </antcall>
-   	  <antcall target="test" inheritRefs="true">
-   	     <param name="test" value="ejbthree1530"/>
-      </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1624"/>
       </antcall>
-   	  <antcall target="test" inheritRefs="true">
-         <param name="test" value="ejbthree1647"/>
-   	  </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="statelesscreation"/>
       </antcall>

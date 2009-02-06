@@ -22,7 +22,6 @@
 package org.jboss.ejb3.test.ejbthree973.unit;
 
 import javax.ejb.EJBAccessException;
-import javax.ejb.EJBTransactionRolledbackException;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageConsumer;
 import javax.jms.Queue;
@@ -131,13 +130,6 @@ public class AnonymousCallerPrincipalTestCase extends JBossTestCase
       catch(EJBAccessException e)
       {
          // this is good
-      }
-      catch(EJBTransactionRolledbackException e)
-      {
-         Throwable t = e.getCause();
-         if(t != null && t instanceof RuntimeException)
-            fail(t.getMessage());
-         throw e;
       }
       
       String actual = bean.getCallerPrincipal();

@@ -226,7 +226,7 @@ public abstract class Ejb3ServiceLocator implements ServiceLocator
     * @param interfaze
     * @param obj
     */
-   private <T> void addInterfaceAndSuperinterfacesToCache(Class<T> interfaze, T obj)
+   private void addInterfaceAndSuperinterfacesToCache(Class<?> interfaze, Object obj)
    {
       // Ensure not already cached, escape
       if (!this.isObjectCached(interfaze))
@@ -237,7 +237,7 @@ public abstract class Ejb3ServiceLocator implements ServiceLocator
       }
 
       // Add all super interfaces recursively
-      for (Class<T> superInterface : interfaze.getInterfaces())
+      for (Class<?> superInterface : interfaze.getInterfaces())
       {
          this.addInterfaceAndSuperinterfacesToCache(superInterface, obj);
       }

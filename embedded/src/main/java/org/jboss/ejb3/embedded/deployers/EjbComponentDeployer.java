@@ -37,6 +37,7 @@ import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.javaee.SimpleJavaEEModule;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
+import org.jboss.metadata.plugins.scope.InstanceScope;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -95,6 +96,8 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       }
       
       BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(componentName, component.getClass().getName());
+      // TODO: refactor the registrar
+      //builder.addAnnotation("@" + InstanceScope.class.getName() + "(\"" + componentName + "\")");
       builder.setConstructorValue(component);
       addDependencies(builder, unit, component);
       

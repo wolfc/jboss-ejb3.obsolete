@@ -21,21 +21,8 @@
  */
 package org.jboss.ejb3.test.persistenceunits.unit;
 
-import java.io.IOException;
 import java.util.Map;
 
-import javax.management.Attribute;
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanException;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import junit.extensions.TestSetup;
 import junit.framework.Test;
 
 import org.jboss.deployers.client.spi.IncompleteDeploymentException;
@@ -44,7 +31,6 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.test.persistenceunits.Entity1;
 import org.jboss.ejb3.test.persistenceunits.Entity2;
 import org.jboss.ejb3.test.persistenceunits.EntityTest;
-import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
 
@@ -104,53 +90,13 @@ public class MultipleEarTestCase extends JBossTestCase
          assertEquals("only persistenceunitscope-test2.ear should have failed", 1, deploymentsInError.size());
          Map.Entry<String, Throwable> entry = deploymentsInError.entrySet().iterator().next();
          assertTrue(entry.getKey().endsWith("persistenceunitscope-test2.ear"));
-
-         // Check that it's Entity1 PU that cannot be resolved 
-         String message = entry.getValue().getMessage();
-         assertTrue(message.contains(PersistenceUnitHandler.ERROR_MESSAGE_FAILED_TO_RESOVLE_PU));
-         assertTrue(message.contains("Entity1"));
+         assertTrue(entry.getValue().getMessage().contains("Can't find a persistence unit named 'Entity1'"));
       }
    }
 
    public static Test suite() throws Exception
    {
-      Test test = getDeploySetup(MultipleEarTestCase.class, "persistenceunitscope-test1.ear, persistenceunitscope-test2.ear");
-      TestSetup setup = new TestSetup(test) {
-         private ObjectName on = new ObjectName("jboss.pojo:name='PersistenceUnitDependencyResolver'");
-         
-         private boolean previousSetting = false;
-         
-         private Object getAttribute(ObjectName on, String name) throws AttributeNotFoundException, InstanceNotFoundException, MBeanException, ReflectionException, IOException, Exception
-         {
-            return getServer().getAttribute(on, name);
-         }
-         
-         // TODO: should come from JBossTestServices
-         private MBeanServerConnection getServer() throws NamingException
-         {
-            String adaptorName = System.getProperty("jbosstest.server.name", "jmx/invoker/RMIAdaptor");
-            return (MBeanServerConnection) new InitialContext().lookup(adaptorName);
-         }
-         
-         private void setAttribute(ObjectName on, String name, Object value) throws InstanceNotFoundException, AttributeNotFoundException, InvalidAttributeValueException, MBeanException, ReflectionException, IOException, Exception
-         {
-            getServer().setAttribute(on, new Attribute(name, value));
-         }
-         
-         @Override
-         protected void setUp() throws Exception
-         {
-            previousSetting = (Boolean) getAttribute(on, "SpecCompliant");
-            setAttribute(on, "SpecCompliant", true);
-         }
-         
-         @Override
-         protected void tearDown() throws Exception
-         {
-            setAttribute(on, "SpecCompliant", previousSetting);
-         }
-      };
-      return setup;
+      return getDeploySetup(MultipleEarTestCase.class, "persistenceunitscope-test1.ear, persistenceunitscope-test2.ear");
    }
 
 }

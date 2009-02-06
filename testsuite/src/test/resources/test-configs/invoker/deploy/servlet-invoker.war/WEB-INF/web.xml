@@ -14,17 +14,11 @@ $Id: web.xml,v 1.1 2005/06/16 21:12:48 telrod Exp $
            ServletServerInvoker for processing.
         </description>
         <servlet-class>org.jboss.remoting.transport.servlet.web.ServerInvokerServlet</servlet-class>
-        <!--init-param>
+        <init-param>
             <param-name>invokerName</param-name>
             <param-value>jboss.remoting:service=invoker,transport=servlet</param-value>
             <description>The servlet server invoker</description>
-        </init-param-->
-        <init-param>
-            <param-name>locatorUrl</param-name>
-            <param-value>servlet://${jboss.bind.address}:8080/servlet-invoker/ServerInvokerServlet</param-value>
-            <description>The servlet server invoker</description>
         </init-param>
-
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>

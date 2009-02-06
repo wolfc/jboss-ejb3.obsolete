@@ -58,6 +58,9 @@
     <!-- module>sandbox</module -->
     <module>security</module>
     <module>test</module>
+    <module>timerservice-as5</module>
+    <module>timerservice-quartz</module>
+    <module>timerservice-spi</module>
     <module>transactions</module>
   </modules>
 
