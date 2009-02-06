@@ -1,6 +1,6 @@
 <projectDescription>
   <name>jboss-ejb3-async</name>
-  <comment>The Java EJB3 Asynchronous Aspects</comment>
+  <comment>Support for EJB 3.1 @Asynchronous</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
