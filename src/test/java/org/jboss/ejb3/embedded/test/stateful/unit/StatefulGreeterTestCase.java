@@ -31,10 +31,6 @@ import javax.ejb.EJBContainer;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jboss.dependency.plugins.graph.Search;
-import org.jboss.dependency.spi.ControllerState;
-import org.jboss.dependency.spi.graph.GraphController;
-import org.jboss.ejb3.embedded.JBossEJBContainer;
 import org.jboss.ejb3.embedded.test.stateful.StatefulGreeter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -74,8 +70,6 @@ public class StatefulGreeterTestCase
    @Test
    public void test1() throws NamingException
    {
-      Object bean = GraphController.class.cast(JBossEJBContainer.getKernel().getController()).getContext("jboss.j2ee:jar=tests-classes,name=StatefulGreeterBean,service=EJB3", ControllerState.INSTALLED, Search.WIDTH);
-      System.out.println(bean);
       InitialContext ctx = new InitialContext();
       StatefulGreeter greeter = (StatefulGreeter) ctx.lookup("StatefulGreeterBean/local");
       String now = new Date().toString();
