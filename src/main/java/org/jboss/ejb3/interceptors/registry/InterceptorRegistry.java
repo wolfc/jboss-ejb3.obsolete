@@ -79,8 +79,7 @@ public class InterceptorRegistry
       // such that they make the Map of MethodHashes, and these then get improperly placed in the
       // Joinpoint Map, which ends up here...
       //assert methodApplicableInterceptorClasses != null : "applicable interceptors is non-existent for " + method;
-      if(methodApplicableInterceptorClasses == null)
-         log.warn("applicable interceptors is non-existent for " + method);
+      log.warn("applicable interceptors is non-existent for " + method);
       return methodApplicableInterceptorClasses;
    }
    
