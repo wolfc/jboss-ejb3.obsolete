@@ -34,7 +34,7 @@ import org.jboss.aspects.remoting.Remoting;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.annotation.MessageProperties;
 import org.jboss.ejb3.proxy.ProxyFactory;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
+import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.util.naming.Util;
 
 /**
@@ -83,7 +83,7 @@ public class RemoteProducerFactory extends ProducerFactory
    {
       super.start();
       Class[] interfaces = {ProxyFactory.class};
-      Object factoryProxy = Remoting.createPojiProxy(jndiName + PROXY_FACTORY_NAME, interfaces, RemoteProxyFactory.DEFAULT_CLIENT_BINDING);
+      Object factoryProxy = Remoting.createPojiProxy(jndiName + PROXY_FACTORY_NAME, interfaces, ProxyRemotingUtils.getDefaultClientBinding());
       try
       {
          Util.rebind(ctx, jndiName + PROXY_FACTORY_NAME, factoryProxy);

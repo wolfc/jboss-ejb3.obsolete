@@ -38,8 +38,8 @@ import org.jboss.ejb3.annotation.MessageProperties;
 import org.jboss.ejb3.annotation.Producer;
 import org.jboss.ejb3.annotation.Producers;
 import org.jboss.ejb3.annotation.impl.ProducerImpl;
-import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.ejb3.proxy.JndiSessionProxyObjectFactory;
+import org.jboss.ejb3.proxy.ProxyFactory;
 import org.jboss.logging.Logger;
 import org.jboss.util.naming.Util;
 

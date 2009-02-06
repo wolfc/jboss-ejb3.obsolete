@@ -51,26 +51,19 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
-import org.jboss.aop.util.PayloadKey;
-import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.Service;
-import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.service.ServiceRemoteProxyFactory;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -158,52 +151,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    public BeanContext<?> createBeanContext()
    {
       return new ServiceBeanContext(this, singleton);
-   }
-
-   @Override
-   @Deprecated
-   protected org.jboss.ejb3.proxy.factory.SessionProxyFactory getProxyFactory(LocalBinding binding)
-   {
-     throw new NotImplementedException("@Service container is using old Proxy mechanism");
-   }
-
-   @Override
-   protected SessionProxyFactory getProxyFactory(RemoteBinding binding)
-   {
-      //TODO Should be obtained from JNDI Registrar, needs to be looked up by a @RemoteBinding key
-
-      /*
-       * In this implementation we just make a new Proxy Factory, for now
-       */
-
-      // Create
-      SessionProxyFactory factory = new ServiceRemoteProxyFactory(this.getName(), this.getName(), Ejb3Registry
-            .guid(this), (JBossServiceBeanMetaData) this.getMetaData(), this.getClassloader(), binding.clientBindUrl(),
-            this.getAdvisor(), binding.interceptorStack());
-
-      // Start the factory
-      try
-      {
-         factory.start();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Error in starting " + factory, e);
-      }
-
-      // Return
-      return factory;
-   }
-
-   /**
-    * @param binding
-    * @return
-    * @deprecated Until @Service uses EJB3 Proxy
-    */
-   @Deprecated
-   public RemoteProxyFactory getProxyFactoryForService(RemoteBinding binding)
-   {
-      throw new NotImplementedException(this + " is no longer using unsupported (legacy) proxy impl from ejb3-core");
    }
 
    // TODO: integrate with StatelessContainer.initializeTimeout
@@ -459,9 +406,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       //Ignore
    }
 
-   public Object localInvoke(Object id, Method method, Object[] args, FutureHolder provider) throws Throwable
+   public Object localInvoke(Object id, Method method, Object[] args) throws Throwable
    {
-      return localInvoke(method, args, provider);
+      return localInvoke(method, args);
    }
 
    public Object localHomeInvoke(Method method, Object[] args) throws Throwable
@@ -471,19 +418,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    }
 
    /**
-    * Performs a synchronous local invocation
-    */
-   public Object localInvoke(Method method, Object[] args) throws Throwable
-   {
-      return localInvoke(method, args, null);
-   }
-
-   /**
     * Performs a synchronous or asynchronous local invocation
     *
     * @param provider If null a synchronous invocation, otherwise an asynchronous
     */
-   public Object localInvoke(Method method, Object[] args, FutureHolder provider) throws Throwable
+   public Object localInvoke(Method method, Object[] args) throws Throwable
    {
       long start = System.currentTimeMillis();
 
@@ -505,13 +444,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
          nextInvocation = populateInvocation(nextInvocation);
 
-         if (provider != null)
-         {
-            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH,
-                  AsynchronousInterceptor.INVOKE_ASYNCH, "YES", PayloadKey.AS_IS);
-            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH,
-                  AsynchronousInterceptor.FUTURE_HOLDER, provider, PayloadKey.AS_IS);
-         }
          return nextInvocation.invokeNext();
       }
       finally

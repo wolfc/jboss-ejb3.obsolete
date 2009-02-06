@@ -11,10 +11,8 @@ import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 import javax.ejb.SessionContext;
 
-import org.jboss.aop.Dispatcher;
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.proxy.ClassProxy;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.ThreadLocalStack;
@@ -71,51 +69,51 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
    }
 
-   /**
-    * Create a remote proxy (EJBObject) for an enterprise bean identified by id
-    * 
-    * @param id
-    * @return
-    * @throws Exception
-    */
-   public Object createProxyRemoteEjb21(String businessInterfaceType) throws Exception
-   {
-      RemoteBinding binding = this.getRemoteBinding();
-      return this.createProxyRemoteEjb21(binding, businessInterfaceType);
-   }
-
-   /**
-    * Create a remote proxy (EJBObject) for an enterprise bean identified by id on a given binding
-    * 
-    * @param id
-    * @param binding
-    * @return
-    * @throws Exception
-    */
-   public abstract Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception;
-
-   /**
-    * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id
-    * 
-    * @param id
-    * @return
-    * @throws Exception
-    */
-   public Object createProxyLocalEjb21(String businessInterfaceType) throws Exception
-   {
-      LocalBinding binding = this.getAnnotation(LocalBinding.class);
-      return this.createProxyLocalEjb21(binding, businessInterfaceType);
-   }
-
-   /**
-    * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id, with
-    * the specified LocalBinding
-    * 
-    * @param id
-    * @return
-    * @throws Exception
-    */
-   public abstract Object createProxyLocalEjb21(LocalBinding binding, String businessInterfaceType) throws Exception;
+//   /**
+//    * Create a remote proxy (EJBObject) for an enterprise bean identified by id
+//    * 
+//    * @param id
+//    * @return
+//    * @throws Exception
+//    */
+//   public Object createProxyRemoteEjb21() throws Exception
+//   {
+//      RemoteBinding binding = this.getRemoteBinding();
+//      return this.createProxyRemoteEjb21(binding);
+//   }
+//
+//   /**
+//    * Create a remote proxy (EJBObject) for an enterprise bean identified by id on a given binding
+//    * 
+//    * @param id
+//    * @param binding
+//    * @return
+//    * @throws Exception
+//    */
+//   public abstract Object createProxyRemoteEjb21(RemoteBinding binding) throws Exception;
+//
+//   /**
+//    * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id
+//    * 
+//    * @param id
+//    * @return
+//    * @throws Exception
+//    */
+//   public Object createProxyLocalEjb21() throws Exception
+//   {
+//      LocalBinding binding = this.getAnnotation(LocalBinding.class);
+//      return this.createProxyLocalEjb21(binding);
+//   }
+//
+//   /**
+//    * Create a local proxy (EJBLocalObject) for an enterprise bean identified by id, with
+//    * the specified LocalBinding
+//    * 
+//    * @param id
+//    * @return
+//    * @throws Exception
+//    */
+//   public abstract Object createProxyLocalEjb21(LocalBinding binding) throws Exception;
 
    /**
     * Invokes the method described by the specified serializable method
