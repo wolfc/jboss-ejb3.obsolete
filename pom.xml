@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-Beta9</version>
+    <version>1.0.0</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -22,6 +22,7 @@
   <properties>
     <version.org.jboss.deployers>[2.0.0.CR5]</version.org.jboss.deployers>
     <version.org.jboss.microcontainer>[2.0.0.GA]</version.org.jboss.microcontainer>
+    <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss-ejb3-deployers>
   </properties>
 
   <build>
@@ -37,6 +38,7 @@
           <!--
           <argLine>-enableassertions</argLine>
           -->
+          
         </configuration>
       </plugin>
     </plugins>
@@ -87,7 +89,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
-      <version>1.0.0-Beta10</version>
+      <version>1.0.0</version>
       <exclusions>
         <!-- 
         <exclusion>
@@ -130,7 +132,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-deployers</artifactId>
-      <version>0.1.1</version>
+      <version>${version.org.jboss.ejb3_jboss-ejb3-deployers}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.deployers</groupId>
