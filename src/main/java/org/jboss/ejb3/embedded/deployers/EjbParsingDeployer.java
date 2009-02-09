@@ -27,15 +27,28 @@ import org.jboss.metadata.ejb.spec.EjbJarMetaData;
 /**
  * An ObjectModelFactoryDeployer for translating ejb-jar.xml descriptors into
  * ApplicationMetaData instances.
- * 
+ *
  * Minus the JMX interface for embedded usage.
- * 
+ *
  * @author Scott.Stark@jboss.org
  * @author adrian@jboss.org
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @author Jaikiran Pai
  * @version $Revision$
+ * @deprecated Since 1.0.0. Use the following configuration in *-beans.xml instead:
+ * <pre>
+ * &lt;bean name="EjbParsingDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer"&gt;
+ *    &lt;constructor&gt;
+ *      &lt;parameter class="java.lang.Class"&gt;org.jboss.metadata.ejb.spec.EjbJarMetaData&lt;/parameter&gt;
+ *    &lt;/constructor&gt;
+ *    &lt;property name="name"&gt;ejb-jar.xml&lt;/property&gt;
+ *    &lt;!-- We need to be fast, so no schema validation --&gt;
+ *    &lt;property name="useSchemaValidation"&gt;false&lt;/property&gt;
+ * &lt;/bean&gt;
+ * </pre>
  */
 //@JMX(name="jboss.ejb:service=EjbParsingDeployer", exposedInterface=EjbParsingDeployerMBean.class)
+@Deprecated
 public class EjbParsingDeployer extends SchemaResolverDeployer<EjbJarMetaData>// implements EjbParsingDeployerMBean
 {
    /**
