@@ -4,6 +4,9 @@
    
    <bean name="JavaEEModuleInformer" class="org.jboss.ejb3.embedded.javaee.SimpleJavaEEModuleInformer"/>
    
+   <bean name="SpecCompliantSearchStrategy" class="org.jboss.jpa.resolvers.strategy.SpecCompliantSearchStrategy"/>
+   
+   <!-- DefaultPersistenceUnitDependencyResolver for spec compliant resolving. Uses SpecCompliantSearchStrategy-->
    <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DefaultPersistenceUnitDependencyResolver"/>
    
    <bean name="PersistenceParsingDeployer" class="org.jboss.jpa.deployers.PersistenceParsingDeployer"/>

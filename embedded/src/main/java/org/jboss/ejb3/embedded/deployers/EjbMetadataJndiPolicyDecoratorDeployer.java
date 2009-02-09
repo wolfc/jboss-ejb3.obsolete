@@ -28,6 +28,7 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.ejb3.deployers.MergedJBossMetaDataDeployer;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
@@ -41,7 +42,7 @@ import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DefaultJndiBindingPolicy;
 
 /**
  * EjbMetadataJndiPolicyDecoratorDeployer
- * 
+ *
  * Decorates merged EJB Metadata with the ability to resolve
  * JNDI targets as dictated by an optionally-specified
  * DefaultJndiBindingPolicy
@@ -185,9 +186,9 @@ public class EjbMetadataJndiPolicyDecoratorDeployer extends AbstractDeployer
     * Obtains the JNDI Binding Policy instance to use for the specified metadata,
     * defaulting to a BasicJndiBindingPolicy if none is explicitly specified either in
     * the metadata itself or in its parent deployable unit
-    * 
+    *
     * @param md The Bean Metadata
-    * @param deployableUnitDefaultJndiPolicyClassName The (optional) JNDI Policy declared 
+    * @param deployableUnitDefaultJndiPolicyClassName The (optional) JNDI Policy declared
     *       by the deployable unit (JBossMetaData)
     * @param cl The Deployable Unit's ClassLoader
     */

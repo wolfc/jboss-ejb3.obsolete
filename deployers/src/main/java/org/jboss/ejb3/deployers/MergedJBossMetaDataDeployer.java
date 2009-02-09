@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.deployers;
+package org.jboss.ejb3.deployers;
 
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
@@ -36,14 +36,14 @@ import org.jboss.metadata.javaee.spec.SecurityRolesMetaData;
  * A deployer that merges annotation metadata, xml metadata, and jboss metadata
  * into a merged JBossMetaData. It also incorporates ear level overrides from
  * the top level JBossAppMetaData attachment.
- * 
+ *
  * @author Scott.Stark@jboss.org
  * @author adrian@jboss.org
  * @version $Revision$
  */
 public class MergedJBossMetaDataDeployer extends AbstractDeployer
 {
-   public static final String EJB_MERGED_ATTACHMENT_NAME = "merged."+JBossMetaData.class.getName();
+   public static final String EJB_MERGED_ATTACHMENT_NAME = "merged." + JBossMetaData.class.getName();
 
    /**
     * Create a new JBossEjbParsingDeployer.
@@ -59,7 +59,7 @@ public class MergedJBossMetaDataDeployer extends AbstractDeployer
       addInput(EjbAnnotationMetaDataDeployer.EJB_ANNOTATED_ATTACHMENT_NAME);
       // Output is the merge JBossMetaData view
       setOutput(JBossMetaData.class);
-      // 
+      //
       addOutput(EJB_MERGED_ATTACHMENT_NAME);
    }
 
@@ -70,14 +70,14 @@ public class MergedJBossMetaDataDeployer extends AbstractDeployer
       // Check for an annotated view
       String key = EjbAnnotationMetaDataDeployer.EJB_ANNOTATED_ATTACHMENT_NAME;
       JBossMetaData annotatedMetaData = unit.getAttachment(key, JBossMetaData.class);
-      if(ejbJarMetaData == null && metaData == null && annotatedMetaData == null)
+      if (ejbJarMetaData == null && metaData == null && annotatedMetaData == null)
          return;
 
       JBossMetaData specMetaData = new JBoss50MetaData();
-      if(ejbJarMetaData != null)
+      if (ejbJarMetaData != null)
       {
          specMetaData.merge(null, ejbJarMetaData);
-         if(annotatedMetaData != null)
+         if (annotatedMetaData != null)
          {
             JBossMetaData specMerged = new JBoss50MetaData();
             specMerged.merge(specMetaData, annotatedMetaData);
@@ -87,41 +87,39 @@ public class MergedJBossMetaDataDeployer extends AbstractDeployer
       else
          specMetaData = annotatedMetaData;
 
-      
       // Create a merged view
       JBossMetaData mergedMetaData = new JBoss50MetaData();
       mergedMetaData.merge(metaData, specMetaData);
       // Incorporate any ear level overrides
       DeploymentUnit topUnit = unit.getTopLevel();
-      if(topUnit != null && topUnit.getAttachment(JBossAppMetaData.class) != null)
+      if (topUnit != null && topUnit.getAttachment(JBossAppMetaData.class) != null)
       {
          JBossAppMetaData earMetaData = topUnit.getAttachment(JBossAppMetaData.class);
          // Security domain
          String securityDomain = earMetaData.getSecurityDomain();
-         if(securityDomain != null && mergedMetaData.getSecurityDomain() == null)
+         if (securityDomain != null && mergedMetaData.getSecurityDomain() == null)
             mergedMetaData.setSecurityDomain(securityDomain);
          //Security Roles
          SecurityRolesMetaData earSecurityRolesMetaData = earMetaData.getSecurityRoles();
-         if(earSecurityRolesMetaData != null)
+         if (earSecurityRolesMetaData != null)
          {
             JBossAssemblyDescriptorMetaData jadmd = mergedMetaData.getAssemblyDescriptor();
-            if( jadmd == null)
+            if (jadmd == null)
             {
                jadmd = new JBossAssemblyDescriptorMetaData();
-               mergedMetaData.setAssemblyDescriptor(jadmd); 
+               mergedMetaData.setAssemblyDescriptor(jadmd);
             }
-            
-            SecurityRolesMetaData mergedSecurityRolesMetaData = jadmd.getSecurityRoles(); 
-            if(mergedSecurityRolesMetaData == null)
+
+            SecurityRolesMetaData mergedSecurityRolesMetaData = jadmd.getSecurityRoles();
+            if (mergedSecurityRolesMetaData == null)
                jadmd.setSecurityRoles(earSecurityRolesMetaData);
-            
+
             //perform a merge to rebuild the principalVersusRolesMap
-            if(mergedSecurityRolesMetaData != null )
+            if (mergedSecurityRolesMetaData != null)
             {
-                mergedSecurityRolesMetaData.merge(mergedSecurityRolesMetaData, 
-                     earSecurityRolesMetaData);
+               mergedSecurityRolesMetaData.merge(mergedSecurityRolesMetaData, earSecurityRolesMetaData);
             }
-        }
+         }
       }
 
       // Output the merged JBossMetaData

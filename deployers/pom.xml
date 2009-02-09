@@ -24,7 +24,9 @@
 
     <!-- Versioning -->
     <version.org.jboss.deployers.jboss_deployers_spi>2.0.0.CR2</version.org.jboss.deployers.jboss_deployers_spi>
+    <version.org.jboss.as.jboss_as_server>5.0.0.CR2</version.org.jboss.as.jboss_as_server>
     <version.org.jboss.ejb3_jboss.ejb3.common>1.0.0</version.org.jboss.ejb3_jboss.ejb3.common>
+    <version.org.jboss.deployers_jboss-deployers-vfs>2.0.0.CR5</version.org.jboss.deployers_jboss-deployers-vfs>
 
   </properties>
 
@@ -42,7 +44,7 @@
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
     </dependency>
-      
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-common</artifactId>
@@ -56,5 +58,22 @@
       <version>${version.org.jboss.deployers.jboss_deployers_spi}</version>
     </dependency>
 
-  </dependencies>
+
+  <dependency>
+      <groupId>org.jboss.jbossas</groupId>
+      <artifactId>jboss-as-server</artifactId>
+      <version>${version.org.jboss.as.jboss_as_server}</version>
+      <exclusions>
+          <!-- jboss-jpa-deployers brings in banned dependency on  org.jboss:jboss-transaction-spi, so exclude it -->
+      <exclusion>
+        <groupId>org.jboss.jpa</groupId>
+        <artifactId>jboss-jpa-deployers</artifactId>
+      </exclusion>
+    </exclusions>
+    </dependency>
+
+
+
+    </dependencies>
+
 </project>
