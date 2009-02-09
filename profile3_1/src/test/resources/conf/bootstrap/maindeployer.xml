@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
-   
-   <!--  TODO: Jaikiran - Need to understand what this does. I keep seeing a new class being introduced in 
+
+   <!--  TODO: Jaikiran - Need to understand what this does. I keep seeing a new class being introduced in
    each component (ejb3-embedded, ejb3-timerservice etc...) just to do this similar stuff. Not sure how this
-   affects the deployments. Until then, let's reuse (copy) the one from ejb3-embedded -->
-   
-   <bean name="SimpleClassLoaderDeployer" class="org.jboss.ejb3.embedded.deployers.SimpleClassLoaderDeployer"/>
-   
+   affects the deployments. Until then, let's create one in profile3_1 and use it -->
+
+   <bean name="SimpleClassLoaderDeployer" class="org.jboss.ejb3.profile3_1.deployers.SimpleClassLoaderDeployer"/>
+
    <!-- The MainDeployer -->
    <bean name="MainDeployer" class="org.jboss.deployers.plugins.main.MainDeployerImpl">
       <property name="structuralDeployers"><inject bean="StructuralDeployers"/></property>
       <property name="deployers"><inject bean="Deployers"/></property>
       <!--property name="mgtDeploymentCreator"><inject bean="ManagedDeploymentCreator"/></property-->
    </bean>
-      
+
    <!-- The holder for deployers that determine structure -->
    <bean name="StructuralDeployers" class="org.jboss.deployers.vfs.plugins.structure.VFSStructuralDeployersImpl">
       <property name="structureBuilder">
@@ -24,7 +24,7 @@
       <incallback method="addDeployer"/>
       <uncallback method="removeDeployer"/>
    </bean>
-   
+
    <!-- The holder for deployers that do real deployment -->
    <bean name="Deployers" class="org.jboss.deployers.plugins.deployers.DeployersImpl">
       <constructor><parameter><inject bean="jboss.kernel:service=KernelController"/></parameter></constructor>
@@ -32,29 +32,29 @@
       <incallback method="addDeployer"/>
       <uncallback method="removeDeployer"/>
    </bean>
-   
+
    <!-- File Structure -->
    <bean name="FileStructure" class="org.jboss.deployers.vfs.plugins.structure.file.FileStructure"/>
-   
+
    <!-- File Structure -->
    <bean name="JARStructure" class="org.jboss.deployers.vfs.plugins.structure.jar.JARStructure"/>
-   
+
    <!-- POJO Deployment -->
    <bean name="BeanDeployer" class="org.jboss.deployers.vfs.deployer.kernel.BeanDeployer"/>
    <bean name="KernelDeploymentDeployer" class="org.jboss.deployers.vfs.deployer.kernel.KernelDeploymentDeployer"/>
    <bean name="BeanMetaDataDeployer" class="org.jboss.deployers.vfs.deployer.kernel.BeanMetaDataDeployer">
       <constructor><parameter class="org.jboss.kernel.Kernel"><inject bean="jboss.kernel:service=Kernel"/></parameter></constructor>
    </bean>
-   
+
    <bean name="MBeanServer" class="javax.management.MBeanServer">
       <constructor factoryClass="javax.management.MBeanServerFactory" factoryMethod="newMBeanServer"/>
    </bean>
-   
-  <bean name="ManagedDeploymentCreator" class="org.jboss.deployers.plugins.managed.TypedManagedDeploymentCreator" />
-  
 
-     
-  
+  <bean name="ManagedDeploymentCreator" class="org.jboss.deployers.plugins.managed.TypedManagedDeploymentCreator" />
+
+
+
+
   <!-- AOP deployers -->
   <bean name="AOPXMLMetaDataParserDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer">
       <constructor>
@@ -67,6 +67,10 @@
          <parameter><inject bean="AOPXMLMetaDataParserDeployer" property="relativeOrder"/></parameter>
       </constructor>
    </bean>
-  
- 
+
+  <!-- For *-service.xml deployments -->
+     <bean name="SARDeployer" class="org.jboss.system.deployers.SARDeployer">
+   </bean>
+
+
 </deployment>
