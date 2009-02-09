@@ -26,10 +26,24 @@ import org.jboss.metadata.ejb.jboss.JBossMetaData;
 
 /**
  * A trimmed down jboss.xml parsing deployer.
- * 
+ *
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @author Jaikiran Pai
  * @version $Revision: $
+ * @deprecated Since 1.0.0. Use the following configuration in *-beans.xml instead:
+ * <pre>
+ * &lt;bean name="JBossEjbParsingDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer"&gt;
+ *    &lt;constructor&gt;
+ *      &lt;parameter class="java.lang.Class"&gt;org.jboss.metadata.ejb.jboss.JBossMetaData&lt;/parameter&gt;
+ *    &lt;/constructor&gt;
+ *    &lt;property name="name"&gt;jboss.xml&lt;/property&gt;
+ *    &lt;!-- We need to be fast, so no schema validation --&gt;
+ *    &lt;property name="useSchemaValidation"&gt;false&lt;/property&gt;
+ * &lt;/bean&gt;
+ * </pre>
+ *
  */
+@Deprecated
 public class JBossEjbParsingDeployer extends SchemaResolverDeployer<JBossMetaData>
 {
    public JBossEjbParsingDeployer()
