@@ -122,8 +122,15 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
    {
       assert binding!=null : LocalBinding.class.getSimpleName() + " must be specified";
       
+      // Find the jndiName
+      String jndiName = this.getMetaData().getLocalJndiName();
+      if(binding!=null)
+      {
+         jndiName = binding.jndiBinding();
+      }
+      
       // Get the Registry name
-      String proxyFactoryRegistryBindName = this.getJndiRegistrar().getProxyFactoryRegistryKey(binding.jndiBinding(), this.getMetaData(), true);
+      String proxyFactoryRegistryBindName = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, this.getMetaData(), true);
       
       // Return
       return this.getProxyFactory(proxyFactoryRegistryBindName);

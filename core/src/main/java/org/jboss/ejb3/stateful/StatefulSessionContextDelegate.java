@@ -51,7 +51,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
          EJBLocalObject proxy = null;
          try
          {
-            proxy = (EJBLocalObject) container.createProxyLocalEjb21(id, null);
+            proxy = (EJBLocalObject) container.createProxyLocalEjb21(id);
          }
          // Proxy does not implement EJBLocalObject
          catch (ClassCastException cce)
@@ -80,7 +80,7 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
          EJBObject proxy = null;
          try
          {
-            proxy = (EJBObject) container.createProxyRemoteEjb21(id, null);
+            proxy = (EJBObject) container.createProxyRemoteEjb21(id);
          }
          // Proxy does not implement EJBObject
          catch (ClassCastException cce)
