@@ -22,23 +22,20 @@
 package org.jboss.ejb3.embedded.test.stateless.unit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.net.URL;
 import java.util.Date;
 import java.util.Properties;
 
 import javax.ejb.EJBContainer;
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.embedded.test.stateless.Greeter;
-import org.jboss.ejb3.embedded.test.stateless.GreeterRemote;
-import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -46,20 +43,14 @@ import org.junit.Test;
  */
 public class GreeterTestCase
 {
-
-   /**
-    * Logger
-    */
-   private static Logger logger = Logger.getLogger(GreeterTestCase.class);
-
    @AfterClass
    public static void afterClass()
    {
       EJBContainer current = EJBContainer.getCurrentEJBContainer();
-      if (current != null)
+      if(current != null)
          current.close();
    }
-
+   
    @BeforeClass
    public static void beforeClass()
    {
@@ -68,7 +59,7 @@ public class GreeterTestCase
       properties.setProperty(EJBContainer.EMBEDDABLE_MODULES_PROPERTY, module);
       EJBContainer.createEJBContainer(properties);
    }
-
+   
    private static String getURLToTestClasses()
    {
       String p = "org/jboss/ejb3/embedded/test";
@@ -76,7 +67,7 @@ public class GreeterTestCase
       String s = url.toString();
       return s.substring(0, s.length() - p.length());
    }
-
+   
    @Test
    public void test1() throws NamingException
    {
@@ -86,7 +77,7 @@ public class GreeterTestCase
       String actual = greeter.sayHi(now);
       assertEquals("Hi " + now, actual);
    }
-
+   
    @Test
    public void testGreeter2() throws NamingException
    {
@@ -95,17 +86,5 @@ public class GreeterTestCase
       String now = new Date().toString();
       String actual = greeter.sayHi(now);
       assertEquals("Hi " + now, actual);
-   }
-
-   @Test
-   public void testGreeterRemote() throws Exception
-   {
-      Context ctx = new InitialContext();
-      GreeterRemote remoteGreeter = (GreeterRemote) ctx.lookup("GreeterBean/remote");
-      String name = "newuser";
-      String messageFromGreeter = remoteGreeter.sayHi(name);
-      logger.info("Remote Greeter bean says: " + messageFromGreeter);
-      assertNotNull("Remote Greeter bean returned null message", messageFromGreeter);
-      assertEquals("Remote Greeter bean returned unexpected message", "Hi " + name, messageFromGreeter);
    }
 }

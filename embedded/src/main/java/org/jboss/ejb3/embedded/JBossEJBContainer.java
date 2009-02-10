@@ -51,17 +51,17 @@ import org.jboss.virtual.VirtualFile;
 public class JBossEJBContainer extends EJBContainer
 {
    private static final Logger log = Logger.getLogger(JBossEJBContainer.class);
-
+   
    private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
+   
    // stage 1
    private BasicBootstrap bootstrap = new BasicBootstrap();
    private Kernel kernel;
    private BasicXMLDeployer deployer;
-
+   
    // stage 2
    private MainDeployer mainDeployer;
-
+   
    public JBossEJBContainer(Map<?, ?> properties, String... modules) throws Throwable
    {
       try
@@ -71,26 +71,24 @@ public class JBossEJBContainer extends EJBContainer
          deployer = new BasicXMLDeployer(kernel);
          // bring the main deployer online
          deploy("META-INF/embedded-bootstrap-beans.xml");
-
+         
          // we're at stage 2
          mainDeployer = getBean("MainDeployer", ControllerState.INSTALLED, MainDeployer.class);
-
+         
          deploy("META-INF/ejb-deployers-beans.xml");
-
+         
          deploy("META-INF/namingserver-beans.xml");
-
+         
          deploy("META-INF/aop-beans.xml");
-
+         
          deploy("META-INF/transactionmanager-beans.xml");
-
+         
          deploy("META-INF/jpa-deployers-beans.xml");
-
+         
          deploy("META-INF/ejb-container-beans.xml");
-
-         deploy("META-INF/ejb3-connectors-jboss-beans.xml");
-
+         
          deployMain("ejb3-interceptors-aop.xml");
-
+         
          deployModules(modules);
       }
       catch(Throwable t)
@@ -99,7 +97,7 @@ public class JBossEJBContainer extends EJBContainer
          throw t;
       }
    }
-
+   
    @Override
    public void close()
    {
@@ -109,7 +107,7 @@ public class JBossEJBContainer extends EJBContainer
          mainDeployer.shutdown();
          mainDeployer = null;
       }
-
+      
       if(deployer != null)
       {
          deployer.shutdown();
@@ -118,12 +116,12 @@ public class JBossEJBContainer extends EJBContainer
       kernel = null;
       bootstrap = null;
    }
-
+   
    private KernelDeployment deploy(String name) throws Throwable
    {
       return deploy(getResource(name));
    }
-
+   
    private KernelDeployment deploy(URL url) throws Throwable
    {
       log.info("Deploying " + url);
@@ -131,13 +129,13 @@ public class JBossEJBContainer extends EJBContainer
       deployer.validate(deployment);
       return deployment;
    }
-
+   
    private void deployMain(String name) throws DeploymentException, IllegalArgumentException, MalformedURLException, IOException
    {
       URL url = getResource(name);
       deployMain(url);
    }
-
+   
    private void deployMain(URL url) throws DeploymentException, IOException
    {
       log.info("Deploying " + url);
@@ -146,19 +144,19 @@ public class JBossEJBContainer extends EJBContainer
       mainDeployer.deploy(deployment);
       mainDeployer.checkComplete(deployment);
    }
-
+   
    private void deployModules(String modules[]) throws MalformedURLException, IOException, DeploymentException
    {
       // TODO: deploy the world!
       if(modules == null)
          return;
-
+      
       for(String module : modules)
       {
          deployMain(new URL(module));
       }
    }
-
+   
    /**
     * Get a bean
     *
@@ -172,7 +170,7 @@ public class JBossEJBContainer extends EJBContainer
       KernelControllerContext context = getControllerContext(name, state);
       return context.getTarget();
    }
-
+   
    /**
     * Get a bean
     *
@@ -191,7 +189,7 @@ public class JBossEJBContainer extends EJBContainer
       Object bean = getBean(name, state);
       return expected.cast(bean);
    }
-
+   
    /**
     * Get a context
     *
@@ -208,7 +206,7 @@ public class JBossEJBContainer extends EJBContainer
          return handleNotFoundContext(controller, name, state);
       return context;
    }
-
+   
    private URL getResource(String name) throws IllegalArgumentException
    {
       URL url = classLoader.getResource(name);
@@ -216,7 +214,7 @@ public class JBossEJBContainer extends EJBContainer
          throw new IllegalArgumentException("No resource named " + name + " found on " + classLoader);
       return url;
    }
-
+   
    /**
     * Handle not found context.
     *

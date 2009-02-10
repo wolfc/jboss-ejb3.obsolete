@@ -24,7 +24,7 @@
    <bean name="EjbParsingDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer">
 
       <constructor>
-        <parameter class="java.lang.Class">org.jboss.metadata.ejb.spec.EjbJarMetaData</parameter>
+      	<parameter class="java.lang.Class">org.jboss.metadata.ejb.spec.EjbJarMetaData</parameter>
       </constructor>
       <property name="name">ejb-jar.xml</property>
       <!-- We need to be fast, so no schema validation -->
@@ -35,7 +35,7 @@
    <bean name="JBossEjbParsingDeployer" class="org.jboss.deployers.vfs.spi.deployer.SchemaResolverDeployer">
 
       <constructor>
-        <parameter class="java.lang.Class">org.jboss.metadata.ejb.jboss.JBossMetaData</parameter>
+      	<parameter class="java.lang.Class">org.jboss.metadata.ejb.jboss.JBossMetaData</parameter>
       </constructor>
       <property name="name">jboss.xml</property>
       <!-- We need to be fast, so no schema validation -->
@@ -136,19 +136,4 @@
          </parameter>
       </constructor>
    </bean>
-
-   <!-- We could have directly used the org.jboss.ejb3.Ejb3Registry as a MC bean
-        and added the "register" and "unregister" methods as callbacks, but since
-        those methods are "static", MC complains and throws exception. So let's use
-        this indirection for the time being.
-
-        The Ejb3Registry is looked up by the IsLocalInterceptor for EJB containers.
-    -->
-
-    <bean name="EJB3ComponentRegistry" class="org.jboss.ejb3.embedded.Ejb3ComponentRegistry">
-      <!-- Accept any implementor of org.jboss.ejb3.EJBContainer -->
-      <incallback method="addContainer"/>
-      <uncallback method="removeContainer"/>
-    </bean>
-
 </deployment>
