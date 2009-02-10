@@ -15,6 +15,7 @@
       <interceptor-ref name="org.jboss.ejb3.security.client.SecurityClientInterceptor"/>
       <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
       <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
+   </stack>
 
    <stack name="StatelessSessionClientInterceptors">
       <!--  
