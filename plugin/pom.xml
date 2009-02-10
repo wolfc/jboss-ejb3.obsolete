@@ -135,10 +135,6 @@
       <optional>true</optional>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-    </dependency>
+
   </dependencies>
 </project>

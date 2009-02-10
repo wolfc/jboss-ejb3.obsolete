@@ -123,21 +123,21 @@
       <version>1.3</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.4</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>jboss.jbossts</groupId>
       <artifactId>jbossjta</artifactId>
       <version>4.3.0.GA</version>
       <scope>test</scope>
     </dependency>
-    
+
     <!-- To actually run SimpleTransactionService -->
     <dependency>
       <groupId>jboss.jbossts</groupId>
@@ -145,31 +145,31 @@
       <version>4.3.0.GA</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate</artifactId>
       <version>3.2.6.ga</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
       <version>3.3.1.GA</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
       <version>3.3.2.GA</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.integration</groupId>
       <artifactId>jboss-jca-spi</artifactId>
@@ -181,7 +181,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
@@ -196,12 +196,12 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.logging</groupId>
       <artifactId>jboss-logging-spi</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.test</groupId>
       <artifactId>jboss-test</artifactId>
@@ -211,20 +211,20 @@
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-server-manager</artifactId>
-      <scope>test</scope>      
-    </dependency>  
-    
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-vfs</artifactId>
       <version>2.0.0.CR1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.naming</groupId>
       <artifactId>jnpserver</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop</artifactId>
@@ -232,14 +232,14 @@
         <exclusion>
           <groupId>org.jboss</groupId>
           <artifactId>javassist</artifactId>
-        </exclusion>        
+        </exclusion>
         <exclusion>
           <groupId>org.jboss.microcontainer</groupId>
           <artifactId>jboss-container</artifactId>
-        </exclusion>        
-      </exclusions>      
+        </exclusion>
+      </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop-aspects</artifactId>
@@ -250,7 +250,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <!-- used in the basicbootstrap-beans.xml -->
     <dependency>
       <groupId>org.jboss.aop</groupId>
@@ -258,7 +258,7 @@
       <version>2.0.0.CR10</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.cache</groupId>
       <artifactId>jbosscache-core</artifactId>
@@ -271,14 +271,14 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-aspects-test</artifactId>
       <version>1.0.0.Beta1</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
@@ -294,7 +294,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
@@ -302,19 +302,19 @@
       <exclusions>
         <exclusion>
           <groupId>org.jboss.aspects</groupId>
-          <artifactId>jboss-remoting-aspects</artifactId>            
+          <artifactId>jboss-remoting-aspects</artifactId>
         </exclusion>
         <exclusion>
           <groupId>jboss.remoting</groupId>
-          <artifactId>jboss-remoting</artifactId>            
+          <artifactId>jboss-remoting</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.jboss.aop</groupId>
-          <artifactId>jboss-aop</artifactId>            
+          <artifactId>jboss-aop</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
@@ -322,27 +322,27 @@
       <exclusions>
         <exclusion>
           <groupId>org.jboss</groupId>
-          <artifactId>jboss-common-core</artifactId>            
+          <artifactId>jboss-common-core</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging-spi</artifactId>            
+          <artifactId>jboss-logging-spi</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.jboss.cache</groupId>
-          <artifactId>jbosscache-core</artifactId>            
+          <artifactId>jbosscache-core</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.jboss.cache</groupId>
-          <artifactId>jbosscache-pojo</artifactId>            
+          <artifactId>jbosscache-pojo</artifactId>
         </exclusion>
         <exclusion>
           <groupId>jgroups</groupId>
-          <artifactId>jgroups</artifactId>            
+          <artifactId>jgroups</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-cache</artifactId>
@@ -360,49 +360,49 @@
       <artifactId>jboss-ejb3-security</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-timerservice-spi</artifactId>
       <version>0.1.0-alpha-1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-ext-api-impl</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metadata</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-clustered</artifactId>
       <version>1.0.0</version>
     </dependency>
-   
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-test</artifactId>
@@ -428,17 +428,17 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-jacc-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-jca-api</artifactId>
@@ -448,19 +448,19 @@
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-jms-api</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-servlet-api</artifactId>
     </dependency>
-    
+
     <!-- those needs to be removed - EJBTHREE-1340 -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-main</artifactId>
       <version>${version.org.jboss.jboss-as}</version>
       <scope>provided</scope>
-    </dependency>     
+    </dependency>
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-system</artifactId>
@@ -525,8 +525,8 @@
         <exclusion>
           <groupId>org.jboss</groupId>
           <artifactId>jboss-test</artifactId>
-        </exclusion>        
-      </exclusions>      
+        </exclusion>
+      </exclusions>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -541,7 +541,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    
+
     <!-- this needs to be removed - EJBTHREE-1343 -->
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
@@ -551,15 +551,15 @@
         <exclusion>
           <groupId>jboss</groupId>
           <artifactId>jboss-remoting</artifactId>
-        </exclusion>        
+        </exclusion>
         <exclusion>
           <groupId>org.jboss</groupId>
           <artifactId>jboss-metadata</artifactId>
-        </exclusion>        
+        </exclusion>
         <exclusion>
           <groupId>org.jboss.jbossas</groupId>
           <artifactId>jboss-as-security</artifactId>
-        </exclusion>        
+        </exclusion>
         <!-- Conflicts with org.jboss.security:jbosssx -->
         <exclusion>
           <groupId>org.jboss.security</groupId>
@@ -569,10 +569,10 @@
           <groupId>org.jboss.ws.native</groupId>
           <artifactId>jbossws-native-jaxws</artifactId>
         </exclusion>
-      </exclusions>      
+      </exclusions>
       <scope>provided</scope>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.jpa</groupId>
       <artifactId>jboss-jpa-deployers</artifactId>
@@ -583,24 +583,24 @@
       <groupId>org.jboss.deployers</groupId>
       <artifactId>jboss-deployers-core-spi</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-kernel</artifactId>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jboss-security-spi</artifactId>
       <version>2.0.2.SP2</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbosssx</artifactId>
       <version>2.0.2.SP2</version>
     </dependency>
-    
+
      <dependency>
       <groupId>org.jboss.ws</groupId>
       <artifactId>jbossws-spi</artifactId>
@@ -611,7 +611,7 @@
       <artifactId>quartz</artifactId>
       <version>1.6.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>sun-jaxws</groupId>
       <artifactId>jaxws-api</artifactId>
@@ -628,6 +628,6 @@
       <groupId>trove</groupId>
       <artifactId>trove</artifactId>
     </dependency>
-    
+
   </dependencies>
 </project>
