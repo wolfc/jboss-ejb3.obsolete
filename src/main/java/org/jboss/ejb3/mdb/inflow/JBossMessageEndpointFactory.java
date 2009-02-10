@@ -57,6 +57,15 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
 {
    private static final Logger log = Logger.getLogger(JBossMessageEndpointFactory.class);
 
+   /*
+    * For backwards compatibility it's called DeliveryActive.
+    * See http://wiki.jboss.org/wiki/ConfigJBossMDB
+    */
+   /**
+    * The activation config property name to specify activation.
+    */
+   private static final String ACTIVATE_ON_STARTUP = "DeliveryActive";
+   
    /** Whether trace is enabled */
    protected boolean trace = log.isTraceEnabled();
    
@@ -80,6 +89,12 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
    
    /** The interfaces */
    protected Class[] interfaces;
+   
+   /** Whether the MDB should make the subscription at initial deployment or wait for start/stopDelivery on the MBean */
+   private boolean activateOnStartup = true;
+   
+   /** Is the delivery currently active? */
+   private boolean deliveryActive = false;
     
    // Static --------------------------------------------------------
    
@@ -156,6 +171,11 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       }
    }
 
+   public boolean isDeliveryActive()
+   {
+      return deliveryActive;
+   }
+   
    public boolean isDeliveryTransacted(Method method) throws NoSuchMethodException
    {
       TransactionManagementType mtype = TxUtil.getTransactionManagementType(container.getAdvisor());
@@ -186,14 +206,20 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       // Set up proxy parameters
       // Set the interfaces
       interfaces = new Class[] { MessageEndpoint.class, messagingTypeClass};
-      // Activate
-      activate();
+      if(activateOnStartup)
+      {
+         // Activate
+         activate();
+      }
    }
    
    public void stop() throws Exception
    {
-      // Deactivate
-      deactivate();
+      if(deliveryActive)
+      {
+         // Deactivate
+         deactivate();
+      }
    }
    // ContainerService implementation -------------------------------
    
@@ -276,6 +302,13 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
          properties.put(property.getName(), new org.jboss.metadata.ActivationConfigPropertyMetaData(property));
       }
       
+      // Filter out the MDB features
+      if(properties.containsKey(ACTIVATE_ON_STARTUP))
+      {
+         this.activateOnStartup = Boolean.parseBoolean(properties.get(ACTIVATE_ON_STARTUP).getValue());
+         properties.remove(ACTIVATE_ON_STARTUP);
+      }
+      
       Object[] params = new Object[] 
       {
          messagingTypeClass,
@@ -298,8 +331,11 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
     * 
     * @throws DeploymentException for any error
     */
-   protected void activate() throws DeploymentException
-   {   
+   public synchronized void activate() throws DeploymentException
+   {
+      if(deliveryActive)
+         throw new IllegalStateException("Delivery is already active");
+      
       Object[] params = new Object[] { this, activationSpec };
       try
       {
@@ -310,13 +346,17 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
          DeploymentException.rethrowAsDeploymentException("Endpoint activation failed ra=" + resourceAdapterObjectName + 
                " activationSpec=" + activationSpec, t);
       }
+      deliveryActive = true;
    }
    
    /**
     * Deactivate
     */
-   protected void deactivate()
+   public synchronized void deactivate()
    {
+      if(!deliveryActive)
+         throw new IllegalStateException("Delivery is already deactivated");
+      
       Object[] params = new Object[] { this, activationSpec };
       try
       {
@@ -327,5 +367,6 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
          log.warn("Endpoint activation failed ra=" + resourceAdapterObjectName + 
                " activationSpec=" + activationSpec, t);
       }
+      deliveryActive = false;
    }
 }

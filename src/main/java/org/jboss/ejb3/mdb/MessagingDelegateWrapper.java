@@ -56,4 +56,19 @@ public class MessagingDelegateWrapper extends ContainerDelegateWrapper<Messaging
    {
       return ((MessagingContainer)delegate).getKeepAliveMillis();
    }
+   
+   public boolean isDeliveryActive()
+   {
+      return delegate.isDeliveryActive();
+   }
+   
+   public void startDelivery()
+   {
+      delegate.startDelivery();
+   }
+   
+   public void stopDelivery()
+   {
+      delegate.stopDelivery();
+   }
 }

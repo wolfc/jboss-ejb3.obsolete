@@ -178,11 +178,28 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
       timerServiceFactory.restoreTimerService(timerService);
    }
 
+   protected void startDelivery()
+   {
+      try
+      {
+         messageEndpointFactory.activate();
+      }
+      catch(DeploymentException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+   
    protected void innerStart() throws Exception
    {
       log.debug("Initializing");
    }
 
+   protected boolean isDeliveryActive()
+   {
+      return messageEndpointFactory.isDeliveryActive();
+   }
+   
    public ObjectName getJmxName()
    {
       ObjectName jmxName = null;
@@ -311,6 +328,11 @@ public abstract class MessagingContainer extends EJBContainer implements TimedOb
       super.lockedStop();
    }
 
+   protected void stopDelivery()
+   {
+      messageEndpointFactory.deactivate();
+   }
+   
    protected void stopProxies() throws Exception
    {
       messageEndpointFactory.stop();
