@@ -15,21 +15,6 @@
       <interceptor-ref name="org.jboss.ejb3.security.client.SecurityClientInterceptor"/>
       <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
       <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
-   </stack>
-
-   <stack name="AsynchronousStatelessSessionClientInterceptors">
-      <interceptor-ref name="org.jboss.ejb3.remoting.IsLocalInterceptor"/>
-      <interceptor-ref name="org.jboss.ejb3.security.client.SecurityClientInterceptor"/>
-      <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
-      <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
-   </stack>
-
-   <stack name="AsynchronousStatefulSessionClientInterceptors">
-      <interceptor-ref name="org.jboss.ejb3.remoting.IsLocalInterceptor"/>
-      <interceptor-ref name="org.jboss.ejb3.security.client.SecurityClientInterceptor"/>
-      <interceptor-ref name="org.jboss.aspects.tx.ClientTxPropagationInterceptor"/>
-      <interceptor-ref name="org.jboss.aspects.remoting.InvokeRemoteInterceptor"/>
-   </stack>
 
    <stack name="StatelessSessionClientInterceptors">
       <!--  
@@ -66,7 +51,6 @@
    </stack>
 
    <interceptor class="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor" scope="PER_VM"/>
-   <interceptor class="org.jboss.ejb3.asynchronous.AsynchronousInterceptor" scope="PER_CLASS"/>
    <interceptor class="org.jboss.ejb3.ENCPropagationInterceptor" scope="PER_VM"/>
    <interceptor name="Basic Authorization" factory="org.jboss.ejb3.security.RoleBasedAuthorizationInterceptorFactory" scope="PER_CLASS"/>
    <interceptor name="JACC Authorization" factory="org.jboss.ejb3.security.JaccAuthorizationInterceptorFactory" scope="PER_CLASS"/>
@@ -161,7 +145,6 @@
    
    <domain name="Stateless Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
@@ -191,7 +174,6 @@
 
    <domain name="JACC Stateless Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
@@ -221,7 +203,6 @@
 
    <domain name="Base Stateful Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
@@ -291,7 +272,6 @@
 
    <domain name="JACC Stateful Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.security.AuthenticationInterceptorFactory"/>
       </bind>
@@ -406,7 +386,6 @@
 
    <domain name="Service Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
       </bind>
       <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..))">
@@ -433,7 +412,6 @@
 
    <domain name="JACC Service Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
-         <interceptor-ref name="org.jboss.ejb3.asynchronous.AsynchronousInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
       </bind>
       <bind pointcut="!execution(* *->create()) AND !execution(* *->start()) AND !execution(*->new(..))">
