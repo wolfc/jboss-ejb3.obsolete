@@ -41,53 +41,51 @@ import org.jboss.logging.Logger;
 
 /**
  * The interceptor registry for a given EJB.
- * 
+ *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
 public class InterceptorRegistry
 {
    private static final Logger log = Logger.getLogger(InterceptorRegistry.class);
-   
+
    private Advisor advisor;
-   
+
    private List<Class<?>> interceptorClasses = new ArrayList<Class<?>>();
    private List<Class<?>> readOnlyInterceptorClasses = Collections.unmodifiableList(interceptorClasses);
-   
+
    /**
     * Interceptors who are interested in lifecycle callbacks.
     */
    private List<Class<?>> lifecycleInterceptorClasses = new ArrayList<Class<?>>();
    private List<Class<?>> readOnlyLifecycleInterceptorClasses = Collections.unmodifiableList(lifecycleInterceptorClasses);
-   
+
    private Map<Method, List<Class<?>>> applicableInterceptorClasses = new HashMap<Method, List<Class<?>>>();
-   
+
    public InterceptorRegistry(Advisor advisor)
    {
       assert advisor != null : "advisor is null";
-      
+
       this.advisor = advisor;
-      
+
       initialize();
    }
-   
+
    public List<Class<?>> getApplicableInterceptorClasses(Method method)
    {
       List<Class<?>> methodApplicableInterceptorClasses = applicableInterceptorClasses.get(method);
-      //TODO
-      //FIXME: This assertion is valid, but EJB3 Core needs to declare virtual methods without interceptors
-      // such that they make the Map of MethodHashes, and these then get improperly placed in the
-      // Joinpoint Map, which ends up here...
-      //assert methodApplicableInterceptorClasses != null : "applicable interceptors is non-existent for " + method;
-      log.warn("applicable interceptors is non-existent for " + method);
+      if (methodApplicableInterceptorClasses == null)
+      {
+         log.warn("applicable interceptors is non-existent for " + method);
+      }
       return methodApplicableInterceptorClasses;
    }
-   
+
    public List<Class<?>> getInterceptorClasses()
    {
       return readOnlyInterceptorClasses;
    }
-   
+
    /**
     * All default and class interceptors (not method interceptors (12.7 footnote 57)
     * @return
@@ -96,15 +94,15 @@ public class InterceptorRegistry
    {
       return readOnlyLifecycleInterceptorClasses;
    }
-   
+
    private void initialize()
    {
-      // The lifecycle interceptor classes are: 
+      // The lifecycle interceptor classes are:
       // 1. the interceptors listed in an interceptor-order
       // or
       // 2. default interceptor + class interceptors
       // where set 1 = set 2 + optionally extra interceptors
-      
+
       DefaultInterceptors defaultInterceptorsAnnotation = (DefaultInterceptors) advisor.resolveAnnotation(DefaultInterceptors.class);
       List<Class<?>> defaultInterceptorClasses = new ArrayList<Class<?>>();
       if(defaultInterceptorsAnnotation != null)
@@ -119,7 +117,7 @@ public class InterceptorRegistry
       {
          lifecycleInterceptorClasses.addAll(defaultInterceptorClasses);
       }
-      
+
       Interceptors interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(Interceptors.class);
       List<Class<?>> classInterceptorClasses = new ArrayList<Class<?>>();
       if(interceptorsAnnotation != null)
@@ -134,7 +132,7 @@ public class InterceptorRegistry
          }
       }
       log.debug("Found class interceptors " + classInterceptorClasses);
-      
+
       {
          // Ordering of lifecycle interceptors
          InterceptorOrder order = (InterceptorOrder) advisor.resolveAnnotation(InterceptorOrder.class);
@@ -152,7 +150,7 @@ public class InterceptorRegistry
          if(!interceptorClasses.contains(interceptorClass))
             interceptorClasses.add(interceptorClass);
       }
-      
+
       Class<?> beanClass = advisor.getClazz();
       for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
       {
@@ -163,7 +161,7 @@ public class InterceptorRegistry
             for(Class<?> interceptorClass : interceptorsAnnotation.value())
                methodInterceptorClasses.add(interceptorClass);
          }
-         
+
          // Interceptors applicable for this bean method
          List<Class<?>> methodApplicableInterceptorClasses = new ArrayList<Class<?>>();
          if(!isExcludeDefaultInterceptors(advisor, beanMethod))
@@ -171,9 +169,9 @@ public class InterceptorRegistry
          if(!isExcludeClassInterceptors(advisor, beanMethod))
             methodApplicableInterceptorClasses.addAll(classInterceptorClasses);
          methodApplicableInterceptorClasses.addAll(methodInterceptorClasses);
-         
+
          // TODO: remove duplicates?
-         
+
          // Total ordering (EJB 3 12.8.2.1)
          // TODO: @Interceptors with all?
          InterceptorOrder order = (InterceptorOrder) advisor.resolveAnnotation(beanMethod, InterceptorOrder.class);
@@ -194,7 +192,7 @@ public class InterceptorRegistry
             methodApplicableInterceptorClasses = orderedInterceptorClasses;
          }
          applicableInterceptorClasses.put(beanMethod, methodApplicableInterceptorClasses);
-         
+
          for(Class<?> interceptorClass : methodApplicableInterceptorClasses)
          {
             if(!interceptorClasses.contains(interceptorClass))
@@ -202,17 +200,17 @@ public class InterceptorRegistry
          }
       }
    }
-   
+
    private static final boolean isExcludeClassInterceptors(Advisor advisor, Method method)
    {
       return advisor.hasAnnotation(method, ExcludeClassInterceptors.class) || advisor.resolveAnnotation(ExcludeClassInterceptors.class) != null;
    }
-   
+
    private static final boolean isExcludeDefaultInterceptors(Advisor advisor, Method method)
    {
       return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || isExcludedDefaultInterceptors(advisor);
-   } 
-   
+   }
+
    private static final boolean isExcludedDefaultInterceptors(Advisor advisor)
    {
       return advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
