@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
- *
+  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -21,21 +21,13 @@
  */
 package org.jboss.ejb3.embedded.test.stateless;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
 /**
- * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * GreeterRemote
+ *
+ * @author Jaikiran Pai
  * @version $Revision: $
  */
-@Stateless
-@Remote(GreeterRemote.class)
-@Local (Greeter.class)
-public class GreeterBean implements Greeter
+public interface GreeterRemote extends Greeter
 {
-   public String sayHi(String name)
-   {
-      return "Hi " + name;
-   }
+
 }
