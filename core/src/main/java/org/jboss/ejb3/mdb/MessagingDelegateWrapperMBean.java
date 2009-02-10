@@ -35,4 +35,10 @@ public interface MessagingDelegateWrapperMBean extends ContainerDelegateWrapperM
 	int getMaxMessages();
    
    int getKeepAliveMillis();
+   
+   boolean isDeliveryActive();
+   
+   void startDelivery();
+   
+   void stopDelivery();
 }

@@ -2237,6 +2237,13 @@
       <build-simple-jar name="ejbthree986"/>
    </target>
 	
+   <target name="ejbthree987"
+      description="Builds a simple jar files."
+      >
+      
+      <build-simple-jar name="ejbthree987"/>
+   </target>
+   
    <target name="ejbthree994"
       description="Builds a simple jar files."
       >
@@ -4229,6 +4236,7 @@
       ejbthree832, ejbthree921, ejbthree936,
       ejbthree939,
       ejbthree953, ejbthree957, ejbthree959, ejbthree963, ejbthree967, ejbthree971, ejbthree973, ejbthree985, ejbthree986,
+      ejbthree987,
       ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025,
       ejbthree1028,
       ejbthree1040,
@@ -4960,6 +4968,9 @@
          <param name="test" value="ejbthree986"/>
       </antcall>
 	  <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree987"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree994"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
