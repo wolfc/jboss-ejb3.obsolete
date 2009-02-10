@@ -21,8 +21,6 @@
  */
 package org.jboss.ejb3.embedded.test.stateless;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
 /**
@@ -30,8 +28,6 @@ import javax.ejb.Stateless;
  * @version $Revision: $
  */
 @Stateless
-@Remote(GreeterRemote.class)
-@Local (Greeter.class)
 public class GreeterBean implements Greeter
 {
    public String sayHi(String name)
