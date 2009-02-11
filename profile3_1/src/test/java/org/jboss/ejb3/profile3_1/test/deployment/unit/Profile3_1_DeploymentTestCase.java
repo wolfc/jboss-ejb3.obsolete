@@ -29,6 +29,7 @@ import javax.naming.InitialContext;
 
 import org.jboss.ejb3.profile3_1.test.common.AbstractProfile3_1_TestCase;
 import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSBLocal;
+import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSBRemote;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -36,7 +37,7 @@ import org.junit.Test;
 
 /**
  * Profile3_1_DeploymentTestCase
- * 
+ *
  * Testcase to ensure that the profile3_1 bootstrap loads properly
  *
  * @author Jaikiran Pai
@@ -65,7 +66,7 @@ public class Profile3_1_DeploymentTestCase extends AbstractProfile3_1_TestCase
    /**
     * This test ensures that the basic deployment support provided by
     * profile3_1 component is working
-    * 
+    *
     * @throws Throwable
     */
    @Test
@@ -77,16 +78,28 @@ public class Profile3_1_DeploymentTestCase extends AbstractProfile3_1_TestCase
 
       // lookup the bean
       Context ctx = new InitialContext();
-      SimpleSLSBLocal bean = (SimpleSLSBLocal) ctx.lookup("SimpleSLSB/local");
-      logger.debug("Successfully looked up bean " + bean);
+      SimpleSLSBLocal localBean = (SimpleSLSBLocal) ctx.lookup("SimpleSLSB/local");
+      logger.debug("Successfully looked up local bean " + localBean);
 
       // invoke a method
       String message = "hello";
-      String returnedMessage = bean.echo(message);
-      logger.debug("Client sent message = " + message + " ; Bean returned message = " + returnedMessage );
-      
-      assertNotNull("Bean returned null message",returnedMessage);
-      assertEquals("Bean returned incorrect message",message,returnedMessage);
+      String returnedMessage = localBean.echo(message);
+      logger.debug("Client sent message = " + message + " ; Local bean returned message = " + returnedMessage );
+
+      assertNotNull("Local bean returned null message",returnedMessage);
+      assertEquals("Local bean returned incorrect message",message,returnedMessage);
+
+      // now let's check the remote business interface
+      SimpleSLSBRemote remoteBean = (SimpleSLSBRemote) ctx.lookup("SimpleSLSB/remote");
+      logger.debug("Successfully looked up remote bean " + remoteBean);
+
+      String messageFromRemoteBean = remoteBean.echo(message);
+      logger.debug("Client sent message = " + message + " ; remote bean returned = " + messageFromRemoteBean);
+
+      assertNotNull("Local bean returned null message",messageFromRemoteBean);
+      assertEquals("Local bean returned incorrect message",message,messageFromRemoteBean);
+
+
 
    }
 }

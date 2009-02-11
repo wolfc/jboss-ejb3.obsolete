@@ -141,5 +141,10 @@
       </constructor>
    </bean>
 
+    <bean name="EJB3ComponentRegistry" class="org.jboss.ejb3.profile3_1.Ejb3ComponentRegistry">
+      <!-- Accept any implementor of org.jboss.ejb3.EJBContainer -->
+      <incallback method="addContainer"/>
+      <uncallback method="removeContainer"/>
+    </bean>
 
 </deployment>

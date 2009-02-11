@@ -21,25 +21,13 @@
  */
 package org.jboss.ejb3.profile3_1.test.deployment;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-
 /**
- *
- * SimpleSLSB
+ * SimpleSLSBRemote
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-@Stateless
-@Local(SimpleSLSBLocal.class)
-@Remote (SimpleSLSBRemote.class)
-public class SimpleSLSB implements SimpleSLSBLocal
+public interface SimpleSLSBRemote extends SimpleSLSBLocal
 {
 
-   public String echo(String name)
-   {
-      return name;
-   }
 }

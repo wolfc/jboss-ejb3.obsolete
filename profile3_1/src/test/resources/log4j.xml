@@ -23,7 +23,7 @@
   <!-- A time/date based rolling appender -->
   <appender name="FILE" class="org.jboss.logging.appender.DailyRollingFileAppender">
     <param name="File" value="target/test.log"/>
-    <param name="Threshold" value="TRACE"/>
+    <param name="Threshold" value="DEBUG"/>
     <param name="Append" value="false"/>
 
     <!-- Rollover at midnight each day -->
@@ -40,7 +40,7 @@
       <!-- The full pattern: Date MS Priority [Category] (Thread:NDC) Message\n
       <param name="ConversionPattern" value="%d %-5r %-5p [%c] (%t:%x) %m%n"/>
        -->
-    </layout>	    
+    </layout>
   </appender>
 
   <!-- ============================== -->
@@ -60,19 +60,19 @@
   <!-- ================ -->
   <!-- Limit categories -->
   <!-- ================ -->
-  
+
   <category name="org.jboss">
-    <priority value="DEBUG"/>
-  </category>  
-  
+    <priority value="INFO"/>
+  </category>
+
   <category name="org.jnp">
     <priority value="INFO"/>
   </category>
-  
+
   <category name="org.jboss.ejb3">
     <priority value="ALL"/>
   </category>
-  
+
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
@@ -81,5 +81,5 @@
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
-  
+
 </log4j:configuration>
