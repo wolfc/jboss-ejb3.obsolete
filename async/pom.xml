@@ -78,6 +78,8 @@
     <!-- Versioning -->
     <version.org.jboss.ejb3_jboss.ejb3.api>3.1.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.api>
     <version.org.jboss.ejb3_jboss.ejb3.interceptors>1.0.0</version.org.jboss.ejb3_jboss.ejb3.interceptors>
+    <version.org.jboss.security_jboss.security>2.0.2.SP6</version.org.jboss.security_jboss.security>
+    <version.org.jboss.javaee_jboss.jacc.api>1.1.0.GA</version.org.jboss.javaee_jboss.jacc.api>
   
   </properties>
 
@@ -123,6 +125,29 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-aspects-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- org.jboss.security:jboss-security-spi -->
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jboss-security-spi</artifactId>
+      <version>${version.org.jboss.security_jboss.security}</version>
+    </dependency>
+    
+    <!-- org.jboss.security:jbosssx-client -->
+    <dependency>
+      <groupId>org.jboss.security</groupId>
+      <artifactId>jbosssx-client</artifactId>
+      <version>${version.org.jboss.security_jboss.security}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- org.jboss.javaee:jboss-jacc-api -->
+    <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-jacc-api</artifactId>
+      <version>${version.org.jboss.javaee_jboss.jacc.api}</version>
       <scope>test</scope>
     </dependency>
     

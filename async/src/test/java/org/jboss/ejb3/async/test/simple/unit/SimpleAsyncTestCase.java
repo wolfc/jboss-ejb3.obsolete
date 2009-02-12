@@ -28,6 +28,7 @@ import javax.ejb.Asynchronous;
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
+import org.jboss.ejb3.async.test.common.TestConstants;
 import org.jboss.ejb3.async.test.container.AsyncContainer;
 import org.jboss.ejb3.async.test.simple.Pojo;
 import org.jboss.ejb3.interceptors.container.BeanContext;
@@ -53,9 +54,7 @@ public class SimpleAsyncTestCase
 
    private static final Logger log = Logger.getLogger(SimpleAsyncTestCase.class);
 
-   private static AOPDeployer aopDeployer = new AOPDeployer("simple/jboss-aop.xml");
-
-   private static final String DOMAIN_ASYNC = "Asynchronous Container";
+   private static AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
 
    private static AsyncContainer<Pojo> container;
 
@@ -81,7 +80,7 @@ public class SimpleAsyncTestCase
    public static void beforeClass() throws Throwable
    {
       aopDeployer.deploy();
-      container = new AsyncContainer<Pojo>("Test Async POJO Container", DOMAIN_ASYNC, Pojo.class);
+      container = new AsyncContainer<Pojo>("Test Async POJO Container", TestConstants.DOMAIN_ASYNC, Pojo.class);
    }
 
    @AfterClass
@@ -135,7 +134,7 @@ public class SimpleAsyncTestCase
       int initialCounter = initialCounterFuture.get();
 
       // Increment the counter 
-      Future<Integer> incrementCounterFutureResult = (Future<Integer>) container.invoke(bean,
+      Future<Void> incrementCounterFutureResult = (Future<Void>) container.invoke(bean,
             METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
       TestCase.assertNotNull("void return type not intercepted as asynchronous invocation",
             incrementCounterFutureResult);
@@ -163,7 +162,7 @@ public class SimpleAsyncTestCase
       // Invoke and test
       Object shouldBeNullReturnValue = container.invoke(bean, METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS);
       TestCase.assertNull("methods with void return type not annotated with @" + Asynchronous.class.getSimpleName()
-            + " should have null return tyope from container invocation", shouldBeNullReturnValue);
+            + " should have null return type from container invocation", shouldBeNullReturnValue);
 
    }
 

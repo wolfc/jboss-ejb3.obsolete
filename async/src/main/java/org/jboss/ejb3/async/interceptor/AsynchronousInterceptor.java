@@ -35,6 +35,7 @@ import org.jboss.ejb3.async.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.async.future.AsyncFutureWrapper;
 import org.jboss.ejb3.async.hack.DevelopmentHacks;
 import org.jboss.logging.Logger;
+import org.jboss.security.SecurityContext;
 
 /**
  * AsynchronousInterceptor
@@ -115,8 +116,11 @@ public class AsynchronousInterceptor implements Interceptor
       // Get the ExecutorService
       ExecutorService executorService = container.getAsynchronousExecutor();
 
+      // Get the existing SecurityContext
+      SecurityContext sc = SecurityActions.getSecurityContext();
+
       // Make the asynchronous task from the invocation
-      Callable<Object> asyncTask = new AsyncInvocationTask<Object>(invocation);
+      Callable<Object> asyncTask = new AsyncInvocationTask<Object>(invocation.copy(), sc);
 
       // Short-circuit the invocation into new Thread 
       Future<Object> task = executorService.submit(asyncTask);
@@ -145,7 +149,7 @@ public class AsynchronousInterceptor implements Interceptor
       Method actualMethod = si.getActualMethod();
 
       // Determine if asynchronous (either returns Future or has @Asynchronous)
-      if (actualMethod.getAnnotation(Asynchronous.class) != null || actualMethod.getReturnType().equals(Future.class))
+      if (invocation.resolveAnnotation(Asynchronous.class) != null || actualMethod.getReturnType().equals(Future.class))
       {
          // Log
          if (log.isTraceEnabled())
@@ -202,21 +206,37 @@ public class AsynchronousInterceptor implements Interceptor
    {
       private Invocation invocation;
 
-      public AsyncInvocationTask(Invocation invocation)
+      /**
+       * SecurityContext to use for the invocation
+       */
+      private SecurityContext sc;
+
+      public AsyncInvocationTask(Invocation invocation, SecurityContext sc)
       {
          this.invocation = invocation;
+         this.sc = sc;
       }
 
       @SuppressWarnings("unchecked")
       public V call() throws Exception
       {
+         // Get existing security context
+         SecurityContext oldSc = SecurityActions.getSecurityContext();
+
          try
          {
+            // Set new sc
+            SecurityActions.setSecurityContext(this.sc);
             return (V) invocation.invokeNext();
          }
          catch (Throwable t)
          {
             throw new Exception(t);
+         }
+         finally
+         {
+            // Replace the old security context
+            SecurityActions.setSecurityContext(oldSc);
          }
       }
 
