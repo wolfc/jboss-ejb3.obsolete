@@ -24,9 +24,107 @@
   <name>JBoss EJB 3.1 Asynchronous</name>
   <description>Support for EJB 3.1 @Asynchronous</description>
 
+  <!-- Build Configuration -->
+  <build>
+  
+  
+    <!-- We depend upon JDK6, as we bring in the EJB 3.1 API here  -->
+  
+    <plugins>
+    
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <executable>${JDK6_HOME}/bin/javac</executable>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-jdk6</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>env.JDK6_HOME</property>
+                  <message>JDK6_HOME is not set</message>
+                </requireProperty>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <forkMode>once</forkMode>
+          <jvm>${JDK6_HOME}/bin/java</jvm>
+        </configuration>
+      </plugin>
+      
+    </plugins>
+    
+  </build>
+  
+  <properties>
+  
+    <!-- Versioning -->
+    <version.org.jboss.ejb3_jboss.ejb3.api>3.1.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.api>
+    <version.org.jboss.ejb3_jboss.ejb3.interceptors>1.0.0</version.org.jboss.ejb3_jboss.ejb3.interceptors>
+  
+  </properties>
+
   <dependencies>
   
+    <!-- 
+    Dependencies: org.jboss.ejb3 
+    -->
+    
+    <!-- org.jboss.ejb3:jboss-ejb3-interceptors -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-api</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.api}</version>
+    </dependency>
+    
+    <!-- org.jboss.ejb3:jboss-ejb3-interceptors -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-interceptors</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.interceptors}</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- 
+    Dependencies: External to EJB3 
+    -->
+
+    <!-- junit:junit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  
+    <!-- org.jboss.aop:jboss-aop -->
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+    </dependency>
+    
+    <!-- org.jboss.aspects:jboss-aspects-common -->
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-aspects-common</artifactId>
+      <scope>test</scope>
+    </dependency>
     
   </dependencies>
-
 </project>
