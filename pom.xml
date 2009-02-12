@@ -35,6 +35,7 @@
   <!-- Aggregate Modules -->
   <modules>
     <module>api</module>
+    <module>async</async>
     <module>as-int</module>
     <module>build</module>
     <module>common</module>
