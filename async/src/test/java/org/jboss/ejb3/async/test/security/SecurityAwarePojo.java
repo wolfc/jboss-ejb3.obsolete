@@ -29,7 +29,7 @@ import org.jboss.ejb3.async.test.common.SecurityActions;
 import org.jboss.security.SecurityContext;
 
 /**
- * SecurityAwarPojo
+ * SecurityAwarePojo
  * 
  * POJO for testing Security Context propagation in @Asynchronous
  * invocations

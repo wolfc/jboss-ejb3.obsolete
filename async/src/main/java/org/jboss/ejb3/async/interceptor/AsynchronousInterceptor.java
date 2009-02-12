@@ -227,6 +227,8 @@ public class AsynchronousInterceptor implements Interceptor
          {
             // Set new sc
             SecurityActions.setSecurityContext(this.sc);
+
+            // Invoke
             return (V) invocation.invokeNext();
          }
          catch (Throwable t)
