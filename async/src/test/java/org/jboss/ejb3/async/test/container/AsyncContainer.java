@@ -23,8 +23,8 @@ package org.jboss.ejb3.async.test.container;
 
 import java.util.concurrent.ExecutorService;
 
-import org.jboss.ejb3.async.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.async.hack.DevelopmentHacks;
+import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 
 /**

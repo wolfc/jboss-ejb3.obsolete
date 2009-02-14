@@ -31,9 +31,9 @@ import javax.ejb.Asynchronous;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.ejb3.async.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.async.future.AsyncFutureWrapper;
 import org.jboss.ejb3.async.hack.DevelopmentHacks;
+import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityContext;
 

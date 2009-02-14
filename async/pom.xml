@@ -18,11 +18,11 @@
 
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
-  <artifactId>jboss-ejb3-async</artifactId>
+  <artifactId>jboss-ejb3-async-impl</artifactId>
   <version>2.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.1 Asynchronous</name>
-  <description>Support for EJB 3.1 @Asynchronous</description>
+  <description>Implementation Support for EJB 3.1 @Asynchronous</description>
 
   <!-- Build Configuration -->
   <build>
@@ -77,6 +77,7 @@
   
     <!-- Versioning -->
     <version.org.jboss.ejb3_jboss.ejb3.api>3.1.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.api>
+    <version.org.jboss.ejb3_jboss.ejb3.async.spi>2.0.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.async.spi>
     <version.org.jboss.ejb3_jboss.ejb3.interceptors>1.0.0</version.org.jboss.ejb3_jboss.ejb3.interceptors>
     <version.org.jboss.security_jboss.security>2.0.2.SP6</version.org.jboss.security_jboss.security>
     <version.org.jboss.javaee_jboss.jacc.api>1.1.0.GA</version.org.jboss.javaee_jboss.jacc.api>
@@ -88,6 +89,13 @@
     <!-- 
     Dependencies: org.jboss.ejb3 
     -->
+    
+    <!-- org.jboss.ejb3:jboss-ejb3-async-spi -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-async-spi</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.async.spi}</version>
+    </dependency>
     
     <!-- org.jboss.ejb3:jboss-ejb3-interceptors -->
     <dependency>
