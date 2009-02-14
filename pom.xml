@@ -36,6 +36,7 @@
   <modules>
     <module>api</module>
     <module>async</module>
+    <module>async-spi</module>
     <module>as-int</module>
     <module>build</module>
     <module>common</module>
