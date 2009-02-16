@@ -1,0 +1,60 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <artifactId>jboss-ejb3-nointerface</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>JBoss EJB 3.1 Implementation of the No-Interface view</name>
+  <url>http://labs.jboss.com/jbossejb3</url>
+  <description>No-Interface implementation for EJB as defined by section 3.4.4 in EJB3.1 spec</description>
+
+  <properties>
+      <version.org.jboss_jboss-vfs>2.0.1.GA</version.org.jboss_jboss-vfs>
+      <version.javassist>3.7.1.GA</version.javassist>
+  </properties>
+
+
+
+
+  <dependencies>
+
+
+    <!-- JUnit support -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>${version.javassist}</version>
+    </dependency>
+
+   <dependency>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>jboss-logging-spi</artifactId>
+    </dependency>
+
+   <dependency>
+      <groupId>org.jboss.javaee</groupId>
+      <artifactId>jboss-ejb-api</artifactId>
+    </dependency>
+
+
+    </dependencies>
+</project>
