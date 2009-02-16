@@ -26,9 +26,9 @@ import java.util.concurrent.Future;
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
+import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
 import org.jboss.ejb3.async.impl.test.common.SecurityActions;
 import org.jboss.ejb3.async.impl.test.common.TestConstants;
-import org.jboss.ejb3.async.impl.test.container.AsyncContainer;
 import org.jboss.ejb3.async.impl.test.security.SecurityAwarePojo;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
@@ -59,7 +59,7 @@ public class SecurityContextPropagationTestCase
 
    private static AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
 
-   private static AsyncContainer<SecurityAwarePojo> container;
+   private static ThreadPoolAsyncContainer<SecurityAwarePojo> container;
 
    /*
     * Method names in Test POJO
@@ -75,7 +75,7 @@ public class SecurityContextPropagationTestCase
    public static void beforeClass() throws Throwable
    {
       aopDeployer.deploy();
-      container = new AsyncContainer<SecurityAwarePojo>("Test Security Aware POJO Container",
+      container = new ThreadPoolAsyncContainer<SecurityAwarePojo>("Test Security Aware POJO Container",
             TestConstants.DOMAIN_ASYNC, SecurityAwarePojo.class);
    }
 

@@ -19,21 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.impl.test.container;
+package org.jboss.ejb3.async.impl.test.common;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
-import org.jboss.ejb3.async.impl.hack.DevelopmentHacks;
+import org.jboss.ejb3.async.impl.test.cancel.PausableBlockingQueue;
 import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
-import org.jboss.ejb3.interceptors.direct.DirectContainer;
 
 /**
- * AsyncContainer
+ * PausableProcessingAsyncContainer
+ * 
+ * A Container which permits blocking upon the work queue to pause processing
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class AsyncContainer<T> extends DirectContainer<T> implements AsyncInvocationProcessor
+public class PausableProcessingAsyncContainer<T> extends ThreadPoolAsyncContainer<T>
+      implements
+         AsyncInvocationProcessor
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -42,29 +46,23 @@ public class AsyncContainer<T> extends DirectContainer<T> implements AsyncInvoca
    /**
     * To be used for asynchronous invocations
     */
-   private ExecutorService asynchronousExecutor;
+   private ThreadPoolExecutor asynchronousExecutor;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public AsyncContainer(String name, String domainName, Class<? extends T> beanClass)
+   public PausableProcessingAsyncContainer(String name, String domainName, Class<? extends T> beanClass)
    {
-      this(name, domainName, beanClass, DevelopmentHacks.getDefaultAsyncExecutorService());
-   }
-
-   public AsyncContainer(String name, String domainName, Class<? extends T> beanClass,
-         ExecutorService asynchronousExecutor)
-   {
-      super(name, domainName, beanClass);
-      this.setAsynchronousExecutor(asynchronousExecutor);
+      super(name, domainName, beanClass, new ThreadPoolExecutor(3, 6, 3, TimeUnit.SECONDS,
+            new PausableBlockingQueue<Runnable>(false)));
    }
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public ExecutorService getAsynchronousExecutor()
+   public ThreadPoolExecutor getAsynchronousExecutor()
    {
       return asynchronousExecutor;
    }
@@ -73,7 +71,7 @@ public class AsyncContainer<T> extends DirectContainer<T> implements AsyncInvoca
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public void setAsynchronousExecutor(ExecutorService asynchronousExecutor)
+   public void setAsynchronousExecutor(ThreadPoolExecutor asynchronousExecutor)
    {
       this.asynchronousExecutor = asynchronousExecutor;
    }

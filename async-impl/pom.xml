@@ -109,7 +109,6 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-interceptors</artifactId>
       <version>${version.org.jboss.ejb3_jboss.ejb3.interceptors}</version>
-      <scope>test</scope>
     </dependency>
     
     <!-- 

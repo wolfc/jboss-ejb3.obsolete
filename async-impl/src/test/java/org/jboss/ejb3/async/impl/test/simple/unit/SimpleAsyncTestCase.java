@@ -28,9 +28,9 @@ import javax.ejb.Asynchronous;
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
+import org.jboss.ejb3.async.impl.test.common.Pojo;
 import org.jboss.ejb3.async.impl.test.common.TestConstants;
-import org.jboss.ejb3.async.impl.test.container.AsyncContainer;
-import org.jboss.ejb3.async.impl.test.simple.Pojo;
+import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
@@ -56,21 +56,7 @@ public class SimpleAsyncTestCase
 
    private static AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
 
-   private static AsyncContainer<Pojo> container;
-
-   /*
-    * Method names in Test POJO
-    */
-
-   private static final String METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS = "incrementCounterAsynchronous";
-
-   private static final String METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS = "incrementCounterSynchronous";
-
-   private static final String METHOD_NAME_GET_COUNTER = "getCounter";
-
-   private static final String METHOD_NAME_GET_VALUE_ASYNCHRONOUS = "getValueAsynchronous";
-
-   private static final String METHOD_NAME_GET_VALUE_SYNCHRONOUS = "getValueSynchronous";
+   private static ThreadPoolAsyncContainer<Pojo> container;
 
    // --------------------------------------------------------------------------------||
    // Test Lifecycle -----------------------------------------------------------------||
@@ -80,7 +66,8 @@ public class SimpleAsyncTestCase
    public static void beforeClass() throws Throwable
    {
       aopDeployer.deploy();
-      container = new AsyncContainer<Pojo>("Test Async POJO Container", TestConstants.DOMAIN_ASYNC, Pojo.class);
+      container = new ThreadPoolAsyncContainer<Pojo>("Test Async POJO Container", TestConstants.DOMAIN_ASYNC,
+            Pojo.class);
    }
 
    @AfterClass
@@ -106,7 +93,7 @@ public class SimpleAsyncTestCase
       BeanContext<Pojo> bean = container.construct();
 
       // Use the container to get a contracted value from the bean
-      Future<?> futureResult = (Future<?>) container.invoke(bean, METHOD_NAME_GET_VALUE_ASYNCHRONOUS);
+      Future<?> futureResult = (Future<?>) container.invoke(bean, TestConstants.METHOD_NAME_GET_VALUE_ASYNCHRONOUS);
       log.info("Obtained result: " + futureResult);
 
       // Get the Future value
@@ -130,19 +117,21 @@ public class SimpleAsyncTestCase
       BeanContext<Pojo> bean = container.construct();
 
       // Get the counter as it exists
-      Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean, METHOD_NAME_GET_COUNTER);
+      Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
+            TestConstants.METHOD_NAME_GET_COUNTER);
       int initialCounter = initialCounterFuture.get();
 
       // Increment the counter 
       Future<Void> incrementCounterFutureResult = (Future<Void>) container.invoke(bean,
-            METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
+            TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
       TestCase.assertNotNull("void return type not intercepted as asynchronous invocation",
             incrementCounterFutureResult);
       Object incrementedCounterResult = incrementCounterFutureResult.get();
       TestCase.assertNull("void return types should return null upon Future.get()", incrementedCounterResult);
 
       // Test the counter was incremented
-      Future<Integer> incrementedCounterFuture = (Future<Integer>) container.invoke(bean, METHOD_NAME_GET_COUNTER);
+      Future<Integer> incrementedCounterFuture = (Future<Integer>) container.invoke(bean,
+            TestConstants.METHOD_NAME_GET_COUNTER);
       int incrementedCounter = incrementedCounterFuture.get();
       TestCase.assertEquals("Counter was not incremented", initialCounter + 1, incrementedCounter);
    }
@@ -160,7 +149,7 @@ public class SimpleAsyncTestCase
       BeanContext<Pojo> bean = container.construct();
 
       // Invoke and test
-      Object shouldBeNullReturnValue = container.invoke(bean, METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS);
+      Object shouldBeNullReturnValue = container.invoke(bean, TestConstants.METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS);
       TestCase.assertNull("methods with void return type not annotated with @" + Asynchronous.class.getSimpleName()
             + " should have null return type from container invocation", shouldBeNullReturnValue);
 
@@ -179,7 +168,7 @@ public class SimpleAsyncTestCase
       BeanContext<Pojo> bean = container.construct();
 
       // Invoke and test
-      String value = container.invoke(bean, METHOD_NAME_GET_VALUE_SYNCHRONOUS);
+      String value = container.invoke(bean, TestConstants.METHOD_NAME_GET_VALUE_SYNCHRONOUS);
       TestCase.assertEquals("Contracted value not obtained as expected", Pojo.VALUE, value);
 
    }

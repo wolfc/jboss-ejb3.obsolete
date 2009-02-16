@@ -31,7 +31,25 @@ package org.jboss.ejb3.async.impl.test.common;
  */
 public interface TestConstants
 {
+   // --------------------------------------------------------------------------------||
+   // Test Setup ---------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    String DOMAIN_ASYNC = "Asynchronous Container";
 
    String AOP_DEPLOYABLE_FILENAME_SIMPLE = "simple/jboss-aop.xml";
+
+   // --------------------------------------------------------------------------------||
+   // Test POJO Method Names ---------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   String METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS = "incrementCounterAsynchronous";
+
+   String METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS = "incrementCounterSynchronous";
+
+   String METHOD_NAME_GET_COUNTER = "getCounter";
+
+   String METHOD_NAME_GET_VALUE_ASYNCHRONOUS = "getValueAsynchronous";
+
+   String METHOD_NAME_GET_VALUE_SYNCHRONOUS = "getValueSynchronous";
 }

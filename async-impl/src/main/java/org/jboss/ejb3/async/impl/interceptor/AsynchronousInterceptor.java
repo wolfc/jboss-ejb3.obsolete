@@ -32,8 +32,8 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.async.impl.future.AsyncFutureWrapper;
-import org.jboss.ejb3.async.impl.hack.DevelopmentHacks;
 import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
+import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityContext;
 
@@ -183,15 +183,7 @@ public class AsynchronousInterceptor implements Interceptor
     */
    private AsyncInvocationProcessor getInvocationProcessor(Invocation invocation)
    {
-      //TODO Need to get at the container from here
-      return new AsyncInvocationProcessor()
-      {
-
-         public ExecutorService getAsynchronousExecutor()
-         {
-            return DevelopmentHacks.getDefaultAsyncExecutorService();
-         }
-      };
+      return (AsyncInvocationProcessor) ((ManagedObjectAdvisor) invocation.getAdvisor()).getContainer();
    }
 
    // --------------------------------------------------------------------------------||
