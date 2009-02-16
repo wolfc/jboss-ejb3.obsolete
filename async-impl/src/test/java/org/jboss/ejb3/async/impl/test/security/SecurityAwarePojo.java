@@ -19,13 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.test.security;
+package org.jboss.ejb3.async.impl.test.security;
 
 import java.util.concurrent.Future;
 
 import javax.ejb.AsyncResult;
 
-import org.jboss.ejb3.async.test.common.SecurityActions;
+import org.jboss.ejb3.async.impl.test.common.SecurityActions;
 import org.jboss.security.SecurityContext;
 
 /**

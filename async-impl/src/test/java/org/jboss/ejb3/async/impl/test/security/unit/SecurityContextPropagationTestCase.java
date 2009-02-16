@@ -19,17 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.test.security.unit;
+package org.jboss.ejb3.async.impl.test.security.unit;
 
 import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
-import org.jboss.ejb3.async.test.common.SecurityActions;
-import org.jboss.ejb3.async.test.common.TestConstants;
-import org.jboss.ejb3.async.test.container.AsyncContainer;
-import org.jboss.ejb3.async.test.security.SecurityAwarePojo;
+import org.jboss.ejb3.async.impl.test.common.SecurityActions;
+import org.jboss.ejb3.async.impl.test.common.TestConstants;
+import org.jboss.ejb3.async.impl.test.container.AsyncContainer;
+import org.jboss.ejb3.async.impl.test.security.SecurityAwarePojo;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityContext;

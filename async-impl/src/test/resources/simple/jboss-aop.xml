@@ -7,7 +7,7 @@
     invocation, we may make the interceptor per-JVM
   -->
   <interceptor name="AsynchronousInterceptor"
-    class="org.jboss.ejb3.async.interceptor.AsynchronousInterceptor"
+    class="org.jboss.ejb3.async.impl.interceptor.AsynchronousInterceptor"
     scope="PER_INSTANCE" />
 
   <domain name="Asynchronous Container">

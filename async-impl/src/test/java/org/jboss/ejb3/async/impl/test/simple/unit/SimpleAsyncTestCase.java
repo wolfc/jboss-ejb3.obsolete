@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.test.simple.unit;
+package org.jboss.ejb3.async.impl.test.simple.unit;
 
 import java.util.concurrent.Future;
 
@@ -28,9 +28,9 @@ import javax.ejb.Asynchronous;
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
-import org.jboss.ejb3.async.test.common.TestConstants;
-import org.jboss.ejb3.async.test.container.AsyncContainer;
-import org.jboss.ejb3.async.test.simple.Pojo;
+import org.jboss.ejb3.async.impl.test.common.TestConstants;
+import org.jboss.ejb3.async.impl.test.container.AsyncContainer;
+import org.jboss.ejb3.async.impl.test.simple.Pojo;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;

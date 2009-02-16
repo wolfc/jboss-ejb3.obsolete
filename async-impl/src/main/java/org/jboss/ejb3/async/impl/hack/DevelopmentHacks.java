@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.hack;
+package org.jboss.ejb3.async.impl.hack;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

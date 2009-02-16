@@ -19,19 +19,48 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.test.common;
+package org.jboss.ejb3.async.impl.test.common;
+
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
 
 /**
- * TestConstants
+ * SecurityActions
  * 
- * A series of contracted values used in testing
+ * Privileged actions available publically.
+ * 
+ * Note that this implementation may have exported visibility
+ * only by nature of tha tit's in a test package, and not
+ * in the main of ejb3-async
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface TestConstants
+public class SecurityActions
 {
-   String DOMAIN_ASYNC = "Asynchronous Container";
+   public static SecurityContext getSecurityContext()
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>()
+      {
+         public SecurityContext run()
+         {
+            return SecurityContextAssociation.getSecurityContext();
+         }
+      });
+   }
 
-   String AOP_DEPLOYABLE_FILENAME_SIMPLE = "simple/jboss-aop.xml";
+   public static void setSecurityContext(final SecurityContext sc)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Void>()
+      {
+         public Void run()
+         {
+            SecurityContextAssociation.setSecurityContext(sc);
+            return null;
+         }
+      });
+   }
 }

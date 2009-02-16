@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.test.common;
+package org.jboss.ejb3.async.impl.interceptor;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -30,18 +30,14 @@ import org.jboss.security.SecurityContextAssociation;
 /**
  * SecurityActions
  * 
- * Privileged actions available publically.
- * 
- * Note that this implementation may have exported visibility
- * only by nature of tha tit's in a test package, and not
- * in the main of ejb3-async
+ * Self-contained privileged actions
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class SecurityActions
+class SecurityActions
 {
-   public static SecurityContext getSecurityContext()
+   static SecurityContext getSecurityContext()
    {
       return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>()
       {
@@ -52,7 +48,7 @@ public class SecurityActions
       });
    }
 
-   public static void setSecurityContext(final SecurityContext sc)
+   static void setSecurityContext(final SecurityContext sc)
    {
       AccessController.doPrivileged(new PrivilegedAction<Void>()
       {

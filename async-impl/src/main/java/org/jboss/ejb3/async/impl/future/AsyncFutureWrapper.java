@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.future;
+package org.jboss.ejb3.async.impl.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
