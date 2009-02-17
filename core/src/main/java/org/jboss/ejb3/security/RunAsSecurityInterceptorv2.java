@@ -24,9 +24,9 @@ package org.jboss.ejb3.security;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.ejb3.EJBContainer; 
+import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.logging.Logger;
+import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 
@@ -38,8 +38,7 @@ import org.jboss.security.SecurityContext;
  * @version $Revision: 61914 $
  */
 public class RunAsSecurityInterceptorv2 implements Interceptor
-{
-   private static final Logger log = Logger.getLogger(RunAsSecurityInterceptorv2.class);
+{ 
    private RunAsIdentity runAsIdentity;
    private EJBContainer container;
 
@@ -50,38 +49,46 @@ public class RunAsSecurityInterceptorv2 implements Interceptor
    }
 
    protected RunAsIdentity getRunAsIdentity(Invocation invocation)
-   {
-      MethodInvocation mi = (MethodInvocation)invocation;
+   { 
       return runAsIdentity;
    }
 
+   /**
+    * @see Interceptor#invoke(Invocation)
+    */
    public Object invoke(Invocation invocation) throws Throwable
    { 
+      SecurityContext cachedContext = null;
+      
       //Check for ejbTimeOut
       SecurityHelper shelper = new SecurityHelper();
       if(shelper.isEJBTimeOutCallback(((MethodInvocation) invocation).getMethod())) 
          return invocation.invokeNext();
       
       SecurityContext sc = SecurityActions.getSecurityContext();
+      
+      cachedContext = sc;
+     
       /**
-       * If Existing SecurityContext is null, it means that we have not gone
-       * through AuthenticationInterceptor. This is probably because
-       * we are an MDB. So create a new SecurityContext
+       * An MDB always starts with a null security context coming in
        */
+      if(container instanceof MessagingContainer)
+      {
+         sc = null;
+      }
+      
       if(sc == null)
       {
-         SecurityDomain domain = (SecurityDomain)container.resolveAnnotation(SecurityDomain.class);
+         SecurityDomain domain = (SecurityDomain)container.getAnnotation(SecurityDomain.class);
          if(domain != null)
          {
             sc = SecurityActions.createSecurityContext(domain.value());
             SecurityActions.setSecurityContext(sc);
          }  
       }
-      
       if(sc != null)
-      {
-         sc.setOutgoingRunAs(runAsIdentity);
-      } 
+        sc.setOutgoingRunAs(runAsIdentity);
+      
       try
       {
          return invocation.invokeNext(); 
@@ -90,10 +97,13 @@ public class RunAsSecurityInterceptorv2 implements Interceptor
       {
          if(sc != null)
            SecurityActions.popRunAs();
+         SecurityActions.setSecurityContext(cachedContext);
       }
    }
 
-   
+   /**
+    * @see Interceptor#getName()
+    */
    public String getName()
    { 
       return getClass().getName();

@@ -9,6 +9,16 @@
    
    <bean name="DefaultPersistenceProperties" class="org.jboss.ejb3.DefaultPersistenceProperties"/>
 
+   <bean name="Ejb3DependenciesDeployer" class="org.jboss.ejb3.deployers.Ejb3DependenciesDeployer">
+      <!-- TODO: allow for configuration
+      <property name="dependencies">
+         <dependency xmlns="urn:jboss:dependency:1.0">
+            <item>javax.transaction.TransactionManager</item>
+         </dependency>
+      </property>
+      -->
+   </bean>
+   
    <bean name="Ejb3Deployer" class="org.jboss.ejb3.deployers.Ejb3Deployer">
       <install bean="ManagedDeploymentCreator" method="addVersionedAttachmentType">
          <parameter>
@@ -236,7 +246,7 @@
             <!-- ServiceRemoteProxyFactory -->
             <entry>
                <key>ServiceRemoteProxyFactory</key>
-               <value>org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.session.service.ServiceRemoteProxyFactory</value>
             </entry>
             <!-- StatefulClusterProxyFactory -->
             <entry>
@@ -324,6 +334,16 @@
         org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
     </constructor>
+  </bean>  
+  
+  <!-- @Service JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.ServiceJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiServiceRegistrar">
+    <constructor>
+      <parameter>
+        org.jboss.ejb3.proxy.objectfactory.session.service.ServiceProxyObjectFactory
+      </parameter>
+    </constructor>
   </bean>
    
   <bean name="org.jboss.ejb3.ProxyClusteringRegistry"
@@ -357,5 +377,29 @@
   <!-- EJB3 JNDI Policy Decorator Deployer -->
   <bean name="EjbMetadataJndiPolicyDecoratorDeployer"
     class="org.jboss.ejb3.deployers.EjbMetadataJndiPolicyDecoratorDeployer" />
+    
+  <!-- EJB Reference Resolver -->
+  <bean name="org.jboss.ejb3.EjbReferenceResolver" class="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver">
+    <constructor factoryClass="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolverFactory"
+                 factoryMethod="newInstance">
+      <parameter>org.jboss.ejb3.common.resolvers.plugins.FirstMatchEjbReferenceResolver</parameter>
+    </constructor>
+  </bean>
+  
+  <!-- Add Annotation Plugins upon installation -->
+  <bean name="org.jboss.ejb3.AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService" 
+    class="org.jboss.ejb3.mcint.annotationadaptor.AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService">
+    <constructor>
+      <parameter><inject bean="jboss.kernel:service=Kernel"/></parameter>
+    </constructor>
+  </bean>
+    
+  <!-- EJB Reference Annotation Plugin -->
+  <bean name="org.jboss.ejb3.EjbReferenceAnnotationPlugin"
+    class="org.jboss.ejb3.mcint.metadata.plugins.EjbReferenceAnnotationPlugin">
+    <constructor>
+      <parameter><inject bean="org.jboss.ejb3.EjbReferenceResolver" /></parameter>
+    </constructor>
+  </bean>
 
 </deployment>

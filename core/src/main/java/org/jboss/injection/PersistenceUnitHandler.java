@@ -50,6 +50,11 @@ import org.jboss.metadata.javaee.spec.RemoteEnvironment;
 public class PersistenceUnitHandler<X extends RemoteEnvironment> implements InjectionHandler<X>
 {
    private static final Logger log = Logger.getLogger(PersistenceUnitHandler.class);
+   
+   /**
+    * Contracted error message value, form may be checked from Integration Tests
+    */
+   public static final String ERROR_MESSAGE_FAILED_TO_RESOVLE_PU = " failed to resolve persistence unit ";
 
    public void loadXml(X xml, InjectionContainer container)
    {
@@ -120,8 +125,15 @@ public class PersistenceUnitHandler<X extends RemoteEnvironment> implements Inje
       if(container instanceof ExtendedInjectionContainer)
       {
          ExtendedInjectionContainer eic = (ExtendedInjectionContainer) container;
-         String dependency = eic.resolvePersistenceUnitSupplier(unitName);
-         container.getDependencyPolicy().addDependency(dependency);
+         try
+         {
+            String dependency = eic.resolvePersistenceUnitSupplier(unitName);
+            container.getDependencyPolicy().addDependency(dependency);
+         }
+         catch(IllegalArgumentException e)
+         {
+            throw new IllegalArgumentException("Container " + container + ERROR_MESSAGE_FAILED_TO_RESOVLE_PU + unitName, e);
+         }
          return;
       }
       throw new UnsupportedOperationException("Container " + container + " does not implement ExtendedInjectionContainer, can't resolve persistence unit " + unitName);

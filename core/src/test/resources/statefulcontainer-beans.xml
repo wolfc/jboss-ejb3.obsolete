@@ -15,26 +15,53 @@
       </property>
    </bean>
    
+   <bean name="EJB3CacheSynchronizationCoordinator" class="org.jboss.ejb3.cache.spi.impl.SynchronizationCoordinatorImpl"/>
+   
    <!-- EJB3 Cache Factory Registry -->
    <bean name="EJB3CacheFactoryRegistry" class="org.jboss.ejb3.cache.CacheFactoryRegistry">
       <property name="factories">
          <!-- Define each of the registered factories -->
          <map class="java.util.HashMap" keyClass="java.lang.String"
-            valueClass="java.lang.Class">
+            valueClass="org.jboss.ejb3.cache.StatefulCacheFactory">
             <!-- NoPassivationCache -->
             <entry>
                <key>NoPassivationCache</key>
-               <value>org.jboss.ejb3.cache.NoPassivationCacheFactory</value>
+               <value>
+                  <bean class="org.jboss.ejb3.cache.impl.factory.NonPassivatingCacheFactory">
+                     <property name="transactionManager"><inject bean="RealTransactionManager"/></property>
+                     <property name="synchronizationCoordinator"><inject bean="EJB3CacheSynchronizationCoordinator"/></property>
+                  </bean>
+               </value>
             </entry>
             <!-- SimpleStatefulCache -->
             <entry>
                <key>SimpleStatefulCache</key>
-               <value>org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory</value>
+               <value>
+                  <bean class="org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory">
+                     <constructor>
+                        <parameter>
+                           <bean class="org.jboss.ejb3.cache.impl.factory.NonClusteredBackingCacheEntryStoreSource"/>
+                        </parameter>
+                     </constructor>
+                     <property name="transactionManager"><inject bean="RealTransactionManager"/></property>
+                     <property name="synchronizationCoordinator"><inject bean="EJB3CacheSynchronizationCoordinator"/></property>
+                  </bean>
+               </value>
             </entry>
             <!-- StatefulTreeCache -->
             <entry>
                <key>StatefulTreeCache</key>
-               <value>org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory</value>
+               <value>
+                  <bean class="org.jboss.ejb3.cache.impl.factory.GroupAwareCacheFactory">
+                     <constructor>
+                        <parameter>
+                           <bean class="org.jboss.ejb3.test.cache.distributed.MockBackingCacheEntryStoreSource"/>
+                        </parameter>
+                     </constructor>
+                     <property name="transactionManager"><inject bean="RealTransactionManager"/></property>
+                     <property name="synchronizationCoordinator"><inject bean="EJB3CacheSynchronizationCoordinator"/></property>
+                  </bean>
+               </value>
             </entry>
          </map>
       </property>

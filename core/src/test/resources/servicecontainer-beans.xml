@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+  <!-- @Service JNDI Registrar -->
+  <bean name="org.jboss.ejb3.JndiRegistrar.Session.ServiceJndiRegistrar"
+    class="org.jboss.ejb3.proxy.jndiregistrar.JndiServiceRegistrar">
+    <constructor>
+      <parameter>
+        org.jboss.ejb3.proxy.objectfactory.session.service.ServiceProxyObjectFactory
+      </parameter>
+    </constructor>
+  </bean>
+  
+</deployment>

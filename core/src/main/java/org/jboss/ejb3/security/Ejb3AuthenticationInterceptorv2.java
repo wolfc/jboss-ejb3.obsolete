@@ -22,6 +22,9 @@
 package org.jboss.ejb3.security;
 
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.Principal;
+import java.security.PrivilegedExceptionAction;
 
 import javax.ejb.EJBAccessException;
 import javax.security.auth.Subject;
@@ -34,8 +37,12 @@ import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.logging.Logger;
 import org.jboss.security.ISecurityManagement;
+import org.jboss.security.RunAs;
+import org.jboss.security.RunAsIdentity;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityUtil;
+import org.jboss.security.identity.Identity;
+import org.jboss.security.identity.plugins.SimpleIdentity;
 import org.jboss.security.javaee.EJBAuthenticationHelper;
 import org.jboss.security.javaee.SecurityHelperFactory;
 
@@ -73,87 +80,109 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
          return invocation.invokeNext();
        
       SecurityContext prevSC = SecurityActions.getSecurityContext();
-      SecurityContext invSC = (SecurityContext) invocation.getMetaData("security","context"); 
-      
-      SecurityDomain domain = container.getAnnotation(SecurityDomain.class); 
-      
-      boolean domainExists = domain != null && domain.value() != null 
-                    && domain.value().length() > 0;
-       
-      /**
-       * TODO: Decide if you want to allow zero security based on non-availability
-       * of a security domain, as per the configuration on the container
-       */
-      if(domainExists)
-      {  
-         String domainValue = canonicalizeSecurityDomain(domain.value());
-         
-         /* Need to establish the security context. For local calls, we pick the outgoing runas
-          * of the existing sc. For remote calls, we create a new security context with the information
-          * from the invocation sc
-          */
-         SecurityContext sc = null; 
-
-         sc = SecurityActions.createSecurityContext(domainValue);
-         
-         if(shelper.isLocalCall(mi))
-         {
-            if(prevSC == null)
-               throw new IllegalStateException("Local Call: Security Context is null");
-            populateSecurityContext(sc, prevSC);  
-         }
-         else
-         { 
-           //Remote Invocation
-           if(invSC == null)
-             throw new IllegalStateException("Remote Call: Invocation Security Context is null");
-           
-           populateSecurityContext(sc, invSC); 
-         }
-         
-         SecurityActions.setSecurityContext(sc);
-            
-         //TODO: Need to get the SecurityManagement instance
-         sc.setSecurityManagement(getSecurityManagement());
-           
-         //Check if there is a RunAs configured and can be trusted 
-         EJBAuthenticationHelper helper = null;
-         try
-         {
-            helper = SecurityHelperFactory.getEJBAuthenticationHelper(sc);
-         }
-         catch(Exception e)
-         {
-            throw new RuntimeException(e);
-         } 
-         boolean trustedCaller = helper.isTrusted();
-         if(!trustedCaller)
-         {
-            Subject subject = new Subject();
-            //Authenticate the caller now
-            if(!helper.isValid(subject, method.getName()))
-               throw new EJBAccessException("Invalid User"); 
-            helper.pushSubjectContext(subject);
-         }
-         else
-         {  
-            //Trusted caller. No need for authentication. Straight to authorization
-         } 
-      }
-      else
-      {
-         //domain == null
-         /**
-          * Special Case when a bean with no security domain defined comes with a security
-          * context attached.
-          */
-         if(invSC != null)
-         {
-            SecurityActions.setSecurityContext(invSC);
-         }
-      }
       try
-      {  
+      {
+         SecurityContext invSC = (SecurityContext) invocation.getMetaData("security","context"); 
+         
+         SecurityDomain domain = container.getAnnotation(SecurityDomain.class); 
+         
+         boolean domainExists = domain != null && domain.value() != null 
+                       && domain.value().length() > 0;
+          
+         /**
+          * TODO: Decide if you want to allow zero security based on non-availability
+          * of a security domain, as per the configuration on the container
+          */
+         if(domainExists)
+         {  
+            String domainValue = canonicalizeSecurityDomain(domain.value());
+            
+            /* Need to establish the security context. For local calls, we pick the outgoing runas
+             * of the existing sc. For remote calls, we create a new security context with the information
+             * from the invocation sc
+             */
+            final SecurityContext sc = SecurityActions.createSecurityContext(domainValue);
+            
+            if(shelper.isLocalCall(mi))
+            {
+               if(prevSC == null)
+                  throw new IllegalStateException("Local Call: Security Context is null");
+               populateSecurityContext(sc, prevSC);  
+            }
+            else
+            { 
+              //Remote Invocation
+              if(invSC == null)
+                throw new IllegalStateException("Remote Call: Invocation Security Context is null");
+              
+              populateSecurityContext(sc, invSC); 
+            }
+            
+            SecurityActions.setSecurityContext(sc);
+               
+            //TODO: Need to get the SecurityManagement instance
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>()
+            {
+               public Object run() throws Exception
+               {
+                  sc.setSecurityManagement(getSecurityManagement());
+                  return null;
+               }
+            });
+            
+              
+            //Check if there is a RunAs configured and can be trusted 
+            EJBAuthenticationHelper helper = null;
+            try
+            {
+               helper = SecurityHelperFactory.getEJBAuthenticationHelper(sc);
+            }
+            catch(Exception e)
+            {
+               throw new RuntimeException(e);
+            } 
+            boolean trustedCaller = hasIncomingRunAsIdentity(sc) || helper.isTrusted();
+            if(!trustedCaller)
+            {
+               Subject subject = new Subject();
+               /**
+                * Special Case: Invocation has no principal set, 
+                * but an unauthenticatedPrincipal has been configured in JBoss DD
+                */
+               Principal userPrincipal = sc.getUtil().getUserPrincipal();
+               String unauthenticatedPrincipal = domain.unauthenticatedPrincipal();
+               if(userPrincipal == null && unauthenticatedPrincipal !=null &&
+                     unauthenticatedPrincipal.length() > 0)
+               {
+                  Identity unauthenticatedIdentity = new SimpleIdentity(unauthenticatedPrincipal);
+                  sc.getSubjectInfo().addIdentity(unauthenticatedIdentity);
+                  subject.getPrincipals().add(unauthenticatedIdentity.asPrincipal());
+               }
+               else
+               { 
+                  //Authenticate the caller now
+                  if(!helper.isValid(subject, method.getName()))
+                     throw new EJBAccessException("Invalid User"); 
+               }
+               helper.pushSubjectContext(subject);
+            }
+            else
+            {  
+               //Trusted caller. No need for authentication. Straight to authorization
+            } 
+         }
+         else
+         {
+            //domain == null
+            /**
+             * Special Case when a bean with no security domain defined comes with a security
+             * context attached.
+             */
+            if(invSC != null)
+            {
+               SecurityActions.setSecurityContext(invSC);
+            }
+         }
          return invocation.invokeNext();  
       }
       finally
@@ -181,5 +210,12 @@ public class Ejb3AuthenticationInterceptorv2 implements Interceptor
    private ISecurityManagement getSecurityManagement() throws Exception
    {
       Class<?> clazz = SecurityActions.loadClass("org.jboss.security.integration.JNDIBasedSecurityManagement");
-      return (ISecurityManagement) clazz.newInstance();    }
+      return (ISecurityManagement) clazz.newInstance();    
+   }
+   
+   private boolean hasIncomingRunAsIdentity(SecurityContext sc)
+   {
+      RunAs incomingRunAs = sc.getIncomingRunAs();
+      return incomingRunAs != null && incomingRunAs instanceof RunAsIdentity;
+   }
 }

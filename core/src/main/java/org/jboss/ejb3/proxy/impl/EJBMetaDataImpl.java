@@ -67,6 +67,7 @@ public class EJBMetaDataImpl
          final boolean statelessSession,
          final HomeHandle homeHandle)
    {
+      assert homeHandle != null : "homeHandle is null";
       this.remote = remote;
       this.home = home;
       this.pkClass = pkClass;

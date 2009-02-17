@@ -22,6 +22,7 @@
 package org.jboss.ejb3;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 import org.jboss.aop.DispatcherConnectException;
@@ -55,7 +56,8 @@ public class BlockContainerShutdownInterceptor implements Interceptor, Serializa
       
       Lock lock = container.getInvocationLock();
       
-      if (!lock.tryLock())
+      // We intentionally do not use tryLock() since it does not respect lock fairness
+      if (!lock.tryLock(0, TimeUnit.SECONDS))
       {
          throw new DispatcherConnectException("EJB container is not completely started, or is stopped.");
       }

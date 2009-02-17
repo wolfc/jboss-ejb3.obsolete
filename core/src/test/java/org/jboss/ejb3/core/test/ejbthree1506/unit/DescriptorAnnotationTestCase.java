@@ -65,7 +65,7 @@ public class DescriptorAnnotationTestCase extends AbstractEJB3TestCase
       sessionBeanMetaData.setSessionType(SessionType.Stateful);
       enterpriseBeans.add(sessionBeanMetaData);
       
-      MockEjb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      MockEjb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       Ejb3DescriptorHandler handler = new Ejb3DescriptorHandler(deployment, metaData);
       List<Container> containers = handler.getContainers(deployment, new HashMap<String, Container>());
       

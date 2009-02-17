@@ -23,6 +23,8 @@ package org.jboss.ejb3.stateful;
 
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.transaction.UserTransaction;
+import javax.xml.rpc.handler.MessageContext;
 
 import org.jboss.ejb3.session.SessionBeanContext;
 import org.jboss.ejb3.session.SessionContextDelegateBase;
@@ -36,10 +38,25 @@ import org.jboss.ejb3.session.SessionContextDelegateBase;
  */
 public class StatefulSessionContextDelegate extends SessionContextDelegateBase<StatefulContainer>
 {
-
-   public StatefulSessionContextDelegate(SessionBeanContext<StatefulContainer> beanContext)
+   private final Object id;
+   
+   public StatefulSessionContextDelegate(StatefulBeanContext ctx)
    {
-      super(beanContext);
+      super(ctx);
+      this.id = ctx.getId();
+      // Hack. Here we don't release the bean context back to the cache
+      // since we aren't the one that accessed it
+//      container.getCache().release((StatefulBeanContext) beanContext);
+      this.beanContext = null;
+   }
+   
+   public StatefulSessionContextDelegate(StatefulContainer container, Object id)
+   {
+      super(container.getCache().get(id));
+      this.id = id;
+      // Hack. Need to release the bean context back to the cache
+      container.getCache().release((StatefulBeanContext) beanContext);
+      this.beanContext = null;
    }
 
    @Override
@@ -47,7 +64,6 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
    {
       try
       {
-         Object id = beanContext.getId();
          EJBLocalObject proxy = null;
          try
          {
@@ -76,7 +92,6 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
    {
       try
       {
-         Object id = beanContext.getId();
          EJBObject proxy = null;
          try
          {
@@ -96,6 +111,62 @@ public class StatefulSessionContextDelegate extends SessionContextDelegateBase<S
       catch (Exception e)
       {
          throw new IllegalStateException(e);
+      }
+   }
+
+   @Override
+   public <T> T getBusinessObject(Class<T> businessInterface) throws IllegalStateException
+   {
+      establishBeanContext();
+      try
+      {
+         return super.getBusinessObject(businessInterface);
+      }
+      finally
+      {
+         releaseBeanContext();
+      }
+   }
+
+   @Override
+   public MessageContext getMessageContext() throws IllegalStateException
+   {
+      establishBeanContext();
+      try
+      {
+         return super.getMessageContext();
+      }
+      finally
+      {
+         releaseBeanContext();
+      }
+   }
+
+   @Override
+   public UserTransaction getUserTransaction() throws IllegalStateException
+   {
+      establishBeanContext();
+      try
+      {
+         return super.getUserTransaction();
+      }
+      finally
+      {
+         releaseBeanContext();
+      }
+   }
+   
+   private void establishBeanContext()
+   {
+      this.beanContext = container.getCache().get(id);
+   }
+   
+   private void releaseBeanContext()
+   {
+      if (this.beanContext != null)
+      {
+         container.getCache().release((StatefulBeanContext) beanContext);
+         beanContext = null;
       }
    }
 

@@ -54,14 +54,14 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
-import org.jboss.ejb3.annotation.Cache;
-import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
+import org.jboss.ejb3.cache.Cache;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
-import org.jboss.ejb3.cache.Ejb3CacheFactory;
-import org.jboss.ejb3.cache.StatefulCache;
+import org.jboss.ejb3.cache.PassivationManager;
+import org.jboss.ejb3.cache.StatefulCacheFactory;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
@@ -73,7 +73,6 @@ import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateful.StatefulLocalProxyFactory;
@@ -92,7 +91,6 @@ import org.jboss.injection.Injector;
 import org.jboss.injection.JndiPropertyInjector;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.util.NotImplementedException;
 
 
 /**
@@ -104,11 +102,12 @@ import org.jboss.util.NotImplementedException;
 public class StatefulContainer extends SessionSpecContainer
       implements
          StatefulObjectFactory<StatefulBeanContext>,
+         PassivationManager<StatefulBeanContext>,
          StatefulSessionInvokableContext
 {
    private static final Logger log = Logger.getLogger(StatefulContainer.class);
 
-   protected StatefulCache cache;
+   protected Cache<StatefulBeanContext> cache;
    private StatefulDelegateWrapper mbean = new StatefulDelegateWrapper(this);
 
    public StatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
@@ -117,18 +116,47 @@ public class StatefulContainer extends SessionSpecContainer
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
    }
 
-   public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues)
+//   public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues)
+//   {
+//      StatefulBeanContext sfctx = (StatefulBeanContext) createBeanContext();
+//      // Tell context how to handle replication
+//      CacheConfig config = getAnnotation(CacheConfig.class);
+//      if (config != null)
+//      {
+//         sfctx.setReplicationIsPassivation(config.replicationIsPassivation());
+//      }
+//
+//      // this is for propagated extended PC's
+//      sfctx = sfctx.pushContainedIn();
+//      
+//      pushContext(sfctx);
+//      try
+//      {
+//         injectBeanContext(sfctx);
+//
+//         sfctx.initialiseInterceptorInstances();
+//
+//      }
+//      finally
+//      {
+//         popContext();
+//         // this is for propagated extended PC's
+//         sfctx.popContainedIn();
+//      }
+//      
+//      invokePostConstruct(sfctx, initValues);
+//      
+//      //TODO This needs to be reimplemented as replacement for create() on home interface
+//      invokeInit(sfctx.getInstance(), initTypes, initValues);
+//      
+//      return sfctx;
+//   }
+   
+   public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues, Map<Object, Object> sharedState)
    {
       StatefulBeanContext sfctx = (StatefulBeanContext) createBeanContext();
-      // Tell context how to handle replication
-      CacheConfig config = getAnnotation(CacheConfig.class);
-      if (config != null)
-      {
-         sfctx.setReplicationIsPassivation(config.replicationIsPassivation());
-      }
-
-      // this is for propagated extended PC's
-      sfctx = sfctx.pushContainedIn();
+      // FIXME this needs to be passed via the constructor to establish invariant
+      sfctx.setSharedState(sharedState);
       
       pushContext(sfctx);
       try
@@ -141,14 +169,14 @@ public class StatefulContainer extends SessionSpecContainer
       finally
       {
          popContext();
-         // this is for propagated extended PC's
-         sfctx.popContainedIn();
       }
       
       invokePostConstruct(sfctx, initValues);
       
       //TODO This needs to be reimplemented as replacement for create() on home interface
       invokeInit(sfctx.getInstance(), initTypes, initValues);
+      
+      log.trace("Created context " + sfctx.getId() + " for " + getName());
       
       return sfctx;
    }
@@ -294,11 +322,11 @@ public class StatefulContainer extends SessionSpecContainer
          return;
       }
       
-      Cache cacheConfig = getAnnotation(Cache.class);
+      org.jboss.ejb3.annotation.Cache cacheAnnotation = getAnnotation(org.jboss.ejb3.annotation.Cache.class);
+      org.jboss.ejb3.annotation.CacheConfig cacheConfig = getAnnotation(org.jboss.ejb3.annotation.CacheConfig.class);
       CacheFactoryRegistry registry = getCacheFactoryRegistry();
-      Ejb3CacheFactory factory = registry.getCacheFactory(cacheConfig.value());
-      this.cache = factory.createCache();
-      this.cache.initialize(this);
+      StatefulCacheFactory<StatefulBeanContext> factory = registry.getCacheFactory(cacheAnnotation.value());
+      this.cache = factory.createCache(getName(), this, this, cacheConfig);
       this.cache.start();
    }
    
@@ -333,7 +361,7 @@ public class StatefulContainer extends SessionSpecContainer
       super.lockedStop();
    }
 
-   public StatefulCache getCache()
+   public Cache<StatefulBeanContext> getCache()
    {
       // Ensure initialized
       try{
@@ -485,11 +513,8 @@ public class StatefulContainer extends SessionSpecContainer
       try
       {
          Thread.currentThread().setContextClassLoader(classloader);
-         StatefulCache cache = this.getCache();
-         StatefulBeanContext ctx = cache.create(initTypes, initValues);
-         // Since we return the key here, the context is not in use.
-         cache.release(ctx);
-         Object id = ctx.getId();
+         Cache<StatefulBeanContext> cache = this.getCache();
+         Object id = cache.create(initTypes, initValues);
          assert id instanceof Serializable : "SFSB Session IDs must be " + Serializable.class.getSimpleName();
          return (Serializable) id;
       }
@@ -507,9 +532,9 @@ public class StatefulContainer extends SessionSpecContainer
    
    /**
     * Remote Invocation entry point, as delegated from
-    * ClassProxyHack (Remoting Dispatcher)
+    * InvokableContextClassProxyHack (Remoting Dispatcher)
     */
-   //TODO
+   @Override
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       /*
@@ -615,8 +640,7 @@ public class StatefulContainer extends SessionSpecContainer
 
                if (sessionId == null)
                {
-                  StatefulBeanContext ctx = getCache().create(null, null);
-                  Object objNewId = ctx.getId();
+                  Object objNewId = getCache().create(null, null);
                   assert objNewId instanceof Serializable : "Obtained new Session ID from cache, " + objNewId
                         + ", which is not " + Serializable.class.getSimpleName();
                   sessionId = (Serializable) objNewId;
@@ -727,124 +751,6 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
    
-   @Deprecated
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-   {
-      throw new NotImplementedException("Should be using dynamicInvoke(Invocation invocation)");
-   }
-//   /**
-//    * This should be a remote invocation call
-//    *
-//    * @param invocation
-//    * @return
-//    * @throws Throwable
-//    * @deprecated Use dynamicInvoke(Invocation invocation)
-//    */
-//   @Deprecated
-//   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-//   {
-//      long start = System.currentTimeMillis();
-//      
-//      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-//      EJBContainerInvocation newSi = null;
-//      pushEnc();
-//      try
-//      {
-//         Thread.currentThread().setContextClassLoader(classloader);
-//         MethodInvocation mi = (MethodInvocation)invocation;
-//         
-//         MethodInfo info = getAdvisor().getMethodInfo(mi.getMethodHash());
-//         if (info == null)
-//         {
-//            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
-//         }
-//         Method unadvisedMethod = info.getUnadvisedMethod();
-//         
-//         
-//         StatefulRemoteInvocation si = (StatefulRemoteInvocation) invocation;
-//         
-//
-//         InvocationResponse response = null;
-//         
-//         Object newId = null;
-//         
-//         try
-//         {
-//            invokeStats.callIn();
-//            
-//            if (info != null && unadvisedMethod != null && isHomeMethod(unadvisedMethod))
-//            {
-//               response = invokeHomeMethod(info, si);
-//            }
-//            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
-//            {
-//               response = invokeEJBObjectMethod(info, si);
-//            }
-//            else
-//            {
-//               if (unadvisedMethod.isBridge())
-//               {
-//                  unadvisedMethod = this.getNonBridgeMethod(unadvisedMethod);
-//                  info = super.getMethodInfo(unadvisedMethod);
-//               }
-//               
-//               if (si.getId() == null)
-//               {
-//                  StatefulBeanContext ctx = getCache().create(null, null);
-//                  newId = ctx.getId();
-//               }
-//               else
-//               {
-//                  newId = si.getId();
-//               }
-//               newSi = new StatefulContainerInvocation(info, newId);
-//               newSi.setArguments(si.getArguments());
-//               newSi.setMetaData(si.getMetaData());
-//               newSi.setAdvisor(getAdvisor());
-//   
-//               Object rtn = null;
-//                 
-//
-//               rtn = newSi.invokeNext();
-//
-//               response = marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
-//               if (newId != null) response.addAttachment(StatefulConstants.NEW_ID, newId);
-//            }
-//         }
-//         catch (Throwable throwable)
-//         {
-//            Throwable exception = throwable;
-//            if (newId != null)
-//            {
-//               exception = new ForwardId(throwable, newId);
-//            }
-//            Map responseContext = null;
-//            if (newSi != null) newSi.getResponseContextInfo();
-//            response = marshallException(invocation, exception, responseContext);
-//            return response;
-//         }
-//         finally
-//         {
-//            if (unadvisedMethod != null)
-//            {
-//               long end = System.currentTimeMillis();
-//               long elapsed = end - start;
-//               invokeStats.updateStats(unadvisedMethod, elapsed);
-//            }
-//            
-//            invokeStats.callOut();
-//         }
-//
-//         return response;
-//      }
-//      finally
-//      {
-//         Thread.currentThread().setContextClassLoader(oldLoader);
-//         popEnc();
-//      }
-//   }
-
-
    public TimerService getTimerService()
    {
       throw new UnsupportedOperationException("stateful bean doesn't support TimerService (EJB3 18.2#2)");
@@ -898,14 +804,23 @@ public class StatefulContainer extends SessionSpecContainer
    */
 
    public void invokeInit(Object bean, Class[] initParameterTypes,
+         Object[] initParameterValues)
+   {
+      invokeInit(bean, bean.getClass(), initParameterTypes, initParameterValues);
+   }
+   
+   private void invokeInit(Object bean, Class<?> cls, Class<?>[] initParameterTypes,
                           Object[] initParameterValues)
    {
+      Class<?> superclass = cls.getSuperclass();
+      if(superclass != null)
+         invokeInit(bean, superclass, initParameterTypes, initParameterValues);
       int numParameters = 0;
       if(initParameterTypes != null)
          numParameters = initParameterTypes.length;
       try
       {
-         for(Method method : bean.getClass().getDeclaredMethods())
+         for(Method method : cls.getDeclaredMethods())
          {
             if(numParameters != method.getParameterTypes().length)
                continue;
@@ -1131,6 +1046,74 @@ public class StatefulContainer extends SessionSpecContainer
       return isAnnotationPresent(Clustered.class);
    }
 
+   @Override
+   protected Object invokeHomeCreate(Method method, Object[] args) throws Exception
+   {
+      // TODO: this is almost identical to SessionSpecContainer.invokeHomeCreate, so unify
+      
+      // Hold the JNDI Name
+      String jndiName = null;
+
+      // Flag for if we've found the interface
+      boolean foundInterface = false;
+
+      // Name of the EJB2.x Interface Class expected
+      String ejb2xInterface = method.getReturnType().getName();
+
+      // Get Metadata
+      JBossSessionBeanMetaData smd = this.getMetaData();
+
+      /*
+       * Determine if the expected type is found in metadata as a EJB2.x Interface 
+       */
+
+      // Is this a Remote Interface ?
+      boolean isLocal = false;
+      String ejb2xRemoteInterface = smd.getRemote();
+      if (ejb2xInterface.equals(ejb2xRemoteInterface))
+      {
+         // We've found it, it's false
+         foundInterface = true;
+         jndiName = smd.getJndiName();
+      }
+
+      // Is this a local interface?
+      if (!foundInterface)
+      {
+         String ejb2xLocalInterface = smd.getLocal();
+         if (ejb2xInterface.equals(ejb2xLocalInterface))
+         {
+            // Mark as found
+            foundInterface = true;
+            isLocal = true;
+            jndiName = smd.getLocalJndiName();
+         }
+      }
+
+      // If we haven't yet found the interface
+      if (!foundInterface)
+      {
+         throw new RuntimeException("Specified return value for " + method + " notes an EJB 2.x interface: "
+               + ejb2xInterface + "; this could not be found as either a valid remote or local interface for EJB "
+               + this.getEjbName());
+      }
+      
+      // Lookup
+      String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, smd, isLocal);
+      Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
+      
+      // Cast
+      assert factory instanceof StatefulSessionProxyFactory : "Specified factory " + factory.getClass().getName() + " is not of type "
+         + StatefulSessionProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName() + ", but was instead " + factory;
+      StatefulSessionProxyFactory statefulFactory = null;
+      statefulFactory = StatefulSessionProxyFactory.class.cast(factory);
+      
+      Serializable sessionId = createSession(method.getParameterTypes(), args);
+      Object proxy = statefulFactory.createProxyEjb2x(sessionId);
+      
+      return proxy;
+   }
+   
    protected InvocationResponse invokeHomeMethod(MethodInfo info,
          StatefulRemoteInvocation statefulInvocation) throws Throwable
    {
@@ -1203,11 +1186,11 @@ public class StatefulContainer extends SessionSpecContainer
          RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
          if (homeAnnotation != null)
             home = homeAnnotation.value();
-         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
-         if (remoteBindingAnnotation != null)
-            homeHandle = new HomeHandleImpl(remoteBindingAnnotation
-                    .jndiBinding());
-
+         
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
          EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass,
                  true, false, homeHandle);
 
@@ -1218,12 +1201,10 @@ public class StatefulContainer extends SessionSpecContainer
       {
          HomeHandleImpl homeHandle = null;
 
-         RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
-         if (remoteBindingAnnotation != null)
-            homeHandle = new HomeHandleImpl(remoteBindingAnnotation
-                    .jndiBinding());
-
-
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
          InvocationResponse response = marshallResponse(statefulInvocation, homeHandle, null);
          return response;
       }
@@ -1339,6 +1320,7 @@ public class StatefulContainer extends SessionSpecContainer
    {
       StatefulSessionContainerMethodInvocation newStatefulInvocation = null;
 
+      Object id = null;
       StatefulBeanContext ctx = null;
       
       // ENC is required in scope to create a session
@@ -1347,9 +1329,11 @@ public class StatefulContainer extends SessionSpecContainer
       try
       {
          if (initParameterTypes.length > 0)
-            ctx = getCache().create(initParameterTypes, initParameterValues);
+            id = getCache().create(initParameterTypes, initParameterValues);
          else
-            ctx = getCache().create(null, null);
+            id = getCache().create(null, null);
+         
+         ctx = getCache().get(id);
       }
       finally
       {
@@ -1379,8 +1363,9 @@ public class StatefulContainer extends SessionSpecContainer
       Object newId = null;
       if (statefulInvocation.getId() == null)
       {
-         StatefulBeanContext ctx = getCache().create(null, null);
-         newId = ctx.getId();
+         newId = getCache().create(null, null);
+         // FIXME -- previous create(...) impl would do equiv of a get() as well;
+         // do we need to add a cache.get(newId) to have the same behavior?
          newStatefulInvocation = new StatefulContainerInvocation(info, newId);
       }
       else
@@ -1507,5 +1492,29 @@ public class StatefulContainer extends SessionSpecContainer
       destroySession(handle.id);
       */
       arg.getEJBObject().remove();
+   }
+   
+
+   
+   // --------------------------------------------------  PassivationManager
+
+   public void postActivate(StatefulBeanContext ctx)
+   {
+      ctx.postActivate();
+   }
+
+   public void postReplicate(StatefulBeanContext ctx)
+   {
+      ctx.postReplicate(); 
+   }
+
+   public void prePassivate(StatefulBeanContext ctx)
+   {
+      ctx.prePassivate();
+   }
+
+   public void preReplicate(StatefulBeanContext ctx)
+   {
+      ctx.preReplicate();
    }
 }

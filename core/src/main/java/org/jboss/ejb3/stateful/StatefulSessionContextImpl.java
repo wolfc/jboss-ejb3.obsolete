@@ -127,7 +127,7 @@ public class StatefulSessionContextImpl implements Serializable, SessionContext
          if (container == null && isClustered)
             container = (StatefulContainer)Ejb3Registry.getClusterContainer(containerClusterUid);
          
-         delegate = new StatefulSessionContextDelegate(container.getCache().get(id, false));
+         delegate = new StatefulSessionContextDelegate(container, id);
       }
       return delegate;
    }

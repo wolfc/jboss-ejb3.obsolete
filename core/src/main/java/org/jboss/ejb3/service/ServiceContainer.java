@@ -22,7 +22,10 @@
 package org.jboss.ejb3.service;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -53,17 +56,21 @@ import org.jboss.aspects.asynch.FutureHolder;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb.AllowedOperationsFlags;
 import org.jboss.ejb3.BeanContext;
+import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.Management;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.asynchronous.AsynchronousInterceptor;
-import org.jboss.ejb3.proxy.ProxyFactory;
+import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
+import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactory;
-import org.jboss.ejb3.proxy.factory.service.ServiceLocalProxyFactory;
-import org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.service.ServiceRemoteProxyFactory;
+import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.timerservice.TimedObjectInvoker;
@@ -75,40 +82,58 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.util.NotImplementedException;
 
+
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @version $Revision$
  */
-public class ServiceContainer extends SessionContainer implements TimedObjectInvoker
+public class ServiceContainer extends SessionContainer implements TimedObjectInvoker, InvokableContext
 {
    ServiceMBeanDelegate delegate;
+
    Object singleton;
+
    BeanContext beanContext;
+
    MBeanServer mbeanServer;
+
    ObjectName delegateObjectName;
+
    private TimerService timerService;
+
    private Object mbean = new ServiceDelegateWrapper(this);
-   
+
    private Method timeoutMethod;
-   
+
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
+   
+   /*
+    * Define lifecycle callback method names
+    */
+   
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_CREATE = "create";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_START = "start";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_STOP = "stop";
+   private static final String METHOD_NAME_LIFECYCLE_CALLBACK_DESTROY = "destroy";
 
-   public ServiceContainer(MBeanServer server, ClassLoader cl, String beanClassName, String ejbName,
-                           Domain domain, Hashtable ctxProperties,
-                           Ejb3Deployment deployment, JBossServiceBeanMetaData beanMetaData) throws ClassNotFoundException
+   public ServiceContainer(MBeanServer server, ClassLoader cl, String beanClassName, String ejbName, Domain domain,
+         Hashtable ctxProperties, Ejb3Deployment deployment, JBossServiceBeanMetaData beanMetaData)
+         throws ClassNotFoundException
    {
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
       this.mbeanServer = server;
-      
+
       initializeTimeoutMethod();
    }
 
    // TODO: integrate with StatelessContainer.callTimeout
    public void callTimeout(Timer timer) throws Exception
    {
-      if (timeoutMethod == null) throw new EJBException("No method has been annotated with @Timeout");
-      Object[] args = {timer};
+      if (timeoutMethod == null)
+         throw new EJBException("No method has been annotated with @Timeout");
+      Object[] args =
+      {timer};
       AllowedOperationsAssociation.pushInMethodFlag(AllowedOperationsFlags.IN_EJB_TIMEOUT);
       try
       {
@@ -116,7 +141,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
       catch (Throwable throwable)
       {
-         if (throwable instanceof Exception) throw (Exception) throwable;
+         if (throwable instanceof Exception)
+            throw (Exception) throwable;
          throw new RuntimeException(throwable);
       }
       finally
@@ -130,18 +156,40 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       return new ServiceBeanContext(this, singleton);
    }
-   
+
    @Override
-   protected ProxyFactory getProxyFactory(LocalBinding binding)
+   @Deprecated
+   protected org.jboss.ejb3.proxy.factory.SessionProxyFactory getProxyFactory(LocalBinding binding)
    {
-      return new ServiceLocalProxyFactory(this, binding);
+     throw new NotImplementedException("@Service container is using old Proxy mechanism");
    }
-   
+
    @Override
    protected SessionProxyFactory getProxyFactory(RemoteBinding binding)
    {
-      throw new NotImplementedException(
-            "@Service does not yet use EJB3 Proxy Implementation, call 'getProxyFactoryForService' instead");
+      //TODO Should be obtained from JNDI Registrar, needs to be looked up by a @RemoteBinding key
+
+      /*
+       * In this implementation we just make a new Proxy Factory, for now
+       */
+
+      // Create
+      SessionProxyFactory factory = new ServiceRemoteProxyFactory(this.getName(), this.getName(), Ejb3Registry
+            .guid(this), (JBossServiceBeanMetaData) this.getMetaData(), this.getClassloader(), binding.clientBindUrl(),
+            this.getAdvisor(), binding.interceptorStack());
+
+      // Start the factory
+      try
+      {
+         factory.start();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Error in starting " + factory, e);
+      }
+
+      // Return
+      return factory;
    }
 
    /**
@@ -152,32 +200,42 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    @Deprecated
    public RemoteProxyFactory getProxyFactoryForService(RemoteBinding binding)
    {
-      // TODO Implement clustering
-      return new ServiceRemoteProxyFactory(this, binding);
+      throw new NotImplementedException(this + " is no longer using unsupported (legacy) proxy impl from ejb3-core");
    }
-   
+
    // TODO: integrate with StatelessContainer.initializeTimeout
    private void initializeTimeoutMethod()
    {
       JBossSessionBeanMetaData metaData = getMetaData();
       NamedMethodMetaData timeoutMethodMetaData = null;
-      if(metaData != null)
+      if (metaData != null)
          timeoutMethodMetaData = metaData.getTimeoutMethod();
       this.timeoutMethod = getTimeoutCallback(timeoutMethodMetaData, getBeanClass());
    }
-   
+
    public Serializable createSession(Class<?> initTypes[], Object initArgs[])
    {
-//      if((initTypes != null && initTypes.length > 0) || (initArgs != null && initArgs.length > 0))
-//         throw new IllegalArgumentException("service bean create method must take no arguments");
+      //      if((initTypes != null && initTypes.length > 0) || (initArgs != null && initArgs.length > 0))
+      //         throw new IllegalArgumentException("service bean create method must take no arguments");
       throw new UnsupportedOperationException("Service Containers have no Sessions");
+   }
+   
+   /**
+    * Returns the name under which the JNDI Registrar for this container is bound
+    * 
+    * @return
+    */
+   protected String getJndiRegistrarBindName()
+   {
+      return isClustered() ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE
+                           : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE;
    }
 
    public Object getMBean()
    {
       return mbean;
    }
-   
+
    public Object getSingleton()
    {
       return singleton;
@@ -186,14 +244,13 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    public void create() throws Exception
    {
       super.create();
-      
+
       // EJBTHREE-655: fire up an instance for use as MBean delegate
       singleton = super.construct();
-
-      // won't work, before starting the management interface MBean injection must have been done.
-      //registerManagementInterface();
       
-      invokeOptionalMethod("create");
+      registerManagementInterface();
+      
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_CREATE);
    }
 
    @Override
@@ -209,14 +266,14 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       Management man = (Management) resolveAnnotation(Management.class);
       if (man != null)
       {
-         Class iface = man.value();
+         Class<?> iface = man.value();
          if (iface != null)
          {
             interfaces.add(iface);
          }
       }
 
-      Class[] implIfaces = getBeanClass().getInterfaces();
+      Class<?>[] implIfaces = getBeanClass().getInterfaces();
       for (Class<?> iface : implIfaces)
       {
          if (iface.getAnnotation(Management.class) != null)
@@ -226,21 +283,20 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
       return interfaces;
    }
-   
+
    protected void reinitialize()
    {
       super.reinitialize();
-      
+
       singleton = super.construct();
- 
-      invokeOptionalMethod("create");
+
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_CREATE);
    }
-   
+
    @Override
    protected void lockedStart() throws Exception
    {
       super.lockedStart();
-      proxyDeployer.start();
 
       try
       {
@@ -251,55 +307,53 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
          injectDependencies(beanContext);
 
-         // TODO: EJBTHREE-655: shouldn't happen here, but in create
-         registerManagementInterface();
-         
          TimerServiceFactory.getInstance().restoreTimerService(timerService);
-         
-         invokeOptionalMethod("start");
+         invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
       }
       catch (Exception e)
       {
-         e.printStackTrace();
-         this.lockedStop();
+         log.error("Encountered an error in start of " + this.getMetaData().getEjbName(), e);
+         try
+         {
+            lockedStop();
+         }
+         catch(Exception stopEx)
+         {
+            log.error("Error during forced container stop", stopEx);
+         }
+         throw e;
       }
    }
 
    @Override
    protected void lockedStop() throws Exception
-   {      
-      invokeOptionalMethod("stop");
-      
+   {
+      // Make the lifecycle callback
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_STOP);
+
       if (timerService != null)
       {
          TimerServiceFactory.getInstance().removeTimerService(timerService);
          timerService = null;
       }
 
-      // TODO: EJBTHREE-655: shouldn't happen here, but in destroy
-      unregisterManagementInterface();
-      
-      singleton = null;
-      beanContext = null;
-      
       super.lockedStop();
-      
-      try
-      {
-         proxyDeployer.stop();
-      }
-      catch (Exception ignore)
-      {
-         log.debug("Proxy deployer stop failed", ignore);
-      }
+
    }
 
    public void destroy() throws Exception
    {
-      invokeOptionalMethod("destroy");
+      // Make the lifecycle callback
+      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_DESTROY);
+
+      // Unregister w/ MBean Server
+      unregisterManagementInterface();
       
-      //unregisterManagementInterface();
-      
+      // Null out
+      singleton = null;
+      beanContext = null;
+
+      // Call super impl
       super.destroy();
    }
 
@@ -319,6 +373,18 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       return timerService;
    }
    
+   private void setTcl(final ClassLoader cl)
+   {
+      AccessController.doPrivileged(new PrivilegedAction<Object>()
+      {
+         public Object run()
+         {
+            Thread.currentThread().setContextClassLoader(cl);
+            return null;
+         }
+      });
+   }
+
    /**
     * Invoke a method on the singleton without a specific security or transaction context.
     * 
@@ -326,19 +392,27 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
     */
    private void invokeOptionalMethod(String methodName)
    {
-      /* EJBTHREE-655 has been postponed
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader(); 
+      ClassLoader oldCl = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      {
+         public ClassLoader run()
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
       try
       {
-         Thread.currentThread().setContextClassLoader(classloader);
-         Class parameterTypes[] = { };
-         Method method = clazz.getMethod(methodName, parameterTypes);
-         Object args[] = { };
-         method.invoke(singleton, args);
-      }
-      catch(NoSuchMethodException e)
-      {
-         // ignore
+         this.setTcl(this.getClassloader());
+         Class<?> parameterTypes[] =
+         {};
+         Method method = this.singleton.getClass().getMethod(methodName, parameterTypes);
+         Object[] args = new Object[]{};
+
+         // Invoke
+         if (log.isTraceEnabled())
+         {
+            log.trace("Attempting to invoke \"" + methodName + "()\" upon " + this.getBeanClassName() + "...");
+         }
+         method.invoke(this.singleton, args);
       }
       catch (IllegalArgumentException e)
       {
@@ -350,15 +424,28 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
       catch (InvocationTargetException e)
       {
-         throw new RuntimeException(e.getCause());
+         throw new RuntimeException(e);
+      }
+      catch (SecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (NoSuchMethodException e)
+      {
+         // Ignore
+         if (log.isTraceEnabled())
+         {
+            log.trace("Could not execute optional method \"" + methodName + "\" upon " + this.getBeanClassName()
+                  + ", so ignoring");
+         }
       }
       finally
       {
-         Thread.currentThread().setContextClassLoader(oldLoader);
+         this.setTcl(oldCl);
       }
-      */
+
    }
-   
+
    public void invokePostConstruct(BeanContext beanContext, Object[] params)
    {
       //Ignore
@@ -368,12 +455,12 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       //Ignore
    }
-   
+
    public Object localInvoke(Object id, Method method, Object[] args, FutureHolder provider) throws Throwable
    {
       return localInvoke(method, args, provider);
    }
-   
+
    public Object localHomeInvoke(Method method, Object[] args) throws Throwable
    {
       // no home interface for Service beans
@@ -396,12 +483,12 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    public Object localInvoke(Method method, Object[] args, FutureHolder provider) throws Throwable
    {
       long start = System.currentTimeMillis();
-      
+
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       try
       {
          invokeStats.callIn();
-         
+
          Thread.currentThread().setContextClassLoader(classloader);
          long hash = MethodHashing.calculateHash(method);
          MethodInfo info = getAdvisor().getMethodInfo(hash);
@@ -409,7 +496,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
          }
-         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info,null);
+         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, null);
          nextInvocation.setAdvisor(getAdvisor());
          nextInvocation.setArguments(args);
 
@@ -417,8 +504,10 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
          if (provider != null)
          {
-            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH, AsynchronousInterceptor.INVOKE_ASYNCH, "YES", PayloadKey.AS_IS);
-            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH, AsynchronousInterceptor.FUTURE_HOLDER, provider, PayloadKey.AS_IS);
+            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH,
+                  AsynchronousInterceptor.INVOKE_ASYNCH, "YES", PayloadKey.AS_IS);
+            nextInvocation.getMetaData().addMetaData(AsynchronousInterceptor.ASYNCH,
+                  AsynchronousInterceptor.FUTURE_HOLDER, provider, PayloadKey.AS_IS);
          }
          return nextInvocation.invokeNext();
       }
@@ -430,34 +519,34 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
             long elapsed = end - start;
             invokeStats.updateStats(method, elapsed);
          }
-         
+
          invokeStats.callOut();
-         
+
          Thread.currentThread().setContextClassLoader(oldLoader);
       }
    }
-
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
+   
+   public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       long start = System.currentTimeMillis();
-      
+
       ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
       StatefulContainerInvocation newSi = null;
-      
+
       MethodInvocation si = (MethodInvocation) invocation;
       MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
       Method method = info.getUnadvisedMethod();
       try
       {
          invokeStats.callIn();
-         
+
          Thread.currentThread().setContextClassLoader(classloader);
-         
+
          if (info == null)
          {
             throw new RuntimeException("Could not resolve beanClass method from proxy call");
          }
-         newSi = new StatefulContainerInvocation(info,null);
+         newSi = new StatefulContainerInvocation(info, null);
          newSi.setArguments(si.getArguments());
          newSi.setMetaData(si.getMetaData());
          newSi.setAdvisor(getAdvisor());
@@ -473,7 +562,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          {
             return marshallException(invocation, throwable, newSi.getResponseContextInfo());
          }
-         InvocationResponse response = SessionContainer.marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
+         InvocationResponse response = SessionContainer.marshallResponse(invocation, rtn, newSi
+               .getResponseContextInfo());
 
          return response;
       }
@@ -485,9 +575,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
             long elapsed = end - start;
             invokeStats.updateStats(method, elapsed);
          }
-         
+
          invokeStats.callOut();
-         
+
          Thread.currentThread().setContextClassLoader(oldLoader);
       }
    }
@@ -496,12 +586,20 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       if (beanContext == null)
       {
-         synchronized(singleton)
+         synchronized (singleton)
          {
             if (beanContext == null)
             {
-               beanContext  = createBeanContext();
-               beanContext.initialiseInterceptorInstances();
+               beanContext = createBeanContext();
+               pushEnc();
+               try
+               {
+                  beanContext.initialiseInterceptorInstances();
+               }
+               finally
+               {
+                  popEnc();
+               }
             }
          }
       }
@@ -511,7 +609,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       return beanContext;
    }
-   
+
    @Override
    protected StatefulContainerInvocation populateInvocation(StatefulContainerInvocation invocation)
    {
@@ -540,14 +638,13 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    // Dynamic MBean implementation --------------------------------------------------
 
-   public Object getAttribute(String attribute) throws AttributeNotFoundException,
-                                                       MBeanException, ReflectionException
+   public Object getAttribute(String attribute) throws AttributeNotFoundException, MBeanException, ReflectionException
    {
       return delegate.getAttribute(attribute);
    }
 
-   public void setAttribute(Attribute attribute) throws AttributeNotFoundException,
-                                                        InvalidAttributeValueException, MBeanException, ReflectionException
+   public void setAttribute(Attribute attribute) throws AttributeNotFoundException, InvalidAttributeValueException,
+         MBeanException, ReflectionException
    {
       delegate.setAttribute(attribute);
    }
@@ -562,9 +659,18 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       return delegate.setAttributes(attributes);
    }
 
-   public Object invoke(String actionName, Object params[], String signature[])
-           throws MBeanException, ReflectionException
+   /**
+    * @see InvokableContext
+    */
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
+      return this.localInvoke(method.toMethod(), args);
+   }
+   
+   public Object invoke(String actionName, Object params[], String signature[]) throws MBeanException,
+         ReflectionException
+   {
+      assert delegate != null : "MBean delegate was null, cannot perform invocation";
       return delegate.invoke(actionName, params, signature);
    }
 
@@ -575,31 +681,28 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    public Object createLocalProxy(Object id, LocalBinding binding) throws Exception
    {
-      ServiceLocalProxyFactory factory = new ServiceLocalProxyFactory(this, binding);
-
-      return factory.createProxyBusiness(id);
+      throw new NotImplementedException(this + " is using unsupported legacy Proxy implementation");
    }
-   
+
+   @Deprecated
    public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
    {
-      ServiceRemoteProxyFactory factory = new ServiceRemoteProxyFactory(this, binding);
-
-      return factory.createProxyBusiness(id);
+      throw new NotImplementedException(this + " is no longer using unsupported (legacy) proxy impl from ejb3-core");
    }
 
    private void registerManagementInterface()
    {
       try
       {
-         Management annotation = (Management)resolveAnnotation(Management.class);
+         Management annotation = this.getAnnotation(Management.class);
 
-         Class intf = null;
+         Class<?> intf = null;
          if (annotation != null)
             intf = annotation.value();
 
-         if (intf ==null)
+         if (intf == null)
          {
-            Class[] interfaces = this.getBeanClass().getInterfaces();
+            Class<?>[] interfaces = this.getBeanClass().getInterfaces();
             int interfaceIndex = 0;
             while (intf == null && interfaceIndex < interfaces.length)
             {
@@ -609,46 +712,92 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                   ++interfaceIndex;
             }
          }
-
-         if (intf != null)
+         
+         /*
+          * Construct a DependencyPolicy for the MBean which will also 
+          * define a demand upon this container
+          */
+         DependencyPolicy containerPolicy = this.getDependencyPolicy();
+         DependencyPolicy newPolicy = containerPolicy.clone();
+         String cName = this.getObjectName().getCanonicalName();
+         newPolicy.addDependency(cName);
+         
+         // Find MBean Server if not specified
+         if (mbeanServer == null)
          {
-            if (mbeanServer == null)
-               mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
-
-            if (mbeanServer == null)
-               throw new RuntimeException("There is a @Management interface on " + ejbName + " but the MBeanServer has not been initialized for it");
-
-            Service service = (Service)resolveAnnotation(Service.class);
-
-            String objname = service.objectName();
-            delegateObjectName = (objname == null || objname.equals("")) ?
-                            new ObjectName(getObjectName().getCanonicalName() + ",type=ManagementInterface") : new ObjectName(service.objectName());
-
-            delegate = new ServiceMBeanDelegate(mbeanServer, this, intf, delegateObjectName);
-
-            getDeployment().getKernelAbstraction().installMBean(delegateObjectName, getDependencyPolicy(), delegate);
-         }
-         else
-         {
-            Service service = (Service)resolveAnnotation(Service.class);
-            if (service.xmbean().length() > 0)
+            try
             {
-               if (mbeanServer == null)
-                  mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
-
-               if (mbeanServer == null)
-                  throw new RuntimeException(ejbName + "is defined as an XMBean, but the MBeanServer has not been initialized for it");
-
-               String objname = service.objectName();
-               delegateObjectName = (objname == null || objname.equals("")) ?
-                               new ObjectName(getObjectName().getCanonicalName() + ",type=ManagementInterface") : new ObjectName(service.objectName());
-
-               delegate = new ServiceMBeanDelegate(mbeanServer, this, service.xmbean(), delegateObjectName);
-
-               getDeployment().getKernelAbstraction().installMBean(delegateObjectName, getDependencyPolicy(), delegate);
+               mbeanServer = org.jboss.mx.util.MBeanServerLocator.locateJBoss();
+            }
+            catch (IllegalStateException ise)
+            {
+               // Not found; ignore for now and we'll catch this later when we absolutely need MBean server
+               log.warn(ise);
             }
          }
          
+         /*
+          * Construct the ObjectName
+          */
+         Service service = this.getAnnotation(Service.class);
+         String objname = service.objectName();
+         delegateObjectName = (objname == null || objname.equals("")) ? new ObjectName(getObjectName()
+               .getCanonicalName()
+               + ",type=ManagementInterface") : new ObjectName(objname);
+
+         // For @Management
+         if (intf != null)
+         {
+            if (mbeanServer == null)
+               throw new RuntimeException("There is a @Management interface on " + ejbName
+                     + " but the MBeanServer has not been initialized for it");
+
+            delegate = new ServiceMBeanDelegate(mbeanServer, this, intf, delegateObjectName);
+            
+            /*
+             * 
+             * This section is in place to replace the KernelAbstraction.installMBean
+             * method which will be removed JBossASKernel (AS/trunk/ejb3) for 5.0.1.
+             * 
+             * Here to be backwards-compatible with JBossAS 5.0.0.GA
+             * 
+             * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
+             * 
+             */
+            
+            // The old/deprecated access
+            //getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
+            
+            // Register w/ MBean Server
+            mbeanServer.registerMBean(delegate, delegateObjectName);
+            
+            // Install into MC
+            getDeployment().getKernelAbstraction().install(delegateObjectName.getCanonicalName(), newPolicy, null, delegate);
+
+            /*
+             * 
+             * End backwards-compatible replacement for:
+             * getDeployment().getKernelAbstraction().installMBean
+             * 
+             */
+         }
+         // XMBeans
+         else
+         {
+            if (service.xmbean().length() > 0)
+            {
+
+               if (mbeanServer == null)
+                  throw new RuntimeException(ejbName
+                        + "is defined as an XMBean, but the MBeanServer has not been initialized for it");
+
+
+               delegate = new ServiceMBeanDelegate(mbeanServer, this, service.xmbean(), delegateObjectName);
+
+               getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
+            }
+         }
+
       }
       catch (Exception e)
       {
@@ -660,10 +809,31 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       if (delegate != null)
       {
-         getDeployment().getKernelAbstraction().uninstallMBean(delegateObjectName);
+         /*
+          * 
+          * This section is in place to replace the KernelAbstraction.uninstallMBean
+          * method which will be removed JBossASKernel (AS/trunk/ejb3) for 5.0.1.
+          * 
+          * Here to be backwards-compatible with JBossAS 5.0.0.GA
+          * 
+          * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
+          * 
+          */
+         
+         //getDeployment().getKernelAbstraction().uninstallMBean(delegateObjectName);
+         
+         mbeanServer.unregisterMBean(delegateObjectName);
+         
+         
+         /*
+          * 
+          * End backwards-compatible replacement for:
+          * getDeployment().getKernelAbstraction().uninstallMBean
+          * 
+          */
       }
    }
-   
+
    protected void removeHandle(Handle handle)
    {
       throw new RuntimeException("Don't do this");

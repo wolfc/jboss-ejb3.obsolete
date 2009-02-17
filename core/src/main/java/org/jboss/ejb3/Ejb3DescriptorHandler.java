@@ -1089,6 +1089,12 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
                         {
                            annotation.addValue(roleName);
                         }
+                        
+                        // Log and add
+                        log.debug("Adding @" + RolesAllowed.class.getSimpleName() + " for method "
+                              + method.getMethodName() + "("
+                              + method.getMethodParams() + ") of EJB " + method.getEjbName() + ": "
+                              + Arrays.asList(annotation.value()));
                         addAnnotations(RolesAllowed.class, annotation, container, method);
                      }
                   }

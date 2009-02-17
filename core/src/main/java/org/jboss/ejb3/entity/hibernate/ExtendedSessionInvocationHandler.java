@@ -24,8 +24,9 @@ package org.jboss.ejb3.entity.hibernate;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import javax.persistence.EntityManager;
 
 import org.hibernate.Session;
@@ -81,6 +82,9 @@ public class ExtendedSessionInvocationHandler implements InvocationHandler, Seri
       }
       else if ( "close".equals( methodName ) ) {
          throw new IllegalStateException("It is illegal to close an injected Hibernate Session");
+      }
+      else if("toString".equals(methodName)) {
+         return toString() + "[identity=" + identity + "]";
       }
       else {
          //catch all

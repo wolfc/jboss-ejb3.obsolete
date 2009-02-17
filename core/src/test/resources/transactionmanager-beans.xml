@@ -4,4 +4,10 @@
    <bean name="TransactionManager" class="org.jboss.ejb3.core.test.common.SimpleTransactionService">
       <depends>NamingServer</depends>
    </bean>
+   
+   <bean name="RealTransactionManager">
+      <constructor factoryMethod="getTransactionManager">
+         <factory bean="TransactionManager"/>
+      </constructor>
+   </bean>
 </deployment>

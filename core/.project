@@ -1,17 +1,13 @@
 <projectDescription>
   <name>jboss-ejb3-core</name>
   <comment>JBoss EJB 3.0 Core</comment>
-  <projects>
-    <project>jboss-ejb3-common</project>
-    <project>jboss-ejb3-proxy</project>
-    <project>jboss-ejb3-proxy-clustered</project>
-  </projects>
+  <projects/>
   <buildSpec>
     <buildCommand>
-      <name>org.maven.ide.eclipse.maven2Builder</name>
+      <name>org.eclipse.jdt.core.javabuilder</name>
     </buildCommand>
     <buildCommand>
-      <name>org.eclipse.jdt.core.javabuilder</name>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
     </buildCommand>
   </buildSpec>
   <natures>

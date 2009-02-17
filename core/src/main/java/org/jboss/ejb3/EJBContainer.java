@@ -35,9 +35,10 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -57,6 +58,7 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
+import javax.transaction.TransactionManager;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
@@ -66,6 +68,7 @@ import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.ejb.AllowedOperationsAssociation;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -102,6 +105,7 @@ import org.jboss.injection.PersistenceContextHandler;
 import org.jboss.injection.PersistenceUnitHandler;
 import org.jboss.injection.ResourceHandler;
 import org.jboss.injection.WebServiceRefHandler;
+import org.jboss.jca.spi.ComponentStack;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossAssemblyDescriptorMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -185,10 +189,15 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    protected boolean reinitialize = false;
    
+   private static final int TOTAL_PERMITS = Integer.MAX_VALUE;
+   
    // To support clean startup/shutdown
-   private ReadWriteLock containerLock = new ReentrantReadWriteLock();
+   private final Semaphore semaphore = new Semaphore(TOTAL_PERMITS, true);
+   private final Lock invocationLock = new SemaphoreLock(this.semaphore);
    
    private static final Interceptor[] currentInvocationStack = new Interceptor[] { new CurrentInvocationInterceptor() };
+   
+   private ComponentStack cachedConnectionManager;
    
    /**
     * @param name                  Advisor name
@@ -723,6 +732,11 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       return encInjectors;
    }
 
+   public ComponentStack getCachedConnectionManager()
+   {
+      return cachedConnectionManager;
+   }
+   
    public ClassLoader getClassloader()
    {
       return classloader;
@@ -849,8 +863,9 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
 
    public void create() throws Exception
    {
-      // Lock until start()
-      this.getContainerLock().lock();
+      // Blocking invocations until start()
+      this.blockInvocations();
+      
       /*
       initializeClassContainer();
       for (int i = 0; i < constructors.length; i++)
@@ -868,7 +883,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    {
       this.lockedStart();
       
-      this.getContainerLock().unlock();
+      // Allow invocations until stop()
+      this.allowInvocations();
    }
    
    // Everything must be done in start to make sure all dependencies have been satisfied
@@ -901,7 +917,8 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
 
    public final void stop() throws Exception
    {
-      this.getContainerLock().lockInterruptibly();
+      // Wait for active invocations to complete - and block new invocations
+      this.blockInvocations();
       
       this.lockedStop();
    }
@@ -933,6 +950,9 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       
       // TODO: clean up BeanContainer?
       //super.cleanup();
+      
+      // Restore to pre- create() state
+      this.allowInvocations();
    }
 
    @SuppressWarnings("unchecked")
@@ -1549,6 +1569,12 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       beanContainer.reinitializeAdvisor();
    }
    
+   @Inject
+   public void setCachedConnectionManager(ComponentStack ccm)
+   {
+      this.cachedConnectionManager = ccm;
+   }
+   
    public void setDirectContainer(DirectContainer<EJBContainer> container)
    {
       this.directContainer = container;
@@ -1571,16 +1597,115 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    
    public Lock getInvocationLock()
    {
-      return this.containerLock.readLock();
+      return this.invocationLock;
    }
-   
-   private Lock getContainerLock()
+
+   // to make sure we have a dependency on the TransactionManager
+   // note that the actual tx interceptors don't make use of the injected tm
+   @Inject
+   public void setTransactionManager(TransactionManager tm)
    {
-      return this.containerLock.writeLock();
+      
    }
    
    public String toString()
    {
       return getObjectName().getCanonicalName();
+   }
+   
+   private void blockInvocations() throws InterruptedException
+   {
+      // Allow re-entrance
+      if (this.semaphore.tryAcquire())
+      {
+         try
+         {
+            // Acquire all remaining permits, blocking invocation lock
+            this.semaphore.acquire(TOTAL_PERMITS - 1);
+         }
+         catch (InterruptedException e)
+         {
+            this.semaphore.release();
+            
+            throw e;
+         }
+      }
+   }
+   
+   private void allowInvocations()
+   {
+      // Allow re-entrance
+      if (!this.semaphore.tryAcquire())
+      {
+         // Make all permits available to invocation lock
+         this.semaphore.release(TOTAL_PERMITS);
+      }
+      else
+      {
+         // Release the one we just acquired
+         this.semaphore.release();
+      }
+   }
+   
+   /**
+    * {@link java.util.concurrent.locks.Lock} facade for this container's semaphore
+    * @author Paul Ferraro
+    */
+   private static class SemaphoreLock implements Lock
+   {
+      private final Semaphore semaphore;
+      
+      SemaphoreLock(Semaphore semaphore)
+      {
+         this.semaphore = semaphore;
+      }
+      
+      /**
+       * @see java.util.concurrent.locks.Lock#lock()
+       */
+      public void lock()
+      {
+         this.semaphore.acquireUninterruptibly();
+      }
+
+      /**
+       * @see java.util.concurrent.locks.Lock#lockInterruptibly()
+       */
+      public void lockInterruptibly() throws InterruptedException
+      {
+         this.semaphore.acquire();
+      }
+
+      /**
+       * @see java.util.concurrent.locks.Lock#newCondition()
+       */
+      public Condition newCondition()
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      /**
+       * @see java.util.concurrent.locks.Lock#tryLock()
+       */
+      public boolean tryLock()
+      {
+         return this.semaphore.tryAcquire();
+      }
+
+      /**
+       * @see java.util.concurrent.locks.Lock#tryLock(long, java.util.concurrent.TimeUnit)
+       */
+      public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException
+      {
+         return this.semaphore.tryAcquire(timeout, unit);
+      }
+
+      /**
+       * @see java.util.concurrent.locks.Lock#unlock()
+       */
+      public void unlock()
+      {
+         this.semaphore.release();
+      }
    }
 }

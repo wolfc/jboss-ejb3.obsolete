@@ -1,51 +1,37 @@
 package org.jboss.ejb3.session;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
 import javax.ejb.RemoveException;
 import javax.ejb.SessionContext;
 
-import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.proxy.ClassProxy;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.annotation.LocalBinding;
-import org.jboss.ejb3.annotation.LocalHomeBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.annotation.RemoteBindings;
-import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
-import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
-import org.jboss.ejb3.stateful.StatefulInstanceInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
-import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
 
@@ -73,12 +59,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    //TODO: Remove when CurrentInvocation is completely sorted out
    @Deprecated 
    protected static ThreadLocalStack<SerializableMethod> invokedMethod = new ThreadLocalStack<SerializableMethod>();
-
-   // ------------------------------------------------------------------------------||
-   // Instance Members -------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   private JndiSessionRegistrarBase jndiRegistrar;
 
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
@@ -152,8 +132,9 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       /*
        * Replace the TCL with the CL for this Container
        */
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      Thread.currentThread().setContextClassLoader(this.getClassloader());
+      ClassLoader oldLoader = SecurityActions.getContextClassLoader();
+      
+      SecurityActions.setContextClassLoader(this.getClassloader());
       
       try
       {
@@ -192,7 +173,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
 
          if (unadvisedMethod != null && isHomeMethod(unadvisedSerializableMethod))
          {
-            return invokeHomeMethod(method, args);
+            return invokeHomeMethod(actualMethod, args);
          }
          else if (unadvisedMethod != null && this.isEjbObjectMethod(unadvisedSerializableMethod))
          {
@@ -241,7 +222,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       finally
       {
          invokedMethod.pop();
-         Thread.currentThread().setContextClassLoader(oldLoader);
+         SecurityActions.setContextClassLoader(oldLoader);
       }
    }
 
@@ -367,7 +348,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * @return
     * @throws Exception
     */
-   protected Object invokeHomeCreate(SerializableMethod method, Object args[]) throws Exception
+   protected Object invokeHomeCreate(Method method, Object args[]) throws Exception
    {
 
       /*
@@ -381,7 +362,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       boolean foundInterface = false;
 
       // Name of the EJB2.x Interface Class expected
-      String ejb2xInterface = method.getReturnType();
+      String ejb2xInterface = method.getReturnType().getName();
 
       // Get Metadata
       JBossSessionBeanMetaData smd = this.getMetaData();
@@ -429,8 +410,8 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       assert factory instanceof SessionProxyFactory : "Specified factory " + factory.getClass().getName()
             + " is not of type " + SessionProxyFactory.class.getName() + " as required by "
             + StatefulContainer.class.getName() + ", but was instead " + factory;
-      SessionProxyFactory sessionFactory = null;
-      sessionFactory = SessionProxyFactory.class.cast(factory);
+      SessionSpecProxyFactory sessionFactory = null;
+      sessionFactory = SessionSpecProxyFactory.class.cast(factory);
 
       // Create Proxy
       Object proxy = sessionFactory.createProxyEjb2x();
@@ -443,7 +424,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * TODO: work in progress (refactor both invokeHomeMethod's, localHomeInvoke)
     */
    //TODO
-   private Object invokeHomeMethod(SerializableMethod method, Object args[]) throws Exception
+   private Object invokeHomeMethod(Method method, Object args[]) throws Exception
    {
       if (method.getName().equals(Ejb2xMethodNames.METHOD_NAME_HOME_CREATE))
       {
@@ -592,23 +573,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       // Use legacy
       return this.isHandleMethod(invokingMethod);
    }
-   
-   /**
-    * Registers this Container with Remoting / AOP Dispatcher
-    */
-   @Override
-   protected void registerWithAopDispatcher()
-   {
-      String registrationName = this.getObjectName().getCanonicalName();
-      ClassProxy classProxy = new InvokableContextClassProxyHack(this);
-      
-      // So that Remoting layer can reference this container easily.
-      Dispatcher.singleton.registerTarget(registrationName, classProxy);
-      
-      // Log
-      log.debug("Registered " + this + " with " + Dispatcher.class.getName() + " via "
-            + InvokableContextClassProxyHack.class.getSimpleName() + " at key " + registrationName);
-   }
 
    // ------------------------------------------------------------------------------||
    // Lifecycle Methods ------------------------------------------------------------||
@@ -623,22 +587,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       log.info("Starting " + this);
 
       super.lockedStart();
-
-      // Obtain registrar
-      JndiSessionRegistrarBase registrar = this.getJndiRegistrar();
-
-      // Bind all appropriate references/factories to Global JNDI for Client access, if a JNDI Registrar is present
-      if (registrar != null)
-      {
-         String guid = Ejb3Registry.guid(this);
-         registrar.bindEjb(this.getInitialContext(), this.getMetaData(), this.getClassloader(), this.getObjectName()
-               .getCanonicalName(), guid, this.getAdvisor());
-      }
-      else
-      {
-         log.warn("No " + JndiSessionRegistrarBase.class.getSimpleName()
-               + " was found; byassing binding of Proxies to " + this.getName() + " in Global JNDI.");
-      }
    }
 
    /**
@@ -650,79 +598,5 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       log.info("Stopping " + this);
 
       super.lockedStop();
-
-      // Deregister with Remoting
-      Dispatcher.singleton.unregisterTarget(this.getName());
-
-      // Unbind applicable JNDI Entries
-      JndiSessionRegistrarBase jndiRegistrar = this.getJndiRegistrar();
-      if (jndiRegistrar != null)
-      {
-         jndiRegistrar.unbindEjb(this.getInitialContext(), this.getMetaData());
-      }
-
-   }
-
-   // --------------------------------------------------------------------------------||
-   // Contracts ----------------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-
-   /**
-    * Returns the name under which the JNDI Registrar for this container is bound
-    * 
-    * @return
-    */
-   protected abstract String getJndiRegistrarBindName();
-
-   // --------------------------------------------------------------------------------||
-   // Accessors / Mutators -----------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   /**
-    * Obtains the JndiSessionRegistrarBase from MC, null if not found
-    * 
-    * @return
-    */
-   protected JndiSessionRegistrarBase getJndiRegistrar()
-   {
-      // If defined already, use it
-      if (this.jndiRegistrar != null)
-      {
-         return this.jndiRegistrar;
-      }
-
-      // Initialize
-      String jndiRegistrarBindName = this.getJndiRegistrarBindName();
-
-      // Obtain Registrar
-      Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
-
-      // Lookup
-      Object obj = null;
-      try
-      {
-         obj = registrar.lookup(jndiRegistrarBindName);
-         this.setJndiRegistrar(jndiRegistrar);
-      }
-      // If not installed, warn and return null
-      catch (NotBoundException e)
-      {
-         log.warn("No " + JndiSessionRegistrarBase.class.getName()
-               + " was found installed in the ObjectStore (Registry) at " + jndiRegistrarBindName);
-         return null;
-
-      }
-
-      // Cast
-      JndiSessionRegistrarBase jndiRegistrar = (JndiSessionRegistrarBase) obj;
-
-      // Return
-      return jndiRegistrar;
-   }
-
-   public void setJndiRegistrar(JndiSessionRegistrarBase jndiRegistrar)
-   {
-      this.jndiRegistrar = jndiRegistrar;
    }
 }

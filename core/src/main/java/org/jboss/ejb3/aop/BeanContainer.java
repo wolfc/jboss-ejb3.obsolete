@@ -39,6 +39,7 @@ import org.jboss.ejb3.interceptors.metadata.InterceptorComponentMetaDataLoaderFa
 import org.jboss.ejb3.interceptors.metadata.InterceptorMetaDataBridge;
 import org.jboss.ejb3.metadata.MetaDataBridge;
 import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.security.bridge.RunAsMetaDataBridge;
 import org.jboss.ejb3.security.bridge.SecurityDomainMetaDataBridge;
 import org.jboss.ejb3.tx.metadata.ApplicationExceptionComponentMetaDataLoaderFactory;
 import org.jboss.ejb3.tx.metadata.ApplicationExceptionMetaDataBridge;
@@ -196,6 +197,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       appExceptionBridges.add(new ApplicationExceptionMetaDataBridge());
       annotations.addComponentMetaDataLoaderFactory(new ApplicationExceptionComponentMetaDataLoaderFactory(appExceptionBridges));
       
+      annotations.addMetaDataBridge(new RunAsMetaDataBridge());
       //Add a security domain bridge
       annotations.addMetaDataBridge(new SecurityDomainMetaDataBridge());
       // Ensure that an @Clustered annotation is visible to AOP if the XML says the bean is  clustered.

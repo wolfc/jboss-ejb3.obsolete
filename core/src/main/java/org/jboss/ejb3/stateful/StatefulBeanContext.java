@@ -27,9 +27,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.ejb.EJBContext;
@@ -40,9 +40,8 @@ import javax.transaction.Transaction;
 import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.ThreadLocalStack;
-import org.jboss.ejb3.cache.Identifiable;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.Optimized;
-import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.interceptor.InterceptorInfo;
 import org.jboss.ejb3.session.SessionSpecBeanContext;
 import org.jboss.ejb3.tx.TxUtil;
@@ -62,7 +61,7 @@ import org.jboss.util.id.GUID;
  */
 public class StatefulBeanContext 
    extends SessionSpecBeanContext<StatefulContainer> 
-   implements Identifiable, Externalizable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
+   implements CacheItem, Externalizable, org.jboss.ejb3.tx.container.StatefulBeanContext<Object>
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;
@@ -81,15 +80,16 @@ public class StatefulBeanContext
 
    // these two are needed for propagated extended persistence contexts when one
    // SFSB injects another.
-   public static ThreadLocalStack<StatefulBeanContext> propagatedContainedIn = new ThreadLocalStack<StatefulBeanContext>();
+//   public static ThreadLocalStack<StatefulBeanContext> propagatedContainedIn = new ThreadLocalStack<StatefulBeanContext>();
 
    public static ThreadLocalStack<StatefulBeanContext> currentBean = new ThreadLocalStack<StatefulBeanContext>();
 
-   protected StatefulBeanContext containedIn;
+//   protected StatefulBeanContext containedIn;
 
-   protected List<StatefulBeanContext> contains;
+//   protected List<StatefulBeanContext> contains;
 
-   protected HashMap<String, EntityManager> persistenceContexts;
+//   protected HashMap<String, EntityManager> persistenceContexts;
+   protected Set<String> persistenceContextNames;
 
    protected boolean removed;
 
@@ -100,6 +100,8 @@ public class StatefulBeanContext
    protected boolean replicationIsPassivation = true;
    
    protected transient boolean passivated = false;
+   
+   protected Map<Object, Object> sharedState;
 
    /**
     * An incoming context from serialization.
@@ -144,13 +146,26 @@ public class StatefulBeanContext
    {
       
    }
-
-   public List<StatefulBeanContext> getContains()
+   
+   /**
+    * FIXME this should be an invariant set in the constructor.
+    * 
+    * @param sharedState
+    */
+   protected void setSharedState(Map<Object, Object> sharedState)
    {
-      if (bean == null)
-         extractBeanAndInterceptors();
-      return contains;
+      assert this.sharedState == null : "Cannot re-set shared state";
+      assert sharedState != null : "sharedState is null";
+      
+      this.sharedState = sharedState;
    }
+
+//   public List<StatefulBeanContext> getContains()
+//   {
+//      if (bean == null)
+//         extractBeanAndInterceptors();
+//      return contains;
+//   }
    
    /**
     * Makes a copy of the contains list so nested callback iterators
@@ -159,20 +174,20 @@ public class StatefulBeanContext
     * 
     * TODO replace contains list with a concurrent collection
     */
-   private List<StatefulBeanContext> getThreadSafeContains()
-   {
-      // Call getContains() to ensure unmarshalling
-      List<StatefulBeanContext> orig = getContains();
-      List<StatefulBeanContext> copy = null;
-      if (orig != null)
-      {
-         synchronized (orig)
-         {
-            copy = new ArrayList<StatefulBeanContext>(orig);
-         }
-      }
-      return copy;
-   }
+//   private List<StatefulBeanContext> getThreadSafeContains()
+//   {
+//      // Call getContains() to ensure unmarshalling
+//      List<StatefulBeanContext> orig = getContains();
+//      List<StatefulBeanContext> copy = null;
+//      if (orig != null)
+//      {
+//         synchronized (orig)
+//         {
+//            copy = new ArrayList<StatefulBeanContext>(orig);
+//         }
+//      }
+//      return copy;
+//   }
 
    @Override
    public EJBContext getEJBContext()
@@ -182,62 +197,93 @@ public class StatefulBeanContext
       return ejbContext;
    }
    
+//   public EntityManager getExtendedPersistenceContext(String id)
+//   {
+//      EntityManager found = null;
+//      Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
+//      if (extendedPCS != null)
+//      {
+//         found = extendedPCS.get(id);
+//      }
+//      if (found != null)
+//         return found;
+//      if (containedIn != null)
+//      {
+//         found = containedIn.getExtendedPersistenceContext(id);
+//      }
+//      return found;
+//   }
+//
+//   public void addExtendedPersistenceContext(String id, EntityManager pc)
+//   {
+//      Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
+//      if (extendedPCS == null)
+//      {
+//         extendedPCS = persistenceContexts = new HashMap<String, EntityManager>();
+//      }
+//      extendedPCS.put(id, pc);
+//   }
+   
    public EntityManager getExtendedPersistenceContext(String id)
-   {
-      EntityManager found = null;
-      Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
-      if (extendedPCS != null)
-      {
-         found = extendedPCS.get(id);
-      }
-      if (found != null)
-         return found;
-      if (containedIn != null)
-      {
-         found = containedIn.getExtendedPersistenceContext(id);
-      }
-      return found;
+   {      
+      SharedXPC shared = (SharedXPC) sharedState.get(id);
+      return (shared == null ? null : shared.getXPC());
    }
 
    public void addExtendedPersistenceContext(String id, EntityManager pc)
    {
-      Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
-      if (extendedPCS == null)
+      Set<String> ourPCs = getPersistenceContextNames();
+      if (ourPCs == null)
       {
-         extendedPCS = persistenceContexts = new HashMap<String, EntityManager>();
+         ourPCs = persistenceContextNames = new HashSet<String>();
       }
-      extendedPCS.put(id, pc);
+      
+      // getPersistenceContextNames() will result in deserializing sharedState
+      // so now it's safe to assert it isn't null
+      
+      assert sharedState != null : "sharedState is null; must be provided by container";
+      
+      SharedXPC shared = (SharedXPC) sharedState.get(id);
+      if (shared == null)
+      {
+         shared = new SharedXPC(pc);
+         sharedState.put(id, shared);
+      }
+      
+      shared.addSharedUser();
+      
+      ourPCs.add(id);
    }
    
-   public boolean scanForExtendedPersistenceContext(String id, StatefulBeanContext ignore)
-   {
-      if (this.equals(ignore))
-         return false;
-      
-      if (!removed)
-      {
-         Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
-         if (extendedPCS != null && extendedPCS.containsKey(id))
-            return true;
-      }
-      
-      if (getContains() != null)
-      {
-         synchronized (contains)
-         {
-            for (StatefulBeanContext contained : contains)
-            {
-               if (!contained.equals(ignore))
-               {
-                  if (contained.scanForExtendedPersistenceContext(id, ignore))
-                     return true;
-               }
-            }
-         }
-      }
-      
-      return false;
-   }
+//   public boolean scanForExtendedPersistenceContext(String id, StatefulBeanContext ignore)
+//   {
+//      if (this.equals(ignore))
+//         return false;
+//      
+//      if (!removed)
+//      {
+//         Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
+//         if (extendedPCS != null && extendedPCS.containsKey(id))
+//            return true;
+//      }
+//      
+//      if (getContains() != null)
+//      {
+//         synchronized (contains)
+//         {
+//            for (StatefulBeanContext contained : contains)
+//            {
+//               if (!contained.equals(ignore))
+////               {
+//                  if (contained.scanForExtendedPersistenceContext(id, ignore))
+//                     return true;
+//               }
+//            }
+//         }
+//      }
+//      
+//      return false;
+//   }
    
    public void removeExtendedPersistenceContext(String id)
    {
@@ -247,140 +293,164 @@ public class StatefulBeanContext
          extendedPCS.remove(id);
       }
       
-      if (getContains() != null)
+      // getPersistenceContextNames() will result in deserializing sharedState
+      // so now it's safe to assert it isn't null
+      
+      assert sharedState != null : "sharedState is null; must be provided by container";
+      
+      
+      synchronized (sharedState)
       {
-         synchronized (contains)
+         SharedXPC xpc = (SharedXPC) sharedState.get(id);
+         if (xpc.removeSharedUser() == 0)
          {
-            for (StatefulBeanContext contained: contains)
-            {
-               contained.removeExtendedPersistenceContext(id);
-            }
+            sharedState.remove(id);
          }
       }
    }
 
    public Map<String, EntityManager> getExtendedPersistenceContexts()
    {
-      if (persistenceContexts == null)
+      if (persistenceContextNames == null)
       {
          if (bean == null)
             extractBeanAndInterceptors(); // unmarshall
       }
-      return persistenceContexts;
-   }
-
-   public StatefulBeanContext getContainedIn()
-   {
-      return containedIn;
-   }
-
-   public StatefulBeanContext getUltimateContainedIn()
-   {
-      StatefulBeanContext child = this;
-      StatefulBeanContext parent = containedIn;
       
-      while (parent != null)
+      Map<String, EntityManager> result = null; // TODO always return empty Map?
+      if (persistenceContextNames != null)
       {
-         child = parent;
-         parent = parent.getContainedIn();
+         result = new HashMap<String, EntityManager>();
+         for (String id : persistenceContextNames)
+         {
+            result.put(id, ((SharedXPC) sharedState.get(id)).getXPC());
+         }
       }
-      
-      if (parent == null && this != child)
-      {
-         // Don't hand out a ref to our parent obtained by walking the
-         // tree. Rather, get it from its cache.  This gives the cache
-         // a chance to activate it if it hasn't been.  We don't want
-         // to mark the parent as in use though.
-         StatefulCache ultimateCache = ((StatefulContainer)child.getContainer()).getCache();
-         child = ultimateCache.get(child.getId(), false);
-      }
-      
-      return child;
-   }
-
-   public void addContains(StatefulBeanContext ctx)
-   {
-      if (getContains() == null)
-         contains = new ArrayList<StatefulBeanContext>();
-      
-      synchronized (contains)
-      {
-         contains.add(ctx);
-         ctx.containedIn = this;
-      }      
+      return result;
    }
    
-   public void removeContains(StatefulBeanContext ctx)
+   protected Set<String> getPersistenceContextNames()
    {
-      if (getContains() != null) // call getContains() to ensure unmarshalling
+      if (persistenceContextNames == null)
       {
-         // Need to be thread safe
-         synchronized (contains)
-         {
-            if (contains.remove(ctx))
-            {             
-               ctx.containedIn = null;
-            }
-         }
-         
-         if (removed)
-         {
-            // Close out any XPCs that are no longer referenced
-            cleanExtendedPCs();
-         }
-         
-         if (getCanRemoveFromCache())
-         {  
-            if (containedIn != null)
-            {
-               containedIn.removeContains(this);               
-            }
-            
-            //  Notify our cache to remove us as we no longer have children            
-            ((StatefulContainer) getContainer()).getCache().remove(getId());
-         }
+         if (bean == null)
+            extractBeanAndInterceptors(); // unmarshall
       }
+      return persistenceContextNames;      
    }
 
-   public StatefulBeanContext pushContainedIn()
-   {
-      StatefulBeanContext thisPtr = this;
-      if (propagatedContainedIn.getList() != null)
-      {
-         // This is a nested stateful bean, within another stateful bean.
-         // We need to create a nested bean context. The nested one will 
-         // be put in the parent's list and owned by it. It is a special 
-         // class because we do not want to put its state in a separate
-         // marshalled object as we want to maintain object references 
-         // between it and its parent. 
-         
-         // We also do not want to put the nested context within its container's
-         // cache. If placed in the cache, it could be independently passivated,
-         // activated and replicated, again breaking object references due to
-         // independent marshalling. Instead, we return a proxy to it that will 
-         // be stored in its container's cache         
-         containedIn = propagatedContainedIn.get();
-         NestedStatefulBeanContext nested = new NestedStatefulBeanContext(getContainer(), bean);
-         nested.id = id;
-         nested.container = getContainer();
-         nested.containerClusterUid = containerClusterUid;
-         nested.containerGuid = containerGuid;
-         nested.isClustered = isClustered;
-         nested.replicationIsPassivation = replicationIsPassivation;
-         containedIn.addContains(nested);
-         thisPtr = new ProxiedStatefulBeanContext(nested);
-         
-         if (log.isTraceEnabled())
-         {
-            log.trace("Created ProxiedStatefulBeanContext for " + 
-                      containerGuid + "/" + id + " contained in " + 
-                      containedIn.getContainer().getIdentifier() + "/" + 
-                      containedIn.getId());
-         }
-      }
-      propagatedContainedIn.push(thisPtr);
-      return thisPtr;
-   }
+//   public StatefulBeanContext getContainedIn()
+//   {
+//      return containedIn;
+//   }
+
+//   public StatefulBeanContext getUltimateContainedIn()
+//   {
+//      StatefulBeanContext child = this;
+//      StatefulBeanContext parent = containedIn;
+//      
+//      while (parent != null)
+//      {
+//         child = parent;
+//         parent = parent.getContainedIn();
+//      }
+//      
+//      if (parent == null && this != child)
+//      {
+//         // Don't hand out a ref to our parent obtained by walking the
+//         // tree. Rather, get it from its cache.  This gives the cache
+//         // a chance to activate it if it hasn't been.  We don't want
+//         // to mark the parent as in use though.
+//         Cache<StatefulBeanContext> ultimateCache = ((StatefulContainer)child.getContainer()).getCache();
+//         child = ultimateCache.get(child.getId(), false);
+//      }
+//      
+//      return child;
+//   }
+
+//   public void addContains(StatefulBeanContext ctx)
+//   {
+//      if (getContains() == null)
+//         contains = new ArrayList<StatefulBeanContext>();
+//      
+//      synchronized (contains)
+//      {
+//         contains.add(ctx);
+//         ctx.containedIn = this;
+//      }      
+//   }
+   
+//   public void removeContains(StatefulBeanContext ctx)
+//   {
+//      if (getContains() != null) // call getContains() to ensure unmarshalling
+//      {
+//         // Need to be thread safe
+//         synchronized (contains)
+//         {
+//            if (contains.remove(ctx))
+//            {             
+//               ctx.containedIn = null;
+//            }
+//         }
+//         
+//         if (removed)
+//         {
+//            // Close out any XPCs that are no longer referenced
+//            cleanExtendedPCs();
+//         }
+//         
+//         if (getCanRemoveFromCache())
+//         {  
+//            if (containedIn != null)
+//            {
+//               containedIn.removeContains(this);               
+//            }
+//            
+//            //  Notify our cache to remove us as we no longer have children            
+//            ((StatefulContainer) getContainer()).getCache().remove(getId());
+//         }
+//      }
+//   }
+
+//   public StatefulBeanContext pushContainedIn()
+//   {
+//      StatefulBeanContext thisPtr = this;
+//      if (propagatedContainedIn.getList() != null)
+//      {
+//         // This is a nested stateful bean, within another stateful bean.
+//         // We need to create a nested bean context. The nested one will 
+//         // be put in the parent's list and owned by it. It is a special 
+//         // class because we do not want to put its state in a separate
+//         // marshalled object as we want to maintain object references 
+//         // between it and its parent. 
+//         
+//         // We also do not want to put the nested context within its container's
+//         // cache. If placed in the cache, it could be independently passivated,
+//         // activated and replicated, again breaking object references due to
+//         // independent marshalling. Instead, we return a proxy to it that will 
+//         // be stored in its container's cache         
+//         containedIn = propagatedContainedIn.get();
+//         NestedStatefulBeanContext nested = new NestedStatefulBeanContext(getContainer(), bean);
+//         nested.id = id;
+//         nested.container = getContainer();
+//         nested.containerClusterUid = containerClusterUid;
+//         nested.containerGuid = containerGuid;
+//         nested.isClustered = isClustered;
+//         nested.replicationIsPassivation = replicationIsPassivation;
+//         containedIn.addContains(nested);
+//         thisPtr = new ProxiedStatefulBeanContext(nested);
+//         
+//         if (log.isTraceEnabled())
+//         {
+//            log.trace("Created ProxiedStatefulBeanContext for " + 
+//                      containerGuid + "/" + id + " contained in " + 
+//                      containedIn.getContainer().getIdentifier() + "/" + 
+//                      containedIn.getId());
+//         }
+//      }
+//      propagatedContainedIn.push(thisPtr);
+//      return thisPtr;
+//   }
    
    /**
     * Checks whether this context or any of its children are in use.
@@ -392,20 +462,20 @@ public class StatefulBeanContext
       // Just check contains directly; don't call getContains() since
       // getContains() will deserialize the beanMO. If the beanMO isn't 
       // deserialized it's safe to assume the children aren't in use
-      if (canPassivate && contains != null)
-      {
-         synchronized (contains)
-         {
-            for (StatefulBeanContext contained : contains)
-            {
-               if (!contained.getCanPassivate())
-               {
-                  canPassivate = false;
-                  break;
-               }
-            }
-         }
-      }
+//      if (canPassivate && contains != null)
+//      {
+//         synchronized (contains)
+//         {
+//            for (StatefulBeanContext contained : contains)
+//            {
+//               if (!contained.getCanPassivate())
+//               {
+//                  canPassivate = false;
+//                  break;
+//               }
+//            }
+//         }
+//      }
       
       return canPassivate;
    }
@@ -425,15 +495,15 @@ public class StatefulBeanContext
          passivated = true;
       }
       
-      // Pass the call on to any nested children
-      List<StatefulBeanContext> children = getThreadSafeContains();
-      if (children != null)
-      {
-         for (StatefulBeanContext contained : children)
-         {
-            contained.prePassivate();
-         }
-      }
+//      // Pass the call on to any nested children
+//      List<StatefulBeanContext> children = getThreadSafeContains();
+//      if (children != null)
+//      {
+//         for (StatefulBeanContext contained : children)
+//         {
+//            contained.prePassivate();
+//         }
+//      }
    }
 
    /**
@@ -451,15 +521,15 @@ public class StatefulBeanContext
          passivated = false;
       }
       
-      // Pass the call on to any nested children
-      List<StatefulBeanContext> children = getThreadSafeContains();
-      if (children != null)
-      {  
-         for (StatefulBeanContext contained : children)
-         {
-            contained.postActivate();
-         }
-      }
+//      // Pass the call on to any nested children
+//      List<StatefulBeanContext> children = getThreadSafeContains();
+//      if (children != null)
+//      {  
+//         for (StatefulBeanContext contained : children)
+//         {
+//            contained.postActivate();
+//         }
+//      }
    }
    
    /**
@@ -481,21 +551,21 @@ public class StatefulBeanContext
          passivated = true;
       }
       
-      // Only bother informing children if we aren't already serialized.
-      // If we're serialized, so are they and there's no point.
-      // Notifying them would cause us to deserialize a beanMO to no purpose.
-      if (contains != null)
-      {
-         // Pass the call on to any nested children
-         List<StatefulBeanContext> children = getThreadSafeContains();
-         if (children != null)
-         {
-            for (StatefulBeanContext contained : children)
-            {
-               contained.passivateAfterReplication();
-            }
-         }
-      }
+//      // Only bother informing children if we aren't already serialized.
+//      // If we're serialized, so are they and there's no point.
+//      // Notifying them would cause us to deserialize a beanMO to no purpose.
+//      if (contains != null)
+//      {
+//         // Pass the call on to any nested children
+//         List<StatefulBeanContext> children = getThreadSafeContains();
+//         if (children != null)
+//         {
+//            for (StatefulBeanContext contained : children)
+//            {
+//               contained.passivateAfterReplication();
+//            }
+//         }
+//      }
    }
    
    public void activateAfterReplication()
@@ -509,15 +579,15 @@ public class StatefulBeanContext
          passivated = false;
       }
       
-      // Pass the call on to any nested children
-      List<StatefulBeanContext> children = getThreadSafeContains();
-      if (children != null)
-      {
-         for (StatefulBeanContext contained : children)
-         {
-            contained.activateAfterReplication();
-         }
-      }
+//      // Pass the call on to any nested children
+//      List<StatefulBeanContext> children = getThreadSafeContains();
+//      if (children != null)
+//      {
+//         for (StatefulBeanContext contained : children)
+//         {
+//            contained.activateAfterReplication();
+//         }
+//      }
    }
 
    public boolean getReplicationIsPassivation()
@@ -545,15 +615,15 @@ public class StatefulBeanContext
          passivated = true;
       }
       
-      // Pass the call on to any nested children
-      List<StatefulBeanContext> children = getThreadSafeContains();
-      if (children != null)
-      {
-         for (StatefulBeanContext contained : children)
-         {
-            contained.preReplicate();
-         }
-      }
+//      // Pass the call on to any nested children
+//      List<StatefulBeanContext> children = getThreadSafeContains();
+//      if (children != null)
+//      {
+//         for (StatefulBeanContext contained : children)
+//         {
+//            contained.preReplicate();
+//         }
+//      }
    }
 
    /**
@@ -576,21 +646,21 @@ public class StatefulBeanContext
          passivated = false;
       }
       
-      // Pass the call on to any nested children
-      List<StatefulBeanContext> children = getThreadSafeContains();
-      if (children != null)
-      {
-         for (StatefulBeanContext contained : children)
-         {
-            contained.postReplicate();
-         }
-      }
+//      // Pass the call on to any nested children
+//      List<StatefulBeanContext> children = getThreadSafeContains();
+//      if (children != null)
+//      {
+//         for (StatefulBeanContext contained : children)
+//         {
+//            contained.postReplicate();
+//         }
+//      }
    }
 
-   public void popContainedIn()
-   {
-      propagatedContainedIn.pop();
-   }
+//   public void popContainedIn()
+//   {
+//      propagatedContainedIn.pop();
+//   }
 
    public boolean isInUse()
    {
@@ -668,20 +738,20 @@ public class StatefulBeanContext
             exceptionThrown = e;
       }
       
-      if (containedIn != null && getCanRemoveFromCache())
-      {
-         try
-         {
-            containedIn.removeContains(this);
-         }
-         catch (RuntimeException e)
-         {
-            // we still need to clean internal state, so save the
-            // thrown exception and rethrow it after we have cleaned up.
-            if (exceptionThrown == null)
-               exceptionThrown = e;
-         }
-      }
+//      if (containedIn != null && getCanRemoveFromCache())
+//      {
+//         try
+//         {
+//            containedIn.removeContains(this);
+//         }
+//         catch (RuntimeException e)
+//         {
+//            // we still need to clean internal state, so save the
+//            // thrown exception and rethrow it after we have cleaned up.
+//            if (exceptionThrown == null)
+//               exceptionThrown = e;
+//         }
+//      }
             
       // Clear out refs to our bean and interceptors, to reduce our footprint
       // in case we are still cached for our refs to any XPCs
@@ -691,20 +761,20 @@ public class StatefulBeanContext
       if (exceptionThrown != null) throw new RuntimeException("exception thrown while removing SFSB", exceptionThrown);
    }
    
-   public boolean getCanRemoveFromCache()
-   {
-      boolean canRemove = removed;
-      
-      if (canRemove && getContains() != null) // call getContains() to ensure unmarshalling
-      {
-         synchronized (contains)
-         {
-            canRemove = (contains.size() == 0);
-         }
-      }
-      
-      return canRemove;
-   }
+//   public boolean getCanRemoveFromCache()
+//   {
+//      boolean canRemove = removed;
+//      
+//      if (canRemove && getContains() != null) // call getContains() to ensure unmarshalling
+//      {
+//         synchronized (contains)
+//         {
+//            canRemove = (contains.size() == 0);
+//         }
+//      }
+//      
+//      return canRemove;
+//   }
    
    private void cleanExtendedPCs()
    {    
@@ -732,59 +802,59 @@ public class StatefulBeanContext
 
    private void closeExtendedPCs()
    {
-      Map<String, EntityManager> extendedPCS = getExtendedPersistenceContexts();
+      Set<String> extendedPCS = getPersistenceContextNames();
       if (extendedPCS != null)
       {
          RuntimeException exceptionThrown = null;
          
-         List<String> closedXPCs = new ArrayList<String>();
-         StatefulBeanContext topCtx = getUltimateContainedIn();
-         
-         for (Iterator<Map.Entry<String,EntityManager>> iter = extendedPCS.entrySet().iterator(); 
-               iter.hasNext();)
-         {
-            Map.Entry<String,EntityManager> entry = iter.next();
-            String id = entry.getKey();
-            EntityManager xpc = entry.getValue();
-            
-            // Only close the XPC if our live parent(s) or cousins 
-            // don't also have a ref to it
-            boolean canClose = topCtx.scanForExtendedPersistenceContext(id, this);
-            
-            if (canClose && getContains() != null)
-            {
-               // Only close the XPC if our live childrenScan don't have a ref
-               synchronized (contains)
-               {
-                  for (StatefulBeanContext contained : contains)
-                  {
-                     if (contained.scanForExtendedPersistenceContext(id, null))
-                     {
-                        canClose = false;
-                        break;
-                     }
-                  }
-               }
-            }
-            
-            if (canClose)
-            {
-               try
-               {
-                  xpc.close();
-                  closedXPCs.add(id);
-               }
-               catch (RuntimeException e)
-               {
-                  exceptionThrown = e;
-               }
-            }
-         }
+//         List<String> closedXPCs = new ArrayList<String>();
+//         StatefulBeanContext topCtx = getUltimateContainedIn();
+//         
+//         for (Iterator<Map.Entry<String,EntityManager>> iter = extendedPCS.entrySet().iterator(); 
+//               iter.hasNext();)
+//         {
+//            Map.Entry<String,EntityManager> entry = iter.next();
+//            String id = entry.getKey();
+//            EntityManager xpc = entry.getValue();
+//            
+//            // Only close the XPC if our live parent(s) or cousins 
+//            // don't also have a ref to it
+//            boolean canClose = topCtx.scanForExtendedPersistenceContext(id, this);
+//            
+//            if (canClose && getContains() != null)
+//            {
+//               // Only close the XPC if our live childrenScan don't have a ref
+//               synchronized (contains)
+//               {
+//                  for (StatefulBeanContext contained : contains)
+//                  {
+//                     if (contained.scanForExtendedPersistenceContext(id, null))
+//                     {
+//                        canClose = false;
+//                        break;
+//                     }
+//                  }
+//               }
+//            }
+//            
+//            if (canClose)
+//            {
+//               try
+//               {
+//                  xpc.close();
+//                  closedXPCs.add(id);
+//               }
+//               catch (RuntimeException e)
+//               {
+//                  exceptionThrown = e;
+//               }
+//            }
+//         }
          
          // Clean all refs to the closed XPCs from the tree
-         for (String id : closedXPCs)
+         for (String id : extendedPCS)
          {
-            topCtx.removeExtendedPersistenceContext(id);
+            removeExtendedPersistenceContext(id);
          }            
          
          if (exceptionThrown != null) throw new RuntimeException("Error closing PersistenceContexts in SFSB removal", exceptionThrown);
@@ -866,8 +936,9 @@ public class StatefulBeanContext
          
          Object[] beanAndInterceptors = (Object[]) beanMO.get();
          bean = beanAndInterceptors[0];
-         persistenceContexts = (HashMap<String, EntityManager>) beanAndInterceptors[1];
-         ArrayList list = (ArrayList) beanAndInterceptors[2];
+         persistenceContextNames = (Set<String>) beanAndInterceptors[1];
+         sharedState = (Map<Object, Object>) beanAndInterceptors[2];
+         ArrayList list = (ArrayList) beanAndInterceptors[3];
          interceptorInstances = new HashMap<Class<?>, Object>();
          if (list != null)
          {
@@ -876,16 +947,16 @@ public class StatefulBeanContext
                interceptorInstances.put(o.getClass(), o);
             }
          }
-         contains = (List<StatefulBeanContext>) beanAndInterceptors[3];
-         // Reestablish links to our children; if they serialize a link
-         // to us for some reason serialization blows up
-         if (contains != null)
-         {
-            for (StatefulBeanContext contained : contains)
-            {
-               contained.containedIn = this;
-            }
-         }
+//         contains = (List<StatefulBeanContext>) beanAndInterceptors[4];
+//         // Reestablish links to our children; if they serialize a link
+//         // to us for some reason serialization blows up
+//         if (contains != null)
+//         {
+//            for (StatefulBeanContext contained : contains)
+//            {
+//               contained.containedIn = this;
+//            }
+//         }
          
          // Don't hold onto the beanMo, as its contents are mutable
          // and we don't want to serialize a stale version of them
@@ -916,14 +987,15 @@ public class StatefulBeanContext
       {
          Object[] beanAndInterceptors = new Object[4];
          beanAndInterceptors[0] = bean;
-         beanAndInterceptors[1] = persistenceContexts;
+         beanAndInterceptors[1] = persistenceContextNames;
+         beanAndInterceptors[2] = sharedState;
          if (interceptorInstances != null && interceptorInstances.size() > 0)
          {
             ArrayList list = new ArrayList();
             list.addAll(interceptorInstances.values());
             beanAndInterceptors[2] = list;
          }
-         beanAndInterceptors[3] = contains;
+//         beanAndInterceptors[3] = contains;
          
          // BES 2007/02/12 Previously we were trying to hold a ref to
          // beanMO after we created it, but that exposes the risk of

@@ -21,7 +21,7 @@
             <!-- ServiceRemoteProxyFactory -->
             <entry>
                <key>ServiceRemoteProxyFactory</key>
-               <value>org.jboss.ejb3.proxy.factory.service.ServiceRemoteProxyFactory</value>
+               <value>org.jboss.ejb3.proxy.factory.session.service.ServiceRemoteProxyFactory</value>
             </entry>
             <!-- StatefulClusterProxyFactory -->
             <entry>

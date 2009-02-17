@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- JTA -->
+   <bean name="AuthenticationManager" class="org.jboss.ejb3.core.test.common.SimpleSecurityService">
+      <depends>NamingServer</depends>
+   </bean>
+</deployment>

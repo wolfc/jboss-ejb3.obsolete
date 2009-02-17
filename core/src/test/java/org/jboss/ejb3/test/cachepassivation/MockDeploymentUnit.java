@@ -22,6 +22,8 @@
 package org.jboss.ejb3.test.cachepassivation;
 
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +60,13 @@ public class MockDeploymentUnit implements DeploymentUnit
     */
    public ClassLoader getClassLoader()
    {
-      return Thread.currentThread().getContextClassLoader();
+      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      {
+         public ClassLoader run()
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+      });
    }
 
    /* (non-Javadoc)

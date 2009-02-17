@@ -23,6 +23,8 @@ package org.jboss.ejb3.cache;
 
 import java.util.Map;
 
+import org.jboss.ejb3.stateful.StatefulBeanContext;
+
 /**
  * Registry for all configured Stateful Cache Factory implementations
  * 
@@ -32,18 +34,28 @@ import java.util.Map;
 public class CacheFactoryRegistry
 {
    // Instance Members
-   private Map<String, Class<? extends Ejb3CacheFactory>> factories;
+   private Map<String, StatefulCacheFactory<StatefulBeanContext>> factories;
 
    // Accessors / Mutators
 
-   public Map<String, Class<? extends Ejb3CacheFactory>> getFactories()
+   public Map<String, StatefulCacheFactory<StatefulBeanContext>> getFactories()
    {
       return factories;
    }
 
-   public void setFactories(Map<String, Class<? extends Ejb3CacheFactory>> factories)
+   public void setFactories(Map<String, StatefulCacheFactory<StatefulBeanContext>> factories)
    {
       this.factories = factories;
+   }
+   
+   public void addCacheFactory(String name, StatefulCacheFactory<StatefulBeanContext> factory)
+   {
+      this.factories.put(name, factory);
+   }
+   
+   public void removeCacheFactory(String name)
+   {
+      this.factories.remove(name);
    }
 
    // Functional Methods
@@ -54,10 +66,10 @@ public class CacheFactoryRegistry
     * @param name The registered name of the cache factory to retrieve
     * @return The Cache Factory
     */
-   public Ejb3CacheFactory getCacheFactory(String name) throws CacheFactoryNotRegisteredException
+   public StatefulCacheFactory<StatefulBeanContext> getCacheFactory(String name) throws CacheFactoryNotRegisteredException
    {
       // Obtain cache factory
-      Class<? extends Ejb3CacheFactory> cacheFactory = this.factories.get(name);
+      StatefulCacheFactory<StatefulBeanContext> cacheFactory = this.factories.get(name);
 
       // Ensure registered
       if (cacheFactory == null)
@@ -65,18 +77,6 @@ public class CacheFactoryRegistry
          throw new CacheFactoryNotRegisteredException("Cache Factory with name " + name + " is not registered.");
       }
 
-      try
-      {
-         // Return 
-         return cacheFactory.newInstance();
-      }
-      catch (InstantiationException e)
-      {
-         throw new RuntimeException("Error in instanciating cache factory " + cacheFactory.getName(), e);
-      }
-      catch (IllegalAccessException e)
-      {
-         throw new RuntimeException(e);
-      }
+      return cacheFactory;
    }
 }

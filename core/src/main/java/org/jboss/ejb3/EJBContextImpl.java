@@ -58,9 +58,6 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
    protected B beanContext;
    protected EJBContextHelper ejbContextHelper;
    
-   /** Principal for the bean associated with the call **/
-   private Principal beanPrincipal;
-
    protected EJBContextImpl(B beanContext)
    {
       assert beanContext != null : "beanContext is null";
@@ -134,20 +131,16 @@ public abstract class EJBContextImpl<T extends Container, B extends BeanContext<
     */
    public Principal getCallerPrincipal()
    {
-      if(beanPrincipal == null)
-      {
-         EJBContainer ec = (EJBContainer) container;
-         SecurityDomain domain = ec.getAnnotation(SecurityDomain.class);
-         Principal callerPrincipal = ejbContextHelper.getCallerPrincipal(SecurityActions.getSecurityContext(), 
-               rm, domain); 
-                 
-         // This method never returns null.
-         if (callerPrincipal == null)
-            throw new java.lang.IllegalStateException("No valid security context for the caller identity");
-  
-         beanPrincipal = callerPrincipal;
-      }      
-      return beanPrincipal;
+      EJBContainer ec = (EJBContainer) container;
+      SecurityDomain domain = ec.getAnnotation(SecurityDomain.class);
+      Principal callerPrincipal = ejbContextHelper.getCallerPrincipal(SecurityActions.getSecurityContext(), 
+            rm, domain); 
+              
+      // This method never returns null.
+      if (callerPrincipal == null)
+         throw new java.lang.IllegalStateException("No valid security context for the caller identity");
+      
+      return callerPrincipal;
    }
 
    

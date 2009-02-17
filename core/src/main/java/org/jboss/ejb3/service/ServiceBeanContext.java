@@ -24,15 +24,14 @@ package org.jboss.ejb3.service;
 import javax.ejb.EJBContext;
 
 import org.jboss.ejb3.session.SessionBeanContext;
-import org.jboss.ejb3.session.SessionContainer;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
  * @version $Revision$
  */
-public class ServiceBeanContext extends SessionBeanContext
+public class ServiceBeanContext extends SessionBeanContext<ServiceContainer>
 {
-   public ServiceBeanContext(SessionContainer container, Object bean)
+   public ServiceBeanContext(ServiceContainer container, Object bean)
    {
       super(container, bean);
    }
@@ -45,7 +44,6 @@ public class ServiceBeanContext extends SessionBeanContext
    @Override
    public EJBContext getEJBContext()
    {
-      // TODO Auto-generated method stub
-      return null;
+      return new ServiceSessionContextImpl(this);
    }
 }

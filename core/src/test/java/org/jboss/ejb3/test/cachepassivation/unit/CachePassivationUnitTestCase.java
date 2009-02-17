@@ -26,6 +26,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.naming.InitialContext;
+import javax.transaction.TransactionManager;
 
 import junit.framework.TestCase;
 
@@ -40,6 +41,7 @@ import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.core.test.common.MockEjb3Deployment;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
+import org.jboss.ejb3.test.cache.mock.tm.MockTransactionManager;
 import org.jboss.ejb3.test.cachepassivation.MockBean;
 import org.jboss.ejb3.test.cachepassivation.MockDeploymentUnit;
 import org.jboss.ejb3.test.cachepassivation.MockStatefulContainer;
@@ -68,7 +70,8 @@ public class CachePassivationUnitTestCase extends TestCase
       initializer.setInitialContextProperties(ctxProperties);
       initializer.start();
       
-      DummyTransactionManager tm = new DummyTransactionManager();
+      DummyTransactionManager dtm = new DummyTransactionManager();
+      TransactionManager tm = MockTransactionManager.getInstance();
       InitialContext ic = new InitialContext(ctxProperties);
       ic.bind("java:/TransactionManager", tm);
       
@@ -84,7 +87,7 @@ public class CachePassivationUnitTestCase extends TestCase
       factories.put("MyStatefulSessionFilePersistenceManager", MyStatefulSessionFilePersistenceManagerFactory.class);
       PersistenceManagerFactoryRegistry persistenceManagerFactoryRegistry = new PersistenceManagerFactoryRegistry();
       persistenceManagerFactoryRegistry.setFactories(factories);
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       deployment.setPersistenceManagerFactoryRegistry(persistenceManagerFactoryRegistry);
       MockStatefulContainer container = new MockStatefulContainer(cl, beanClassName, ejbName, domain, ctxProperties,
             deployment);
@@ -100,12 +103,14 @@ public class CachePassivationUnitTestCase extends TestCase
          
          Object id = container.createSession();
          
-         StatefulBeanContext ctx = container.getCache().get(id, false);
+//         StatefulBeanContext ctx = container.getCache().get(id, false);
+         StatefulBeanContext ctx = container.getCache().get(id);
          
          System.out.println("inUse = " + ctx.isInUse());
          MockBean bean = (MockBean) ctx.getInstance();
          System.out.println(bean.ctx);
-         ctx.setInUse(false);
+//         ctx.setInUse(false);
+         container.getCache().release(ctx);
          ctx = null;
          
          synchronized (MockBean.notification)
@@ -114,7 +119,8 @@ public class CachePassivationUnitTestCase extends TestCase
          }
          Thread.sleep(500);
          
-         ctx = container.getCache().get(id, false);
+//         ctx = container.getCache().get(id, false);
+         ctx = container.getCache().get(id);
          bean = (MockBean) ctx.getInstance();
          
          String a = ctx.getEJBContext().toString();

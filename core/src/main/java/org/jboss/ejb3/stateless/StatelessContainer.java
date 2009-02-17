@@ -34,6 +34,7 @@ import javax.ejb.EJBException;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
+import javax.ejb.RemoteHome;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 import javax.naming.NamingException;
@@ -55,6 +56,7 @@ import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.ejb3.annotation.LocalBinding;
 import org.jboss.ejb3.annotation.RemoteBinding;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
@@ -65,9 +67,11 @@ import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.ejb3.proxy.factory.stateless.StatelessLocalProxyFactory;
+import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
@@ -203,7 +207,7 @@ public class StatelessContainer extends SessionSpecContainer
    @Override
    public Object createProxyRemoteEjb21(RemoteBinding binding, String businessInterfaceType) throws Exception
    {
-      SessionProxyFactory proxyFactory = this.getProxyFactory(binding);
+      SessionSpecProxyFactory proxyFactory = (SessionSpecProxyFactory) this.getProxyFactory(binding);
       return proxyFactory.createProxyEjb2x();
    }
    
@@ -389,8 +393,9 @@ public class StatelessContainer extends SessionSpecContainer
    
    /**
     * Remote Invocation entry point, as delegated from
-    * ClassProxyHack (Remoting Dispatcher)
+    * InvokableContextClassProxyHack (Remoting Dispatcher)
     */
+   @Override
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       /*
@@ -513,84 +518,7 @@ public class StatelessContainer extends SessionSpecContainer
          Thread.currentThread().setContextClassLoader(originalLoader);
       }
    }
-
-   @Deprecated
-   public InvocationResponse dynamicInvoke(Object target, Invocation invocation) throws Throwable
-   {
-      long start = System.currentTimeMillis();
-      
-      ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
-         Thread.currentThread().setContextClassLoader(classloader);
-         MethodInvocation si = (MethodInvocation) invocation;
-         MethodInfo info = getAdvisor().getMethodInfo(si.getMethodHash());
-         if (info == null)
-         {
-            throw new RuntimeException("Could not resolve beanClass method from proxy call " + invocation);
-         }
-
-         Method unadvisedMethod = info.getUnadvisedMethod();
-         try
-         {
-            invokeStats.callIn();
-            
-            //invokedMethod.push(new SerializableMethod(unadvisedMethod, unadvisedMethod.getClass()));
-            Map responseContext = null;
-            Object rtn = null;
-            if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
-            {
-               rtn = invokeHomeMethod(info, si);
-            }
-            else if (info != null && unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
-            {
-               rtn = invokeEJBObjectMethod(info, si);
-            }
-            else
-            {
-
-               EJBContainerInvocation newSi = null;
-
-               newSi = new EJBContainerInvocation<StatelessContainer, StatelessBeanContext>(info);
-               newSi.setArguments(si.getArguments());
-               newSi.setMetaData(si.getMetaData());
-               newSi.setAdvisor(getAdvisor());
-               try
-               {
-                  rtn = newSi.invokeNext();
-                  responseContext = newSi.getResponseContextInfo();
-               }
-               catch (Throwable throwable)
-               {
-                  responseContext = newSi.getResponseContextInfo();
-                  return marshallException(invocation, throwable, responseContext);
-               }
-            }
-
-            InvocationResponse response = marshallResponse(invocation, rtn, responseContext);
-            return response;
-         }
-         finally
-         {
-            if (unadvisedMethod != null)
-            {
-               long end = System.currentTimeMillis();
-               long elapsed = end - start;
-               invokeStats.updateStats(unadvisedMethod, elapsed);
-            }
-            
-            invokeStats.callOut();
-            
-            //invokedMethod.pop();
-         }
-      }
-      finally
-      {
-         Thread.currentThread().setContextClassLoader(oldLoader);
-      }
-   }
-
-
+ 
    protected Object invokeEJBObjectMethod(MethodInfo info, MethodInvocation invocation) throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
@@ -676,17 +604,50 @@ public class StatelessContainer extends SessionSpecContainer
    protected Object invokeHomeMethod(MethodInfo info, MethodInvocation invocation) throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
-      if (unadvisedMethod.getName().equals("create"))
+      String methodName = unadvisedMethod.getName();
+      if (methodName.equals("create"))
       {
-         SerializableMethod method = new SerializableMethod(unadvisedMethod);
          Object[] arguments = invocation.getArguments();
          // EJBTHREE-1512 Pass along the request to the proper home create method
-         Object proxy = this.invokeHomeCreate(method, arguments);
+         Object proxy = this.invokeHomeCreate(unadvisedMethod, arguments);
          return proxy;
       }
-      else
-      // remove
+      // TODO: should be handled locally
+      else if(methodName.equals("getEJBMetaData"))
       {
+         Class<?> remote = null;
+         Class<?> home = null;
+         Class<?> pkClass = Object.class;
+         HomeHandleImpl homeHandle = null;
+
+         Class<?>[] remotes = ProxyFactoryHelper.getRemoteInterfaces(this);
+         if (remotes != null && remotes.length > 0)
+         {
+            remote = remotes[0];
+         }
+         RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
+         if (homeAnnotation != null)
+            home = homeAnnotation.value();
+         
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+         
+         EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass,
+                 true, false, homeHandle);
+
+         return metadata;
+      }
+      // TODO: should be handled locally
+      else if(methodName.equals("getHomeHandle"))
+      {
+         RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
+         assert remoteHomeBinding != null : "remoteHomeBinding is null";
+         return new HomeHandleImpl(remoteHomeBinding.jndiBinding());
+      }
+      else
+      {
+         // remove
          return null;
       }
    }

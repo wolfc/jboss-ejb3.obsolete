@@ -34,6 +34,8 @@ import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 /**
  * Replicate SFSB if it is modified.
  *
+ * FIXME remove this
+ *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @author Brian Stansberry
  * 
@@ -52,86 +54,86 @@ public class StatefulReplicationInterceptor implements Interceptor
    public Object invoke(Invocation invocation) throws Throwable
    {
       // Find the ultimate parent context for the tree of SFSBs the target
-      // bean is part of.  This "tree" could just be the bean itself, or
-      // a multi-layer tree of nested SFSBs.
-      StatefulContainerInvocation ejbInv = (StatefulContainerInvocation) invocation;
-      StatefulBeanContext ctx = (StatefulBeanContext) ejbInv.getBeanContext();
-      StatefulBeanContext root = ctx.getUltimateContainedIn();
-      
-      // Find out if the ultimate parent is clustered
-      boolean clustered = false;
-      StatefulContainer container = (StatefulContainer) root.getContainer();
-      ClusteredStatefulCache clusteredCache = null;
-      if (container.getCache() instanceof ClusteredStatefulCache)
-      {
-         clustered = true;
-         clusteredCache = (ClusteredStatefulCache) container.getCache();
-      }
-      
-      // Track nested calls to this tree so we know when the outer call
-      // returns -- that's when we replicate
-      if (clustered)         
-         pushCallStack(root);
-      
-      boolean stackUnwound = false;
+//      // bean is part of.  This "tree" could just be the bean itself, or
+//      // a multi-layer tree of nested SFSBs.
+//      StatefulContainerInvocation ejbInv = (StatefulContainerInvocation) invocation;
+//      StatefulBeanContext ctx = (StatefulBeanContext) ejbInv.getBeanContext();
+//      StatefulBeanContext root = ctx.getUltimateContainedIn();
+//      
+//      // Find out if the ultimate parent is clustered
+//      boolean clustered = false;
+//      StatefulContainer container = (StatefulContainer) root.getContainer();
+//      ClusteredStatefulCache clusteredCache = null;
+//      if (container.getCache() instanceof ClusteredStatefulCache)
+//      {
+//         clustered = true;
+//         clusteredCache = (ClusteredStatefulCache) container.getCache();
+//      }
+//      
+//      // Track nested calls to this tree so we know when the outer call
+//      // returns -- that's when we replicate
+//      if (clustered)         
+//         pushCallStack(root);
+//      
+//      boolean stackUnwound = false;
       Object rtn = null;
-      try
-      {
+//      try
+//      {
          rtn = invocation.invokeNext();
-      }
-      finally
-      {
-         stackUnwound = (clustered && isCallStackUnwound(root));
-      }
-
-
-      // We only replicate if the ultimate parent is clustered
-      // TODO should we fail somehow during bean creation otherwise??
-      boolean mustReplicate = clustered;
-      
-      // If the bean implements Optimized, we call isModified() even
-      // if we know we won't replicate, as the bean might be expecting 
-      // us to call the method
-      Object obj = invocation.getTargetObject();
-      if (obj instanceof Optimized)
-      {
-         if (((Optimized) obj).isModified() == false)
-         {
-            mustReplicate = false;
-         }
-      }
-      
-      if (mustReplicate)
-      {
-         // Mark the bean for replication. If the call stack is not
-         // unwound yet this will tell the outer caller the tree is 
-         // dirty even if the outer bean's isModified() returns false
-         root.markedForReplication = true;
-      }
-      
-      if (stackUnwound && root.markedForReplication)
-      {
-         clusteredCache.replicate(root);
-      }
-      
-      if (ctx != root && ctx.markedForReplication)
-      {
-         // ctx is a ProxiedStatefulBeanContext that may have failed over
-         // and needs to invalidate any remote nodes that hold stale refs
-         // to their delegate. So we replicate it.
-         container = (StatefulContainer) ctx.getContainer();
-         StatefulCache cache = container.getCache();
-         if (cache instanceof ClusteredStatefulCache)
-         {
-            clusteredCache = (ClusteredStatefulCache) cache;
-            clusteredCache.replicate(ctx);
-         }
-         else
-         {
-            // not replicable
-            ctx.markedForReplication = false;
-         }
-      }
+//      }
+//      finally
+//      {
+//         stackUnwound = (clustered && isCallStackUnwound(root));
+//      }
+//
+//
+//      // We only replicate if the ultimate parent is clustered
+//      // TODO should we fail somehow during bean creation otherwise??
+//      boolean mustReplicate = clustered;
+//      
+//      // If the bean implements Optimized, we call isModified() even
+//      // if we know we won't replicate, as the bean might be expecting 
+//      // us to call the method
+//      Object obj = invocation.getTargetObject();
+//      if (obj instanceof Optimized)
+//      {
+//         if (((Optimized) obj).isModified() == false)
+//         {
+//            mustReplicate = false;
+//         }
+//      }
+//      
+//      if (mustReplicate)
+//      {
+//         // Mark the bean for replication. If the call stack is not
+//         // unwound yet this will tell the outer caller the tree is 
+//         // dirty even if the outer bean's isModified() returns false
+//         root.markedForReplication = true;
+//      }
+//      
+//      if (stackUnwound && root.markedForReplication)
+//      {
+//         clusteredCache.replicate(root);
+//      }
+//      
+//      if (ctx != root && ctx.markedForReplication)
+//      {
+//         // ctx is a ProxiedStatefulBeanContext that may have failed over
+//         // and needs to invalidate any remote nodes that hold stale refs
+//         // to their delegate. So we replicate it.
+//         container = (StatefulContainer) ctx.getContainer();
+//         Cache<StatefulBeanContext> cache = container.getCache();
+//         if (cache instanceof ClusteredStatefulCache)
+//         {
+//            clusteredCache = (ClusteredStatefulCache) cache;
+//            clusteredCache.replicate(ctx);
+//         }
+//         else
+//         {
+//            // not replicable
+//            ctx.markedForReplication = false;
+//         }
+//      }
       
       return rtn;
    }

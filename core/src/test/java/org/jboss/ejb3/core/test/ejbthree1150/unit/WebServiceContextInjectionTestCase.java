@@ -61,7 +61,7 @@ public class WebServiceContextInjectionTestCase extends AbstractEJB3TestCase
       String ejbName = beanClass.getSimpleName();
       Domain domain = getDomain("Stateless Bean");
       Hashtable<?,?> ctxProperties = null;
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanClass);
       StatelessContainer container = new StatelessContainer(cl, beanClassname, ejbName, domain, ctxProperties, deployment, beanMetaData);
       
@@ -93,7 +93,7 @@ public class WebServiceContextInjectionTestCase extends AbstractEJB3TestCase
       String ejbName = beanClass.getSimpleName();
       Domain domain = getDomain("Stateless Bean");
       Hashtable<?,?> ctxProperties = null;
-      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit(), null);
+      Ejb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
       JBossSessionBeanMetaData beanMetaData = MetaDataHelper.getMetadataFromBeanImplClass(beanClass);
       
       // add an override

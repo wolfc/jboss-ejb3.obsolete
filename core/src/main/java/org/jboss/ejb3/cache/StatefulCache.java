@@ -35,7 +35,7 @@ import org.jboss.ejb3.stateful.StatefulBeanContext;
  * @deprecated use Cache
  */
 @Deprecated
-public interface StatefulCache extends Cache<StatefulBeanContext>
+public interface StatefulCache
 {
    public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues);
 
@@ -93,4 +93,38 @@ public interface StatefulCache extends Cache<StatefulBeanContext>
    public void initialize(EJBContainer container) throws Exception;
    
    public boolean isStarted();
+   
+   
+   /**
+    * Peek at an object which might be in use.
+    * 
+    * @param key    the identifier of the object
+    * @return       the object
+    * @throws NoSuchEJBException    if the object does not exist
+    */
+   StatefulBeanContext peek(Object key) throws NoSuchEJBException;
+   
+   /**
+    * Release the object from use.
+    * 
+    * @param obj    the object
+    */
+   void release(StatefulBeanContext obj);
+   
+   /**
+    * Remove the specified object from cache.
+    * 
+    * @param key    the identifier of the object
+    */
+   void remove(Object key);
+   
+   /**
+    * Start the cache.
+    */
+   void start();
+   
+   /**
+    * Stop the cache.
+    */
+   void stop();
 }

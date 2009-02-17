@@ -35,7 +35,9 @@ import org.jboss.ejb3.annotation.PersistenceManager;
  * A SFSB with the following overrides:
  * 
  * 1) Uses a Cache implementation that provides mechanism to
- * force passivation (instead of waiting upon a Thread.sleep timeout)
+ * block tasks such as passivation and removal, in addition to 
+ * adding support for internal lifecycle implementations for these
+ * tasks
  * 
  * 2) Uses a backing PersistenceManager that provides mechanism to
  * block completion of passivation from the test until ready
@@ -45,22 +47,17 @@ import org.jboss.ejb3.annotation.PersistenceManager;
  */
 @Stateful
 @Local(MyStatefulLocal.class)
+// Note that jndi bindings are ignore in the unit tests
 @LocalBinding(jndiBinding = MyStatefulLocal.JNDI_NAME)
 /*
- * Use a CacheFctory that instead of using a timed reaping Thread,
- * exposes a static "forcePassivation" method for the tests 
+ * Use a CacheFactory that is extended to enable 
+ * blocking hooks that we need for testing
  */
-@Cache(ForcePassivationCacheFactory.REGISTRY_BIND_NAME)
+@Cache(ForceEventsCacheFactory.REGISTRY_BIND_NAME)
 /*
- * Make instances eligible for timeout very soon after last invocation
+ * Make instances eligible for timeout very soon after last invocation, and be removed (as default is NEVER)
  */
-@CacheConfig(idleTimeoutSeconds = MyStatefulLocal.PASSIVATION_TIMEOUT)
-/*
- * Set up a persistence manager that allows us to block, and therefore
- * lets the test decide how long the processes of performing passivation
- * should take.  Used to manually interleave Threads to target the test case.
- */
-@PersistenceManager(BlockingPersistenceManagerFactory.REGISTRY_BIND_NAME)
+@CacheConfig(idleTimeoutSeconds = MyStatefulLocal.PASSIVATION_TIMEOUT, removalTimeoutSeconds = MyStatefulLocal.REMOVAL_TIMEOUT)
 public class MyStatefulBean implements MyStatefulLocal
 {
    // --------------------------------------------------------------------------------||
