@@ -44,7 +44,7 @@ import org.jboss.cache.notifications.event.NodePassivatedEvent;
 import org.jboss.cache.notifications.event.NodeRemovedEvent;
 import org.jboss.cache.notifications.event.NodeVisitedEvent;
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
@@ -95,7 +95,7 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
    private final String cacheConfigName;
    
    /** The underlying JBC instance */
-   private Cache<Object, T> jbc;
+   private Cache<Object, Object> jbc;
 
    /** Qualifier used to scope our Fqns */
    private final Object keyBase;
@@ -145,7 +145,7 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
       this.keyBase = name;
 
       this.log = Logger.getLogger(getClass().getName() + "-" + name);
-      this.regionRootFqn = new Fqn<Object>(new Object[] { FQN_BASE, this.keyBase });
+      this.regionRootFqn = Fqn.fromElements(new Object[] { FQN_BASE, this.keyBase });
       
       this.inMemoryItems = new ConcurrentHashMap<OwnedItem, OwnedItem>();
       this.passivatedItems = new ConcurrentHashMap<OwnedItem, OwnedItem>();
@@ -159,6 +159,7 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
          return jbc.getConfiguration().getCacheMode() != Configuration.CacheMode.LOCAL;
    }
 
+   
    public T get(Object key)
    {
       T entry = null;
@@ -170,7 +171,9 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
          {
             jbc.getInvocationContext().getOptionOverrides().setForceDataGravitation(true);
          }
-         entry = (T) jbc.get(id, KEY);
+         @SuppressWarnings("unchecked")
+         T val = (T) jbc.get(id, KEY);
+         entry = val;
       }
       catch (CacheException e)
       {
@@ -335,12 +338,12 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
       super.internalStart();
    }
    
-   @SuppressWarnings("unchecked")
+//   @SuppressWarnings("unchecked")
    private void initializeJBossCache()
    {
       try
       {
-         this.jbc = (Cache<Object, T>) cacheManager.getCache(cacheConfigName, true);
+         this.jbc = cacheManager.getCache(cacheConfigName, true);
       }
       catch (CacheException e)
       {
@@ -372,18 +375,18 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
    private void initializeTrackingMaps()
    {      
       // First the main tree
-      Node<Object, T> parent = jbc.getNode(regionRootFqn);
+      Node<Object, Object> parent = jbc.getNode(regionRootFqn);
       analyzeRegionContent(parent);
      
       // Now any buddy regions
       if (usingBuddyRepl)
       {
-         Node<Object, T> bbRoot = jbc.getNode(BuddyManager.BUDDY_BACKUP_SUBTREE_FQN);
+         Node<Object, Object> bbRoot = jbc.getNode(BuddyManager.BUDDY_BACKUP_SUBTREE_FQN);
          if (bbRoot != null)
          {
-            for (Node<Object, T> bbRegion : bbRoot.getChildren())
+            for (Node<Object, Object> bbRegion : bbRoot.getChildren())
             {
-               Node<Object, T> ourPart = bbRegion.getChild(regionRootFqn);
+               Node<Object, Object> ourPart = bbRegion.getChild(regionRootFqn);
                if (ourPart != null)
                {
                   analyzeRegionContent(ourPart);
@@ -397,19 +400,20 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
       trackVisits = true;
    }
 
-   private void analyzeRegionContent(Node<Object, T> parent)
+   private void analyzeRegionContent(Node<Object, Object> parent)
    {
       for (int i = 0; i < hashBuckets.length; i++)
       {
-         Node<Object, T> bucket = parent.getChild(hashBuckets[i]);
+         Node<Object, Object> bucket = parent.getChild(hashBuckets[i]);
          if (bucket == null)
             continue;
          Set<Object> childrenNames = bucket.getChildrenNames();
          for (Object name : childrenNames)
          {
-            Node<Object, T> child = bucket.getChild(name);
+            Node<Object, Object> child = bucket.getChild(name);
             if (child == null)
                continue;
+            @SuppressWarnings("unchecked")
             T entry = (T) child.get(KEY);
             if (entry != null)
             {
@@ -574,16 +578,16 @@ public class JBCBackingCacheEntryStore<C extends CacheItem, T extends BackingCac
       int index = getIndexForId(id, beanId);
 
       if (regionRelative)
-         return new Fqn<Object>( new Object[] {hashBuckets[index], beanId} );
+         return Fqn.fromElements( new Object[] {hashBuckets[index], beanId} );
       else
-         return new Fqn<Object>(regionRootFqn, hashBuckets[index], beanId);
+         return Fqn.fromRelativeElements(regionRootFqn, hashBuckets[index], beanId);
    }
    
    private Fqn<Object> getBuddyFqn(Object id, Object owner)
    {
       assert owner != null : "owner cannot be null for a buddy backup Fqn";
       
-      return new Fqn<Object>(new Object[] { BuddyManager.BUDDY_BACKUP_SUBTREE, owner, FQN_BASE, keyBase, id});
+      return Fqn.fromElements(new Object[] { BuddyManager.BUDDY_BACKUP_SUBTREE, owner, FQN_BASE, keyBase, id});
    }
    
    private int getIndexForId(Object id, String stringForm)

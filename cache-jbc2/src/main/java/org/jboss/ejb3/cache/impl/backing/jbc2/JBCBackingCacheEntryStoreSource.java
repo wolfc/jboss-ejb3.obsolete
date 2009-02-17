@@ -26,7 +26,7 @@ import javax.transaction.TransactionManager;
 
 import org.jboss.cache.CacheManager;
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.SerializationGroup;

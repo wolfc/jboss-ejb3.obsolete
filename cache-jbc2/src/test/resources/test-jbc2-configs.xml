@@ -128,7 +128,7 @@
                   <class>org.jboss.cache.loader.FileCacheLoader</class>
                   <!-- Passivate to the server data dir -->
                   <properties>
-                       location=${jboss.server.data.dir}${/}sfsb 
+                       location=${java.io.tmpdir}${/}sfsb 
                   </properties>
                   <async>false</async>
                   <fetchPersistentState>true</fetchPersistentState>
@@ -239,7 +239,7 @@
                   <class>org.jboss.cache.loader.FileCacheLoader</class>
                   <!-- Passivate to the server data dir -->
                   <properties>
-                       location=${jboss.server.data.dir}${/}sfsb 
+                       location=${java.io.tmpdir}${/}sfsb 
                   </properties>
                   <async>false</async>
                   <fetchPersistentState>true</fetchPersistentState>

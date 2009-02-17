@@ -28,10 +28,10 @@ import java.util.Map;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheFactoryNotRegisteredException;
 import org.jboss.ejb3.cache.impl.backing.jbc2.JBCBackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory;
+import org.jboss.ejb3.test.cache.mock.CacheFactoryNotRegisteredException;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;

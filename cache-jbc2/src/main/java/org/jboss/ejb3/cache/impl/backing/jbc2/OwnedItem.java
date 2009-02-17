@@ -24,7 +24,7 @@ package org.jboss.ejb3.cache.impl.backing.jbc2;
 
 import org.jboss.cache.Fqn;
 import org.jboss.cache.buddyreplication.BuddyManager;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 
 /**
  * Encapsulates the identifier for a {@link CacheItem} as well as information
