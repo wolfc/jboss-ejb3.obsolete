@@ -22,8 +22,8 @@
 
 package org.jboss.ejb3.cache.spi.impl;
 
-import org.jboss.ejb3.cache.api.Cache;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.GroupAwareBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroupMember;
 

@@ -33,12 +33,12 @@ import javax.transaction.TransactionSynchronizationRegistry;
  * @author Brian Stansberry
  *
  */
-public class MockTransactionSynchroniztionRegistry implements TransactionSynchronizationRegistry
+public class MockTransactionSynchronizationRegistry implements TransactionSynchronizationRegistry
 {
    private final MockTransaction tx;
    private LinkedList<Synchronization> synchronizations = new LinkedList<Synchronization>();
    
-   public MockTransactionSynchroniztionRegistry(MockTransaction tx)
+   public MockTransactionSynchronizationRegistry(MockTransaction tx)
    {
       assert tx != null : "tx is null";
       this.tx = tx;

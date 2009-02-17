@@ -25,7 +25,7 @@ import javax.ejb.NoSuchEJBException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.api.Cache;
+import org.jboss.ejb3.cache.Cache;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -144,8 +144,8 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       
       assertSame(object, object2);
       
-      cache.finished(object2);
-      cache.finished(object);
+      cache.release(object2);
+      cache.release(object);
       
       cache.remove(key);
       
@@ -183,11 +183,11 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       
       assertNotNull(object);
       
-      cache.finished(object);
+      cache.release(object);
       
       try
       {
-         cache.finished(object);
+         cache.release(object);
          fail("Two sequential finished calls should throw ISE");
       }
       catch(IllegalStateException e)
@@ -232,7 +232,7 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       Transaction tx2 = tm.suspend();      
       tm.resume(tx1);
       
-      cache.finished(object);      
+      cache.release(object);      
 
       tm.suspend();
       tm.resume(tx2);
@@ -253,7 +253,7 @@ public class TransactionalCacheUnitTestCase extends Ejb3CacheTestCaseBase
       MockBeanContext object2 = cache.get(key);
       assertSame(object, object2);
       
-      cache.finished(object2);
+      cache.release(object2);
       
       tm.commit();
    }

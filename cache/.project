@@ -1,13 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-  <name>jboss-ejb3-cache</name>
-  <comment>The Java EJB 3.0 Cache classes</comment>
-  <projects/>
-  <buildSpec>
-    <buildCommand>
-      <name>org.eclipse.jdt.core.javabuilder</name>
-    </buildCommand>
-  </buildSpec>
-  <natures>
-    <nature>org.eclipse.jdt.core.javanature</nature>
-  </natures>
+	<name>jboss-ejb3-cache</name>
+	<comment>The Java EJB 3.0 Cache classes@key 32303037303533312D31303030206A626F73732D656A62332D63616368652F626573 </comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+      <buildCommand>
+        <name>org.maven.ide.eclipse.maven2Builder</name>
+      </buildCommand>
+		<buildCommand>
+			<name>com.soyatec.additional.Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+		<nature>com.soyatec.additional.Nature</nature>
+      <nature>org.maven.ide.eclipse.maven2Nature</nature>
+	</natures>
 </projectDescription>

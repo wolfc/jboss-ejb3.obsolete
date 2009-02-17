@@ -23,6 +23,8 @@
  */
 package org.jboss.ejb3.test.cache.mock.tm;
 
+import java.io.ObjectStreamException;
+import java.io.Serializable;
 import java.util.Hashtable;
 
 import javax.transaction.HeuristicMixedException;
@@ -45,7 +47,7 @@ import org.jboss.logging.Logger;
  *
  * @author Brian Stansberry
  */
-public class MockTransactionManager implements TransactionManager, TransactionSynchronizationRegistrySource 
+public class MockTransactionManager implements TransactionManager, TransactionSynchronizationRegistrySource, Serializable 
 {
    public static final String DEFAULT = "default";
    
@@ -192,4 +194,32 @@ public class MockTransactionManager implements TransactionManager, TransactionSy
       sb.append("]");
       return sb.toString();
    }
+   
+   /** Hack to allow binding in JNDI */
+   private Object writeReplace() throws ObjectStreamException
+   {
+      return new Serializer(nodeId);
+   }
+   
+   /** Hack to allow binding in JNDI */
+   static class Serializer implements Serializable
+   {
+      private static final long serialVersionUID = -608936399074867086L;
+      
+      private final String nodeId;
+      
+      Serializer(String nodeId)
+      {
+         this.nodeId = nodeId;
+      }
+      
+      private Object readResolve() throws ObjectStreamException
+      {
+         return getInstance(nodeId);
+      }
+   }
+
+
+   
+   
 }

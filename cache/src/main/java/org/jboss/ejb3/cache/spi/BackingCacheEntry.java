@@ -22,7 +22,7 @@
 
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 
 
 /**
@@ -95,4 +95,25 @@ public interface BackingCacheEntry<T extends CacheItem>
     * {@java.util.concurrent.ReentrantLock#unlock()}.
     */
    void unlock();
+   
+   /**
+    * Whether this entry has been invalidated (in which case it should
+    * be reacquired).
+    * <p>
+    * <strong>NOTE:</strong> This method should only be called with the lock held.
+    * </p>
+    * 
+    * @return <code>true</code>e if still valid, <code>false</code>e if invalidated
+    * 
+    * @see #invalidate()
+    */
+   boolean isValid();
+   
+   /**
+    * Causes {@link #isValid()} to hereafter return <code>true</code>.
+    * <p>
+    * <strong>NOTE:</strong> This method should only be called with the lock held.
+    * </p>
+    */
+   void invalidate();
 }

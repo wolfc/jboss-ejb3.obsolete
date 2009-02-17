@@ -23,7 +23,7 @@ package org.jboss.ejb3.test.cache.mock;
 
 import java.io.Serializable;
 
-import org.jboss.ejb3.cache.api.Identifiable;
+import org.jboss.ejb3.cache.Identifiable;
 import org.jboss.logging.Logger;
 
 /**

@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2006, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,31 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache.api;
+
+package org.jboss.ejb3.cache;
+
+import java.io.Serializable;
 
 /**
- * Thrown when attempting to retrieve a cache factory with an
- * unrecognized name from the {@link StatefulCacheFactoryRegistry}.
+ * An item that can be stored in a {@link Cache}.
  * 
- * @author <a href="mailto:andrew.rubinger@redhat.com">ALR</a>
- * @version $Revision: $
+ * @author Brian Stansberry
+ * @version $Revision$
  */
-public class CacheFactoryNotRegisteredException extends Exception
-{
-
-   // Class Members
-   private static final long serialVersionUID = -881723607135494483L;
-
-   // Constructors
-
-   public CacheFactoryNotRegisteredException()
-   {
-      super();
-   }
-
-   public CacheFactoryNotRegisteredException(String message)
-   {
-      super(message);
-   }
-
+public interface CacheItem extends Identifiable, Serializable
+{ 
+   /**
+    * Gets whether this object's internal state has been modified since
+    * the last request to this method.
+    * <p>
+    * Implementations must be aggressive about returning <code>true</code> if
+    * they are uncertain about whether they have been modified; <code>false</code>
+    * should only be returned if the implementing object is certain its
+    * internal state has not been modified.
+    * </p>
+    * 
+    * @return <code>true</code> if the state has been modified or the
+    *         implementing object does not know; <code>false</code> otherwise.
+    */
+   boolean isModified();   
 }

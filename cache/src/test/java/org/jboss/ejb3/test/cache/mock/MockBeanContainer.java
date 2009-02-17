@@ -26,11 +26,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.ejb3.cache.api.Cache;
-import org.jboss.ejb3.cache.api.PassivationManager;
-import org.jboss.ejb3.cache.api.StatefulCacheFactory;
-import org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry;
-import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.PassivationManager;
+import org.jboss.ejb3.cache.StatefulCacheFactory;
+import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -149,7 +148,7 @@ public class MockBeanContainer
       objectFactory.destroy(obj);      
    }
    
-   // --------------------------------------------------  StatefulObjectFactory
+   // --------------------------------------------------  PassivationManager
 
    public void postActivate(MockBeanContext ctx)
    {

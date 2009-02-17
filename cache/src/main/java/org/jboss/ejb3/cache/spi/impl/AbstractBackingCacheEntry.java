@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.cache.spi.impl;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 
 /**
@@ -37,9 +37,10 @@ public abstract class AbstractBackingCacheEntry<T extends CacheItem>
    /** The serialVersionUID */
    private static final long serialVersionUID = 4562025672441864736L;
    
-   private long lastUsed;
+   private long lastUsed = System.currentTimeMillis();
    private transient boolean inUse;
    private boolean prePassivated;
+   private transient boolean invalid;
 
    public long getLastUsed()
    {
@@ -57,7 +58,13 @@ public abstract class AbstractBackingCacheEntry<T extends CacheItem>
       setLastUsed(System.currentTimeMillis());
    }
 
-   protected void setLastUsed(long lastUsed)
+   /** 
+    * Exposed as public only as an aid to unit tests. In normal use
+    * this should only be invoked internally or by subclasses.
+    * 
+    * @param lastUsed time since epoch when last used
+    */
+   public void setLastUsed(long lastUsed)
    {
       this.lastUsed = lastUsed;
    }
@@ -70,6 +77,16 @@ public abstract class AbstractBackingCacheEntry<T extends CacheItem>
    public void setPrePassivated(boolean prePassivated)
    {
       this.prePassivated = prePassivated;
+   }
+
+   public void invalidate()
+   {
+      this.invalid = true;
+   }
+
+   public boolean isValid()
+   {
+      return !invalid;
    }
    
    

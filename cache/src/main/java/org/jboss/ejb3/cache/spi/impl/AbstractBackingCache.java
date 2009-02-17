@@ -24,7 +24,7 @@ package org.jboss.ejb3.cache.spi.impl;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener;
 import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener.LifecycleState;

@@ -3,14 +3,14 @@
   <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
     signature="true" visibility="true"/>  
   <association-display labels="true" multiplicity="true"/>  
-  <class type="java" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" project="jboss-ejb3-cache" 
+  <class type="java" name="org.jboss.ejb3.test.cache.mock.StatefulCacheFactoryRegistry" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java" 
     corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
     <position x="501" y="53" width="-1" height="-1"/>  
   </class>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.StatefulCacheFactory" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
@@ -94,7 +94,7 @@
       visibility="true"/>    
     <position x="132" y="54" width="-1" height="-1"/>  
   </class>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.Cache" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.Cache" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
@@ -162,7 +162,7 @@
       <attribute name="cache"/>      
       <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
   </association>  
   <dependency>    
@@ -175,23 +175,23 @@
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.impl.AbstractStatefulCacheFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/impl/AbstractStatefulCacheFactory.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.StatefulCacheFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>  
   </realization>  
   <association>    
     <display labels="true" multiplicity="true"/>    
-    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" 
+    <source navigable="false" project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.StatefulCacheFactoryRegistry" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java">      
       <attribute name="factories"/>      
       <multiplicity minimum="0" maximum="2147483647"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.StatefulCacheFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>  
   </association>  
   <dependency>    
-    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactory" 
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.StatefulCacheFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactory.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
   </dependency>  
   <generalization>    
@@ -207,7 +207,7 @@
       <attribute name="cacheFactoryRegistry"/>      
       <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulCacheFactoryRegistry" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.StatefulCacheFactoryRegistry" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulCacheFactoryRegistry.java"/>  
   </association>  
   <realization>    

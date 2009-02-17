@@ -23,6 +23,7 @@
 package org.jboss.ejb3.cache.spi.impl;
 
 import org.jboss.ejb3.cache.spi.PassivationExpirationProcessor;
+import org.jboss.logging.Logger;
 
 /**
  * TimerTask that will periodically invoke 
@@ -34,6 +35,8 @@ import org.jboss.ejb3.cache.spi.PassivationExpirationProcessor;
 public class PassivationExpirationRunner 
    extends AbstractTimerTask
 {
+   private static final Logger log = Logger.getLogger(PassivationExpirationRunner.class);
+   
    private PassivationExpirationProcessor processor;
    
    /**
@@ -51,9 +54,17 @@ public class PassivationExpirationRunner
 
    public void run()
    {
-      if (!isStopped())
+      try
       {
-         processor.processPassivationExpiration();
+         if (!isStopped())
+         {
+            processor.processPassivationExpiration();
+         }
+      }
+      catch (Exception e)
+      {
+         // Don't let it kill the Timer thread
+         log.error("Caught exception processing passivation/expiration", e);
       }
    }
 

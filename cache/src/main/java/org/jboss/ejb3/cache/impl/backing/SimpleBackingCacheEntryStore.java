@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
@@ -232,5 +232,28 @@ public class SimpleBackingCacheEntryStore<C extends CacheItem, T extends Backing
       System.arraycopy(inMemory, 0, all, passivated.length, inMemory.length);
       Arrays.sort(all);
       return all;
+   }
+   
+   /** For unit testing only */
+   protected boolean containsInMemoryEntry(Object key)
+   {
+      return cache.containsKey(key);
+   }
+   
+   /** For unit testing only */
+   protected void clear()
+   {
+      for (Object key : passivatedEntries.keySet())
+      {
+         get(key);
+      }
+      cache.clear();
+      passivatedEntries.clear();
+   }
+   
+   /** For unit testing only */
+   protected T getBackingCacheEntry(Object key)
+   {
+      return cache.get(key);
    }
 }

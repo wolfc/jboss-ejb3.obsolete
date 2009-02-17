@@ -81,8 +81,8 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          assertNotNull(ctx1.getXPC());
          assertEquals(ctx1.getXPC(), ctx2.getXPC());
          
-         container2.getCache().finished(ctx2);
-         container1.getCache().finished(ctx1);
+         container2.getCache().release(ctx2);
+         container1.getCache().release(ctx1);
          
          if (transactional)
          {
@@ -123,8 +123,8 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          assertNotNull(ctx1.getXPC());
          assertSame(ctx1.getXPC(), ctx2.getXPC());
          
-         container1.getCache().finished(ctx1);
-         container2.getCache().finished(ctx2);
+         container1.getCache().release(ctx1);
+         container2.getCache().release(ctx2);
          
          if (transactional)
          {
@@ -195,8 +195,8 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          entityA = ctx2A.createEntity();
          assertSame(entityA, ctx1A.getEntity());
          
-         container2A.getCache().finished(ctx2A);
-         container1A.getCache().finished(ctx1A);
+         container2A.getCache().release(ctx2A);
+         container1A.getCache().release(ctx1A);
          
          if (transactional)
          {
@@ -236,8 +236,8 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          MockEntity entity1x = ctx1A.getEntity();
          assertEquals(entityA, entity1x);
          
-         container1A.getCache().finished(ctx1A);         
-         container2A.getCache().finished(ctx2A);
+         container1A.getCache().release(ctx1A);         
+         container2A.getCache().release(ctx2A);
          
          if (transactional)
          {
@@ -273,8 +273,8 @@ public class GroupedPassivatingUnitTestCase extends Ejb3CacheTestCaseBase
          assertEquals(entityA, entityB);
          assertNotSame(entityA, entityB);
          
-         container2B.getCache().finished(ctx2B);         
-         container1B.getCache().finished(ctx1B);
+         container2B.getCache().release(ctx2B);         
+         container1B.getCache().release(ctx1B);
          
          if (transactional)
          {

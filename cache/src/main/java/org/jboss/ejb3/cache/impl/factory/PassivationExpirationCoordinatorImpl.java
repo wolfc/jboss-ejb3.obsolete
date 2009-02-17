@@ -29,6 +29,7 @@ import java.util.concurrent.Semaphore;
 import org.jboss.ejb3.cache.spi.PassivationExpirationCoordinator;
 import org.jboss.ejb3.cache.spi.PassivationExpirationProcessor;
 import org.jboss.ejb3.cache.spi.impl.AbstractTimerTask;
+import org.jboss.logging.Logger;
 import org.jboss.util.threadpool.BasicThreadPool;
 
 /**
@@ -48,6 +49,8 @@ public class PassivationExpirationCoordinatorImpl
 {
    public static final long DEFAULT_INTERVAL = 10000L;
    public static final String TIMER_NAME = "EJB3SFSBPassivationExpirationCoordinator";
+   
+   private static final Logger log = Logger.getLogger(PassivationExpirationCoordinatorImpl.class);
    
    private BasicThreadPool threadPool;
    private int maxPoolThreads;
@@ -132,6 +135,8 @@ public class PassivationExpirationCoordinatorImpl
    @Override
    public void run()
    {
+      try
+      {
       Set<PassivationExpirationProcessor> toProcess = new HashSet<PassivationExpirationProcessor>();
       synchronized (processors)
       {
@@ -153,6 +158,7 @@ public class PassivationExpirationCoordinatorImpl
             }
             catch (InterruptedException ignore)
             {
+               // TODO don't ignore
             }
             
             if (isStopped())
@@ -165,6 +171,12 @@ public class PassivationExpirationCoordinatorImpl
             // We run it our self
             task.run();
          }
+      }
+      }
+      catch (Exception e)
+      {
+         // Don't let an exception kill us
+         log.error("Caught exception in handler thread", e);
       }
    }
    

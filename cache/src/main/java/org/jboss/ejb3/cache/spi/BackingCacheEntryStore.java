@@ -22,9 +22,9 @@
 
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.api.Cache;
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.Identifiable;
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.Identifiable;
 
 /**
  * An in-memory store for {@link BackingCacheEntry} instances 

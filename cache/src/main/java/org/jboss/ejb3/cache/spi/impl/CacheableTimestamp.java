@@ -22,7 +22,7 @@
 
 package org.jboss.ejb3.cache.spi.impl;
 
-import org.jboss.ejb3.cache.api.Identifiable;
+import org.jboss.ejb3.cache.Identifiable;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 
 /**

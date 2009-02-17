@@ -70,7 +70,7 @@ public class SessionSynchronizationInterceptorUnitTestCase extends Ejb3CacheTest
          
          count = ctx1A.increment();
          
-         container1A.getCache().finished(ctx1A);
+         container1A.getCache().release(ctx1A);
          
          cluster.getNode0().getTransactionManager().commit();
          
@@ -94,7 +94,7 @@ public class SessionSynchronizationInterceptorUnitTestCase extends Ejb3CacheTest
          
          assertEquals("SessionSynchronization's increment not replicated", count, ctx1B.getCount());
          
-         container1B.getCache().finished(ctx1B);
+         container1B.getCache().release(ctx1B);
       }
       catch (Exception e)
       {

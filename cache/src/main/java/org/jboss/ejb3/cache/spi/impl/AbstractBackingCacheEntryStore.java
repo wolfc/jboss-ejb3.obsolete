@@ -23,7 +23,7 @@
 package org.jboss.ejb3.cache.spi.impl;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
@@ -293,7 +293,25 @@ public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T exte
    
    // --------------------------------------------------------------  Protected
    
+   protected void preExpirationCompleted()
+   {
+      // no-op
+   }
    
+   protected void expirationCompleted()
+   {
+      // no-op
+   }
+   
+   protected void prePassivationCompleted()
+   {
+      // no-op
+   }
+   
+   protected void passivationCompleted()
+   {
+      // no-op
+   }
    
    // ----------------------------------------------------------------  Private
 
@@ -301,18 +319,33 @@ public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T exte
    {
       if (!isForGroups() && getExpirationTimeSeconds() > 0)
       {
+         CacheableTimestamp<K>[] cta = getAllEntries();
+         preExpirationCompleted();
+         
          long now = System.currentTimeMillis();
-         long minRemovalUse = now - (getExpirationTimeSeconds() * 1000);                     
-         for (CacheableTimestamp<K> ts : getAllEntries())
+         long minRemovalUse = now - (getExpirationTimeSeconds() * 1000); 
+         int surviveCount = 0;
+         for (CacheableTimestamp<K> ts : cta)
          {
             try
             {
                if (running && minRemovalUse >= ts.getLastUsed())
                {
+                  surviveCount = 0;
                   processExpiration(ts.getId(), ts.getLastUsed());
+               }
+               else if (surviveCount < 500)
+               {
+                  // Hack alert.
+                  // We don't break the first time we hit a bean that
+                  // shouldn't be expired cause it could be that one
+                  // bean has been accessed since we called getAllEntries()
+                  surviveCount++;
                }
                else
                {
+                  // We've hit 500 in a row that are still alive,
+                  // assume that all the rest will be
                   break;
                }
             }
@@ -322,6 +355,8 @@ public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T exte
                log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }    
+         
+         expirationCompleted();
       }      
    }
 
@@ -330,23 +365,37 @@ public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T exte
       if (!isForGroups() 
             && (getMaxSize() > 0 || getIdleTimeSeconds() > 0))
       {
+         CacheableTimestamp<K>[] timestamps = getInMemoryEntries();
+         prePassivationCompleted();
+         
          long now = System.currentTimeMillis();
          long minPassUse = (getIdleTimeSeconds() > 0 ? now - (getIdleTimeSeconds() * 1000) : 0);
          
-         CacheableTimestamp<K>[] timestamps = getInMemoryEntries();
          int overCount = (getMaxSize() > 0 ? timestamps.length - getMaxSize() : 0);
+         int surviveCount = 0;
          for (CacheableTimestamp<K> ts : timestamps)
          {
             try
             {
                if (running && (overCount > 0 || minPassUse >= ts.getLastUsed()))
                {
+                  surviveCount = 0;
                   log.trace("attempting to passivate " + ts.getId());
                   processPassivation(ts.getId(), ts.getLastUsed());
                   overCount--;
                }
+               else if (surviveCount < 500)
+               {
+                  // Hack alert.
+                  // We don't break the first time we hit a bean that
+                  // shouldn't be passivated cause it could be that one
+                  // bean has been accessed since we called getInMemoryEntries()
+                  surviveCount++;
+               }
                else
                {
+                  // We've hit 500 in a row that are still alive,
+                  // assume that all the rest will be
                   break;
                }
             }
@@ -356,6 +405,8 @@ public abstract class AbstractBackingCacheEntryStore<C extends CacheItem, T exte
                log.trace("skipping in-use entry " + ts.getId(), ise);
             }
          }
+         
+         passivationCompleted();
       }      
    }
 }

@@ -32,8 +32,8 @@ import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 
-import org.jboss.ejb3.cache.api.Cache;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCache;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
@@ -82,6 +82,9 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
     */
    private boolean strictGroups;
    
+   /** Whether we are in the started state */
+   private boolean started;
+   
    private class Entry
    {
       C obj;
@@ -120,7 +123,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       
       public void beforeCompletion()
       {
-         cache.release(cacheItem);         
+         cache.releaseItem(cacheItem);         
       }
       
       public void afterCompletion(int arg0)
@@ -258,7 +261,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
       }
    }
    
-   public void finished(C obj)
+   public void release(C obj)
    {
       Entry entry = inUseCache.get(obj.getId());
       if (entry == null)
@@ -279,7 +282,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
          // If there is no tx associated with this object, we can release it
          if (entry.getCount == 0 && synchronizations.get(obj.getId()) == null)
          {
-            release(obj);
+            releaseItem(obj);
          }
       }
       finally
@@ -300,13 +303,74 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
    public void start()
    {
       backingCache.start();
+      started = true;
    }
 
    public void stop()
    {
-      backingCache.stop();
+      try
+      {
+         backingCache.stop();
+      }
+      finally
+      {
+         started = false;
+      }
    }
    
+   public boolean isStarted()
+   {
+      return started;
+   }
+   
+   public int getAvailableCount()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getCacheSize()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getCreateCount()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getCurrentSize()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getMaxSize()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getPassivatedCount()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getRemoveCount()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
+   public int getTotalSize()
+   {
+      // TODO Auto-generated method stub
+      return 0;
+   }
+
    public BackingCache<C, T> getBackingCache()
    {
       return backingCache;
@@ -316,7 +380,7 @@ public class TransactionalCache<C extends CacheItem, T extends BackingCacheEntry
     * Actually release the object from our backingCache 
     * @param obj
     */
-   private void release(C obj)
+   private void releaseItem(C obj)
    {
       Object key = obj.getId();
       Entry entry = inUseCache.get(key);

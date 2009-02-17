@@ -23,9 +23,9 @@ package org.jboss.ejb3.cache.impl.backing;
 
 import java.util.Map;
 
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.PassivationManager;
-import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.PassivationManager;
+import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
 import org.jboss.logging.Logger;

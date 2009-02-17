@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.cache.mock;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 
 /**
  * @author Brian Stansberry

@@ -23,11 +23,11 @@
 package org.jboss.ejb3.cache.impl.factory;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.Cache;
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.PassivationManager;
-import org.jboss.ejb3.cache.api.StatefulCacheFactory;
-import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.Cache;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.PassivationManager;
+import org.jboss.ejb3.cache.StatefulCacheFactory;
+import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.impl.TransactionalCache;
 import org.jboss.ejb3.cache.impl.backing.NonPassivatingBackingCacheEntry;
 import org.jboss.ejb3.cache.impl.backing.NonPassivatingBackingCacheImpl;

@@ -22,7 +22,7 @@
 
 package org.jboss.ejb3.test.cache.mock;
 
-import org.jboss.ejb3.cache.api.PassivationManager;
+import org.jboss.ejb3.cache.PassivationManager;
 
 /**
  * @author Brian Stansberry

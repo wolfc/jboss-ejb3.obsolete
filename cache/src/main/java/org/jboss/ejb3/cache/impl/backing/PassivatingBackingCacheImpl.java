@@ -25,9 +25,9 @@ import java.util.Map;
 
 import javax.ejb.NoSuchEJBException;
 
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.PassivationManager;
-import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.PassivationManager;
+import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.GroupCompatibilityChecker;
 import org.jboss.ejb3.cache.spi.PassivatingBackingCache;
@@ -35,6 +35,7 @@ import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.BackingCacheLifecycleListener.LifecycleState;
 import org.jboss.ejb3.cache.spi.impl.AbstractBackingCache;
 import org.jboss.logging.Logger;
+import org.jboss.util.UnreachableStatementException;
 
 /**
  * Non group-aware {@link PassivatingBackingCache} that uses a 
@@ -84,30 +85,41 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
       if (log.isTraceEnabled())
          log.trace("get(): " + key);
       
-      T entry = store.get(key);
-      
-      if(entry == null)
-         throw new NoSuchEJBException(String.valueOf(key));
-      
-      entry.lock();
-      try
+      boolean valid = false;
+      while (!valid)
       {
-         if (isClustered())
+         T entry = store.get(key);
+         
+         if(entry == null)
+            throw new NoSuchEJBException(String.valueOf(key));
+         
+         entry.lock();
+         try
          {
-            passivationManager.postReplicate(entry);
+            valid = entry.isValid();
+            if (valid)
+            {
+               if (isClustered())
+               {
+                  passivationManager.postReplicate(entry);
+               }
+               
+               passivationManager.postActivate(entry);
+               
+               entry.setPrePassivated(false);
+               
+               entry.setInUse(true);
+               return entry;
+            }
+            // else discard and reacquire
          }
-         
-         passivationManager.postActivate(entry);
-         
-         entry.setPrePassivated(false);
-         
-         entry.setInUse(true);
-         return entry;
+         finally
+         {
+            entry.unlock();
+         }
       }
-      finally
-      {
-         entry.unlock();
-      }
+      
+      throw new UnreachableStatementException();
    }
 
    public void passivate(Object key)
@@ -133,6 +145,8 @@ public class PassivatingBackingCacheImpl<C extends CacheItem, T extends BackingC
          passivationManager.prePassivate(entry);
          
          entry.setPrePassivated(true);
+         
+         entry.invalidate();
          
          store.passivate(entry);
       }

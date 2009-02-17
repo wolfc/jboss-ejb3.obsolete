@@ -25,8 +25,8 @@ package org.jboss.ejb3.cache.spi;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.StatefulCacheFactory;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.StatefulCacheFactory;
 
 /**
  * Provides {@link BackingCacheEntryStore} instances to a 

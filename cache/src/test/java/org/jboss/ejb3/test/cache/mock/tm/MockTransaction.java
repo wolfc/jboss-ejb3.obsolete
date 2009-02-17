@@ -53,7 +53,7 @@ public class MockTransaction implements Transaction
    private final String id;
 
    private LinkedList<Synchronization> synchronizations = new LinkedList<Synchronization>();
-   private MockTransactionSynchroniztionRegistry syncRegistry; 
+   private MockTransactionSynchronizationRegistry syncRegistry; 
    
    private final MockTransactionManager jtaTransactionManager;
 
@@ -176,7 +176,7 @@ public class MockTransaction implements Transaction
    {
       if (syncRegistry == null)
       {
-         syncRegistry = new MockTransactionSynchroniztionRegistry(this);
+         syncRegistry = new MockTransactionSynchronizationRegistry(this);
       }
       return syncRegistry;
    }

@@ -3,7 +3,7 @@
   <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
     signature="true" visibility="true"/>  
   <association-display labels="false" multiplicity="true"/>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.Cache" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.Cache" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
@@ -179,7 +179,7 @@
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.TransactionalCache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/TransactionalCache.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
   </realization>  
   <dependency>    

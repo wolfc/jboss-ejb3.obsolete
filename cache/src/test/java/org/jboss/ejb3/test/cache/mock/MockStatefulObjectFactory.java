@@ -24,7 +24,7 @@ package org.jboss.ejb3.test.cache.mock;
 
 import java.util.Map;
 
-import org.jboss.ejb3.cache.api.StatefulObjectFactory;
+import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.logging.Logger;
 
 

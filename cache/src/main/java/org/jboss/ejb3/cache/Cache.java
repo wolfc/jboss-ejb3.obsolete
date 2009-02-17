@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.cache.api;
+package org.jboss.ejb3.cache;
 
 import javax.ejb.NoSuchEJBException;
 
@@ -58,7 +58,7 @@ public interface Cache<T extends CacheItem>
     * @return       the object
     * @throws NoSuchEJBException    if the object does not exist
     * @throws IllegalStateException if the object is already in use by another
-    *                               transaction or if {@link #finished(CacheItem)}
+    *                               transaction or if {@link #release(CacheItem)}
     *                               has not been invoked since the last time
     *                               the object was gotten.
     */
@@ -75,7 +75,7 @@ public interface Cache<T extends CacheItem>
     * 
     * @param obj object previously gotten via {@link #get(Object)}
     */
-   void finished(T obj);
+   void release(T obj);
 
    /**
     * Remove the specified object from cache.
@@ -93,4 +93,29 @@ public interface Cache<T extends CacheItem>
     * Stop the cache.
     */
    void stop();
+   
+   /**
+    * Whether the cache is in the started state.
+    * 
+    * @return <code>true</code> if started, <code>false</code> otherwise
+    * @return
+    */
+   boolean isStarted();
+   
+   int getAvailableCount();
+   
+   int getCacheSize();
+   
+   int getCreateCount();
+   
+   int getCurrentSize();
+   
+   int getMaxSize();
+   
+   int getPassivatedCount();
+   
+   int getRemoveCount();
+   
+   int getTotalSize();
+   
 }

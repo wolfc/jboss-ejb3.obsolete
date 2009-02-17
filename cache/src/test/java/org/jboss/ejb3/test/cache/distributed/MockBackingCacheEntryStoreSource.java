@@ -25,7 +25,7 @@ package org.jboss.ejb3.test.cache.distributed;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStoreSource;
 import org.jboss.ejb3.cache.spi.BackingCacheEntryStore;
 import org.jboss.ejb3.cache.spi.SerializationGroup;
@@ -41,6 +41,15 @@ public class MockBackingCacheEntryStoreSource<T extends CacheItem>
 {
    private UnmarshallingMap localMap;
    private UnmarshallingMap remoteMap;
+   
+   /**
+    * For use by unit tests that aren't actually interested in the
+    * store contents.
+    */
+   public MockBackingCacheEntryStoreSource()
+   {
+      this(new UnmarshallingMap(), new UnmarshallingMap());
+   }
    
    public MockBackingCacheEntryStoreSource(UnmarshallingMap localMap, UnmarshallingMap remoteMap)
    {

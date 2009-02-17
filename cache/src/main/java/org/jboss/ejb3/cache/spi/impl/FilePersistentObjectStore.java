@@ -33,7 +33,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.PersistentObjectStore;
 import org.jboss.logging.Logger;
 import org.jboss.serial.io.JBossObjectInputStream;

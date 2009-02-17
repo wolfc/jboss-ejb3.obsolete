@@ -27,8 +27,8 @@ import java.util.Map;
 import javax.transaction.TransactionManager;
 
 import org.jboss.ejb3.annotation.CacheConfig;
-import org.jboss.ejb3.cache.api.CacheItem;
-import org.jboss.ejb3.cache.api.StatefulCacheFactory;
+import org.jboss.ejb3.cache.CacheItem;
+import org.jboss.ejb3.cache.StatefulCacheFactory;
 import org.jboss.ejb3.cache.spi.PassivationExpirationCoordinator;
 import org.jboss.ejb3.cache.spi.SynchronizationCoordinator;
 

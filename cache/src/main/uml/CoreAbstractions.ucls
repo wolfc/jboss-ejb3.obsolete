@@ -3,13 +3,13 @@
   <classifier-display autosize="true" package="true" attributes="false" operations="false" initial-value="false" 
     signature="true" visibility="true"/>  
   <association-display labels="true" multiplicity="true"/>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.CacheItem" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.CacheItem" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/CacheItem.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
     <position x="391" y="102" width="-1" height="-1"/>  
   </interface>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.Cache" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.Cache" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
@@ -51,13 +51,13 @@
       visibility="true"/>    
     <position x="762" y="209" width="-1" height="-1"/>  
   </class>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.StatefulObjectFactory" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.StatefulObjectFactory" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulObjectFactory.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
     <position x="653" y="313" width="-1" height="-1"/>  
   </interface>  
-  <interface type="java" name="org.jboss.ejb3.cache.api.PassivationManager" project="jboss-ejb3-cache" 
+  <interface type="java" name="org.jboss.ejb3.cache.PassivationManager" project="jboss-ejb3-cache" 
     file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/PassivationManager.java" corner="BOTTOM_RIGHT">    
     <display autosize="true" package="true" attributes="false" operations="false" initial-value="false" signature="true" 
       visibility="true"/>    
@@ -89,7 +89,7 @@
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.MockBeanContainer" 
       file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContainer.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulObjectFactory" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.StatefulObjectFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulObjectFactory.java"/>  
   </realization>  
   <dependency>    
@@ -116,9 +116,9 @@
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/PassivatingBackingCache.java"/>  
   </dependency>  
   <dependency>    
-    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.CacheItem" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.CacheItem" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/CacheItem.java"/>  
   </dependency>  
   <association>    
@@ -129,13 +129,13 @@
       <attribute name="passivationManager"/>      
       <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.PassivationManager" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.PassivationManager" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/PassivationManager.java"/>  
   </association>  
   <dependency>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.spi.BackingCacheEntry" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/spi/BackingCacheEntry.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.CacheItem" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.CacheItem" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/CacheItem.java"/>  
   </dependency>  
   <dependency>    
@@ -147,7 +147,7 @@
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.impl.TransactionalCache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/impl/TransactionalCache.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
   </realization>  
   <association>    
@@ -158,7 +158,7 @@
       <attribute name="factory"/>      
       <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.StatefulObjectFactory" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.StatefulObjectFactory" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/StatefulObjectFactory.java"/>  
   </association>  
   <dependency>    
@@ -176,13 +176,13 @@
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.MockBeanContainer" 
       file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContainer.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.PassivationManager" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.PassivationManager" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/PassivationManager.java"/>  
   </realization>  
   <realization>    
     <source project="jboss-ejb3-cache" name="org.jboss.ejb3.test.cache.mock.MockBeanContext" 
       file="/jboss-ejb3-cache/src/test/java/org/jboss/ejb3/test/cache/mock/MockBeanContext.java"/>    
-    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.CacheItem" 
+    <target project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.CacheItem" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/CacheItem.java"/>  
   </realization>  
   <association>    
@@ -192,7 +192,7 @@
       <attribute name="cache"/>      
       <multiplicity minimum="0" maximum="1"/>    
     </source>    
-    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.api.Cache" 
+    <target navigable="true" project="jboss-ejb3-cache" name="org.jboss.ejb3.cache.Cache" 
       file="/jboss-ejb3-cache/src/main/java/org/jboss/ejb3/cache/api/Cache.java"/>  
   </association>  
   <generalization>    

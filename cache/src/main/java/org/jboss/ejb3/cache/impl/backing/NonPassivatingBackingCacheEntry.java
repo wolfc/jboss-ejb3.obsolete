@@ -24,7 +24,7 @@ package org.jboss.ejb3.cache.impl.backing;
 import java.io.Serializable;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 import org.jboss.ejb3.cache.spi.BackingCacheEntry;
 import org.jboss.ejb3.cache.spi.impl.AbstractBackingCacheEntry;
 
@@ -44,6 +44,8 @@ public class NonPassivatingBackingCacheEntry<T extends CacheItem> extends Abstra
    
    private T wrapped;
    private ReentrantLock lock = new ReentrantLock();
+   // guarded by lock
+   private boolean valid = true;
    
    /**
     * Create a new SimpleBackingCacheEntry.
@@ -102,4 +104,16 @@ public class NonPassivatingBackingCacheEntry<T extends CacheItem> extends Abstra
          lock.unlock();
       
    }
+
+   public void invalidate()
+   {
+      this.valid = false;
+   }
+
+   public boolean isValid()
+   {
+      return valid;
+   }
+   
+   
 }

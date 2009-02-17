@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.test.cache.integrated;
 
-import org.jboss.ejb3.cache.api.Cache;
+import org.jboss.ejb3.cache.Cache;
 import org.jboss.ejb3.test.cache.mock.CacheType;
 import org.jboss.ejb3.test.cache.mock.MockBeanContainer;
 import org.jboss.ejb3.test.cache.mock.MockBeanContext;
@@ -66,7 +66,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       MockEjb3System system = new MockEjb3System(tm, false, CacheType.SIMPLE);
       MockXPC sharedXPC = new MockXPC();
       MockCacheConfig config = new MockCacheConfig();
-      config.setIdleTimeoutSeconds(4);
+      config.setIdleTimeoutSeconds(3);
       MockBeanContainer container = system.deployBeanContainer("MockBeanContainer1", null, CacheType.SIMPLE, config, sharedXPC.getName());
       Cache<MockBeanContext> cache = container.getCache();
       
@@ -78,7 +78,7 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       Object key = cache.create(null, null);
       MockBeanContext obj = cache.get(key);
       
-      cache.finished(obj);      
+      cache.release(obj);      
       obj = null;
       
       if (transactional)
@@ -102,11 +102,11 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
       
       assertEquals("MockBeanContext should have been activated", 1, pass.getPostActivateCount());
       
-      sleep(3000);
+      sleep(2000);
       
       assertEquals("MockBeanContext should not have been passivated", 1, pass.getPrePassivateCount());
       
-      cache.finished(obj);      
+      cache.release(obj);      
       obj = null;
       
       if (transactional)
@@ -161,8 +161,8 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          assertNotNull(ctx2);
          assertEquals(sharedXPC, ctx2.getXPC());
 
-         container2.getCache().finished(ctx2);
-         container1.getCache().finished(ctx1);
+         container2.getCache().release(ctx2);
+         container1.getCache().release(ctx1);
          
          if (transactional)
          {
@@ -203,8 +203,8 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          assertNotNull(ctx1.getXPC());
          assertEquals(ctx1.getXPC(), ctx2.getXPC());
          
-         container1.getCache().finished(ctx1);         
-         container2.getCache().finished(ctx2);
+         container1.getCache().release(ctx1);         
+         container2.getCache().release(ctx2);
          
          if (transactional)
          {
@@ -276,9 +276,9 @@ public class GroupAwareTransactionalCacheUnitTestCase extends TransactionalCache
          assertSame(firstCtx1, secondCtx1);
          assertSame(sharedXPC, secondCtx1.getXPC());
 
-         container1.getCache().finished(secondCtx1);
-         container2.getCache().finished(ctx2);
-         container1.getCache().finished(firstCtx1);
+         container1.getCache().release(secondCtx1);
+         container2.getCache().release(ctx2);
+         container1.getCache().release(firstCtx1);
          
          if (transactional)
          {

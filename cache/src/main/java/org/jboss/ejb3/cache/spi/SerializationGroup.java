@@ -22,7 +22,7 @@
 
 package org.jboss.ejb3.cache.spi;
 
-import org.jboss.ejb3.cache.api.CacheItem;
+import org.jboss.ejb3.cache.CacheItem;
 
 /**
  * Specialized {@link BackingCacheEntry} that represents a group of 
