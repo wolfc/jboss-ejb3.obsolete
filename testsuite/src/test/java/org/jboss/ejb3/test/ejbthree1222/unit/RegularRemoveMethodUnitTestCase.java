@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.ejbthree1222.unit;
 
+import java.rmi.NoSuchObjectException;
+
 import javax.ejb.NoSuchEJBException;
 
 import junit.framework.Test;
@@ -93,7 +95,7 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
       }
 
    }
-   
+
    /**
     * Tests that a call to an unannotated "void remove()"
     * method is a traditional call on a local view
@@ -101,8 +103,8 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
    public void testLocalNormalMethodNamedRemove() throws Exception
    {
       // Lookup Access Bean
-      AccessLocalSfsbRemoteBusiness bean = (AccessLocalSfsbRemoteBusiness) this
-            .getInitialContext().lookup(AccessLocalSfsbRemoteBusiness.JNDI_NAME);
+      AccessLocalSfsbRemoteBusiness bean = (AccessLocalSfsbRemoteBusiness) this.getInitialContext().lookup(
+            AccessLocalSfsbRemoteBusiness.JNDI_NAME);
 
       // Reset the number of calls, if any
       bean.resetOnLocalBusiness();
@@ -130,7 +132,7 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
       }
 
    }
-   
+
    /**
     * Tests that a call to EJBLocalObject's "void remove()"
     * results in proper bean removal
@@ -203,7 +205,7 @@ public class RegularRemoveMethodUnitTestCase extends JBossTestCase
          // Ensure the instance was removed by making another call
          bean.getCalls();
       }
-      catch (NoSuchEJBException nsee)
+      catch (NoSuchObjectException nsee)
       {
          // Expected
          return;

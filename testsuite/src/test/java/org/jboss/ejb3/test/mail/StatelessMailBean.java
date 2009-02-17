@@ -37,7 +37,7 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version <tt>$Revision$</tt>
  */
-@Stateless(name="StatelessMail")
+@Stateless
 @Remote(StatelessMail.class)
 @RemoteBinding(jndiBinding="StatelessMail")
 public class StatelessMailBean

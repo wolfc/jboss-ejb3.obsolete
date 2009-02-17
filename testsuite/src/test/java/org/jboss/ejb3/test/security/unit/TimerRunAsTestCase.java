@@ -25,6 +25,8 @@ import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.security.TimerTester;
 import org.jboss.logging.Logger;
 import org.jboss.security.SecurityAssociation;
@@ -32,7 +34,6 @@ import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.callback.UsernamePasswordHandler;
 import org.jboss.security.auth.login.XMLLoginConfigImpl;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -67,7 +68,7 @@ public class TimerRunAsTestCase extends JBossTestCase
       SecurityAssociation.clear();
       
       AppConfigurationEntry[] entries;
-      XMLLoginConfigImpl config = new XMLLoginConfigImpl();
+      XMLLoginConfigImpl config = XMLLoginConfigImpl.getInstance();
       config.setConfigResource("jaas-test-config.xml");
       config.loadConfig();
       Configuration.setConfiguration(config);

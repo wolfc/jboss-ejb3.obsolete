@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE jboss-app
+    PUBLIC "-//JBoss//DTD Java EE Application 5.0//EN"
+    "http://www.jboss.org/j2ee/dtd/jboss-app_5_0.dtd">
+    
+<jboss-app>
+   <loader-repository>
+      jboss.ejb3.test:classloader=EJBTHREE-1671-classloader
+      <loader-repository-config>
+         java2ParentDelegation=false
+      </loader-repository-config>
+   </loader-repository>
+   
+</jboss-app>

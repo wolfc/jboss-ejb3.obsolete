@@ -11,7 +11,7 @@
    <enterprise-beans>
       <session>
          <description>A session bean on looks up stuff in the ENC</description>
-         <ejb-name>StatelessMail</ejb-name>
+         <ejb-name>StatelessMailBean</ejb-name>
          <!-- JavaMail Connection Factories (java:comp/env/mail) -->
          <resource-ref>
             <description>Default Mail</description>

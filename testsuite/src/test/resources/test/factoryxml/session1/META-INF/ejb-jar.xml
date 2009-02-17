@@ -8,7 +8,7 @@
    <enterprise-beans>
       <session>
          <ejb-name>Session1Bean</ejb-name>
-         <remote>org.jboss.ejb3.test.factoryxml.Session1</remote>
+         <business-remote>org.jboss.ejb3.test.factoryxml.Session1</business-remote>
          <ejb-class>org.jboss.ejb3.test.factoryxml.Session1Bean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
@@ -50,7 +50,7 @@
       </session>
       <session>
          <ejb-name>Stateful1Bean</ejb-name>
-         <remote>org.jboss.ejb3.test.factoryxml.Stateful1</remote>
+         <business-remote>org.jboss.ejb3.test.factoryxml.Stateful1</business-remote>
          <ejb-class>org.jboss.ejb3.test.factoryxml.Stateful1Bean</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>

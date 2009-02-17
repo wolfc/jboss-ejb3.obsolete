@@ -26,10 +26,12 @@ import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
+import javax.ejb.Local;
 import javax.ejb.LocalHome;
 import javax.ejb.Remote;
 import javax.ejb.RemoteHome;
 import javax.ejb.Stateful;
+import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.jboss.logging.Logger;
@@ -40,12 +42,13 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-@Stateful(name="Stateful")
+@Stateful
 @LocalHome(StatefulLocalHome.class)
 @RemoteHome(StatefulRemoteHome.class)
-@Remote({org.jboss.ejb3.test.ejbcontext.Stateful.class, StatefulRemoteBusiness.class})
+@Local({ StatefulLocalBusiness1.class, StatefulLocalBusiness2.class})
+@Remote({org.jboss.ejb3.test.ejbcontext.Stateful.class, StatefulRemoteBusiness1.class, StatefulRemoteBusiness2.class})
 public class StatefulBean extends BaseBean
-   implements org.jboss.ejb3.test.ejbcontext.Stateful, StatefulRemoteBusiness
+   implements org.jboss.ejb3.test.ejbcontext.Stateful, StatefulRemoteBusiness1, StatefulLocalBusiness1
 {
    private static final Logger log = Logger.getLogger(StatefulBean.class);
    
@@ -93,19 +96,25 @@ public class StatefulBean extends BaseBean
    }
 
 
-   public Class testInvokedBusinessInterface() throws Exception
+   public Class<?> testInvokedBusinessInterface() throws Exception
    {
       return sessionContext.getInvokedBusinessInterface();
    }
    
-   public Class testInvokedBusinessInterface2() throws Exception
+   public Class<?> testInvokedBusinessInterface2() throws Exception
    {
       return sessionContext.getInvokedBusinessInterface();
    }
    
-   public Class testLocalInvokedBusinessInterface() throws Exception
+   public Class<?> testLocalInvokedBusinessInterface() throws Exception
    {
-      return sessionContext.getBusinessObject(StatefulRemoteBusiness.class).testInvokedBusinessInterface2();
+      // Get a new session
+      Context context = new InitialContext();
+      StatefulLocalBusiness1 bean = (StatefulLocalBusiness1) context.lookup(this.getClass().getSimpleName() + "/local-"
+            + StatefulLocalBusiness1.class.getName());
+
+      // Test
+      return bean.testInvokedBusinessInterface();
    }
    
    @PostConstruct

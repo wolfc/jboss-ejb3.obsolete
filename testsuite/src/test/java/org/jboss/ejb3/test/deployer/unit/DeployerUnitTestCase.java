@@ -22,13 +22,17 @@
 package org.jboss.ejb3.test.deployer.unit;
 
 import javax.management.Attribute;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+
+import junit.framework.Test;
 
 import org.jboss.ejb3.test.stateless.RunAsStateless;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
@@ -47,7 +51,7 @@ extends JBossTestCase
    {
       MBeanServerConnection server = getServer();
       ObjectName on = new ObjectName("jboss.ejb3:service=EJB3Deployer");
-      server.setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", new Boolean(true)));
+      setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", new Boolean(true)));
       try
       {
          Boolean value = (Boolean)server.getAttribute(on, "DeployEjb3ExtensionOnly");
@@ -67,7 +71,7 @@ extends JBossTestCase
          RunAsStateless runAs = (RunAsStateless) getInitialContext().lookup("RunAsStatelessEjbName/remote");
          this.undeploy("stateless-test.ejb3");
          
-         server.setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", new Boolean(false)));
+         setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", new Boolean(false)));
          value = (Boolean)server.getAttribute(on, "DeployEjb3ExtensionOnly");
          assertFalse(value.booleanValue());
          
@@ -77,11 +81,33 @@ extends JBossTestCase
       }
       finally
       {
-         server.setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", false));
+         setAttribute(on, new Attribute("DeployEjb3ExtensionOnly", false));
       }
 
    }
 
+   private void setAttribute(ObjectName name, Attribute attribute) throws Exception
+   {
+      try
+      {
+         getServer().setAttribute(name, attribute);
+      }
+      catch (InstanceNotFoundException e)
+      {
+         fail(name + " does not expose a MBean interface");
+      }
+      catch (AttributeNotFoundException e)
+      {
+         fail(name + " does not have attribute " + attribute.getName());
+      }
+      catch(MBeanException e)
+      {
+         if(e.getCause() instanceof InstanceNotFoundException)
+            fail(name + " does not expose a MBean interface");
+         throw e;
+      }
+   }
+   
    public static Test suite() throws Exception
    {
       return getDeploySetup(DeployerUnitTestCase.class, "");

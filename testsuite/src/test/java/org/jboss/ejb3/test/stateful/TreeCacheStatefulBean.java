@@ -210,7 +210,7 @@ public class TreeCacheStatefulBean implements org.jboss.ejb3.test.stateful.State
    }
 
    @Remove
-   public void remove()
+   public void removeMe()
    {
       ++beansRemoved;
    }

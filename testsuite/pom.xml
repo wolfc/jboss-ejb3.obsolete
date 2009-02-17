@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-Beta1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-testsuite</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.1.0.CACHE-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Testsuite</name>
   <description>
@@ -202,12 +202,31 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
+      <scope>compile</scope>
     </dependency>
 
     <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-junit</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
+      <version>1.0.1.CACHE-SNAPSHOT</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.ejb3</groupId>
+          <artifactId>jboss-ejb3-async</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-common</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
@@ -224,6 +243,12 @@
       <artifactId>jboss-embedded</artifactId>
       <version>beta3</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.microcontainer</groupId>
+          <artifactId>jboss-deployers-core-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>

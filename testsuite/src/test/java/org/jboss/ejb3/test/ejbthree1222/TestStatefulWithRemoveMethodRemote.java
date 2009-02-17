@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.ejbthree1222;
 
+import java.rmi.RemoteException;
+
 import javax.ejb.EJBObject;
 
 /**
@@ -33,7 +35,7 @@ import javax.ejb.EJBObject;
  */
 public interface TestStatefulWithRemoveMethodRemote extends EJBObject
 {
-   void reset();
+   void reset() throws RemoteException;
 
-   int getCalls();
+   int getCalls() throws RemoteException;
 }

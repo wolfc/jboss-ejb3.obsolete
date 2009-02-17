@@ -21,12 +21,6 @@
  */
 package org.jboss.ejb3.test.asynchronous;
 
-import org.jboss.ejb3.proxy.JBossProxy;
-import org.jboss.aspects.asynch.AsynchProvider;
-import org.jboss.aspects.asynch.Future;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -37,5 +31,4 @@ public interface TesterMBean
    void testSLLocalAsynchronous() throws Exception;
    void testSFLocalAsynchronous() throws Exception;
    void testServiceLocalAsynchronous() throws Exception;
-   void testLocalAsynchTransaction() throws Exception;
 }

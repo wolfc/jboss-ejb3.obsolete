@@ -11,10 +11,11 @@
       <session>
          <ejb-name>StatefulBean</ejb-name>
          <home>org.jboss.ejb3.test.stateful.StatefulHome</home>
+         <remote>org.jboss.ejb3.test.stateful.Stateful21</remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulBean</ejb-class>
          <remove-method>
             <bean-method>
-               <method-name>remove</method-name>
+               <method-name>removeMe</method-name>
             </bean-method>
             <retain-if-exception>false</retain-if-exception>
          </remove-method>
@@ -34,18 +35,20 @@
       </session>  -->
       <session>
          <ejb-name>OverrideConcurrentStatefulBean</ejb-name>
-         <remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</remote>
+         <business-remote>org.jboss.ejb3.test.stateful.ConcurrentStateful</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.ConcurrentStatefulBean</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Container</transaction-type>
       </session>
       <session>
          <ejb-name>StatefulTimeoutBean2</ejb-name>
+         <business-remote>org.jboss.ejb3.test.stateful.StatefulTimeout</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulTimeoutBean</ejb-class>
          <session-type>Stateful</session-type>
       </session>
       <session>
          <ejb-name>StatefulClusteredTimeoutBean2</ejb-name>
+         <business-remote>org.jboss.ejb3.test.stateful.StatefulTimeout</business-remote>
          <ejb-class>org.jboss.ejb3.test.stateful.StatefulClusteredTimeoutBean</ejb-class>
          <session-type>Stateful</session-type>
       </session>

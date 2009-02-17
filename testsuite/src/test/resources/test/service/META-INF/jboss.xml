@@ -8,33 +8,30 @@
    <enterprise-beans>
       <service>
          <ejb-name>ServiceSix</ejb-name>
+         <business-local>org.jboss.ejb3.test.service.ServiceSixLocal</business-local>
+         <business-remote>org.jboss.ejb3.test.service.ServiceSixRemote</business-remote>
          <ejb-class>org.jboss.ejb3.test.service.ServiceSix</ejb-class>
-         <local>org.jboss.ejb3.test.service.ServiceSixLocal</local>
-         <remote>org.jboss.ejb3.test.service.ServiceSixRemote</remote>
-         <management>org.jboss.ejb3.test.service.ServiceSixManagement</management>
-         <jndi-name>serviceSix/remote</jndi-name>
-         <local-jndi-name>serviceSix/local</local-jndi-name>
          <ejb-ref>
             <ejb-ref-name>ejb/StatelessBean</ejb-ref-name>
             <ejb-ref-type>Session</ejb-ref-type>
             <remote>org.jboss.ejb3.test.service.StatelessRemote</remote>
             <ejb-link>StatelessBean</ejb-link>
+            <jndi-name>StatelessBean/remote</jndi-name>
             <injection-target>
                <injection-target-class>org.jboss.ejb3.test.service.ServiceSix</injection-target-class>
                <injection-target-name>stateless</injection-target-name>
             </injection-target>
-            <jndi-name>StatelessBean/remote</jndi-name>
          </ejb-ref>
          <ejb-local-ref>
             	<ejb-ref-name>ejb/StatelessLocal</ejb-ref-name>
             	<ejb-ref-type>Session</ejb-ref-type>
             	<local>org.jboss.ejb3.test.service.StatelessLocal</local>
             	<ejb-link>StatelessBean</ejb-link>
+                <local-jndi-name>StatelessBean/local</local-jndi-name>
             	<injection-target>
                		<injection-target-class>org.jboss.ejb3.test.service.ServiceSix</injection-target-class>
                		<injection-target-name>setStatelessLocal</injection-target-name>
             	</injection-target>
-                <local-jndi-name>StatelessBean/local</local-jndi-name>
          </ejb-local-ref>
          <resource-ref>
             <res-ref-name>testDatasource</res-ref-name>
@@ -53,6 +50,9 @@
             <resource-env-ref-type>javax.jms.Queue</resource-env-ref-type>
             <jndi-name>queue/mdbtest</jndi-name>
          </resource-env-ref>
+         <management>org.jboss.ejb3.test.service.ServiceSixManagement</management>
+         <jndi-name>serviceSix/remote</jndi-name>
+         <local-jndi-name>serviceSix/local</local-jndi-name>
       </service>
    </enterprise-beans>
 </jboss>

@@ -32,13 +32,6 @@
       <!-- Max time (in ms) to wait for RPC calls to complete. -->
       <property name="methodCallTimeout">60000</property> 
       
-      <property name="distributedReplicantManagerImpl">
-         <bean name="Ejb3IsLocalTestDistributedReplicantManager"
-             class="org.jboss.ha.framework.server.DistributedReplicantManagerImpl">      
-            <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss:service=DistributedReplicantManager,partitionName=Ejb3IsLocalTestPartition", exposedInterface=org.jboss.ha.framework.server.DistributedReplicantManagerImplMBean.class, registerDirectly=true)</annotation>
-         </bean>
-      </property>
-      
       <property name="distributedStateImpl">
          <bean name="Ejb3IsLocalTestDistributedState"
              class="org.jboss.ha.framework.server.DistributedStateImpl">         

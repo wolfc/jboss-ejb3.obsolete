@@ -21,14 +21,12 @@
  */
 package org.jboss.ejb3.test.statefulproxyfactoryoverride;
 
-
-
 /**
  * Comment
  *
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public interface StatefulRemote 
+public interface StatefulRemote
 {
-
+   String method() throws Exception;
 }

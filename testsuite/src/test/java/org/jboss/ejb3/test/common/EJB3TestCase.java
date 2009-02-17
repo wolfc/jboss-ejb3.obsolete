@@ -34,6 +34,11 @@ public abstract class EJB3TestCase extends JBossTestCase
       super(name);
    }
 
+   protected <T> T lookup(String name, Class<T> expectedType) throws Exception
+   {
+      return expectedType.cast(getInitialContext().lookup(name));
+   }
+   
    /**
     * Make sure the deployment is successful.
     * @throws Exception

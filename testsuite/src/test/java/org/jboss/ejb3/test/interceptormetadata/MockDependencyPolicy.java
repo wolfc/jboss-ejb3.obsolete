@@ -47,5 +47,10 @@ public class MockDependencyPolicy implements DependencyPolicy
    {
       throw new RuntimeException("NYI");
    }
+   
+   public MockDependencyPolicy clone()
+   {
+      return new MockDependencyPolicy();
+   }
 
 }

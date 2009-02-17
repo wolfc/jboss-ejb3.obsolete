@@ -24,7 +24,6 @@ package org.jboss.ejb3.test.jaxws;
 // $Id: EndpointEJB.java 1874 2007-01-09 14:28:41Z thomas.diesler@jboss.com $
 
 import javax.annotation.Resource;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
 import javax.xml.soap.SOAPElement;
@@ -40,14 +39,11 @@ public class EndpointEJB
    @Resource
    WebServiceContext wsCtx;
 
-   @Resource
-   SessionContext ejbCtx;
-
    public String echo(String input)
    {
       try
       {
-         String retValue = getValueJAXWS() + "/" + getValueJAXRPC();
+         String retValue = getValueJAXWS();
          return retValue;
       }
       catch (SOAPException ex)
@@ -60,15 +56,6 @@ public class EndpointEJB
    {
       javax.xml.ws.handler.soap.SOAPMessageContext jaxwsContext = (javax.xml.ws.handler.soap.SOAPMessageContext)wsCtx.getMessageContext();
       SOAPMessage soapMessage = jaxwsContext.getMessage();
-      SOAPElement soapElement = (SOAPElement)soapMessage.getSOAPBody().getChildElements().next();
-      soapElement = (SOAPElement)soapElement.getChildElements().next();
-      return soapElement.getValue();
-   }
-
-   private String getValueJAXRPC() throws SOAPException
-   {
-      javax.xml.rpc.handler.soap.SOAPMessageContext jaxrpcContext = (javax.xml.rpc.handler.soap.SOAPMessageContext)ejbCtx.getMessageContext();
-      SOAPMessage soapMessage = jaxrpcContext.getMessage();
       SOAPElement soapElement = (SOAPElement)soapMessage.getSOAPBody().getChildElements().next();
       soapElement = (SOAPElement)soapElement.getChildElements().next();
       return soapElement.getValue();

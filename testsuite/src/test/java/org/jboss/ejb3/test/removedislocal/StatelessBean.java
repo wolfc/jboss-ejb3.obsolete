@@ -21,9 +21,12 @@
  */
 package org.jboss.ejb3.test.removedislocal;
 
-import javax.ejb.EJB;
-import javax.ejb.Stateless;
 import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.jboss.logging.Logger;
 
 /**
@@ -34,18 +37,33 @@ import org.jboss.logging.Logger;
 public class StatelessBean implements StatelessRemote
 {
    private static final Logger log = Logger.getLogger(StatelessBean.class);
-   
-   @EJB(beanName="StatelessBean")
-   private StatelessRemote stateless;
-   
+
    public void noop()
    {
       log.info("*** noop");
    }
-   
+
    public void test()
    {
+      // Initialize
+      Context context = null;
+      StatelessRemote stateless = null;
+
+      // Log
       log.info("*** test");
+
+      // Lookup
+      try
+      {
+         context = new InitialContext();
+         stateless = (StatelessRemote) context.lookup(StatelessBean.class.getSimpleName() + "/remote");
+      }
+      catch (NamingException ne)
+      {
+         throw new RuntimeException(ne);
+      }
+
+      // Invoke
       stateless.noop();
    }
 }

@@ -24,8 +24,6 @@ package org.jboss.ejb3.test.ejbcontext;
 import javax.ejb.EJBLocalObject;
 import javax.ejb.EJBObject;
 
-import javax.ejb.Remote;
-
 
 /**
  * Comment
@@ -33,18 +31,15 @@ import javax.ejb.Remote;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-@Remote
 public interface Stateful extends Base
-{
-   String JNDI_NAME = "Stateful/remote";
-   
+{   
    public void testEjbContext() throws Exception;
 
    public void test();
 
-   public Class testInvokedBusinessInterface() throws Exception;
-
-   public Class testLocalInvokedBusinessInterface() throws Exception;
+   public Class<?> testInvokedBusinessInterface() throws Exception;
+   
+   public Class<?> testInvokedBusinessInterface2() throws Exception;
 
    public Object getBusinessObject() throws Exception;
 

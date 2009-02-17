@@ -31,6 +31,7 @@ import javax.naming.InitialContext;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteBindings;
+import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.logging.Logger;
 
 /**
@@ -41,6 +42,7 @@ import org.jboss.logging.Logger;
 @Remote(Test3Business.class)
 @RemoteBindings({@RemoteBinding(jndiBinding="Test3Remote"),@RemoteBinding(jndiBinding="Test3/remote")})
 @RemoteHome(Test3Home.class)
+@RemoteHomeBinding(jndiBinding="Test3/home")
 @EJBs({@EJB(name="injected/Test2",  mappedName="Test2")})
 public class Test3Bean
    implements Test3Business

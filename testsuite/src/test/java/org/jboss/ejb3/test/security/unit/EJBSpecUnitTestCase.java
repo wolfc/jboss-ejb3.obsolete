@@ -23,6 +23,7 @@ package org.jboss.ejb3.test.security.unit;
 
 import java.util.HashSet;
 
+import javax.ejb.EJBException;
 import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.QueueConnection;
@@ -31,9 +32,6 @@ import javax.jms.QueueReceiver;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectName;
 import javax.naming.InitialContext;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
@@ -47,8 +45,7 @@ import org.jboss.ejb3.test.security.SessionFacade;
 import org.jboss.ejb3.test.security.StatefulSession;
 import org.jboss.ejb3.test.security.StatelessSession;
 import org.jboss.logging.Logger;
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.auth.login.XMLLoginConfigImpl; 
+import org.jboss.security.auth.login.XMLLoginConfigImpl;
 import org.jboss.test.JBossTestCase;
 
 
@@ -78,63 +75,6 @@ public EJBSpecUnitTestCase(String name)
 protected void tearDown() throws Exception
 {
    logout();
-}
-
-/** Validate that the users have the expected logins and roles.
- * 
- * @throws Exception
- */ 
-public void testSecurityDomain() throws Exception
-{
-   log.info("+++ testSecurityDomain, domain=spec-test");
-   fail("THINK ABOUT THE AS DEPENDENCIES");
-   /**
-   MBeanServerConnection conn = (MBeanServerConnection) getServer();
-   ObjectName secMgrName = new ObjectName("jboss.security:service=JaasSecurityManager");
-   JaasSecurityManagerServiceMBean secMgr = (JaasSecurityManagerServiceMBean)
-      MBeanServerInvocationHandler.newProxyInstance(conn, secMgrName,
-      JaasSecurityManagerServiceMBean.class, false);
-
-   // Test the spec-test security domain
-   String domain = "spec-test";
-   SimplePrincipal user = new SimplePrincipal("scott");
-   boolean isValid = secMgr.isValid(domain, user, password);
-   assertTrue("scott password is echoman", isValid);
-   HashSet testRole = new HashSet();
-   testRole.add(new SimplePrincipal("Echo"));
-   boolean hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has Echo role", hasRole);
-   testRole.clear();
-   testRole.add(new SimplePrincipal("EchoLocal"));
-   hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has EchoLocal role", hasRole);
-   testRole.clear();
-   testRole.add(new SimplePrincipal("ProjectUser"));
-   hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has ProjectUser role", hasRole);
-
-   isValid = secMgr.isValid(domain, user, "badpass".toCharArray());
-   assertTrue("badpass is an invalid password for scott", isValid == false);
-
-   // Test the spec-test-domain security domain
-   log.info("+++ testSecurityDomain, domain=spec-test-domain");
-   domain = "spec-test-domain";
-   isValid = secMgr.isValid(domain, user, password);
-   assertTrue("scott password is echoman", isValid);
-   hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has Echo role", hasRole);
-   testRole.clear();
-   testRole.add(new SimplePrincipal("EchoLocal"));
-   hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has EchoLocal role", hasRole);
-   testRole.clear();
-   testRole.add(new SimplePrincipal("ProjectUser"));
-   hasRole = secMgr.doesUserHaveRole(domain, user, password, testRole);
-   assertTrue("scott has ProjectUser role", hasRole);      
-
-   isValid = secMgr.isValid(domain, user, "badpass".toCharArray());
-   assertTrue("badpass is an invalid password for scott", isValid == false);
-   */
 }
 
 /** Test that:
@@ -205,7 +145,20 @@ public void testDomainInteraction() throws Exception
    HashSet roles = new HashSet();
    roles.add("Role1");
    roles.add("Role2");
-   bean.testDomainInteraction(roles);   
+   try
+   {
+      bean.testDomainInteraction(roles);
+   }
+   catch(EJBException e)
+   {
+      Throwable cause = e.getCause();
+      if(cause != null && cause instanceof SecurityException)
+      {
+         cause.printStackTrace();
+         fail(cause.getMessage());
+      }
+      throw e;
+   }
 }
 
 /** Test that the calling principal is propagated across bean calls.
@@ -613,7 +566,7 @@ private void logout() throws Exception
 public static Test suite() throws Exception
 {
    try {
-      Configuration.setConfiguration(new XMLLoginConfigImpl());
+      Configuration.setConfiguration(XMLLoginConfigImpl.getInstance());
       return getDeploySetup(EJBSpecUnitTestCase.class, "security-spec.sar,security.jar");
    }
    catch (Exception e)

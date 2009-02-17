@@ -10,21 +10,21 @@
    <enterprise-beans>
       <session>
          <ejb-name>DeploymentDescriptorTester</ejb-name>
-         <remote>org.jboss.ejb3.test.bmt.DeploymentDescriptorTesterRemote</remote>
+         <business-remote>org.jboss.ejb3.test.bmt.DeploymentDescriptorTesterRemote</business-remote>
          <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorTesterBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Container</transaction-type>
       </session>
       <session>
          <ejb-name>DeploymentDescriptorStateless</ejb-name>
-		 <local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatelessLocal</local>
+		     <business-local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatelessLocal</business-local>
          <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatelessBean</ejb-class>
          <session-type>Stateless</session-type>
          <transaction-type>Bean</transaction-type>
       </session>
       <session>
          <ejb-name>DeploymentDescriptorStateful</ejb-name>
-         <local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatefulLocal</local>
+         <business-local>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatefulLocal</business-local>
          <ejb-class>org.jboss.ejb3.test.bmt.DeploymentDescriptorStatefulBean</ejb-class>
          <session-type>Stateful</session-type>
          <transaction-type>Bean</transaction-type>

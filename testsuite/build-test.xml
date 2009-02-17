@@ -92,6 +92,8 @@
   <property name="location.dependencies.unpacked" value="${location.dependencies}/unpacked"/>
   <property name="location.dependencies.unpacked.jboss-test:jboss.test" value="${location.dependencies.unpacked}/jboss-test"/>
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
+	<property name="location.dependencies.lib.ejb3persistence" value="${location.dependencies.lib}/ejb3-persistence.jar"/>
+	<property name="location.dependencies.lib.jbosssx" value="${location.dependencies.lib}/jbosssx.jar"/>
   <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate.jar"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
   <property name="location.dependencies.lib.org.jboss.jbossas:server-manager" value="${location.dependencies.lib}/jboss-server-manager.jar"/>
@@ -268,6 +270,11 @@
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
    </server>
+  	
+    <!-- ejbthree1671 -->
+    <server name="ejbthree1671" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
 
   </server:config>
 
@@ -349,6 +356,12 @@
 
     <!-- JBoss Test Project -->
     <pathelement path="${location.dependencies.lib.jboss-test:jboss-test}" />
+  	
+    <!-- JBoss SX -->
+    <pathelement path="${location.dependencies.lib.jbosssx}" />
+  	
+  	<!-- EJB3 Persistence -->
+  	<pathelement path="${location.dependencies.lib.ejb3persistence}" />
 	
 	  <!-- Hibernate -->
 	  <pathelement path="${location.dependencies.lib.hibernate:hibernate3}" />
@@ -376,6 +389,9 @@
 
     <!-- Root of jndi.properties -->
     <pathelement location="${resources}/test" />
+    
+    <!-- Resources required on the client CP -->
+    <pathelement location="${location.target}/tests-classes/" />
 
     <!-- Client JARs not on jbossall-client (Hack; see EJBTHREE-1416) -->
     <pathelement location="${env.JBOSS_HOME}/lib/javassist.jar"/>
@@ -385,8 +401,8 @@
     
     <!-- webservice tests -->
 
-    <pathelement location="${env.JBOSS_HOME}/client/jbossws-client.jar"/>
-    <pathelement location="${env.JBOSS_HOME}/client/jboss-jaxws.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jbossws-native-client.jar"/>
+    <pathelement location="${env.JBOSS_HOME}/client/jbossws-native-jaxws.jar"/>
     <pathelement location="${env.JBOSS_HOME}/client/jaxb-api.jar"/>
     <pathelement location="${env.JBOSS_HOME}/lib/endorsed/xercesImpl.jar"/>
     <pathelement location="${env.JBOSS_HOME}/lib/endorsed/jboss-appclient.jar"/>
@@ -1269,17 +1285,6 @@
       </jar>
    </target>
 
-   <target name="dd">
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/dd.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/dd/*.class"/>
-         </fileset>
-      </jar>
-   </target>
-
    <target name="pool">
 
       <mkdir dir="${build.lib}"/>
@@ -1529,6 +1534,8 @@
 	<jar jarfile="${build.lib}/multideploy.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/reference21_30/Test2*.class"/>
+            <include name="org/jboss/ejb3/test/reference21_30/Test3Business.class"/>
+            <include name="org/jboss/ejb3/test/reference21_30/Test3Home.class"/>
          </fileset>
          <fileset dir="${resources}/test/reference21_30">
             <include name="META-INF/ejb-jar.xml"/>
@@ -1849,63 +1856,6 @@
             <include name="org/jboss/ejb3/test/clusteredjms/*.class"/>
          </fileset>
       </jar>
-   </target>
-
-   <target name="servlet"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/servlet-ejbs.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/*.class"/>
-            <exclude name="org/jboss/ejb3/test/servlet/War*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/servlet">
-            <include name="*.properties"/>
-            <include name="META-INF/jboss.xml"/>
-         </fileset>
-      </jar>
-
-      <jar jarfile="${build.lib}/servlet-client.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/War*.class"/>
-         </fileset>
-      </jar>
-
-      <war warfile="${build.lib}/servlet.war"
-         webxml="${build.resources}/test/servlet/WEB-INF/test-web.xml">
-         <webinf dir="${build.resources}/test/servlet/WEB-INF">
-            <include name="jboss-web.xml"/>
-         </webinf>
-         <classes dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/servlet/servlets/**"/>
-         </classes>
-         <lib dir="${build.lib}">
-            <include name="servlet-client.jar"/>
-         </lib>
-      </war>
-
-      <ear earfile="${build.lib}/servlet.ear"
-         appxml="${build.resources}/test/servlet/META-INF/application.xml"
-         manifest="${build.resources}/test/servlet/META-INF/MANIFEST.MF">
-         <fileset dir="${build.lib}">
-            <include name="servlet-ejbs.jar"/>
-            <include name="servlet.war"/>
-            <include name="servlet-client.jar"/>
-         </fileset>
-         <fileset dir="${resources}/test/servlet">
-            <include name="META-INF/jboss-app.xml"/>
-            <include name="servlet-security-service.xml"/>
-         </fileset>
-      </ear>
-
-      <copy todir="${build.lib}">
-         <fileset dir="${resources}/test/servlet">
-            <include name="servlet-security-service.xml"/>
-         </fileset>
-      </copy>
    </target>
 
    <target name="ejbthree440"
@@ -2337,6 +2287,10 @@
       <build-simple-jar name="ejbthree1025"/>
    </target>
 	
+   <target name="ejbthree1028" description="Builds a simple jar file.">
+      <build-simple-jar name="ejbthree1028"/>
+   </target>
+   
 	<target name="ejbthree1040"
       description="Builds a simple jar files."
       >	      
@@ -2457,7 +2411,19 @@
    <target name="ejbthree1504">
       <build-simple-jar name="ejbthree1504"/>
    </target>  
-  
+	
+   <target name="ejbthree1530">
+      <build-simple-jar name="ejbthree1530"/>
+   </target> 
+	
+   <target name="ejbthree1624">
+      <build-simple-jar name="ejbthree1624"/>
+   </target>
+	
+	 <target name="ejbthree1647">
+	    <build-simple-jar name="ejbthree1647"/>
+	 </target>
+	
    <target name="jbas4489"
       description="Builds a simple jar files."
       >
@@ -2523,6 +2489,10 @@
       <jar jarfile="${build.lib}/sf-clientejb.jar">
          <fileset dir="${build.classes}">
             <include name="org/jboss/ejb3/test/regression/scopedclassloader/Client*.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/StatelessRemote.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ValueObject.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/Customer.class"/>
+            <include name="org/jboss/ejb3/test/regression/scopedclassloader/ScopedException.class"/>
          </fileset>
       </jar>
 
@@ -2903,7 +2873,7 @@
       </jar>
 	
 	  <ear earfile="${build.lib}/persistenceunitscope-test.ear" appxml="${resources}/test/persistenceunits/application.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope.jar"/>
          </zipfileset>
 	     <fileset dir="${resources}/test/persistenceunits">
@@ -2912,7 +2882,7 @@
       </ear>
    	
    	  <ear earfile="${build.lib}/persistenceunitscope-test1.ear" appxml="${resources}/test/persistenceunits/application1.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope1.jar"/>
 	        <include name="persistenceunitscope-slsb.jar"/>
          </zipfileset>
@@ -2922,7 +2892,7 @@
       </ear>
 	
 	  <ear earfile="${build.lib}/persistenceunitscope-test2.ear" appxml="${resources}/test/persistenceunits/application2.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitscope2.jar"/>
 	        <include name="persistenceunitscope-slsb.jar"/>
          </zipfileset>
@@ -2951,7 +2921,7 @@
       </jar>
 	
 	  <ear earfile="${build.lib}/persistenceunitsharedentity-test.ear" appxml="${resources}/test/persistenceunits/sharedEntityApplication.xml">
-         <zipfileset dir="${build.lib}" prefix="lib">
+         <zipfileset dir="${build.lib}">
             <include name="persistenceunitsharedentity1.jar"/>
 			<include name="persistenceunitsharedentity2.jar"/>
          </zipfileset>
@@ -4223,10 +4193,35 @@
          </fileset>
       </jar>
    </target>
+	
+	
+	<target name="ejbthree1671"
+	      description="Builds the ear and jar file(s) needed for testing EJBTHREE-1671."
+	      >
+
+	    <mkdir dir="${build.lib}"/>
+		<!--  First build the jar file containing the EJBs -->
+		<jar jarfile="${build.lib}/ejbthree1671.jar">
+	         <fileset dir="${build.classes}">
+	            <include name="org/jboss/ejb3/test/ejbthree1671/*.class"/>
+	         </fileset>
+		</jar>
+		<!--  Now build the EAR and include the EJB jar and the application.xml and jboss-app.xml -->
+		<jar jarfile="${build.lib}/ejbthree1671.ear">
+         	<fileset dir="${build.lib}">
+            	<include name="ejbthree1671.jar"/>
+         	</fileset>
+         	<fileset dir="${resources}/test/ejbthree1671">
+            	<include name="META-INF/application.xml"/>
+            	<include name="META-INF/jboss-app.xml"/>
+         		
+         	</fileset>
+      </jar>
+	</target>
    
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
-      circulardependency, jsp, timerdependency, servicedependency, servlet, stateless14, webservices, ear, ejbthree440,
+      circulardependency, jsp, timerdependency, servicedependency, stateless14, webservices, ear, ejbthree440,
       ejbthree454, ejbthree471, 
    	  ejbthree653, ejbthree670, ejbthree712, ejbthree724, ejbthree751,
       ejbthree785, 
@@ -4234,22 +4229,24 @@
       ejbthree832, ejbthree921, ejbthree936,
       ejbthree939,
       ejbthree953, ejbthree957, ejbthree959, ejbthree963, ejbthree967, ejbthree971, ejbthree973, ejbthree985, ejbthree986,
-      ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025, ejbthree1040,
+      ejbthree989, ejbthree994, ejbthree1020, ejbthree1023, ejbthree1025,
+      ejbthree1028,
+      ejbthree1040,
       ejbthree1057, ejbthree1059, ejbthree1060,
       ejbthree1062,
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
-      ejbthree1504,
+      ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
-      exception, dd/override, stateless, dd/mdb, bank, dd, longlived, xmlcfg, hbm, pkg, regressionHHH275,
+      exception, dd/override, stateless, dd/mdb, bank, longlived, xmlcfg, hbm, pkg, regressionHHH275,
       entityexception, asynchronous, consumer, clusteredentity, secondary, stateful, service, lob, cache, initial,
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
-      statelesscreation, changexml, externalrefscoped, singleton"/>
+      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
@@ -4277,9 +4274,6 @@
       </condition>
       <condition property="client.run.classpath" value="dd.web.client.classpath">
          <equals arg1="${test}" arg2="dd/web"/>
-      </condition>
-      <condition property="client.run.classpath" value="dd.classpath">
-         <equals arg1="${test}" arg2="dd"/>
       </condition>
       <condition property="client.run.classpath" value="iiop.client.classpath">
          <equals arg1="${test}" arg2="iiop"/>
@@ -4337,6 +4331,7 @@
          <sysproperty key="jbosstest.cluster.node1.jndi.url" value="${node1.jndi.url}"/>
          <sysproperty key="java.naming.provider.url" value="${test.jndi.url}"/>
 
+         <sysproperty key="knownIssuesFile" value="${resources}/known-issues.xml"/>
 
          <jvmarg line="${jvmargs}" />
          <jvmarg line="-ea" />
@@ -4345,7 +4340,8 @@
          -->
 
          <classpath>
-           
+            <pathelement path="${location.target}/jboss-ejb3-testsuite.jar"/>
+            
            <path refid="test.classpath" />
            
             <!-- 
@@ -4395,7 +4391,12 @@
          </classpath>
 
          <formatter type="plain" usefile="true"/>
-         <formatter type="xml" usefile="true" unless="test.extension"/>
+         <!-- 
+         <formatter type="xml" classname="org.jboss.ejb3.testsuite.ant.taskdefs.optional.junit.KnownIssuesXMLJunitResultFormatter"
+            usefile="true" unless="test.extension"/>
+            -->
+         <formatter type="xml" classname="org.jboss.ejb3.testsuite.Hack"
+            usefile="true" unless="test.extension"/>
          <sysproperty key="jboss-junit-configuration" value="${jboss-junit-configuration}"/>  
          <formatter type="xml" classname="org.jboss.ant.taskdefs.XMLJUnitMultipleResultFormatter" 
                     extension="-${test.extension}.xml" usefile="true" if="test.extension"/>
@@ -4512,15 +4513,7 @@
 
          <formatter type="plain" usefile="true"/>
          <formatter type="xml" usefile="true"/>
-         <batchtest todir="${build.reports}"
-                       haltonerror="false"
-                       haltonfailure="false"
-                       fork="true">
-
-                       <fileset dir="${build.classes}">
-                          <include name="org/jboss/ejb3/test/${test}/unit/*TestCase.class"/>
-                       </fileset>
-                    </batchtest>
+         <test name="${test}" todir="${build.reports}"/>
       </junit>
    </target>
 
@@ -4844,9 +4837,6 @@
          <param name="test" value="security"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
-         <param name="test" value="dd"/>
-      </antcall>
-      <antcall target="test" inheritRefs="true">
          <param name="test" value="bank"/>
       </antcall>
       <!--antcall target="test" inheritRefs="true">
@@ -4905,9 +4895,6 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="jsp"/>
-      </antcall>
-      <antcall target="test" inheritRefs="true">
-         <param name="test" value="servlet"/>
       </antcall>
       <!--antcall target="test" inheritRefs="true">
          <param name="test" value="loginmodule"/>
@@ -4988,6 +4975,9 @@
          <param name="test" value="ejbthree1025"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1028"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1040"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
@@ -5053,6 +5043,15 @@
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1339"/>
       </antcall>
+   	  <antcall target="test" inheritRefs="true">
+   	     <param name="test" value="ejbthree1530"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1624"/>
+      </antcall>
+   	  <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1647"/>
+   	  </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="statelesscreation"/>
       </antcall>

@@ -28,10 +28,12 @@ import javax.persistence.PostUpdate;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
+
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.entitycallback.CallbackCounter;
 import org.jboss.ejb3.test.entitycallback.EntityCallbackTest;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>

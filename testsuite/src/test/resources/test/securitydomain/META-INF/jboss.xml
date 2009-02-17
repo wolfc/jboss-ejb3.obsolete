@@ -6,9 +6,11 @@
                             http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
         version="3.0">
    <security-domain>java:/jaas/other</security-domain>
+   <!-- Whatever happens, we don't want an unauthenticated-principal (against spec!)-->
+   <unauthenticated-principal></unauthenticated-principal>
    <enterprise-beans>
       <session>
-         <ejb-name>SecurityDomainTest</ejb-name>
+         <ejb-name>SecurityDomainTestEJB</ejb-name>
          <jndi-name>SecurityDomainTest</jndi-name>
       </session>
    </enterprise-beans>

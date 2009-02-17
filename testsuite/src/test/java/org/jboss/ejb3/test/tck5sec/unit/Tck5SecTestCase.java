@@ -24,7 +24,6 @@ package org.jboss.ejb3.test.tck5sec.unit;
 import java.io.IOException;
 
 import javax.naming.InitialContext;
-
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
@@ -34,13 +33,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 
-import org.jboss.ejb3.test.tck5sec.StatefulSessionTest;
-import org.jboss.ejb3.test.tck5sec.StatelessSession;
+import junit.framework.Test;
 
+import org.jboss.ejb3.test.tck5sec.StatefulSessionTest;
 import org.jboss.logging.Logger;
 import org.jboss.security.auth.login.XMLLoginConfigImpl;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 
 /**
@@ -82,7 +80,7 @@ extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      Configuration.setConfiguration(new XMLLoginConfigImpl());
+      Configuration.setConfiguration(XMLLoginConfigImpl.getInstance());
       return getDeploySetup(Tck5SecTestCase.class, "tck5sec-test.ear");
 
    }

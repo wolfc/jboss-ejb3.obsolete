@@ -21,12 +21,10 @@
  */
 package org.jboss.ejb3.test.webservices;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.jws.WebService;
-import javax.annotation.Resource;
-import javax.annotation.PostConstruct;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 
@@ -34,7 +32,6 @@ import javax.xml.ws.WebServiceException;
  * @author Heiko.Braun <heiko.braun@jboss.com>
  */
 @Stateless
-@RemoteBinding(jndiBinding = "WebServiceContextEndpoint")
 @WebService(endpointInterface = "org.jboss.ejb3.test.webservices.Ejb3WSEndpoint")
 public class WebServiceContextEndpoint implements Ejb3WSEndpoint
 {

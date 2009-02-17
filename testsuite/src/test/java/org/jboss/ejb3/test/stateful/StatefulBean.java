@@ -59,7 +59,7 @@ import org.jboss.serial.io.JBossObjectOutputStream;
 @RemoteBinding(jndiBinding = "Stateful",
                interceptorStack="RemoteBindingStatefulSessionClientInterceptors",
                factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
-@CacheConfig(maxSize = 1000, idleTimeoutSeconds = 1)
+@CacheConfig(maxSize = 1000, idleTimeoutSeconds = 5)
 @SecurityDomain("test")
 @Resources({@Resource(name="jdbc/ds", mappedName="java:/DefaultDS")})
 public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
@@ -229,7 +229,7 @@ public class StatefulBean implements org.jboss.ejb3.test.stateful.Stateful
    }
    
    // @Remove from xml
-   public void remove()
+   public void removeMe()
    {
       ++beansRemoved;
    }

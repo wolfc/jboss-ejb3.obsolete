@@ -35,8 +35,8 @@ import org.jboss.ejb3.annotation.RemoteBindings;
  */
 @Stateful
 @RemoteBindings({
-   @RemoteBinding(clientBindUrl="sslsocket://0.0.0.0:3843", jndiBinding="StatefulSSL"),
-   @RemoteBinding(clientBindUrl="socket://0.0.0.0:3873", jndiBinding="StatefulNormal")
+   @RemoteBinding(clientBindUrl="sslsocket://127.0.0.1:3843", jndiBinding="StatefulSSL"),
+   @RemoteBinding(clientBindUrl="socket://127.0.0.1:3873", jndiBinding="StatefulNormal")
 })
 @Remote(BusinessInterface.class)
 public class StatefulBean implements BusinessInterface, java.io.Serializable

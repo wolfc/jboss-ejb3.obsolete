@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<jboss>
+<jboss
+        xmlns="http://www.jboss.com/xml/ns/javaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.jboss.com/xml/ns/javaee
+                            http://www.jboss.org/j2ee/schema/jboss_5_0.xsd"
+        version="3.0">
+
    <enterprise-beans>
       
       <session>
          <ejb-name>JMSTest</ejb-name>
-         <jndi-name>/jms-test-ejbs/JMSTest</jndi-name>
+
          <resource-ref>
              <res-ref-name>jms/MyConnectionFactory</res-ref-name>
              <resource-name>connectionfactoryref</resource-name>
@@ -14,6 +20,8 @@
              <res-ref-name>jms/MyQueue</res-ref-name>
              <resource-name>queueref</resource-name>
          </resource-ref>
+
+         <jndi-name>/jms-test-ejbs/JMSTest</jndi-name>
       </session>
       
       <message-driven>

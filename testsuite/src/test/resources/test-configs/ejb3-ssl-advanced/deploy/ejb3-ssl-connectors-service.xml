@@ -7,7 +7,7 @@
       name="jboss.remoting:service=ServerSocketFactory,type=SecurityDomainAdvanced"
       display-name="SecurityDomain Server Socket Factory">
        <attribute name="SecurityDomain">java:/jaas/SSLAdvanced</attribute>
-      <depends>jboss.security:service=JaasSecurityDomain,domain=SSLAdvanced</depends>
+      <depends>JBossSecurityJNDIContextEstablishment</depends>
    </mbean>
    
      <mbean code="org.jboss.security.plugins.JaasSecurityDomain"

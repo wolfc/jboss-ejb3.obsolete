@@ -21,20 +21,22 @@
  */
 package org.jboss.ejb3.test.asynchronous;
 
-import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
 import javax.ejb.EJBAccessException;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
-import org.jboss.aspects.asynch.Future;
 import org.jboss.ejb3.annotation.SecurityDomain;
-import org.jboss.ejb3.asynchronous.Asynch;
+import org.jboss.ejb3.common.proxy.plugins.async.AsyncUtils;
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -46,9 +48,6 @@ import org.jboss.ejb3.asynchronous.Asynch;
 @Local(SecuredStatelessLocal.class)
 public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStatelessLocal
 {
-   @EJB
-   public SecuredStatelessLocal local;
-
    @PermitAll
    public int uncheckedMethod(int i)
    {
@@ -64,7 +63,18 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
    @RolesAllowed("allowed")
    public int method(int i)
    {
-      SecuredStatelessLocal asynchLocal = (SecuredStatelessLocal)Asynch.getAsynchronousProxy(local);
+      
+      SecuredStatelessLocal local = null;
+      try
+      {
+         Context context = new InitialContext();
+         local = (SecuredStatelessLocal) context.lookup(SecuredStatelessBean.class.getSimpleName() + "/local");
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException(e);
+      }
+      SecuredStatelessLocal asynchLocal = AsyncUtils.mixinAsync(local);
 
       asynchLocal.excludedMethod(i);
       Object ret = getReturnOrException(asynchLocal);
@@ -88,7 +98,7 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
    {
       try
       {
-         Future future = Asynch.getFutureResult(proxy);
+         Future<?> future = AsyncUtils.getFutureResult(proxy);
 
          while (!future.isDone())
          {
@@ -96,7 +106,7 @@ public class SecuredStatelessBean implements SecuredStatelessRemote, SecuredStat
          }
          return future.get();
       }
-      catch(InvocationTargetException e)
+      catch(ExecutionException e)
       {
          return e.getCause();
       }

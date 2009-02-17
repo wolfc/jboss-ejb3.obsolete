@@ -21,6 +21,10 @@
       </session>
       <session>
          <ejb-name>StatefulClusteredTimeoutBean2</ejb-name>
+         <!-- TODO: if I don't specify cluster-config I get a NPE -->
+         <cluster-config>
+            <partition-name>${jboss.partition.name:DefaultPartition}</partition-name>
+         </cluster-config>
          <cache-config>
             <idle-timeout-seconds>1</idle-timeout-seconds>
             <remove-timeout-seconds>3</remove-timeout-seconds>

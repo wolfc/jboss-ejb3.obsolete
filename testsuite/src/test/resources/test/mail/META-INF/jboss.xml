@@ -7,7 +7,7 @@
         version="3.0">
     <enterprise-beans>
         <session>
-            <ejb-name>StatelessMail</ejb-name>
+            <ejb-name>StatelessMailBean</ejb-name>
             <resource-ref>
                 <res-ref-name>mail/DefaultMail</res-ref-name>
                 <resource-name>DefaultMail</resource-name>

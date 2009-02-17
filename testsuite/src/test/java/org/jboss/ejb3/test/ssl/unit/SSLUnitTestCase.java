@@ -60,10 +60,10 @@ public class SSLUnitTestCase
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
 //      System.err.println("invocationHandler: " + handler);
 //      System.err.println("invocationHandler: " + handler.getClass());
-      Field f = handler.getClass().getDeclaredField("uri");
+      Field f = handler.getClass().getDeclaredField("url");
       f.setAccessible(true);
-      InvokerLocator locator = (InvokerLocator) f.get(handler);
-      return locator.getOriginalURI();
+      String url = (String) f.get(handler);
+      return url;
    }
    
    public void testNoDefaultBinding() throws Exception

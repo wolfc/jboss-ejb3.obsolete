@@ -52,7 +52,9 @@ public class SecurityTester implements SecurityTesterMBean
       test.testDefault();
       test.secured();
 
+      client.logout();
       client.setSimple("authfail", "password");
+      client.login();
 
       boolean securityFailure = true;
       try
@@ -68,7 +70,9 @@ public class SecurityTester implements SecurityTesterMBean
       if (securityFailure) throw new RuntimeException("auth failure was not caught for method");
 
       securityFailure = true;
+      client.logout();
       client.setSimple("rolefail", null);
+      client.login();
       try
       {
          test.secured();
@@ -80,7 +84,9 @@ public class SecurityTester implements SecurityTesterMBean
       }
       if (securityFailure) throw new RuntimeException("role failure was not caught for method");
 
+      client.logout();
       client.setSimple("somebody", null);
+      client.login();
       log.info("test exclusion");
       securityFailure = true;
       try
@@ -94,6 +100,7 @@ public class SecurityTester implements SecurityTesterMBean
       }
       
       if (securityFailure) throw new RuntimeException("excluded failure was not caught for method");
+      client.logout();
    }
    
    public void testSecurityClient() throws Exception

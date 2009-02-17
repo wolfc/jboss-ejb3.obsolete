@@ -85,6 +85,10 @@ public class StatelessBean implements Stateless
    @PermitAll
    public void deleteAllEntity(AllEntity e)
    {
+      if (!em.contains(e))
+      {
+         e = em.merge(e);
+      }
       em.remove(e);
    }
 
@@ -113,13 +117,17 @@ public class StatelessBean implements Stateless
    @PermitAll
    public void deleteStarEntity(StarEntity e)
    {
+      if (!em.contains(e))
+      {
+         e = em.merge(e);
+      }
       em.remove(e);
    }
 
 
    @PermitAll
    public SomeEntity insertSomeEntity()
-   {
+   { 
       SomeEntity e = new SomeEntity();
       e.val = "x";
       em.persist(e);
@@ -142,6 +150,10 @@ public class StatelessBean implements Stateless
    @PermitAll
    public void deleteSomeEntity(SomeEntity e)
    {
+      if (!em.contains(e))
+      {
+         e = em.merge(e);
+      }
       em.remove(e);
    }
 }

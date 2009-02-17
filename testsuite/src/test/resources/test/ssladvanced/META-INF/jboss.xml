@@ -10,11 +10,11 @@
          <ejb-name>OverrideStatefulClusteredBean</ejb-name>
          <remote-binding>
             <jndi-name>OverrideStatefulClusteredSSL</jndi-name>
-            <client-bind-url>sslsocket://0.0.0.0:3843</client-bind-url>
+            <client-bind-url>sslsocket://127.0.0.1:3843</client-bind-url>
          </remote-binding>
          <remote-binding>
             <jndi-name>OverrideStatefulClusteredNormal</jndi-name>
-            <client-bind-url>socket://0.0.0.0:3873</client-bind-url>
+            <client-bind-url>socket://127.0.0.1:3873</client-bind-url>
          </remote-binding>
       </session>
    </enterprise-beans>

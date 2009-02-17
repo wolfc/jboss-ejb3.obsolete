@@ -21,18 +21,20 @@
  */
 package org.jboss.ejb3.test.webservices.unit;
 
-import junit.framework.Test;
-import org.jboss.ejb3.test.webservices.BusinessInterface;
-import org.jboss.ejb3.test.webservices.Ejb3WSEndpoint;
-import org.jboss.test.JBossTestCase;
+import java.net.URL;
+import java.util.Hashtable;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.net.URL;
-import java.util.Hashtable;
+
+import junit.framework.Test;
+
+import org.jboss.ejb3.test.webservices.BusinessInterface;
+import org.jboss.ejb3.test.webservices.Ejb3WSEndpoint;
+import org.jboss.test.JBossTestCase;
 
 /**
  * @author Heiko.Braun@jboss.com
@@ -129,7 +131,7 @@ public class WebServiceTestCase extends JBossTestCase
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(WebServiceTestCase.class, "webservices-ejb3.jar, webservices-ejb3-client.jar");
+      return getDeploySetup(WebServiceTestCase.class, "webservices-ejb3.jar");
    }
 
    protected InitialContext getInitialContext(String clientName) throws NamingException

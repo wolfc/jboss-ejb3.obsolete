@@ -21,6 +21,9 @@
  */
 package org.jboss.ejb3.test.factory.unit;
 
+import junit.framework.Test;
+
+import org.jboss.ejb3.test.common.EJB3TestCase;
 import org.jboss.ejb3.test.factory.Entity1;
 import org.jboss.ejb3.test.factory.Entity2;
 import org.jboss.ejb3.test.factory.MyService;
@@ -28,8 +31,6 @@ import org.jboss.ejb3.test.factory.Session1;
 import org.jboss.ejb3.test.factory.Session2;
 import org.jboss.ejb3.test.factory.Stateful1;
 import org.jboss.ejb3.test.factory.Util;
-import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  * Sample client for the jboss container.
@@ -38,8 +39,7 @@ import junit.framework.Test;
  * @version $Id$
  */
 
-public class FactoryUnitTestCase
-        extends JBossTestCase
+public class FactoryUnitTestCase extends EJB3TestCase
 {
    org.jboss.logging.Logger log = getLog();
 

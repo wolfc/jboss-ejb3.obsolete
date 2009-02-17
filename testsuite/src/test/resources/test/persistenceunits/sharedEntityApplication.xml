@@ -5,11 +5,11 @@
   <display-name>EAR test</display-name>
   
   <module>
-    <ejb>lib/persistenceunitsharedentity1.jar</ejb>
+    <ejb>persistenceunitsharedentity1.jar</ejb>
   </module>
   
   <module>
-    <ejb>lib/persistenceunitsharedentity2.jar</ejb>
+    <ejb>persistenceunitsharedentity2.jar</ejb>
   </module>
 </application>
 

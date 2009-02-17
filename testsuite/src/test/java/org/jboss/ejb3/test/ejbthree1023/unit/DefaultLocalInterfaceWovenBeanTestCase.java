@@ -50,7 +50,14 @@ public class DefaultLocalInterfaceWovenBeanTestCase extends JBossTestCase
       //Just a sanity test
       InitialContext ctx = getInitialContext();
       FacadeRemote facade = (FacadeRemote)ctx.lookup("FacadeBean/remote");
-      facade.callWovenBeanWithAnnotatedLocal();
+      try
+      {
+         facade.callWovenBeanWithAnnotatedLocal();
+      }
+      catch(RuntimeException e)
+      {
+         fail(e.getMessage());
+      }
    }
    
    public void testDefaultLocalInterfaceWovenBean() throws Exception
@@ -58,7 +65,14 @@ public class DefaultLocalInterfaceWovenBeanTestCase extends JBossTestCase
       //The real test for this issue
       InitialContext ctx = getInitialContext();
       FacadeRemote facade = (FacadeRemote)ctx.lookup("FacadeBean/remote");
-      facade.callWovenBeanWithDefaultLocal();
+      try
+      {
+         facade.callWovenBeanWithDefaultLocal();
+      }
+      catch(RuntimeException e)
+      {
+         fail(e.getMessage());
+      }
    }
    
    public static Test suite() throws Exception

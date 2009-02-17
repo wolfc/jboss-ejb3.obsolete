@@ -66,11 +66,11 @@ public class StatelessBean extends BaseBean
    
    public void testEjbContextLookup() throws Exception
    {
-      Stateful stateful = (Stateful)sessionContext.lookup(Stateful.JNDI_NAME);
+      Stateful stateful = (Stateful) sessionContext.lookup(StatefulBean.class.getSimpleName() + "/remote");
       stateful.test();
    }
    
-   public Class testInvokedBusinessInterface() throws Exception
+   public Class<?> testInvokedBusinessInterface() throws Exception
    {
       return sessionContext.getInvokedBusinessInterface();
    }
@@ -90,7 +90,7 @@ public class StatelessBean extends BaseBean
    public void testSessionContext() throws Exception
    {
       InitialContext jndiContext = new InitialContext();
-      Stateful stateful = (Stateful)jndiContext.lookup(Stateful.JNDI_NAME);
+      Stateful stateful = (Stateful) jndiContext.lookup(StatefulBean.class.getSimpleName() + "/remote");
       stateful.setState("testSessionContext");
       
       EJBLocalObject ejbLocalObject = stateful.getEJBLocalObject();
@@ -101,7 +101,7 @@ public class StatelessBean extends BaseBean
          throw new Exception("EJBLocalObject does not match originating bean: " + state + " != " + "testSessionContext");
       
       EJBObject ejbObject = stateful.getEJBObject();
-      Stateful sameBean = (Stateful)ejbObject;
+      StatefulRemote sameBean = (StatefulRemote) ejbObject;
       state = sameBean.getState();
       if (!state.equals("testSessionContext"))
          throw new Exception("EJBObject does not match originating bean: " + state + " != " + "testSessionContext");

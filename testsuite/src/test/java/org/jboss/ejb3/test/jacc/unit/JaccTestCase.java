@@ -24,17 +24,17 @@ package org.jboss.ejb3.test.jacc.unit;
 
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
+
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.jacc.AllEntity;
 import org.jboss.ejb3.test.jacc.SomeEntity;
 import org.jboss.ejb3.test.jacc.StarEntity;
 import org.jboss.ejb3.test.jacc.Stateful;
 import org.jboss.ejb3.test.jacc.Stateless;
-import org.jboss.security.SecurityAssociation;
-import org.jboss.security.SimplePrincipal;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 /**
  *
@@ -98,7 +98,9 @@ public class JaccTestCase extends JBossTestCase
       result = stateless.checked(50);
       assertEquals(50,result);
 
+      client.logout();
       client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
 
       boolean securityException = false;
       try
@@ -145,12 +147,13 @@ public class JaccTestCase extends JBossTestCase
 
       System.out.println("Bad role");
       client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
+      client.logout();
+      client.login();
 
-      AllEntity ae2 = null;
       try
       {
          System.out.println("Inserting...");
-         ae2 = stateless.insertAllEntity();
+         stateless.insertAllEntity();
          throw new FailedException("Insert check not done for AllEntity");
       }
       catch(FailedException ex)
@@ -165,7 +168,7 @@ public class JaccTestCase extends JBossTestCase
       try
       {
          System.out.println("Reading...");
-         ae2 = stateless.readAllEntity(e.id);
+         stateless.readAllEntity(e.id);
          throw new FailedException("Read check not done for AllEntity");
       }
       catch(FailedException ex)
@@ -245,12 +248,13 @@ public class JaccTestCase extends JBossTestCase
 
       System.out.println("Bad role");
       client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
+      client.logout();
+      client.login();
 
-      StarEntity ae2 = null;
       try
       {
          System.out.println("Inserting...");
-         ae2 = stateless.insertStarEntity();
+         stateless.insertStarEntity();
          throw new FailedException("Insert check not done for StarEntity");
       }
       catch(FailedException ex)
@@ -265,7 +269,7 @@ public class JaccTestCase extends JBossTestCase
       try
       {
          System.out.println("Reading...");
-         ae2 = stateless.readStarEntity(e.id);
+         stateless.readStarEntity(e.id);
          throw new FailedException("Read check not done for StarEntity");
       }
       catch(FailedException ex)
@@ -365,19 +369,18 @@ public class JaccTestCase extends JBossTestCase
       }
 
 
-      System.out.println("Deleting...");
-      stateless.deleteSomeEntity(e);
       System.out.println("Inserting...");
       e = stateless.insertSomeEntity();
 
       System.out.println("Bad role");
       client.setSimple(JaccTestCase.PRINCIPAL_ROLEFAIL, JaccTestCase.PASSWORD_PASSWORD);
+      client.logout();
+      client.login();
 
-      SomeEntity ae2 = null;
       try
       {
          System.out.println("Inserting...");
-         ae2 = stateless.insertSomeEntity();
+         stateless.insertSomeEntity();
          throw new FailedException("Insert check not done for SomeEntity");
       }
       catch(FailedException ex)
@@ -418,7 +421,27 @@ public class JaccTestCase extends JBossTestCase
       }
    }
 
-
+   public void testSomeEntityDelete() throws Exception
+   {
+      Stateless stateless = (Stateless)getInitialContext().lookup("StatelessBean/remote");
+      
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple(JaccTestCase.PRINCIPAL_SOMEBODY, JaccTestCase.PASSWORD_PASSWORD);
+      client.login();
+      
+      SomeEntity e = stateless.insertSomeEntity();
+      
+      System.out.println("Deleting...");
+      try
+      {
+         stateless.deleteSomeEntity(e);
+      }
+      catch(EJBException ex)
+      {
+         fail(ex.getMessage());
+      }
+   }
+   
    private void hasSecurityOrEJBAccessException(Exception e)throws FailedException
    {
       Throwable t = e;
@@ -428,14 +451,15 @@ public class JaccTestCase extends JBossTestCase
          //System.out.println(t);
          String classname = t.getClass().getName();
          if (classname.equals(SecurityException.class.getName()) ||
-               classname.equals(EJBException.class.getName()) )
+               classname.equals(EJBException.class.getName()) ||
+               t instanceof EJBAccessException)
          {
             return;
          }
          t = t.getCause();
       }
 
-      throw new FailedException("SecurityException not thrown");
+      throw new FailedException("SecurityException not thrown", e);
    }
 
 
@@ -451,6 +475,11 @@ public class JaccTestCase extends JBossTestCase
       public FailedException(String msg)
       {
          super(msg);
+      }
+      
+      public FailedException(String msg, Throwable cause)
+      {
+         super(msg, cause);
       }
    }
 }

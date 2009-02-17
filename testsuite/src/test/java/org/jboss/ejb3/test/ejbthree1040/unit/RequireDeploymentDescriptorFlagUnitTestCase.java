@@ -23,6 +23,9 @@
 package org.jboss.ejb3.test.ejbthree1040.unit;
 
 import javax.management.Attribute;
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.naming.NameNotFoundException;
@@ -187,7 +190,7 @@ public final class RequireDeploymentDescriptorFlagUnitTestCase extends JBossTest
     */
    public void testDeploySuccessWithRequiredDdAndJbossXml() throws Exception
    {
-      throw new RuntimeException("IMPLEMENT");
+      fail("IMPLEMENT");
    }
 
    /**
@@ -196,7 +199,7 @@ public final class RequireDeploymentDescriptorFlagUnitTestCase extends JBossTest
     */
    public final void testDeploySuccessWithRequiredDdAndEjbJarXml() throws Exception
    {
-      throw new RuntimeException("IMPLEMENT");
+      fail("IMPLEMENT");
    }
 
    // Internal Helper Methods
@@ -208,11 +211,28 @@ public final class RequireDeploymentDescriptorFlagUnitTestCase extends JBossTest
     */
    private void setDeployerToRequireDd(boolean required) throws Exception
    {
-      // Set the flag for the deployer to require a deployment descriptor
-      this.server.setAttribute(this.on, new Attribute(
-            RequireDeploymentDescriptorFlagUnitTestCase.ATTRIBUTE_REQUIRE_DEPLOYMENT_DESCRIPTOR, required
-                  ? Boolean.TRUE
-                  : Boolean.FALSE));
+      try
+      {
+         // Set the flag for the deployer to require a deployment descriptor
+         this.server.setAttribute(this.on, new Attribute(
+               RequireDeploymentDescriptorFlagUnitTestCase.ATTRIBUTE_REQUIRE_DEPLOYMENT_DESCRIPTOR, required
+                     ? Boolean.TRUE
+                     : Boolean.FALSE));
+      }
+      catch(AttributeNotFoundException e)
+      {
+         fail("Attribute not found " + RequireDeploymentDescriptorFlagUnitTestCase.ATTRIBUTE_REQUIRE_DEPLOYMENT_DESCRIPTOR + " on " + this.on);
+      }
+      catch(InstanceNotFoundException e)
+      {
+         fail(this.on + " does not expose a MBean interface");
+      }
+      catch(MBeanException e)
+      {
+         if(e.getCause() instanceof InstanceNotFoundException)
+            fail(this.on + " does not expose a MBean interface");
+         throw e;
+      }
    }
 
 }
