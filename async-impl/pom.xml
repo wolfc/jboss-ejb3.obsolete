@@ -21,7 +21,7 @@
   <artifactId>jboss-ejb3-async-impl</artifactId>
   <version>2.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>JBoss EJB 3.1 Asynchronous</name>
+  <name>JBoss EJB 3.1 Asynchronous Implementation (Internals)</name>
   <description>Implementation Support for EJB 3.1 @Asynchronous</description>
 
   <!-- Build Configuration -->
