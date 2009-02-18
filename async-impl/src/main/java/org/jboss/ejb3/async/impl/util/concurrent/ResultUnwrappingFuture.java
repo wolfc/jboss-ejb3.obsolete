@@ -62,12 +62,12 @@ public class ResultUnwrappingFuture<V> extends FutureTask<V> implements Future<V
     * Delegate constructors back up to the super implementation
     */
 
-   public ResultUnwrappingFuture(Callable<V> callable)
+   public ResultUnwrappingFuture(final Callable<V> callable)
    {
       super(callable);
    }
 
-   public ResultUnwrappingFuture(Runnable runnable, V result)
+   public ResultUnwrappingFuture(final Runnable runnable, final V result)
    {
       super(runnable, result);
    }
@@ -90,7 +90,7 @@ public class ResultUnwrappingFuture<V> extends FutureTask<V> implements Future<V
 
       // Get the result specified by the bean provider
       final Object returnValueFromBeanProvider = super.get();
-      V wrappedValue = this.getWrappedFuture(returnValueFromBeanProvider);
+      final V wrappedValue = this.getWrappedFuture(returnValueFromBeanProvider);
 
       // Return
       return wrappedValue;
@@ -111,7 +111,7 @@ public class ResultUnwrappingFuture<V> extends FutureTask<V> implements Future<V
 
       // Get the result specified by the bean provider
       final Object returnValueFromBeanProvider = super.get(timeout, unit);
-      V wrappedValue = this.getWrappedFuture(returnValueFromBeanProvider);
+      final V wrappedValue = this.getWrappedFuture(returnValueFromBeanProvider);
 
       // Return
       return wrappedValue;

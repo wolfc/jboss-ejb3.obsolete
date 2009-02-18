@@ -28,7 +28,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-
 /**
  * ResultUnwrappingThreadPoolExecutor
  *
@@ -45,8 +44,8 @@ public class ResultUnwrappingThreadPoolExecutor extends ThreadPoolExecutor
    /**
     * Delegates to super implementation only
     */
-   public ResultUnwrappingThreadPoolExecutor(int corePoolSize, int maxPoolSize, long keepAliveTime, TimeUnit unit,
-         BlockingQueue<Runnable> workQueue)
+   public ResultUnwrappingThreadPoolExecutor(final int corePoolSize, final int maxPoolSize, final long keepAliveTime,
+         final TimeUnit unit, final BlockingQueue<Runnable> workQueue)
    {
       super(corePoolSize, maxPoolSize, keepAliveTime, unit, workQueue);
    }
@@ -64,7 +63,7 @@ public class ResultUnwrappingThreadPoolExecutor extends ThreadPoolExecutor
     */
 
    @Override
-   public <T> Future<T> submit(Callable<T> task)
+   public <T> Future<T> submit(final Callable<T> task)
    {
       if (task == null)
          throw new NullPointerException();
@@ -74,7 +73,7 @@ public class ResultUnwrappingThreadPoolExecutor extends ThreadPoolExecutor
    }
 
    @Override
-   public <T> Future<T> submit(Runnable task, T result)
+   public <T> Future<T> submit(final Runnable task, final T result)
    {
       if (task == null)
          throw new NullPointerException();
@@ -84,7 +83,7 @@ public class ResultUnwrappingThreadPoolExecutor extends ThreadPoolExecutor
    }
 
    @Override
-   public Future<?> submit(Runnable task)
+   public Future<?> submit(final Runnable task)
    {
       if (task == null)
          throw new NullPointerException();

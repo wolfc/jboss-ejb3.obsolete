@@ -44,7 +44,8 @@ public class PausableProcessingAsyncContainer<T> extends ThreadPoolAsyncContaine
    // Constructors -------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public PausableProcessingAsyncContainer(String name, String domainName, Class<? extends T> beanClass)
+   public PausableProcessingAsyncContainer(final String name, final String domainName,
+         final Class<? extends T> beanClass)
    {
       super(name, domainName, beanClass, new ResultUnwrappingThreadPoolExecutor(3, 6, 3, TimeUnit.SECONDS,
             new PausableBlockingQueue<Runnable>(false)));

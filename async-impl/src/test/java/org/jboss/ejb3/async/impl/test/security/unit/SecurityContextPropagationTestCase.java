@@ -26,9 +26,9 @@ import java.util.concurrent.Future;
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
-import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
 import org.jboss.ejb3.async.impl.test.common.SecurityActions;
 import org.jboss.ejb3.async.impl.test.common.TestConstants;
+import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
 import org.jboss.ejb3.async.impl.test.security.SecurityAwarePojo;
 import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.logging.Logger;
@@ -57,7 +57,7 @@ public class SecurityContextPropagationTestCase
 
    private static final Logger log = Logger.getLogger(SecurityContextPropagationTestCase.class);
 
-   private static AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
+   private static final AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
 
    private static ThreadPoolAsyncContainer<SecurityAwarePojo> container;
 
@@ -100,27 +100,27 @@ public class SecurityContextPropagationTestCase
    public void testSecurityPropagation() throws Throwable
    {
       // Initialize
-      String username = "ALR";
-      String password = "Get 'er done";
+      final String username = "ALR";
+      final String password = "Get 'er done";
 
       // Make a new bean instance upon which we'll invoke
-      BeanContext<SecurityAwarePojo> bean = container.construct();
+      final BeanContext<SecurityAwarePojo> bean = container.construct();
 
       // Set a Security Context via the client
-      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      final SecurityClient client = SecurityClientFactory.getSecurityClient();
       client.setSimple(username, password);
       client.login();
 
       // Get the SecurityContext for this Thread
-      SecurityContext scBefore = SecurityActions.getSecurityContext();
+      final SecurityContext scBefore = SecurityActions.getSecurityContext();
       TestCase.assertNotNull("Test is invalid as security context before invocation is null", scBefore);
 
       // Use the container to get a contracted value from the bean
-      Future<SecurityContext> futureResult = (Future<SecurityContext>) container.invoke(bean,
+      final Future<SecurityContext> futureResult = (Future<SecurityContext>) container.invoke(bean,
             METHOD_NAME_GET_SECURITY_CONTEXT);
 
       // Get the Future value
-      SecurityContext scFromInvocation = futureResult.get();
+      final SecurityContext scFromInvocation = futureResult.get();
       TestCase.assertNotNull("SecurtyContext from invocation did not propagate", scFromInvocation);
       TestCase.assertEquals("Security Context from invocation did not match that of the calling Thread", scBefore,
             scFromInvocation);

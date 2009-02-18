@@ -55,11 +55,11 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private AtomicBoolean active = new AtomicBoolean(false);
+   private final AtomicBoolean active = new AtomicBoolean(false);
 
-   private BlockingQueue<E> delegate;
+   private final BlockingQueue<E> delegate;
 
-   private BlockingQueue<E> backlogQueue;
+   private final BlockingQueue<E> backlogQueue;
 
    /**
     * A reference to the current queue to be consulted in polling
@@ -144,17 +144,17 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
    /**
     * Offers to the current queue in play
     */
-   public boolean offer(E o)
+   public boolean offer(final E o)
    {
-      BlockingQueue<E> current = this.currentQueue;
+      final BlockingQueue<E> current = this.currentQueue;
       log.info("Offering: " + o + " to " + current);
       return current.offer(o);
    }
 
    public E take() throws InterruptedException
    {
-      BlockingQueue<E> current = this.currentQueue;
-      E obj = current.take();
+      final BlockingQueue<E> current = this.currentQueue;
+      final E obj = current.take();
       log.info("Taking : " + obj);
       return obj;
    }

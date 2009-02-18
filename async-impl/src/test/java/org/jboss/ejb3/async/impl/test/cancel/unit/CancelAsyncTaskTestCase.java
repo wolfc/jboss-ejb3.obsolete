@@ -88,31 +88,31 @@ public class CancelAsyncTaskTestCase
    public void testCancelAsyncInvocation() throws Throwable
    {
       // Make a new bean instance upon which we'll invoke
-      BeanContext<Pojo> bean = container.construct();
+      final BeanContext<Pojo> bean = container.construct();
 
       // Set the container to allow processing
       //TODO Relying on impls?
-      ThreadPoolExecutor executor = (ThreadPoolExecutor) container.getAsynchronousExecutor();
-      PausableBlockingQueue<?> queue = (PausableBlockingQueue<?>) executor.getQueue();
+      final ThreadPoolExecutor executor = (ThreadPoolExecutor) container.getAsynchronousExecutor();
+      final PausableBlockingQueue<?> queue = (PausableBlockingQueue<?>) executor.getQueue();
       queue.resume();
       log.info("Work queue is active");
 
       // Get the counter
-      Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
+      final Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
             TestConstants.METHOD_NAME_GET_COUNTER);
-      int initialCounter = initialCounterFuture.get();
+      final int initialCounter = initialCounterFuture.get();
 
       // Ensure the counter starts at 0
       TestCase.assertEquals("Counter should start at 0", 0, initialCounter);
       log.info("Got counter at start: " + initialCounter);
 
       // Increment the counter, then get the result
-      Future<Void> firstIncrementCounterFuture = (Future<Void>) container.invoke(bean,
+      final Future<Void> firstIncrementCounterFuture = (Future<Void>) container.invoke(bean,
             TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
       firstIncrementCounterFuture.get(); // Block until done
-      Future<Integer> firstIncrementCounterResultFuture = (Future<Integer>) container.invoke(bean,
+      final Future<Integer> firstIncrementCounterResultFuture = (Future<Integer>) container.invoke(bean,
             TestConstants.METHOD_NAME_GET_COUNTER);
-      int firstIncrementCounterResult = firstIncrementCounterResultFuture.get();
+      final int firstIncrementCounterResult = firstIncrementCounterResultFuture.get();
 
       // Ensure the counter has been incremented
       TestCase.assertEquals("Counter should have been incrememted to 1", 1, firstIncrementCounterResult);
@@ -123,16 +123,16 @@ public class CancelAsyncTaskTestCase
       log.info("Work queue is paused");
 
       // Increment the counter, then get the result
-      Future<Void> secondIncrementCounterFuture = (Future<Void>) container.invoke(bean,
+      final Future<Void> secondIncrementCounterFuture = (Future<Void>) container.invoke(bean,
             TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
 
       // Cancel and test
-      boolean isCancelled = secondIncrementCounterFuture.cancel(true);
+      final boolean isCancelled = secondIncrementCounterFuture.cancel(true);
       TestCase.assertTrue("Request to cancel() reporting not honored", isCancelled);
       log.info("Request to cancel reports as honored");
 
       // Ensure the cancelled task reports as done
-      boolean isDone = secondIncrementCounterFuture.isDone();
+      final boolean isDone = secondIncrementCounterFuture.isDone();
       TestCase.assertTrue("Cancelled task did not report as done", isDone);
       log.info("Request to cancel reports as done");
 
@@ -141,9 +141,9 @@ public class CancelAsyncTaskTestCase
       log.info("Work queue is active again");
 
       // Get the counter again, testing that it hasn't been incremented
-      Future<Integer> secondIncrementCounterResultFuture = (Future<Integer>) container.invoke(bean,
+      final Future<Integer> secondIncrementCounterResultFuture = (Future<Integer>) container.invoke(bean,
             TestConstants.METHOD_NAME_GET_COUNTER);
-      int secondIncrementCounterResult = secondIncrementCounterResultFuture.get();
+      final int secondIncrementCounterResult = secondIncrementCounterResultFuture.get();
       TestCase.assertEquals("Second call to increment counter should have been cancelled", firstIncrementCounterResult,
             secondIncrementCounterResult);
       log.info("Second call to increment counter was cancelled, counter = " + secondIncrementCounterResult);

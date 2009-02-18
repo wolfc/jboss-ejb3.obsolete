@@ -54,7 +54,7 @@ public class SimpleAsyncTestCase
 
    private static final Logger log = Logger.getLogger(SimpleAsyncTestCase.class);
 
-   private static AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
+   private static final AOPDeployer aopDeployer = new AOPDeployer(TestConstants.AOP_DEPLOYABLE_FILENAME_SIMPLE);
 
    private static ThreadPoolAsyncContainer<Pojo> container;
 
@@ -90,24 +90,25 @@ public class SimpleAsyncTestCase
    public void testSimpleInvocation() throws Throwable
    {
       // Make a new bean instance upon which we'll invoke
-      BeanContext<Pojo> bean = container.construct();
+      final BeanContext<Pojo> bean = container.construct();
 
       // Use the container to get a contracted value from the bean
-      Future<?> futureResult = (Future<?>) container.invoke(bean, TestConstants.METHOD_NAME_GET_VALUE_ASYNCHRONOUS);
+      final Future<?> futureResult = (Future<?>) container.invoke(bean,
+            TestConstants.METHOD_NAME_GET_VALUE_ASYNCHRONOUS);
       log.info("Obtained result: " + futureResult);
 
       // Get the Future value
-      Object result = futureResult.get();
+      final Object result = futureResult.get();
 
       // Ensure the value is expected
       TestCase.assertEquals("Did not obtain expected result", Pojo.VALUE, result);
 
       // Ensure the result reports as done
-      boolean isDone = futureResult.isDone();
+      final boolean isDone = futureResult.isDone();
       TestCase.assertTrue("Completed task did not report as done", isDone);
 
       // Ensure the result does not report as cancelled
-      boolean isCancelled = futureResult.isCancelled();
+      final boolean isCancelled = futureResult.isCancelled();
       TestCase.assertFalse("Completed task reported as cancelled", isCancelled);
    }
 
@@ -122,25 +123,25 @@ public class SimpleAsyncTestCase
    public void testVoidMethodWithAsynchronous() throws Throwable
    {
       // Make a new bean instance upon which we'll invoke
-      BeanContext<Pojo> bean = container.construct();
+      final BeanContext<Pojo> bean = container.construct();
 
       // Get the counter as it exists
-      Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
+      final Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
             TestConstants.METHOD_NAME_GET_COUNTER);
-      int initialCounter = initialCounterFuture.get();
+      final int initialCounter = initialCounterFuture.get();
 
       // Increment the counter 
-      Future<Void> incrementCounterFutureResult = (Future<Void>) container.invoke(bean,
+      final Future<Void> incrementCounterFutureResult = (Future<Void>) container.invoke(bean,
             TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
       TestCase.assertNotNull("void return type not intercepted as asynchronous invocation",
             incrementCounterFutureResult);
-      Object incrementedCounterResult = incrementCounterFutureResult.get();
+      final Object incrementedCounterResult = incrementCounterFutureResult.get();
       TestCase.assertNull("void return types should return null upon Future.get()", incrementedCounterResult);
 
       // Test the counter was incremented
-      Future<Integer> incrementedCounterFuture = (Future<Integer>) container.invoke(bean,
+      final Future<Integer> incrementedCounterFuture = (Future<Integer>) container.invoke(bean,
             TestConstants.METHOD_NAME_GET_COUNTER);
-      int incrementedCounter = incrementedCounterFuture.get();
+      final int incrementedCounter = incrementedCounterFuture.get();
       TestCase.assertEquals("Counter was not incremented", initialCounter + 1, incrementedCounter);
    }
 
@@ -154,10 +155,11 @@ public class SimpleAsyncTestCase
    public void testVoidMethodUnannotated() throws Throwable
    {
       // Make a new bean instance upon which we'll invoke
-      BeanContext<Pojo> bean = container.construct();
+      final BeanContext<Pojo> bean = container.construct();
 
       // Invoke and test
-      Object shouldBeNullReturnValue = container.invoke(bean, TestConstants.METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS);
+      final Object shouldBeNullReturnValue = container.invoke(bean,
+            TestConstants.METHOD_NAME_INCREMENT_COUNTER_SYNCHRONOUS);
       TestCase.assertNull("methods with void return type not annotated with @" + Asynchronous.class.getSimpleName()
             + " should have null return type from container invocation", shouldBeNullReturnValue);
 
@@ -173,12 +175,11 @@ public class SimpleAsyncTestCase
    public void testUnannotatedMethodsSynchronous() throws Throwable
    {
       // Make a new bean instance upon which we'll invoke
-      BeanContext<Pojo> bean = container.construct();
+      final BeanContext<Pojo> bean = container.construct();
 
       // Invoke and test
-      String value = container.invoke(bean, TestConstants.METHOD_NAME_GET_VALUE_SYNCHRONOUS);
+      final String value = container.invoke(bean, TestConstants.METHOD_NAME_GET_VALUE_SYNCHRONOUS);
       TestCase.assertEquals("Contracted value not obtained as expected", Pojo.VALUE, value);
-
    }
 
 }

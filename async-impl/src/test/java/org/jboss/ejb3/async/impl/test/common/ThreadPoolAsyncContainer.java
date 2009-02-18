@@ -47,13 +47,13 @@ public class ThreadPoolAsyncContainer<T> extends DirectContainer<T> implements A
    // Constructors -------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public ThreadPoolAsyncContainer(String name, String domainName, Class<? extends T> beanClass)
+   public ThreadPoolAsyncContainer(final String name, final String domainName, final Class<? extends T> beanClass)
    {
       this(name, domainName, beanClass, AsyncTestUtil.getDefaultAsyncExecutorService());
    }
 
-   public ThreadPoolAsyncContainer(String name, String domainName, Class<? extends T> beanClass,
-         ExecutorService asynchronousExecutor)
+   public ThreadPoolAsyncContainer(final String name, final String domainName, final Class<? extends T> beanClass,
+         final ExecutorService asynchronousExecutor)
    {
       super(name, domainName, beanClass);
       this.setAsynchronousExecutor(asynchronousExecutor);
@@ -72,7 +72,7 @@ public class ThreadPoolAsyncContainer<T> extends DirectContainer<T> implements A
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public void setAsynchronousExecutor(ExecutorService asynchronousExecutor)
+   public void setAsynchronousExecutor(final ExecutorService asynchronousExecutor)
    {
       this.asynchronousExecutor = asynchronousExecutor;
    }
