@@ -63,7 +63,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
 
    /**
     * A reference to the current queue to be consulted in polling
-    * Access must be synchronized with itself
     */
    /*
     * volatile because we don't want to synchronize access 
