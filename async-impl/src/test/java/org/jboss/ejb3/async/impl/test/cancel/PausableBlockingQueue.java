@@ -150,6 +150,11 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
       return obj;
    }
 
+   public boolean isEmpty()
+   {
+      return this.currentQueue.isEmpty();
+   }
+
    /*
     * UNSUPPORTED below this marker
     */
@@ -225,11 +230,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
    }
 
    public boolean containsAll(Collection<?> c)
-   {
-      throw new UnsupportedOperationException(MSG_UNSUPPORTED);
-   }
-
-   public boolean isEmpty()
    {
       throw new UnsupportedOperationException(MSG_UNSUPPORTED);
    }

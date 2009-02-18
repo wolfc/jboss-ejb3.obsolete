@@ -23,6 +23,7 @@ package org.jboss.ejb3.async.impl.test.cancel.unit;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -87,15 +88,22 @@ public class CancelAsyncTaskTestCase
    @SuppressWarnings("unchecked")
    public void testCancelAsyncInvocation() throws Throwable
    {
+      /*
+       * Setup of environment
+       */
+
       // Make a new bean instance upon which we'll invoke
       final BeanContext<Pojo> bean = container.construct();
 
       // Set the container to allow processing
-      //TODO Relying on impls?
       final ThreadPoolExecutor executor = (ThreadPoolExecutor) container.getAsynchronousExecutor();
       final PausableBlockingQueue<?> queue = (PausableBlockingQueue<?>) executor.getQueue();
       queue.resume();
       log.info("Work queue is active");
+
+      /*
+       * Control
+       */
 
       // Get the counter
       final Future<Integer> initialCounterFuture = (Future<Integer>) container.invoke(bean,
@@ -117,6 +125,10 @@ public class CancelAsyncTaskTestCase
       // Ensure the counter has been incremented
       TestCase.assertEquals("Counter should have been incrememted to 1", 1, firstIncrementCounterResult);
       log.info("Got counter after first async increment: " + firstIncrementCounterResult);
+
+      /*
+       * Test cancel() works
+       */
 
       // Set the container to pause processing
       queue.pause();
@@ -148,6 +160,45 @@ public class CancelAsyncTaskTestCase
             secondIncrementCounterResult);
       log.info("Second call to increment counter was cancelled, counter = " + secondIncrementCounterResult);
 
+      /*
+       * Test that the test itself is valid (ie.
+       * jobs submitted while paused will pull through
+       * when resumed)
+       */
+
+      // Set the container to pause processing
+      queue.pause();
+      log.info("Work queue is paused");
+
+      // Increment the counter, then get the result
+      final Future<Void> incrementCounterWhilePauseFuture = (Future<Void>) container.invoke(bean,
+            TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
+      log.info("Sent another request to increment the counter while work queue is paused");
+
+      // Block until done (w/ some sensible Timeout in case of bad blocking)
+      incrementCounterWhilePauseFuture.get(3, TimeUnit.SECONDS);
+
+      // Resume the work queue
+      queue.resume();
+      log.info("Work queue is active again");
+
+      // Block until the last request has gone through the work queue
+      while (!queue.isEmpty())
+      {
+
+      }
+
+      // ...and wait a bit just to be extra sure the work has been done
+      Thread.sleep(500);
+
+      // Get the counter again, testing that it hasn't been incremented
+      final Future<Integer> incrementCounterAfterPausedResultFuture = (Future<Integer>) container.invoke(bean,
+            TestConstants.METHOD_NAME_GET_COUNTER);
+      final int incrementCounterAfterPausedResult = incrementCounterAfterPausedResultFuture.get();
+      TestCase.assertEquals("Call to increment counter during pause should have been honored after release",
+            firstIncrementCounterResult + 1, incrementCounterAfterPausedResult);
+      log.info("Jobs submitted while queue was paused are processed upon unpause, counter = "
+            + incrementCounterAfterPausedResult);
    }
 
 }
