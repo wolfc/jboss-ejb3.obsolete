@@ -28,8 +28,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.ejb.AsyncResult;
-
 import org.jboss.logging.Logger;
 
 /**
@@ -40,8 +38,8 @@ import org.jboss.logging.Logger;
  * 
  * <br /><br />
  * 
- * Required to unwrap the javax.ejb.AsyncResult<V> that has been given as a
- * return value by the bean provider
+ * Required to unwrap the javax.ejb.AsyncResult<V> (or any j.u.c.Future)
+ * that has been given as a return value by the bean provider
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
@@ -124,7 +122,7 @@ public class ResultUnwrappingFuture<V> extends FutureTask<V> implements Future<V
    // --------------------------------------------------------------------------------||
 
    /**
-    * Unwraps the AsyncFuture result given by the bean provider
+    * Unwraps the AsyncFuture (or any j.u.c.Future) result given by the bean provider
     * and returns the real return value
     */
    @SuppressWarnings("unchecked")
@@ -137,14 +135,14 @@ public class ResultUnwrappingFuture<V> extends FutureTask<V> implements Future<V
       }
 
       // Ensure it's in expected form
-      if (!(returnValueFromBeanProvider instanceof AsyncResult))
+      if (!(returnValueFromBeanProvider instanceof Future))
       {
-         throw new RuntimeException("Bean provider has not specified a return value of type "
-               + AsyncResult.class.getName() + ", was instead: " + returnValueFromBeanProvider);
+         throw new RuntimeException("Bean provider has not specified a return value of type " + Future.class.getName()
+               + ", was instead: " + returnValueFromBeanProvider);
       }
 
       // Get the underlying result
-      final AsyncResult<V> result = (AsyncResult<V>) returnValueFromBeanProvider;
+      final Future<V> result = (Future<V>) returnValueFromBeanProvider;
       final V unwrappedReturnValue = result.get(); // Not blocking, as AsyncResult is not a blocking implementation
 
       // Return
