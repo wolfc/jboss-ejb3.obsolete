@@ -26,7 +26,6 @@ import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.logging.Logger;
 
@@ -55,8 +54,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private final AtomicBoolean active = new AtomicBoolean(false);
-
    private final BlockingQueue<E> delegate;
 
    private final BlockingQueue<E> backlogQueue;
@@ -79,7 +76,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
 
    public PausableBlockingQueue(boolean active)
    {
-      this.active.set(active);
       this.delegate = new ArrayBlockingQueue<E>(10);
       this.backlogQueue = new ArrayBlockingQueue<E>(10);
       this.currentQueue = active ? this.delegate : this.backlogQueue;
@@ -91,7 +87,7 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
 
    public boolean isActive()
    {
-      return this.active.get();
+      return this.currentQueue == this.delegate ? true : false;
    }
 
    public void pause()
@@ -105,7 +101,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
       // Atomic
       synchronized (this.currentQueue)
       {
-         this.active.set(false);
          this.currentQueue = this.backlogQueue;
          log.info(this + ": Paused");
       }
@@ -122,9 +117,6 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
       // Atomic
       synchronized (this.currentQueue)
       {
-         // Set active
-         this.active.set(true);
-
          // Drain to the delegate from the backlog
          this.backlogQueue.drainTo(this.delegate);
 
