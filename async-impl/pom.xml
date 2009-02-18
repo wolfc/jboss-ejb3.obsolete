@@ -66,6 +66,10 @@
         <configuration>
           <forkMode>once</forkMode>
           <jvm>${JDK6_HOME}/bin/java</jvm>
+          <!--  
+          Useful in debugging blocking/deadlock/etc
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>  
+          -->
         </configuration>
       </plugin>
       

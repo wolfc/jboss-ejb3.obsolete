@@ -23,7 +23,6 @@ package org.jboss.ejb3.async.impl.test.common;
 
 import java.util.concurrent.ExecutorService;
 
-import org.jboss.ejb3.async.impl.hack.DevelopmentHacks;
 import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 
@@ -50,7 +49,7 @@ public class ThreadPoolAsyncContainer<T> extends DirectContainer<T> implements A
 
    public ThreadPoolAsyncContainer(String name, String domainName, Class<? extends T> beanClass)
    {
-      this(name, domainName, beanClass, DevelopmentHacks.getDefaultAsyncExecutorService());
+      this(name, domainName, beanClass, AsyncTestUtil.getDefaultAsyncExecutorService());
    }
 
    public ThreadPoolAsyncContainer(String name, String domainName, Class<? extends T> beanClass,

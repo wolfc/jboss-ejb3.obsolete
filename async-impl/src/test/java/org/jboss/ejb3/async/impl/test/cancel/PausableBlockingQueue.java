@@ -32,18 +32,16 @@ import org.jboss.logging.Logger;
 
 /**
  * PausableBlockingQueue
+ * 
+ * Does not comply with contracts provided by j.u.c.BlockingQueue.  For
+ * testing only.
+ * 
+ * This implementation supports "pausing" a work queue such that no new tasks 
+ * will be submitted while inactive.  Upon reactivation the backlog of tasks 
+ * will be added to the queue.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
- */
-@Deprecated
-//TODO 
-/*
- * This implementation doesn't work with j.u.c out of the box
- * because we're "pausing" at the wrong level.  Calls to Future.get(time,unit)
- * block indefinitely because the task is never submitted while in pause mode.
- * 
- * Meaning we have to get at the work queue through some other mechanism, not through here
  */
 public class PausableBlockingQueue<E> implements BlockingQueue<E>
 {
@@ -68,8 +66,9 @@ public class PausableBlockingQueue<E> implements BlockingQueue<E>
     * Access must be synchronized with itself
     */
    /*
-    * volatile because only one Thread may set this (pause/unpause),
-    * the main Thread from the test 
+    * volatile because we don't want to synchronize access 
+    * here for queue operations "offer" and "take", but we
+    * need the Thread visibility to be correct
     */
    private volatile BlockingQueue<E> currentQueue;
 

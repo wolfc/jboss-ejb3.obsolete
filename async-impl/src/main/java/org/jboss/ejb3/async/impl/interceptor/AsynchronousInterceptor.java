@@ -31,7 +31,6 @@ import javax.ejb.Asynchronous;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
-import org.jboss.ejb3.async.impl.future.AsyncFutureWrapper;
 import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.logging.Logger;
@@ -83,7 +82,7 @@ public class AsynchronousInterceptor implements Interceptor
    /* (non-Javadoc)
     * @see org.jboss.aop.advice.Interceptor#invoke(org.jboss.aop.joinpoint.Invocation)
     */
-   public Object invoke(Invocation invocation) throws Throwable
+   public Object invoke(final Invocation invocation) throws Throwable
    {
       // If asynchronous
       if (this.isAsyncInvocation(invocation))
@@ -108,28 +107,29 @@ public class AsynchronousInterceptor implements Interceptor
     * a queue for asynchronous processing, returning 
     * a handle to the task
     */
-   private Future<?> invokeAsync(Invocation invocation)
+   private Future<?> invokeAsync(final Invocation invocation)
    {
       // Get the target container
-      AsyncInvocationProcessor container = this.getInvocationProcessor(invocation);
+      final AsyncInvocationProcessor container = this.getInvocationProcessor(invocation);
 
       // Get the ExecutorService
-      ExecutorService executorService = container.getAsynchronousExecutor();
+      final ExecutorService executorService = container.getAsynchronousExecutor();
 
       // Get the existing SecurityContext
-      SecurityContext sc = SecurityActions.getSecurityContext();
+      final SecurityContext sc = SecurityActions.getSecurityContext();
+
+      // Copy the invocation (must be done for Thread safety, as we spawn this off and 
+      // subsequent calls can mess with the internal interceptor index
+      final Invocation nextInvocation = invocation.copy();
 
       // Make the asynchronous task from the invocation
-      Callable<Object> asyncTask = new AsyncInvocationTask<Object>(invocation.copy(), sc);
+      final Callable<Object> asyncTask = new AsyncInvocationTask<Object>(nextInvocation, sc);
 
       // Short-circuit the invocation into new Thread 
-      Future<Object> task = executorService.submit(asyncTask);
-
-      // Make a Future handle for the caller
-      Future<Object> handle = new AsyncFutureWrapper(task);
+      final Future<Object> task = executorService.submit(asyncTask);
 
       // Return
-      return handle;
+      return task;
    }
 
    /**
@@ -138,15 +138,15 @@ public class AsynchronousInterceptor implements Interceptor
     * 
     * EJB 3.1 4.5.2.2
     */
-   private boolean isAsyncInvocation(Invocation invocation)
+   private boolean isAsyncInvocation(final Invocation invocation)
    {
       // Precondition check
       assert invocation instanceof MethodInvocation : this.getClass().getName() + " supports only "
             + MethodInvocation.class.getSimpleName() + ", but has been passed: " + invocation;
-      MethodInvocation si = (MethodInvocation) invocation;
+      final MethodInvocation si = (MethodInvocation) invocation;
 
       // Get the actual method
-      Method actualMethod = si.getActualMethod();
+      final Method actualMethod = si.getActualMethod();
 
       // Determine if asynchronous (either returns Future or has @Asynchronous)
       if (invocation.resolveAnnotation(Asynchronous.class) != null || actualMethod.getReturnType().equals(Future.class))
@@ -181,8 +181,10 @@ public class AsynchronousInterceptor implements Interceptor
     * 
     * @return
     */
-   private AsyncInvocationProcessor getInvocationProcessor(Invocation invocation)
+   private AsyncInvocationProcessor getInvocationProcessor(final Invocation invocation)
    {
+      //TODO This won't work when we integrate w/ ejb3-core, as Advisor will need:
+      // ((ManagedObjectAdvisor) invocation.getAdvisor()).getContainer().getEJBContainer();
       return (AsyncInvocationProcessor) ((ManagedObjectAdvisor) invocation.getAdvisor()).getContainer();
    }
 
@@ -196,14 +198,14 @@ public class AsynchronousInterceptor implements Interceptor
     */
    private class AsyncInvocationTask<V> implements Callable<V>
    {
-      private Invocation invocation;
+      private final Invocation invocation;
 
       /**
        * SecurityContext to use for the invocation
        */
-      private SecurityContext sc;
+      private final SecurityContext sc;
 
-      public AsyncInvocationTask(Invocation invocation, SecurityContext sc)
+      public AsyncInvocationTask(final Invocation invocation, final SecurityContext sc)
       {
          this.invocation = invocation;
          this.sc = sc;
@@ -213,7 +215,7 @@ public class AsynchronousInterceptor implements Interceptor
       public V call() throws Exception
       {
          // Get existing security context
-         SecurityContext oldSc = SecurityActions.getSecurityContext();
+         final SecurityContext oldSc = SecurityActions.getSecurityContext();
 
          try
          {

@@ -101,6 +101,14 @@ public class SimpleAsyncTestCase
 
       // Ensure the value is expected
       TestCase.assertEquals("Did not obtain expected result", Pojo.VALUE, result);
+
+      // Ensure the result reports as done
+      boolean isDone = futureResult.isDone();
+      TestCase.assertTrue("Completed task did not report as done", isDone);
+
+      // Ensure the result does not report as cancelled
+      boolean isCancelled = futureResult.isCancelled();
+      TestCase.assertFalse("Completed task reported as cancelled", isCancelled);
    }
 
    /**

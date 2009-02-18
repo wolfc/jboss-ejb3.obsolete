@@ -19,12 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.impl.test.common;
+package org.jboss.ejb3.async.impl.test.cancel;
 
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.ejb3.async.impl.test.cancel.PausableBlockingQueue;
+import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
+import org.jboss.ejb3.async.impl.util.concurrent.ResultUnwrappingThreadPoolExecutor;
 import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
 
 /**
@@ -39,14 +39,6 @@ public class PausableProcessingAsyncContainer<T> extends ThreadPoolAsyncContaine
       implements
          AsyncInvocationProcessor
 {
-   // --------------------------------------------------------------------------------||
-   // Instance Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   /**
-    * To be used for asynchronous invocations
-    */
-   private ThreadPoolExecutor asynchronousExecutor;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
@@ -54,26 +46,8 @@ public class PausableProcessingAsyncContainer<T> extends ThreadPoolAsyncContaine
 
    public PausableProcessingAsyncContainer(String name, String domainName, Class<? extends T> beanClass)
    {
-      super(name, domainName, beanClass, new ThreadPoolExecutor(3, 6, 3, TimeUnit.SECONDS,
+      super(name, domainName, beanClass, new ResultUnwrappingThreadPoolExecutor(3, 6, 3, TimeUnit.SECONDS,
             new PausableBlockingQueue<Runnable>(false)));
-   }
-
-   // --------------------------------------------------------------------------------||
-   // Required Implementations -------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   public ThreadPoolExecutor getAsynchronousExecutor()
-   {
-      return asynchronousExecutor;
-   }
-
-   // --------------------------------------------------------------------------------||
-   // Accessors / Mutators -----------------------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   public void setAsynchronousExecutor(ThreadPoolExecutor asynchronousExecutor)
-   {
-      this.asynchronousExecutor = asynchronousExecutor;
    }
 
 }

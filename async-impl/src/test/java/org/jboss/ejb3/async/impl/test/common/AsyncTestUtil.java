@@ -19,24 +19,25 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.impl.hack;
+package org.jboss.ejb3.async.impl.test.common;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import org.jboss.ejb3.async.impl.util.concurrent.ResultUnwrappingThreadPoolExecutor;
 
 /**
- * DevelopmentHacks
+ * AsyncTestUtil
  * 
- * A hack access class used solely in development.  Provides
- * tight coupling between components which will later be bound
+ * A utility class used solely in tests.  Provides
+ * tight coupling between components which will typically be
  * together as configurable beans via MC
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-//TODO Move everything out of here as noted in comments
-@Deprecated
-public final class DevelopmentHacks
+public final class AsyncTestUtil
 {
 
    // --------------------------------------------------------------------------------||
@@ -46,7 +47,7 @@ public final class DevelopmentHacks
    /**
     * Non-instanciable
     */
-   private DevelopmentHacks()
+   private AsyncTestUtil()
    {
 
    }
@@ -57,15 +58,14 @@ public final class DevelopmentHacks
 
    /**
     * Obtains the default ExecutorService to be used for asynchronous
-    * invocations.  Will eventually be injected via MC, as a per-container
+    * invocations.  In reality, this is injected via MC, as a per-container
     * configurable property
     * 
     * @return 
     */
-   @Deprecated
    public static ExecutorService getDefaultAsyncExecutorService()
    {
-      return Executors.newCachedThreadPool();
+      return new ResultUnwrappingThreadPoolExecutor(3, 6, 3L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
    }
 
 }

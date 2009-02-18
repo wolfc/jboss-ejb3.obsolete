@@ -22,12 +22,13 @@
 package org.jboss.ejb3.async.impl.test.cancel.unit;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import junit.framework.TestCase;
 
 import org.jboss.aspects.common.AOPDeployer;
 import org.jboss.ejb3.async.impl.test.cancel.PausableBlockingQueue;
-import org.jboss.ejb3.async.impl.test.common.PausableProcessingAsyncContainer;
+import org.jboss.ejb3.async.impl.test.cancel.PausableProcessingAsyncContainer;
 import org.jboss.ejb3.async.impl.test.common.Pojo;
 import org.jboss.ejb3.async.impl.test.common.TestConstants;
 import org.jboss.ejb3.async.impl.test.simple.unit.SimpleAsyncTestCase;
@@ -77,22 +78,12 @@ public class CancelAsyncTaskTestCase
    // Tests --------------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /*
-    * In place just so Maven doesn't puke on no valid tests
-    */
-   @Test
-   @Deprecated
-   //TODO Remove
-   public void noopTest()
-   {
-   }
-
    /**
     * Tests that @Asynchronous invocations may be cancelled
     * 
     * @throws Throwable 
     */
-   //@Test
+   @Test
    @SuppressWarnings("unchecked")
    public void testCancelAsyncInvocation() throws Throwable
    {
@@ -100,7 +91,9 @@ public class CancelAsyncTaskTestCase
       BeanContext<Pojo> bean = container.construct();
 
       // Set the container to allow processing
-      PausableBlockingQueue<?> queue = (PausableBlockingQueue<?>) container.getAsynchronousExecutor().getQueue();
+      //TODO Relying on impls?
+      ThreadPoolExecutor executor = (ThreadPoolExecutor) container.getAsynchronousExecutor();
+      PausableBlockingQueue<?> queue = (PausableBlockingQueue<?>) executor.getQueue();
       queue.resume();
       log.info("Work queue is active");
 
@@ -135,7 +128,17 @@ public class CancelAsyncTaskTestCase
 
       // Cancel and test
       boolean isCancelled = secondIncrementCounterFuture.cancel(true);
-      TestCase.assertTrue("Request to cancel() not honored", isCancelled);
+      TestCase.assertTrue("Request to cancel() reporting not honored", isCancelled);
+      log.info("Request to cancel reports as honored");
+
+      // Ensure the cancelled task reports as done
+      boolean isDone = secondIncrementCounterFuture.isDone();
+      TestCase.assertTrue("Cancelled task did not report as done", isDone);
+      log.info("Request to cancel reports as done");
+
+      // Resume the work queue
+      queue.resume();
+      log.info("Work queue is active again");
 
       // Get the counter again, testing that it hasn't been incremented
       Future<Integer> secondIncrementCounterResultFuture = (Future<Integer>) container.invoke(bean,
@@ -143,6 +146,7 @@ public class CancelAsyncTaskTestCase
       int secondIncrementCounterResult = secondIncrementCounterResultFuture.get();
       TestCase.assertEquals("Second call to increment counter should have been cancelled", firstIncrementCounterResult,
             secondIncrementCounterResult);
+      log.info("Second call to increment counter was cancelled, counter = " + secondIncrementCounterResult);
 
    }
 
