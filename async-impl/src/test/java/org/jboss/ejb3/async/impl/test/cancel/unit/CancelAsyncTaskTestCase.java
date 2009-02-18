@@ -23,7 +23,6 @@ package org.jboss.ejb3.async.impl.test.cancel.unit;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
@@ -171,12 +170,8 @@ public class CancelAsyncTaskTestCase
       log.info("Work queue is paused");
 
       // Increment the counter, then get the result
-      final Future<Void> incrementCounterWhilePauseFuture = (Future<Void>) container.invoke(bean,
-            TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
+      container.invoke(bean, TestConstants.METHOD_NAME_INCREMENT_COUNTER_ASYNCHRONOUS);
       log.info("Sent another request to increment the counter while work queue is paused");
-
-      // Block until done (w/ some sensible Timeout in case of bad blocking)
-      incrementCounterWhilePauseFuture.get(3, TimeUnit.SECONDS);
 
       // Resume the work queue
       queue.resume();
