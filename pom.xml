@@ -364,7 +364,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-timerservice-spi</artifactId>
-      <version>0.1.0-alpha-1</version>
+      <version>1.0.0</version>
     </dependency>
 
     <dependency>
