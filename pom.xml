@@ -13,7 +13,7 @@
   <!-- Artifact Information -->
   <artifactId>jboss-ejb3-timerservice-spi</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>JBoss EJB 3.x TimerService SPI</name>
   <description>JBoss EJB 3.x TimerService SPI</description>
   <url>http://labs.jboss.com/jbossejb3/</url>
@@ -29,4 +29,10 @@
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>    
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-timerservice-spi-1.0.0</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-timerservice-spi-1.0.0</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-timerservice-spi-1.0.0</url>
+  </scm>
 </project>
