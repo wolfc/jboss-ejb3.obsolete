@@ -10,7 +10,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>jboss-ejb3-interceptors</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JBoss EJB 3.0 Interceptors</name>
   <url>http://www.jboss.org</url>
@@ -106,10 +106,4 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-interceptors) jboss-ejb3-interceptors-1.0.1</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-interceptors) jboss-ejb3-interceptors-1.0.1</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/(org.jboss.ejb3:jboss-ejb3-interceptors) jboss-ejb3-interceptors-1.0.1</url>
-  </scm>
 </project>
