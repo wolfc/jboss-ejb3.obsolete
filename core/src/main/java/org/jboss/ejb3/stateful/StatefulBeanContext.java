@@ -993,7 +993,7 @@ public class StatefulBeanContext
          {
             ArrayList list = new ArrayList();
             list.addAll(interceptorInstances.values());
-            beanAndInterceptors[2] = list;
+            beanAndInterceptors[3] = list;
          }
 //         beanAndInterceptors[3] = contains;
          
