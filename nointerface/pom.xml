@@ -22,10 +22,37 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
   <description>No-Interface implementation for EJB as defined by section 3.4.4 in EJB3.1 spec</description>
 
   <properties>
+      <version.org.jboss.deployers>[2.0.0.CR5]</version.org.jboss.deployers>
       <version.org.jboss_jboss-vfs>2.0.1.GA</version.org.jboss_jboss-vfs>
       <version.javassist>3.7.1.GA</version.javassist>
+      <version.org.jboss.ejb3_jboss-ejb3-test>1.0.0</version.org.jboss.ejb3_jboss-ejb3-test>
+      <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss-ejb3-deployers>
+
   </properties>
 
+ <build>
+
+     <testResources>
+    <testResource>
+      <!-- Relative to tests-classes -->
+      <targetPath>../test-resources</targetPath>
+      <directory>${basedir}/src/test/resources</directory>
+    </testResource>
+   </testResources>
+   <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <additionalClasspathElements>
+                <additionalClasspathElement>${basedir}/target/test-resources</additionalClasspathElement>
+
+          </additionalClasspathElements>
+        </configuration>
+      </plugin>
+    </plugins>
+
+  </build>
 
 
 
@@ -39,12 +66,30 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <scope>test</scope>
     </dependency>
 
+    <!-- Test support from jboss-ejb3-test -->
+    <dependency>
+     <groupId>org.jboss.ejb3</groupId>
+     <artifactId>jboss-ejb3-test</artifactId>
+     <version>${version.org.jboss.ejb3_jboss-ejb3-test}</version>
+     <scope>test</scope>
+    </dependency>
+
+    <!-- Bootstrap -->
+    <dependency>
+      <groupId>org.jboss.bootstrap</groupId>
+      <artifactId>jboss-bootstrap</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+
     <dependency>
       <groupId>javassist</groupId>
       <artifactId>javassist</artifactId>
       <version>${version.javassist}</version>
     </dependency>
 
+  <!-- JBoss logging -->
    <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-spi</artifactId>
@@ -55,6 +100,78 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <artifactId>jboss-ejb-api</artifactId>
     </dependency>
 
+   <!--  JBoss Metadata -->
+   <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+    </dependency>
+
+    <!-- JBoss deployers -->
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-core-spi</artifactId>
+      <version>${version.org.jboss.deployers}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-impl</artifactId>
+      <version>${version.org.jboss.deployers}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-vfs</artifactId>
+      <version>${version.org.jboss.deployers}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-structure-spi</artifactId>
+      <version>${version.org.jboss.deployers}</version>
+    </dependency>
+
+  <!-- EJB3 deployers only for test scope-->
+   <dependency>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-deployers</artifactId>
+    <version>${version.org.jboss.ejb3_jboss-ejb3-deployers}</version>
+    <scope>test</scope>
+   </dependency>
+
+   <!-- Note: Finally this dependency on core needs to go -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-core</artifactId>
+      <version>1.0.0</version>
+
+      <exclusions>
+          <exclusion>
+                <groupId>org.jboss</groupId>
+                <artifactId>jboss-transaction-spi</artifactId>
+            </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+
+
+      <!-- The EJB3.1 API support (ex: @LocalBean) -->
+      <dependency>
+       <groupId>org.jboss.ejb3</groupId>
+       <artifactId>jboss-ejb3-api</artifactId>
+       <version>3.1.0-SNAPSHOT</version>
+      </dependency>
+ <!-- Transaction support for tests -->
+ <!-- This jboss-ejb3-jta-profile dependency provides a jboss-beans.xml through which the transaction manager gets deployed -->
+  <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-jta-profile</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
 
     </dependencies>
 </project>

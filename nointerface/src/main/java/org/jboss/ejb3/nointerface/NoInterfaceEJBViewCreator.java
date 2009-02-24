@@ -21,9 +21,12 @@
  */
 package org.jboss.ejb3.nointerface;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javassist.ClassPool;
@@ -34,6 +37,7 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * NoInterfaceEJBViewCreator
@@ -102,8 +106,8 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
             beanCtClass);
 
       // We need to maintain a reference of the container in the proxy, so that we can
-      // forward the method calls to container.invoke. Create a new field in the sub-class (proxy)
-      CtField containerField = CtField.make("private java.lang.reflect.InvocationHandler container;", proxyCtClass);
+      // forward the method calls to invocationHandler.invoke. Create a new field in the sub-class (proxy)
+      CtField containerField = CtField.make("private java.lang.reflect.InvocationHandler invocationHandler;", proxyCtClass);
       proxyCtClass.addField(containerField);
 
       // get all public methods from the bean class
@@ -130,19 +134,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
          // then it will be changed in the proxy to
          // public String sayHi(String name) { java.lang.reflect.Method currentMethod = beanClass.getName() + ".class.getMethod(theMethodName,params);
          // return container.invoke(this,currentMethod,args); }
-         proxyPublicMethod.setBody("{"
-               +
-               // The proxy needs to call the container.invoke
-               // the InvocationHandler.invoke accepts (Object proxy,Method method,Object[] args)
-               // The proxy needs to create a java.lang.reflect.Method object based on the "current method"
-               // that is invoked on the proxy. Note that we need to get the Method from the super class (i.e. the
-               // bean class) of the proxy, since that's our "target" method
-               // Note: All the '$' parameters used are javassist specific syntax
-               "java.lang.reflect.Method currentMethod = " + beanClass.getName() + ".class.getMethod(\""
-               + beanPublicMethod.getName() + "\",$sig);" +
-               // At this point we have the container, the proxy, the Method to be invoked and the parameters to be passed
-               // All we have to do is invoke the container
-               "return ($r) container.invoke((java.lang.Object)this,currentMethod,$args);" + "}");
+         proxyPublicMethod = overridePublicMethod(container, beanClass, beanPublicMethod, proxyPublicMethod);
          // We have now created the overriden method. We need to add it to the proxy
          proxyCtClass.addMethod(proxyPublicMethod);
          if (logger.isTraceEnabled())
@@ -151,19 +143,41 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
                   + proxyCtClass.getName() + " for bean " + beanClass.getName());
          }
       }
+      // Add java.io.Serializable as the interface for the proxy (since it goes into JNDI)
+      proxyCtClass.addInterface(pool.get(Serializable.class.getName()));
+
       // We are almost done (except for setting the container field in the proxy)
       // Let's first create a java.lang.Class (i.e. load) out of the javassist class
       // using the classloader of the bean
       Class<?> proxyClass = proxyCtClass.toClass(beanClass.getClassLoader());
       // time to set the container field through normal java reflection
       Object proxyInstance = proxyClass.newInstance();
-      Field containerInProxy = proxyClass.getDeclaredField("container");
+      Field containerInProxy = proxyClass.getDeclaredField("invocationHandler");
       containerInProxy.setAccessible(true);
       containerInProxy.set(proxyInstance, container);
 
       // return the proxy instance
       return beanClass.cast(proxyInstance);
 
+   }
+
+   protected <T> CtMethod overridePublicMethod(InvocationHandler container, Class<T> beanClass,
+         CtMethod publicMethodOnBean, CtMethod publicMethodOnProxy) throws Exception
+   {
+      publicMethodOnProxy.setBody("{"
+            +
+            // The proxy needs to call the container.invoke
+            // the InvocationHandler.invoke accepts (Object proxy,Method method,Object[] args)
+            // This view needs to create a java.lang.reflect.Method object based on the "current method"
+            // that is invoked on the view. Note that we need to get the Method from the beanclass.
+            // Note: All the '$' parameters used are javassist specific syntax
+            "java.lang.reflect.Method currentMethod = " + beanClass.getName() + ".class.getMethod(\""
+            + publicMethodOnBean.getName() + "\",$sig);" +
+            // At this point we have the container, the Method to be invoked and the parameters to be passed
+            // All we have to do is invoke the container
+            "return ($r) invocationHandler.invoke(this,currentMethod,$args);" + "}");
+
+      return publicMethodOnProxy;
    }
 
    /**
@@ -173,7 +187,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
     * @return
     * @throws Exception
     */
-   private Set<CtMethod> getAllPublicNonStaticNonFinalMethods(CtClass ctClass) throws Exception
+   protected Set<CtMethod> getAllPublicNonStaticNonFinalMethods(CtClass ctClass) throws Exception
    {
       CtMethod[] allMethods = ctClass.getMethods();
       Set<CtMethod> publicMethods = new HashSet<CtMethod>();
@@ -202,19 +216,18 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
     * @return
     * @throws Exception
     */
-   private boolean shouldMethodBeSkipped(CtClass beanCtClass, CtMethod ctMethod) throws Exception
+   protected boolean shouldMethodBeSkipped(CtClass beanCtClass, CtMethod ctMethod) throws Exception
    {
 
-      //      List<CtMethod> declaredMethods = Arrays.asList(beanCtClass.getDeclaredMethods());
-      //      if (declaredMethods.contains(ctMethod))
-      //      {
-      //         return false;
-      //      }
-      //      CtClass objectCtClass = ClassPool.getDefault().get(Object.class.getName());
-      //      CtMethod[] methodsInObjectClass = objectCtClass.getMethods();
-      //      List<CtMethod> methodsToBeSkipped = Arrays.asList(methodsInObjectClass);
-      //      return methodsToBeSkipped.contains(ctMethod);
-      return false;
+      List<CtMethod> declaredMethods = Arrays.asList(beanCtClass.getDeclaredMethods());
+      if (declaredMethods.contains(ctMethod))
+      {
+         return false;
+      }
+      CtClass objectCtClass = ClassPool.getDefault().get(Object.class.getName());
+      CtMethod[] methodsInObjectClass = objectCtClass.getMethods();
+      List<CtMethod> methodsToBeSkipped = Arrays.asList(methodsInObjectClass);
+      return methodsToBeSkipped.contains(ctMethod);
 
    }
 
@@ -223,7 +236,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
     *
     * @return
     */
-   private long getNextUniqueNumber()
+   protected long getNextUniqueNumber()
    {
       synchronized (nextUniqueNumberLock)
       {

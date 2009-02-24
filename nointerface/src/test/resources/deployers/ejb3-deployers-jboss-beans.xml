@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <bean name="EjbAnnotationMetaDataDeployer" class="org.jboss.ejb3.deployers.EjbAnnotationMetaDataDeployer"/>
+ <bean name="MergedJBossMetaDataDeployer" class="org.jboss.ejb3.deployers.MergedJBossMetaDataDeployer"/>
+
+   <!-- No-interface view deployer - works on JBossMetadata and creates a NoInterfaceMCBean -->
+  <bean name="Ejb3NoInterfaceViewDeployer" class="org.jboss.ejb3.nointerface.deployers.EJB3NoInterfaceDeployer"/>
+
+<!-- To create the containers -->
+   <bean name="EjbModuleDeployer" class="org.jboss.ejb3.nointerface.test.deployers.EjbModuleDeployer"/>
+   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.nointerface.test.deployers.EjbComponentDeployer"/>
+
+  <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.resolvers.DefaultMessageDestinationReferenceResolver"/>
+
+   <!-- EJB containers need this cached connection manager -->
+   <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.nointerface.test.connectionmanager.MockCachedConnectionManager"/>
+
+   <!-- EJB3 Cache Factory Registry -->
+   <bean name="EJB3CacheFactoryRegistry" class="org.jboss.ejb3.cache.CacheFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- NoPassivationCache -->
+            <entry>
+               <key>NoPassivationCache</key>
+               <value>org.jboss.ejb3.cache.NoPassivationCacheFactory</value>
+            </entry>
+            <!-- SimpleStatefulCache -->
+            <entry>
+               <key>SimpleStatefulCache</key>
+               <value>org.jboss.ejb3.cache.simple.SimpleStatefulCacheFactory</value>
+            </entry>
+            <!-- StatefulTreeCache -->
+            <entry>
+               <key>StatefulTreeCache</key>
+               <value>org.jboss.ejb3.cache.tree.StatefulTreeCacheFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+
+   <!-- EJB3 Persistence Manager Factory Registry -->
+   <bean name="EJB3PersistenceManagerFactoryRegistry" class="org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- StatefulSessionFilePersistenceManager -->
+            <entry>
+               <key>StatefulSessionFilePersistenceManager</key>
+               <value>org.jboss.ejb3.cache.simple.StatefulSessionFilePersistenceManagerFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+
+   <!-- EJB3 Pool Factory Registry -->
+   <bean name="EJB3PoolFactoryRegistry" class="org.jboss.ejb3.pool.PoolFactoryRegistry">
+      <property name="factories">
+         <!-- Define each of the registered factories -->
+         <map class="java.util.HashMap" keyClass="java.lang.String"
+            valueClass="java.lang.Class">
+            <!-- ThreadlocalPool -->
+            <entry>
+               <key>ThreadlocalPool</key>
+               <value>org.jboss.ejb3.pool.ThreadlocalPoolFactory</value>
+            </entry>
+            <!-- StrictMaxPool -->
+            <entry>
+               <key>StrictMaxPool</key>
+               <value>org.jboss.ejb3.pool.StrictMaxPoolFactory</value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+
+
+</deployment>

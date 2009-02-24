@@ -3,7 +3,7 @@
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
-  *
+ *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,64 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.nointerface.test.viewcreator;
+package org.jboss.ejb3.nointerface.test.deployers;
 
-import javax.ejb.Stateless;
-
-import org.jboss.logging.Logger;
+import org.jboss.deployers.spi.deployer.helpers.AbstractTopLevelClassLoaderDeployer;
+import org.jboss.deployers.structure.spi.DeploymentUnit;
 
 /**
- * SimpleSLSBWithoutInterface
- *
- * @author Jaikiran Pai
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Stateless
-//@LocalBean
-public class SimpleSLSBWithoutInterface
+public class SimpleClassLoaderDeployer extends AbstractTopLevelClassLoaderDeployer
 {
-
-   /**
-    * Logger
-    */
-   private static Logger logger = Logger.getLogger(SimpleSLSBWithoutInterface.class);
-
-   public Object container;
-
-   public void simplePublicMethod()
+   @Override
+   protected ClassLoader createTopLevelClassLoader(DeploymentUnit unit) throws Exception
    {
-      // do nothing
-   }
-
-   private void somePrivateMethod()
-   {
-      // do nothing
-
-   }
-
-   public static void someStaticMethod()
-   {
-      // do nothing
-   }
-
-   public String sayHi(String name)
-   {
-      return "Hi " + name;
-   }
-
-//   @Override
-//   public String toString()
-//   {
-//      return "Test - " + this.getClass().getName();
-//   }
-
-   public final String someFinalMethod()
-   {
-      return "someFinalMethod";
-   }
-
-   public static final int someStaticFinalMethod(int number)
-   {
-      return number;
+      return Thread.currentThread().getContextClassLoader();
    }
 }

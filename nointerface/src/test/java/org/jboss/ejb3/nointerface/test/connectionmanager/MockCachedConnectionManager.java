@@ -19,64 +19,38 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.nointerface.test.viewcreator;
+package org.jboss.ejb3.nointerface.test.connectionmanager;
 
-import javax.ejb.Stateless;
+import java.util.Set;
 
-import org.jboss.logging.Logger;
+import javax.resource.ResourceException;
+
+import org.jboss.ejb3.EJBContainer;
+import org.jboss.jca.spi.ComponentStack;
 
 /**
- * SimpleSLSBWithoutInterface
+ * MockCachedConnectionManager
+ *
+ * The {@link EJBContainer} requires a cached connection manager of type
+ * {@link ComponentStack} to be injected. This {@link MockCachedConnectionManager}
+ * is just for use in the no-interface tests, and does not provide any real
+ * functionality
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-@Stateless
-//@LocalBean
-public class SimpleSLSBWithoutInterface
+public class MockCachedConnectionManager implements ComponentStack
 {
 
-   /**
-    * Logger
-    */
-   private static Logger logger = Logger.getLogger(SimpleSLSBWithoutInterface.class);
-
-   public Object container;
-
-   public void simplePublicMethod()
+   public void popMetaAwareObject(Set unsharableResources) throws ResourceException
    {
-      // do nothing
+      // this is a mock - do nothing
    }
 
-   private void somePrivateMethod()
+   public void pushMetaAwareObject(Object rawKey, Set unsharableResources) throws ResourceException
    {
-      // do nothing
+      // this is a mock - do nothing
 
    }
 
-   public static void someStaticMethod()
-   {
-      // do nothing
-   }
-
-   public String sayHi(String name)
-   {
-      return "Hi " + name;
-   }
-
-//   @Override
-//   public String toString()
-//   {
-//      return "Test - " + this.getClass().getName();
-//   }
-
-   public final String someFinalMethod()
-   {
-      return "someFinalMethod";
-   }
-
-   public static final int someStaticFinalMethod(int number)
-   {
-      return number;
-   }
 }
