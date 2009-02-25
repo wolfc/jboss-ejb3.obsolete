@@ -58,7 +58,7 @@ import org.jboss.util.Classes;
 public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
 {
    private static final Logger log = Logger.getLogger(ServiceMBeanDelegate.class);
-   
+
    MBeanServer server;
    ServiceContainer container;
    ObjectName serviceOn;
@@ -87,7 +87,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
       }
       mbeanInfo = mbean.getMBeanInfo();
    }
-   
+
    public ServiceMBeanDelegate(MBeanServer server, ServiceContainer container, String xmbean, ObjectName on)
    {
       this.container = container;
@@ -201,7 +201,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
    {
       if(log.isTraceEnabled())
          log.trace("invoke: " + actionName);
-      
+
       try
       {
          // EJBTHREE-655: intercept lifecycle methods
@@ -210,7 +210,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
 //            invokeMagicLifecycleMethod(actionName);
 //            return null;
 //         }
-         
+
          Method operation = getOperation(actionName, signature);
          return container.localInvoke(operation, params);
       }
@@ -231,7 +231,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
       //Not really the signature, just something unique
       StringBuffer sig = new StringBuffer();
       sig.append(actionName);
-      
+
       if (types != null)
       {
          for (int i = 0; i < types.length; i++)
@@ -358,7 +358,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
    private Method getOperation(String actionName, String[] signature) throws ReflectionException
    {
       String opSig = getOperationSignature(actionName, signature);
-      Method operation = operations.get(actionName);
+      Method operation = operations.get(opSig);
 
       if (operation == null && !setterBlackList.contains(opSig))
       {
@@ -452,7 +452,7 @@ public class ServiceMBeanDelegate implements DynamicMBean, XMBeanConstants
       else
          throw new IllegalArgumentException("can't invoke " + operationName);
    }
-   
+
    protected boolean isMagicLifecycleMethod(String methodName)
    {
       if(methodName.equals("create"))
