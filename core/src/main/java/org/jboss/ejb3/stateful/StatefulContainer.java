@@ -1334,6 +1334,16 @@ public class StatefulContainer extends SessionSpecContainer
 //      throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");
    }
 
+   protected void popEnc()
+   {
+      super.popEnc();
+   }
+   
+   protected void pushEnc()
+   {
+      super.pushEnc();
+   }
+   
    /**
     * Remove the given object. Called when remove on Home is invoked.
     * 
