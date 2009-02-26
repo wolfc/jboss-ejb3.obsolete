@@ -35,6 +35,7 @@ import javax.transaction.TransactionManager;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.ejb.AllowedOperationsAssociation;
+import org.jboss.ejb3.BeanContext;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
 
@@ -72,6 +73,10 @@ public class SessionSynchronizationInterceptor implements Interceptor
       public void beforeCompletion()
       {
          SessionSynchronization bean = (SessionSynchronization) ctx.getInstance();
+         // The bean might be lost in action if an exception is thrown in afterBegin
+         if(bean == null)
+            return;
+         pushEnc();
          try
          {
             // FIXME: This is a dirty hack to notify AS EJBTimerService about what's going on
@@ -86,6 +91,7 @@ public class SessionSynchronizationInterceptor implements Interceptor
          finally
          {
             AllowedOperationsAssociation.popInMethodFlag();
+            popEnc();
          }
       }
 
@@ -93,6 +99,10 @@ public class SessionSynchronizationInterceptor implements Interceptor
       {
          ctx.setTxSynchronized(false);
          SessionSynchronization bean = (SessionSynchronization) ctx.getInstance();
+         // The bean might be lost in action if an exception is thrown in afterBegin
+         if(bean == null)
+            return;
+         pushEnc();
          try
          {
             if (status == Status.STATUS_COMMITTED)
@@ -109,9 +119,25 @@ public class SessionSynchronizationInterceptor implements Interceptor
          }
          finally
          {
+            popEnc();
             StatefulContainer container = (StatefulContainer) ctx.getContainer();
             container.getCache().release(ctx);
          }
+      }
+      
+      private void popEnc()
+      {
+         StatefulContainer container = ctx.getContainer();
+         BeanContext<?> old = container.popContext();
+         assert old == ctx;
+         container.popEnc();
+      }
+      
+      private void pushEnc()
+      {
+         StatefulContainer container = ctx.getContainer();
+         container.pushEnc();
+         container.pushContext(ctx);
       }
    }
 

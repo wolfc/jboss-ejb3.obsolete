@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Do not deploy, unless you know what're doing -->
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <bean name="ControlledTransactionManager" class="org.jboss.ejb3.core.test.common.tx.ControlledTransactionService">
+      <property name="transactionManager"><inject bean="RealTransactionManager"/></property>
+   </bean>
+</deployment>
