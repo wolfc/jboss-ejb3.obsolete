@@ -55,7 +55,6 @@ import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
-import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
 import org.jboss.ejb3.resolvers.DefaultMessageDestinationReferenceResolver;
 import org.jboss.ejb3.resolvers.MessageDestinationReferenceResolver;
 import org.jboss.injection.InjectionHandler;
@@ -204,19 +203,6 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    public void setCacheFactoryRegistry(CacheFactoryRegistry registry)
    {
       this.cacheFactoryRegistry = registry;
-   }
-
-   @Deprecated
-   public RemoteProxyFactoryRegistry getRemoteProxyFactoryRegistry()
-   {
-      log.warn("[EJBTHREE-1641] NoOp getRemoteProxyFactoryRegistry; developers may ignore this message; it will be removed when backwards-compatibility between EJB3 and AS is resolved");
-      return null;
-   }
-   
-   @Deprecated
-   public void setRemoteProxyFactoryRegistry(RemoteProxyFactoryRegistry registry)
-   {
-      log.warn("[EJBTHREE-1641] NoOp setRemoteProxyFactoryRegistry; developers may ignore this message; it will be removed when backwards-compatibility between EJB3 and AS is resolved");
    }
 
    public PersistenceManagerFactoryRegistry getPersistenceManagerFactoryRegistry()
