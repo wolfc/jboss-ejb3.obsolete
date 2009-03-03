@@ -5,8 +5,6 @@
    <bean name="EjbAnnotationMetaDataDeployer" class="org.jboss.ejb3.deployers.EjbAnnotationMetaDataDeployer"/>
  <bean name="MergedJBossMetaDataDeployer" class="org.jboss.ejb3.deployers.MergedJBossMetaDataDeployer"/>
 
-   <!-- No-interface view deployer - works on JBossMetadata and creates a NoInterfaceMCBean -->
-  <bean name="Ejb3NoInterfaceViewDeployer" class="org.jboss.ejb3.nointerface.deployers.EJB3NoInterfaceDeployer"/>
 
 <!-- To create the containers -->
    <bean name="EjbModuleDeployer" class="org.jboss.ejb3.nointerface.test.deployers.EjbModuleDeployer"/>

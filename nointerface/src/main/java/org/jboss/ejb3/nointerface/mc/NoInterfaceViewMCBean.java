@@ -21,14 +21,10 @@
  */
 package org.jboss.ejb3.nointerface.mc;
 
-import javax.naming.InitialContext;
-
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.beans.metadata.api.annotations.InstallMethod;
 import org.jboss.beans.metadata.api.annotations.UninstallMethod;
-import org.jboss.ejb3.NonSerializableFactory;
-import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
-import org.jboss.ejb3.nointerface.NoInterfaceViewInvocationHandler;
+import org.jboss.ejb3.nointerface.jndi.NoInterfaceViewJNDIBinder;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -67,6 +63,12 @@ public class NoInterfaceViewMCBean
    private JBossSessionBeanMetaData sessionBeanMetadata;
 
    /**
+    * The {@link NoInterfaceViewJNDIBinder} which will be used for binding
+    * the no-interface view/stateful factory for the corresponding bean
+    */
+   private NoInterfaceViewJNDIBinder jndiBinder;
+
+   /**
     * Constructor
     *
     * @param beanClass
@@ -76,6 +78,7 @@ public class NoInterfaceViewMCBean
    {
       this.beanClass = beanClass;
       this.sessionBeanMetadata = sessionBeanMetadata;
+      this.jndiBinder = NoInterfaceViewJNDIBinder.getJNDIBinder(sessionBeanMetadata);
    }
 
    /**
@@ -99,19 +102,7 @@ public class NoInterfaceViewMCBean
          logger.trace("Creating no-interface view for container " + this.container);
       }
 
-      // create the view
-      // Don't probably need to create an instance of view creator everytime. Maybe the
-      // view creator can provide "static" methods for creating view, since the creators
-      // don't really require to store any state.
-      NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-
-      Object noInterfaceView = noInterfaceViewCreator.createView(new NoInterfaceViewInvocationHandler(this.container),
-            this.beanClass);
-
-      // TODO: This does not belong here and the jndi binding part is still in discussion.
-      // This is just a temporary piece of code which binds the no-interface view to the ejbName
-      NonSerializableFactory.rebind(new InitialContext(), this.sessionBeanMetadata.getEjbName(), noInterfaceView);
-
+      this.jndiBinder.bindNoInterfaceView(this.beanClass, this.container, this.sessionBeanMetadata);
    }
 
    @UninstallMethod
@@ -131,4 +122,5 @@ public class NoInterfaceViewMCBean
       this.container = container;
 
    }
+
 }

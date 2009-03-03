@@ -21,15 +21,15 @@
  */
 package org.jboss.ejb3.nointerface.test.viewcreator.unit;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingEnumeration;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
 import org.jboss.ejb3.nointerface.test.common.AbstractNoInterfaceTestCase;
+import org.jboss.ejb3.nointerface.test.viewcreator.SimpleSFSBean;
 import org.jboss.ejb3.nointerface.test.viewcreator.SimpleSLSBWithoutInterface;
 import org.jboss.ejb3.test.common.MetaDataHelper;
 import org.jboss.logging.Logger;
@@ -54,6 +54,11 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
     */
    private static Logger logger = Logger.getLogger(NoInterfaceEJBViewCreatorTestCase.class);
 
+   /**
+    * Starts the bootstrap and deploys the test classes
+    *
+    * @throws Exception
+    */
    @BeforeClass
    public static void beforeClass() throws Exception
    {
@@ -62,6 +67,10 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
       deploy(getTestClassesURL());
    }
 
+   /**
+    * Shutdown
+    * @throws Exception
+    */
    @AfterClass
    public static void afterClass() throws Exception
    {
@@ -69,35 +78,59 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    }
 
    /**
-    * Test to ensure that all the public (non-static, non-final) methods on a bean
-    * are routed through the container
+    * Ensure that the no-interface view for an SLSB is bound to jndi
     *
     * @throws Exception
     */
    @Test
-   public void testNoInterfaceViewCreator() throws Exception
+   public void testSLSBNoInterfaceBinding() throws Exception
    {
 
       JBossSessionBeanMetaData sessionBeanMetadata = MetaDataHelper
             .getMetadataFromBeanImplClass(SimpleSLSBWithoutInterface.class);
-      String ejbName = sessionBeanMetadata.getEjbName();
-      logger.debug("Looking up " + ejbName);
-      Context ctx = new InitialContext();
-      NamingEnumeration<Binding> bindings = ctx.listBindings("");
-      boolean isNoInterfaceViewBound = false;
-      while (bindings.hasMoreElements())
-      {
-         Binding binding = bindings.nextElement();
-         if (binding.getName().equals(ejbName))
-         {
-            isNoInterfaceViewBound = true;
-            break;
-         }
 
-      }
-      assertTrue("No-interface view not bound at " + ejbName, isNoInterfaceViewBound);
+      // Right now, the no-interface view is bound to the ejb-name/no-interface
+      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + "/no-interface";
+      logger.debug("Looking up " + noInterfaceJndiName);
+      Context ctx = new InitialContext();
+
+      // check the view
+      Object noInterfaceView = ctx.lookup(noInterfaceJndiName);
+      assertNotNull("No-interface view for SLSB returned null from JNDI", noInterfaceView);
+
+      assertTrue("No-interface view for SLSB is not an instance of  " + SimpleSLSBWithoutInterface.class.getName(),
+            (noInterfaceView instanceof SimpleSLSBWithoutInterface));
+
    }
 
+   /**
+    * Ensure that the no-interface view (and corresponding factory) for an SFSB are bound to jndi
+    *
+    * @throws Exception
+    */
+   @Test
+   public void testSFSBNoInterfaceBindings() throws Exception
+   {
+      JBossSessionBeanMetaData sessionBeanMetadata = MetaDataHelper.getMetadataFromBeanImplClass(SimpleSFSBean.class);
+
+      // Right now, the no-interface view is bound to the ejb-name/no-interface
+      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + "/no-interface";
+      String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + "/no-interface-stateful-proxyfactory";
+      logger.debug("Looking up no-interface view for sfsb at " + noInterfaceJndiName);
+
+      Context ctx = new InitialContext();
+      // check the proxy factory
+      Object proxyFactory = ctx.lookup(statefulProxyFactoryJndiName);
+      assertNotNull("Stateful proxy factory for SFSB returned null from JNDI", proxyFactory);
+
+      // check the view
+      Object noInterfaceView = ctx.lookup(noInterfaceJndiName);
+      assertNotNull("No-interface view for SFSB returned null from JNDI", noInterfaceView);
+
+      assertTrue("No-interface view for SFSB is not an instance of  " + SimpleSFSBean.class.getName(),
+            (noInterfaceView instanceof SimpleSFSBean));
+
+   }
 
    // Other tests will be enabled once the component is more testable
 

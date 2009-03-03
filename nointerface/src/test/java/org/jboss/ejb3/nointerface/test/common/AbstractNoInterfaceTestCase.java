@@ -166,6 +166,7 @@ public abstract class AbstractNoInterfaceTestCase
     */
    public static void startServerConfiguration() throws Exception
    {
+
       deployDeployers();
 
       // Some of the deployers/mc beans come from the classpath jars (ex: For JTA support,
@@ -189,6 +190,7 @@ public abstract class AbstractNoInterfaceTestCase
    {
       // now deploy the deployers
       deploy(new File(SERVER_PROFILE_DEPLOYERS_DIR_PATH).toURL());
+
    }
 
    /**
@@ -231,14 +233,14 @@ public abstract class AbstractNoInterfaceTestCase
       mkdir(SERVER_PROFILE_TMP_NATIVE_DIR_PATH);
 
       Properties serverBootstrapProperties = new Properties();
-      serverBootstrapProperties.put(ServerConfig.HOME_DIR, serverHome.toString());
-      serverBootstrapProperties.put(ServerConfig.SERVER_HOME_DIR, serverProfileHome.toString());
+      serverBootstrapProperties.put(ServerConfig.HOME_DIR, serverHome.getPath());
+      serverBootstrapProperties.put(ServerConfig.SERVER_HOME_DIR, serverProfileHome.getPath());
 
       URL configDir = findDir(SERVER_PROFILE_CONFIG_DIR_PATH);
       serverBootstrapProperties.put(ServerConfig.SERVER_CONFIG_URL, configDir.toString());
       if (logger.isTraceEnabled())
       {
-         logger.trace("Config dir is " + configDir);
+         logger.trace("Config URL is " + configDir);
       }
 
       return serverBootstrapProperties;

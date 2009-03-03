@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+   <!-- No-interface view deployer - works on JBossMetadata and creates a NoInterfaceMCBean -->
+  <bean name="Ejb3NoInterfaceViewDeployer" class="org.jboss.ejb3.nointerface.deployers.EJB3NoInterfaceDeployer"/>
+
+</deployment>

@@ -125,7 +125,9 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          }
          Class<?> beanClass = Class.forName(sessionBeanMetaData.getEjbClass(), false, unit.getClassLoader());
 
-         // Doesn't work - returns null (in ejb3-test environment). So until then temporarily use a hack
+         // The container name is set in the metadata only after the creation of the container
+         // However, this deployer does not have an dependency on the creation of a container,
+         // so getting the container name from the bean metadata won't work. Need to do a different/better way
          //String containerMCBeanName = sessionBeanMetaData.getContainerName();
          JavaEEModule module = new SimpleJavaEEModule(unit.getSimpleName());
          String ejbName = sessionBeanMetaData.getEjbName();

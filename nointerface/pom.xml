@@ -27,26 +27,46 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <version.javassist>3.7.1.GA</version.javassist>
       <version.org.jboss.ejb3_jboss-ejb3-test>1.0.0</version.org.jboss.ejb3_jboss-ejb3-test>
       <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss-ejb3-deployers>
+      <version.org.jboss.bootstrap_jboss-bootstrap>1.0.0-Beta-1</version.org.jboss.bootstrap_jboss-bootstrap>
 
   </properties>
 
  <build>
-
-     <testResources>
+  <!--  we use the target/test-classes as our root of all the
+  deployments for our test cases. We cannot have other resources in that
+  folder which can cause deployment exceptions. So we create a new target/test-resources folder
+  where all resources (except) jndi.properties will be copied to during mvn -->
+  <testResources>
+    <!--  Copy everything except jndi.properties to target/test-resources -->
     <testResource>
       <!-- Relative to tests-classes -->
       <targetPath>../test-resources</targetPath>
       <directory>${basedir}/src/test/resources</directory>
+      <excludes>
+       <exclude>jndi.properties</exclude>
+      </excludes>
     </testResource>
+    <!-- Copy jndi.properties to target/tests-classes, so that its available
+    first in the list of classpath.
+     -->
+    <testResource>
+      <!-- Relative to tests-classes -->
+      <directory>${basedir}/src/test/resources</directory>
+      <includes>
+       <include>jndi.properties</include>
+      </includes>
+    </testResource>
+
    </testResources>
+
    <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+        <!-- Add our specific target/test-resources to the test classpath -->
           <additionalClasspathElements>
                 <additionalClasspathElement>${basedir}/target/test-resources</additionalClasspathElement>
-
           </additionalClasspathElements>
         </configuration>
       </plugin>
@@ -54,10 +74,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
   </build>
 
-
-
+ <!-- Dependencies -->
   <dependencies>
-
 
     <!-- JUnit support -->
     <dependency>
@@ -78,11 +96,11 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
     <dependency>
       <groupId>org.jboss.bootstrap</groupId>
       <artifactId>jboss-bootstrap</artifactId>
-      <version>1.0.0-Beta-1</version>
+      <version>${version.org.jboss.bootstrap_jboss-bootstrap}</version>
       <scope>test</scope>
     </dependency>
 
-
+  <!-- Javassist  -->
     <dependency>
       <groupId>javassist</groupId>
       <artifactId>javassist</artifactId>
