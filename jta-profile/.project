@@ -1,6 +1,9 @@
 <projectDescription>
   <name>jboss-ejb3-jta-profile</name>
-  <comment>For internal consumption: expose a JTA profile.</comment>
+  <comment>For internal consumption: expose a JTA profile.
+    
+    The goal is to provide runtime configuration which boots up the transaction manager
+    and a runtime dependency tree for use within Maven.</comment>
   <projects/>
   <buildSpec>
     <buildCommand>

@@ -77,7 +77,7 @@ public class SimpleUnitTestCase
       boolean success = file.mkdirs() || file.isDirectory();
       if(!success)
          throw new IOException("failed to create " + path);
-      return file.toURI().toURL().toString();
+      return file.getAbsolutePath();
    }
    
    @BeforeClass

@@ -63,7 +63,11 @@ public class LookupTransactionManagerTestCase
    public static void afterClass() throws Exception
    {
       if(server != null)
-         server.shutdown();
+      {
+         if(server.isStarted())
+            server.shutdown();
+         server = null;
+      }
    }
    
    @BeforeClass
@@ -112,7 +116,7 @@ public class LookupTransactionManagerTestCase
       boolean success = file.mkdirs() || file.isDirectory();
       if(!success)
          throw new IOException("failed to create " + path);
-      return file.toURI().toURL().toString();
+      return file.getAbsolutePath();
    }
    
    @Test
