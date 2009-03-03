@@ -282,6 +282,12 @@
       <jvmarg value="${ejb3.jboss.jvmargs}" />
     </server>
 
+  	<!-- ejbthree1629 -->
+    <server name="ejbthree1629" host="${node0}">
+      <jvmarg value="${ejb3.jboss.jvmargs}" />
+    </server>
+
+
   </server:config>
 
    <!-- =================== -->
@@ -4244,6 +4250,24 @@
          </fileset>
       </jar>
    </target>
+
+	<target name="ejbthree1629"
+	      description="Builds the jar file(s) needed for testing EJBTHREE-1629."
+	      >
+
+	      <delete file="${build.lib}/ejbthree1629.jar"/>
+               <mkdir dir="${build.lib}"/>
+
+		<jar jarfile="${build.lib}/ejbthree1629.jar">
+	         <fileset dir="${build.classes}">
+	            <include name="org/jboss/ejb3/test/ejbthree1629/*.class"/>
+	         </fileset>
+	         <fileset dir="${resources}/test/ejbthree1629">
+	            <include name="META-INF/*.xml"/>
+	         </fileset>
+		</jar>
+	</target>
+
    
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
@@ -4273,7 +4297,7 @@
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
-      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677"/>
+      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677, ejbthree1629"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
