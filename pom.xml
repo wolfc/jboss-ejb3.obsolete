@@ -48,6 +48,7 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3</artifactId>
       <version>${version.org.jboss.ejb3_jboss.ejb3}</version>
+      <type>pom</type>
     </dependency>
     
     <!-- jboss-ejb3-mc-int -->
