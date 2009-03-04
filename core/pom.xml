@@ -452,6 +452,7 @@
     <dependency>
       <groupId>org.jboss.javaee</groupId>
       <artifactId>jboss-servlet-api</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <!-- those needs to be removed - EJBTHREE-1340 -->
