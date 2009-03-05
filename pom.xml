@@ -114,27 +114,5 @@
       <optional>true</optional>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.metadata</groupId>
-      <artifactId>jboss-metadata</artifactId>
-      <version>1.0.0</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.jpa</groupId>
-      <artifactId>jboss-jpa-deployers</artifactId>
-      <version>1.0.0-Beta6</version>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.metadata</groupId>
-      <artifactId>jboss-metadata</artifactId>
-      <version>1.0.0.CR16</version>
-      <optional>true</optional>
-    </dependency>
-
-
   </dependencies>
 </project>

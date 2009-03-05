@@ -49,8 +49,6 @@
         <include>org.jboss.ejb3:jboss-ejb3-timerservice-as5:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-timerservice-spi:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-transactions:jar</include>
-        <include>org.jboss.metadata:jboss-metadata:jar</include>
-        <include>org.jboss.jpa:jboss-jpa-deployers:jar</include>
       </includes>
       <outputDirectory>lib</outputDirectory>
     </dependencySet>
