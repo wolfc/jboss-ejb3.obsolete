@@ -6,7 +6,7 @@
    version="1.0">
    <persistence-unit name="manager1">
       <jta-data-source>java:/DefaultDS</jta-data-source>
-      <jar-file>../util.jar</jar-file>
+      <jar-file>util.jar</jar-file>
       <properties>
          <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
          <property name="jboss.entity.manager.factory.jndi.name" value="java:/Manager1Factory"/>
