@@ -33,7 +33,6 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
-import org.jboss.ejb3.stateful.StatefulRemoteInvocation;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 
