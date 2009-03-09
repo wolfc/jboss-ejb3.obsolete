@@ -23,15 +23,17 @@ package org.jboss.ejb3.proxy.handler.session.stateful;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.handler.NotEligibleForDirectInvocationException;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.logging.Logger;
-import org.jboss.util.NotImplementedException;
 
 /**
  * StatefulProxyInvocationHandlerBase
@@ -54,6 +56,31 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
    private static final long serialVersionUID = 1L;
 
    private static final Logger log = Logger.getLogger(StatefulProxyInvocationHandlerBase.class);
+
+   private static final String METHOD_NAME_GET_SESSION_ID = "getSessionId";
+
+   private static final String METHOD_NAME_SET_SESSION_ID = "setSessionId";
+
+   private static final SerializableMethod METHOD_GET_SESSION_ID;
+
+   private static final SerializableMethod METHOD_SET_SESSION_ID;
+
+   static
+   {
+      try
+      {
+         METHOD_GET_SESSION_ID = new SerializableMethod(StatefulSessionProxy.class
+               .getDeclaredMethod(METHOD_NAME_GET_SESSION_ID));
+         METHOD_SET_SESSION_ID = new SerializableMethod(StatefulSessionProxy.class.getDeclaredMethod(
+               METHOD_NAME_SET_SESSION_ID, Serializable.class));
+      }
+      catch (NoSuchMethodException nsme)
+      {
+         throw new RuntimeException(
+               "Methods for handling directly by the InvocationHandler were not initialized correctly", nsme);
+      }
+
+   }
 
    // ------------------------------------------------------------------------------||
    // Instance Members -------------------------------------------------------------||
@@ -226,15 +253,41 @@ public abstract class StatefulProxyInvocationHandlerBase extends SessionSpecProx
       return (StatefulProxyInvocationHandlerBase) handler;
    }
 
-   // ------------------------------------------------------------------------------||
-   // TO BE IMPLEMENTED ------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.proxy.handler.ProxyInvocationHandler#getAsynchronousProxy(java.lang.Object)
+   /**
+    * Handles the current invocation directly in this invocation handler.  Only 
+    * a subset of method invocations are eligible for this treatment, else 
+    * a NotEligibleForDirectInvocationException will be thrown
+    * 
+    * @param proxy
+    * @param args Arguments of the current invocation
+    * @param invokedMethod The method invoked
+    * @return
+    * @throws NotEligibleForDirectInvocationException
     */
-   public Object getAsynchronousProxy(Object proxy)
+   @Override
+   protected Object handleInvocationDirectly(Object proxy, Object[] args, Method invokedMethod)
+         throws NotEligibleForDirectInvocationException
    {
-      throw new NotImplementedException("ALR");
+      // Obtain the invoked method
+      assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
+
+      // getSessionId
+      if (invokedMethod.equals(METHOD_GET_SESSION_ID.toMethod()))
+      {
+         return this.getSessionId();
+      }
+      // setSessionId
+      if (invokedMethod.equals(METHOD_SET_SESSION_ID.toMethod()))
+      {
+         assert args.length == 1 : "Expecting exactly one argument for invocation of " + METHOD_SET_SESSION_ID;
+         Object arg = args[0];
+         assert arg instanceof Serializable : "Argument must be instance of " + Serializable.class.getName();
+         Serializable id = (Serializable) arg;
+         this.setSessionId(id);
+         return null;
+      }
+
+      // Call to super
+      return super.handleInvocationDirectly(proxy, args, invokedMethod);
    }
 }

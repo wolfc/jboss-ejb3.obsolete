@@ -22,9 +22,7 @@
 package org.jboss.ejb3.test.proxy.common.container;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,7 +46,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.logging.Logger;
@@ -278,13 +276,12 @@ public abstract class SessionContainer implements InvokableContext
       Serializable sessionId = null;
 
       // Obtain the InvocationHandler
-      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      if (handler instanceof StatefulProxyInvocationHandlerBase)
+      if (proxy instanceof StatefulSessionProxy)
       {
-         StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
+         StatefulSessionProxy statefulProxy = (StatefulSessionProxy) proxy;
 
          // Get the Session ID
-         sessionId = sHandler.getSessionId();
+         sessionId = statefulProxy.getSessionId();
       }
 
       // Get the appropriate instance
