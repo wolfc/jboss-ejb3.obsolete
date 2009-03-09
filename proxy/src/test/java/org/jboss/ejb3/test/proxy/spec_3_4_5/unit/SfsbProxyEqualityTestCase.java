@@ -22,7 +22,6 @@
 package org.jboss.ejb3.test.proxy.spec_3_4_5.unit;
 
 import java.io.Serializable;
-import java.lang.reflect.Proxy;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -131,7 +130,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
    private void setSessionIdOnProxy(Object proxy, Serializable id)
    {
       // Get the InvocationHander for the Proxy
-      StatefulSessionProxy handler = (StatefulSessionProxy) Proxy.getInvocationHandler(proxy);
+      StatefulSessionProxy handler = (StatefulSessionProxy) proxy;
       handler.setSessionId(id);
    }
 
