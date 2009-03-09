@@ -1,7 +1,7 @@
 package org.jboss.ejb3.session;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Hashtable;
 
 import javax.ejb.EJB;
@@ -21,8 +21,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -105,16 +104,14 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          }
          Method unadvisedMethod = info.getUnadvisedMethod();
          SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
-         
 
-         // Obtain Invocation Handler
+         // Obtain Session ID
          //TODO Ugly, use polymorphism and get Session ID for SFSB only
-         assert Proxy.isProxyClass(proxy.getClass());
-         SessionProxyInvocationHandler handler = (SessionProxyInvocationHandler)Proxy.getInvocationHandler(proxy);
-         Object sessionId = null;
-         if (handler instanceof StatefulProxyInvocationHandlerBase)
+         Serializable sessionId = null;
+         if(proxy instanceof StatefulSessionProxy)
          {
-            sessionId = ((StatefulProxyInvocationHandlerBase) handler).getSessionId();
+            StatefulSessionProxy statefulProxy = (StatefulSessionProxy)proxy;
+            sessionId = statefulProxy.getSessionId();
          }
          
          /*
@@ -130,15 +127,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
             return invokeEJBObjectMethod(sessionId, info, args);
          }
 
-         // FIXME: Ahem, stateful container invocation works on all.... (violating contract though)
-         //TODO Use Polymorphism to have sessions only in StatefulContainer
-         
-//         Interceptor[] interceptors, long methodHash, Method advisedMethod,
-//         Method unadvisedMethod, SerializableMethod invokedMethod, Advisor advisor
-         
-//         StatefulSessionContainerMethodInvocation nextInvocation = new StatefulSessionContainerMethodInvocation(info
-//               .getInterceptors(), hash, info.getAdvisedMethod(), info.getUnadvisedMethod(), method, getAdvisor());
-         
+         // FIXME: Ahem, stateful container invocation works on all.... (violating contract though)         
          /*
           * Build an invocation
           */
@@ -147,20 +136,6 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          nextInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
                SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, method);
          nextInvocation.setArguments(args);
-         
-         
-         //nextInvocation.setAdvisor(getAdvisor());
-         //nextInvocation.setSessionId(sessionId);
-//         EJBContainerInvocation nextInvocation = new StatefulContainerInvocation(info, sessionId);
-//         nextInvocation.setAdvisor(getAdvisor());
-//         nextInvocation.setArguments(args);
-
-         // allow a container to supplement information into an invocation
-         //nextInvocation = populateInvocation(nextInvocation);
-
-         //TODO Support Async Invocation
-         //         ProxyUtils.addLocalAsynchronousInfo(nextInvocation, provider);
-        
          
          /*
           * Invoke
