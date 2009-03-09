@@ -71,7 +71,6 @@ import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
 import org.jboss.ejb3.proxy.impl.HomeHandleImpl;
-import org.jboss.ejb3.proxy.invocation.StatefulRemoteInvocation;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
