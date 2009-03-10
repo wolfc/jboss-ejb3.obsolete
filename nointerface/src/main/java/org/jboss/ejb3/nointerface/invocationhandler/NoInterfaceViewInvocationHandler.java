@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
@@ -38,7 +39,7 @@ import org.jboss.ejb3.proxy.container.InvokableContext;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public abstract class NoInterfaceViewInvocationHandler implements InvocationHandler
+public class NoInterfaceViewInvocationHandler implements InvocationHandler
 {
 
    /**
@@ -47,7 +48,9 @@ public abstract class NoInterfaceViewInvocationHandler implements InvocationHand
     * container.
     *
     */
-   protected InvokableContext container;
+   private InvokableContext container;
+
+   private Object proxy;
 
    /**
     * Constructor
@@ -60,34 +63,22 @@ public abstract class NoInterfaceViewInvocationHandler implements InvocationHand
    }
 
    /**
-    * Each type of {@link NoInterfaceViewInvocationHandler} are responsible for
-    * handling the invocation through the no-interface view appropriately.
-    *
-    * @see StatelessNoInterfaceViewInvocationHandler#doInvoke(Object, Method, Object[])
-    * @see StatefulNoInterfaceViewInvocationHandler#doInvoke(Object, Method, Object[])
-    *
-    * @param proxy The proxy/no-interface view through which the call was triggered
-    * @param method The invoked method
-    * @param args The arguments to the method
-    */
-   public abstract Object doInvoke(Object proxy, Method method, Object[] args) throws Throwable;
-
-   /**
     * The entry point when a client calls any methods on the no-interface view of a bean,
     * returned through JNDI.
     *
     * This method will do the common steps (common for SLSB and SFSB) before passing on the
     * call to {@link #doInvoke(Object, Method, Object[])}
     *
-    * @param proxy The proxy/no-interface view through which the call was triggered
+    * @param obj
     * @param method The invoked method
     * @param args The arguments to the method
     */
-   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   public Object invoke(Object obj, Method method, Object[] args) throws Throwable
    {
       // TODO: Some methods like toString() can be handled locally.
       // But as of now let's just pass it on to the container.
-      return doInvoke(proxy, method, args);
+      SerializableMethod serializableMethod = new SerializableMethod(method);
+      return getContainer().invoke(this.proxy, serializableMethod, args);
    }
 
    /**
@@ -98,6 +89,16 @@ public abstract class NoInterfaceViewInvocationHandler implements InvocationHand
    public InvokableContext getContainer()
    {
       return this.container;
+   }
+
+   public void setProxy(Object proxy)
+   {
+      this.proxy = proxy;
+   }
+
+   public Object getProxy()
+   {
+      return this.proxy;
    }
 
 }

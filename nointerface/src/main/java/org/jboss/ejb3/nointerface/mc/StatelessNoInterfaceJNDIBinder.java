@@ -19,16 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.nointerface.jndi;
+package org.jboss.ejb3.nointerface.mc;
 
-import javax.naming.InitialContext;
+import javax.naming.Name;
 
-import org.jboss.ejb3.NonSerializableFactory;
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
-import org.jboss.ejb3.nointerface.invocationhandler.StatelessNoInterfaceViewInvocationHandler;
-import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.nointerface.invocationhandler.NoInterfaceViewInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.util.naming.NonSerializableFactory;
+import org.jnp.interfaces.NamingParser;
 
 /**
  * StatelessNoInterfaceJNDIBinder
@@ -47,6 +47,11 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     */
    private static Logger logger = Logger.getLogger(StatelessNoInterfaceJNDIBinder.class);
 
+   protected StatelessNoInterfaceJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   {
+      super(beanClass, sessionBeanMetadata);
+   }
+
    /**
     * Creates the no-interface view for the bean and binds it to the JNDI
     * under the no-interface view jndi name obtained from <code>sessionBeanMetadata</code>.
@@ -54,20 +59,22 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     * @see NoInterfaceEJBViewCreator#createView(java.lang.reflect.InvocationHandler, Class)
     */
    @Override
-   public void bindNoInterfaceView(Class<?> beanClass, InvokableContext container,
-         JBossSessionBeanMetaData sessionBeanMetadata) throws Exception
+   public void bindNoInterfaceView() throws Exception
    {
-      logger.debug("Creating no-interface view for bean " + beanClass);
+      logger.debug("Creating no-interface view for bean " + this.beanClass);
 
       // Create the view and bind to jndi
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(new StatelessNoInterfaceViewInvocationHandler(
-            container), beanClass);
+      Object noInterfaceView = noInterfaceViewCreator.createView(new NoInterfaceViewInvocationHandler(this.container),
+            beanClass);
       // bind
       // TODO: Again, the jndi-names for the no-interface view are a mess now. They need to come from
       // the metadata. Let's just go ahead temporarily
       String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + "/no-interface";
-      NonSerializableFactory.bind(new InitialContext(), noInterfaceJndiName, noInterfaceView);
+      // Bind a reference to nonserializable using NonSerializableFactory as the ObjectFactory
+      NamingParser namingParser = new NamingParser();
+      Name jndiName = namingParser.parse(noInterfaceJndiName);
+      NonSerializableFactory.rebind(jndiName, noInterfaceView, true);
 
       logger.info("Bound the no-interface view for bean " + beanClass + " to jndi at " + noInterfaceJndiName);
 

@@ -19,20 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.nointerface.jndi;
+package org.jboss.ejb3.nointerface.mc;
 
 import javax.naming.InitialContext;
+import javax.naming.Name;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.ejb3.NonSerializableFactory;
 import org.jboss.ejb3.nointerface.factory.StatefulNoInterfaceViewFactory;
 import org.jboss.ejb3.nointerface.objectfactory.NoInterfaceViewProxyFactoryRefAddrTypes;
 import org.jboss.ejb3.nointerface.objectfactory.StatefulNoInterfaceViewObjectFactory;
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.util.naming.NonSerializableFactory;
+import org.jnp.interfaces.NamingParser;
 
 /**
  * StatefulNoInterfaceJNDIBinder
@@ -45,10 +46,17 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  */
 public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
 {
+
    /**
     * Logger
     */
    private static Logger logger = Logger.getLogger(StatefulNoInterfaceJNDIBinder.class);
+
+   protected StatefulNoInterfaceJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   {
+      super(beanClass, sessionBeanMetadata);
+
+   }
 
    /**
     * 1) Creates a {@link StatefulNoInterfaceViewFactory} and binds it to JNDI (let's call
@@ -64,20 +72,22 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     *
     */
    @Override
-   public void bindNoInterfaceView(Class<?> beanClass, InvokableContext container,
-         JBossSessionBeanMetaData sessionBeanMetadata) throws Exception
+   public void bindNoInterfaceView() throws Exception
    {
-      logger.debug("Binding no-interface view statefulproxyfactory and the objectfactory for bean " + beanClass);
+      logger.debug("Binding no-interface view statefulproxyfactory and the objectfactory for bean " + this.beanClass);
 
       // This factory will be bound to JNDI and will be invoked (through an objectfactory) to create
       // the no-interface view for a SFSB
-      StatefulNoInterfaceViewFactory statefulNoInterfaceViewFactory = new StatefulNoInterfaceViewFactory(beanClass,
-            container);
+      StatefulNoInterfaceViewFactory statefulNoInterfaceViewFactory = new StatefulNoInterfaceViewFactory(
+            this.beanClass, this.container);
 
       // TODO - Needs to be a proper jndi name for the factory
       String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + "/no-interface-stateful-proxyfactory";
       // Bind the proxy factory to jndi
-      NonSerializableFactory.bind(new InitialContext(), statefulProxyFactoryJndiName, statefulNoInterfaceViewFactory);
+      // Bind a reference to nonserializable using NonSerializableFactory as the ObjectFactory
+      NamingParser namingParser = new NamingParser();
+      Name jndiName = namingParser.parse(statefulProxyFactoryJndiName);
+      NonSerializableFactory.rebind(jndiName, statefulNoInterfaceViewFactory, true);
 
       // Create an Reference which will hold the jndi-name of the statefulproxyfactory which will
       // be responsible for creating the no-interface view for the stateful bean upon lookup

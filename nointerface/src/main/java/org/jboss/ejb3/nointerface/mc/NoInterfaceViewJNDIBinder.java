@@ -22,9 +22,8 @@
 package org.jboss.ejb3.nointerface.mc;
 
 import org.jboss.beans.metadata.api.annotations.Inject;
-import org.jboss.beans.metadata.api.annotations.InstallMethod;
-import org.jboss.beans.metadata.api.annotations.UninstallMethod;
-import org.jboss.ejb3.nointerface.jndi.NoInterfaceViewJNDIBinder;
+import org.jboss.beans.metadata.api.annotations.Start;
+import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -32,41 +31,43 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 /**
  * NoInterfaceViewMCBean
  *
- * A {@link NoInterfaceViewMCBean} corresponds to a EJB which is eligible
+ * A {@link NoInterfaceViewJNDIBinder} corresponds to a EJB which is eligible
  * for a no-interface view
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class NoInterfaceViewMCBean
+public abstract class NoInterfaceViewJNDIBinder
 {
 
    /**
     * Logger
     */
-   private static Logger logger = Logger.getLogger(NoInterfaceViewMCBean.class);
+   private static Logger logger = Logger.getLogger(NoInterfaceViewJNDIBinder.class);
 
    /**
-    * The container for which this {@link NoInterfaceViewMCBean} holds
+    * The container for which this {@link NoInterfaceViewJNDIBinder} holds
     * an no-interface view
     */
-   private InvokableContext container;
+   protected InvokableContext container;
 
    /**
     * The bean class for which the no-interface view corresponds
     */
-   private Class<?> beanClass;
+   protected Class<?> beanClass;
 
    /**
     * The bean metadata
     */
-   private JBossSessionBeanMetaData sessionBeanMetadata;
+   protected JBossSessionBeanMetaData sessionBeanMetadata;
 
-   /**
-    * The {@link NoInterfaceViewJNDIBinder} which will be used for binding
-    * the no-interface view/stateful factory for the corresponding bean
-    */
-   private NoInterfaceViewJNDIBinder jndiBinder;
+   public static NoInterfaceViewJNDIBinder getNoInterfaceViewJndiBinder(Class<?> beanClass,
+         JBossSessionBeanMetaData sessionBeanMetadata)
+   {
+      return sessionBeanMetadata.isStateful()
+            ? new StatefulNoInterfaceJNDIBinder(beanClass, sessionBeanMetadata)
+            : new StatelessNoInterfaceJNDIBinder(beanClass, sessionBeanMetadata);
+   }
 
    /**
     * Constructor
@@ -74,39 +75,41 @@ public class NoInterfaceViewMCBean
     * @param beanClass
     * @param sessionBeanMetadata
     */
-   public NoInterfaceViewMCBean(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   protected NoInterfaceViewJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
    {
       this.beanClass = beanClass;
       this.sessionBeanMetadata = sessionBeanMetadata;
-      this.jndiBinder = NoInterfaceViewJNDIBinder.getJNDIBinder(sessionBeanMetadata);
+
    }
 
+   public abstract void bindNoInterfaceView() throws Exception;
+
    /**
-    * Will be called when the dependencies of this {@link NoInterfaceViewMCBean} are
-    * resolved and this MC bean reaches the INSTALL state.
+    * Will be called when the dependencies of this {@link NoInterfaceViewJNDIBinder} are
+    * resolved and this MC bean reaches the START state.
     *
-    * At this point, the <code>container</code> associated with this {@link NoInterfaceViewMCBean}
+    * At this point, the <code>container</code> associated with this {@link NoInterfaceViewJNDIBinder}
     * is injected and is at a minimal of DESCRIBED state. We now create a no-interface view
     * for the corresponding bean.
     * Note: No validations (like whether the bean is eligible for no-interface view) is done at this
-    * stage. It's assumed that the presence of a {@link NoInterfaceViewMCBean} indicates that the
+    * stage. It's assumed that the presence of a {@link NoInterfaceViewJNDIBinder} indicates that the
     * corresponding bean is eligible for no-interface view.
     *
     * @throws Exception
     */
-   @InstallMethod
-   public void onInstall() throws Exception
+   @Start
+   public void onStart() throws Exception
    {
       if (logger.isTraceEnabled())
       {
          logger.trace("Creating no-interface view for container " + this.container);
       }
 
-      this.jndiBinder.bindNoInterfaceView(this.beanClass, this.container, this.sessionBeanMetadata);
+      this.bindNoInterfaceView();
    }
 
-   @UninstallMethod
-   public void onUnInstall() throws Exception
+   @Stop
+   public void onStop() throws Exception
    {
 
       //TODO need to unbind

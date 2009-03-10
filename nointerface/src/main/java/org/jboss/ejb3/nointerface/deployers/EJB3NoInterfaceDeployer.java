@@ -38,7 +38,7 @@ import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.javaee.SimpleJavaEEModule;
-import org.jboss.ejb3.nointerface.mc.NoInterfaceViewMCBean;
+import org.jboss.ejb3.nointerface.mc.NoInterfaceViewJNDIBinder;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
@@ -135,7 +135,8 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
 
          // The no-interface view needs to be a MC bean so that it can "depend" on the container, so let's
          // make the no-interface view a MC bean
-         NoInterfaceViewMCBean bean = new NoInterfaceViewMCBean(beanClass, sessionBeanMetaData);
+         NoInterfaceViewJNDIBinder bean = NoInterfaceViewJNDIBinder.getNoInterfaceViewJndiBinder(beanClass,
+               sessionBeanMetaData);
          String noInterfaceViewMCBeanName = sessionBeanMetaData.getEjbName() + "@" + ((Object) bean).toString();
          BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(noInterfaceViewMCBeanName, bean.getClass()
                .getName());

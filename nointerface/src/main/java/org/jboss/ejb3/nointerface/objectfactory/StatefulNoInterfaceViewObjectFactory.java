@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.nointerface.objectfactory;
 
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.naming.Context;
@@ -74,22 +73,13 @@ public class StatefulNoInterfaceViewObjectFactory implements ObjectFactory
 
    protected String getProxyFactoryJNDINameFromReference(Reference ref)
    {
-      Enumeration<RefAddr> refAddrs = ref.getAll();
-      while (refAddrs.hasMoreElements())
-      {
-         RefAddr refAddr = refAddrs.nextElement();
-         String type = refAddr.getType();
-         if (type
-               .equals(NoInterfaceViewProxyFactoryRefAddrTypes.STATEFUL_NO_INTERFACE_VIEW_PROXY_FACTORY_JNDI_LOCATION))
-         {
-            Object jndiNameOfStatefulProxyFactory = refAddr.getContent();
-            assert jndiNameOfStatefulProxyFactory instanceof String : "Unexpected type for "
-                  + NoInterfaceViewProxyFactoryRefAddrTypes.STATEFUL_NO_INTERFACE_VIEW_PROXY_FACTORY_JNDI_LOCATION;
+      RefAddr refAddr = ref
+            .get(NoInterfaceViewProxyFactoryRefAddrTypes.STATEFUL_NO_INTERFACE_VIEW_PROXY_FACTORY_JNDI_LOCATION);
+      Object jndiNameOfStatefulProxyFactory = refAddr.getContent();
+      assert jndiNameOfStatefulProxyFactory instanceof String : "Unexpected type for "
+            + NoInterfaceViewProxyFactoryRefAddrTypes.STATEFUL_NO_INTERFACE_VIEW_PROXY_FACTORY_JNDI_LOCATION;
 
-            return (String) jndiNameOfStatefulProxyFactory;
-         }
-      }
-      return null;
+      return (String) jndiNameOfStatefulProxyFactory;
    }
 
 }

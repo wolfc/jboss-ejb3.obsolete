@@ -22,10 +22,9 @@
 package org.jboss.ejb3.nointerface.factory;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
-import org.jboss.ejb3.nointerface.invocationhandler.StatefulNoInterfaceViewInvocationHandler;
+import org.jboss.ejb3.nointerface.invocationhandler.NoInterfaceViewInvocationHandler;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
 import org.jboss.logging.Logger;
@@ -85,34 +84,18 @@ public class StatefulNoInterfaceViewFactory
       Serializable session = statefulContainer.createSession();
       logger.debug("Created session " + session + " for " + this.beanClass);
 
-      // create an invocation handler and associate it with the newly created session
-      InvocationHandler invocationHandler = this.createInvocationHandlerForSession(statefulContainer, session);
-
+      NoInterfaceViewInvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(container);
+      invocationHandler.setProxy(session);
       // Now create the view for this bean class and the newly created invocation handler
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
+      Object noInterfaceView = noInterfaceViewCreator.createView(new NoInterfaceViewInvocationHandler(container),
+            beanClass);
 
       if (logger.isTraceEnabled())
       {
          logger.trace("Created no-interface view " + noInterfaceView + " for bean " + beanClass);
       }
       return noInterfaceView;
-   }
-
-   /**
-    * Creates an {@link StatefulNoInterfaceViewInvocationHandler} and associates it with
-    * the <code>session</code>
-    *
-    * @param container
-    * @param session
-    * @return
-    */
-   protected InvocationHandler createInvocationHandlerForSession(InvokableContext container, Serializable session)
-   {
-      StatefulNoInterfaceViewInvocationHandler invocationHandler = new StatefulNoInterfaceViewInvocationHandler(
-            container);
-      invocationHandler.setSessionId(session);
-      return invocationHandler;
    }
 
 }

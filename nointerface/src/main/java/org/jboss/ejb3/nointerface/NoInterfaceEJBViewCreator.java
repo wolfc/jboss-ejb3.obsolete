@@ -78,16 +78,16 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
     * which handles the actual call.
     *
     * @param <T>
-    * @param container The container correpsonding to the bean class
+    * @param invocationHandler The container correpsonding to the bean class
     * @param beanClass The bean class (currently assumed)
     * @return Returns the no-interface view for the <code>beanClass</code>
     * @throws Exception
     */
-   public <T> T createView(InvocationHandler container, Class<T> beanClass) throws Exception
+   public <T> T createView(InvocationHandler invocationHandler, Class<T> beanClass) throws Exception
    {
       if (logger.isTraceEnabled())
       {
-         logger.trace("Creating nointerface view for beanClass: " + beanClass + " with container " + container);
+         logger.trace("Creating nointerface view for beanClass: " + beanClass + " with container " + invocationHandler);
       }
       //TODO: Validation as per section 4.9.8 of EJB 3.1 PR spec needs to be implemented.
       // Instead of accepting a bean class, maybe we should accept the JBossSessionBeanMetadata.
@@ -134,7 +134,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
          // then it will be changed in the proxy to
          // public String sayHi(String name) { java.lang.reflect.Method currentMethod = beanClass.getName() + ".class.getMethod(theMethodName,params);
          // return container.invoke(this,currentMethod,args); }
-         proxyPublicMethod = overridePublicMethod(container, beanClass, beanPublicMethod, proxyPublicMethod);
+         proxyPublicMethod = overridePublicMethod(invocationHandler, beanClass, beanPublicMethod, proxyPublicMethod);
          // We have now created the overriden method. We need to add it to the proxy
          proxyCtClass.addMethod(proxyPublicMethod);
          if (logger.isTraceEnabled())
@@ -154,7 +154,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
       Object proxyInstance = proxyClass.newInstance();
       Field containerInProxy = proxyClass.getDeclaredField("invocationHandler");
       containerInProxy.setAccessible(true);
-      containerInProxy.set(proxyInstance, container);
+      containerInProxy.set(proxyInstance, invocationHandler);
 
       // return the proxy instance
       return beanClass.cast(proxyInstance);
