@@ -34,6 +34,7 @@
 
   <!-- Aggregate Modules -->
   <modules>
+    <module>aop-deployers</module>
     <module>api</module>
     <module>async-impl</module>
     <module>async-spi</module>
