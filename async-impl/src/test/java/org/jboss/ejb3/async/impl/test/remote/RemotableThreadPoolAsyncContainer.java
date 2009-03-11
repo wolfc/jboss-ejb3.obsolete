@@ -19,12 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.async.impl.test.common;
+package org.jboss.ejb3.async.impl.test.remote;
 
 import java.util.concurrent.ExecutorService;
 
-import org.jboss.ejb3.async.spi.container.AsyncInvocationProcessor;
-import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.aop.Dispatcher;
+import org.jboss.ejb3.async.impl.test.common.AsyncTestUtil;
+import org.jboss.ejb3.async.impl.test.common.ThreadPoolAsyncContainer;
+import org.jboss.ejb3.async.spi.container.remote.EndpointConstants;
+import org.jboss.ejb3.async.spi.container.remote.RemotableAsyncInvocationProcessor;
+import org.jboss.ejb3.async.spi.container.remote.RemoteAsyncTaskRegistry;
 
 /**
  * ThreadPoolAsyncContainer
@@ -32,49 +36,55 @@ import org.jboss.ejb3.interceptors.direct.DirectContainer;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ThreadPoolAsyncContainer<T> extends DirectContainer<T> implements AsyncInvocationProcessor
+public class RemotableThreadPoolAsyncContainer<T> extends ThreadPoolAsyncContainer<T>
+      implements
+         RemotableAsyncInvocationProcessor
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   /**
-    * To be used for asynchronous invocations
-    */
-   private ExecutorService asynchronousExecutor;
+   private RemoteAsyncTaskRegistry remoteAsyncTaskRegistry;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public ThreadPoolAsyncContainer(final String name, final String domainName, final Class<? extends T> beanClass)
+   public RemotableThreadPoolAsyncContainer(final String name, final String domainName,
+         final Class<? extends T> beanClass, final RemoteAsyncTaskRegistry remoteAsyncTaskRegistry)
    {
-      this(name, domainName, beanClass, AsyncTestUtil.getDefaultAsyncExecutorService());
+      this(name, domainName, beanClass, remoteAsyncTaskRegistry, AsyncTestUtil.getDefaultAsyncExecutorService());
    }
 
-   public ThreadPoolAsyncContainer(final String name, final String domainName, final Class<? extends T> beanClass,
+   public RemotableThreadPoolAsyncContainer(final String name, final String domainName,
+         final Class<? extends T> beanClass, final RemoteAsyncTaskRegistry remoteAsyncTaskRegistry,
          final ExecutorService asynchronousExecutor)
    {
-      super(name, domainName, beanClass);
-      this.setAsynchronousExecutor(asynchronousExecutor);
+      super(name, domainName, beanClass, asynchronousExecutor);
+      this.setRemoteAsyncTaskRegistry(remoteAsyncTaskRegistry);
+
+      // Register w/ Remoting (R2)
+      // In an actual implementation we won't expose "this", but rather a 
+      // simplified view which delegates to the Container
+      Dispatcher.singleton.registerTarget(EndpointConstants.ASYNCHRONOUS_REMOTING_ENDPOINT_NAME, this);
    }
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public ExecutorService getAsynchronousExecutor()
+   public RemoteAsyncTaskRegistry getRemoteAsyncTaskRegistry()
    {
-      return asynchronousExecutor;
+      return remoteAsyncTaskRegistry;
    }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   private void setAsynchronousExecutor(final ExecutorService asynchronousExecutor)
+   private void setRemoteAsyncTaskRegistry(RemoteAsyncTaskRegistry remoteAsyncTaskRegistry)
    {
-      this.asynchronousExecutor = asynchronousExecutor;
+      this.remoteAsyncTaskRegistry = remoteAsyncTaskRegistry;
    }
 
 }

@@ -373,7 +373,7 @@
       <dependency>
         <groupId>org.jboss.aspects</groupId>
         <artifactId>jboss-remoting-aspects</artifactId>
-        <version>1.0.1.CR4</version>
+        <version>1.0.1.GA</version>
       </dependency>
 
       <!-- JavaEE APIs -->      

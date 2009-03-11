@@ -9,7 +9,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -130,6 +130,18 @@
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop</artifactId>
+    </dependency>
+    
+    <!-- org.jboss.aspects:jboss-remoting-aspects -->
+    <dependency>
+      <groupId>org.jboss.aspects</groupId>
+      <artifactId>jboss-remoting-aspects</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-transaction-spi</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <!-- org.jboss.aspects:jboss-aspects-common -->
