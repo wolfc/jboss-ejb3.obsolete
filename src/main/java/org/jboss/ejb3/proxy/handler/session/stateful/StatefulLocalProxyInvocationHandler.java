@@ -44,7 +44,7 @@ public class StatefulLocalProxyInvocationHandler extends StatefulProxyInvocation
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    /**
     * Constructor
     * 
@@ -55,7 +55,7 @@ public class StatefulLocalProxyInvocationHandler extends StatefulProxyInvocation
    public StatefulLocalProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors)
    {
-      super(containerName, containerGuid, interceptors, null);
+      super(containerName, containerGuid, interceptors, null, null);
    }
 
    /**
@@ -71,7 +71,7 @@ public class StatefulLocalProxyInvocationHandler extends StatefulProxyInvocation
    public StatefulLocalProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
+      super(containerName, containerGuid, interceptors, businessInterfaceType, null);
    }
 
    // --------------------------------------------------------------------------------||

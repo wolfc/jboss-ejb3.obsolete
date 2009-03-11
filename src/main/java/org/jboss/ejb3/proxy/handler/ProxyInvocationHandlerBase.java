@@ -32,6 +32,7 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -228,7 +229,7 @@ public abstract class ProxyInvocationHandlerBase implements ProxyInvocationHandl
     * @return
     * @throws Throwable
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       // Attempt to handle directly
       try

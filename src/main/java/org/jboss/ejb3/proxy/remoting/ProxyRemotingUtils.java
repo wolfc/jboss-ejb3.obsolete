@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.proxy.remoting;
 
-import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 
@@ -173,12 +172,12 @@ public class ProxyRemotingUtils
     * @param containerGuid
     * @param url
     * @param interceptors
-    * @param sessionId
+    * @param target
     * @return
     */
    //FIXME
    public static InvokableContext createRemoteProxyToContainer(String containerName, String containerGuid, String url,
-         Interceptor[] interceptors, Serializable sessionId)
+         Interceptor[] interceptors, Object target)
    {
       // Default the remoting URL if necessary
       if (url == null || url.trim().length() == 0)
@@ -204,7 +203,7 @@ public class ProxyRemotingUtils
 
       // Create a POJI Proxy to the Container
       PojiProxy handler = new InvokableContextStatefulRemoteProxyInvocationHack(containerName, containerGuid, locator,
-            interceptors, sessionId);
+            interceptors, target);
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),

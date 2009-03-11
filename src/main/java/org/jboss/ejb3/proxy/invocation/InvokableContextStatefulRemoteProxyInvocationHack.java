@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.proxy.invocation;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import org.jboss.aop.advice.Interceptor;
@@ -31,6 +30,7 @@ import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.logging.Logger;
@@ -66,9 +66,9 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
    // --------------------------------------------------------------------------------||
 
    /**
-    * The Session ID to be used in SFSB Invocations
+    * The target (Session ID)
     */
-   private Serializable sessionId;
+   private Object target;
 
    /**
     * The Globally-Unique ID of the target Container
@@ -80,7 +80,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
    // --------------------------------------------------------------------------------||
 
    public InvokableContextStatefulRemoteProxyInvocationHack(Object oid, String containerGuid, InvokerLocator uri,
-         Interceptor[] interceptors, Serializable sessionId)
+         Interceptor[] interceptors, Object target)
    {
       // Call Super Implementation
       super(oid, uri, interceptors);
@@ -90,7 +90,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       assert containerGuid != null : "Specified Container GUID is null";
 
       // Set additional properties
-      this.setSessionId(sessionId);
+      this.setTarget(target);
       this.setContainerGuid(containerGuid);
    }
 
@@ -125,7 +125,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       try
       {
          expectedInvokeMethod = InvokableContext.class.getDeclaredMethod("invoke", new Class<?>[]
-         {Object.class, SerializableMethod.class, Object[].class});
+         {SessionProxy.class, SerializableMethod.class, Object[].class});
       }
       catch (NoSuchMethodException e)
       {
@@ -162,7 +162,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
        * via ProxyTestClassProxyHack
        */
       MethodInvocation sri = new StatefulRemoteInvocation(this.getInterceptors(), hash, dynamicInvokeMethod,
-            dynamicInvokeMethod, null, this.getSessionId());
+            dynamicInvokeMethod, null, this.getTarget());
 
       // Manually add metadata for invoked method
       sri.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
@@ -181,14 +181,14 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       // Call Super implementation
       super.addMetadataToInvocation(methodInvocation);
 
-      // Obtain Session ID
-      Serializable sessionId = this.getSessionId();
+      // Obtain target
+      Object target = this.getTarget();
 
       // Add to the Invocation Metadata, if exists
-      if (sessionId != null)
+      if (target != null)
       {
          methodInvocation.getMetaData().addMetaData(StatefulSessionRemotingMetadata.TAG_SFSB_INVOCATION,
-               StatefulSessionRemotingMetadata.KEY_SESSION_ID, sessionId, PayloadKey.AS_IS);
+               StatefulSessionRemotingMetadata.KEY_SESSION_ID, target, PayloadKey.AS_IS);
       }
 
       // Add Container Name
@@ -216,14 +216,14 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   protected Serializable getSessionId()
+   protected Object getTarget()
    {
-      return sessionId;
+      return target;
    }
 
-   private void setSessionId(Serializable sessionId)
+   private void setTarget(Object target)
    {
-      this.sessionId = sessionId;
+      this.target = target;
    }
 
    protected String getContainerGuid()

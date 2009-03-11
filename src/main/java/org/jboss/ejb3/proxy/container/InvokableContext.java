@@ -24,6 +24,7 @@ package org.jboss.ejb3.proxy.container;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 
 /**
  * InvokableContext
@@ -47,7 +48,7 @@ public interface InvokableContext
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable;
+   Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable;
 
    /**
     * Invocation point of entry for Remoting

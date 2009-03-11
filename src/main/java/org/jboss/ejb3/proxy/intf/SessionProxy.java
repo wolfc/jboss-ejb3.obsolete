@@ -32,5 +32,19 @@ package org.jboss.ejb3.proxy.intf;
  */
 public interface SessionProxy extends EjbProxy
 {
+   /**
+    * Obtains the target for this Invocation, used
+    * as Session ID
+    * 
+    * @return
+    */
+   Object getTarget();
 
+   /**
+    * Sets the target for the Invocation, used in practice
+    * for Session ID
+    * 
+    * @param sessionId
+    */
+   void setTarget(Object target);
 }

@@ -65,7 +65,7 @@ public class StatefulRemoteProxyInvocationHandler extends StatefulProxyInvocatio
    public StatefulRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
+      super(containerName, containerGuid, interceptors, businessInterfaceType, null);
 
       // Set properties
       this.setUrl(url);

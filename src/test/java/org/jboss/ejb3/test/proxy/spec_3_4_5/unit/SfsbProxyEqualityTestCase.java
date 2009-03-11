@@ -131,7 +131,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
    {
       // Get the InvocationHander for the Proxy
       StatefulSessionProxy handler = (StatefulSessionProxy) proxy;
-      handler.setSessionId(id);
+      handler.setTarget(id);
    }
 
    /**
