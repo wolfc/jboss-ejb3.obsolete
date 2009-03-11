@@ -66,7 +66,7 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
-import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
+import org.jboss.ejb3.proxy.container.StatefulSessionFactory;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
@@ -96,7 +96,7 @@ import org.jboss.util.NotImplementedException;
 public class StatefulContainer extends SessionSpecContainer
       implements
          StatefulObjectFactory<StatefulBeanContext>,
-         StatefulSessionInvokableContext
+         StatefulSessionFactory
 {
    private static final Logger log = Logger.getLogger(StatefulContainer.class);
 
