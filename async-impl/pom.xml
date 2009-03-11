@@ -136,12 +136,6 @@
     <dependency>
       <groupId>org.jboss.aspects</groupId>
       <artifactId>jboss-remoting-aspects</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss</groupId>
-          <artifactId>jboss-transaction-spi</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     
     <!-- org.jboss.aspects:jboss-aspects-common -->
