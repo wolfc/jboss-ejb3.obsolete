@@ -61,6 +61,7 @@
     <!-- module>sandbox</module -->
     <module>security</module>
     <module>test</module>
+    <module>test-remote</module>
     <module>transactions</module>
   </modules>
 
