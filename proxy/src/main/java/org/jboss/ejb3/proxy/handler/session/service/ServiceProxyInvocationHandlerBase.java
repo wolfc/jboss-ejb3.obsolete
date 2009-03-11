@@ -169,16 +169,4 @@ public abstract class ServiceProxyInvocationHandlerBase extends ProxyInvocationH
             + ", but instead was " + handler;
       return (ServiceProxyInvocationHandlerBase) handler;
    }
-
-   // ------------------------------------------------------------------------------||
-   // TO BE IMPLEMENTED ------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.proxy.handler.ProxyInvocationHandler#getAsynchronousProxy(java.lang.Object)
-    */
-   public Object getAsynchronousProxy(Object proxy)
-   {
-      throw new NotImplementedException("ALR");
-   }
 }
