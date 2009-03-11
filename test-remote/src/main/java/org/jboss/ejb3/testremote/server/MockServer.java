@@ -19,8 +19,9 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.remoteaccess;
+package org.jboss.ejb3.testremote.server;
 
+import java.lang.reflect.Constructor;
 import java.net.URL;
 
 import org.jboss.aop.AspectManager;
@@ -28,11 +29,6 @@ import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
-import org.jboss.ejb3.test.proxy.common.Utils;
-import org.jboss.ejb3.test.proxy.common.container.StatefulContainer;
-import org.jboss.ejb3.test.proxy.common.container.StatelessContainer;
-import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulBean;
-import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessBean;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 import org.jboss.remoting.ServerInvocationHandler;
@@ -127,7 +123,7 @@ public class MockServer
       catch (Exception e)
       {
          log.error("Could not create Mockserver for testclass = " + testClass + " serverHost= " + serverHost
-               + " port= " + port,e);
+               + " port= " + port, e);
          throw new RuntimeException("Could not start server at " + uri, e);
       }
 
@@ -142,11 +138,23 @@ public class MockServer
     * 
     * @param args
     */
-   public static void main(String... args)
+   public static void main(String... args) throws Throwable
    {
 
+      // Log out the arguments
+      if (log.isDebugEnabled())
+      {
+         StringBuffer argList = new StringBuffer();
+         for (String arg : args)
+         {
+            argList.append(arg);
+            argList.append(' ');
+         }
+         log.debug("Arguments: " + argList);
+      }
+
       // Assert test class passed in
-      assert args.length > 2 : "Parameters requried (in that order): <Fully qualified test case name> <serverBindAddress> <serverPort> ";
+      assert args.length == 4 : "Parameters requried (in this order): <Fully qualified test case name> <serverFQClassName> <serverBindAddress> <serverPort>";
 
       // Get Test Class
       String testClassname = args[0];
@@ -160,11 +168,42 @@ public class MockServer
          throw new RuntimeException("Specified Test Class, \"" + testClassname + "\" could not be found", cnfe);
       }
 
+      // Get Mock Server implementation 
+      String mockServerClassName = args[1];
+
       // Create a new Launcher
       // the serverBindAddress and the port are always the last two arguments
       log.debug("Creating a MockServer for testclass = " + testClass + " and serverBindAddr = " + args[args.length - 2]
-            + " and port = " + args[args.length - 1]);
-      MockServer launcher = new MockServer(testClass, args[args.length - 2], Integer.parseInt(args[args.length - 1]));
+            + " and port = " + args[args.length - 1] + " using " + MockServer.class.getSimpleName()
+            + " implementation: " + mockServerClassName);
+
+      // Get the mock server class 
+      Class<?> mockServerClass = null;
+      try
+      {
+         mockServerClass = Class.forName(mockServerClassName, true, Thread.currentThread().getContextClassLoader());
+      }
+      catch (ClassNotFoundException e1)
+      {
+         throw new RuntimeException("Cannot create " + MockServer.class.getSimpleName() + " with implementation of "
+               + mockServerClassName, e1);
+      }
+      assert MockServer.class.isAssignableFrom(mockServerClass) : "Specified implementation " + mockServerClassName
+            + " is not of type " + MockServer.class.getName();
+      Constructor<?> serverCtor = null;
+      try
+      {
+         serverCtor = mockServerClass.getConstructor(new Class<?>[]
+         {Class.class, String.class, int.class});
+      }
+      catch (NoSuchMethodException e1)
+      {
+         throw new RuntimeException(e1);
+      }
+
+      MockServer launcher = (MockServer) serverCtor.newInstance(new Object[]
+      {testClass, args[args.length - 2], Integer.parseInt(args[args.length - 1])});
+
       try
       {
          // Ready to receive (start/stop) requests
@@ -172,7 +211,7 @@ public class MockServer
       }
       catch (Throwable e)
       {
-         log.error("Exception in MockServer while wating for requests ",e);
+         log.error("Exception in MockServer while wating for requests ", e);
          throw new RuntimeException("Exception while waiting for requests ", e);
       }
 
@@ -199,12 +238,13 @@ public class MockServer
 
       // Switch up to the hacky CL so that "jndi.properties" is not loaded
       ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
-      try {
+      try
+      {
          Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
-   
+
          // Deploy *-beans.xml
          this.getBootstrap().deploy(this.getTestClass());
-   
+
          // Load ejb3-interceptors-aop.xml into AspectManager
          ClassLoader cl = Thread.currentThread().getContextClassLoader();
          URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
@@ -214,23 +254,12 @@ public class MockServer
                   + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
          }
          AspectXmlLoader.deployXML(url);
-      } finally {
+      }
+      finally
+      {
          // Restore old CL
          Thread.currentThread().setContextClassLoader(olderLoader);
       }
-
-      // Create a SLSB Container
-      StatelessContainer slsbContainer = Utils.createSlsb(MyStatelessBean.class);
-      log.info("Created SLSB Container: " + slsbContainer.getName());
-
-      // Create a SFSB Container
-      StatefulContainer sfsbContainer = Utils.createSfsb(MyStatefulBean.class);
-      log.info("Created SFSB Container: " + sfsbContainer.getName());
-
-      // Install into MC
-      this.getBootstrap().installInstance(slsbContainer.getName(), slsbContainer);
-      this.getBootstrap().installInstance(sfsbContainer.getName(), sfsbContainer);
-
    }
 
    /**

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.remoteaccess;
+package org.jboss.ejb3.testremote.server;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.ejb3.common.thread.RedirectProcessOutputToSystemOutThread;
-import org.jboss.ejb3.test.proxy.remoteaccess.MockServer.MockServerRequest;
+import org.jboss.ejb3.testremote.server.MockServer.MockServerRequest;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.CannotConnectException;
 import org.jboss.remoting.Client;
@@ -143,24 +143,26 @@ public class MockServerController
     * and then sends a {@link MockServerRequest#START} request to start the
     * server
     *   
+    * @param serverClass The class of the server to be used
     * @param arguments The arguments that will be passed to the {@link MockServer} 
     *       as JVM program arguments
     *       
     * @throws Throwable
     */
-   public void startServer(String[] arguments) throws Throwable
+   public void startServer(Class<? extends MockServer> serverClass, String[] arguments) throws Throwable
    {
       // Along with the arguments that the client passes to the server,
       // append the the serverHost and port number on which the mockserver is
       // expected to listen
       int numberOfArgs = arguments.length;
-      String[] processArgs = new String[numberOfArgs + 2];
+      String[] processArgs = new String[numberOfArgs + 3];
       System.arraycopy(arguments, 0, processArgs, 0, numberOfArgs);
       // now append the server host and port
+      processArgs[processArgs.length - 3] = serverClass.getName();
       processArgs[processArgs.length - 2] = this.serverHost;
       processArgs[processArgs.length - 1] = String.valueOf(this.port);
 
-      createRemoteProcess(processArgs);
+      createRemoteProcess(serverClass, processArgs);
 
       /* 
        * Wait a max of 5 seconds for the remote process (remember, not the server)
@@ -332,12 +334,12 @@ public class MockServerController
    /**
     * Creates a new JVM process in which the {@link MockServer} will be active
     * 
-    * 
+    * @param serverClass The class of the Server to start
     * @param arguments The arguments to the passed to the {@link MockServer}
     * 
     * @throws Throwable
     */
-   private void createRemoteProcess(String arguments[]) throws Throwable
+   private void createRemoteProcess(Class<? extends MockServer> serverClass, String arguments[]) throws Throwable
    {
       // Get the current System Properties and Environment Variables
       String javaHome = System.getenv(MockServerController.ENV_VAR_JAVAHOME);
@@ -387,7 +389,7 @@ public class MockServerController
       // Other params to the JVM
       command.add("-ea");
       // The class to run
-      command.add(MockServer.class.getName());
+      command.add(serverClass.getName());
       // The arguments to the main class
       for (int i = 0; i < arguments.length; i++)
       {

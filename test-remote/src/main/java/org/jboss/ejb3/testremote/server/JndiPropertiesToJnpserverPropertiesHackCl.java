@@ -19,34 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.remoteaccess;
+package org.jboss.ejb3.testremote.server;
 
 /**
  * JndiPropertiesToJnpserverPropertiesHackCl
  * 
- * Hacky classloader to use to switch requests for 
- * "jndi.properties" to use "jndi-remote.properties"
+ * Hacky classloader to use to prevent the JNP Server from
+ * loading jndi.properties (which should be used by clients 
+ * only) and instead swapping for jnpserver.properties
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class JndiPropertiesToJndiRemotePropertiesHackCl extends RedirectClassloader
+public class JndiPropertiesToJnpserverPropertiesHackCl extends RedirectClassloader
 {
 
    private static final String TO_REPLACE = "jndi.properties";
 
-   private static final String REPLACE_WITH = "jndi-remote.properties";
+   private static final String REPLACE_WITH = "jnpserver.properties";
 
    @Override
    protected String getFrom()
    {
-      return JndiPropertiesToJndiRemotePropertiesHackCl.TO_REPLACE;
+      return JndiPropertiesToJnpserverPropertiesHackCl.TO_REPLACE;
    }
 
    @Override
    protected String getTo()
    {
-      return JndiPropertiesToJndiRemotePropertiesHackCl.REPLACE_WITH;
+      return JndiPropertiesToJnpserverPropertiesHackCl.REPLACE_WITH;
    }
 
 }

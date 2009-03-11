@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.test.proxy.remoteaccess;
+package org.jboss.ejb3.testremote.server;
 
 import javax.management.MBeanServer;
 
-import org.jboss.ejb3.test.proxy.remoteaccess.MockServer.MockServerRequest;
+import org.jboss.ejb3.testremote.server.MockServer.MockServerRequest;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvocationRequest;
 import org.jboss.remoting.ServerInvocationHandler;

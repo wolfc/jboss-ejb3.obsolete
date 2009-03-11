@@ -32,8 +32,7 @@ import javax.naming.InitialContext;
 
 import org.jboss.ejb3.test.proxy.common.ejb.sfsb.MyStatefulRemoteBusiness;
 import org.jboss.ejb3.test.proxy.common.ejb.slsb.MyStatelessRemote;
-import org.jboss.ejb3.test.proxy.remoteaccess.JndiPropertiesToJndiRemotePropertiesHackCl;
-import org.jboss.ejb3.test.proxy.remoteaccess.MockServerController;
+import org.jboss.ejb3.testremote.server.MockServerController;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -53,8 +52,6 @@ public class RemoteAccessTestCase
    // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(RemoteAccessTestCase.class);
-
-   private static final String JNDI_NAME_SLSB_LOCAL = "MyStatelessBean/local";
 
    private static final String JNDI_NAME_SLSB_REMOTE = "MyStatelessBean/remote";
 
@@ -161,7 +158,7 @@ public class RemoteAccessTestCase
    @BeforeClass
    public static void beforeClass() throws Throwable
    {
-      
+
       // get the input stream for jndi-remote.properties file, which will be available
       // in classpath
       InputStream inputStream = RemoteAccessTestCase.class.getClassLoader().getResourceAsStream(
@@ -173,14 +170,15 @@ public class RemoteAccessTestCase
 
       // Use the non-default constructor of InitialContext and pass the 
       // properties
-      RemoteAccessTestCase.setContext(new InitialContext(jndiRemoteProperties));  
-      
+      RemoteAccessTestCase.setContext(new InitialContext(jndiRemoteProperties));
+
       // create a controller for mockserver
       mockServerController = new MockServerController(serverHost, serverPort);
 
       // Start Server
       long start = System.currentTimeMillis();
-      mockServerController.startServer(new String[]{RemoteAccessTestCase.class.getName()});
+      mockServerController.startServer(ProxyMockServer.class, new String[]
+      {RemoteAccessTestCase.class.getName()});
       long end = System.currentTimeMillis();
       log.info("MockServer started in " + (end - start) + " milli sec.");
 
