@@ -30,7 +30,7 @@ import org.jboss.aop.Advisor;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
+import org.jboss.ejb3.proxy.container.StatefulSessionFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
@@ -62,7 +62,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    /**
     * The Container used by this SFSB Proxy Factory
     */
-   private transient StatefulSessionInvokableContext container;
+   private transient StatefulSessionFactory container;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -287,7 +287,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    protected Serializable getNewSessionId()
    {
       // Obtain the Container
-      StatefulSessionInvokableContext container = this.getContainer();
+      StatefulSessionFactory container = this.getContainer();
 
       // Get a new Session ID from the Container
       Serializable sessionId = null;
@@ -318,22 +318,22 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
     * 
     * @return The Container for this Proxy Factory
     */
-   protected StatefulSessionInvokableContext obtainContainer()
+   protected StatefulSessionFactory obtainContainer()
    {
       /*
        * Obtain the Container
        */
-      StatefulSessionInvokableContext container = null;
+      StatefulSessionFactory container = null;
       String containerName = this.getContainerName();
 
       // Lookup from EJB3 Registrar
       try
       {
          Object obj = Ejb3RegistrarLocator.locateRegistrar().lookup(containerName);
-         assert obj instanceof StatefulSessionInvokableContext : "Container retrieved from "
+         assert obj instanceof StatefulSessionFactory : "Container retrieved from "
                + Ejb3Registrar.class.getSimpleName() + " was not of expected type "
-               + StatefulSessionInvokableContext.class.getName() + " but was instead " + obj;
-         container = (StatefulSessionInvokableContext) obj;
+               + StatefulSessionFactory.class.getName() + " but was instead " + obj;
+         container = (StatefulSessionFactory) obj;
       }
       catch (NotBoundException nbe)
       {
@@ -350,7 +350,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public StatefulSessionInvokableContext getContainer()
+   public StatefulSessionFactory getContainer()
    {
       if (this.container == null)
       {
@@ -360,7 +360,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       return this.container;
    }
 
-   public void setContainer(StatefulSessionInvokableContext container)
+   public void setContainer(StatefulSessionFactory container)
    {
       this.container = container;
    }

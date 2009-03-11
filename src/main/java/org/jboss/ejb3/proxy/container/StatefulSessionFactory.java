@@ -24,16 +24,14 @@ package org.jboss.ejb3.proxy.container;
 import java.io.Serializable;
 
 /**
- * StatefulSessionInvokableContext
+ * StatefulSessionFactory
  * 
- * Represents an object capable of carrying out 
- * EJB3 SFSB Invocations as described by an 
- * Invocation descriptor
+ * Capable of creating new SFSB Sessions
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionInvokableContext extends InvokableContext
+public interface StatefulSessionFactory
 {
    /**
     * Creates a new user session and returns the unique Session ID
