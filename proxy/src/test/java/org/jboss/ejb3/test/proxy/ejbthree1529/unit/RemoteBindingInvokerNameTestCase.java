@@ -29,7 +29,7 @@ import javax.naming.InitialContext;
 import junit.framework.TestCase;
 
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.proxy.handler.session.stateless.StatelessRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionSpecRemoteProxyInvocationHandler;
 import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
 import org.jboss.ejb3.test.proxy.common.SessionTestCaseBase;
 import org.jboss.ejb3.test.proxy.common.Utils;
@@ -86,7 +86,7 @@ public class RemoteBindingInvokerNameTestCase extends SessionTestCaseBase
       // Get the clientBindUrl from the Proxy itself
       Class<?> proxyClass = bean.getClass();
       assert Proxy.isProxyClass(proxyClass) : "Stub from JNDI was not a " + Proxy.class.getName();
-      StatelessRemoteProxyInvocationHandler handler = (StatelessRemoteProxyInvocationHandler) Proxy
+      SessionSpecRemoteProxyInvocationHandler handler = (SessionSpecRemoteProxyInvocationHandler) Proxy
             .getInvocationHandler(bean);
       String clientBindUrl = handler.getUrl();
 

@@ -25,7 +25,7 @@ package org.jboss.ejb3.proxy.handler.session;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
-import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
+import org.jboss.aop.advice.Interceptor;
 
 /**
  * SessionProxyInvocationHandler
@@ -36,7 +36,27 @@ import org.jboss.ejb3.proxy.handler.ProxyInvocationHandler;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: 72638 $
  */
-public interface SessionProxyInvocationHandler extends ProxyInvocationHandler, InvocationHandler, Serializable
+public interface SessionProxyInvocationHandler extends InvocationHandler, Serializable
 {
+
+   // ------------------------------------------------------------------------------||
+   // Contracts --------------------------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   public Object getTarget();
+
+   public void setTarget(final Object target);
+
+   public String getContainerName();
+
+   public void setContainerName(final String containerName);
+
+   public Interceptor[] getInterceptors();
+
+   public void setInterceptors(final Interceptor[] interceptors);
+
+   public String getContainerGuid();
+
+   public void setContainerGuid(final String containerGuid);
 
 }

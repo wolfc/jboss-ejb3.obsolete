@@ -25,8 +25,7 @@ import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.handler.session.service.ServiceProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.session.service.ServiceRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionSpecRemoteProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
@@ -136,7 +135,7 @@ public class ServiceRemoteProxyFactory extends ServiceProxyFactoryBase implement
    // --------------------------------------------------------------------------------||
 
    @Override
-   protected ServiceProxyInvocationHandler createInvocationHandler()
+   protected SessionSpecRemoteProxyInvocationHandler createInvocationHandler()
    {
       // Obtain properties
       String containerName = this.getContainerName();
@@ -147,8 +146,8 @@ public class ServiceRemoteProxyFactory extends ServiceProxyFactoryBase implement
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      ServiceProxyInvocationHandler handler = new ServiceRemoteProxyInvocationHandler(containerName, containerGuid,
-            interceptors, url);
+      SessionSpecRemoteProxyInvocationHandler handler = new SessionSpecRemoteProxyInvocationHandler(containerName,
+            containerGuid, interceptors, null, url);
 
       // Return
       return handler;

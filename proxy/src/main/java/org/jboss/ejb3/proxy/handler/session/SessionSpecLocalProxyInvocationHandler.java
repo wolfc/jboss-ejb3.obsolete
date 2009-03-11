@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.stateless;
+package org.jboss.ejb3.proxy.handler.session;
 
 import java.io.Serializable;
 
@@ -27,12 +27,12 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
- * StatelessLocalProxyInvocationHandler
+ * SessionSpecLocalProxyInvocationHandler
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessLocalProxyInvocationHandler extends StatelessProxyInvocationHandlerBase implements Serializable
+public class SessionSpecLocalProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase implements Serializable
 {
 
    // --------------------------------------------------------------------------------||
@@ -48,17 +48,30 @@ public class StatelessLocalProxyInvocationHandler extends StatelessProxyInvocati
    /**
     * Constructor
     * 
-    * @param containerName The name of the target Container
+    * @param containerName The name of the target container
+    * @param containerGuid The globally-unique name of the container
+    * @param interceptors The interceptors to apply to invocations upon this handler
+    */
+   public SessionSpecLocalProxyInvocationHandler(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors)
+   {
+      super(containerName, containerGuid, interceptors, null, null);
+   }
+
+   /**
+    * Constructor
+    * 
+    * @param containerName The name of the target container
     * @param containerGuid The globally-unique name of the container
     * @param businessInterfaceType The possibly null businessInterfaceType
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public StatelessLocalProxyInvocationHandler(final String containerName, final String containerGuid,
+   public SessionSpecLocalProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
+      super(containerName, containerGuid, interceptors, businessInterfaceType, null);
    }
 
    // --------------------------------------------------------------------------------||
