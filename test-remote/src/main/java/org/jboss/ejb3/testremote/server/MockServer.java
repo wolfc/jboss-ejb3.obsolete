@@ -198,7 +198,8 @@ public class MockServer
       }
       catch (NoSuchMethodException e1)
       {
-         throw new RuntimeException(e1);
+         throw new RuntimeException("MockServer implementation " + mockServerClassName
+               + " must have a public ctor(Class,String,int)", e1);
       }
 
       MockServer launcher = (MockServer) serverCtor.newInstance(new Object[]
