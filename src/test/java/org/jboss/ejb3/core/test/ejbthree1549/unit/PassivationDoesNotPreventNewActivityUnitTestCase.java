@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.Serializable;
-import java.lang.reflect.Proxy;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -45,7 +44,7 @@ import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCache;
 import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCacheFactory;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulBean;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulLocal;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulLocalProxyInvocationHandler;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -167,11 +166,10 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
        * Force passivation, but block it from completing (because we don't 
        * await on the PM)
        */
-      
+
       // Force passivation
       ForceEventsCache.forcePassivation();
       ForceEventsCache.PRE_PASSIVATE_BARRIER.await();
-      
 
       /*
        * Spawn off the test in another Thread
@@ -200,9 +198,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       final MyStatefulLocal bean = lookup(MyStatefulLocal.JNDI_NAME, MyStatefulLocal.class);
 
       // Get our bean's Session ID
-      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
-            .getInvocationHandler(bean);
-      Serializable sessionId = (Serializable) handler.getTarget();
+      Serializable sessionId = this.getSessionId(bean);
 
       // Invoke upon our bean
       int next = bean.getNextCounter();
@@ -282,9 +278,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       final MyStatefulLocal bean = lookup(MyStatefulLocal.JNDI_NAME, MyStatefulLocal.class);
 
       // Get our bean's Session ID
-      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
-            .getInvocationHandler(bean);
-      Serializable sessionId = (Serializable) handler.getTarget();
+      Serializable sessionId = this.getSessionId(bean);
 
       // Invoke upon our bean
       int next = bean.getNextCounter();
@@ -639,9 +633,8 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
    private Serializable getSessionId(MyStatefulLocal bean)
    {
       // Get our bean's Session ID
-      StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
-            .getInvocationHandler(bean);
-      Serializable sessionId = (Serializable) handler.getTarget();
+      SessionProxy sessionProxy = (SessionProxy) bean;
+      Serializable sessionId = (Serializable) sessionProxy.getTarget();
       return sessionId;
    }
 }
