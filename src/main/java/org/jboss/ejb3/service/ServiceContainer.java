@@ -64,6 +64,7 @@ import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -597,7 +598,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    /**
     * @see InvokableContext
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       return this.localInvoke(method.toMethod(), args);
    }
