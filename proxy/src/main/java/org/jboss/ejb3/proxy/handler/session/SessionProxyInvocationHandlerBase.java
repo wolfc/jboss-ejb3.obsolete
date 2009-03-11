@@ -127,6 +127,13 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     */
    private String containerGuid;
 
+   /**
+    * Fully-qualified name of the class targeted either for injection
+    * or casting to support getInvokedBusinessInterface.  May be
+    * null to denote non-deterministic invocation
+    */
+   private String businessInterfaceType;
+
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -137,19 +144,42 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     * @param containerName The name of the target Container
     * @param containerGuid The globally-unique name of the container
     * @param interceptors The interceptors to apply to invocations upon this handler
+    * @param businessInterfaceType Possibly null FQN of business interface 
+    * @param target The target object (Session ID)
     */
    protected SessionProxyInvocationHandlerBase(final String containerName, final String containerGuid,
-         final Interceptor[] interceptors, final Object target)
+         final Interceptor[] interceptors, final String businessInterfaceType, final Object target)
    {
       this.setContainerName(containerName);
       this.setContainerGuid(containerGuid);
       this.setInterceptors(interceptors);
+      this.setBusinessInterfaceType(businessInterfaceType);
       this.setTarget(target);
    }
 
    // ------------------------------------------------------------------------------||
    // Functional Methods -----------------------------------------------------------||
    // ------------------------------------------------------------------------------||
+
+   /**
+    * Required "invoke" as defined by InvocationHandler interface
+    */
+   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   {
+      // Precondition check
+      assert proxy instanceof SessionProxy : this + " is eligible for handling " + SessionProxy.class.getName()
+            + " invocations only";
+      SessionProxy sessionProxy = (SessionProxy) proxy;
+
+      // Obtain an explicitly-specified actual class
+      String actualClass = this.getBusinessInterfaceType();
+
+      // Set the invoked method
+      SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
+
+      // Use the overloaded implementation
+      return this.invoke(sessionProxy, invokedMethod, args);
+   }
 
    /**
     * Overloaded "invoke" which takes into account a {@link SerializableMethod} 
@@ -487,6 +517,16 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
    public void setContainerGuid(final String containerGuid)
    {
       this.containerGuid = containerGuid;
+   }
+
+   public String getBusinessInterfaceType()
+   {
+      return businessInterfaceType;
+   }
+
+   public void setBusinessInterfaceType(String businessInterfaceType)
+   {
+      this.businessInterfaceType = businessInterfaceType;
    }
 
 }

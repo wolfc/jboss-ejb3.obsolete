@@ -27,14 +27,12 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
- * SessionSpecRemoteProxyInvocationHandler
+ * SessionRemoteProxyInvocationHandler
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class SessionSpecRemoteProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
-      implements
-         Serializable
+public class SessionRemoteProxyInvocationHandler extends SessionProxyInvocationHandlerBase implements Serializable
 {
 
    // --------------------------------------------------------------------------------||
@@ -64,7 +62,7 @@ public class SessionSpecRemoteProxyInvocationHandler extends SessionSpecProxyInv
     * @param url The URL to the Remote Host
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public SessionSpecRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
+   public SessionRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
       super(containerName, containerGuid, interceptors, businessInterfaceType, null);

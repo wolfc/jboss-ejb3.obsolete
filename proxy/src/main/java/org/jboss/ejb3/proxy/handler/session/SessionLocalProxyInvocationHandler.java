@@ -27,12 +27,12 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
- * SessionSpecLocalProxyInvocationHandler
+ * SessionLocalProxyInvocationHandler
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class SessionSpecLocalProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase implements Serializable
+public class SessionLocalProxyInvocationHandler extends SessionProxyInvocationHandlerBase implements Serializable
 {
 
    // --------------------------------------------------------------------------------||
@@ -52,7 +52,7 @@ public class SessionSpecLocalProxyInvocationHandler extends SessionSpecProxyInvo
     * @param containerGuid The globally-unique name of the container
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public SessionSpecLocalProxyInvocationHandler(final String containerName, final String containerGuid,
+   public SessionLocalProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors)
    {
       super(containerName, containerGuid, interceptors, null, null);
@@ -68,7 +68,7 @@ public class SessionSpecLocalProxyInvocationHandler extends SessionSpecProxyInvo
     *   EJB3 Business Interface
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public SessionSpecLocalProxyInvocationHandler(final String containerName, final String containerGuid,
+   public SessionLocalProxyInvocationHandler(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType)
    {
       super(containerName, containerGuid, interceptors, businessInterfaceType, null);

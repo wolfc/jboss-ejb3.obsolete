@@ -43,20 +43,24 @@ public interface SessionProxyInvocationHandler extends InvocationHandler, Serial
    // Contracts --------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
-   public Object getTarget();
+   Object getTarget();
 
-   public void setTarget(final Object target);
+   void setTarget(final Object target);
 
-   public String getContainerName();
+   String getContainerName();
 
-   public void setContainerName(final String containerName);
+   void setContainerName(final String containerName);
 
-   public Interceptor[] getInterceptors();
+   Interceptor[] getInterceptors();
 
-   public void setInterceptors(final Interceptor[] interceptors);
+   void setInterceptors(final Interceptor[] interceptors);
 
-   public String getContainerGuid();
+   String getContainerGuid();
 
-   public void setContainerGuid(final String containerGuid);
+   void setContainerGuid(final String containerGuid);
+
+   String getBusinessInterfaceType();
+
+   void setBusinessInterfaceType(final String businessInterfaceType);
 
 }

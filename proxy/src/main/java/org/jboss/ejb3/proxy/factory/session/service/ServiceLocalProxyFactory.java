@@ -25,7 +25,7 @@ import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.handler.session.SessionSpecLocalProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionLocalProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
@@ -84,7 +84,7 @@ public class ServiceLocalProxyFactory extends ServiceProxyFactoryBase implements
    }
 
    @Override
-   protected SessionSpecLocalProxyInvocationHandler createInvocationHandler()
+   protected SessionLocalProxyInvocationHandler createInvocationHandler()
    {
       // Obtain container name
       String containerName = this.getContainerName();
@@ -94,7 +94,7 @@ public class ServiceLocalProxyFactory extends ServiceProxyFactoryBase implements
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionSpecLocalProxyInvocationHandler handler = new SessionSpecLocalProxyInvocationHandler(containerName,
+      SessionLocalProxyInvocationHandler handler = new SessionLocalProxyInvocationHandler(containerName,
             containerGuid, interceptors, null);
 
       // Return
