@@ -72,6 +72,8 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
+   private static final long serialVersionUID = 1L;
+   
    /**
     * Logger
     */
