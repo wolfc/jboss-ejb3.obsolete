@@ -195,17 +195,4 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
             + StatelessProxyInvocationHandlerBase.class.getName() + ", but instead was " + handler;
       return (StatelessProxyInvocationHandlerBase) handler;
    }
-
-   // ------------------------------------------------------------------------------||
-   // TO BE IMPLEMENTED ------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.proxy.handler.ProxyInvocationHandler#getAsynchronousProxy(java.lang.Object)
-    */
-   public Object getAsynchronousProxy(Object proxy)
-   {
-      throw new NotImplementedException("ALR");
-   }
-
 }
