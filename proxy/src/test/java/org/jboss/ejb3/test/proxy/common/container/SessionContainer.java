@@ -46,6 +46,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
@@ -162,7 +163,7 @@ public abstract class SessionContainer implements InvokableContext
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       Method m = method.toMethod(this.getClassLoader());
 
@@ -273,7 +274,7 @@ public abstract class SessionContainer implements InvokableContext
    public Object invokeBean(Object proxy, Method method, Object args[]) throws Throwable
    {
       // Initialize a Session ID
-      Serializable sessionId = null;
+      Object sessionId = null;
 
       // Obtain the InvocationHandler
       if (proxy instanceof StatefulSessionProxy)
@@ -281,11 +282,11 @@ public abstract class SessionContainer implements InvokableContext
          StatefulSessionProxy statefulProxy = (StatefulSessionProxy) proxy;
 
          // Get the Session ID
-         sessionId = statefulProxy.getSessionId();
+         sessionId = statefulProxy.getTarget();
       }
 
       // Get the appropriate instance
-      Object obj = this.getBeanInstance(sessionId);
+      Object obj = this.getBeanInstance((Serializable) sessionId);
 
       // Invoke
       return method.invoke(obj, args);

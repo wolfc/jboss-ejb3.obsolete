@@ -21,7 +21,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
-import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
@@ -76,7 +76,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       /*
        * Replace the TCL with the CL for this Container
@@ -106,13 +106,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
 
          // Obtain Session ID
-         //TODO Ugly, use polymorphism and get Session ID for SFSB only
-         Serializable sessionId = null;
-         if(proxy instanceof StatefulSessionProxy)
-         {
-            StatefulSessionProxy statefulProxy = (StatefulSessionProxy)proxy;
-            sessionId = statefulProxy.getSessionId();
-         }
+         Serializable sessionId = (Serializable) proxy.getTarget();
          
          /*
           * Invoke directly if this is an EJB2.x Method

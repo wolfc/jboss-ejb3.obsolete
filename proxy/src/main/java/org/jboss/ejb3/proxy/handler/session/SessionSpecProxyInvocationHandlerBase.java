@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -45,7 +46,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
    // ------------------------------------------------------------------------------||
    // Class Members ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
-   
+
    private static final long serialVersionUID = 1L;
 
    private static final Logger log = Logger.getLogger(SessionSpecProxyInvocationHandlerBase.class);
@@ -74,11 +75,12 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
     *   marking this invocation hander as specific to a given
     *   EJB3 Business Interface
     * @param interceptors The interceptors to apply to invocations upon this handler
+    * @param target
     */
    protected SessionSpecProxyInvocationHandlerBase(final String containerName, final String containerGuid,
-         final Interceptor[] interceptors, final String businessInterfaceType)
+         final Interceptor[] interceptors, final String businessInterfaceType, final Object target)
    {
-      super(containerName, containerGuid, interceptors);
+      super(containerName, containerGuid, interceptors, target);
       this.setBusinessInterfaceType(businessInterfaceType);
    }
 
@@ -91,6 +93,11 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
     */
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
+      // Precondition check
+      assert proxy instanceof SessionProxy : this + " is eligible for handling " + SessionProxy.class.getName()
+            + " invocations only";
+      SessionProxy sessionProxy = (SessionProxy) proxy;
+
       // Obtain an explicitly-specified actual class
       String actualClass = this.getBusinessInterfaceType();
 
@@ -98,7 +105,7 @@ public abstract class SessionSpecProxyInvocationHandlerBase extends SessionProxy
       SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
 
       // Use the overloaded implementation
-      return this.invoke(proxy, invokedMethod, args);
+      return this.invoke(sessionProxy, invokedMethod, args);
    }
 
    // ------------------------------------------------------------------------------||

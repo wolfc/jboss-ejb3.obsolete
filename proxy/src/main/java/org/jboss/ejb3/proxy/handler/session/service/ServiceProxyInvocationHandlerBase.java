@@ -30,8 +30,8 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.handler.ProxyInvocationHandlerBase;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.logging.Logger;
-import org.jboss.util.NotImplementedException;
 
 /**
  * ServiceProxyInvocationHandlerBase
@@ -84,11 +84,16 @@ public abstract class ServiceProxyInvocationHandlerBase extends ProxyInvocationH
     */
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
+      // Precondition check
+      assert proxy instanceof SessionProxy : this + " is eligible for handling " + SessionProxy.class.getName()
+            + " invocations only";
+      SessionProxy sessionProxy = (SessionProxy) proxy;
+
       // Set the invoked method as a SerializableMethod
       SerializableMethod invokedMethod = new SerializableMethod(method);
 
       // Use the overloaded implementation
-      return this.invoke(proxy, invokedMethod, args);
+      return this.invoke(sessionProxy, invokedMethod, args);
    }
 
    /**

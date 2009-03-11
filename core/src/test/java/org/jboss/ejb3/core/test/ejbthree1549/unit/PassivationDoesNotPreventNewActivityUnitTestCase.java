@@ -202,7 +202,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       // Get our bean's Session ID
       StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
             .getInvocationHandler(bean);
-      Serializable sessionId = handler.getSessionId();
+      Serializable sessionId = (Serializable) handler.getTarget();
 
       // Invoke upon our bean
       int next = bean.getNextCounter();
@@ -284,7 +284,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       // Get our bean's Session ID
       StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
             .getInvocationHandler(bean);
-      Serializable sessionId = handler.getSessionId();
+      Serializable sessionId = (Serializable) handler.getTarget();
 
       // Invoke upon our bean
       int next = bean.getNextCounter();
@@ -641,7 +641,7 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
       // Get our bean's Session ID
       StatefulLocalProxyInvocationHandler handler = (StatefulLocalProxyInvocationHandler) Proxy
             .getInvocationHandler(bean);
-      Serializable sessionId = handler.getSessionId();
+      Serializable sessionId = (Serializable) handler.getTarget();
       return sessionId;
    }
 }

@@ -29,7 +29,6 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.handler.session.SessionSpecProxyInvocationHandlerBase;
 import org.jboss.logging.Logger;
-import org.jboss.util.NotImplementedException;
 
 /**
  * StatelessProxyInvocationHandlerBase
@@ -83,7 +82,7 @@ public abstract class StatelessProxyInvocationHandlerBase extends SessionSpecPro
    public StatelessProxyInvocationHandlerBase(final String containerName, final String containerGuid,
          final Interceptor[] interceptors, final String businessInterfaceType)
    {
-      super(containerName, containerGuid, interceptors, businessInterfaceType);
+      super(containerName, containerGuid, interceptors, businessInterfaceType, null);
    }
 
    // ------------------------------------------------------------------------------||

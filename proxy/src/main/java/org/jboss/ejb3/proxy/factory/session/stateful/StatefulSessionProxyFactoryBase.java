@@ -275,7 +275,7 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
       StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
 
       // Set the Session ID on the Proxy
-      sHandler.setSessionId(sessionId);
+      sHandler.setTarget(sessionId);
    }
 
    /**
