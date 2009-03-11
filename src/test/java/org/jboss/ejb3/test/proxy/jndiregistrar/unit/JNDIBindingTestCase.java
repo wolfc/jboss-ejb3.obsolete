@@ -48,7 +48,7 @@ import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.handler.session.SessionSpecRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionRemoteProxyInvocationHandler;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
@@ -308,7 +308,7 @@ public class JNDIBindingTestCase
       Object obj1 = context.lookup(ClientBindUrlBindingTest.JNDI_BINDING_1);
       
       // Get the underlying URL
-      SessionSpecRemoteProxyInvocationHandler handler1 = (SessionSpecRemoteProxyInvocationHandler) Proxy
+      SessionRemoteProxyInvocationHandler handler1 = (SessionRemoteProxyInvocationHandler) Proxy
             .getInvocationHandler(obj1);
       String url1 = handler1.getUrl();
       
@@ -323,7 +323,7 @@ public class JNDIBindingTestCase
       Object obj2 = context.lookup(ClientBindUrlBindingTest.JNDI_BINDING_2);
       
       // Get the underlying URL
-      SessionSpecRemoteProxyInvocationHandler handler2 = (SessionSpecRemoteProxyInvocationHandler) Proxy
+      SessionRemoteProxyInvocationHandler handler2 = (SessionRemoteProxyInvocationHandler) Proxy
             .getInvocationHandler(obj2);
       String url2 = handler2.getUrl();
       
