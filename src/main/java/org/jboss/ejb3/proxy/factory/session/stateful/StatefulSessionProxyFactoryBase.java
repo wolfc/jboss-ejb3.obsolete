@@ -32,7 +32,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.container.StatefulSessionFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulProxyInvocationHandlerBase;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
@@ -270,9 +270,9 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    {
       // Obtain the InvocationHandler
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-      assert handler instanceof StatefulProxyInvocationHandlerBase : "SFSB Proxy must be of type "
-            + StatefulProxyInvocationHandlerBase.class.getName();
-      StatefulProxyInvocationHandlerBase sHandler = (StatefulProxyInvocationHandlerBase) handler;
+      assert handler instanceof SessionProxyInvocationHandler : "SFSB Proxy must be of type "
+            + SessionProxyInvocationHandler.class.getName();
+      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
 
       // Set the Session ID on the Proxy
       sHandler.setTarget(sessionId);

@@ -27,7 +27,7 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionSpecRemoteProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -169,7 +169,7 @@ public class StatefulSessionRemoteProxyFactory extends StatefulSessionProxyFacto
       Interceptor[] interceptors = this.getInterceptors();
 
       // Create
-      SessionProxyInvocationHandler handler = new StatefulRemoteProxyInvocationHandler(containerName, containerGuid,
+      SessionProxyInvocationHandler handler = new SessionSpecRemoteProxyInvocationHandler(containerName, containerGuid,
             interceptors, businessInterfaceName, url);
 
       // Return

@@ -27,7 +27,7 @@ import java.util.Set;
 
 import org.jboss.aop.Advisor;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
-import org.jboss.ejb3.proxy.handler.session.service.ServiceProxyInvocationHandler;
+import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.intf.ServiceProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
@@ -107,7 +107,7 @@ public abstract class ServiceProxyFactoryBase extends ProxyFactoryBase implement
             + ServiceProxyFactory.class.getSimpleName() + " was not properly started?";
 
       // Create a new InvocationHandler
-      ServiceProxyInvocationHandler handler = this.createInvocationHandler();
+      SessionProxyInvocationHandler handler = this.createInvocationHandler();
 
       try
       {
@@ -244,7 +244,7 @@ public abstract class ServiceProxyFactoryBase extends ProxyFactoryBase implement
     * 
     * @return
     */
-   protected abstract ServiceProxyInvocationHandler createInvocationHandler();
+   protected abstract SessionProxyInvocationHandler createInvocationHandler();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||

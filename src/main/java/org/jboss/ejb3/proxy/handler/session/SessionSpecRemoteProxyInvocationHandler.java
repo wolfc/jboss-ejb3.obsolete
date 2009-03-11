@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.handler.session.service;
+package org.jboss.ejb3.proxy.handler.session;
 
 import java.io.Serializable;
 
@@ -27,17 +27,14 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.proxy.container.InvokableContext;
 
 /**
- * ServiceLocalProxyInvocationHandler
- * 
- * Invocation Handler for local @Service Bean Proxies
+ * SessionSpecRemoteProxyInvocationHandler
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ServiceLocalProxyInvocationHandler extends ServiceProxyInvocationHandlerBase
+public class SessionSpecRemoteProxyInvocationHandler extends SessionSpecProxyInvocationHandlerBase
       implements
-         Serializable,
-         ServiceProxyInvocationHandler
+         Serializable
 {
 
    // --------------------------------------------------------------------------------||
@@ -45,6 +42,12 @@ public class ServiceLocalProxyInvocationHandler extends ServiceProxyInvocationHa
    // --------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 1L;
+
+   // --------------------------------------------------------------------------------||
+   // Instance Members ---------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   private String url;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -55,12 +58,19 @@ public class ServiceLocalProxyInvocationHandler extends ServiceProxyInvocationHa
     * 
     * @param containerName The name of the target container
     * @param containerGuid The globally-unique name of the container
+    * @param businessInterfaceType The possibly null businessInterfaceType
+    *   marking this invocation hander as specific to a given
+    *   EJB3 Business Interface
+    * @param url The URL to the Remote Host
     * @param interceptors The interceptors to apply to invocations upon this handler
     */
-   public ServiceLocalProxyInvocationHandler(final String containerName, final String containerGuid,
-         final Interceptor[] interceptors)
+   public SessionSpecRemoteProxyInvocationHandler(final String containerName, final String containerGuid,
+         final Interceptor[] interceptors, final String businessInterfaceType, final String url)
    {
-      super(containerName, containerGuid, interceptors);
+      super(containerName, containerGuid, interceptors, businessInterfaceType, null);
+
+      // Set properties
+      this.setUrl(url);
    }
 
    // --------------------------------------------------------------------------------||
@@ -73,6 +83,21 @@ public class ServiceLocalProxyInvocationHandler extends ServiceProxyInvocationHa
    @Override
    protected InvokableContext getContainer()
    {
-      return this.getContainerLocally();
+      return this.createRemoteProxyToContainer(this.getUrl());
    }
+
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   public String getUrl()
+   {
+      return url;
+   }
+
+   public void setUrl(String url)
+   {
+      this.url = url;
+   }
+
 }
