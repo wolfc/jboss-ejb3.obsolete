@@ -85,10 +85,10 @@
 
   <!-- SLSB JNDI Registrar -->
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
+    class="org.jboss.ejb3.proxy.impl.jndiregistrar.JndiStatelessSessionRegistrar">
     <constructor>
       <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
+        org.jboss.ejb3.proxy.impl.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>
@@ -96,10 +96,10 @@
 
   <!-- SFSB JNDI Registrar -->
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.SFSBJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatefulSessionRegistrar">
+    class="org.jboss.ejb3.proxy.impl.jndiregistrar.JndiStatefulSessionRegistrar">
     <constructor>
       <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
+        org.jboss.ejb3.proxy.impl.objectfactory.session.stateful.StatefulSessionProxyObjectFactory
       </parameter>
     </constructor>
     <depends>NameServer</depends>

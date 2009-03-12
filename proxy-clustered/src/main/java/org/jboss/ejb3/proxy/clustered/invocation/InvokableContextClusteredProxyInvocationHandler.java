@@ -30,7 +30,7 @@ import org.jboss.aop.metadata.SimpleMetaData;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.remoting.ClusterConstants;
 import org.jboss.aspects.remoting.FamilyWrapper;
-import org.jboss.ejb3.proxy.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
+import org.jboss.ejb3.proxy.impl.invocation.InvokableContextStatefulRemoteProxyInvocationHack;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.remoting.InvokerLocator;
 

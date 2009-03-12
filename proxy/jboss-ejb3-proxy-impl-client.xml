@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  vi:ts=2:sw=2:expandtab:
+-->
+<assembly xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.0.0.xsd"
+>
+  <id>client</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>target/classes</directory>
+      <outputDirectory></outputDirectory>
+      
+      <!-- 
+      
+      Most of the classes in the Proxy Component are
+      required on the Client CP, so we'll stick with 
+      exclude patterns to hide internals
+      
+       -->
+      <excludes>
+        <exclude>org/jboss/ejb3/proxy/impl/jndiregistrar/**</exclude>
+      </excludes>
+    </fileSet>
+
+  </fileSets>
+</assembly>

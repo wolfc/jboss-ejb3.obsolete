@@ -38,10 +38,10 @@ import org.jboss.ejb3.proxy.clustered.objectfactory.ClusteredProxyFactoryReferen
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringInfo;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistryListener;
-import org.jboss.ejb3.proxy.jndiregistrar.JndiReferenceBinding;
-import org.jboss.ejb3.proxy.jndiregistrar.JndiReferenceBindingSet;
-import org.jboss.ejb3.proxy.jndiregistrar.JndiSessionRegistrarBase;
-import org.jboss.ejb3.proxy.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiReferenceBinding;
+import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiReferenceBindingSet;
+import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
+import org.jboss.ejb3.proxy.impl.objectfactory.ProxyFactoryReferenceAddressTypes;
 import org.jboss.ha.framework.interfaces.FamilyClusterInfo;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.ClusterConfigMetaData;

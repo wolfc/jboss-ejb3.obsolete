@@ -22,6 +22,7 @@
 
 package org.jboss.ejb3.proxy.clustered.handler.session.stateful;
 
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 
@@ -29,8 +30,8 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.clustered.invocation.InvokableContextClusteredProxyInvocationHandler;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateful.StatefulRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.remoting.InvokerLocator;
 
@@ -40,7 +41,7 @@ import org.jboss.remoting.InvokerLocator;
  * @author Brian Stansberry
  *
  */
-public class StatefulClusteredProxyInvocationHandler extends StatefulRemoteProxyInvocationHandler
+public class StatefulClusteredProxyInvocationHandler extends SessionRemoteProxyInvocationHandler
 {  
 
    // --------------------------------------------------------------------------------||
@@ -117,9 +118,9 @@ public class StatefulClusteredProxyInvocationHandler extends StatefulRemoteProxy
       // Create a POJI Proxy to the Container
       String containerName = this.getContainerName();
       assert containerName != null && containerName.trim().length() > 0 : "Container Name must be set";
-      PojiProxy handler = new InvokableContextClusteredProxyInvocationHandler(this.getContainerName(), 
-            this.getContainerGuid(), locator, interceptors, this.getSessionId(), 
-            this.getFamilyWrapper(), this.getLoadBalancePolicy(), this.getPartitionName(), true);
+      PojiProxy handler = new InvokableContextClusteredProxyInvocationHandler(this.getContainerName(), this
+            .getContainerGuid(), locator, interceptors, (Serializable) this.getTarget(), this.getFamilyWrapper(), this
+            .getLoadBalancePolicy(), this.getPartitionName(), true);
       Class<?>[] interfaces = new Class<?>[]
       {InvokableContext.class};
       InvokableContext container = (InvokableContext) Proxy.newProxyInstance(InvokableContext.class.getClassLoader(),

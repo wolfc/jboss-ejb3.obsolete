@@ -3,10 +3,10 @@
 
   <!-- @Service JNDI Registrar -->
   <bean name="org.jboss.ejb3.JndiRegistrar.Session.ServiceJndiRegistrar"
-    class="org.jboss.ejb3.proxy.jndiregistrar.JndiServiceRegistrar">
+    class="org.jboss.ejb3.proxy.impl.jndiregistrar.JndiServiceRegistrar">
     <constructor>
       <parameter>
-        org.jboss.ejb3.proxy.objectfactory.session.service.ServiceProxyObjectFactory
+        org.jboss.ejb3.proxy.impl.objectfactory.session.service.ServiceProxyObjectFactory
       </parameter>
     </constructor>
   </bean>

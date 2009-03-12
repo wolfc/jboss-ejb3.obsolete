@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.3-SNAPSHOT</version>
   </parent>
 
   <!-- Artifact Configuration -->
@@ -85,9 +85,17 @@
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-proxy</artifactId>
+      <artifactId>jboss-ejb3-proxy-impl</artifactId>
       <classifier>client</classifier>
       <version>1.0.1-SNAPSHOT</version>
+      <optional>true</optional>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy-spi</artifactId>
+      <classifier>client</classifier>
+      <version>1.0.0-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
 
@@ -95,7 +103,7 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-clustered</artifactId>
       <classifier>client</classifier>
-      <version>1.0.0</version>
+      <version>1.0.1-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
 

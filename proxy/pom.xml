@@ -15,10 +15,10 @@
 
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
-  <artifactId>jboss-ejb3-proxy</artifactId>
+  <artifactId>jboss-ejb3-proxy-impl</artifactId>
   <version>1.0.1-SNAPSHOT</version>
-  <name>JBoss EJB 3.0 Proxy</name>
-  <description>JBoss EJB3 Proxy Component</description>
+  <name>JBoss EJB 3.x Proxy Implementation (Internals)</name>
+  <description>JBoss EJB 3.x Proxy Implementation (Internals)</description>
   <url>http://www.jboss.org/jbossejb3</url>
 
   <!-- Build Configuration -->
@@ -58,7 +58,7 @@
         </executions>
         <configuration>
           <descriptors>
-            <descriptor>jboss-ejb3-proxy-client.xml</descriptor>
+            <descriptor>jboss-ejb3-proxy-impl-client.xml</descriptor>
           </descriptors>
           <attach>true</attach>
         </configuration>
