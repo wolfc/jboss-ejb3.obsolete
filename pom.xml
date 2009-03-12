@@ -160,6 +160,8 @@
                 <exclude>org.jboss.microcontainer:jboss-deployers-impl</exclude>
                 <!-- deprecated, should be org.jboss.deployers:jboss-deployers-spi -->
                 <exclude>org.jboss.microcontainer:jboss-deployers-spi</exclude>
+                <!-- EJBTHREE-1767, now org.jboss.ejb3:jboss-ejb3-proxy-impl -->
+                <exclude>org.jboss.ejb3:jboss-ejb3-proxy</exclude>
               </excludes>
             </bannedDependencies>
             <requireMavenVersion>
