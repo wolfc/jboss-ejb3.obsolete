@@ -44,7 +44,7 @@ import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCache;
 import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCacheFactory;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulBean;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulLocal;
-import org.jboss.ejb3.proxy.intf.SessionProxy;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;
 import org.junit.After;
