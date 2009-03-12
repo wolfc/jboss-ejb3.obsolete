@@ -134,6 +134,12 @@ public class Installer
     */
    private JarFile installerJarFile;
    
+   
+   /*
+    * Pointer to jbossall-client.jar
+    */
+   private JarFile jbossallClientJarFile;
+   
    private boolean cleanup;
 
    // Main
@@ -277,6 +283,18 @@ public class Installer
       }
 
       return this.installerJarFile;
+   }
+   
+   private JarFile getJBossallClientJarFile()
+   {
+      // If not already specified
+      if(this.jbossallClientJarFile==null)
+      {
+         
+      }
+      
+      // Return
+      return jbossallClientJarFile;
    }
 
    // Internal Helper Methods

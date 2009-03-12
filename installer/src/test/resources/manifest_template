@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.7.1
+Created-By: 1.5.0_15-b04 (Sun Microsystems Inc.)
+Specification-Title: JBossAS
+Specification-Version: 6.0.0.Alpha1
+Specification-Vendor: JBoss (http://www.jboss.org/)
+Implementation-Title: JBoss [Neo]
+Implementation-Version: 6.0.0.Alpha1 (build: SVNTag=JBoss_6_0_0_Alpha1 date=200902270718)
+Implementation-Vendor: JBoss.org
+Implementation-Vendor-Id: http://www.jboss.org/
+Class-Path: default1.jar default2.jar default3.jar
