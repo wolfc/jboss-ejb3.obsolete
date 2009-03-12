@@ -23,10 +23,6 @@
       exclude patterns to hide internals
       
        -->
-       
-      <excludes>
-        <exclude>org/jboss/ejb3/proxy/spi/container/**</exclude>
-      </excludes>
 
     </fileSet>
 
