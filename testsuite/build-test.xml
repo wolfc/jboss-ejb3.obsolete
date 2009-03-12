@@ -4356,7 +4356,11 @@
             <isset property="test.extension"/>         
          </not>  
       </condition>
-
+   	
+   	<!-- Use this for debugging classpath 
+   	<property name="myclasspath" refid="test.classpath"/>
+    <echo message="${myclasspath}" />  -->
+   	
       <junit dir="${module.output}"
          printsummary="yes"
          haltonerror="false"
@@ -4389,7 +4393,7 @@
          <!--
          <jvmarg line="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=/dt_socket,address=8787,server=y,suspend=y"/>
          -->
-
+      	
          <classpath>
             <pathelement path="${location.target}/jboss-ejb3-testsuite.jar"/>
             

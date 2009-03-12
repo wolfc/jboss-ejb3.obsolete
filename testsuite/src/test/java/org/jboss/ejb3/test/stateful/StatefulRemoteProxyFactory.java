@@ -21,9 +21,10 @@
  */
 package org.jboss.ejb3.test.stateful;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.session.SessionSpecContainer;
+import org.jboss.aop.Advisor;
+import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionRemoteProxyFactory;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * Comment
@@ -31,13 +32,15 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-public class StatefulRemoteProxyFactory extends org.jboss.ejb3.proxy.factory.stateful.StatefulRemoteProxyFactory
+public class StatefulRemoteProxyFactory extends StatefulSessionRemoteProxyFactory
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(StatefulRemoteProxyFactory.class);
-   
-   public StatefulRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
+
+   public StatefulRemoteProxyFactory(final String name, final String containerName, final String containerGuid,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url,
+         final Advisor advisor, final String interceptorStackName)
    {
-      super(container, binding);
+      super(name, containerName, containerGuid, metadata, classloader, url, advisor, interceptorStackName);
    }
 }

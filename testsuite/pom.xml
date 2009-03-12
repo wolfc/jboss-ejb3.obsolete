@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -21,7 +21,7 @@
 
   <properties>
     <!-- Version of JBoss AS Facilities we depend upon -->
-    <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
+    <version.org.jboss.jboss-as>5.0.1.GA</version.org.jboss.jboss-as>
   </properties>
 
   <build>
@@ -212,22 +212,15 @@
     </dependency>
     
     <dependency>
-      <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-core</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.ejb3</groupId>
-          <artifactId>jboss-ejb3-async</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.jboss.bootstrap</groupId>
+      <artifactId>jboss-bootstrap</artifactId>
+      <version>1.0.0-Beta-2</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-common</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <artifactId>jboss-ejb3-core</artifactId>
+      <version>1.1.3-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     

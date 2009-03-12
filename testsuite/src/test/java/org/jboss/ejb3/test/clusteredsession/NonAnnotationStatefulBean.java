@@ -30,10 +30,10 @@ import javax.ejb.PrePassivate;
 import javax.ejb.Remove;
 import javax.interceptor.Interceptors;
 
+import org.jboss.bootstrap.spi.ServerConfig;
 import org.jboss.ejb3.test.clusteredsession.util.ExplicitFailoverInterceptor;
 import org.jboss.ejb3.test.stateful.nested.base.VMTracker;
 import org.jboss.logging.Logger;
-import org.jboss.system.server.ServerConfig;
 
 /**
  * Base class for various configs of a SFSB.  No class-level clustering 

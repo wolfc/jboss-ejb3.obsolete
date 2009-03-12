@@ -24,10 +24,10 @@ package org.jboss.ejb3.test.clusteredsession;
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 
+import org.jboss.bootstrap.spi.ServerConfig;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.Clustered;
 import org.jboss.logging.Logger;
-import org.jboss.system.server.ServerConfig;
 
 /**
  * @version <tt>$Revision$</tt>

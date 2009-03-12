@@ -21,9 +21,10 @@
  */
 package org.jboss.ejb3.test.bank;
 
-import org.jboss.ejb3.annotation.RemoteBinding;
-import org.jboss.ejb3.session.SessionSpecContainer;
+import org.jboss.aop.Advisor;
+import org.jboss.ejb3.proxy.impl.factory.session.stateless.StatelessSessionRemoteProxyFactory;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * Comment
@@ -31,12 +32,14 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  * @version $Revision$
  */
-public class TellerRemoteProxyFactory extends org.jboss.ejb3.proxy.factory.stateless.StatelessRemoteProxyFactory
+public class TellerRemoteProxyFactory extends StatelessSessionRemoteProxyFactory
 {
    private static final Logger log = Logger.getLogger(TellerRemoteProxyFactory.class);
-   
-   public TellerRemoteProxyFactory(SessionSpecContainer container, RemoteBinding binding)
+
+   public TellerRemoteProxyFactory(final String name, final String containerName, final String containerGuid,
+         final JBossSessionBeanMetaData metadata, final ClassLoader classloader, final String url,
+         final Advisor advisor, final String interceptorStackName)
    {
-      super(container, binding);
+      super(name, containerName, containerGuid, metadata, classloader, url, advisor, interceptorStackName);
    }
 }

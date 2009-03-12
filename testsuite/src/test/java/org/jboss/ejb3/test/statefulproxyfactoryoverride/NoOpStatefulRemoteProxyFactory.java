@@ -22,8 +22,8 @@
 package org.jboss.ejb3.test.statefulproxyfactoryoverride;
 
 import org.jboss.aop.Advisor;
-import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 

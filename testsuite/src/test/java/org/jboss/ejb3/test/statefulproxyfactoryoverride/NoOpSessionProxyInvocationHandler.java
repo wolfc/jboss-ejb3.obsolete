@@ -23,7 +23,8 @@ package org.jboss.ejb3.test.statefulproxyfactoryoverride;
 
 import java.lang.reflect.Method;
 
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 
 /**
  * NoOpSessionProxyInvocationHandler
@@ -41,6 +42,56 @@ public class NoOpSessionProxyInvocationHandler implements SessionProxyInvocation
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       throw new NoOpException("Invoked upon " + NoOpSessionProxyInvocationHandler.class.getName());
+   }
+
+   public String getBusinessInterfaceType()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public String getContainerGuid()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public String getContainerName()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public Interceptor[] getInterceptors()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public Object getTarget()
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void setBusinessInterfaceType(String businessInterfaceType)
+   {
+      throw new UnsupportedOperationException();  
+   }
+
+   public void setContainerGuid(String containerGuid)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void setContainerName(String containerName)
+   {
+      throw new UnsupportedOperationException();
+   }
+
+   public void setInterceptors(Interceptor[] interceptors)
+   {
+      throw new UnsupportedOperationException();      
+   }
+
+   public void setTarget(Object target)
+   {
+      throw new UnsupportedOperationException();
    }
 
 }

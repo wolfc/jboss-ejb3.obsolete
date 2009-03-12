@@ -26,13 +26,13 @@ import java.io.File;
 import javax.management.ObjectName;
 import javax.naming.InitialContext;
 
+import org.jboss.bootstrap.spi.ServerConfig;
 import org.jboss.cache.Cache;
 import org.jboss.cache.Fqn;
 import org.jboss.cache.jmx.CacheJmxWrapperMBean;
 import org.jboss.cache.loader.FileCacheLoader;
 import org.jboss.mx.util.MBeanProxy;
 import org.jboss.system.ServiceMBeanSupport;
-import org.jboss.system.server.ServerConfig;
 
 /**
  * Comment
