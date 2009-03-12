@@ -1,7 +1,8 @@
 jboss-ejb3-ext-api.jar
 jboss-ejb3-common-client.jar
 jboss-ejb3-core-client.jar
-jboss-ejb3-proxy-client.jar
+jboss-ejb3-proxy-spi-client.jar
+jboss-ejb3-proxy-impl-client.jar
 jboss-ejb3-proxy-clustered-client.jar
 jboss-ejb3-security-client.jar
 jboss-metadata.jar

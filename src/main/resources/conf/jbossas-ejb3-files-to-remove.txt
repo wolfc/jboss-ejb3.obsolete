@@ -3,6 +3,7 @@ client/jboss-ejb3-core-client.jar
 client/jboss-ejb3-proxy-client.jar
 client/jboss-ejb3-proxy-clustered-client.jar
 client/jboss-ejb3-security-client.jar
+common/lib/jboss-ejb3-proxy.jar
 server/default/deployers/ejb3.deployer/META-INF/ejb3-deployers-beans.xml
 server/default/deployers/ejb3.deployer/META-INF/persistence.properties
 server/default/deployers/ejb3.deployer/META-INF/

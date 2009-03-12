@@ -7,7 +7,8 @@ jboss-ejb3-ext-api-impl.jar
 jboss-ejb3-interceptors.jar
 jboss-ejb3-metadata.jar
 jboss-ejb3-mc-int.jar
-jboss-ejb3-proxy.jar
+jboss-ejb3-proxy-impl.jar
+jboss-ejb3-proxy-spi.jar
 jboss-ejb3-proxy-clustered.jar
 jboss-ejb3-security.jar
 jboss-ejb3-transactions.jar
