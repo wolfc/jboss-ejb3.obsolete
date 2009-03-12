@@ -28,8 +28,8 @@ import org.jboss.ejb3.proxy.clustered.factory.session.stateless.StatelessSession
 import org.jboss.ejb3.proxy.clustered.handler.session.stateful.StatefulClusteredProxyInvocationHandler;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringInfo;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
-import org.jboss.ejb3.proxy.factory.session.stateful.StatefulSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
+import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionRemoteProxyFactory;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;

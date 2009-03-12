@@ -21,7 +21,7 @@
  */
 package org.jboss.ejb3.proxy.clustered.objectstore;
 
-import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
+import org.jboss.ejb3.proxy.impl.objectstore.ObjectStoreBindings;
 
 /**
  * Defines constants used in binding POJOs to the Object Store.

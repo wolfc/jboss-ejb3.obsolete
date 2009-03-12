@@ -25,8 +25,8 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.clustered.factory.session.stateless.StatelessSessionClusteredProxyFactory;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
-import org.jboss.ejb3.proxy.factory.session.SessionProxyFactory;
-import org.jboss.ejb3.proxy.factory.session.stateless.StatelessSessionLocalProxyFactory;
+import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
+import org.jboss.ejb3.proxy.impl.factory.session.stateless.StatelessSessionLocalProxyFactory;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 

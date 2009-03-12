@@ -28,8 +28,8 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.proxy.clustered.invocation.InvokableContextClusteredProxyInvocationHandler;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.handler.session.stateless.StatelessRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionRemoteProxyInvocationHandler;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.remoting.InvokerLocator;
 
@@ -39,7 +39,7 @@ import org.jboss.remoting.InvokerLocator;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class StatelessClusteredProxyInvocationHandler extends StatelessRemoteProxyInvocationHandler
+public class StatelessClusteredProxyInvocationHandler extends SessionRemoteProxyInvocationHandler
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
