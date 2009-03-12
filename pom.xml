@@ -27,6 +27,31 @@
   <!-- Build Configuration -->
   <build>
   
+    <plugins>
+
+      <!-- Assembly Plugin (Proxy SPI Client) -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>jboss-ejb3-proxy-spi-client.xml</descriptor>
+          </descriptors>
+          <attach>true</attach>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
+    
+    </plugins>
     
   </build>
   
