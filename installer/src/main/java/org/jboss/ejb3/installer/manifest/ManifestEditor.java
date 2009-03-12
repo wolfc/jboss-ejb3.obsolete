@@ -22,13 +22,12 @@
 package org.jboss.ejb3.installer.manifest;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
-
-import org.jboss.logging.Logger;
 
 /**
  * ManifestEditor
@@ -43,8 +42,6 @@ public class ManifestEditor
    //------------------------------------------------------------------------||
    // Class Members ---------------------------------------------------------||
    //------------------------------------------------------------------------||
-
-   private static final Logger log = Logger.getLogger(ManifestEditor.class);
 
    private static final String ENTRY_NAME_CLASS_PATH = "Class-Path";
 
@@ -79,7 +76,7 @@ public class ManifestEditor
       // If there is not Manifest, make a new one
       if (manifest == null)
       {
-         log.debug("Created new empty manifest for JAR: " + jar);
+         getPrintStream().println("Created new empty manifest for JAR: " + jar);
          manifest = new Manifest();
       }
 
@@ -115,7 +112,7 @@ public class ManifestEditor
 
       // Get the new CP
       final String newCp = this.flattenClassPathEntries(entriesToAdd);
-      log.info("Setting the " + ENTRY_NAME_CLASS_PATH + " to: " + newCp);
+      getPrintStream().println("Setting the " + ENTRY_NAME_CLASS_PATH + " to: " + newCp);
       manifest.getMainAttributes().putValue(ENTRY_NAME_CLASS_PATH, newCp);
    }
 
@@ -149,13 +146,13 @@ public class ManifestEditor
          }
          else
          {
-            log.info("Removing from " + ENTRY_NAME_CLASS_PATH + ": " + classPathEntry);
+            getPrintStream().println("Removing from " + ENTRY_NAME_CLASS_PATH + ": " + classPathEntry);
          }
       }
 
       // Re-set the Class-Path
       final String newCp = this.flattenClassPathEntries(newClassPathEntries);
-      log.info("Setting the " + ENTRY_NAME_CLASS_PATH + " to: " + newCp);
+      getPrintStream().println("Setting the " + ENTRY_NAME_CLASS_PATH + " to: " + newCp);
       manifest.getMainAttributes().putValue(ENTRY_NAME_CLASS_PATH, newCp);
    }
 
@@ -178,6 +175,11 @@ public class ManifestEditor
 
       // Return
       return newCp;
+   }
+
+   private static PrintStream getPrintStream()
+   {
+      return System.out;
    }
 
    //------------------------------------------------------------------------||

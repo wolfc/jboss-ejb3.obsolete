@@ -23,6 +23,7 @@ package org.jboss.ejb3.installer;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +31,18 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
 
 import org.jboss.ejb3.common.thread.RedirectProcessOutputToSystemOutThread;
+import org.jboss.ejb3.installer.manifest.ManifestEditor;
 
 /**
  * JBoss AS EJB3 Plugin Installer
@@ -98,6 +106,11 @@ public class Installer
    private static final String FILENAME_CONF_DIRECTORY = "conf";
 
    /*
+    * Location of jbossall-client relative to JBOSS_HOME
+    */
+   private static final String FILENAME_JBOSSALL_CLIENT_JAR = "client/jbossall-client.jar";
+
+   /*
     * Apache Ant executable
     */
    private static final String COMMAND_ANT = "ant";
@@ -117,6 +130,21 @@ public class Installer
     */
    private static final String FILENAME_BUILDFILE = "build-install-ejb3-plugin.xml";
 
+   /*
+    * Filename of properties for the entries to be added to the Manifest CP for jbossall-client
+    */
+   private static final String FILENAME_JBOSSALL_CLIENT_NEWCP_ENTRIES = "jbossas-ejb3-entries-to-add-to-jbossallclient-cp.txt";
+
+   /*
+    * Filename of properties for the entries to be removed from the Manifest CP for jbossall-client
+    */
+   private static final String FILENAME_JBOSSALL_CLIENT_REMOVECP_ENTRIES = "jbossas-ejb3-entries-to-remove-from-jbossallclient-cp.txt";
+   
+   /**
+    * Filename of a JAR Manifest
+    */
+   private static final String FILENAME_MANIFEST = "META-INF/MANIFEST.MF";
+
    // Instance Members
 
    /*
@@ -133,13 +161,12 @@ public class Installer
     * Pointer to the installer JAR file
     */
    private JarFile installerJarFile;
-   
-   
+
    /*
     * Pointer to jbossall-client.jar
     */
-   private JarFile jbossallClientJarFile;
-   
+   private File jbossallClientJarFile;
+
    private boolean cleanup;
 
    // Main
@@ -157,7 +184,7 @@ public class Installer
       }
       catch (ArrayIndexOutOfBoundsException aioobe)
       {
-         throw new RuntimeException("Location of JBossAS 5.0.x Installation Directory must be first argument");
+         throw new RuntimeException("Location of JBossAS Installation Directory must be first argument");
       }
 
       // Create Installer
@@ -181,13 +208,13 @@ public class Installer
    public void install()
    {
       // Log
-      this.getPrintStream().println("\n*****************************************");
-      this.getPrintStream().println("|| JBossAS 5.0.x EJB3 Plugin Installer ||");
-      this.getPrintStream().println("*****************************************\n");
+      this.getPrintStream().println("\n***********************************");
+      this.getPrintStream().println("|| JBossAS EJB3 Plugin Installer ||");
+      this.getPrintStream().println("***********************************\n");
       this.getPrintStream().println("Installing EJB3 Libraries to Temp Directory...");
 
       // Add Shutdown Hook
-      if(cleanup)
+      if (cleanup)
          Runtime.getRuntime().addShutdownHook(new Shutdown());
 
       // Ensure Installation is clean
@@ -210,14 +237,17 @@ public class Installer
          this.copyFileFromJarToDirectory(this.getInstallerJarFile(), conf, this.getInstallationDirectory());
       }
 
-      for(JarEntry pkg : getAllJarEntriesInDirectory("packages"))
+      for (JarEntry pkg : getAllJarEntriesInDirectory("packages"))
       {
          copyFileFromJarToDirectory(this.getInstallerJarFile(), pkg, this.getInstallationDirectory());
       }
-      
+
       // Copy the buildfile to the installer temp directory
       this.copyFileFromJarToDirectory(this.getInstallerJarFile(), this.getInstallerJarFile().getJarEntry(
             Installer.FILENAME_BUILDFILE), this.getInstallationDirectory());
+
+      // Patch jbossall-client.jar
+      this.patchJBossallClientJar();
 
       // Run Ant
       this.runAnt();
@@ -284,20 +314,132 @@ public class Installer
 
       return this.installerJarFile;
    }
-   
-   private JarFile getJBossallClientJarFile()
+
+   private File getJBossallClientJarFile()
    {
       // If not already specified
-      if(this.jbossallClientJarFile==null)
+      if (this.jbossallClientJarFile == null)
       {
-         
+         // Get the JAR File
+         File jbossallClientFile = new File(this.getJbossAsInstallationDirectory(), FILENAME_JBOSSALL_CLIENT_JAR);
+         if (!jbossallClientFile.exists())
+         {
+            throw new RuntimeException("Could not find the jbossall-client JAR at: "
+                  + jbossallClientFile.getAbsolutePath());
+         }
+         this.getPrintStream().println("jbossall-client.jar: " + jbossallClientFile.getAbsolutePath());
+         jbossallClientJarFile = jbossallClientFile;
+
       }
-      
+
       // Return
       return jbossallClientJarFile;
    }
 
+   /**
+    * Patches jbossall-client by adding/removing configured CP entries 
+    */
+   private void patchJBossallClientJar()
+   {
+      // Get entries to add config file
+      final File cpEntriesToAddFile = new File(this.getInstallationDirectory(), FILENAME_CONF_DIRECTORY
+            + File.separatorChar + FILENAME_JBOSSALL_CLIENT_NEWCP_ENTRIES);
+      if (!cpEntriesToAddFile.exists())
+      {
+         throw new RuntimeException("Could not obtain " + cpEntriesToAddFile.getAbsolutePath());
+      }
+
+      // Get entries to remove config file
+      final File cpEntriesToRemoveFile = new File(this.getInstallationDirectory(), FILENAME_CONF_DIRECTORY
+            + File.separatorChar + FILENAME_JBOSSALL_CLIENT_REMOVECP_ENTRIES);
+      if (!cpEntriesToRemoveFile.exists())
+      {
+         throw new RuntimeException("Could not obtain " + cpEntriesToRemoveFile.getAbsolutePath());
+      }
+
+      // Make properties
+      Properties cpEntriesToAddProps = new Properties();
+      Properties cpEntriesToRemoveProps = new Properties();
+
+      // Load Properties
+      try
+      {
+         cpEntriesToAddProps.load(new FileInputStream(cpEntriesToAddFile));
+         cpEntriesToRemoveProps.load(new FileInputStream(cpEntriesToRemoveFile));
+      }
+      catch (IOException ioe)
+      {
+         throw new RuntimeException(ioe);
+      }
+
+      // Make Sets
+      Set<String> cpEntriesToAdd = this.setFromProperties(cpEntriesToAddProps);
+      Set<String> cpEntriesToRemove = this.setFromProperties(cpEntriesToRemoveProps);
+
+      // Get the JarFile
+      JarFile jbossallClientJar;
+      try
+      {
+         jbossallClientJar = new JarFile(this.getJBossallClientJarFile());
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException("Could not get jbossall-client JAR file", e);
+      }
+
+      // Make a Manifest Editor
+      ManifestEditor editor = new ManifestEditor(jbossallClientJar);
+
+      // Add/Remove
+      editor.addEntriesToClassPath(cpEntriesToAdd);
+      editor.removeEntriesFromClassPath(cpEntriesToRemove);
+
+      // Flush out again
+      JarOutputStream outStream = null;
+      try
+      {
+         outStream = new JarOutputStream(new FileOutputStream(this.getJBossallClientJarFile()));
+         ZipEntry manifestEntry = new ZipEntry(FILENAME_MANIFEST);
+         outStream.putNextEntry(manifestEntry);
+         Manifest manifest = jbossallClientJar.getManifest();
+         manifest.write(outStream);
+         outStream.closeEntry();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+      finally
+      {
+         if (outStream != null)
+         {
+            try
+            {
+               outStream.close();
+            }
+            catch (IOException e)
+            {
+               // Swallow
+            }
+         }
+      }
+   }
+
    // Internal Helper Methods
+
+   /**
+    * Obtains a Set from a Properties
+    */
+   private Set<String> setFromProperties(Properties props)
+   {
+      Set<String> set = new HashSet<String>();
+      Enumeration<?> names = props.keys();
+      while (names.hasMoreElements())
+      {
+         set.add((String) names.nextElement());
+      }
+      return set;
+   }
 
    /**
     * Returns all Libraries as references
