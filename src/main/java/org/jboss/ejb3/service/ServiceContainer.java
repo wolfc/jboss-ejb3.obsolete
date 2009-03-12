@@ -63,7 +63,7 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.Service;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
-import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
+import org.jboss.ejb3.proxy.impl.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.ejb3.session.SessionContainer;

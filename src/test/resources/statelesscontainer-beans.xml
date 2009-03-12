@@ -2,10 +2,10 @@
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
    <!-- SLSB JNDI Registrar -->
    <bean name="org.jboss.ejb3.JndiRegistrar.Session.SLSBJndiRegistrar"
-      class="org.jboss.ejb3.proxy.jndiregistrar.JndiStatelessSessionRegistrar">
+      class="org.jboss.ejb3.proxy.impl.jndiregistrar.JndiStatelessSessionRegistrar">
       <constructor>
          <parameter>
-            org.jboss.ejb3.proxy.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
+            org.jboss.ejb3.proxy.impl.objectfactory.session.stateless.StatelessSessionProxyObjectFactory
          </parameter>
       </constructor>
       <depends>NamingServer</depends>
