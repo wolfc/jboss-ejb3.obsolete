@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<aop xmlns="urn:jboss:aop-beans:1.0">
+   <interceptor class="org.jboss.ejb3.singleton.SingletonInstanceInterceptor" scope="PER_VM"/>
+   
+   <!-- 
+   <domain name="Intercepted Bean">
+   </domain>
+   -->
+   
+   <domain name="Singleton Bean" extends="Intercepted Bean" inheritBindings="true">
+      <bind pointcut="execution(public * *->*(..))">
+         <interceptor-ref name="org.jboss.ejb3.singleton.SingletonInstanceInterceptor"/>
+      </bind>
+   </domain>
+</aop>
