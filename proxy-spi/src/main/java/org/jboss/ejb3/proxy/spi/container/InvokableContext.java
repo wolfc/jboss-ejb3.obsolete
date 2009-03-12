@@ -19,18 +19,43 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.intf;
+package org.jboss.ejb3.proxy.spi.container;
+
+import org.jboss.aop.joinpoint.Invocation;
+import org.jboss.aop.joinpoint.InvocationResponse;
+import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 
 /**
- * EjbProxy
+ * InvokableContext
  * 
- * Defines the contract for all methods required
- * of JBoss EJB3 Proxies
+ * Represents any object capable of carrying out 
+ * generic Invocations as described by a 
+ * ContainerMethodInvocation descriptor
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface EjbProxy
+public interface InvokableContext
 {
+   /**
+    * Invokes the method described by the specified serializable method
+    * as called from the specified proxy, using the specified arguments
+    * 
+    * @param proxy The proxy making the invocation
+    * @param method The method to be invoked
+    * @param args The arguments to the invocation
+    * @throws Throwable A possible exception thrown by the invocation
+    * @return
+    */
+   Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable;
 
+   /**
+    * Invocation point of entry for Remoting
+    * 
+    * @param invocation
+    * @return
+    * @throws Throwable
+    */
+   InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable;
 }

@@ -32,9 +32,9 @@ import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.remoting.ProxyRemotingUtils;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.logging.Logger;
 
 /**

@@ -24,8 +24,8 @@ package org.jboss.ejb3.test.proxy.common.container;
 import java.io.Serializable;
 import java.util.UUID;
 
-import org.jboss.ejb3.proxy.container.InvokableContext;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**

@@ -28,7 +28,7 @@ import java.util.Set;
 import org.jboss.aop.Advisor;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.intf.ServiceProxy;
+import org.jboss.ejb3.proxy.spi.intf.ServiceProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 

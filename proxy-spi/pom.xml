@@ -33,13 +33,8 @@
   <properties>
   
     <!-- Versioning -->
-    <version.org.jboss.ejb3_jboss.ejb3.api>3.1.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.api>
-    <version.org.jboss.ejb3_jboss.ejb3.async.spi>2.0.0-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.async.spi>
-    <version.org.jboss.ejb3_jboss.ejb3.interceptors>1.0.0</version.org.jboss.ejb3_jboss.ejb3.interceptors>
-    <version.org.jboss.ejb3_jboss.ejb3.test.remote>0.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.test.remote>
-    <version.org.jboss.security_jboss.security>2.0.2.SP6</version.org.jboss.security_jboss.security>
-    <version.org.jboss.javaee_jboss.jacc.api>1.1.0.GA</version.org.jboss.javaee_jboss.jacc.api>
-  
+    <version.org.jboss.ejb3_jboss.ejb3.common>1.0.0</version.org.jboss.ejb3_jboss.ejb3.common>
+    <version.org.jboss.aop_jboss.aop>2.0.1.GA</version.org.jboss.aop_jboss.aop>
   </properties>
 
   <dependencies>
@@ -48,9 +43,23 @@
     Dependencies: org.jboss.ejb3 
     -->
     
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-common</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.common}</version>
+      <optional>true</optional>
+    </dependency>
+    
     <!-- 
     Dependencies: External to EJB3 
     -->
+    
+    <dependency>
+      <groupId>org.jboss.aop</groupId>
+      <artifactId>jboss-aop</artifactId>
+      <version>${version.org.jboss.aop_jboss.aop}</version>
+      <optional>true</optional>
+    </dependency>
 
   </dependencies>
 </project>

@@ -30,10 +30,10 @@ import org.jboss.aop.Advisor;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
-import org.jboss.ejb3.proxy.container.StatefulSessionFactory;
 import org.jboss.ejb3.proxy.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.intf.StatefulSessionProxy;
+import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
+import org.jboss.ejb3.proxy.spi.intf.StatefulSessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 

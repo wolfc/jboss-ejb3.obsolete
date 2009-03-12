@@ -19,17 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.intf;
+package org.jboss.ejb3.proxy.spi.intf;
 
 /**
- * StatefulSessionProxy
+ * EjbProxy
  * 
- * Contract for operations required of Stateful Proxies
+ * Defines the contract for all methods required
+ * of JBoss EJB3 Proxies
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionProxy extends SessionProxy
+public interface EjbProxy
 {
 
 }

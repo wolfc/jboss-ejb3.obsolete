@@ -29,10 +29,10 @@ import org.jboss.aop.util.MethodHashing;
 import org.jboss.aop.util.PayloadKey;
 import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.intf.SessionProxy;
 import org.jboss.ejb3.proxy.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.remoting.StatefulSessionRemotingMetadata;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 

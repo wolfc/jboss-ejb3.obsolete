@@ -19,24 +19,17 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.proxy.container;
-
-import java.io.Serializable;
+package org.jboss.ejb3.proxy.spi.intf;
 
 /**
- * StatefulSessionFactory
+ * StatefulSessionProxy
  * 
- * Capable of creating new SFSB Sessions
+ * Contract for operations required of Stateful Proxies
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface StatefulSessionFactory
+public interface StatefulSessionProxy extends SessionProxy
 {
-   /**
-    * Creates a new user session and returns the unique Session ID
-    * 
-    * @return
-    */
-   Serializable createSession();
+
 }
