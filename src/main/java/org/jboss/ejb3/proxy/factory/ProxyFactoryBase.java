@@ -31,7 +31,7 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.intf.EjbProxy;
+import org.jboss.ejb3.proxy.spi.intf.EjbProxy;
 import org.jboss.logging.Logger;
 
 /**

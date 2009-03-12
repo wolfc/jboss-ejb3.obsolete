@@ -24,7 +24,7 @@ package org.jboss.ejb3.proxy.handler.session;
 import java.io.Serializable;
 
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 
 /**
  * SessionRemoteProxyInvocationHandler

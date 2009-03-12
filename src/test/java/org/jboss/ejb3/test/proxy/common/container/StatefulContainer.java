@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.jboss.ejb3.proxy.container.StatefulSessionFactory;
 import org.jboss.ejb3.proxy.objectstore.ObjectStoreBindings;
+import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
