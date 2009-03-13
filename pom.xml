@@ -56,6 +56,7 @@
     <module>mc-int</module>
     <module>plugin</module>
     <module>pool</module>
+    <module>proxy</module>
     <module>proxy-impl</module>
     <module>proxy-clustered</module>
     <module>proxy-spi</module>
