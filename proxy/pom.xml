@@ -1,0 +1,89 @@
+<!--
+  vi:ts=2:sw=2:expandtab
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Configuration -->
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-proxy</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
+  <name>JBoss EJB 3.x Proxy Transition</name>
+  <description>
+    The proxy transition component makes sure we're backwards compatible 
+    while moving to proxy-impl.
+  </description>
+  <url>http://www.jboss.org/jbossejb3</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <excludeTransitive>true</excludeTransitive>
+              <excludes>META-INF/**</excludes>
+              <outputDirectory>${project.build.directory}/classes</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2-beta-1</version>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>jboss-ejb3-proxy-client.xml</descriptor>
+          </descriptors>
+          <attach>true</attach>
+        </configuration>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!--
+  <build>
+    <plugins>
+    </plugins>
+  </build>
+  -->
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy-impl</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy-spi</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
