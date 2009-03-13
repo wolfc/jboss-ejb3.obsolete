@@ -24,7 +24,7 @@
       
        -->
       <excludes>
-        <exclude>org/jboss/ejb3/proxy/jndiregistrar/**</exclude>
+        <exclude>org/jboss/ejb3/proxy/impl/jndiregistrar/**</exclude>
       </excludes>
     </fileSet>
 

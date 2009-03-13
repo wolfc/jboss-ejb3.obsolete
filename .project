@@ -1,6 +1,7 @@
 <projectDescription>
   <name>jboss-ejb3-proxy</name>
-  <comment>JBoss EJB3 Proxy Component</comment>
+  <comment>The proxy transition component makes sure we&apos;re backwards compatible 
+    while moving to proxy-impl.</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
