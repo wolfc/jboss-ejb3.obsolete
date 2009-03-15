@@ -33,7 +33,6 @@ import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactoryBase;
 import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
-import org.jboss.ejb3.proxy.spi.intf.StatefulSessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
@@ -103,25 +102,6 @@ public abstract class StatefulSessionProxyFactoryBase extends SessionProxyFactor
    protected Set<Class<?>> getReturnTypesFromCreateMethods(Class<?> homeInterface)
    {
       return this.getReturnTypesFromCreateMethods(homeInterface, false);
-   }
-
-   /**
-    * Returns Proxy interfaces common to all Proxies generated
-    * by this ProxyFactory
-    * 
-    * @return
-    */
-   @Override
-   protected Set<Class<?>> getCommonProxyInterfaces()
-   {
-      // Initialize
-      Set<Class<?>> interfaces = super.getCommonProxyInterfaces();
-
-      // Add
-      interfaces.add(StatefulSessionProxy.class);
-
-      // Return
-      return interfaces;
    }
 
    // --------------------------------------------------------------------------------||

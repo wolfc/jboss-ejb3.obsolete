@@ -49,7 +49,6 @@ import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
-import org.jboss.ejb3.proxy.spi.intf.StatefulSessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
@@ -271,19 +270,10 @@ public abstract class SessionContainer implements InvokableContext
    }
 
    //FIXME: Should be agnostic to Session IDs, SLSBs have none
-   public Object invokeBean(Object proxy, Method method, Object args[]) throws Throwable
+   public Object invokeBean(SessionProxy proxy, Method method, Object args[]) throws Throwable
    {
-      // Initialize a Session ID
-      Object sessionId = null;
-
-      // Obtain the InvocationHandler
-      if (proxy instanceof StatefulSessionProxy)
-      {
-         StatefulSessionProxy statefulProxy = (StatefulSessionProxy) proxy;
-
-         // Get the Session ID
-         sessionId = statefulProxy.getTarget();
-      }
+      // Get the Target (Session ID)
+      Object sessionId = proxy.getTarget();
 
       // Get the appropriate instance
       Object obj = this.getBeanInstance((Serializable) sessionId);
