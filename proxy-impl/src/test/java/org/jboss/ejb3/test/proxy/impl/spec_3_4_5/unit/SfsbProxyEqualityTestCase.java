@@ -30,7 +30,7 @@ import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.spi.intf.StatefulSessionProxy;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.ejb3.test.proxy.impl.common.Utils;
 import org.jboss.ejb3.test.proxy.impl.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.impl.common.ejb.sfsb.MyStatefulBean;
@@ -130,7 +130,7 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
    private void setSessionIdOnProxy(Object proxy, Serializable id)
    {
       // Get the InvocationHander for the Proxy
-      StatefulSessionProxy handler = (StatefulSessionProxy) proxy;
+      SessionProxy handler = (SessionProxy) proxy;
       handler.setTarget(id);
    }
 
