@@ -47,4 +47,14 @@ public interface SessionProxy extends EjbProxy
     * @param sessionId
     */
    void setTarget(Object target);
+
+   /**
+    * Requests of the container that the underlying target be removed.
+    * Most frequently used in SFSB, but not necessarily supported 
+    * by SLSB/Singleton/@Service Containers
+    * 
+    * @throws UnsupportedOperationException If the bean type 
+    * does not honor client requests to remove the target
+    */
+   void removeTarget() throws UnsupportedOperationException;
 }

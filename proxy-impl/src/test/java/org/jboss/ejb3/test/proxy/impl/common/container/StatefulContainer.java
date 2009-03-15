@@ -138,6 +138,26 @@ public class StatefulContainer extends SessionSpecContainer implements StatefulS
       return bean;
    }
 
+   /**
+    * Requests of the container that the underlying target be removed.
+    * Most frequently used in SFSB, but not necessarily supported 
+    * by SLSB/Singleton/@Service Containers
+    * 
+    * @throws UnsupportedOperationException If the bean type 
+    * does not honor client requests to remove the target
+    * 
+    * @param target
+    * @throws UnsupportedOperationException
+    */
+   public void removeTarget(Object target) throws UnsupportedOperationException
+   {
+      Object instance = cache.remove(target);
+      if (instance == null)
+      {
+         throw new RuntimeException("No SFSB instance with ID " + target + " exists for removal");
+      }
+   }
+
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||

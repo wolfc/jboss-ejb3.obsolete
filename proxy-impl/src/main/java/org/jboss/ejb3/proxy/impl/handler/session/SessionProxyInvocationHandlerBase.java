@@ -70,6 +70,8 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
 
    private static final String METHOD_NAME_SET_TARGET = "setTarget";
 
+   private static final String METHOD_NAME_REMOVE_TARGET = "removeTarget";
+
    /*
     * Local Methods
     */
@@ -83,6 +85,8 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
 
    private static final SerializableMethod METHOD_SET_TARGET;
 
+   private static final SerializableMethod METHOD_REMOVE_TARGET;
+
    static
    {
       try
@@ -94,6 +98,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
          METHOD_EQUALS = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_EQUALS, Object.class),
                Object.class);
          METHOD_HASH_CODE = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_HASH_CODE), Object.class);
+         METHOD_REMOVE_TARGET = new SerializableMethod(SessionProxy.class.getDeclaredMethod(METHOD_NAME_REMOVE_TARGET));
       }
       catch (NoSuchMethodException nsme)
       {
@@ -295,10 +300,18 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
          // Return
          return sb.toString();
       }
+      
       // hashCode
       if (invokedMethod.equals(METHOD_HASH_CODE.toMethod()))
       {
          return this.invokeHashCode(proxy);
+      }
+      
+      // removeTarget
+      if (invokedMethod.equals(METHOD_REMOVE_TARGET.toMethod()))
+      {
+         this.getContainer().removeTarget(this.getTarget());
+         return null;
       }
 
       // If no eligible methods were invoked
