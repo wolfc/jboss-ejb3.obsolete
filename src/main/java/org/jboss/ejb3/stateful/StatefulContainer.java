@@ -1369,6 +1369,25 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
    
+   /**
+    * Requests of the container that the underlying target be removed.
+    * Most frequently used in SFSB, but not necessarily supported 
+    * by SLSB/Singleton/@Service Containers
+    * 
+    * @throws UnsupportedOperationException If the bean type 
+    * does not honor client requests to remove the target
+    * 
+    * @param target
+    * @throws UnsupportedOperationException
+    */
+   @Override
+   public void removeTarget(Object target) throws UnsupportedOperationException
+   {
+      // Delegate to destroy
+      log.debug("Received request from client to destroy SFSB Session with ID: " + target);
+      this.destroySession(target);
+   }
+   
    protected void removeHandle(Handle arg) throws Exception
    {
       /*

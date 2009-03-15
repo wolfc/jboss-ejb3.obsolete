@@ -21,29 +21,13 @@
  */
 package org.jboss.ejb3.core.test.service;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-
-import org.jboss.ejb3.annotation.Service;
-
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Service
-@Remote(ServiceRemote.class)
-@Local(ServiceLocal.class)
-public class ServiceBean implements ServiceRemote
+public interface ServiceLocal
 {
-   private int id = -1;
-
-   public int getId()
-   {
-      return id;
-   }
-
-   public void setId(int id)
-   {
-      this.id = id;
-   }
+   int getId();
+   
+   void setId(int id);
 }
