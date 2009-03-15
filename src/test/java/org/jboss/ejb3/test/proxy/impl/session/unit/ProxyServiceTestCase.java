@@ -96,7 +96,7 @@ public class ProxyServiceTestCase extends SessionTestCaseBase
 
    /**
     * Tests binding and invocation upon the local business 
-    * interface using @LocalBinding.jnidBinding value
+    * interface using @LocalBinding.jndiBinding value
     */
    @Test
    public void testLocalExplicitBindings() throws Exception
@@ -110,7 +110,7 @@ public class ProxyServiceTestCase extends SessionTestCaseBase
 
    /**
     * Tests binding and invocation upon the remote business 
-    * interface using @RemoteBinding.jnidBinding value
+    * interface using @RemoteBinding.jndiBinding value
     */
    @Test
    public void testRemoteExplicitBindings() throws Exception
