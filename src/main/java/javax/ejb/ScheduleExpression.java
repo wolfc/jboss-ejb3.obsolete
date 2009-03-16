@@ -51,6 +51,8 @@ public final class ScheduleExpression implements Serializable
    private String second = "0";
 
    private Date start;
+   
+   private String timezone = "";
 
    private String year = "*";
 
@@ -124,6 +126,11 @@ public final class ScheduleExpression implements Serializable
       return start;
    }
    
+   public String getTimezone()
+   {
+      return timezone;
+   }
+   
    public String getYear()
    {
       return year ;
@@ -180,6 +187,12 @@ public final class ScheduleExpression implements Serializable
    public ScheduleExpression start(Date s)
    {
       this.start = s;
+      return this;
+   }
+   
+   public ScheduleExpression timezone(String s)
+   {
+      this.timezone = s;
       return this;
    }
    

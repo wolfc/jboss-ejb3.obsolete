@@ -29,7 +29,7 @@ import javax.xml.rpc.handler.MessageContext;
  * instance. The container passes the SessionContext interface to an
  * instance after the instance has been created. The session context
  * remains associated with the instance for the lifetime of the instance.
- * @version $Revision$
+ * @version $Revision:78081 $
  */
 public interface SessionContext extends EJBContext
 {
@@ -103,5 +103,5 @@ public interface SessionContext extends EJBContext
     *   business method invocation with return type Future.
     * @since 3.1
     */
-   boolean isCancelled() throws IllegalStateException;
+   boolean wasCancelCalled() throws IllegalStateException;
 }

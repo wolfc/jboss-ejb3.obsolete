@@ -45,5 +45,12 @@ public interface InvocationContext
     */
    public java.util.Map<String, Object> getContextData();
 
+   /**
+    * Returns the timer associated with an @AroundTimeout method.
+    * 
+    * @since 3.1
+    */
+   Object getTimer();
+   
    public Object proceed() throws Exception;
 }
