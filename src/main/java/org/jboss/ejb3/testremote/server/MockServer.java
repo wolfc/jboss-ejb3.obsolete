@@ -22,16 +22,12 @@
 package org.jboss.ejb3.testremote.server;
 
 import java.lang.reflect.Constructor;
-import java.net.URL;
 
-import org.jboss.aop.AspectManager;
-import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.test.mc.bootstrap.EmbeddedTestMcBootstrap;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
-import org.jboss.remoting.ServerInvocationHandler;
 import org.jboss.remoting.transport.Connector;
 
 /**
@@ -51,14 +47,6 @@ public class MockServer
    // --------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(MockServer.class);
-
-   /**
-    * Invocation request to the MockServer will be handler by this
-    * invocation handler
-    */
-   private ServerInvocationHandler mockServerInvocationHandler;
-
-   private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
 
    /**
     * Various possible server status
@@ -101,31 +89,10 @@ public class MockServer
    // --------------------------------------------------------------------------------||
 
    /**
-    * Constructor
-    * Configures and creates a socket based {@link Connector} which will
-    * accept (start/stop) requests from client 
+    * Required no-arg Constructor 
     */
-   public MockServer(Class<?> testClass, String serverHost, int port)
+   public MockServer()
    {
-      this.setTestClass(testClass);
-      String uri = "socket://" + serverHost + ":" + port;
-      try
-      {
-         InvokerLocator invokerLocator = new InvokerLocator(uri);
-
-         this.remoteConnector = new Connector(invokerLocator);
-         this.remoteConnector.create();
-         this.mockServerInvocationHandler = new MockServerInvocationHandler(this);
-         this.remoteConnector.addInvocationHandler("EJB3Test", this.mockServerInvocationHandler);
-         log.debug("Connector created for accepting MockServer requests");
-
-      }
-      catch (Exception e)
-      {
-         log.error("Could not create Mockserver for testclass = " + testClass + " serverHost= " + serverHost
-               + " port= " + port, e);
-         throw new RuntimeException("Could not start server at " + uri, e);
-      }
 
    }
 
@@ -168,6 +135,10 @@ public class MockServer
          throw new RuntimeException("Specified Test Class, \"" + testClassname + "\" could not be found", cnfe);
       }
 
+      // Get bind information
+      String bindHost = args[args.length - 2];
+      int bindPort = Integer.parseInt(args[args.length - 1]);
+
       // Get Mock Server implementation 
       String mockServerClassName = args[1];
 
@@ -193,21 +164,28 @@ public class MockServer
       Constructor<?> serverCtor = null;
       try
       {
-         serverCtor = mockServerClass.getConstructor(new Class<?>[]
-         {Class.class, String.class, int.class});
+         serverCtor = mockServerClass.getConstructor();
       }
       catch (NoSuchMethodException e1)
       {
          throw new RuntimeException("MockServer implementation " + mockServerClassName
-               + " must have a public ctor(Class,String,int)", e1);
+               + " must have a public no-arg ctor", e1);
       }
 
-      MockServer launcher = (MockServer) serverCtor.newInstance(new Object[]
-      {testClass, args[args.length - 2], Integer.parseInt(args[args.length - 1])});
+      // Create launcher
+      MockServer launcher = (MockServer) serverCtor.newInstance();
+
+      // Set Test Class
+      launcher.setTestClass(testClass);
 
       try
       {
          // Ready to receive (start/stop) requests
+         String bindUri = "socket://" + bindHost + ":" + bindPort;
+         InvokerLocator invokerLocator = new InvokerLocator(bindUri);
+         launcher.remoteConnector = new Connector(invokerLocator);
+         launcher.remoteConnector.create();
+         launcher.remoteConnector.addInvocationHandler("EJB3Test", new MockServerInvocationHandler(launcher));
          launcher.acceptRequests();
       }
       catch (Throwable e)
@@ -236,31 +214,6 @@ public class MockServer
 
       // Bind the Ejb3Registrar
       Ejb3RegistrarLocator.bindRegistrar(new Ejb3McRegistrar(bootstrap.getKernel()));
-
-      // Switch up to the hacky CL so that "jndi.properties" is not loaded
-      ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
-      try
-      {
-         Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
-
-         // Deploy *-beans.xml
-         this.getBootstrap().deploy(this.getTestClass());
-
-         // Load ejb3-interceptors-aop.xml into AspectManager
-         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-         URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
-         if (url == null)
-         {
-            throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
-                  + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
-         }
-         AspectXmlLoader.deployXML(url);
-      }
-      finally
-      {
-         // Restore old CL
-         Thread.currentThread().setContextClassLoader(olderLoader);
-      }
    }
 
    /**
@@ -324,17 +277,6 @@ public class MockServer
    protected void acceptRequests() throws Throwable
    {
       this.remoteConnector.start();
-   }
-
-   /**
-    * 
-    * @param serverInvocationHandler The {@link ServerInvocationHandler} to
-    *   handle requests
-    */
-   protected void setInvocationHandler(ServerInvocationHandler serverInvocationHandler)
-   {
-      this.mockServerInvocationHandler = serverInvocationHandler;
-
    }
 
    // --------------------------------------------------------------------------------||
