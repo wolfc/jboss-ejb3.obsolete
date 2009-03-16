@@ -21,11 +21,16 @@
  */
 package org.jboss.ejb3.test.proxy.impl.remoteaccess.unit;
 
+import java.net.URL;
+
+import org.jboss.aop.AspectManager;
+import org.jboss.aop.AspectXmlLoader;
 import org.jboss.ejb3.test.proxy.impl.common.Utils;
 import org.jboss.ejb3.test.proxy.impl.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.impl.common.container.StatelessContainer;
 import org.jboss.ejb3.test.proxy.impl.common.ejb.sfsb.MyStatefulBean;
 import org.jboss.ejb3.test.proxy.impl.common.ejb.slsb.MyStatelessBean;
+import org.jboss.ejb3.testremote.server.JndiPropertiesToJnpserverPropertiesHackCl;
 import org.jboss.ejb3.testremote.server.MockServer;
 import org.jboss.logging.Logger;
 
@@ -46,13 +51,15 @@ public class ProxyMockServer extends MockServer
 
    private static final Logger log = Logger.getLogger(ProxyMockServer.class);
 
+   private static final String FILENAME_EJB3_INTERCEPTORS_AOP = "ejb3-interceptors-aop.xml";
+
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
-   public ProxyMockServer(final Class<?> testClass, final String serverHost, final int port)
+   public ProxyMockServer()
    {
-      super(testClass, serverHost, port);
+      super();
    }
 
    /**
@@ -63,6 +70,31 @@ public class ProxyMockServer extends MockServer
    {
       // Call super implementation
       super.initialize();
+
+      // Switch up to the hacky CL so that "jndi.properties" is not loaded
+      ClassLoader olderLoader = Thread.currentThread().getContextClassLoader();
+      try
+      {
+         Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
+
+         // Deploy *-beans.xml
+         this.getBootstrap().deploy(this.getTestClass());
+
+         // Load ejb3-interceptors-aop.xml into AspectManager
+         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+         URL url = cl.getResource(FILENAME_EJB3_INTERCEPTORS_AOP);
+         if (url == null)
+         {
+            throw new RuntimeException("Could not load " + AspectManager.class.getSimpleName()
+                  + " with definitions from XML as file " + FILENAME_EJB3_INTERCEPTORS_AOP + " could not be found");
+         }
+         AspectXmlLoader.deployXML(url);
+      }
+      finally
+      {
+         // Restore old CL
+         Thread.currentThread().setContextClassLoader(olderLoader);
+      }
 
       // Create a SLSB Container
       final StatelessContainer slsbContainer = Utils.createSlsb(MyStatelessBean.class);
