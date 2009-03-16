@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<deployment xmlns="urn:jboss:bean-deployer:2.0">
-
-<!-- Probably needs to come from a jpa-profile -->
-  <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DefaultPersistenceUnitDependencyResolver"/>
-  <bean name="SpecCompliantSearchStrategy" class="org.jboss.jpa.resolvers.strategy.SpecCompliantSearchStrategy"/>
-  <bean name="JavaEEModuleInformer" class="org.jboss.ejb3.nointerface.test.javaee.SimpleJavaEEModuleInformer"/>
-</deployment>

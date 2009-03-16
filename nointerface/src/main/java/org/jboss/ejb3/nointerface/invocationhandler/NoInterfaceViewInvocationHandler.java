@@ -24,9 +24,11 @@ package org.jboss.ejb3.nointerface.invocationhandler;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.jboss.ejb3.EJBContainer;
+
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
+import org.jboss.logging.Logger;
 
 /**
  * NoInterfaceViewInvocationHandler
@@ -43,6 +45,11 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
 {
 
    /**
+    * Logger
+    */
+   private static Logger logger = Logger.getLogger(NoInterfaceViewInvocationHandler.class);
+
+   /**
     * The container to which this invocation handler corresponds to.
     * All calls to this invocation handler will be forwarded to this
     * container.
@@ -50,7 +57,12 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     */
    private InvokableContext container;
 
-   private Object proxy;
+
+   /**
+    * The {@link NoInterfaceViewInvocationHandler} and the {@link InvokableContext} interact
+    * with each other through a {@link SessionProxy}
+    */
+   private SessionProxy sessionProxy;
 
    /**
     * Constructor
@@ -69,16 +81,17 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     * This method will do the common steps (common for SLSB and SFSB) before passing on the
     * call to {@link #doInvoke(Object, Method, Object[])}
     *
-    * @param obj
+    * @param proxy
     * @param method The invoked method
     * @param args The arguments to the method
     */
-   public Object invoke(Object obj, Method method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
+      assert this.sessionProxy != null : "Cannot invoke the container without the " + SessionProxy.class.getName();
       // TODO: Some methods like toString() can be handled locally.
       // But as of now let's just pass it on to the container.
       SerializableMethod serializableMethod = new SerializableMethod(method);
-      return getContainer().invoke(this.proxy, serializableMethod, args);
+      return getContainer().invoke(this.sessionProxy, serializableMethod, args);
    }
 
    /**
@@ -91,14 +104,63 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
       return this.container;
    }
 
-   public void setProxy(Object proxy)
+   /**
+    * Creates a {@link SessionProxy}, for the <code>target</code>, which will
+    * be used by this {@link NoInterfaceViewInvocationHandler} to interact with
+    * the {@link InvokableContext}
+    *
+    * @param target The target of an invocation (used as a sessionid)
+    */
+   public void createSessionProxy(Object target)
    {
-      this.proxy = proxy;
+      this.sessionProxy = new NoInterfaceViewSessionProxy();
+      this.sessionProxy.setTarget(target);
    }
 
-   public Object getProxy()
+
+   /**
+    *
+    * NoInterfaceViewSessionProxy
+    *
+    * A {@link SessionProxy} implementation for the no-interface view.
+    * Used by the {@link NoInterfaceViewInvocationHandler} to interact
+    * with the {@link InvokableContext}
+    *
+    * @author Jaikiran Pai
+    * @version $Revision: $
+    */
+   private class NoInterfaceViewSessionProxy implements SessionProxy
    {
-      return this.proxy;
+
+      /**
+       * The target of an invocation on the {@link NoInterfaceViewInvocationHandler} - used as a sessionId
+       */
+      private Object target;
+
+
+      /**
+       * @see SessionProxy#getTarget()
+       */
+      public Object getTarget()
+      {
+         return this.target;
+      }
+
+      /**
+       * @see SessionProxy#setTarget(Object)
+       */
+      public void setTarget(Object target)
+      {
+         this.target = target;
+      }
+
+      public void removeTarget() throws UnsupportedOperationException
+      {
+         // Is this enough?
+         this.target = null;
+
+      }
+
    }
 
 }

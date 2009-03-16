@@ -201,11 +201,11 @@ public abstract class AbstractNoInterfaceTestCase
    {
       deploy(new File(SERVER_PROFILE_DEPLOY_DIR_PATH).toURL());
 
-      // additionally we need the ejb3-interceptors-aop.xml which we pull in from our
-      // ejb3-core dependency jar (instead of duplicating that file in our test setup)
-      URL ejb3InterceptorsConfigFile = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
-      logger.debug("ejb3-interceptors-aop.xml being picked up from " + ejb3InterceptorsConfigFile);
-      deploy(ejb3InterceptorsConfigFile);
+//      // additionally we need the ejb3-interceptors-aop.xml which we pull in from our
+//      // ejb3-core dependency jar (instead of duplicating that file in our test setup)
+//      URL ejb3InterceptorsConfigFile = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
+//      logger.debug("ejb3-interceptors-aop.xml being picked up from " + ejb3InterceptorsConfigFile);
+//      deploy(ejb3InterceptorsConfigFile);
    }
 
    /**

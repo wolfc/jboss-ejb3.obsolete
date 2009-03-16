@@ -24,7 +24,7 @@ package org.jboss.ejb3.nointerface.mc;
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
-import org.jboss.ejb3.proxy.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 

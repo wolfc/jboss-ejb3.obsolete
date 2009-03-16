@@ -29,8 +29,8 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
-import org.apache.log4j.Logger;
 import org.jboss.ejb3.nointerface.factory.StatefulNoInterfaceViewFactory;
+import org.jboss.logging.Logger;
 
 /**
  * StatefulNoInterfaceViewObjectFactory

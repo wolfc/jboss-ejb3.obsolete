@@ -59,12 +59,12 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
     * The proxies (sub-classes) created for the bean class need to be
     * unique. This unique number is appended to the generated class name
     */
-   private long nextUniqueNumberForNoViewInterfaceClassName = 0;
+   private static long nextUniqueNumberForNoViewInterfaceClassName = 0;
 
    /**
     * Used while generating unique number for the proxy class
     */
-   private Object nextUniqueNumberLock = new Object();
+   private static Object nextUniqueNumberLock = new Object();
 
    /**
     * Logger

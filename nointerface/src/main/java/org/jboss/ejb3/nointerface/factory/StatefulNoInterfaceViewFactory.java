@@ -25,8 +25,8 @@ import java.io.Serializable;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
 import org.jboss.ejb3.nointerface.invocationhandler.NoInterfaceViewInvocationHandler;
-import org.jboss.ejb3.proxy.container.InvokableContext;
-import org.jboss.ejb3.proxy.container.StatefulSessionInvokableContext;
+import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -80,16 +80,15 @@ public class StatefulNoInterfaceViewFactory
    {
       logger.debug("Creating no-interface view for " + this.beanClass);
 
-      StatefulSessionInvokableContext statefulContainer = (StatefulSessionInvokableContext) container;
-      Serializable session = statefulContainer.createSession();
+      StatefulSessionFactory statefulSessionFactory = (StatefulSessionFactory) container;
+      Serializable session = statefulSessionFactory.createSession();
       logger.debug("Created session " + session + " for " + this.beanClass);
 
       NoInterfaceViewInvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(container);
-      invocationHandler.setProxy(session);
+      invocationHandler.createSessionProxy(session);
       // Now create the view for this bean class and the newly created invocation handler
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(new NoInterfaceViewInvocationHandler(container),
-            beanClass);
+      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler,beanClass);
 
       if (logger.isTraceEnabled())
       {

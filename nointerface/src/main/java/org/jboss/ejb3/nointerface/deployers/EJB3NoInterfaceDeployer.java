@@ -27,6 +27,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import org.jboss.beans.metadata.spi.BeanMetaData;
 import org.jboss.beans.metadata.spi.ValueMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
@@ -35,9 +38,6 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.DeploymentStages;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
-import org.jboss.ejb3.javaee.JavaEEComponentHelper;
-import org.jboss.ejb3.javaee.JavaEEModule;
-import org.jboss.ejb3.javaee.SimpleJavaEEModule;
 import org.jboss.ejb3.nointerface.mc.NoInterfaceViewJNDIBinder;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -64,8 +64,9 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
     */
    public EJB3NoInterfaceDeployer()
    {
-      setStage(DeploymentStages.POST_CLASSLOADER);
-      setInput(JBossMetaData.class);
+      setStage(DeploymentStages.REAL);
+      addInput(JBossMetaData.class);
+
       addOutput(BeanMetaData.class);
 
    }
@@ -129,9 +130,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          // However, this deployer does not have an dependency on the creation of a container,
          // so getting the container name from the bean metadata won't work. Need to do a different/better way
          //String containerMCBeanName = sessionBeanMetaData.getContainerName();
-         JavaEEModule module = new SimpleJavaEEModule(unit.getSimpleName());
-         String ejbName = sessionBeanMetaData.getEjbName();
-         String containerMCBeanName = JavaEEComponentHelper.createObjectName(module, ejbName);
+         String containerMCBeanName = getContainerName(unit, sessionBeanMetaData);
 
          // The no-interface view needs to be a MC bean so that it can "depend" on the container, so let's
          // make the no-interface view a MC bean
@@ -280,5 +279,75 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
       // Now that we have removed the interfaces that should be excluded from the check,
       // if the implementedInterfaces collection is empty then this bean can be considered for no-interface view
       return !implementedInterfaces.isEmpty();
+   }
+
+   /**
+    * Ultimately, the container name should come from the <code>sessionBeanMetadata</code>.
+    * However because of the current behaviour where the container on its start sets the containername
+    * in the metadata, its not possible to get this information even before the container is started.
+    *
+    * Hence let's for the time being create the container name from all the information that we have
+    * in the <code>unit</code>
+    *
+    * @param unit The deployment unit
+    * @param sessionBeanMetadata Session bean metadata
+    * @return Returns the container name for the bean corresponding to the <code>sessionBeanMetadata</code> in the <code>unit</code>
+    *
+    * @throws MalformedObjectNameException
+    */
+   private String getContainerName(DeploymentUnit unit, JBossSessionBeanMetaData sessionBeanMetadata)
+         throws MalformedObjectNameException
+   {
+      // TODO the base ejb3 jmx object name comes from Ejb3Module.BASE_EJB3_JMX_NAME, but
+      // we don't need any reference to ejb3-core. Right now just hard code here, we need
+      // a better way/place for this later
+      StringBuilder containerName = new StringBuilder("jboss.j2ee:service=EJB3" + ",");
+
+      // Get the top level unit for this unit (ex: the top level might be an ear and this unit might be the jar
+      // in that ear
+      DeploymentUnit toplevelUnit = unit.getTopLevel();
+      if (toplevelUnit != null)
+      {
+         // if top level is an ear, then create the name with the ear reference
+         if (isEar(toplevelUnit))
+         {
+            containerName.append("ear=");
+            containerName.append(toplevelUnit.getSimpleName());
+            containerName.append(",");
+
+         }
+      }
+      // now work on the passed unit, to get the jar name
+      if (unit.getSimpleName() == null)
+      {
+         containerName.append("*");
+      }
+      else
+      {
+         containerName.append("jar=");
+         containerName.append(unit.getSimpleName());
+      }
+      // now the ejbname
+      containerName.append(",name=");
+      containerName.append(sessionBeanMetadata.getEjbName());
+
+      if (logger.isTraceEnabled())
+      {
+         logger.trace("Container name generated for ejb = " + sessionBeanMetadata.getEjbName() + " in unit " + unit
+               + " is " + containerName);
+      }
+      ObjectName containerJMXName = new ObjectName(containerName.toString());
+      return containerJMXName.getCanonicalName();
+   }
+
+   /**
+    * Returns true if this <code>unit</code> represents an .ear deployment
+    *
+    * @param unit
+    * @return
+    */
+   private boolean isEar(DeploymentUnit unit)
+   {
+      return unit.getSimpleName().endsWith(".ear");
    }
 }

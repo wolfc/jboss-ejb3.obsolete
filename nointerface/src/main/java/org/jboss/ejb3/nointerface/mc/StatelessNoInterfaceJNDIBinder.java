@@ -65,8 +65,9 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
 
       // Create the view and bind to jndi
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(new NoInterfaceViewInvocationHandler(this.container),
-            beanClass);
+      NoInterfaceViewInvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(this.container);
+      invocationHandler.createSessionProxy(null);
+      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
       // bind
       // TODO: Again, the jndi-names for the no-interface view are a mess now. They need to come from
       // the metadata. Let's just go ahead temporarily

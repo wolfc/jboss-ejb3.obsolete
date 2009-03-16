@@ -33,4 +33,22 @@ import javax.ejb.Stateful;
 public class SimpleSFSBean
 {
 
+   public static final int INITIAL_QTY = 2;
+
+   private int qtyPurchased = INITIAL_QTY;
+
+   public int getQtyPurchased()
+   {
+      return this.qtyPurchased;
+   }
+
+   public void incrementPurchaseQty()
+   {
+      this.qtyPurchased ++;
+   }
+
+   public static void someStaticMethod()
+   {
+      // do nothing
+   }
 }
