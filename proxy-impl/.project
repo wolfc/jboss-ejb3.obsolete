@@ -1,6 +1,6 @@
 <projectDescription>
-  <name>jboss-ejb3-proxy</name>
-  <comment>JBoss EJB3 Proxy Component</comment>
+  <name>jboss-ejb3-proxy-impl</name>
+  <comment>JBoss EJB 3.x Proxy Implementation (Internals)</comment>
   <projects/>
   <buildSpec>
     <buildCommand>
