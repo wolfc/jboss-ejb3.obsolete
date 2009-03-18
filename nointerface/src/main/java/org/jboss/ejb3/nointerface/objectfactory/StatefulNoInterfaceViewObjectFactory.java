@@ -29,7 +29,7 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
 
-import org.jboss.ejb3.nointerface.factory.StatefulNoInterfaceViewFactory;
+import org.jboss.ejb3.nointerface.factory.MCAwareStatefulNoInterfaceViewFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,6 +43,9 @@ public class StatefulNoInterfaceViewObjectFactory implements ObjectFactory
 
    private static Logger logger = Logger.getLogger(StatefulNoInterfaceViewObjectFactory.class);
 
+   /**
+    * @see ObjectFactory#getObjectInstance(Object, Name, Context, Hashtable)
+    */
    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment)
          throws Exception
    {
@@ -62,15 +65,20 @@ public class StatefulNoInterfaceViewObjectFactory implements ObjectFactory
       // now lookup the factory
       Object proxyFactory = nameCtx.lookup(jndiNameOfStatefulProxyFactory);
 
-      assert proxyFactory instanceof StatefulNoInterfaceViewFactory : "Unexpected type found at jndi name "
-            + jndiNameOfStatefulProxyFactory + " Expected type " + StatefulNoInterfaceViewFactory.class.getName();
+      assert proxyFactory instanceof MCAwareStatefulNoInterfaceViewFactory : "Unexpected type found at jndi name "
+            + jndiNameOfStatefulProxyFactory + " Expected type " + MCAwareStatefulNoInterfaceViewFactory.class.getName();
 
-      StatefulNoInterfaceViewFactory statefulNoInterfaceViewFactory = (StatefulNoInterfaceViewFactory) proxyFactory;
+      MCAwareStatefulNoInterfaceViewFactory statefulNoInterfaceViewFactory = (MCAwareStatefulNoInterfaceViewFactory) proxyFactory;
 
       return statefulNoInterfaceViewFactory.createNoInterfaceView();
       // TODO: Should not throw an exception, return null instead. see objectfactory reference
    }
 
+   /**
+    * Returns the jndi-name at which the {@link MCAwareStatefulNoInterfaceViewFactory} can be found
+    * @param ref
+    * @return
+    */
    protected String getProxyFactoryJNDINameFromReference(Reference ref)
    {
       RefAddr refAddr = ref

@@ -32,8 +32,9 @@ import javax.ejb.LocalBean;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import org.jboss.beans.metadata.api.model.FromContext;
+import org.jboss.beans.metadata.plugins.AbstractInjectionValueMetaData;
 import org.jboss.beans.metadata.spi.BeanMetaData;
-import org.jboss.beans.metadata.spi.ValueMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.deployers.spi.DeploymentException;
@@ -131,7 +132,8 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          String containerMCBeanName = sessionBeanMetaData.getContainerName();
          if (logger.isTraceEnabled())
          {
-            logger.trace("Container name for bean " + sessionBeanMetaData.getEjbName() + " in unit " + unit + " is " + containerMCBeanName);
+            logger.trace("Container name for bean " + sessionBeanMetaData.getEjbName() + " in unit " + unit + " is "
+                  + containerMCBeanName);
          }
          if (containerMCBeanName == null)
          {
@@ -143,33 +145,36 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
 
          }
 
-         // The no-interface view needs to be a MC bean so that it can "depend" on the container, so let's
-         // make the no-interface view a MC bean
-         NoInterfaceViewJNDIBinder bean = NoInterfaceViewJNDIBinder.getNoInterfaceViewJndiBinder(beanClass,
+         // The no-interface view needs to be a MC bean so that it can "depend" on the KernelControllerContext
+         // of the container. The NoInterfaceViewJNDIBinder is the MC which will have this dependency
+         NoInterfaceViewJNDIBinder noInterfaceViewJNDIBinder = NoInterfaceViewJNDIBinder.getNoInterfaceViewJndiBinder(beanClass,
                sessionBeanMetaData);
-         String noInterfaceViewMCBeanName = sessionBeanMetaData.getEjbName() + "@" + ((Object) bean).toString();
-         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(noInterfaceViewMCBeanName, bean.getClass()
+         String noInterfaceViewMCBeanName = sessionBeanMetaData.getEjbName() + "@" + ((Object) noInterfaceViewJNDIBinder).toString();
+         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(noInterfaceViewMCBeanName, noInterfaceViewJNDIBinder.getClass()
                .getName());
-         builder.setConstructorValue(bean);
+         builder.setConstructorValue(noInterfaceViewJNDIBinder);
 
-         ValueMetaData inject = builder.createInject(containerMCBeanName, null, null, ControllerState.DESCRIBED);
+         //ValueMetaData inject = builder.createInject(containerMCBeanName, null, null, ControllerState.DESCRIBED);
+         AbstractInjectionValueMetaData injectMetaData = new AbstractInjectionValueMetaData(containerMCBeanName);
+         injectMetaData.setDependentState(ControllerState.DESCRIBED);
+         injectMetaData.setFromContext(FromContext.CONTEXT);
+
          // Too bad we have to know the field name. Need to do more research on MC to see if we can
          // add property metadata based on type instead of field name.
-         builder.addPropertyMetaData("container", inject);
-         
+         builder.addPropertyMetaData("containerContext", injectMetaData);
+
          // for SFSB we also need to inject the StatefulSessionFactory (which at the moment is 
          // available at the same containerMCBeanName and is infact the container)
          if (sessionBeanMetaData.isStateful())
          {
-            // inject the container (=StatefulSessionFactory)
-            builder.addPropertyMetaData("statefulSessionFactory", inject);
+            // inject the KernelControllerContext of the StatefulSessionFactory (which at the moment is the container itself)
+            builder.addPropertyMetaData("statefulSessionFactoryContext", injectMetaData);
          }
-
-         logger.info("Added injection on " + bean + " for container " + containerMCBeanName + " cl set to "
-               + unit.getClassLoader());
 
          // Add this as an attachment
          unit.addAttachment(BeanMetaData.class + ":" + noInterfaceViewMCBeanName, builder.getBeanMetaData());
+         
+         logger.debug("MC bean for container " + containerMCBeanName + " has been created and added to the deployment unit " + unit);
 
       }
       catch (Throwable t)
@@ -287,7 +292,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
       // As per section 4.9.8 (bullet 1.3) of EJB3.1 spec
       // java.io.Serializable; java.io.Externalizable; any of the interfaces defined by the javax.ejb
       // are excluded from interface check
-      
+
       // Impl detail : We need an ArrayList because it supports removing of elements through iterator, while
       // iterating. The List returned through Arrays.asList(...) does not allow this and throws UnsupportedException
       List<Class<?>> implementedInterfaces = new ArrayList<Class<?>>(Arrays.asList(interfaces));

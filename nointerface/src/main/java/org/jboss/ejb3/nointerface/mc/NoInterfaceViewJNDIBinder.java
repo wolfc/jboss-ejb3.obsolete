@@ -24,15 +24,20 @@ package org.jboss.ejb3.nointerface.mc;
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
-import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.beans.metadata.api.model.FromContext;
+import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
- * NoInterfaceViewMCBean
+ * NoInterfaceViewJNDIBinder
  *
  * A {@link NoInterfaceViewJNDIBinder} corresponds to a EJB which is eligible
  * for a no-interface view
+ * 
+ * This MC bean has dependencies (like the container) injected as necessary.
+ * During its START phase this NoInterfaceViewJNDIBinder creates a no-interface view
+ * and binds it to the jndi. 
  *
  * @author Jaikiran Pai
  * @version $Revision: $
@@ -49,7 +54,12 @@ public abstract class NoInterfaceViewJNDIBinder
     * The container for which this {@link NoInterfaceViewJNDIBinder} holds
     * an no-interface view
     */
-   protected InvokableContext container;
+   // Bean name will be added to this Inject by the deployer.
+   // We need NOT use the annotation here at all, since the deployer adds this
+   // dynamically. But having this here provides a better understanding about how
+   // this field is used
+   @Inject(dependentState = "Described", fromContext = FromContext.CONTEXT)
+   protected KernelControllerContext containerContext;
 
    /**
     * The bean class for which the no-interface view corresponds
@@ -82,13 +92,18 @@ public abstract class NoInterfaceViewJNDIBinder
 
    }
 
+   /**
+    * Bind the no-interface view 
+    * 
+    * @throws Exception
+    */
    public abstract void bindNoInterfaceView() throws Exception;
 
    /**
     * Will be called when the dependencies of this {@link NoInterfaceViewJNDIBinder} are
     * resolved and this MC bean reaches the START state.
     *
-    * At this point, the <code>container</code> associated with this {@link NoInterfaceViewJNDIBinder}
+    * At this point, the {@link #containerContext} associated with this {@link NoInterfaceViewJNDIBinder}
     * is injected and is at a minimal of DESCRIBED state. We now create a no-interface view
     * for the corresponding bean.
     * Note: No validations (like whether the bean is eligible for no-interface view) is done at this
@@ -102,7 +117,7 @@ public abstract class NoInterfaceViewJNDIBinder
    {
       if (logger.isTraceEnabled())
       {
-         logger.trace("Creating no-interface view for container " + this.container);
+         logger.trace("Creating no-interface view for container " + this.containerContext);
       }
 
       this.bindNoInterfaceView();
@@ -115,14 +130,14 @@ public abstract class NoInterfaceViewJNDIBinder
       //TODO need to unbind
    }
 
-   // Bean name will be added to this Inject by the deployer.
-   // We need not use the annotation here at all, since the deployer adds this
-   // dynamically. But having this here provides a better understanding about how
-   // this field is used
-   @Inject(dependentState = "Described")
-   public void setContainer(InvokableContext container) throws Exception
+   /**
+    * 
+    * @param containerContext The KernelControllerContext corresponding to the container
+    * @throws Exception
+    */
+   public void setContainerContext(KernelControllerContext containerContext) throws Exception
    {
-      this.container = container;
+      this.containerContext = containerContext;
 
    }
 

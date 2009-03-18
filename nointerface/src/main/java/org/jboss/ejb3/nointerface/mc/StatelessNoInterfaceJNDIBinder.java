@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationHandler;
 import javax.naming.Name;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
-import org.jboss.ejb3.nointerface.invocationhandler.NoInterfaceViewInvocationHandler;
+import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.naming.NonSerializableFactory;
@@ -66,8 +66,10 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
       logger.debug("Creating no-interface view for bean " + this.beanClass);
 
       // Create the view and bind to jndi
+      // TODO: Incorrect cardinality
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      InvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(this.container, null);
+
+      InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.containerContext, null);
 
       Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
       // bind

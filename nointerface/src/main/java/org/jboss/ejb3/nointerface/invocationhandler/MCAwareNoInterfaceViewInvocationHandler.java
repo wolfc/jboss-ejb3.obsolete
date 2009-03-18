@@ -25,13 +25,15 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 
+import org.jboss.dependency.spi.ControllerState;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
+import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 
 /**
- * NoInterfaceViewInvocationHandler
+ * MCAwareNoInterfaceViewInvocationHandler
  *
  * An {@link InvocationHandler} which corresponds to the
  * no-interface view of a {@link EJBContainer}. All calls on the no-interface
@@ -41,25 +43,30 @@ import org.jboss.logging.Logger;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class NoInterfaceViewInvocationHandler implements InvocationHandler
+public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandler
 {
 
    /**
     * Logger
     */
-   private static Logger logger = Logger.getLogger(NoInterfaceViewInvocationHandler.class);
+   private static Logger logger = Logger.getLogger(MCAwareNoInterfaceViewInvocationHandler.class);
 
    /**
-    * The container to which this invocation handler corresponds to.
-    * All calls to this invocation handler will be forwarded to this
-    * container.
+    * The KernelControllerContext corresponding to the container of a bean for which
+    * the no-interface view is to be created by this factory. This context
+    * may <i>not</i> be in INSTALLED state. This factory is responsible
+    * for pushing it to INSTALLED state whenever necessary. 
+    * 
+    * All calls to this invocation handler will be forwarded to the container represented
+    * by this context
+    * 
     *
     */
-   private InvokableContext container;
+   private KernelControllerContext containerContext;
 
 
    /**
-    * The {@link NoInterfaceViewInvocationHandler} and the {@link InvokableContext} interact
+    * The {@link MCAwareNoInterfaceViewInvocationHandler} and the {@link InvokableContext} interact
     * with each other through a {@link SessionProxy}
     */
    private SessionProxy sessionProxy;
@@ -68,10 +75,10 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     * Constructor
     * @param container
     */
-   public NoInterfaceViewInvocationHandler(InvokableContext container, Object target)
+   public MCAwareNoInterfaceViewInvocationHandler(KernelControllerContext containerContext, Object target)
    {
-      assert container != null : "Container is null for no-interface view invocation handler";
-      this.container = container;
+      assert containerContext != null : "Container context is null for no-interface view invocation handler";
+      this.containerContext = containerContext;
       this.sessionProxy = new NoInterfaceViewSessionProxy(target);
    }
 
@@ -79,8 +86,6 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     * The entry point when a client calls any methods on the no-interface view of a bean,
     * returned through JNDI.
     *
-    * This method will do the common steps (common for SLSB and SFSB) before passing on the
-    * call to {@link #doInvoke(Object, Method, Object[])}
     *
     * @param proxy
     * @param method The invoked method
@@ -91,18 +96,29 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
       assert this.sessionProxy != null : "Cannot invoke the container without the " + SessionProxy.class.getName();
       // TODO: Some methods like toString() can be handled locally.
       // But as of now let's just pass it on to the container.
+      
+      
+      if (logger.isTraceEnabled())
+      {
+         logger.trace("Pushing the container context to INSTALLED state from its current state = " + this.containerContext.getState().getStateString());
+      }
+      // first push the context corresponding to the container to INSTALLED
+      this.containerContext.getController().change(this.containerContext, ControllerState.INSTALLED);
+      // get hold of the container from its context
+      InvokableContext container = (InvokableContext) this.containerContext.getTarget();
+      // finally pass on the control to the container
       SerializableMethod serializableMethod = new SerializableMethod(method);
-      return getContainer().invoke(this.sessionProxy, serializableMethod, args);
+      return container.invoke(this.sessionProxy, serializableMethod, args);
    }
 
    /**
-    * Returns the container associated with this invocation handler
+    * Returns the context corresponding to the container, associated with this invocation handler
     *
     * @return
     */
-   public InvokableContext getContainer()
+   public KernelControllerContext getContainerContext()
    {
-      return this.container;
+      return this.containerContext;
    }
 
 
@@ -112,7 +128,7 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     * NoInterfaceViewSessionProxy
     *
     * A {@link SessionProxy} implementation for the no-interface view.
-    * Used by the {@link NoInterfaceViewInvocationHandler} to interact
+    * Used by the {@link MCAwareNoInterfaceViewInvocationHandler} to interact
     * with the {@link InvokableContext}
     *
     * @author Jaikiran Pai
@@ -122,7 +138,7 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
    {
 
       /**
-       * The target of an invocation on the {@link NoInterfaceViewInvocationHandler} - used as a sessionId
+       * The target of an invocation on the {@link MCAwareNoInterfaceViewInvocationHandler} - used as a sessionId
        */
       private Object target;
       

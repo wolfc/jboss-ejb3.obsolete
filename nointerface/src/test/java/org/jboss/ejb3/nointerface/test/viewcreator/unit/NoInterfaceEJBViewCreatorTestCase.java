@@ -32,7 +32,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NameNotFoundException;
 
-import org.jboss.ejb3.nointerface.factory.StatefulNoInterfaceViewFactory;
+import org.jboss.ejb3.nointerface.factory.MCAwareStatefulNoInterfaceViewFactory;
 import org.jboss.ejb3.nointerface.test.common.AbstractNoInterfaceTestCase;
 import org.jboss.ejb3.nointerface.test.viewcreator.ChildBean;
 import org.jboss.ejb3.nointerface.test.viewcreator.SimpleSFSBeanWithoutInterfaces;
@@ -124,7 +124,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
       String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + "/no-interface-stateful-proxyfactory";
 
       // check the proxy factory
-      assertBoundAndOfExpectedType(ctx, statefulProxyFactoryJndiName, StatefulNoInterfaceViewFactory.class);
+      assertBoundAndOfExpectedType(ctx, statefulProxyFactoryJndiName, MCAwareStatefulNoInterfaceViewFactory.class);
 
       // check the view
       assertBoundAndOfExpectedType(ctx, noInterfaceJndiName, SimpleSFSBeanWithoutInterfaces.class);

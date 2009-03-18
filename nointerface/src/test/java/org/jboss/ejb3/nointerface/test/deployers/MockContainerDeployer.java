@@ -122,7 +122,7 @@ public class MockContainerDeployer extends AbstractDeployer
          // install the container in MC. Getting the container name is currently duplicated (copied from)
          // Ejb3NoInterfaceDeployer.
          String containerName = getContainerName(unit, sessionBeanMetadata);
-         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(containerName, InvokableContext.class.getName());
+         BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(containerName, container.getClass().getName());
          builder.setConstructorValue(container);
 
          unit.addAttachment(BeanMetaData.class + ":" + containerName, builder.getBeanMetaData());
