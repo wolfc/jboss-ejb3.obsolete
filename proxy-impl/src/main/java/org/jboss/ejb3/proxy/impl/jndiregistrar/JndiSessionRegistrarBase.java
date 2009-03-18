@@ -47,6 +47,7 @@ import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.jboss.RemoteBindingMetaData;
+import org.jboss.metadata.ejb.jboss.jndipolicy.spi.DeploymentSummary;
 import org.jboss.metadata.ejb.jboss.jndipolicy.spi.JbossSessionBeanJndiNameResolver;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
 import org.jboss.metadata.ejb.spec.BusinessRemotesMetaData;
@@ -324,11 +325,11 @@ public abstract class JndiSessionRegistrarBase
             bindingSet.addDefaultRemoteBinding(new JndiReferenceBinding(defaultRemoteJndiName, defaultRemoteRef));
 
          }
-         
+
          /*
           * If there are @RemoteBindings and a remote view 
           */
-         
+
          // Remote Bindings are defined, create a binding for each
          else if (remoteBindings != null && hasRemoteView)
          {
@@ -537,7 +538,7 @@ public abstract class JndiSessionRegistrarBase
          /*
           * Bind ObjectFactory for default local businesses (and LocalHome if bound together)
           */
-         
+
          if (hasLocalBusinessView)
          {
             // Get Classname to set for Reference
@@ -980,7 +981,7 @@ public abstract class JndiSessionRegistrarBase
             // Not bound together
             return false;
          }
-         
+
          // If no business locals defined
          BusinessLocalsMetaData businessLocals = smd.getBusinessLocals();
          if (businessLocals == null || businessLocals.size() == 0)
@@ -1001,7 +1002,7 @@ public abstract class JndiSessionRegistrarBase
             // Not bound together
             return false;
          }
-         
+
          // If no business remotes defined
          BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
          if (businessRemotes == null || businessRemotes.size() == 0)
@@ -1009,7 +1010,7 @@ public abstract class JndiSessionRegistrarBase
             // Not bound together
             return false;
          }
-         
+
          // Bind together if Remote Default JNDI Name == Remote Home JNDI Name
          bindTogether = smd.getJndiName().equals(smd.getHomeJndiName());
       }
@@ -1060,8 +1061,18 @@ public abstract class JndiSessionRegistrarBase
       assert suffix != null && !suffix.equals("") : ProxyFactory.class.getSimpleName()
             + " key prefix for binding to registry is not specified";
 
+      // Get EAR name (if defined)
+      String earName = null;
+      DeploymentSummary summary = smd.getEjbJarMetaData().getDeploymentSummary();
+      if (summary != null)
+      {
+         earName = summary.getDeploymentScopeBaseName();
+      }
+      String earPrefix = earName == null ? "" : earName + "/";
+
       // Assemble and return
-      String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + smd.getEjbName() + "/" + suffix;
+      String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + earPrefix + smd.getEjbName() + "/"
+            + suffix;
       return key;
    }
 
