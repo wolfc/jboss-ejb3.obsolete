@@ -151,6 +151,23 @@ public class MockServerController
     */
    public void startServer(Class<? extends MockServer> serverClass, String[] arguments) throws Throwable
    {
+      this.startServer(null, serverClass, arguments);
+   }
+
+   /**
+    * Creates a remote process (JVM) to launch the {@link MockServer}
+    * and then sends a {@link MockServerRequest#START} request to start the
+    * server
+    *   
+    * @param serverClass The class of the server to be used
+    * @param arguments The arguments that will be passed to the {@link MockServer} 
+    *       as JVM program arguments
+    *       
+    * @throws Throwable
+    */
+   public void startServer(String envVarJavaHome, Class<? extends MockServer> serverClass, String[] arguments)
+         throws Throwable
+   {
       // Along with the arguments that the client passes to the server,
       // append the the serverHost and port number on which the mockserver is
       // expected to listen
@@ -162,7 +179,15 @@ public class MockServerController
       processArgs[1] = this.serverHost;
       processArgs[2] = String.valueOf(this.port);
 
-      createRemoteProcess(serverClass, processArgs);
+      // Define JAVA_HOME, overridding w/ the specified environment variable if specified
+      String javaHome = System.getenv(MockServerController.ENV_VAR_JAVAHOME);
+      if (envVarJavaHome != null && envVarJavaHome.length() > 0)
+      {
+         String override = System.getenv(envVarJavaHome);
+         javaHome = override != null ? override : javaHome;
+      }
+
+      createRemoteProcess(javaHome, serverClass, processArgs);
 
       /* 
        * Wait a max of 5 seconds for the remote process (remember, not the server)
@@ -339,10 +364,10 @@ public class MockServerController
     * 
     * @throws Throwable
     */
-   private void createRemoteProcess(Class<? extends MockServer> serverClass, String arguments[]) throws Throwable
+   private void createRemoteProcess(String javaHome, Class<? extends MockServer> serverClass, String arguments[])
+         throws Throwable
    {
       // Get the current System Properties and Environment Variables
-      String javaHome = System.getenv(MockServerController.ENV_VAR_JAVAHOME);
       String conf = MockServerController.LOCATION_CONF;
       String testClasses = MockServerController.LOCATION_TEST_CLASSES;
       String classes = MockServerController.LOCATION_CLASSES;
