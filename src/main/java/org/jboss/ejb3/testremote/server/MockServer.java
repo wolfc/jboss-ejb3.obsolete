@@ -80,9 +80,9 @@ public class MockServer
    private MockServerStatus currentStatus = MockServerStatus.STOPPED;
 
    /**
-    * The Test Class using this launcher
+    * CLI arguments to the process
     */
-   private Class<?> testClass;
+   private String[] commandLineArgs;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -121,32 +121,19 @@ public class MockServer
       }
 
       // Assert test class passed in
-      assert args.length == 4 : "Parameters requried (in this order): <Fully qualified test case name> <serverFQClassName> <serverBindAddress> <serverPort>";
-
-      // Get Test Class
-      String testClassname = args[0];
-      Class<?> testClass = null;
-      try
-      {
-         testClass = Class.forName(testClassname);
-      }
-      catch (ClassNotFoundException cnfe)
-      {
-         throw new RuntimeException("Specified Test Class, \"" + testClassname + "\" could not be found", cnfe);
-      }
+      assert args.length >= 3 : "Parameters requried (in this order): <serverFQClassName> <serverBindAddress> <serverPort> <additionalOptionalArguments>";
 
       // Get bind information
-      String bindHost = args[args.length - 2];
-      int bindPort = Integer.parseInt(args[args.length - 1]);
+      String bindHost = args[1];
+      int bindPort = Integer.parseInt(args[2]);
 
       // Get Mock Server implementation 
-      String mockServerClassName = args[1];
+      String mockServerClassName = args[0];
 
       // Create a new Launcher
       // the serverBindAddress and the port are always the last two arguments
-      log.debug("Creating a MockServer for testclass = " + testClass + " and serverBindAddr = " + args[args.length - 2]
-            + " and port = " + args[args.length - 1] + " using " + MockServer.class.getSimpleName()
-            + " implementation: " + mockServerClassName);
+      log.debug("Creating a MockServer for serverBindAddr = " + bindHost + " and port = " + bindPort + " using "
+            + MockServer.class.getSimpleName() + " implementation: " + mockServerClassName);
 
       // Get the mock server class 
       Class<?> mockServerClass = null;
@@ -175,8 +162,8 @@ public class MockServer
       // Create launcher
       MockServer launcher = (MockServer) serverCtor.newInstance();
 
-      // Set Test Class
-      launcher.setTestClass(testClass);
+      // Set CLI args
+      launcher.setCommandLineArgs(args);
 
       try
       {
@@ -293,14 +280,14 @@ public class MockServer
       this.bootstrap = bootstrap;
    }
 
-   public Class<?> getTestClass()
+   protected String[] getCommandLineArgs()
    {
-      return testClass;
+      return commandLineArgs;
    }
 
-   public void setTestClass(Class<?> testClass)
+   protected void setCommandLineArgs(String[] commandLineArgs)
    {
-      this.testClass = testClass;
+      this.commandLineArgs = commandLineArgs;
    }
 
 }
