@@ -144,8 +144,22 @@ public class MockServerController
     * server
     *   
     * @param serverClass The class of the server to be used
-    * @param arguments The arguments that will be passed to the {@link MockServer} 
-    *       as JVM program arguments
+    *       
+    * @throws Throwable
+    */
+   public void startServer(Class<? extends MockServer> serverClass) throws Throwable
+   {
+      this.startServer(null, serverClass, null);
+   }
+
+   /**
+    * Creates a remote process (JVM) to launch the {@link MockServer}
+    * and then sends a {@link MockServerRequest#START} request to start the
+    * server
+    *   
+    * @param envJarJavaHome Name of the Environment Variable pointing to the JVM to be used
+    * in starting the server
+    * @param serverClass The class of the server to be used
     *       
     * @throws Throwable
     */
@@ -154,11 +168,18 @@ public class MockServerController
       this.startServer(null, serverClass, arguments);
    }
 
+   public void startServer(String envVarJavaHome, Class<? extends MockServer> serverClass) throws Throwable
+   {
+      this.startServer(envVarJavaHome, serverClass, null);
+   }
+
    /**
     * Creates a remote process (JVM) to launch the {@link MockServer}
     * and then sends a {@link MockServerRequest#START} request to start the
     * server
     *   
+    * @param envJarJavaHome Name of the Environment Variable pointing to the JVM to be used
+    * in starting the server
     * @param serverClass The class of the server to be used
     * @param arguments The arguments that will be passed to the {@link MockServer} 
     *       as JVM program arguments
@@ -171,9 +192,18 @@ public class MockServerController
       // Along with the arguments that the client passes to the server,
       // append the the serverHost and port number on which the mockserver is
       // expected to listen
-      int numberOfArgs = arguments.length;
-      String[] processArgs = new String[numberOfArgs + 3];
-      System.arraycopy(arguments, 0, processArgs, 3, numberOfArgs);
+      String processArgs[] = null;
+      int requiredArgs = 3;
+      if (arguments != null)
+      {
+         int numberOfArgs = arguments.length;
+         processArgs = new String[numberOfArgs + requiredArgs];
+         System.arraycopy(arguments, 0, processArgs, requiredArgs, numberOfArgs);
+      }
+      else
+      {
+         processArgs = new String[requiredArgs];
+      }
       // now prepend the server host and port
       processArgs[0] = serverClass.getName();
       processArgs[1] = this.serverHost;
@@ -416,9 +446,12 @@ public class MockServerController
       // The class to run
       command.add(serverClass.getName());
       // The arguments to the main class
-      for (int i = 0; i < arguments.length; i++)
+      if (arguments != null)
       {
-         command.add(arguments[i]);
+         for (int i = 0; i < arguments.length; i++)
+         {
+            command.add(arguments[i]);
+         }
       }
 
       // Create a Remote Launcher
