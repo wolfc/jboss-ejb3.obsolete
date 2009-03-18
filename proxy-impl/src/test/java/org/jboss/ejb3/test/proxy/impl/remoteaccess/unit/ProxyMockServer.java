@@ -78,7 +78,19 @@ public class ProxyMockServer extends MockServer
          Thread.currentThread().setContextClassLoader(new JndiPropertiesToJnpserverPropertiesHackCl());
 
          // Deploy *-beans.xml
-         this.getBootstrap().deploy(this.getTestClass());
+         String testClassName = null;
+         try
+         {
+            testClassName = this.getCommandLineArgs()[3];
+         }
+         catch (ArrayIndexOutOfBoundsException aioobe)
+         {
+            throw new RuntimeException("3rd argument to " + this.getClass().getName()
+                  + " command launcher must be the FQN of the Test Class");
+         }
+         assert testClassName != null : "Test Class Name was not specified";
+         Class<?> testClass = Class.forName(testClassName, false, Thread.currentThread().getContextClassLoader());
+         this.getBootstrap().deploy(testClass);
 
          // Load ejb3-interceptors-aop.xml into AspectManager
          ClassLoader cl = Thread.currentThread().getContextClassLoader();

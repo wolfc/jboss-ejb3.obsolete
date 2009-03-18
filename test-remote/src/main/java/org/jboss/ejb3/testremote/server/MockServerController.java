@@ -156,11 +156,11 @@ public class MockServerController
       // expected to listen
       int numberOfArgs = arguments.length;
       String[] processArgs = new String[numberOfArgs + 3];
-      System.arraycopy(arguments, 0, processArgs, 0, numberOfArgs);
-      // now append the server host and port
-      processArgs[processArgs.length - 3] = serverClass.getName();
-      processArgs[processArgs.length - 2] = this.serverHost;
-      processArgs[processArgs.length - 1] = String.valueOf(this.port);
+      System.arraycopy(arguments, 0, processArgs, 3, numberOfArgs);
+      // now prepend the server host and port
+      processArgs[0] = serverClass.getName();
+      processArgs[1] = this.serverHost;
+      processArgs[2] = String.valueOf(this.port);
 
       createRemoteProcess(serverClass, processArgs);
 
