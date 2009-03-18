@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.nointerface.mc;
 
+import java.lang.reflect.InvocationHandler;
+
 import javax.naming.Name;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
@@ -65,8 +67,8 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
 
       // Create the view and bind to jndi
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      NoInterfaceViewInvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(this.container);
-      invocationHandler.createSessionProxy(null);
+      InvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(this.container, null);
+
       Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
       // bind
       // TODO: Again, the jndi-names for the no-interface view are a mess now. They need to come from

@@ -22,6 +22,7 @@
 package org.jboss.ejb3.nointerface.factory;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
 import org.jboss.ejb3.nointerface.invocationhandler.NoInterfaceViewInvocationHandler;
@@ -59,14 +60,22 @@ public class StatefulNoInterfaceViewFactory
    protected InvokableContext container;
 
    /**
+    * Responsible for creating sessions
+    */
+   protected StatefulSessionFactory statefulSessionFactory;
+
+   /**
     * Constructor
     * @param beanClass
     * @param container
+    * @param statefulSessionFactory
     */
-   public StatefulNoInterfaceViewFactory(Class<?> beanClass, InvokableContext container)
+   public StatefulNoInterfaceViewFactory(Class<?> beanClass, InvokableContext container,
+         StatefulSessionFactory statefulSessionFactory)
    {
       this.beanClass = beanClass;
       this.container = container;
+      this.statefulSessionFactory = statefulSessionFactory;
    }
 
    /**
@@ -80,15 +89,13 @@ public class StatefulNoInterfaceViewFactory
    {
       logger.debug("Creating no-interface view for " + this.beanClass);
 
-      StatefulSessionFactory statefulSessionFactory = (StatefulSessionFactory) container;
-      Serializable session = statefulSessionFactory.createSession();
+      Serializable session = this.statefulSessionFactory.createSession();
       logger.debug("Created session " + session + " for " + this.beanClass);
 
-      NoInterfaceViewInvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(container);
-      invocationHandler.createSessionProxy(session);
+      InvocationHandler invocationHandler = new NoInterfaceViewInvocationHandler(container, session);
       // Now create the view for this bean class and the newly created invocation handler
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler,beanClass);
+      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
 
       if (logger.isTraceEnabled())
       {

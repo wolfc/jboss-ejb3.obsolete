@@ -32,7 +32,6 @@ import org.jboss.logging.Logger;
  * @version $Revision: $
  */
 @Stateless
-//@LocalBean
 public class SimpleSLSBWithoutInterface
 {
 
@@ -64,11 +63,11 @@ public class SimpleSLSBWithoutInterface
       return "Hi " + name;
    }
 
-//   @Override
-//   public String toString()
-//   {
-//      return "Test - " + this.getClass().getName();
-//   }
+   //   @Override
+   //   public String toString()
+   //   {
+   //      return "Test - " + this.getClass().getName();
+   //   }
 
    public final String someFinalMethod()
    {

@@ -45,7 +45,7 @@ public class ChildBean extends AbstractSimpleBase
    }
 
 
-   public int somePublicMethod(int number)
+   public int echoNumberFromChild(int number)
    {
       return number;
    }

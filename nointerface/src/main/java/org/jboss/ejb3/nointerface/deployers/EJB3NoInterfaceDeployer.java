@@ -23,10 +23,12 @@ package org.jboss.ejb3.nointerface.deployers;
 
 import java.io.Externalizable;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ejb.LocalBean;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -126,11 +128,20 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          }
          Class<?> beanClass = Class.forName(sessionBeanMetaData.getEjbClass(), false, unit.getClassLoader());
 
-         // The container name is set in the metadata only after the creation of the container
-         // However, this deployer does not have an dependency on the creation of a container,
-         // so getting the container name from the bean metadata won't work. Need to do a different/better way
-         //String containerMCBeanName = sessionBeanMetaData.getContainerName();
-         String containerMCBeanName = getContainerName(unit, sessionBeanMetaData);
+         String containerMCBeanName = sessionBeanMetaData.getContainerName();
+         if (logger.isTraceEnabled())
+         {
+            logger.trace("Container name for bean " + sessionBeanMetaData.getEjbName() + " in unit " + unit + " is " + containerMCBeanName);
+         }
+         if (containerMCBeanName == null)
+         {
+            // The container name is set in the metadata only after the creation of the container
+            // However, this deployer does not have an dependency on the creation of a container,
+            // so getting the container name from the bean metadata won't work. Need to do a different/better way
+            //String containerMCBeanName = sessionBeanMetaData.getContainerName();
+            containerMCBeanName = getContainerName(unit, sessionBeanMetaData);
+
+         }
 
          // The no-interface view needs to be a MC bean so that it can "depend" on the container, so let's
          // make the no-interface view a MC bean
@@ -145,6 +156,14 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          // Too bad we have to know the field name. Need to do more research on MC to see if we can
          // add property metadata based on type instead of field name.
          builder.addPropertyMetaData("container", inject);
+         
+         // for SFSB we also need to inject the StatefulSessionFactory (which at the moment is 
+         // available at the same containerMCBeanName and is infact the container)
+         if (sessionBeanMetaData.isStateful())
+         {
+            // inject the container (=StatefulSessionFactory)
+            builder.addPropertyMetaData("statefulSessionFactory", inject);
+         }
 
          logger.info("Added injection on " + bean + " for container " + containerMCBeanName + " cl set to "
                + unit.getClassLoader());
@@ -187,10 +206,14 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
       //TODO: The JBMETA does not yet support @LocalBean so let's HACK it for now
       String ejbClassName = sessionBeanMetadata.getEjbClass();
       Class<?> beanClass = Class.forName(ejbClassName, false, unit.getClassLoader());
-      //      if (beanClass.getAnnotation(LocalBean.class) != null) //sessionBeanMetadata.getLocalBean())
-      //      {
-      //         return true;
-      //      }
+      if (beanClass.getAnnotation(LocalBean.class) != null) //sessionBeanMetadata.getLocalBean())
+      {
+         if (logger.isTraceEnabled())
+         {
+            logger.trace("Bean class " + ejbClassName + " in unit " + unit + " is marked as @LocalBean");
+         }
+         return true;
+      }
 
       // If there are any local business interfaces then its not eligible
       if (sessionBeanMetadata.getBusinessLocals() != null && !sessionBeanMetadata.getBusinessLocals().isEmpty())
@@ -264,7 +287,10 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
       // As per section 4.9.8 (bullet 1.3) of EJB3.1 spec
       // java.io.Serializable; java.io.Externalizable; any of the interfaces defined by the javax.ejb
       // are excluded from interface check
-      List<Class<?>> implementedInterfaces = Arrays.asList(interfaces);
+      
+      // Impl detail : We need an ArrayList because it supports removing of elements through iterator, while
+      // iterating. The List returned through Arrays.asList(...) does not allow this and throws UnsupportedException
+      List<Class<?>> implementedInterfaces = new ArrayList<Class<?>>(Arrays.asList(interfaces));
       Iterator<Class<?>> implementedInterfacesIterator = implementedInterfaces.iterator();
       while (implementedInterfacesIterator.hasNext())
       {

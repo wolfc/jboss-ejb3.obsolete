@@ -54,7 +54,7 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
    /**
     * Maintain the sessions
     */
-   private static Map<Serializable,Object> sessions = new HashMap<Serializable,Object>();
+   private static Map<Serializable, Object> sessions = new HashMap<Serializable, Object>();
 
    /**
     * Each session is represented by an id
@@ -103,7 +103,7 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
    {
       synchronized (currentSessionId)
       {
-         currentSessionId ++;
+         currentSessionId++;
          try
          {
             sessions.put(currentSessionId, beanClass.newInstance());
@@ -116,7 +116,6 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
          return currentSessionId;
       }
 
-
    }
 
    /**
@@ -128,7 +127,6 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
       {
          sessions.remove(target);
       }
-
 
    }
 

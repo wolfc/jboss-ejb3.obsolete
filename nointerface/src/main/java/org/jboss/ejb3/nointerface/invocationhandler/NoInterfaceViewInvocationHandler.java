@@ -68,10 +68,11 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
     * Constructor
     * @param container
     */
-   public NoInterfaceViewInvocationHandler(InvokableContext container)
+   public NoInterfaceViewInvocationHandler(InvokableContext container, Object target)
    {
       assert container != null : "Container is null for no-interface view invocation handler";
       this.container = container;
+      this.sessionProxy = new NoInterfaceViewSessionProxy(target);
    }
 
    /**
@@ -104,18 +105,6 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
       return this.container;
    }
 
-   /**
-    * Creates a {@link SessionProxy}, for the <code>target</code>, which will
-    * be used by this {@link NoInterfaceViewInvocationHandler} to interact with
-    * the {@link InvokableContext}
-    *
-    * @param target The target of an invocation (used as a sessionid)
-    */
-   public void createSessionProxy(Object target)
-   {
-      this.sessionProxy = new NoInterfaceViewSessionProxy();
-      this.sessionProxy.setTarget(target);
-   }
 
 
    /**
@@ -136,7 +125,11 @@ public class NoInterfaceViewInvocationHandler implements InvocationHandler
        * The target of an invocation on the {@link NoInterfaceViewInvocationHandler} - used as a sessionId
        */
       private Object target;
-
+      
+      public NoInterfaceViewSessionProxy(Object target)
+      {
+         this.target = target;
+      }
 
       /**
        * @see SessionProxy#getTarget()

@@ -21,16 +21,27 @@
  */
 package org.jboss.ejb3.nointerface.test.viewcreator;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.io.Serializable;
+
 import javax.ejb.Stateful;
 
 /**
- * SimpleSFSBean
+ * SimpleSFSBeanWithoutInterfaces
+ * 
+ * Used in testing of no-interface view. Although the name suggests
+ * this bean does not implement any interfaces, it does however implement
+ * {@link Serializable} and {@link Externalizable} which are allowed by 
+ * spec for no-interface view.
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
 @Stateful
-public class SimpleSFSBean
+public class SimpleSFSBeanWithoutInterfaces implements Serializable, Externalizable
 {
 
    public static final int INITIAL_QTY = 2;
@@ -44,11 +55,28 @@ public class SimpleSFSBean
 
    public void incrementPurchaseQty()
    {
-      this.qtyPurchased ++;
+      this.qtyPurchased++;
+   }
+
+   public void incrementPurchaseQty(int qty)
+   {
+      this.qtyPurchased += qty;
    }
 
    public static void someStaticMethod()
    {
       // do nothing
+   }
+
+   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+   {
+      // do nothing
+
+   }
+
+   public void writeExternal(ObjectOutput out) throws IOException
+   {
+      // do nothing
+
    }
 }

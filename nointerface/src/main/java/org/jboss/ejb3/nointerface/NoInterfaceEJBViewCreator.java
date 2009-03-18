@@ -24,9 +24,8 @@ package org.jboss.ejb3.nointerface;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
-import java.util.Arrays;
+import java.lang.reflect.Method;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javassist.ClassPool;
@@ -37,7 +36,6 @@ import javassist.CtNewMethod;
 import javassist.Modifier;
 
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * NoInterfaceEJBViewCreator
@@ -107,7 +105,8 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
 
       // We need to maintain a reference of the container in the proxy, so that we can
       // forward the method calls to invocationHandler.invoke. Create a new field in the sub-class (proxy)
-      CtField containerField = CtField.make("private java.lang.reflect.InvocationHandler invocationHandler;", proxyCtClass);
+      CtField containerField = CtField.make("private java.lang.reflect.InvocationHandler invocationHandler;",
+            proxyCtClass);
       proxyCtClass.addField(containerField);
 
       // get all public methods from the bean class
@@ -118,7 +117,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
       {
          // Methods from java.lang.Object can be skipped, if they are
          // not implemented (overriden) in the bean class. TODO: Do we really need to do this?
-         if (shouldMethodBeSkipped(beanCtClass, beanPublicMethod))
+         if (shouldMethodBeSkipped(pool, beanPublicMethod))
          {
             logger.debug("Skipping " + beanPublicMethod.getName() + " on bean " + beanCtClass.getName()
                   + " from no-interface view");
@@ -139,12 +138,13 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
          proxyCtClass.addMethod(proxyPublicMethod);
          if (logger.isTraceEnabled())
          {
-            logger.trace("Added method " + proxyPublicMethod.getName() + " in no-interface view "
-                  + proxyCtClass.getName() + " for bean " + beanClass.getName());
+            logger.trace("Added overriden implementation for method " + proxyPublicMethod.getName()
+                  + " in no-interface view " + proxyCtClass.getName() + " for bean " + beanClass.getName());
          }
       }
       // Add java.io.Serializable as the interface for the proxy (since it goes into JNDI)
-      proxyCtClass.addInterface(pool.get(Serializable.class.getName()));
+      //proxyCtClass.addInterface(pool.get(Serializable.class.getName()));
+      proxyCtClass.addMethod(createEqualsMethod(pool, proxyCtClass));
 
       // We are almost done (except for setting the container field in the proxy)
       // Let's first create a java.lang.Class (i.e. load) out of the javassist class
@@ -219,16 +219,60 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
    protected boolean shouldMethodBeSkipped(CtClass beanCtClass, CtMethod ctMethod) throws Exception
    {
 
-      List<CtMethod> declaredMethods = Arrays.asList(beanCtClass.getDeclaredMethods());
-      if (declaredMethods.contains(ctMethod))
+      //      List<CtMethod> declaredMethods = Arrays.asList(beanCtClass.getDeclaredMethods());
+      //      if (declaredMethods.contains(ctMethod))
+      //      {
+      //         return false;
+      //      }
+      //      CtClass objectCtClass = ClassPool.getDefault().get(Object.class.getName());
+      //      CtMethod[] methodsInObjectClass = objectCtClass.getMethods();
+      //      List<CtMethod> methodsToBeSkipped = Arrays.asList(methodsInObjectClass);
+      //      return methodsToBeSkipped.contains(ctMethod);
+      return false;
+
+   }
+
+   private static boolean shouldMethodBeSkipped(ClassPool pool, CtMethod ctMethod) throws Exception
+   {
+      CtClass paramsToEqualsMethodInObjectClass[] = new CtClass[]
+      {pool.get(Object.class.getName())};
+      if (!ctMethod.getName().equals("equals"))
       {
          return false;
       }
-      CtClass objectCtClass = ClassPool.getDefault().get(Object.class.getName());
-      CtMethod[] methodsInObjectClass = objectCtClass.getMethods();
-      List<CtMethod> methodsToBeSkipped = Arrays.asList(methodsInObjectClass);
-      return methodsToBeSkipped.contains(ctMethod);
+      if (ctMethod.getParameterTypes().length != paramsToEqualsMethodInObjectClass.length)
+      {
+         return false;
+      }
+      CtClass paramsToEqualsMethodInOtherClass[] = ctMethod.getParameterTypes();
+      return paramsToEqualsMethodInObjectClass[0].equals(paramsToEqualsMethodInOtherClass[0]);
 
+   }
+
+   private static CtMethod createEqualsMethod(ClassPool pool, CtClass proxyCtClass) throws Exception
+   {
+      String body = "{" + "java.lang.reflect.Method currentMethod = " + Object.class.getName()
+            + ".class.getMethod(\"equals\",$sig);" + "return ($r) invocationHandler.invoke(this,currentMethod,$args);"
+            + "}";
+
+      Method equals = Object.class.getMethod("equals", new Class<?>[]
+      {Object.class});
+      CtClass returnType = pool.get(equals.getReturnType().getName());
+      CtClass paramTypes[] = new CtClass[equals.getParameterTypes().length];
+      int i = 0;
+      for (Class<?> paramType : equals.getParameterTypes())
+      {
+         paramTypes[i++] = pool.get(paramType.getName());
+      }
+
+      CtClass exceptionTypes[] = new CtClass[equals.getExceptionTypes().length];
+      int j = 0;
+      for (Class<?> exceptionType : equals.getExceptionTypes())
+      {
+         exceptionTypes[j++] = pool.get(exceptionType.getName());
+      }
+
+      return CtNewMethod.make(returnType, equals.getName(), paramTypes, exceptionTypes, body, proxyCtClass);
    }
 
    /**
