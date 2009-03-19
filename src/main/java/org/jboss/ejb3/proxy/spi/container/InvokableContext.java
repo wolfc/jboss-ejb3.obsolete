@@ -24,7 +24,6 @@ package org.jboss.ejb3.proxy.spi.container;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 
 /**
  * InvokableContext
@@ -35,7 +34,9 @@ import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
+ * @deprecated In favor of ejb3-endpoint
  */
+@Deprecated
 public interface InvokableContext
 {
    /**
@@ -48,7 +49,7 @@ public interface InvokableContext
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable;
+   Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable;
 
    /**
     * Invocation point of entry for Remoting

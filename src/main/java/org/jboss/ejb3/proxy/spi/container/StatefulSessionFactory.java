@@ -30,7 +30,9 @@ import java.io.Serializable;
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
+ * @deprecated In favor of ejb3-endpoint
  */
+@Deprecated
 public interface StatefulSessionFactory
 {
    /**
