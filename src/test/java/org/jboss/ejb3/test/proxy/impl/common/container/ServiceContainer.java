@@ -51,8 +51,7 @@ public class ServiceContainer extends SessionSpecContainer implements InvokableC
    /**
     * Singleton instance
     */
-   //GuardedBy=this
-   private volatile Object beanInstance;
+   private Object beanInstance;
 
    // --------------------------------------------------------------------------------||
    // Constructors -------------------------------------------------------------------||
@@ -99,24 +98,17 @@ public class ServiceContainer extends SessionSpecContainer implements InvokableC
     */
    @Override
    //FIXME: @Service has no Session ID
-   protected Object getBeanInstance(Serializable sessionId)
+   protected synchronized Object getBeanInstance(Serializable sessionId)
    {
       // Check if bean instance is not yet created
-      if (this.beanInstance == null)
+      if (this.getBeanInstance() == null)
       {
          try
          {
-            // Double-check
-            synchronized (this)
-            {
-               if (this.beanInstance == null)
-               {
-                  // Create and set the instance
-                  beanInstance = this.createInstance();
-                  this.setBeanInstance(beanInstance);
-                  log.info("Set bean (Singleton) instance: " + beanInstance);
-               }
-            }
+            // Create and set the instance
+            Object beanInstance = this.createInstance();
+            this.setBeanInstance(beanInstance);
+            log.info("Set bean (Singleton) instance: " + beanInstance);
          }
          catch (Throwable t)
          {
@@ -125,23 +117,7 @@ public class ServiceContainer extends SessionSpecContainer implements InvokableC
       }
 
       // Return
-      return this.beanInstance;
-   }
-
-   /**
-    * Requests of the container that the underlying target be removed.
-    * Most frequently used in SFSB, but not necessarily supported 
-    * by SLSB/Singleton/@Service Containers
-    * 
-    * @throws UnsupportedOperationException If the bean type 
-    * does not honor client requests to remove the target
-    * 
-    * @param target
-    * @throws UnsupportedOperationException
-    */
-   public void removeTarget(Object target) throws UnsupportedOperationException
-   {
-      throw new UnsupportedOperationException("@Service");
+      return this.getBeanInstance();
    }
 
    // --------------------------------------------------------------------------------||
