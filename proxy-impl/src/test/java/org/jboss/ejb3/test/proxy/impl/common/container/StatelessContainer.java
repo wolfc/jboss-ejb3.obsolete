@@ -82,20 +82,4 @@ public class StatelessContainer extends SessionSpecContainer implements Invokabl
          throw new RuntimeException("Error in creating new SLSB Bean Instance", t);
       }
    }
-
-   /**
-    * Requests of the container that the underlying target be removed.
-    * Most frequently used in SFSB, but not necessarily supported 
-    * by SLSB/Singleton/@Service Containers
-    * 
-    * @throws UnsupportedOperationException If the bean type 
-    * does not honor client requests to remove the target
-    * 
-    * @param target
-    * @throws UnsupportedOperationException
-    */
-   public void removeTarget(Object target) throws UnsupportedOperationException
-   {
-      throw new UnsupportedOperationException("SLSB");
-   }
 }

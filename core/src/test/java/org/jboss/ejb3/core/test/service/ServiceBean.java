@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.core.test.service;
 
-import javax.ejb.Local;
 import javax.ejb.Remote;
 
 import org.jboss.ejb3.annotation.Service;
@@ -32,7 +31,6 @@ import org.jboss.ejb3.annotation.Service;
  */
 @Service
 @Remote(ServiceRemote.class)
-@Local(ServiceLocal.class)
 public class ServiceBean implements ServiceRemote
 {
    private int id = -1;
