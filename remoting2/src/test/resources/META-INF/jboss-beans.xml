@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <bean name="EJB3ServerInvocationHandler" class="org.jboss.ejb3.remoting2.EJB3ServerInvocationHandler">
+      <incallback method="addRemotable"/>
+      <uncallback method="removeRemotable"/>
+   </bean>
+   
+   <bean name="EJB3ServerConfiguration" class="org.jboss.remoting.ServerConfiguration">
+      <property name="invocationHandlers">
+         <map keyClass="java.lang.String" valueClass="java.lang.Object">
+            <entry>
+               <key>EJB3_R2D2</key>
+               <value><inject bean="EJB3ServerInvocationHandler"/></value>
+            </entry>
+         </map>
+      </property>
+   </bean>
+   
+   <bean name="EJB3RemotingConnector" class="org.jboss.remoting.transport.Connector">
+      <property name="invokerLocator">socket://0.0.0.0:5783</property>
+      <property name="serverConfiguration"><inject bean="EJB3ServerConfiguration"/></property>
+   </bean>
+   
+   <bean name="MockRemotable" class="org.jboss.ejb3.remoting2.test.common.MockRemotable"/>
+</deployment>
