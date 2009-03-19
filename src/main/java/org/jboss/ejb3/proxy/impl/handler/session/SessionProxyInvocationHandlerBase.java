@@ -34,7 +34,6 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.impl.remoting.ProxyRemotingUtils;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -66,10 +65,6 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
 
    private static final String METHOD_NAME_HASH_CODE = "hashCode";
 
-   private static final String METHOD_NAME_GET_TARGET = "getTarget";
-
-   private static final String METHOD_NAME_SET_TARGET = "setTarget";
-
    /*
     * Local Methods
     */
@@ -79,17 +74,10 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
 
    private static final SerializableMethod METHOD_HASH_CODE;
 
-   private static final SerializableMethod METHOD_GET_TARGET;
-
-   private static final SerializableMethod METHOD_SET_TARGET;
-
    static
    {
       try
       {
-         METHOD_GET_TARGET = new SerializableMethod(SessionProxy.class.getDeclaredMethod(METHOD_NAME_GET_TARGET));
-         METHOD_SET_TARGET = new SerializableMethod(SessionProxy.class.getDeclaredMethod(METHOD_NAME_SET_TARGET,
-               Object.class));
          METHOD_TO_STRING = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_TO_STRING), Object.class);
          METHOD_EQUALS = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_EQUALS, Object.class),
                Object.class);
@@ -166,11 +154,6 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     */
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      // Precondition check
-      assert proxy instanceof SessionProxy : this + " is eligible for handling " + SessionProxy.class.getName()
-            + " invocations only";
-      SessionProxy sessionProxy = (SessionProxy) proxy;
-
       // Obtain an explicitly-specified actual class
       String actualClass = this.getBusinessInterfaceType();
 
@@ -178,7 +161,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
 
       // Use the overloaded implementation
-      return this.invoke(sessionProxy, invokedMethod, args);
+      return this.invoke(proxy, invokedMethod, args);
    }
 
    /**
@@ -191,7 +174,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     * @return
     * @throws Throwable
     */
-   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       // Attempt to handle directly
       try
@@ -238,28 +221,11 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     * @return
     * @throws NotEligibleForDirectInvocationException
     */
-   protected Object handleInvocationDirectly(SessionProxy proxy, Object[] args, Method invokedMethod)
+   protected Object handleInvocationDirectly(Object proxy, Object[] args, Method invokedMethod)
          throws NotEligibleForDirectInvocationException
    {
       // Obtain the invoked method
       assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
-
-      // getTarget
-      if (invokedMethod.equals(METHOD_GET_TARGET.toMethod()))
-      {
-         return this.getTarget();
-      }
-
-      // setTarget
-      if (invokedMethod.equals(METHOD_SET_TARGET.toMethod()))
-      {
-         assert args.length == 1 : "Expecting exactly one argument for invocation of " + METHOD_SET_TARGET;
-         Object arg = args[0];
-         assert arg instanceof Serializable : "Argument must be instance of " + Serializable.class.getName();
-         Serializable id = (Serializable) arg;
-         this.setTarget(id);
-         return null;
-      }
 
       // equals
       if (invokedMethod.equals(METHOD_EQUALS.toMethod()))
@@ -315,7 +281,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     * @param args
     * @return
     */
-   protected boolean invokeEquals(SessionProxy proxy, Object argument)
+   protected boolean invokeEquals(Object proxy, Object argument)
    {
       /*
        * EJB 3.0 Core Specification 3.4.5.1: 
@@ -345,22 +311,22 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
        * or different session beans will not be equal."
        */
 
-      // If the argument is not a proxy
-      if (!(argument instanceof SessionProxy))
-      {
-         return false;
-      }
-
-      // Cast the argument
-      SessionProxy sArgument = (SessionProxy) argument;
+      // Ensure we've got j.l.r.Proxies
+      assert Proxy.isProxyClass(proxy.getClass()) && Proxy.isProxyClass(argument.getClass()) : "invokeEquals handles only "
+            + Proxy.class.getName();
 
       // Get the InvocationHandlers
       InvocationHandler proxyHandler = Proxy.getInvocationHandler(proxy);
       InvocationHandler argumentHandler = Proxy.getInvocationHandler(argument);
 
-      // If argument handler is not SLSB Handler
+      // If argument handler is not a SessionProxyInvocationHandler
       if (!(argumentHandler instanceof SessionProxyInvocationHandler))
       {
+         if (log.isTraceEnabled())
+         {
+            log.trace(argument + " and " + this + " are not equal; handler of argument is not a "
+                  + SessionProxyInvocationHandler.class.getName());
+         }
          return false;
       }
 
@@ -377,12 +343,16 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       }
 
       // If target (Session ID) is specified, ensure equal
-      Object proxyTarget = proxy.getTarget();
+      Object proxyTarget = proxySHandler.getTarget();
       if (proxyTarget != null)
       {
-         Object argumentTarget = sArgument.getTarget();
+         Object argumentTarget = argumentSHandler.getTarget();
          if (!proxyTarget.equals(argumentTarget))
          {
+            if (log.isTraceEnabled())
+            {
+               log.trace("Not equal; different Session IDs - proxy== " + proxyTarget + ", argument==" + argumentTarget);
+            }
             return false;
          }
       }
@@ -398,9 +368,10 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
     * @param proxy
     * @return
     */
-   protected int invokeHashCode(SessionProxy proxy)
+   protected int invokeHashCode(Object proxy)
    {
       // Get the InvocationHandler
+      assert Proxy.isProxyClass(proxy.getClass()) : "Unexpected proxy implementation";
       InvocationHandler handler = Proxy.getInvocationHandler(proxy);
       assert handler instanceof SessionProxyInvocationHandler;
       SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;

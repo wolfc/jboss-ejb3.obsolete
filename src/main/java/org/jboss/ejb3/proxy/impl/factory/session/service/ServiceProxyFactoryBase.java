@@ -28,7 +28,6 @@ import java.util.Set;
 import org.jboss.aop.Advisor;
 import org.jboss.ejb3.proxy.impl.factory.ProxyFactoryBase;
 import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
-import org.jboss.ejb3.proxy.spi.intf.ServiceProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 
@@ -202,25 +201,6 @@ public abstract class ServiceProxyFactoryBase extends ProxyFactoryBase implement
    {
       super.stop();
       //TODO
-   }
-
-   /**
-    * Returns Proxy interfaces common to all Proxies generated
-    * by this ProxyFactory
-    * 
-    * @return
-    */
-   @Override
-   protected Set<Class<?>> getCommonProxyInterfaces()
-   {
-      // Initialize
-      Set<Class<?>> interfaces = super.getCommonProxyInterfaces();
-
-      // Add
-      interfaces.add(ServiceProxy.class);
-
-      // Return
-      return interfaces;
    }
 
    // --------------------------------------------------------------------------------||

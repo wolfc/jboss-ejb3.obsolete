@@ -22,7 +22,9 @@
 package org.jboss.ejb3.test.proxy.impl.common.container;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -45,10 +47,10 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.BusinessLocalsMetaData;
@@ -162,7 +164,7 @@ public abstract class SessionContainer implements InvokableContext
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       Method m = method.toMethod(this.getClassLoader());
 
@@ -270,10 +272,17 @@ public abstract class SessionContainer implements InvokableContext
    }
 
    //FIXME: Should be agnostic to Session IDs, SLSBs have none
-   public Object invokeBean(SessionProxy proxy, Method method, Object args[]) throws Throwable
+   public Object invokeBean(Object proxy, Method method, Object args[]) throws Throwable
    {
+      // Precondition checks
+      assert Proxy.isProxyClass(proxy.getClass()) : "Unexpected proxy, was expecting type " + Proxy.class.getName();
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof SessionProxyInvocationHandler : InvocationHandler.class.getSimpleName()
+            + " must be of type " + SessionProxyInvocationHandler.class.getName();
+      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+
       // Get the Target (Session ID)
-      Object sessionId = proxy.getTarget();
+      Object sessionId = sHandler.getTarget();
 
       // Get the appropriate instance
       Object obj = this.getBeanInstance((Serializable) sessionId);
