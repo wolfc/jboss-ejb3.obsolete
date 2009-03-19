@@ -25,6 +25,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -44,7 +46,7 @@ import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCache;
 import org.jboss.ejb3.core.test.ejbthree1549.ForceEventsCacheFactory;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulBean;
 import org.jboss.ejb3.core.test.ejbthree1549.MyStatefulLocal;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -633,8 +635,9 @@ public class PassivationDoesNotPreventNewActivityUnitTestCase extends AbstractEJ
    private Serializable getSessionId(MyStatefulLocal bean)
    {
       // Get our bean's Session ID
-      SessionProxy sessionProxy = (SessionProxy) bean;
-      Serializable sessionId = (Serializable) sessionProxy.getTarget();
+      InvocationHandler handler = Proxy.getInvocationHandler(bean);
+      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+      Serializable sessionId = (Serializable) sHandler.getTarget();
       return sessionId;
    }
 }

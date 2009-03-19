@@ -32,7 +32,6 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.impl.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.impl.remoting.StatefulSessionRemotingMetadata;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
 
@@ -125,7 +124,7 @@ public class InvokableContextStatefulRemoteProxyInvocationHack extends PojiProxy
       try
       {
          expectedInvokeMethod = InvokableContext.class.getDeclaredMethod("invoke", new Class<?>[]
-         {SessionProxy.class, SerializableMethod.class, Object[].class});
+         {Object.class, SerializableMethod.class, Object[].class});
       }
       catch (NoSuchMethodException e)
       {

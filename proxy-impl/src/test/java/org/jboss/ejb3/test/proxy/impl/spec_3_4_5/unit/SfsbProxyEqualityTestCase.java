@@ -22,6 +22,8 @@
 package org.jboss.ejb3.test.proxy.impl.spec_3_4_5.unit;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -30,7 +32,7 @@ import org.jboss.aop.Dispatcher;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionLocalProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.stateful.StatefulSessionRemoteProxyFactory;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.test.proxy.impl.common.Utils;
 import org.jboss.ejb3.test.proxy.impl.common.container.StatefulContainer;
 import org.jboss.ejb3.test.proxy.impl.common.ejb.sfsb.MyStatefulBean;
@@ -129,9 +131,15 @@ public class SfsbProxyEqualityTestCase extends ProxyEqualityTestCaseBase
     */
    private void setSessionIdOnProxy(Object proxy, Serializable id)
    {
+      // Precondition checks
+      assert Proxy.isProxyClass(proxy.getClass()) : "Unexpected proxy, was expecting type " + Proxy.class.getName();
+      InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+      assert handler instanceof SessionProxyInvocationHandler : InvocationHandler.class.getSimpleName()
+            + " must be of type " + SessionProxyInvocationHandler.class.getName();
+      SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+
       // Get the InvocationHander for the Proxy
-      SessionProxy handler = (SessionProxy) proxy;
-      handler.setTarget(id);
+      sHandler.setTarget(id);
    }
 
    /**

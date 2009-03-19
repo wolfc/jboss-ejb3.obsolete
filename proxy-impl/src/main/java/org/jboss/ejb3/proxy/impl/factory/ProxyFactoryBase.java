@@ -31,7 +31,6 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
-import org.jboss.ejb3.proxy.spi.intf.EjbProxy;
 import org.jboss.logging.Logger;
 
 /**
@@ -140,9 +139,6 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    {
       // Initialize
       Set<Class<?>> interfaces = new HashSet<Class<?>>();
-
-      // Add all Proxy Interfaces
-      interfaces.add(EjbProxy.class);
 
       // Return
       return interfaces;
