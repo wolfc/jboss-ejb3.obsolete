@@ -1,7 +1,9 @@
 package org.jboss.ejb3.session;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Hashtable;
 
 import javax.ejb.EJB;
@@ -20,9 +22,9 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionSpecProxyFactory;
+import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.impl.remoting.SessionSpecRemotingMetadata;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.logging.Logger;
@@ -47,12 +49,12 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    // ------------------------------------------------------------------------------||
 
    private static final Logger log = Logger.getLogger(SessionSpecContainer.class);
-   
+
    /**
     * The method invoked upon by the client
     */
    //TODO: Remove when CurrentInvocation is completely sorted out
-   @Deprecated 
+   @Deprecated
    protected static ThreadLocalStack<SerializableMethod> invokedMethod = new ThreadLocalStack<SerializableMethod>();
 
    // ------------------------------------------------------------------------------||
@@ -76,20 +78,20 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     * @throws Throwable A possible exception thrown by the invocation
     * @return
     */
-   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       /*
        * Replace the TCL with the CL for this Container
        */
       ClassLoader oldLoader = SecurityActions.getContextClassLoader();
-      
+
       SecurityActions.setContextClassLoader(this.getClassloader());
-      
+
       try
       {
-         
+
          invokedMethod.push(method);
-         
+
          /*
           * Obtain the target method (advised)
           */
@@ -105,9 +107,23 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          Method unadvisedMethod = info.getUnadvisedMethod();
          SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
 
-         // Obtain Session ID
-         Serializable sessionId = (Serializable) proxy.getTarget();
+         /*
+          *  Obtain Session ID
+          */
+         Serializable sessionId = null;
+
+         // If coming from ejb3-proxy-impl
+         if (Proxy.isProxyClass(proxy.getClass()))
+         {
+            InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+            assert handler instanceof SessionProxyInvocationHandler : "Requires "
+                  + SessionProxyInvocationHandler.class.getName();
+            SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+            sessionId = (Serializable) sHandler.getTarget();
+         }
          
+         //TODO Session ID if nointerface
+
          /*
           * Invoke directly if this is an EJB2.x Method
           */
@@ -125,12 +141,12 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          /*
           * Build an invocation
           */
-         
-         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info,sessionId);
+
+         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, sessionId);
          nextInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
                SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, method);
          nextInvocation.setArguments(args);
-         
+
          /*
           * Invoke
           */
@@ -158,36 +174,34 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    {
       //TODO Should be getting from current invocation
       SerializableMethod invokedMethod = SessionSpecContainer.invokedMethod.get();
-      assert invokedMethod!=null : "Invoked Method has not been set";
-      
+      assert invokedMethod != null : "Invoked Method has not been set";
+
       // Obtain the name of the invoking interface
       String interfaceName = null;
       if (invokedMethod != null)
       {
          interfaceName = invokedMethod.getActualClassName();
       }
-      
+
       // Test for no invoked business interface
-      if(interfaceName==null)
+      if (interfaceName == null)
       {
-         throw new IllegalStateException(
-               "Call to "
-                     + SessionContext.class.getName()
+         throw new IllegalStateException("Call to " + SessionContext.class.getName()
                + ".getInvokedBusinessInterface() was made from outside an EJB3 Business Interface "
                + "(possibly an EJB2.x Remote/Local?). " + "EJB 3.0 Specification 4.5.2.");
       }
-      
+
       /*
        * Determine if the specified class is not a valid business
        * interface
        */
-      
+
       // Initialize a check flag
       boolean isValidBusinessInterface = false;
-      
+
       // Get Metadata
       JBossSessionBeanMetaData smd = this.getMetaData();
-      
+
       // Check in business remotes
       BusinessRemotesMetaData businessRemotes = smd.getBusinessRemotes();
       if (businessRemotes != null)
@@ -215,19 +229,19 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
             }
          }
       }
-      
+
       // If not found as a business interface, we haven't invoked through EJB3 View
-      if(!isValidBusinessInterface)
+      if (!isValidBusinessInterface)
       {
          throw new IllegalStateException("Cannot invoke " + SessionContext.class.getName()
                + ".getInvokedBusinessInterface() from outside of an EJB3 Business View - "
                + "EJB 3.0 Core Specification 4.5.2; Used: " + interfaceName);
       }
-      
+
       /*
        * Get Invoked Interface
        */
-      
+
       // Attempt to load the invoked interface
       Class<?> invokedInterface = null;
       try
@@ -239,25 +253,25 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          throw new RuntimeException("Invoked Business Interface on Proxy was set to " + interfaceName
                + ", but this could not be loaded by the " + ClassLoader.class.getSimpleName() + " for " + this);
       }
-//      if (method == null) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
-//      if (method.getName() == null || method.getName().equals("")) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
-      
-//      String invokedBusinessInterfaceClassName = method.getActualClassName();
-//      Class<?> invokedBusinessInterface = null;
-//      try
-//      {
-//         invokedBusinessInterface = this.getClassloader().loadClass(invokedBusinessInterfaceClassName);
-//      }
-//      catch (ClassNotFoundException e)
-//      {
-//         throw new RuntimeException("Invoked Business Interface on Proxy was set to "
-//               + invokedBusinessInterfaceClassName + ", but this could not be loaded by the "
-//               + ClassLoader.class.getSimpleName() + " for " + this);
-//      }
-      
+      //      if (method == null) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
+      //      if (method.getName() == null || method.getName().equals("")) throw new IllegalStateException("getInvokedBusinessInterface() being invoked outside of a business invocation");
+
+      //      String invokedBusinessInterfaceClassName = method.getActualClassName();
+      //      Class<?> invokedBusinessInterface = null;
+      //      try
+      //      {
+      //         invokedBusinessInterface = this.getClassloader().loadClass(invokedBusinessInterfaceClassName);
+      //      }
+      //      catch (ClassNotFoundException e)
+      //      {
+      //         throw new RuntimeException("Invoked Business Interface on Proxy was set to "
+      //               + invokedBusinessInterfaceClassName + ", but this could not be loaded by the "
+      //               + ClassLoader.class.getSimpleName() + " for " + this);
+      //      }
+
       return invokedInterface;
    }
-   
+
    /**
     * Provides implementation for this bean's EJB 2.1 Home.create() method 
     * 
@@ -406,14 +420,14 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       /*
        * Initialize
        */
-      
+
       // Get the declaring class
       Class<?> declaringClass = method.getDeclaringClass();
-      
+
       /*
        * Test if declared by EJBObject/EJBLocalObject
        */
-      
+
       if (declaringClass.getName().equals(EJBObject.class.getName()))
          return true;
 
@@ -432,11 +446,11 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
     */
    protected boolean isEjbObjectMethod(SerializableMethod method)
    {
-      
+
       /*
        * Initialize
        */
-      
+
       // Get the declaring class
       Class<?> declaringClass = null;
       String declaringClassName = method.getDeclaringClassName();
@@ -449,11 +463,11 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          throw new RuntimeException("Invoked Method specifies a declaring class that could not be loaded by the "
                + ClassLoader.class.getSimpleName() + " for EJB " + this.getEjbName());
       }
-      
+
       /*
        * Test if declared by EJBObject/EJBLocalObject
        */
-      
+
       if (declaringClass.getName().equals(EJBObject.class.getName()))
          return true;
 
@@ -496,7 +510,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    // ------------------------------------------------------------------------------||
    // Lifecycle Methods ------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
-   
+
    /**
     * Lifecycle Start
     */

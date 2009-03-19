@@ -65,7 +65,6 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.impl.objectstore.ObjectStoreBindings;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainerInvocation;
 import org.jboss.ejb3.timerservice.spi.TimedObjectInvoker;
@@ -76,7 +75,6 @@ import org.jboss.metadata.ejb.jboss.JBossServiceBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.util.NotImplementedException;
-
 
 /**
  * @author <a href="mailto:kabir.khan@jboss.org">Kabir Khan</a>
@@ -104,14 +102,17 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(ServiceContainer.class);
-   
+
    /*
     * Define lifecycle callback method names
     */
-   
+
    private static final String METHOD_NAME_LIFECYCLE_CALLBACK_CREATE = "create";
+
    private static final String METHOD_NAME_LIFECYCLE_CALLBACK_START = "start";
+
    private static final String METHOD_NAME_LIFECYCLE_CALLBACK_STOP = "stop";
+
    private static final String METHOD_NAME_LIFECYCLE_CALLBACK_DESTROY = "destroy";
 
    public ServiceContainer(MBeanServer server, ClassLoader cl, String beanClassName, String ejbName, Domain domain,
@@ -170,7 +171,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       //         throw new IllegalArgumentException("service bean create method must take no arguments");
       throw new UnsupportedOperationException("Service Containers have no Sessions");
    }
-   
+
    /**
     * Returns the name under which the JNDI Registrar for this container is bound
     * 
@@ -178,8 +179,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
     */
    protected String getJndiRegistrarBindName()
    {
-      return isClustered() ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE
-                           : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE;
+      return isClustered()
+            ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE
+            : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SERVICE;
    }
 
    public Object getMBean()
@@ -198,9 +200,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       // EJBTHREE-655: fire up an instance for use as MBean delegate
       singleton = super.construct();
-      
+
       registerManagementInterface();
-      
+
       invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_CREATE);
    }
 
@@ -268,7 +270,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          {
             lockedStop();
          }
-         catch(Exception stopEx)
+         catch (Exception stopEx)
          {
             log.error("Error during forced container stop", stopEx);
          }
@@ -299,7 +301,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
       // Unregister w/ MBean Server
       unregisterManagementInterface();
-      
+
       // Null out
       singleton = null;
       beanContext = null;
@@ -323,7 +325,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       assert timerService != null : "Timer Service not yet initialized";
       return timerService;
    }
-   
+
    private void setTcl(final ClassLoader cl)
    {
       AccessController.doPrivileged(new PrivilegedAction<Object>()
@@ -356,7 +358,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          Class<?> parameterTypes[] =
          {};
          Method method = this.singleton.getClass().getMethod(methodName, parameterTypes);
-         Object[] args = new Object[]{};
+         Object[] args = new Object[]
+         {};
 
          // Invoke
          if (log.isTraceEnabled())
@@ -461,7 +464,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          Thread.currentThread().setContextClassLoader(oldLoader);
       }
    }
-   
+
    public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
    {
       long start = System.currentTimeMillis();
@@ -598,11 +601,11 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    /**
     * @see InvokableContext
     */
-   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       return this.localInvoke(method.toMethod(), args);
    }
-   
+
    public Object invoke(String actionName, Object params[], String signature[]) throws MBeanException,
          ReflectionException
    {
@@ -633,7 +636,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       return getDeploymentQualifiedName();
    }
-   
+
    private void registerManagementInterface()
    {
       try
@@ -656,7 +659,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                   ++interfaceIndex;
             }
          }
-         
+
          /*
           * Construct a DependencyPolicy for the MBean which will also 
           * define a demand upon this container
@@ -665,7 +668,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          DependencyPolicy newPolicy = containerPolicy.clone();
          String cName = this.getObjectName().getCanonicalName();
          newPolicy.addDependency(cName);
-         
+
          // Find MBean Server if not specified
          if (mbeanServer == null)
          {
@@ -679,7 +682,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                log.warn(ise);
             }
          }
-         
+
          /*
           * Construct the ObjectName
           */
@@ -697,7 +700,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                      + " but the MBeanServer has not been initialized for it");
 
             delegate = new ServiceMBeanDelegate(mbeanServer, this, intf, delegateObjectName);
-            
+
             /*
              * 
              * This section is in place to replace the KernelAbstraction.installMBean
@@ -708,15 +711,15 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
              * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
              * 
              */
-            
+
             // The old/deprecated access
             //getDeployment().getKernelAbstraction().installMBean(delegateObjectName, newPolicy, delegate);
-            
             // Register w/ MBean Server
             mbeanServer.registerMBean(delegate, delegateObjectName);
-            
+
             // Install into MC
-            getDeployment().getKernelAbstraction().install(delegateObjectName.getCanonicalName(), newPolicy, null, delegate);
+            getDeployment().getKernelAbstraction().install(delegateObjectName.getCanonicalName(), newPolicy, null,
+                  delegate);
 
             /*
              * 
@@ -734,7 +737,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
                if (mbeanServer == null)
                   throw new RuntimeException(ejbName
                         + "is defined as an XMBean, but the MBeanServer has not been initialized for it");
-
 
                delegate = new ServiceMBeanDelegate(mbeanServer, this, service.xmbean(), delegateObjectName);
 
@@ -763,12 +765,10 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
           * http://www.jboss.com/index.html?module=bb&op=viewtopic&t=148497
           * 
           */
-         
+
          //getDeployment().getKernelAbstraction().uninstallMBean(delegateObjectName);
-         
          mbeanServer.unregisterMBean(delegateObjectName);
-         
-         
+
          /*
           * 
           * End backwards-compatible replacement for:
@@ -782,7 +782,7 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    {
       throw new RuntimeException("Don't do this");
    }
-   
+
    @Inject
    public void setTimerServiceFactory(TimerServiceFactory factory)
    {
