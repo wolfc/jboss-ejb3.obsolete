@@ -1134,7 +1134,7 @@ public abstract class JndiSessionRegistrarBase
          throws DuplicateBindException
    {
       // Register
-      log.debug("Registering " + factory + " under key \"" + name + "\"...");
+      log.debug("Registering " + factory + "for EJB " + smd.getName() + " under key \"" + name + "\"...");
       try
       {
          Ejb3RegistrarLocator.locateRegistrar().bind(name, factory);
