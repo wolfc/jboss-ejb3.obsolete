@@ -1150,7 +1150,7 @@ public abstract class JndiSessionRegistrarBase
           */
 
          throw new DuplicateBindException("Could not register " + factory + " under an already registered key, \""
-               + name + "\"", e);
+               + name + "\" for EJB " + smd.getName(), e);
       }
    }
 
