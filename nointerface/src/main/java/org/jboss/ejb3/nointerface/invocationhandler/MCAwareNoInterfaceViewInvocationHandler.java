@@ -24,11 +24,11 @@ package org.jboss.ejb3.nointerface.invocationhandler;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import javax.ejb.EJBContainer;
 
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 
@@ -64,12 +64,10 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     */
    private KernelControllerContext containerContext;
 
-
    /**
-    * The {@link MCAwareNoInterfaceViewInvocationHandler} and the {@link InvokableContext} interact
-    * with each other through a {@link SessionProxy}
+    * The target (=sessionId) used to interact with the {@link InvokableContext}
     */
-   private SessionProxy sessionProxy;
+   private Object target;
 
    /**
     * Constructor
@@ -79,7 +77,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
    {
       assert containerContext != null : "Container context is null for no-interface view invocation handler";
       this.containerContext = containerContext;
-      this.sessionProxy = new NoInterfaceViewSessionProxy(target);
+      this.target = target;
    }
 
    /**
@@ -93,14 +91,13 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     */
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      assert this.sessionProxy != null : "Cannot invoke the container without the " + SessionProxy.class.getName();
       // TODO: Some methods like toString() can be handled locally.
       // But as of now let's just pass it on to the container.
-      
-      
+
       if (logger.isTraceEnabled())
       {
-         logger.trace("Pushing the container context to INSTALLED state from its current state = " + this.containerContext.getState().getStateString());
+         logger.trace("Pushing the container context to INSTALLED state from its current state = "
+               + this.containerContext.getState().getStateString());
       }
       // first push the context corresponding to the container to INSTALLED
       this.containerContext.getController().change(this.containerContext, ControllerState.INSTALLED);
@@ -108,7 +105,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
       InvokableContext container = (InvokableContext) this.containerContext.getTarget();
       // finally pass on the control to the container
       SerializableMethod serializableMethod = new SerializableMethod(method);
-      return container.invoke(this.sessionProxy, serializableMethod, args);
+      return container.invoke(this.target, serializableMethod, args);
    }
 
    /**
@@ -119,57 +116,6 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
    public KernelControllerContext getContainerContext()
    {
       return this.containerContext;
-   }
-
-
-
-   /**
-    *
-    * NoInterfaceViewSessionProxy
-    *
-    * A {@link SessionProxy} implementation for the no-interface view.
-    * Used by the {@link MCAwareNoInterfaceViewInvocationHandler} to interact
-    * with the {@link InvokableContext}
-    *
-    * @author Jaikiran Pai
-    * @version $Revision: $
-    */
-   private class NoInterfaceViewSessionProxy implements SessionProxy
-   {
-
-      /**
-       * The target of an invocation on the {@link MCAwareNoInterfaceViewInvocationHandler} - used as a sessionId
-       */
-      private Object target;
-      
-      public NoInterfaceViewSessionProxy(Object target)
-      {
-         this.target = target;
-      }
-
-      /**
-       * @see SessionProxy#getTarget()
-       */
-      public Object getTarget()
-      {
-         return this.target;
-      }
-
-      /**
-       * @see SessionProxy#setTarget(Object)
-       */
-      public void setTarget(Object target)
-      {
-         this.target = target;
-      }
-
-      public void removeTarget() throws UnsupportedOperationException
-      {
-         // Is this enough?
-         this.target = null;
-
-      }
-
    }
 
 }

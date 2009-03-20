@@ -27,7 +27,6 @@ import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.InvocationResponse;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.intf.SessionProxy;
 
 /**
  * MockStatelessContainer
@@ -67,9 +66,9 @@ public class MockStatelessContainer implements InvokableContext
    }
 
    /**
-    * @see InvokableContext#invoke(SessionProxy, SerializableMethod, Object[])
+    * @see InvokableContext#invoke(Object, SerializableMethod, Object[])
     */
-   public Object invoke(SessionProxy proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       // nothing fancy, just pass on the invocation to the bean class instance
       Method invokedMethod = method.toMethod();
