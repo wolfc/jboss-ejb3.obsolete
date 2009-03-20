@@ -1,0 +1,45 @@
+<!-- 
+  vi:ts=2:sw=2:expandtab 
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.1</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>jboss-ejb3-annotation-finder</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>JBoss Annotation Finder</name>
+  <url>http://www.jboss.org</url>
+  <description>
+    The JBoss Annotation Finder component defines the bridge
+    between AnnotationFinder and AnnotationEnvironment.
+  </description>
+  
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-impl</artifactId>
+      <version>2.0.5.GA</version>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
+      <groupId>org.jboss.logging</groupId>
+      <artifactId>jboss-logging-log4j</artifactId>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
+      <groupId>org.jboss.metadata</groupId>
+      <artifactId>jboss-metadata</artifactId>
+      <version>1.0.0.CR17</version>
+    </dependency>    
+  </dependencies>
+</project>

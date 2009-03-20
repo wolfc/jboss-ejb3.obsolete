@@ -1,0 +1,18 @@
+<projectDescription>
+  <name>jboss-ejb3-annotation-finder</name>
+  <comment>The JBoss Annotation Finder component defines the bridge
+    between AnnotationFinder and AnnotationEnvironment.</comment>
+  <projects/>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+    <buildCommand>
+      <name>org.maven.ide.eclipse.maven2Builder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+    <nature>org.maven.ide.eclipse.maven2Nature</nature>
+  </natures>
+</projectDescription>
