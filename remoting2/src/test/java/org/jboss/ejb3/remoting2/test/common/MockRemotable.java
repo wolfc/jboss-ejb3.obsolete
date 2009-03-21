@@ -56,10 +56,7 @@ public class MockRemotable implements MockInterface, Remotable, RemotableEndpoin
       return "Hi " + name;
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.endpoint.Endpoint#invoke(java.io.Serializable, java.lang.Class, java.lang.reflect.Method, java.lang.Object[])
-    */
-   public Object invoke(Serializable session, Map<?, ?> context, Class<?> invokedBusinessInterface, SerializableMethod method, Object[] args)
+   public Object invoke(Serializable session, Map<String, Object> contextData, SerializableMethod method, Object[] args)
       throws Throwable
    {
       Method realMethod = method.toMethod(getClassLoader());

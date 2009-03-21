@@ -19,30 +19,18 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting.spi;
+package org.jboss.ejb3.remoting2.test.clientinterceptor;
 
-import java.io.Serializable;
+import javax.interceptor.InvocationContext;
 
 /**
- * Defines a wrapper for making an object remotable.
- * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface Remotable
+public class NoopInterceptor implements Interceptor
 {
-   /**
-    * The class loader with which target must be called. 
-    */
-   ClassLoader getClassLoader();
-   
-   /**
-    * Uniquely identifies a remotable. 
-    */
-   Serializable getId();
-   
-   /**
-    * The target onto which the remote invocation must take place.
-    */
-   Object getTarget();
+   public Object invoke(InvocationContext context) throws Exception
+   {
+      return context.proceed();
+   }
 }

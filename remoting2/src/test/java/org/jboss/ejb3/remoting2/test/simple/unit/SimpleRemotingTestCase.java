@@ -23,131 +23,34 @@ package org.jboss.ejb3.remoting2.test.simple.unit;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.ConnectException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.EJB3ServerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
+import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptorInvocationHandler;
+import org.jboss.ejb3.remoting2.test.clientinterceptor.NoopInterceptor;
+import org.jboss.ejb3.remoting2.test.common.AbstractRemotingTestCaseSetup;
 import org.jboss.ejb3.remoting2.test.common.MockInterface;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.Client;
 import org.jboss.remoting.InvokerLocator;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.sun.jdi.Bootstrap;
-import com.sun.jdi.VirtualMachine;
-import com.sun.jdi.VirtualMachineManager;
-import com.sun.jdi.connect.LaunchingConnector;
-import com.sun.jdi.connect.Connector.Argument;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class SimpleRemotingTestCase
+public class SimpleRemotingTestCase extends AbstractRemotingTestCaseSetup
 {
    private static final Logger log = Logger.getLogger(SimpleRemotingTestCase.class);
-   
-   private static VirtualMachine vm;
-   
-   @AfterClass
-   public static void afterClass()
-   {
-      vm.exit(0);
-   }
-   
-   @BeforeClass
-   public static void beforeClass() throws Exception
-   {
-      VirtualMachineManager manager = Bootstrap.virtualMachineManager();
-      LaunchingConnector connector = manager.defaultConnector();
-      Map<String, ? extends Argument> args = connector.defaultArguments();
-      for(Argument arg : args.values())
-      {
-         System.out.println("  " + arg);
-      }
-      args.get("options").setValue("-classpath " + getClassPath());
-      args.get("main").setValue("org.jboss.kernel.plugins.bootstrap.standalone.StandaloneBootstrap");
-      System.out.println(args);
-      vm = connector.launch(args);
-      
-      Process p = vm.process();
-      final InputStream in = p.getInputStream();
-      Thread inputStreamReader = new Thread()
-      {
-         @Override
-         public void run()
-         {
-            try
-            {
-               int b;
-               while((b = in.read()) != -1)
-                  System.out.write(b);
-            }
-            catch(IOException e)
-            {
-               e.printStackTrace();
-            }
-         }
-      };
-      inputStreamReader.setDaemon(true);
-      inputStreamReader.start();
-      
-      final InputStream err = p.getErrorStream();
-      Thread errorStreamReader = new Thread()
-      {
-         @Override
-         public void run()
-         {
-            try
-            {
-               int b;
-               while((b = err.read()) != -1)
-                  System.err.write(b);
-            }
-            catch(IOException e)
-            {
-               e.printStackTrace();
-            }
-         }
-      };
-      errorStreamReader.setDaemon(true);
-      errorStreamReader.start();
-      
-      vm.resume();
-      
-      // This causes an EOFException, which can be ignored.
-      waitForSocket(5783, 10, TimeUnit.SECONDS);
-   }
-   
-   private static String getClassPath()
-   {
-      String sureFireTestClassPath = System.getProperty("surefire.test.class.path");
-      log.debug("sureFireTestClassPath = " + sureFireTestClassPath);
-      String javaClassPath = System.getProperty("java.class.path");
-      log.debug("javaClassPath = " + javaClassPath);
-      // make sure we can run under surefire 
-      String classPath = sureFireTestClassPath;
-      if(classPath == null)
-         classPath = javaClassPath;
-      log.debug("classPath = " + classPath);
-      return classPath;
-   }
    
    @Test
    public void testRaw() throws Throwable
@@ -164,13 +67,13 @@ public class SimpleRemotingTestCase
       metadata.put(EJB3ServerInvocationHandler.OID, "MockRemotableID");
       
       // the target of MockRemotable is RemotableEndpoint
-      Method realMethod = RemotableEndpoint.class.getDeclaredMethod("invoke", Serializable.class, Map.class, Class.class, SerializableMethod.class, Object[].class);
-      SerializableMethod method = new SerializableMethod(realMethod);
+      Method realMethod = RemotableEndpoint.INVOKE_METHOD;
+      SerializableMethod method = new SerializableMethod(realMethod, RemotableEndpoint.class);
       Serializable session = null;
-      Map<?, ?> context = null;
+      Map<String, Object> contextData = null;
       // the remotable endpoint delegates to a MockInterface endpoint
-      SerializableMethod businessMethod = new SerializableMethod(MockInterface.class.getDeclaredMethod("sayHi", String.class));
-      Object args[] = { session, context, null, businessMethod, new Object[] { "y" } };
+      SerializableMethod businessMethod = new SerializableMethod(MockInterface.class.getDeclaredMethod("sayHi", String.class), MockInterface.class);
+      Object args[] = { session, contextData, businessMethod, new Object[] { "y" } };
       Object param = new Object[] { method, args };
       String result = (String) client.invoke(param, metadata);
       client.disconnect();
@@ -193,6 +96,8 @@ public class SimpleRemotingTestCase
       Serializable session = null;
       Class<?> businessInterface = MockInterface.class;
       InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
+      
+      handler = new InterceptorInvocationHandler(handler, new NoopInterceptor());
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> interfaces[] = { businessInterface };
@@ -217,45 +122,12 @@ public class SimpleRemotingTestCase
       RemotableEndpoint endpoint = (RemotableEndpoint) Proxy.newProxyInstance(loader, interfaces, handler);
       
       Serializable session = null;
-      Map<?, ?> context = null;
+      Map<String, Object> contextData = null;
       // the remotable endpoint delegates to a MockInterface endpoint
-      SerializableMethod businessMethod = new SerializableMethod(MockInterface.class.getDeclaredMethod("sayHi", String.class));
+      SerializableMethod businessMethod = new SerializableMethod(MockInterface.class.getDeclaredMethod("sayHi", String.class), MockInterface.class);
       Object args[] = { "me" };
-      String result = (String) endpoint.invoke(session, context, null, businessMethod, args);
+      String result = (String) endpoint.invoke(session, contextData, businessMethod, args);
       assertEquals("Hi me", result);
    }
    
-   private static void waitForSocket(int port, long duration, TimeUnit unit)
-   {
-      long end = System.currentTimeMillis() + TimeUnit.MILLISECONDS.convert(duration, unit);
-      while(System.currentTimeMillis() < end)
-      {
-         try
-         {
-            Socket socket = new Socket("localhost", port);
-            socket.close();
-            return;
-         }
-         catch(ConnectException e)
-         {
-            // ignore
-         }
-         catch (UnknownHostException e)
-         {
-            throw new RuntimeException(e);
-         }
-         catch (IOException e)
-         {
-            throw new RuntimeException(e);
-         }
-         try
-         {
-            Thread.sleep(1000);
-         }
-         catch (InterruptedException e)
-         {
-            return;
-         }
-      }
-   }
 }

@@ -22,17 +22,31 @@
 package org.jboss.ejb3.remoting.endpoint;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 
 /**
- * An endpoint that only takes serializable parameters.
+ * An endpoint that only takes serializable parameters. This is one level higher that a Remotable,
+ * because now we know the target implements RemotableEndpoint.
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
 public interface RemotableEndpoint
 {
-   Object invoke(Serializable session, Map<?, ?> context, Class<?> invokedBusinessInterface, SerializableMethod method, Object args[]) throws Throwable;
+   Method INVOKE_METHOD = MethodHelper.getMethod(RemotableEndpoint.class, "invoke", Serializable.class, Map.class, SerializableMethod.class, Object[].class);
+   
+   /**
+    * The invokedBusinessInterface is method.actualClass
+    * 
+    * @param session
+    * @param contextData
+    * @param method
+    * @param args
+    * @return
+    * @throws Throwable
+    */
+   Object invoke(Serializable session, Map<String, Object> contextData, SerializableMethod method, Object args[]) throws Throwable;
 }

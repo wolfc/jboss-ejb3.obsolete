@@ -30,6 +30,12 @@ import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
 
 /**
+ * An invocation handler which delegates to an invocation handler that handles invocations
+ * on a RemotableEndpoint.
+ * 
+ * In theory you the delegate should be an RemotableEndpoint. In practice this is usually an
+ * InvocationHandler, so this class skips through immediately to that handler.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
@@ -48,11 +54,10 @@ public class RemoteInvocationHandlerInvocationHandler implements InvocationHandl
    
    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
    {
-      // FIXME: associate the necessary thread locals to the invocation
-      Map<?, ?> context = null;
-      Method invokeMethod = RemotableEndpoint.class.getDeclaredMethod("invoke", Serializable.class, Map.class, Class.class, SerializableMethod.class, Object[].class);
-      SerializableMethod businessMethod = new SerializableMethod(method);
-      Object invokeArgs[] = { session, context, invokedBusinessInterface, businessMethod, args };
+      Map<String, Object> contextData = RemoteContextData.getContextData();
+      Method invokeMethod = RemotableEndpoint.INVOKE_METHOD;
+      SerializableMethod businessMethod = new SerializableMethod(method, invokedBusinessInterface);
+      Object invokeArgs[] = { session, contextData, businessMethod, args };
       return delegate.invoke(proxy, invokeMethod, invokeArgs);
    }
 }

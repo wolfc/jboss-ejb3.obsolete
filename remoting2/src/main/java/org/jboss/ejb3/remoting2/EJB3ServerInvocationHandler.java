@@ -24,6 +24,7 @@ package org.jboss.ejb3.remoting2;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,9 +59,7 @@ public class EJB3ServerInvocationHandler implements ServerInvocationHandler
     */
    public void addListener(InvokerCallbackHandler callbackHandler)
    {
-      // TODO Auto-generated method stub
-      //
-      throw new RuntimeException("NYI");
+      // no-op
    }
 
    public void addRemotable(Remotable remotable)
@@ -77,6 +76,8 @@ public class EJB3ServerInvocationHandler implements ServerInvocationHandler
    {
       Serializable key = (Serializable) invocation.getRequestPayload().get(OID);
       Remotable remotable = remotables.get(key);
+      if(remotable == null)
+         throw new IllegalArgumentException("Can't find remotable " + key + " in " + remotables);
       
       Object parameters[] = (Object[]) invocation.getParameter();
       SerializableMethod method = (SerializableMethod) parameters[0];
@@ -88,6 +89,10 @@ public class EJB3ServerInvocationHandler implements ServerInvocationHandler
       {
          Thread.currentThread().setContextClassLoader(loader);
          return realMethod.invoke(remotable.getTarget(), args);
+      }
+      catch(IllegalArgumentException e)
+      {
+         throw new IllegalArgumentException("unable to invoke " + realMethod + " on " + remotable.getTarget() + " with " + Arrays.toString(args), e);
       }
       catch(InvocationTargetException e)
       {
@@ -104,9 +109,7 @@ public class EJB3ServerInvocationHandler implements ServerInvocationHandler
     */
    public void removeListener(InvokerCallbackHandler callbackHandler)
    {
-      // TODO Auto-generated method stub
-      //
-      throw new RuntimeException("NYI");
+      // no-op
    }
 
    public void removeRemotable(Remotable remotable)

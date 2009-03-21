@@ -19,30 +19,31 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting.spi;
+package org.jboss.ejb3.remoting.endpoint;
 
-import java.io.Serializable;
+import java.lang.reflect.Method;
 
 /**
- * Defines a wrapper for making an object remotable.
+ * Unexposed MethodHelper
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface Remotable
+class MethodHelper
 {
-   /**
-    * The class loader with which target must be called. 
-    */
-   ClassLoader getClassLoader();
-   
-   /**
-    * Uniquely identifies a remotable. 
-    */
-   Serializable getId();
-   
-   /**
-    * The target onto which the remote invocation must take place.
-    */
-   Object getTarget();
+   static Method getMethod(Class<?> cls, String methodName, Class<?>... parameterTypes)
+   {
+      try
+      {
+         return cls.getDeclaredMethod(methodName, parameterTypes);
+      }
+      catch (SecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (NoSuchMethodException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
 }

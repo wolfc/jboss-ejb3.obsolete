@@ -19,30 +19,41 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting.spi;
+package org.jboss.ejb3.remoting.endpoint.client;
 
-import java.io.Serializable;
+import java.util.Map;
 
 /**
- * Defines a wrapper for making an object remotable.
+ * TODO: This doesn't belong here, because it's a contract with InterceptorInvocationHandler.
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface Remotable
+public class RemoteContextData
 {
-   /**
-    * The class loader with which target must be called. 
-    */
-   ClassLoader getClassLoader();
+   private static ThreadLocal<Map<String, Object>> contextData = new ThreadLocal<Map<String, Object>>();
    
-   /**
-    * Uniquely identifies a remotable. 
-    */
-   Serializable getId();
+   public static void cleanContextData()
+   {
+      Map<String, Object> current = contextData.get();
+      if(current == null)
+         throw new IllegalStateException("no context data found");
+      contextData.remove();
+   }
    
-   /**
-    * The target onto which the remote invocation must take place.
-    */
-   Object getTarget();
+   public static Map<String, Object> getContextData()
+   {
+      Map<String, Object> current = contextData.get();
+      if(current == null)
+         throw new IllegalStateException("no context data found");
+      return current;
+   }
+   
+   public static void setContextData(Map<String, Object> value)
+   {
+      Map<String, Object> previous = contextData.get();
+      if(previous != null)
+         throw new IllegalStateException("found previous context data " + previous);
+      contextData.set(value);
+   }
 }
