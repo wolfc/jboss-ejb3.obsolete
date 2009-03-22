@@ -36,8 +36,8 @@ import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
 import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptedMockRemotable;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptorInvocationHandler;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.NoopInterceptor;
+import org.jboss.ejb3.remoting2.test.clientinterceptor.RemoteContextDataInterceptor;
+import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.Client;
 import org.jboss.remoting.InvokerLocator;
@@ -174,7 +174,7 @@ public class AbstractRemotingTestCaseSetup
       Serializable session = null;
       InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
 
-      handler = new InterceptorInvocationHandler(handler, new NoopInterceptor());
+      handler = new InterceptorInvocationHandler(handler, new RemoteContextDataInterceptor());
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> interfaces[] = { businessInterface };

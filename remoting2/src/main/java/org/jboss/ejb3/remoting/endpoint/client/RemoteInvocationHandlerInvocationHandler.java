@@ -31,7 +31,7 @@ import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
 
 /**
  * An invocation handler which delegates to an invocation handler that handles invocations
- * on a RemotableEndpoint.
+ * on a RemotableEndpoint. Before calling upon this handler a RemoteContextData must be set.
  * 
  * In theory you the delegate should be an RemotableEndpoint. In practice this is usually an
  * InvocationHandler, so this class skips through immediately to that handler.

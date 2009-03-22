@@ -24,7 +24,7 @@ package org.jboss.ejb3.remoting.endpoint.client;
 import java.util.Map;
 
 /**
- * TODO: This doesn't belong here, because it's a contract with InterceptorInvocationHandler.
+ * Allows for setting and resetting of the remote context data.
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $

@@ -25,6 +25,8 @@ import java.io.Serializable;
 
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.sis.Interceptor;
+
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $

@@ -69,6 +69,10 @@ public class RemoteKernelControllerImpl implements RemoteKernelController, Remot
          java.lang.reflect.Method saveMethod = saveClass.getDeclaredMethod(methodName, new Class[0]);
          saveMethod.invoke(null, new Object[0]);
       }
+      catch(ClassNotFoundException e)
+      {
+         log.warn("Cobertura was not found");
+      }
       catch (Throwable t)
       {
          t.printStackTrace();

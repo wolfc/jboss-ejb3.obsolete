@@ -29,6 +29,7 @@ import javax.interceptor.InvocationContext;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting2.test.common.MockRemotable;
+import org.jboss.ejb3.sis.Interceptor;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>

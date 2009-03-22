@@ -31,11 +31,13 @@ import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocation
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
 import org.jboss.ejb3.remoting2.test.clientinterceptor.Current;
 import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptedMockRemotable;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.Interceptor;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptorInvocationHandler;
+import org.jboss.ejb3.remoting2.test.clientinterceptor.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting2.test.clientinterceptor.SimpleInterceptorClientSide;
 import org.jboss.ejb3.remoting2.test.common.AbstractRemotingTestCaseSetup;
 import org.jboss.ejb3.remoting2.test.common.MockInterface;
+import org.jboss.ejb3.sis.Interceptor;
+import org.jboss.ejb3.sis.InterceptorAssembly;
+import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;
 import org.jboss.remoting.Client;
 import org.jboss.remoting.InvokerLocator;
 import org.junit.BeforeClass;
@@ -55,7 +57,7 @@ public class ClientInterceptorTestCase extends AbstractRemotingTestCaseSetup
       install(InterceptedMockRemotable.class);
    }
    
-   private <T> T createRemoteProxy(Client client, Serializable oid, Class<T> businessInterface, Interceptor interceptor)
+   private <T> T createRemoteProxy(Client client, Serializable oid, Class<T> businessInterface, org.jboss.ejb3.sis.Interceptor interceptor)
    {
       RemoteInvocationHandler delegate = new RemoteInvocationHandler(client, oid);
       
@@ -63,6 +65,9 @@ public class ClientInterceptorTestCase extends AbstractRemotingTestCaseSetup
       Serializable session = null;
       InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
 
+      Interceptor interceptors[] = new Interceptor[] { new RemoteContextDataInterceptor(), interceptor };
+      interceptor = new InterceptorAssembly(interceptors);
+      
       handler = new InterceptorInvocationHandler(handler, interceptor);
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();

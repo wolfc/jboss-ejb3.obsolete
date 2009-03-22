@@ -23,11 +23,25 @@ package org.jboss.ejb3.remoting2.test.clientinterceptor;
 
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.remoting.endpoint.client.RemoteContextData;
+import org.jboss.ejb3.sis.Interceptor;
+
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface Interceptor
+public class RemoteContextDataInterceptor implements Interceptor
 {
-   Object invoke(InvocationContext context) throws Exception;
+   public Object invoke(InvocationContext context) throws Exception
+   {
+      RemoteContextData.setContextData(context.getContextData());
+      try
+      {
+         return context.proceed();
+      }
+      finally
+      {
+         RemoteContextData.cleanContextData();
+      }
+   }
 }

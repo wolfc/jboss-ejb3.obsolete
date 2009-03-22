@@ -25,6 +25,7 @@ import java.io.Serializable;
 
 import javax.interceptor.InvocationContext;
 
+import org.jboss.ejb3.sis.Interceptor;
 import org.jboss.logging.Logger;
 
 /**

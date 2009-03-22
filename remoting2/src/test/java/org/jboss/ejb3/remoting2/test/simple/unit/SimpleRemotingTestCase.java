@@ -35,10 +35,10 @@ import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.EJB3ServerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptorInvocationHandler;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.NoopInterceptor;
+import org.jboss.ejb3.remoting2.test.clientinterceptor.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting2.test.common.AbstractRemotingTestCaseSetup;
 import org.jboss.ejb3.remoting2.test.common.MockInterface;
+import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.Client;
 import org.jboss.remoting.InvokerLocator;
@@ -97,7 +97,7 @@ public class SimpleRemotingTestCase extends AbstractRemotingTestCaseSetup
       Class<?> businessInterface = MockInterface.class;
       InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
       
-      handler = new InterceptorInvocationHandler(handler, new NoopInterceptor());
+      handler = new InterceptorInvocationHandler(handler, new RemoteContextDataInterceptor());
       
       ClassLoader loader = Thread.currentThread().getContextClassLoader();
       Class<?> interfaces[] = { businessInterface };
