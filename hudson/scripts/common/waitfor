@@ -1,0 +1,22 @@
+#!/bin/sh
+FILE=$1
+EXPR=$2
+TIMEOUT=$3
+
+now() {
+	date +%s
+}
+
+NOW=`now`
+THEN=`expr $NOW + $TIMEOUT`
+while [ $THEN -ge $NOW ]
+do
+	if grep >/dev/null 2>&1 "$EXPR" "$FILE"
+	then
+		exit 0
+	fi
+	sleep 1
+	NOW=`now`
+done
+echo 1>&2 "Failed to find $EXPR in $FILE"
+exit 1
