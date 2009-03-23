@@ -1,0 +1,5 @@
+Create two partitions for a slave within LVM:
+
+lvm lvcreate -L 16G -n V_ROOT2 FAST
+lvm lvcreate -L 2G -n V_SWAP2 FAST
+
