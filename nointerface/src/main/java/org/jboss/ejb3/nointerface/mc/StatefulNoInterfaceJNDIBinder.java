@@ -32,7 +32,6 @@ import org.jboss.ejb3.nointerface.deployers.EJB3NoInterfaceDeployer;
 import org.jboss.ejb3.nointerface.factory.MCAwareStatefulNoInterfaceViewFactory;
 import org.jboss.ejb3.nointerface.objectfactory.NoInterfaceViewProxyFactoryRefAddrTypes;
 import org.jboss.ejb3.nointerface.objectfactory.StatefulNoInterfaceViewObjectFactory;
-import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;

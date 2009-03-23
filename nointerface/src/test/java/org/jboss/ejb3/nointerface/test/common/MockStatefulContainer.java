@@ -26,11 +26,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.aop.joinpoint.InvocationResponse;
-import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
+import org.jboss.ejb3.endpoint.Endpoint;
+import org.jboss.ejb3.endpoint.SessionFactory;
+import org.jboss.logging.Logger;
 
 /**
  * MockStatefulContainer
@@ -42,9 +40,14 @@ import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class MockStatefulContainer implements InvokableContext, StatefulSessionFactory
+public class MockStatefulContainer implements Endpoint, SessionFactory
 
 {
+   /**
+    * Logger
+    */
+   private Logger logger = Logger.getLogger(MockStatefulContainer.class);
+
    /**
     * The bean class represented by this container
     */
@@ -69,36 +72,23 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
       this.beanClass = beanClass;
    }
 
-   /**
-    * @see InvokableContext#dynamicInvoke(Invocation)
-    */
-   public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
+   @Override
+   public Object invoke(Serializable session, Class<?> invokedBusinessInterface, Method method, Object[] args)
+         throws Throwable
    {
-      // TODO : We don't do anything related to remoting right now in these tests.
-      // Let's ignore this for now
-      return null;
+      // get the bean instance using the session 
+
+      Object beanInstance = sessions.get(session);
+      if (beanInstance == null)
+      {
+         logger.error("No bean instance found for session " + session + " for bean class " + beanClass.getName());
+         throw new RuntimeException("No bean instance found for session " + session);
+      }
+      return method.invoke(beanInstance, args);
    }
 
-   /**
-    * @see InvokableContext#invoke(Object, SerializableMethod, Object[])
-    */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
-   {
-      // get the bean instance using the target (=sessionId) 
-      Object target = proxy;
-      assert target instanceof Long : "Unexcepted session. Expected a session id of type Long";
-      Long sessionid = (Long) target;
-      Object beanInstance = sessions.get(sessionid);
-      Method invokedMethod = method.toMethod();
-      return invokedMethod.invoke(beanInstance, args);
-
-   }
-
-   /**
-    * Creates a session
-    * @see StatefulSessionFactory#createSession()
-    */
-   public Serializable createSession()
+   @Override
+   public Serializable createSession(Class<?>[] initTypes, Object[] initValues)
    {
       synchronized (currentSessionId)
       {
@@ -114,17 +104,14 @@ public class MockStatefulContainer implements InvokableContext, StatefulSessionF
          }
          return currentSessionId;
       }
-
    }
 
-   /**
-    * @see InvokableContext#removeTarget(Object)
-    */
-   public void removeTarget(Object target) throws UnsupportedOperationException
+   @Override
+   public void destroySession(Serializable session)
    {
       synchronized (sessions)
       {
-         sessions.remove(target);
+         sessions.remove(session);
       }
 
    }

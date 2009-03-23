@@ -29,9 +29,9 @@ import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.nointerface.test.common.MockStatefulContainer;
 import org.jboss.ejb3.nointerface.test.common.MockStatelessContainer;
-import org.jboss.ejb3.proxy.spi.container.InvokableContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
@@ -46,7 +46,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
  *
  *
  * @see MockStatefulContainer
- * @see MockStatelessContainer
+ * @see MockContainer
  *
  * @author Jaikiran Pai
  * @version $Revision: $
@@ -59,7 +59,7 @@ public class MockContainerDeployer extends AbstractDeployer
    public MockContainerDeployer()
    {
       setInput(JBossMetaData.class);
-      // the InvokableContext (container) will be installed as output
+      // the Endpoint (container) will be installed as output
       addOutput(BeanMetaData.class);
 
    }
@@ -97,28 +97,26 @@ public class MockContainerDeployer extends AbstractDeployer
 
    }
 
-
    private void deploy(DeploymentUnit unit, JBossSessionBeanMetaData sessionBeanMetadata) throws DeploymentException
    {
       try
       {
          String beanClassName = sessionBeanMetadata.getEjbClass();
-         InvokableContext container = null;
-         if (sessionBeanMetadata.isStateless())
-         {
-            container = new MockStatelessContainer(Class.forName(beanClassName, false, unit.getClassLoader()));
-         }
-         else if (sessionBeanMetadata.isStateful())
+         Endpoint container = null;
+         if (sessionBeanMetadata.isStateful())
          {
             container = new MockStatefulContainer(Class.forName(beanClassName, false, unit.getClassLoader()));
          }
+         else if (sessionBeanMetadata.isStateless())
+         {
+            container = new MockStatelessContainer(Class.forName(beanClassName, false, unit.getClassLoader()));
+         }
          else
          {
-            logger
-                  .warn("Support for only stateful/stateless beans available, right now in the tests. Ignoring bean class "
-                        + beanClassName);
-            return;
+            logger.error("Bean " + beanClassName + " is neither stateful nor stateless, cannot create a container");
+            throw new DeploymentException("Bean " + beanClassName + " is of unrecognized type");
          }
+
          // install the container in MC. Getting the container name is currently duplicated (copied from)
          // Ejb3NoInterfaceDeployer.
          String containerName = getContainerName(unit, sessionBeanMetadata);
@@ -134,6 +132,7 @@ public class MockContainerDeployer extends AbstractDeployer
          DeploymentException.rethrowAsDeploymentException("Could not create container for unit " + unit, e);
       }
    }
+
    /**
     *
     * Ultimately, the container name should come from the <code>sessionBeanMetadata</code>.

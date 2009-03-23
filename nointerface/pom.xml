@@ -208,8 +208,8 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
 
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-proxy-spi</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <artifactId>jboss-ejb3-endpoint</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
     </dependency>
 
     <dependency>

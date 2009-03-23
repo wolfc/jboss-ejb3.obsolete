@@ -21,12 +21,10 @@
  */
 package org.jboss.ejb3.nointerface.test.common;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.aop.joinpoint.InvocationResponse;
-import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.proxy.spi.container.InvokableContext;
+import org.jboss.ejb3.endpoint.Endpoint;
 
 /**
  * MockStatelessContainer
@@ -38,7 +36,7 @@ import org.jboss.ejb3.proxy.spi.container.InvokableContext;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class MockStatelessContainer implements InvokableContext
+public class MockStatelessContainer implements Endpoint
 {
 
    /**
@@ -55,36 +53,15 @@ public class MockStatelessContainer implements InvokableContext
       this.beanClass = beanClass;
    }
 
-   /**
-    * @see InvokableContext#dynamicInvoke(Invocation)
-    */
-   public InvocationResponse dynamicInvoke(Invocation invocation) throws Throwable
+   @Override
+   public Object invoke(Serializable session, Class<?> invokedBusinessInterface, Method method, Object[] args)
+         throws Throwable
    {
-      // TODO : We don't do anything related to remoting right now in these tests.
-      // Let's ignore this for now
-      return null;
-   }
 
-   /**
-    * @see InvokableContext#invoke(Object, SerializableMethod, Object[])
-    */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
-   {
-      // nothing fancy, just pass on the invocation to the bean class instance
-      Method invokedMethod = method.toMethod();
       // since this is for testing, creation of new bean instance on each invocation
       // should be manageable
       Object beanInstance = beanClass.newInstance();
-      return invokedMethod.invoke(beanInstance, args);
-   }
-
-   /**
-    * @see InvokableContext#removeTarget(Object)
-    */
-   public void removeTarget(Object arg0) throws UnsupportedOperationException
-   {
-      // no-op for stateless container
-
+      return method.invoke(beanInstance, args);
    }
 
 }

@@ -22,6 +22,7 @@
 package org.jboss.ejb3.nointerface.test.viewcreator.unit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -38,6 +39,7 @@ import org.jboss.ejb3.nointerface.test.viewcreator.ChildBean;
 import org.jboss.ejb3.nointerface.test.viewcreator.SimpleSFSBeanWithoutInterfaces;
 import org.jboss.ejb3.nointerface.test.viewcreator.SimpleSLSBWithoutInterface;
 import org.jboss.ejb3.nointerface.test.viewcreator.StatefulBeanWithInterfaces;
+import org.jboss.ejb3.nointerface.test.viewcreator.StatefulLocalBeanWithInterfaces;
 import org.jboss.ejb3.nointerface.test.viewcreator.StatelessBeanWithInterfaces;
 import org.jboss.ejb3.nointerface.test.viewcreator.StatelessLocalBeanWithInterfaces;
 import org.jboss.ejb3.test.common.MetaDataHelper;
@@ -313,17 +315,15 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
       assertEquals("Invocation on no-interface view method of SLSB returned an unexpected return message",
             returnedMessage, "Hi " + name);
 
-      JBossSessionBeanMetaData childBeanMetadata = MetaDataHelper
-            .getMetadataFromBeanImplClass(ChildBean.class);
+      JBossSessionBeanMetaData childBeanMetadata = MetaDataHelper.getMetadataFromBeanImplClass(ChildBean.class);
       String childBeanJndiName = childBeanMetadata.getEjbName() + "/no-interface";
       assertBoundAndOfExpectedType(ctx, childBeanJndiName, ChildBean.class);
       // at this point we are sure we will get the no-interface view
       ChildBean childBean = (ChildBean) ctx.lookup(childBeanJndiName);
-      
+
       // invoke method
       int returnedNumber = childBean.echoNumberFromChild(10);
       assertEquals("Method invocation on child bean returned incorrect value", returnedNumber, 10);
-      
 
    }
 
@@ -395,11 +395,125 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
             SimpleSFSBeanWithoutInterfaces.INITIAL_QTY + 1);
 
       // also check equality of two sfsb instances - they should not be equal
-      //      assertFalse("Both the instances of the SFSB are the same", firstSFSB.equals(secondSFSB));
-      //      
-      //      // let's also check whether the bean is equal to itself
-      //      assertTrue("Incorrect equals implementation - returns false for the same sfsb instance",firstSFSB.equals(firstSFSB));
-      //      assertTrue("equals returned false for the same sfsb instance",secondSFSB.equals(secondSFSB));
+      assertFalse("Both the instances of the SFSB are the same", firstSFSB.equals(secondSFSB));
+
+      // let's also check whether the bean is equal to itself
+      assertTrue("Incorrect equals implementation - returns false for the same sfsb instance", firstSFSB
+            .equals(firstSFSB));
+      assertTrue("equals returned false for the same sfsb instance", secondSFSB.equals(secondSFSB));
+
+   }
+
+   /**
+    * Tests that the {@link Object#equals(Object)} method on a no-interface view of a SLSB, behaves
+    * as per the contract
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testEqualsOnSLSBNoInterfaceView() throws Exception
+   {
+      JBossSessionBeanMetaData slsbMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(SimpleSLSBWithoutInterface.class);
+      String jndiName = slsbMetadata.getEjbName() + "/no-interface";
+
+      Context ctx = new InitialContext();
+      assertBoundAndOfExpectedType(ctx, jndiName, SimpleSLSBWithoutInterface.class);
+      // at this point we are sure we will get the no-interface view
+      SimpleSLSBWithoutInterface slsbOne = (SimpleSLSBWithoutInterface) ctx.lookup(jndiName);
+
+      SimpleSLSBWithoutInterface slsbTwo = (SimpleSLSBWithoutInterface) ctx.lookup(jndiName);
+
+      // compare two instances of no-interface view of the same bean
+      assertEquals("Two no-interface views for the same SLSB are not equal", slsbOne, slsbTwo);
+
+      // compare against null
+      assertFalse("NULL and a no-interface view should not be \"equal\"", slsbOne.equals(null));
+
+      // compare with itself
+      assertTrue("equals() on the same instance of no-interface view for SLSB should always be true", slsbTwo
+            .equals(slsbTwo));
+
+      // another different SLSB
+      JBossSessionBeanMetaData anotherSLSBMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(StatelessLocalBeanWithInterfaces.class);
+      String oneMoreSLSBJndiName = anotherSLSBMetadata.getEjbName() + "/no-interface";
+
+      assertBoundAndOfExpectedType(ctx, oneMoreSLSBJndiName, StatelessLocalBeanWithInterfaces.class);
+      // at this point we are sure we will get the no-interface view
+      StatelessLocalBeanWithInterfaces differentSLSB = (StatelessLocalBeanWithInterfaces) ctx
+            .lookup(oneMoreSLSBJndiName);
+
+      // compare no-interface views of 2 different SLS beans 
+      assertFalse("no-interfaces views of different SLSB classes should not be equal", slsbOne.equals(differentSLSB));
+
+      // SFSB
+      JBossSessionBeanMetaData sfsbMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(SimpleSFSBeanWithoutInterfaces.class);
+      String sfsbJndiName = sfsbMetadata.getEjbName() + "/no-interface";
+
+      assertBoundAndOfExpectedType(ctx, sfsbJndiName, SimpleSFSBeanWithoutInterfaces.class);
+      // at this point we are sure we will get the no-interface view
+      SimpleSFSBeanWithoutInterfaces sfsb = (SimpleSFSBeanWithoutInterfaces) ctx.lookup(sfsbJndiName);
+
+      // compare a no-interface view of SLSB against no-interface view of SFSB
+      assertFalse("no-interface view of SLSB should not be equal to no-interface view of SFSB", slsbTwo.equals(sfsb));
+
+   }
+
+   /**
+    * Tests that the {@link Object#equals(Object)} method on a no-interface view of a SFSB, behaves
+    * as per the contract
+    * 
+    * @throws Exception
+    */
+   @Test
+   public void testEqualsOnSFSBNoInterfaceView() throws Exception
+   {
+      JBossSessionBeanMetaData sfsbMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(SimpleSFSBeanWithoutInterfaces.class);
+      String jndiName = sfsbMetadata.getEjbName() + "/no-interface";
+
+      Context ctx = new InitialContext();
+      assertBoundAndOfExpectedType(ctx, jndiName, SimpleSFSBeanWithoutInterfaces.class);
+      // at this point we are sure we will get the no-interface view
+      SimpleSFSBeanWithoutInterfaces sfsbOne = (SimpleSFSBeanWithoutInterfaces) ctx.lookup(jndiName);
+
+      SimpleSFSBeanWithoutInterfaces sfsbTwo = (SimpleSFSBeanWithoutInterfaces) ctx.lookup(jndiName);
+
+      // compare two instances of no-interface view of the same bean
+      assertFalse("Two no-interface views/sessions for the same SFSB are equal", sfsbOne.equals(sfsbTwo));
+
+      // compare against null
+      assertFalse("NULL and a no-interface view should not be \"equal\"", sfsbOne.equals(null));
+
+      // compare with itself
+      assertTrue("equals() on the same instance of no-interface view for SFSB should always be true", sfsbTwo
+            .equals(sfsbTwo));
+
+      // another different SFSB
+      JBossSessionBeanMetaData anotherSFSBMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(StatefulLocalBeanWithInterfaces.class);
+      String oneMoreSFSBJndiName = anotherSFSBMetadata.getEjbName() + "/no-interface";
+
+      assertBoundAndOfExpectedType(ctx, oneMoreSFSBJndiName, StatefulLocalBeanWithInterfaces.class);
+      // at this point we are sure we will get the no-interface view
+      StatefulLocalBeanWithInterfaces differentSFSB = (StatefulLocalBeanWithInterfaces) ctx.lookup(oneMoreSFSBJndiName);
+
+      // compare no-interface views of 2 different SFS beans 
+      assertFalse("no-interfaces views of different SFSB classes should not be equal", sfsbOne.equals(differentSFSB));
+
+      // SLSB
+      JBossSessionBeanMetaData slsbMetadata = MetaDataHelper
+            .getMetadataFromBeanImplClass(SimpleSLSBWithoutInterface.class);
+      String slsbJndiName = slsbMetadata.getEjbName() + "/no-interface";
+
+      assertBoundAndOfExpectedType(ctx, slsbJndiName, SimpleSLSBWithoutInterface.class);
+      // at this point we are sure we will get the no-interface view
+      SimpleSLSBWithoutInterface slsb = (SimpleSLSBWithoutInterface) ctx.lookup(slsbJndiName);
+
+      // compare a no-interface view of SFSB against no-interface view of SLSB
+      assertFalse("no-interface view of SFSB should not be equal to no-interface view of SLSB", sfsbOne.equals(slsb));
 
    }
 
@@ -420,8 +534,8 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
 
       assertNotNull("No-interface view for " + expectedType + " returned null from JNDI name " + jndiName, bean);
 
-      assertTrue("No-interface view at jndiname " + jndiName + " for " + expectedType + " is not an instance of  " + expectedType.getName(),
-            expectedType.isAssignableFrom(bean.getClass()));
+      assertTrue("No-interface view at jndiname " + jndiName + " for " + expectedType + " is not an instance of  "
+            + expectedType.getName(), expectedType.isAssignableFrom(bean.getClass()));
 
    }
 }

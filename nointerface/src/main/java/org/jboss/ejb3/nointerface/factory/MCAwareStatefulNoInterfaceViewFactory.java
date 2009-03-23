@@ -25,9 +25,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
 import org.jboss.dependency.spi.ControllerState;
+import org.jboss.ejb3.endpoint.SessionFactory;
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
 import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
-import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 
@@ -116,11 +116,11 @@ public class MCAwareStatefulNoInterfaceViewFactory
 
       // now get hold of the StatefulSessionFactory from the context
       Object statefulSessionFactory = this.statefulSessionFactoryContext.getTarget();
-      assert statefulSessionFactory instanceof StatefulSessionFactory : "Unexpected object type found "
-            + statefulSessionFactory + " - expected a " + StatefulSessionFactory.class;
+      assert statefulSessionFactory instanceof SessionFactory : "Unexpected object type found "
+            + statefulSessionFactory + " - expected a " + SessionFactory.class;
 
       // create the session
-      Serializable session = ((StatefulSessionFactory) statefulSessionFactory).createSession();
+      Serializable session = ((SessionFactory) statefulSessionFactory).createSession(null, null);
       logger.debug("Created session " + session + " for " + this.beanClass);
 
       // create an invocation handler
