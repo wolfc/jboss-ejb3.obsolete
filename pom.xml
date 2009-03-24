@@ -44,8 +44,10 @@
     <module>core</module>
     <module>cache</module>
     <module>deployers</module>
-    <module>embedded</module>
     <module>ejb3</module>
+    <module>embedded</module>
+    <module>endpoint</module>
+    <module>endpoint-deployers</module>
     <module>ext-api</module>
     <module>ext-api-impl</module>
     <module>injection</module>
