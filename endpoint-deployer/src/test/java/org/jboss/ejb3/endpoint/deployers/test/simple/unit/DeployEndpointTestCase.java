@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -43,6 +44,7 @@ import org.jboss.deployers.vfs.spi.client.VFSDeployment;
 import org.jboss.deployers.vfs.spi.client.VFSDeploymentFactory;
 import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.endpoint.deployers.test.simple.Greeter;
+import org.jboss.ejb3.endpoint.deployers.test.simple.StatefulGreeter;
 import org.jboss.ejb3.endpoint.reflect.EndpointInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.virtual.VFS;
@@ -177,5 +179,26 @@ public class DeployEndpointTestCase
       Greeter bean = (Greeter) Proxy.newProxyInstance(loader, interfaces, handler);
       String result = bean.sayHi("Thingy");
       assertEquals("Hi Thingy from MyStatelessBean", result);
+   }
+
+   @Test
+   public void testStateful() throws Throwable
+   {
+      // name is not important
+      String name = "jboss.j2ee:jar=tests-classes,name=MyStatefulBean,service=EJB3_endpoint";
+      ControllerState state = null;
+      ControllerContext context = server.getKernel().getController().getContext(name, state);
+      if(context.getState() != ControllerState.INSTALLED)
+         context.getController().change(context, ControllerState.INSTALLED);
+      Endpoint endpoint = (Endpoint) context.getTarget();
+      Serializable session = endpoint.getSessionFactory().createSession(null, null);
+      Class<?> businessInterface = StatefulGreeter.class;
+      EndpointInvocationHandler handler = new EndpointInvocationHandler(endpoint, session, businessInterface);
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      Class<?> interfaces[] = { businessInterface };
+      StatefulGreeter bean = (StatefulGreeter) Proxy.newProxyInstance(loader, interfaces, handler);
+      bean.setName("testStateful");
+      String result = bean.sayHi();
+      assertEquals("Hi testStateful from MyStatefulBean", result);
    }
 }
