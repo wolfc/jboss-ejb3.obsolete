@@ -24,7 +24,7 @@
   <appender name="FILE" class="org.jboss.logging.appender.DailyRollingFileAppender">
     <param name="File" value="target/test.log"/>
     <param name="Append" value="false"/>
-
+    
     <!-- Rollover at midnight each day -->
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
@@ -103,29 +103,29 @@
   -->
 
   <category name="org.jboss">
-    <priority value="INFO"/>
+    <priority value="DEBUG"/>
   </category>
   
-  <!-- 
+  
   <category name="org.jboss.ejb3">
     <priority value="ALL"/>
   </category>
-  -->
   
-  <category name="org.jboss.kernel.plugins.dependency">
-    <priority value="ERROR"/>
+   
+  <category name="org.jboss.kernel">
+    <priority value="TRACE"/>
   </category>
   
-  <category name="org.jboss.deployers.plugins.deployers.DeployWrapper">
-    <priority value="ERROR"/>
+  <category name="org.jboss.deployers">
+    <priority value="TRACE"/>
   </category>
-  
+   
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
 
   <root>
-    <priority value="WARN" />
+    
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
