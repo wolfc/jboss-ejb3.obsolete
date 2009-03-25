@@ -92,8 +92,9 @@ public class DeployEndpointTestCase
       List<VirtualFile> candidates = deployDir.getChildren();
       for(VirtualFile candidate : candidates)
       {
-         deploy(candidate.toURL());
+         deploy(candidate.toURL(), false);
       }
+      mainDeployer.checkComplete();
       
       // TODO:
       deployResource("ejb3-interceptors-aop.xml");
@@ -115,10 +116,17 @@ public class DeployEndpointTestCase
    
    protected static void deploy(URL url) throws DeploymentException, IOException
    {
+      deploy(url, true);
+   }
+   
+   protected static void deploy(URL url, boolean checkComplete) throws DeploymentException, IOException
+   {
+      log.info("Deploying " + url);
       VirtualFile root = VFS.getRoot(url);
       VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
       mainDeployer.deploy(deployment);
-      mainDeployer.checkComplete(deployment);
+      if(checkComplete)
+         mainDeployer.checkComplete(deployment);
    }
    
    private static String findDir(String path) throws IOException
