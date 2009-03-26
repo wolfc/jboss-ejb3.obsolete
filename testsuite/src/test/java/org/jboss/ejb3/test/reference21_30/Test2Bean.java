@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.reference21_30;
 
+import java.rmi.RemoteException;
+
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 
@@ -36,7 +38,7 @@ implements javax.ejb.SessionBean
    private static final long serialVersionUID = -8375644698783606562L;
    private static final Logger log = Logger.getLogger(Test2Bean.class);
     
-   public void testAccess() throws Exception
+   public void testAccess() throws RemoteException, Exception
    {
       InitialContext jndiContext = new InitialContext();
       

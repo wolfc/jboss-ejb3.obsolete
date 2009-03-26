@@ -30,5 +30,5 @@ import java.rmi.RemoteException;
 public interface Test2
    extends javax.ejb.EJBObject
 {
-   void testAccess() throws RemoteException;
+   void testAccess() throws RemoteException, Exception;
 }
