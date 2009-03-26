@@ -19,40 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting.endpoint;
+package org.jboss.ejb3.remoting.client;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.remoting.spi.Remotable;
+import java.lang.reflect.InvocationHandler;
 
 /**
- * An endpoint that only takes serializable parameters. This is one level higher that a Remotable,
- * because now we know the target implements RemotableEndpoint.
- * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface RemotableEndpoint
+public class CurrentRemotableClient
 {
-   Method INVOKE_METHOD = MethodHelper.getMethod(RemotableEndpoint.class, "invoke", Serializable.class, Map.class, SerializableMethod.class, Object[].class);
+   private static ThreadLocal<RemotableClient> current = new ThreadLocal<RemotableClient>();
    
-   /**
-    * The remotable which has this endpoint as target.
-    */
-   Remotable getRemotable();
+   public static InvocationHandler createHandler(Serializable oid)
+   {
+      return current.get().createHandler(oid);
+   }
    
-   /**
-    * The invokedBusinessInterface is method.actualClass
-    * 
-    * @param session
-    * @param contextData
-    * @param method
-    * @param args
-    * @return
-    * @throws Throwable
-    */
-   Object invoke(Serializable session, Map<String, Object> contextData, SerializableMethod method, Object args[]) throws Throwable;
+   public static void remove()
+   {
+      RemotableClient previous = current.get();
+      if(previous == null)
+         throw new IllegalStateException("no remotable client found");
+      current.remove();
+   }
+   
+   public static void set(RemotableClient value)
+   {
+      RemotableClient previous = current.get();
+      if(previous != null)
+         throw new IllegalStateException("found previous remotable client " + previous + ", can't set " + value);
+      current.set(value);
+   }
 }

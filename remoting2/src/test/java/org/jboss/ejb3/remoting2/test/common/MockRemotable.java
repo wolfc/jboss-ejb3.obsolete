@@ -21,13 +21,19 @@
  */
 package org.jboss.ejb3.remoting2.test.common;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
+import org.jboss.ejb3.remoting.endpoint.RemotableEndpointReference;
 import org.jboss.ejb3.remoting.spi.Remotable;
 
 /**
@@ -36,6 +42,21 @@ import org.jboss.ejb3.remoting.spi.Remotable;
  */
 public class MockRemotable implements MockInterface, Remotable, RemotableEndpoint
 {
+   public MockInterface getBusinessObject()
+   {
+      Class<?> businessInterface = MockInterface.class;
+      ClassLoader loader = getClassLoader();
+      Class<?> interfaces[] = { businessInterface };
+      Serializable session = null;
+      InvocationHandler handler = new RemotableEndpointReference(this, session, businessInterface);
+      MockInterface self = (MockInterface) Proxy.newProxyInstance(loader, interfaces, handler);
+      
+      String result = self.sayHi("self");
+      assertEquals("Hi self", result);
+      
+      return self;
+   }
+   
    public ClassLoader getClassLoader()
    {
       return MockRemotable.class.getClassLoader();
@@ -44,6 +65,11 @@ public class MockRemotable implements MockInterface, Remotable, RemotableEndpoin
    public Serializable getId()
    {
       return "MockRemotableID";
+   }
+   
+   public Remotable getRemotable()
+   {
+      return this;
    }
    
    public Object getTarget()
@@ -63,6 +89,10 @@ public class MockRemotable implements MockInterface, Remotable, RemotableEndpoin
       try
       {
          return realMethod.invoke(this, args);
+      }
+      catch(IllegalArgumentException e)
+      {
+         throw new IllegalArgumentException("failed to invoke " + realMethod + " with " + Arrays.toString(args));
       }
       catch(InvocationTargetException e)
       {

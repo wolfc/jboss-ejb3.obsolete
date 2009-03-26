@@ -27,5 +27,7 @@ package org.jboss.ejb3.remoting2.test.common;
  */
 public interface MockInterface
 {
+   MockInterface getBusinessObject();
+   
    String sayHi(String name);
 }

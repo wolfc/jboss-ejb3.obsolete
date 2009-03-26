@@ -33,10 +33,10 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
+import org.jboss.ejb3.remoting.endpoint.client.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
 import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptedMockRemotable;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.RemoteContextDataInterceptor;
 import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.Client;

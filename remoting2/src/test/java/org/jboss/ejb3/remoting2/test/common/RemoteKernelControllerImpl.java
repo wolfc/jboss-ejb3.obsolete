@@ -79,12 +79,6 @@ public class RemoteKernelControllerImpl implements RemoteKernelController, Remot
       }
    }
    
-   public String install(BeanMetaData beanMetaData) throws Throwable
-   {
-      KernelControllerContext context = kernel.getController().install(beanMetaData);
-      return (String) context.getName();
-   }
-
    /* (non-Javadoc)
     * @see org.jboss.ejb3.remoting.spi.Remotable#getClassLoader()
     */
@@ -101,12 +95,23 @@ public class RemoteKernelControllerImpl implements RemoteKernelController, Remot
       return RemoteKernelController.class.getName();
    }
 
+   public Remotable getRemotable()
+   {
+      return this;
+   }
+   
    /* (non-Javadoc)
     * @see org.jboss.ejb3.remoting.spi.Remotable#getTarget()
     */
    public Object getTarget()
    {
       return this;
+   }
+
+   public String install(BeanMetaData beanMetaData) throws Throwable
+   {
+      KernelControllerContext context = kernel.getController().install(beanMetaData);
+      return (String) context.getName();
    }
 
    /* (non-Javadoc)

@@ -19,40 +19,28 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting.endpoint;
+package org.jboss.ejb3.remoting.endpoint.client;
 
-import java.io.Serializable;
-import java.lang.reflect.Method;
-import java.util.Map;
+import javax.interceptor.InvocationContext;
 
-import org.jboss.ejb3.common.lang.SerializableMethod;
-import org.jboss.ejb3.remoting.spi.Remotable;
+import org.jboss.ejb3.sis.Interceptor;
 
 /**
- * An endpoint that only takes serializable parameters. This is one level higher that a Remotable,
- * because now we know the target implements RemotableEndpoint.
- * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface RemotableEndpoint
+public class RemoteContextDataInterceptor implements Interceptor
 {
-   Method INVOKE_METHOD = MethodHelper.getMethod(RemotableEndpoint.class, "invoke", Serializable.class, Map.class, SerializableMethod.class, Object[].class);
-   
-   /**
-    * The remotable which has this endpoint as target.
-    */
-   Remotable getRemotable();
-   
-   /**
-    * The invokedBusinessInterface is method.actualClass
-    * 
-    * @param session
-    * @param contextData
-    * @param method
-    * @param args
-    * @return
-    * @throws Throwable
-    */
-   Object invoke(Serializable session, Map<String, Object> contextData, SerializableMethod method, Object args[]) throws Throwable;
+   public Object invoke(InvocationContext context) throws Exception
+   {
+      RemoteContextData.setContextData(context.getContextData());
+      try
+      {
+         return context.proceed();
+      }
+      finally
+      {
+         RemoteContextData.cleanContextData();
+      }
+   }
 }

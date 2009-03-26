@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting2.test.clientinterceptor.unit;
+package org.jboss.ejb3.remoting2.test.remoteref.unit;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,56 +30,26 @@ import java.lang.reflect.Proxy;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.Current;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.InterceptedMockRemotable;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.SimpleInterceptorClientSide;
 import org.jboss.ejb3.remoting2.test.common.AbstractRemotingTestCaseSetup;
 import org.jboss.ejb3.remoting2.test.common.MockInterface;
-import org.jboss.ejb3.sis.Interceptor;
-import org.jboss.ejb3.sis.InterceptorAssembly;
 import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;
 import org.jboss.remoting.Client;
 import org.jboss.remoting.InvokerLocator;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
+ * What happens if we obtain a reference from inside the remotable.
+ * 
+ * e.g. simulate ctx.getBusinessObject(interface);
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class ClientInterceptorTestCase extends AbstractRemotingTestCaseSetup
+public class RemoteReferenceTestCase extends AbstractRemotingTestCaseSetup
 {
-   @BeforeClass
-   public static void beforeClass() throws Throwable
-   {
-      AbstractRemotingTestCaseSetup.beforeClass();
-      
-      install(InterceptedMockRemotable.class);
-   }
-   
-   private <T> T createRemoteProxy(Client client, Serializable oid, Class<T> businessInterface, org.jboss.ejb3.sis.Interceptor interceptor)
-   {
-      RemoteInvocationHandler delegate = new RemoteInvocationHandler(client, oid);
-      
-      // assume we're talking to a singleton
-      Serializable session = null;
-      InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
-
-      Interceptor interceptors[] = new Interceptor[] { new RemoteContextDataInterceptor(), interceptor };
-      interceptor = new InterceptorAssembly(interceptors);
-      
-      handler = new InterceptorInvocationHandler(handler, interceptor);
-      
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
-      Class<?> interfaces[] = { businessInterface };
-      return businessInterface.cast(Proxy.newProxyInstance(loader, interfaces, handler));
-   }
-   
    @Test
-   public void test1() throws Throwable
+   public void testRemoteReference() throws Exception
    {
-      Interceptor interceptor = new SimpleInterceptorClientSide();
-      
       InvokerLocator locator = new InvokerLocator("socket://localhost:5783");
       String subsystem = "EJB3_R2D2";
       
@@ -87,13 +57,21 @@ public class ClientInterceptorTestCase extends AbstractRemotingTestCaseSetup
       client.setDisconnectTimeout(1);
       client.connect();
       
-      String oid = InterceptedMockRemotable.class.getSimpleName();
-      MockInterface bean = createRemoteProxy(client, oid, MockInterface.class, interceptor);
+      RemoteInvocationHandler delegate = new RemoteInvocationHandler(client, "MockRemotableID");
       
-      Current.setState("something");
+      Serializable session = null;
+      Class<?> businessInterface = MockInterface.class;
+      InvocationHandler handler = new RemoteInvocationHandlerInvocationHandler(delegate, session, businessInterface);
       
-      String result = bean.sayHi("me");
+      handler = new InterceptorInvocationHandler(handler, new RemoteContextDataInterceptor());
       
-      assertEquals("Hi me something", result);
+      ClassLoader loader = Thread.currentThread().getContextClassLoader();
+      Class<?> interfaces[] = { businessInterface };
+      MockInterface proxy = (MockInterface) Proxy.newProxyInstance(loader, interfaces, handler);
+      
+      MockInterface newProxy = proxy.getBusinessObject();
+      
+      String result = newProxy.sayHi("testRemoteReference");
+      assertEquals("Hi testRemoteReference", result);
    }
 }

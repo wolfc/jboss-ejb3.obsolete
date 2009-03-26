@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
+import org.jboss.ejb3.remoting.reflect.AbstractInvocationHandler;
 
 /**
  * An invocation handler which delegates to an invocation handler that handles invocations
@@ -39,7 +40,7 @@ import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class RemoteInvocationHandlerInvocationHandler implements InvocationHandler
+public class RemoteInvocationHandlerInvocationHandler extends AbstractInvocationHandler
 {
    private InvocationHandler delegate;
    private Serializable session;
@@ -52,12 +53,37 @@ public class RemoteInvocationHandlerInvocationHandler implements InvocationHandl
       this.invokedBusinessInterface = invokedBusinessInterface;
    }
    
-   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   public Object innerInvoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       Map<String, Object> contextData = RemoteContextData.getContextData();
-      Method invokeMethod = RemotableEndpoint.INVOKE_METHOD;
-      SerializableMethod businessMethod = new SerializableMethod(method, invokedBusinessInterface);
-      Object invokeArgs[] = { session, contextData, businessMethod, args };
-      return delegate.invoke(proxy, invokeMethod, invokeArgs);
+      try
+      {
+         // make sure we don't leak across recursive calls
+         RemoteContextData.cleanContextData();
+         Method invokeMethod = RemotableEndpoint.INVOKE_METHOD;
+         SerializableMethod businessMethod = new SerializableMethod(method, invokedBusinessInterface);
+         Object invokeArgs[] = { session, contextData, businessMethod, args };
+         return delegate.invoke(proxy, invokeMethod, invokeArgs);
+      }
+      finally
+      {
+         RemoteContextData.setContextData(contextData);
+      }
+   }
+   
+   public String toProxyString()
+   {
+      return "Proxy on " + toString();
+   }
+   
+   @Override
+   public String toString()
+   {
+      StringBuffer sb = new StringBuffer(super.toString());
+      sb.append("{delegate=" + delegate);
+      sb.append(",session=" + session);
+      sb.append(",invokedBusinessInterface=" + invokedBusinessInterface);
+      sb.append("}");
+      return sb.toString();
    }
 }

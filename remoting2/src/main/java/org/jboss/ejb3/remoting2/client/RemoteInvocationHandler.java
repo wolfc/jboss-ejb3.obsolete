@@ -28,13 +28,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
+import org.jboss.ejb3.remoting.client.CurrentRemotableClient;
+import org.jboss.ejb3.remoting.client.RemotableClient;
+import org.jboss.ejb3.remoting.reflect.AbstractInvocationHandler;
 import org.jboss.remoting.Client;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class RemoteInvocationHandler implements InvocationHandler
+public class RemoteInvocationHandler extends AbstractInvocationHandler
+   implements RemotableClient
 {
    public static final String OID = "OID";
    
@@ -47,12 +51,53 @@ public class RemoteInvocationHandler implements InvocationHandler
       this.oid = oid;
    }
    
-   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   public InvocationHandler createHandler(Serializable oid)
+   {
+      if(equals(this.oid, oid))
+         return this;
+      return new RemoteInvocationHandler(client, oid);
+   }
+   
+   private static boolean equals(Object obj1, Object obj2)
+   {
+      if(obj1 == obj2)
+         return true;
+      
+      if(obj1 == null || obj2 == null)
+         return false;
+      
+      return obj1.equals(obj2);
+   }
+   
+   public Object innerInvoke(Object proxy, Method method, Object[] args) throws Throwable
    {
       SerializableMethod serializableMethod = new SerializableMethod(method);
       Object param = new Object[] { serializableMethod, args };
       Map<Object, Object> metadata = new HashMap<Object, Object>();
       metadata.put(OID, oid);
-      return client.invoke(param, metadata);
+      CurrentRemotableClient.set(this);
+      try
+      {
+         return client.invoke(param, metadata);
+      }
+      finally
+      {
+         CurrentRemotableClient.remove();
+      }
+   }
+   
+   public String toProxyString()
+   {
+      return "Proxy on " + toString();
+   }
+   
+   @Override
+   public String toString()
+   {
+      StringBuffer sb = new StringBuffer(super.toString());
+      sb.append("{client=" + client);
+      sb.append(",oid=" + oid);
+      sb.append("}");
+      return sb.toString();
    }
 }

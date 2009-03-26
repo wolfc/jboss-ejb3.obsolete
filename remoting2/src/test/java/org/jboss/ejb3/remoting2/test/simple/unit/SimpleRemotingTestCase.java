@@ -32,10 +32,10 @@ import java.util.Map;
 
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.remoting.endpoint.RemotableEndpoint;
+import org.jboss.ejb3.remoting.endpoint.client.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting.endpoint.client.RemoteInvocationHandlerInvocationHandler;
 import org.jboss.ejb3.remoting2.EJB3ServerInvocationHandler;
 import org.jboss.ejb3.remoting2.client.RemoteInvocationHandler;
-import org.jboss.ejb3.remoting2.test.clientinterceptor.RemoteContextDataInterceptor;
 import org.jboss.ejb3.remoting2.test.common.AbstractRemotingTestCaseSetup;
 import org.jboss.ejb3.remoting2.test.common.MockInterface;
 import org.jboss.ejb3.sis.reflect.InterceptorInvocationHandler;

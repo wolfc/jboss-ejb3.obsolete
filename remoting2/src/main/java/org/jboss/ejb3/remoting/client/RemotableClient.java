@@ -19,29 +19,16 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.remoting2.test.clientinterceptor;
+package org.jboss.ejb3.remoting.client;
 
-import javax.interceptor.InvocationContext;
-
-import org.jboss.ejb3.remoting.endpoint.client.RemoteContextData;
-import org.jboss.ejb3.sis.Interceptor;
+import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class RemoteContextDataInterceptor implements Interceptor
+public interface RemotableClient
 {
-   public Object invoke(InvocationContext context) throws Exception
-   {
-      RemoteContextData.setContextData(context.getContextData());
-      try
-      {
-         return context.proceed();
-      }
-      finally
-      {
-         RemoteContextData.cleanContextData();
-      }
-   }
+   InvocationHandler createHandler(Serializable oid);
 }
