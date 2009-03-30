@@ -3728,6 +3728,9 @@
          </fileset>
          <fileset dir="${resources}/test/changexml">
             <include name="META-INF/*.xml"/>
+	    <include name="changexml-users.properties"/>
+	    <include name="changexml-roles.properties"/>
+            <include name="*.xml"/>
          </fileset>
       </jar>
    </target>

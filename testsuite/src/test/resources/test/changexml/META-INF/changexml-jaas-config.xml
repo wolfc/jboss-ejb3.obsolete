@@ -1,0 +1,17 @@
+<?xml version='1.0'?>
+
+<!DOCTYPE policy PUBLIC
+      "-//JBoss//DTD JBOSS Security Config 3.0//EN"
+      "http://www.jboss.org/j2ee/dtd/security_config.dtd">
+<policy>
+  <application-policy name="changexml-security-domain">
+      <authentication>
+         <login-module code="org.jboss.security.auth.spi.UsersRolesLoginModule"
+            flag="required">
+        <module-option name="usersProperties">changexml-users.properties</module-option>
+        <module-option name="rolesProperties">changexml-roles.properties</module-option>
+         </login-module>
+      </authentication>
+   </application-policy>
+</policy>
+

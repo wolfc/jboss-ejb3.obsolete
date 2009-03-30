@@ -45,12 +45,12 @@ public class TesterBean implements TesterRemote
    {
       if (local == null)
          throw new RuntimeException("local not injected");
-   
+
       // No security domain should work
       if ("Ok".equals(local.doSomething("Ok")) == false)
          throw new RuntimeException("doSomething didn't work");
-      
-      // Add a security domain 
+
+      // Add a security domain
       MBeanServer server = MBeanServerLocator.locateJBoss();
       DeploymentUnit unit = (DeploymentUnit) server.invoke(MainDeployerMBean.OBJECT_NAME, "getDeploymentUnit", new Object[] { url }, new String[] { URL.class.getName() });
       if (unit == null)
@@ -61,8 +61,8 @@ public class TesterBean implements TesterRemote
       JBossEnterpriseBeanMetaData bean = jbossMetaData.getEnterpriseBean(SessionBean.class.getSimpleName());
       if (bean == null)
          throw new RuntimeException("No bean");
-      bean.setSecurityDomain("other");
-      
+      bean.setSecurityDomain("changexml-security-domain");
+
       // Now this shouldn't work
       try
       {
@@ -72,6 +72,6 @@ public class TesterBean implements TesterRemote
       {
          return;
       }
-      throw new RuntimeException("Should not be here!"); 
+      throw new RuntimeException("Should not be here!");
    }
 }
