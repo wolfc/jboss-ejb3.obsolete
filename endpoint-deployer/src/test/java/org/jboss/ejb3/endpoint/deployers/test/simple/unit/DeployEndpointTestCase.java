@@ -81,10 +81,15 @@ public class DeployEndpointTestCase
       Properties props = new Properties();
       props.put(ServerConfig.HOME_DIR, dir);
       props.put(ServerConfig.SERVER_CONFIG_URL, findDir("src/test/resources/conf"));
+      // we should not be the one to stop/halt the JVM  
+      props.put(ServerConfig.EXIT_ON_SHUTDOWN, "false");
+      // workaround for JBBOOT-20
+      System.setProperty("jboss.shutdown.forceHalt", "false");
+
       server.init(props);
       
       server.start();
-      
+
       mainDeployer = (MainDeployer) server.getKernel().getController().getContext("MainDeployer", ControllerState.INSTALLED).getTarget();
       
       // TODO: another hack that simulates profile service going through deploy dir
