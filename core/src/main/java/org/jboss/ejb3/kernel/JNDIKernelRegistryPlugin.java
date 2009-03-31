@@ -24,11 +24,9 @@ package org.jboss.ejb3.kernel;
 import java.util.Hashtable;
 
 import javax.naming.Context;
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 
 import org.jboss.ejb3.InitialContextFactory;
-import org.jboss.kernel.plugins.registry.AbstractKernelRegistryEntry;
 import org.jboss.kernel.spi.registry.KernelRegistryEntry;
 import org.jboss.kernel.spi.registry.KernelRegistryPlugin;
 import org.jboss.logging.Logger;
@@ -43,82 +41,62 @@ import org.jboss.logging.Logger;
 public class JNDIKernelRegistryPlugin implements KernelRegistryPlugin
 {
    private static final Logger log = Logger.getLogger(JNDIKernelRegistryPlugin.class);
-   
+
    public static final String JNDI_DEPENDENCY_PREFIX = "jndi:";
-   
+
    private Context context;
+
    private Hashtable<?, ?> environment;
-   
+
    public JNDIKernelRegistryPlugin()
    {
    }
-   
+
    public JNDIKernelRegistryPlugin(Hashtable environment)
    {
       this.environment = environment;
    }
-   
+
    public void create() throws NamingException
    {
       log.debug("Creating JNDIKernelRegistryPlugin");
       this.context = InitialContextFactory.getInitialContext(environment);
    }
-   
+
    public void destroy() throws NamingException
    {
       log.debug("Destroying JNDIKernelRegistryPlugin");
-      if(context != null)
+      if (context != null)
          context.close();
       context = null;
    }
-   
+
+   /**
+    * @see KernelRegistryPlugin#getEntry(Object)
+    */
    public KernelRegistryEntry getEntry(Object name)
    {
-      assert name != null : "name is null";
-      
+      if (name == null)
+      {
+         // as per the KernelRegistryPlugin interface, we should throw
+         // IllegalArgumentException when name is null
+         throw new IllegalArgumentException("Name cannot be null");
+      }
+
       String s = String.valueOf(name);
-      if(!s.startsWith(JNDI_DEPENDENCY_PREFIX))
+      if (!s.startsWith(JNDI_DEPENDENCY_PREFIX))
          return null;
-      
-      if(log.isTraceEnabled())
+
+      if (log.isTraceEnabled())
          log.trace("get entry for " + name);
-      
-      try
-      {
-         Object target = context.lookup(s.substring(JNDI_DEPENDENCY_PREFIX.length()));
-         if(log.isTraceEnabled())
-            log.trace("found: " + target);
-         // target could be null, but if the entry exists continue.
-         return new AbstractKernelRegistryEntry(name, target);
-//         NamingEnumeration<NameClassPair> e = context.list(s.substring(JNDI_DEPENDENCY_PREFIX.length()));
-//         if(e.hasMore())
-//         {
-//            Object target = e.next(); 
-//            // target could be null, but if the entry exists continue.
-//            return new AbstractKernelRegistryEntry(name, target);
-//         }
-//         return null;
-      }
-      catch(NameNotFoundException e)
-      {
-         log.trace("not found");
-         return null;
-      }
-      catch (NamingException e)
-      {
-         log.trace("entry can't be resolved", e);
-         throw new RuntimeException(e);
-      }
-      catch(RuntimeException e)
-      {
-         log.trace("entry can't be resolved", e);
-         throw e;
-      }
+
+      String jndiName = s.substring(JNDI_DEPENDENCY_PREFIX.length());
+      return new LazyJNDIKernelRegistryEntry(this.context, jndiName);
    }
 
    public void setEnvironment(Hashtable<?, ?> env)
    {
-      if(context != null)
+      if (context != null)
          throw new IllegalStateException("context already initialized");
       this.environment = env;
    }
