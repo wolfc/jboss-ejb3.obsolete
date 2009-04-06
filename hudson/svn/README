@@ -1,0 +1,10 @@
+fix_rev.sh is a post commit hook to counter a bug in subversion.
+ http://subversion.tigris.org/issues/show_bug.cgi?id=3194
+
+Usage example:
+
+[carlo@mike svn]$ sudo -u svnsync ./fix_rev.sh 
+Usage: ./fix_rev.sh <repos> <rev>
+[carlo@mike svn]$ sudo -u svnsync ./fix_rev.sh file:///var/svn/anonsvn.jboss.org-jbossas/ 84130
+setting svn:date to 2009-02-12T17:02:21.866590Z on 84130
+property 'svn:date' set on repository revision 84130

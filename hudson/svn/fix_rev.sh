@@ -17,7 +17,7 @@ REV="$2"
 DATE=`svn pg -r $REV --revprop svn:date $REPOS`
 
 if [ -n "$DATE" ]; then
-   echo "$REV already has a date"
+   echo "$REV already has svn:date $DATE"
    exit 0
 fi
 
@@ -30,6 +30,6 @@ while [ -z "$DATE" ]; do
    fi
    DATE=`svn pg -r $PREV_REV --revprop svn:date $REPOS`
 done
-echo $DATE
 
+echo "setting svn:date to $DATE on $REV"
 svn ps -r $REV --revprop svn:date $DATE $REPOS
