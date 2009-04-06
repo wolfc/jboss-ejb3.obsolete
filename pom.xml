@@ -583,7 +583,7 @@
     <dependency>
       <groupId>org.jboss.jpa</groupId>
       <artifactId>jboss-jpa-deployers</artifactId>
-      <version>1.0.0-Beta5</version>
+      <version>1.0.0-CR1</version>
     </dependency>
 
     <dependency>
