@@ -152,7 +152,11 @@ public class InterceptorRegistry
       }
 
       Class<?> beanClass = advisor.getClazz();
-      for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
+      // EJB3 spec says in section 12.7
+      // "A business method interceptor method may be defined to apply to a specific *business method*
+      // invocation, rather than to all of the business methods of the bean class."
+      // So all we need are "public" methods.
+      for(Method beanMethod : beanClass.getMethods())
       {
          interceptorsAnnotation = (Interceptors) advisor.resolveAnnotation(beanMethod, Interceptors.class);
          List<Class<?>> methodInterceptorClasses = new ArrayList<Class<?>>();
@@ -174,6 +178,7 @@ public class InterceptorRegistry
 
          // Total ordering (EJB 3 12.8.2.1)
          // TODO: @Interceptors with all?
+
          InterceptorOrder order = (InterceptorOrder) advisor.resolveAnnotation(beanMethod, InterceptorOrder.class);
          if(order == null)
             order = (InterceptorOrder) advisor.resolveAnnotation(InterceptorOrder.class);
