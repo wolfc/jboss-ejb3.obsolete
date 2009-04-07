@@ -1,5 +1,51 @@
+Beforhand created a new virtual network in virt-manager:
+Network Name: hudson
+Network: (default) 192.168.100.0/24
+Start: (default) 192.168.100.128
+End: (default) 192.168.100.254
+Forwarding to physical network: NAT to any physical device
+
 Create two partitions for a slave within LVM:
 
 lvm lvcreate -L 16G -n V_ROOT2 FAST
 lvm lvcreate -L 2G -n V_SWAP2 FAST
 
+virt-install \
+        --name rhel-5.3-guest2 \
+        --ram 1024 \
+        --vcpus 2 \
+        --file /dev/mapper/FAST-V_ROOT2 \
+        --network network:hudson \
+        --vnc \
+        --paravirt \
+        --location http://qafiler.bos.redhat.com/redhat/rhel5-server-x86_64/ \
+        --extra-args ks=http://mike.lab.bos.redhat.com/~carlo/kickstart/anaconda
+-ks.cfg
+
+Wait (and watch) anaconda do its job and 'Reboot' the machine.
+The machine will actually shutdown.
+
+Add V_SWAP2 to /etc/xen/rhel-5.3-guest2
+
+Start the guest.
+
+Within guest:
+/etc/sysconfig/network: set appropriate hostname
+Using system-config-network-tui set eth0 to a fixed ip (192.168.100.12) netmask 255.255.255.0 and gateway 192.168.100.1.
+
+Create swap partition on /dev/xvdb.
+# mkswap /dev/xvdb1
+Add /dev/xvdb1 to /etc/fstab
+# swapon -a
+
+# useradd -m hudson
+
+Setup .ssh/authorized_keys so that no password is needed for:
+mike $ ssh sulley ssh 192.168.100.12
+
+# rsync -avz root@mike.lab.bos.redhat.com:/opt/apache /opt
+
+Make sure the slave is listed in hudson/scripts/common on do make.
+
+# rpm -i jdk-1_5_0_17-linux-amd64.rpm
+# rpm -i jdk-6u11-linux-amd64.rpm
