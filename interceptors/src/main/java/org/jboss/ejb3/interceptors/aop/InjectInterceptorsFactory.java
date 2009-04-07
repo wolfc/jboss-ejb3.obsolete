@@ -30,6 +30,7 @@ import javax.annotation.PostConstruct;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.ExcludeClassInterceptors;
 import javax.interceptor.ExcludeDefaultInterceptors;
+import javax.interceptor.InvocationContext;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.InstanceAdvisor;
@@ -51,12 +52,12 @@ import org.jboss.logging.Logger;
 public class InjectInterceptorsFactory extends AbstractInterceptorFactory
 {
    private static final Logger log = Logger.getLogger(InjectInterceptorsFactory.class);
-   
+
    public InjectInterceptorsFactory()
    {
       log.debug("new InjectInterceptorsFactory");
    }
-   
+
    /**
     * Generate the proper interceptor chain based on the spec interceptors.
     */
@@ -66,9 +67,9 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       assert advisor != null;
       assert instanceAdvisor != null;
       assert jp instanceof MethodJoinpoint || jp instanceof ConstructorJoinpoint;
-      
+
       log.debug("Create interceptor chain for " + instanceAdvisor.getClass().getName() + "@" + System.identityHashCode(instanceAdvisor) + " on " + jp);
-      
+
       /*
       defaultInterceptors = ...;
       classInterceptors = ...;
@@ -78,9 +79,9 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       if(jp instanceof MethodJoinpoint)
       {
          // aroundInvoke
-         
+
          Method method = ((MethodJoinpoint) jp).getMethod();
-         
+
          if(advisor instanceof ManagedObjectAdvisor)
          {
             AbstractContainer<?, ?> container = AbstractContainer.getContainer(advisor);
@@ -91,12 +92,14 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
                for (Class<?> interceptorClass : interceptorClasses)
                {
                   ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
-                  for (Method interceptorMethod : ClassHelper.getAllMethods(interceptorClass))
+                  // Get all public/private/protected/package access methods of signature:
+                  // Object <MethodName> (InvocationContext)
+                  Method[] possibleInterceptorMethods = ClassHelper.getMethods(interceptorClass, Object.class,new Class<?>[] {InvocationContext.class});
+                  for (Method interceptorMethod : possibleInterceptorMethods)
                   {
-                     if (!ClassHelper.isOverridden(interceptorClass, interceptorMethod))
+                     if (interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
                      {
-                        if (interceptorAdvisor
-                              .isAnnotationPresent(interceptorClass, interceptorMethod, AroundInvoke.class))
+                        if (!ClassHelper.isOverridden(interceptorMethod, possibleInterceptorMethods))
                         {
                            interceptors.add(new EJB3InterceptorInterceptor(interceptorClass, interceptorMethod));
                         }
@@ -105,11 +108,14 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
                }
             }
             Class<?> beanClass = advisor.getClazz();
-            for(Method beanMethod : ClassHelper.getAllMethods(beanClass))
+            // Get all public/private/protected/package access methods of signature:
+            // Object <MethodName> (InvocationContext)
+            Method[] possibleAroundInvokeMethods = ClassHelper.getMethods(beanClass, Object.class, new Class<?>[] {InvocationContext.class});
+            for(Method beanMethod : possibleAroundInvokeMethods)
             {
-               if (!ClassHelper.isOverridden(beanClass, beanMethod))
+               if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
                {
-                  if(advisor.hasAnnotation(beanMethod, AroundInvoke.class))
+                  if (!ClassHelper.isOverridden(beanMethod, possibleAroundInvokeMethods))
                   {
                      interceptors.add(new BusinessMethodBeanMethodInterceptor(beanMethod));
                   }
@@ -117,7 +123,7 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
             }
             return new InterceptorSequencer(interceptors);
          }
-         
+
          List<Interceptor> interceptors = new ArrayList<Interceptor>() {
             private static final long serialVersionUID = 1L;
 
@@ -134,9 +140,9 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
             interceptors.addAll(InterceptorsFactory.getClassInterceptors(instanceAdvisor));
          interceptors.addAll(InterceptorsFactory.getBusinessMethodInterceptors(instanceAdvisor, method));
          interceptors.addAll(InterceptorsFactory.getBeanInterceptors(instanceAdvisor));
-         
+
          log.debug("interceptors " + interceptors);
-         
+
          // TODO: total ordering (EJB 3 12.8.2.1 and @Interceptors with all)
          // FIXME
          return new InterceptorSequencer(interceptors);
@@ -144,22 +150,22 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       else
       {
          // postConstruct
-         
+
          if(advisor instanceof ManagedObjectAdvisor)
          {
             log.warn("EJBTHREE-1246: Do not use InjectInterceptorsFactory with a ManagedObjectAdvisor for lifecycle callbacks, should be done by the container");
             // Note that the container delegates it to ejb3-callbacks or the MC bean factory
             return new NopInterceptor();
          }
-         
+
          List<Interceptor> interceptors = InterceptorsFactory.getLifeCycleInterceptors(instanceAdvisor, PostConstruct.class);
-         
+
          log.debug("PostConstruct interceptors " + interceptors);
-         
+
          return new InterceptorSequencer(interceptors);
       }
    }
-   
+
    @Override
    public Object createPerJoinpoint(Advisor advisor, Joinpoint jp)
    {
@@ -173,12 +179,12 @@ public class InjectInterceptorsFactory extends AbstractInterceptorFactory
       // Can't do that, because the instance interceptors are not there yet (InterceptorsFactory)
       // so the hack is in ManagedObjectAdvisor.createInterceptorChain.
    }
-   
+
    private static final boolean isExcludeClassInterceptors(Advisor advisor, Method method)
    {
       return advisor.hasAnnotation(method, ExcludeClassInterceptors.class) || advisor.resolveAnnotation(ExcludeClassInterceptors.class) != null;
    }
-   
+
    private static final boolean isExcludeDefaultInterceptors(Advisor advisor, Method method)
    {
       return advisor.hasAnnotation(method, ExcludeDefaultInterceptors.class) || advisor.resolveAnnotation(ExcludeDefaultInterceptors.class) != null;
