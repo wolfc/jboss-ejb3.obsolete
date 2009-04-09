@@ -18,7 +18,7 @@
   <artifactId>jboss-ejb3-test-remote</artifactId>
   <name>JBoss EJB 3.0 Remote Test Server</name>
   <description>Remotable Server for use in Testing EJB3</description>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
 
   <!-- Build Properties -->
   <properties>
@@ -97,10 +97,4 @@
     </dependency>
     
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-remote-1.0.0</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-remote-1.0.0</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-test-remote-1.0.0</url>
-  </scm>
 </project>
