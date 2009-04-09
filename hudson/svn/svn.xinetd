@@ -1,0 +1,10 @@
+service svn
+{
+        port                    = 3690
+        socket_type             = stream
+        protocol                = tcp
+        wait                    = no
+        user                    = svnsync
+        server                  = /usr/bin/svnserve
+        server_args             = -i -r /var/svn
+}
