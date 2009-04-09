@@ -18,7 +18,7 @@
   <artifactId>jboss-ejb3-test-remote</artifactId>
   <name>JBoss EJB 3.0 Remote Test Server</name>
   <description>Remotable Server for use in Testing EJB3</description>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
   <!-- Build Properties -->
   <properties>
