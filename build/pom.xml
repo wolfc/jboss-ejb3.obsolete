@@ -195,6 +195,7 @@
       -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <printSummary>true</printSummary>
@@ -450,7 +451,7 @@
       <dependency>
         <groupId>org.jboss.test</groupId>
         <artifactId>jboss-test</artifactId>
-        <version>1.1.0.GA</version>
+        <version>1.1.5-SNAPSHOT</version>
         <scope>test</scope>
       </dependency>
 
