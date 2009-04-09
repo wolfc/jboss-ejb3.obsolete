@@ -32,6 +32,7 @@ Start the guest.
 Within guest:
 /etc/sysconfig/network: set appropriate hostname
 Using system-config-network-tui set eth0 to a fixed ip (192.168.100.12) netmask 255.255.255.0 and gateway 192.168.100.1.
+Make sure /etc/hosts reflects this change.
 
 Create swap partition on /dev/xvdb.
 # mkswap /dev/xvdb1
