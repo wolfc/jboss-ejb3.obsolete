@@ -132,7 +132,7 @@
   <import file="${location.dependencies.unpacked.jboss-test:jboss.test}/server-config.xml" /> 
 
   <!-- Define common JVM Arguments for all EJB3 JBossAS Runtimes -->
-  <property name="ejb3.jboss.jvmargs" value="-Xmx512m -XX:MaxPermSize=256m -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true"/>
+  <property name="ejb3.jboss.jvmargs" value="-Xmx512m -XX:MaxPermSize=256m -Dorg.jboss.resolver.warning=true -Djava.net.preferIPv4Stack=true -Dxb.builder.useUnorderedSequence=true"/>
   
   <!-- Extra options for ejbthree1504 -->
   <property name="ejbthree1504.jboss.jvmargs" value="${ejb3.jboss.jvmargs} -Dcom.sun.management.jmxremote"/>  
