@@ -38,9 +38,9 @@ import org.jboss.reflect.spi.TypeInfo;
 
 /**
  * AbstractEjbReferenceValueMetadata
- * 
+ *
  * Describes both the requisite JNDI dependency and target Proxy for injection
- * based upon a supplied resolver, reference, and naming context.  Will 
+ * based upon a supplied resolver, reference, and naming context.  Will
  * search through all eligible EJB3 deployments available from the
  * MainDeployer
  *
@@ -51,7 +51,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||  
+   // --------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 1L;
 
@@ -59,7 +59,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
-   // --------------------------------------------------------------------------------||  
+   // --------------------------------------------------------------------------------||
 
    private EjbReferenceResolver resolver;
 
@@ -89,7 +89,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 
    // --------------------------------------------------------------------------------||
    // Overridden Implementations -----------------------------------------------------||
-   // --------------------------------------------------------------------------------||  
+   // --------------------------------------------------------------------------------||
 
    @Override
    public Object getValue(TypeInfo info, ClassLoader cl) throws Throwable
@@ -118,7 +118,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 
    /**
     * Obtains the target JNDI name, whose value is to be injected
-    * 
+    *
     * @return The target JNDI Name
     */
    protected String getTargetJndiName()
@@ -144,13 +144,26 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
                continue;
             }
 
-            // Try to resolve
-            jndiName = resolver.resolveEjb(du, reference);
-
-            // If we've resolved here, we're done
-            if (jndiName != null)
+            try
             {
-               break;
+               // Try to resolve
+               jndiName = resolver.resolveEjb(du, reference);
+
+               // If we've resolved here, we're done
+               if (jndiName != null)
+               {
+                  break;
+               }
+
+            }
+            catch (UnresolvableReferenceException urre)
+            {
+               // we could not resolve in this unit, let's try the next unit
+               if (log.isTraceEnabled())
+               {
+                  log.trace("EJB reference " + reference + " could not be resolved in unit " + du + " - trying next unit");
+               }
+               continue;
             }
          }
       }
@@ -167,7 +180,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 
    /**
     * Obtains the EJB Proxy from JNDI based upon the resolved JNDI name
-    * 
+    *
     * @return The Proxy to inject
     */
    protected Object resolveEjb()
@@ -176,7 +189,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
       Object obj = null;
       String jndiName = this.getTargetJndiName();
 
-      // Lookup 
+      // Lookup
       try
       {
          obj = getNamingContext().lookup(jndiName);
@@ -194,7 +207,7 @@ public class AbstractEjbReferenceValueMetadata extends AbstractDependencyValueMe
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
-   // --------------------------------------------------------------------------------||  
+   // --------------------------------------------------------------------------------||
 
    public EjbReference getReference()
    {
