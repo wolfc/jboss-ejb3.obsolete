@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -20,13 +20,60 @@
   </description>
   
   <properties>
-    <version.org.jboss.deployers>[2.0.0.CR5]</version.org.jboss.deployers>
-    <version.org.jboss.microcontainer>[2.0.0.GA]</version.org.jboss.microcontainer>
+    <version.org.jboss.deployers>[2.0.5.GA]</version.org.jboss.deployers>
+    <version.org.jboss.microcontainer>[2.0.4.GA]</version.org.jboss.microcontainer>
     <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss-ejb3-deployers>
   </properties>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.0-alpha-4</version>
+        <executions>
+          <execution>
+            <id>ban-bad-dependencies</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <searchTransitive>true</searchTransitive>
+              <rules>
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>jboss:jboss-common</exclude>
+                    <exclude>javax.el:el-api</exclude>
+                    <exclude>bsh:bsh</exclude>
+                    <exclude>javax.xml.stream:stax-api</exclude>
+                    <exclude>com.sun.xml.bind:jaxb-impl</exclude>
+                    <exclude>javax.xml.bind:jaxb-api</exclude>
+                    <exclude>com.sun.xml.ws:jaxws-tools</exclude>
+                    <!-- 
+                    <exclude>apache-xerces:xercesImpl</exclude>
+                    -->
+                    <exclude>ant:ant</exclude>
+                    <!-- 
+                    <exclude>apache-log4j:log4j</exclude>
+                    -->
+                    <exclude>jboss:jboss-test</exclude>
+                    <exclude>apache-logging:commons-logging</exclude>
+                    <exclude>sun-jaf:activation</exclude>
+                    <exclude>sun-javamail:mail</exclude>
+                    <exclude>javax.servlet.jsp:jsp-api</exclude>
+                    <exclude>javax.servlet:servlet-api</exclude>
+                    <exclude>xml-apis:xml-apis</exclude>
+                    <exclude>com.sun.xml.fastinfoset:FastInfoset</exclude>
+                    <exclude>log4j:log4j</exclude>
+                    <exclude>sun-jaxws:FastInfoset</exclude>
+                    <exclude>xerces:xercesImpl</exclude>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -49,12 +96,12 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-reflect</artifactId>
-        <version>2.0.0.GA</version>
+        <version>[2.0.2.GA]</version>
       </dependency>
       <dependency>
-        <groupId>org.jboss.integration</groupId>
-        <artifactId>jboss-transaction-spi</artifactId>
-        <version>5.0.3.GA</version>
+        <groupId>org.jboss</groupId>
+        <artifactId>jbossxb</artifactId>
+        <version>[2.0.0.GA]</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
@@ -68,13 +115,14 @@
     <dependency>
       <groupId>jboss.jbossts</groupId>
       <artifactId>jbossjta</artifactId>
-      <version>4.4.0.CR2</version>
+      <version>4.4.0.GA</version>
     </dependency>
     <dependency>
       <groupId>org.jboss</groupId>
       <artifactId>jboss-vfs</artifactId>
-      <version>2.0.0.CR3</version>
+      <version>2.1.0.GA</version>
     </dependency>
+    <!-- TODO: there is no equivelant in AS 5.0.1 -->
     <dependency>
       <groupId>org.jboss.aop</groupId>
       <artifactId>jboss-aop-deployer-jdk50</artifactId>
@@ -91,30 +139,14 @@
       <artifactId>jboss-ejb3-core</artifactId>
       <version>1.0.0</version>
       <exclusions>
-        <!-- 
         <exclusion>
-          <groupId>org.jboss.cl</groupId>
-          <artifactId>jboss-classloader</artifactId>
+          <groupId>bsh</groupId>
+          <artifactId>bsh</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.jboss.deployers</groupId>
-          <artifactId>jboss-client-spi</artifactId>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.jboss.deployers</groupId>
-          <artifactId>jboss-core-spi</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.deployers</groupId>
-          <artifactId>jboss-structure-spi</artifactId>
-        </exclusion>
-        -->
-        <!-- 
-        <exclusion>
-          <groupId>org.jboss.man</groupId>
-          <artifactId>jboss-managed</artifactId>
-        </exclusion>
-        -->
         <exclusion>
           <groupId>org.jboss.metadata</groupId>
           <artifactId>jboss-metadata</artifactId>
@@ -164,10 +196,14 @@
     <dependency>
       <groupId>org.jboss.jbossas</groupId>
       <artifactId>jboss-as-server</artifactId>
-      <version>5.0.0.CR2</version>
+      <version>5.0.1.GA</version>
       <!-- scope>runtime</scope -->
       <exclusions>
-         <exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.jboss</groupId>
           <artifactId>jbossxb</artifactId>
         </exclusion>
@@ -176,6 +212,7 @@
     <dependency>
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
+      <version>1.0.0.CR16</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
@@ -189,6 +226,7 @@
     <dependency>
       <groupId>org.jboss.naming</groupId>
       <artifactId>jnpserver</artifactId>
+      <version>5.0.1.GA</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -197,19 +235,7 @@
       <scope>test</scope>
     </dependency>
     
-    <dependency>
-     <groupId>org.jboss.integration</groupId>
-     <artifactId>jboss-transaction-spi</artifactId>
-     <version>5.0.3.GA</version>
-   </dependency>
-    
     <!-- For Arjuna / JBoss Transaction -->
-    <dependency>
-      <groupId>apache-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1.0.jboss</version>
-      <scope>runtime</scope>
-    </dependency>
     <dependency>
       <groupId>oswego-concurrent</groupId>
       <artifactId>concurrent</artifactId>
@@ -219,7 +245,8 @@
     <dependency>
       <groupId>jboss.jbossts</groupId>
       <artifactId>jbossts-common</artifactId>
-      <version>4.4.0.CR1</version>
+      <version>4.4.0.GA</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
