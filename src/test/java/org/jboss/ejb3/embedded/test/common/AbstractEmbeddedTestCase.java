@@ -73,7 +73,14 @@ public abstract class AbstractEmbeddedTestCase
                   .user("sa")
                   .password("")
                   .getMetaData()
-            ));  
+            ));
+//            deployment("temp-persistence-unit",
+//               persistence(
+//                  unit("tempdb")
+//                     .jtaDataSource("java:/DefaultDS")
+//                     .property("hibernate.hbm2ddl.auto", "create-drop")
+//                  )));
+      
    }
 
    private static void clearProxyRemotingUtilsDefaultClientBindingHack()

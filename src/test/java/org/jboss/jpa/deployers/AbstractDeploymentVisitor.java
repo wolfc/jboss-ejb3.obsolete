@@ -19,16 +19,27 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.test.jpa;
+package org.jboss.jpa.deployers;
 
-import javax.ejb.Local;
+import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 
 /**
+ * FIXME: bug in jpa-deployers: it doesn't define a component type (see TODO there)
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Local
-public interface PhoneBookLocal
+public abstract class AbstractDeploymentVisitor<T, C> extends org.jboss.deployers.spi.deployer.helpers.AbstractDeploymentVisitor<PersistenceUnitMetaData, T>
 {
-   long addEntry(String name, String phone);
+   @Override
+   protected Class<PersistenceUnitMetaData> getComponentType()
+   {
+      return PersistenceUnitMetaData.class;
+   }
+
+   @Override
+   protected String getComponentName(PersistenceUnitMetaData attachment)
+   {
+      return getComponentType().getName();
+   }
 }

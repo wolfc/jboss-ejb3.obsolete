@@ -35,8 +35,12 @@ public class PhoneBookBean implements PhoneBookLocal
    @PersistenceContext
    private EntityManager em;
 
-   public String addEntry(String name, String phone)
+   public long addEntry(String name, String phone)
    {
-      throw new RuntimeException("NYI");
+      PhoneBookEntry entry = new PhoneBookEntry();
+      entry.setName(name);
+      entry.setNumber(phone);
+      em.persist(entry);
+      return entry.getId();
    }
 }
