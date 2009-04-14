@@ -27,9 +27,8 @@ import javax.ejb.Stateless;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-// TODO: some kind of error on metadata decoration occurs when implementing a default local interface
 @Stateless
-public class MyStatelessBean //implements Greeter
+public class MyStatelessBean implements Greeter
 {
    public String sayHi(String me)
    {

@@ -22,6 +22,18 @@
   </description>
   <url>http://www.jboss.org/jbossejb3</url>
 
+  <!-- Use Java 6 because of dependency on ejb3-embedded -->
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <jvm>${JDK6_HOME}/bin/java</jvm>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -79,6 +91,7 @@
     </dependency>
     
     <!-- FIXME: this must be ejb3-deployers, because else we get a recursive dependency -->
+    <!-- FIXME: this also implies the use of Java 6 -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-embedded</artifactId>

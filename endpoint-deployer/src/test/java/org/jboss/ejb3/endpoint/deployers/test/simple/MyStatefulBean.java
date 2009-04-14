@@ -27,10 +27,8 @@ import javax.ejb.Stateful;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-// TODO: an error with default local interface
-// java.lang.IllegalArgumentException: Specified instance of org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData is not resolvable, required type ResolveableJndiNameJbossEnterpriseBeanMetadata must be implemented
 @Stateful
-public class MyStatefulBean //implements StatefulGreeter
+public class MyStatefulBean implements StatefulGreeter
 {
    private String name;
    
