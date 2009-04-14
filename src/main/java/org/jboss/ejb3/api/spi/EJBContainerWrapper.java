@@ -27,12 +27,9 @@ import javax.ejb.EJBContainer;
  * Provides a simple wrapper around an EJBContainer to see whether
  * is has been closed.
  * 
- * @deprecated the whole concept of current EJB container is deprecated
- * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Deprecated
 public class EJBContainerWrapper extends EJBContainer
 {
    private boolean closed = false;
@@ -48,11 +45,6 @@ public class EJBContainerWrapper extends EJBContainer
    {
       this.closed = true;
       delegate.close();
-   }
-   
-   public EJBContainer getDelegate()
-   {
-      return delegate;
    }
    
    public boolean isClosed()
