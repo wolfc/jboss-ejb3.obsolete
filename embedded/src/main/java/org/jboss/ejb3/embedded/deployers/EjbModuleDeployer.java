@@ -23,6 +23,7 @@ package org.jboss.ejb3.embedded.deployers;
 
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.beans.metadata.api.annotations.Start;
+import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.beans.metadata.spi.BeanMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
@@ -36,6 +37,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.embedded.deployment.EjbDeployment;
 import org.jboss.ejb3.embedded.deployment.EmbeddedEjb3DeploymentUnit;
+import org.jboss.jpa.resolvers.PersistenceUnitDependencyResolver;
 import org.jboss.kernel.Kernel;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -48,6 +50,8 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
 {
    @Deprecated
    private Kernel kernel;
+   
+   private PersistenceUnitDependencyResolver persistenceUnitDependencyResolver;
    
    public EjbModuleDeployer()
    {
@@ -71,6 +75,12 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
       public void deploy(DeploymentUnit unit, JBossMetaData metaData) throws DeploymentException
       {
          log.info("Found " + metaData + " in " + unit);
+         JBossMetaData realMetaData = unit.getTransientManagedObjects().getAttachment(JBossMetaData.class);
+         if(realMetaData != null && realMetaData != metaData)
+         {
+            metaData = realMetaData;
+            log.info("but it's really " + metaData);
+         }
          
          // FIXME
          if(metaData.getEnterpriseBeans() == null)
@@ -80,6 +90,11 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
          }
          
          Ejb3Deployment module = createModule(unit, metaData);
+         
+         // ejb3-core builds its dependencies with runtime components. Since deployment
+         // isn't ready yet, we'll inject it.
+         module.setPersistenceUnitDependencyResolver(persistenceUnitDependencyResolver);
+         
          unit.addAttachment(Ejb3Deployment.class, module);
          
          String name = "org.jboss.ejb3.deployment:" + unit.getSimpleName();
@@ -121,6 +136,12 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
       this.kernel = kernel;
    }
    
+   @Inject
+   public void setPersistenceUnitDependencyResolver(PersistenceUnitDependencyResolver resolver)
+   {
+      this.persistenceUnitDependencyResolver = resolver;
+   }
+   
    /**
     * LifeCycle Start
     * 
@@ -152,5 +173,13 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
          log.debug("Bound " + Ejb3Registrar.class.getSimpleName() + " to static "
                + Ejb3RegistrarLocator.class.getSimpleName());
       }
+   }
+   
+   @Stop
+   public void stop()
+   {
+      // FIXME: see start
+      if(Ejb3RegistrarLocator.isRegistrarBound())
+         Ejb3RegistrarLocator.unbindRegistrar();
    }
 }

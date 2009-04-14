@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,26 +19,22 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.resolvers;
+package org.jboss.ejb3.embedded.dsl;
 
-import org.jboss.jpa.resolvers.DataSourceDependencyResolver;
+import java.net.URL;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class EmbeddedDataSourceDependencyResolver implements DataSourceDependencyResolver
+public class ResourceFinder
 {
-   public static final String BASE_NAME = "org.jboss.ejb3.embedded.datasource";
-   
-   public String resolveDataSourceSupplier(String jndiName)
+   public static URL resource(String name)
    {
-      String name = jndiName;
-      if(name.startsWith("java:"))
-         name = name.substring(6);
-      if(name.startsWith("/"))
-         name = name.substring(2);
-      return BASE_NAME + ":" + name;
+      ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+      URL url = classLoader.getResource(name);
+      if(url == null)
+         throw new IllegalArgumentException("can't find resource " + name + " on " + classLoader);
+      return url;
    }
-
 }

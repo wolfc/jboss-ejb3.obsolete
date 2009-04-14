@@ -28,7 +28,15 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+          <executable>${JDK6_HOME}/bin/javac</executable>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>1.0-alpha-4</version>
         <executions>
@@ -72,27 +80,57 @@
               </rules>
             </configuration>
           </execution>
+          <execution>
+            <id>enforce-jdk6</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>env.JDK6_HOME</property>
+                  <message>JDK6_HOME is not set</message>
+                </requireProperty>
+              </rules>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.4.3</version>
         <configuration>
           <!-- Because we fiddle with the class loader in BasicTestSuite.
                Note that the other tests also change context class loader, but this is
                to make surefire work at all. -->
-          <forkMode>pertest</forkMode>
+          <!--forkMode>pertest</forkMode-->
           <!--
           <argLine>-enableassertions</argLine>
           -->
           
+          <forkMode>once</forkMode>
+          <jvm>${JDK6_HOME}/bin/java</jvm>
         </configuration>
+        <!-- 
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-booter</artifactId>
+            <version>2.4.3</version>
+          </dependency>
+        </dependencies>
+        -->
       </plugin>
     </plugins>
   </build>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-common-core</artifactId>
+        <version>[2.2.11.GA]</version>
+      </dependency>
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-reflect</artifactId>
@@ -112,6 +150,13 @@
   </dependencyManagement>
   
   <dependencies>
+    <!-- For 'mocking' a DataSource we use Hypersonic -->
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.8-brew</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>jboss.jbossts</groupId>
       <artifactId>jbossjta</artifactId>
@@ -132,7 +177,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-api</artifactId>
-      <version>3.1.0-Alpha1</version>
+      <version>3.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
@@ -176,6 +221,11 @@
       <artifactId>jboss-deployers-impl</artifactId>
       <version>${version.org.jboss.deployers}</version>
       <!-- scope>runtime</scope -->
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-spi</artifactId>
+      <version>${version.org.jboss.deployers}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.deployers</groupId>

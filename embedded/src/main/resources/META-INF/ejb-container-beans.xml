@@ -6,4 +6,6 @@
    </bean>
    
    <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
+   
+   <bean name="EmbeddedXPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
 </deployment>

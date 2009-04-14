@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,26 +19,50 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.resolvers;
+package org.jboss.ejb3.embedded.test.jpa;
 
-import org.jboss.jpa.resolvers.DataSourceDependencyResolver;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class EmbeddedDataSourceDependencyResolver implements DataSourceDependencyResolver
+@Entity
+public class PhoneBookEntry
 {
-   public static final String BASE_NAME = "org.jboss.ejb3.embedded.datasource";
+   private long id;
+   private String name;
+   private String number;
    
-   public String resolveDataSourceSupplier(String jndiName)
+   @Id
+   public long getId()
    {
-      String name = jndiName;
-      if(name.startsWith("java:"))
-         name = name.substring(6);
-      if(name.startsWith("/"))
-         name = name.substring(2);
-      return BASE_NAME + ":" + name;
+      return id;
    }
-
+   
+   public String getName()
+   {
+      return name;
+   }
+   
+   public String getNumber()
+   {
+      return number;
+   }
+   
+   public void setId(long id)
+   {
+      this.id = id;
+   }
+   
+   public void setName(String name)
+   {
+      this.name = name;
+   }
+   
+   public void setNumber(String number)
+   {
+      this.number = number;
+   }
 }

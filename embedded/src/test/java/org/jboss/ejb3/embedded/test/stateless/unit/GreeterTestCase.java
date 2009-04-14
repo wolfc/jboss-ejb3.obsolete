@@ -21,22 +21,23 @@
  */
 package org.jboss.ejb3.embedded.test.stateless.unit;
 
+import static org.jboss.ejb3.embedded.JBossEJBContainer.on;
+import static org.jboss.ejb3.embedded.dsl.PackageBuilder.pkg;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.net.URL;
+import java.io.IOException;
 import java.util.Date;
-import java.util.Properties;
 
-import javax.ejb.EJBContainer;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.jboss.deployers.spi.DeploymentException;
+import org.jboss.ejb3.embedded.test.common.AbstractEmbeddedTestCase;
 import org.jboss.ejb3.embedded.test.stateless.Greeter;
 import org.jboss.ejb3.embedded.test.stateless.GreeterRemote;
 import org.jboss.logging.Logger;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,37 +45,19 @@ import org.junit.Test;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class GreeterTestCase
+public class GreeterTestCase extends AbstractEmbeddedTestCase
 {
-
    /**
     * Logger
     */
    private static Logger logger = Logger.getLogger(GreeterTestCase.class);
 
-   @AfterClass
-   public static void afterClass()
-   {
-      EJBContainer current = EJBContainer.getCurrentEJBContainer();
-      if (current != null)
-         current.close();
-   }
-
    @BeforeClass
-   public static void beforeClass()
+   public static void beforeClass() throws DeploymentException, IOException
    {
-      Properties properties = new Properties();
-      String module = getURLToTestClasses();
-      properties.setProperty(EJBContainer.EMBEDDABLE_MODULES_PROPERTY, module);
-      EJBContainer.createEJBContainer(properties);
-   }
-
-   private static String getURLToTestClasses()
-   {
-      String p = "org/jboss/ejb3/embedded/test";
-      URL url = Thread.currentThread().getContextClassLoader().getResource(p);
-      String s = url.toString();
-      return s.substring(0, s.length() - p.length());
+      AbstractEmbeddedTestCase.beforeClass();
+      
+      on(container).deploy(pkg("org.jboss.ejb3.embedded.test.stateless"));
    }
 
    @Test

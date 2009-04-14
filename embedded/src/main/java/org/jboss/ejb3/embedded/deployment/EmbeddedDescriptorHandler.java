@@ -24,10 +24,6 @@ package org.jboss.ejb3.embedded.deployment;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3DescriptorHandler;
-import org.jboss.ejb3.mdb.ConsumerContainer;
-import org.jboss.ejb3.mdb.MDB;
-import org.jboss.ejb3.service.ServiceContainer;
-import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.metadata.ejb.jboss.JBossConsumerBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMessageDrivenBeanMetaData;
@@ -69,38 +65,40 @@ public class EmbeddedDescriptorHandler extends Ejb3DescriptorHandler
       
       EJB_TYPE ejbType = getEjbType(beanMetaData);
       
+      EJBContainer container;
+      
       className = beanMetaData.getEjbClass();
       ejbClass = di.getClassLoader().loadClass(className);
       if (ejbType == EJB_TYPE.STATELESS)
       {
-         EJBContainer container = getStatelessContainer(index, (JBossSessionBeanMetaData) beanMetaData);
-         container.setJaccContextId(getJaccContextId());
-         return container;
+         container = getStatelessContainer(index, (JBossSessionBeanMetaData) beanMetaData);
       }
       else if (ejbType == EJB_TYPE.STATEFUL)
       {
-         StatefulContainer container = getStatefulContainer(index, (JBossSessionBeanMetaData) beanMetaData);
-         container.setJaccContextId(getJaccContextId());
-         return container;
+         container = getStatefulContainer(index, (JBossSessionBeanMetaData) beanMetaData);
       }
       else if (ejbType == EJB_TYPE.MESSAGE_DRIVEN)
       {
-         MDB container = getMDB(index, (JBossMessageDrivenBeanMetaData) beanMetaData);
-         container.setJaccContextId(getJaccContextId());
-         return container;
+         container = getMDB(index, (JBossMessageDrivenBeanMetaData) beanMetaData);
       }
       else if (ejbType == EJB_TYPE.SERVICE)
       {
-         ServiceContainer container = getServiceContainer(index, (JBossServiceBeanMetaData) beanMetaData);
-         container.setJaccContextId(getJaccContextId());
-         return container;
+         container = getServiceContainer(index, (JBossServiceBeanMetaData) beanMetaData);
       }
       else if (ejbType == EJB_TYPE.CONSUMER)
       {
-         ConsumerContainer container = getConsumerContainer(index, (JBossConsumerBeanMetaData) beanMetaData);
-         container.setJaccContextId(getJaccContextId());
-         return container;
+         container = getConsumerContainer(index, (JBossConsumerBeanMetaData) beanMetaData);
       }
-      throw new UnsupportedOperationException("Can't create a container for type "  + ejbType);
+      else
+         throw new UnsupportedOperationException("Can't create a container for type "  + ejbType);
+      
+      container.setJaccContextId(getJaccContextId());
+      container.instantiated();
+      
+      // chicken/egg starts here
+      // containers determine their dependencies using runtime components, instead of metadata
+      container.processMetadata();
+      
+      return container;
    }
 }
