@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
-   <bean name="DataSourceDependencyResolver" class="org.jboss.as.jpa.resolvers.JBossASDataSourceDependencyResolver"/>
-   
-   <bean name="JavaEEModuleInformer" class="org.jboss.as.javaee.SimpleJavaEEModuleInformer"/>
-   
+    <!-- TODO: Remove dependency on jboss-as-ejb3 -->
+    <bean name="DataSourceDependencyResolver" class="org.jboss.as.jpa.resolvers.JBossASDataSourceDependencyResolver"/>
+
+    <bean name="JavaEEModuleInformer" class="org.jboss.ejb3.profile3_1.common.SimpleJavaEEModuleInformer"/>
    <bean name="JBossSearchStrategy" class="org.jboss.jpa.resolvers.strategy.JBossSearchStrategy"/>
-   
+
    <bean name="SpecCompliantSearchStrategy" class="org.jboss.jpa.resolvers.strategy.SpecCompliantSearchStrategy"/>
-   
+
    <!--
-      Can be DefaultPersistenceUnitDependencyResolver for spec compliant resolving, 
+      Can be DefaultPersistenceUnitDependencyResolver for spec compliant resolving,
       InterApplicationPersistenceUnitDependencyResolver for resolving beyond EARs,
       or DynamicPersistencePersistenceUnitDependencyResolver which allows configuration via JMX.
    -->
    <bean name="PersistenceUnitDependencyResolver" class="org.jboss.jpa.resolvers.DynamicPersistenceUnitDependencyResolver"/>
-   
+
    <bean name="XPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
-   
+
    <bean name="PersistenceParsingDeployer" class="org.jboss.jpa.deployers.PersistenceParsingDeployer"/>
 
    <bean name="PersistenceDeployer" class="org.jboss.jpa.deployers.PersistenceDeployer"/>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
 
-<!--  EJB3 Embedded deployers
-	If more deployers are needed (from ejb3-deployers or as->ejb3) then they will be added as per requirement
+<!--  
+	If more deployers are needed (from ejb3-deployers ) then they will be added as per requirement
 
  -->
    <!-- TODO: move SchemaResolverConfig to a more general beans.xml -->
@@ -56,6 +56,7 @@
    <!-- EJB3 ProcessorChain Deployer -->
    <bean name="Ejb3MetadataProcessingDeployer" class="org.jboss.ejb3.deployers.Ejb3MetadataProcessingDeployer" />
 
+    <!-- TODO: The embedded deployers need a different place to avoid dependency on ejb3-embedded -->
      <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
    <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer"/>
 
@@ -146,5 +147,6 @@
       <incallback method="addContainer"/>
       <uncallback method="removeContainer"/>
     </bean>
+
 
 </deployment>

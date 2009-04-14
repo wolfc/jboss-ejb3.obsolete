@@ -4,6 +4,6 @@
    <bean name="EJB3UserTransactionprovider" class="org.jboss.ejb3.tx.EJB3UserTransactionProvider">
       <constructor factoryClass="org.jboss.ejb3.tx.EJB3UserTransactionProvider" factoryMethod="getSingleton"/>
    </bean>
-   
+   <!-- TODO: Remove dependency on embedded -->
    <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
 </deployment>

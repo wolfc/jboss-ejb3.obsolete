@@ -28,6 +28,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.jboss.ejb3.profile3_1.test.common.AbstractProfile3_1_TestCase;
+import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSB;
 import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSBLocal;
 import org.jboss.ejb3.profile3_1.test.deployment.SimpleSLSBRemote;
 import org.jboss.logging.Logger;
@@ -99,7 +100,16 @@ public class Profile3_1_DeploymentTestCase extends AbstractProfile3_1_TestCase
       assertNotNull("Local bean returned null message",messageFromRemoteBean);
       assertEquals("Local bean returned incorrect message",message,messageFromRemoteBean);
 
-
-
    }
+
+//   @Test
+//   public void testClassDeployment() throws Exception
+//   {
+//      deploy(SimpleSLSB.class);
+//      Context ctx = new InitialContext();
+//       SimpleSLSBLocal localBean = (SimpleSLSBLocal) ctx.lookup("SimpleSLSB/local");
+//       logger.debug("Successfully looked up local bean " + localBean);
+//      logger.info("Done test2");
+//
+//   }
 }
