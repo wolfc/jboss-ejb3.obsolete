@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- 
+   <classloader><inject bean="ejb-deployers-classloader:0.0.0"/></classloader>
+   
+   <classloader name="ejb-deployers-classloader" xmlns="urn:jboss:classloader:1.0" export-all="NON_EMPTY" import-all="true"/>
+   -->
+   
    <!-- TODO: move SchemaResolverConfig to a more general beans.xml -->
    <bean name="SchemaResolverConfig" class="org.jboss.xb.binding.sunday.unmarshalling.SchemaResolverConfig">
       <property name="bindingClassesByLocations">
@@ -53,7 +59,9 @@
    <bean name="Ejb3MetadataProcessingDeployer" class="org.jboss.ejb3.deployers.Ejb3MetadataProcessingDeployer" />
 
    <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
-   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer"/>
+   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer">
+      <depends>org.jboss.ejb3.RemotingConnector</depends>
+   </bean>
 
    <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.embedded.resolvers.EmbeddedMessageDestinationReferenceResolver"/>
 

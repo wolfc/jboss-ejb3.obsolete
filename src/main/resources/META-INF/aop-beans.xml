@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- 
+   <classloader><inject bean="aop-classloader:0.0.0"/></classloader>
+   
+   <classloader name="aop-classloader" xmlns="urn:jboss:classloader:1.0" export-all="NON_EMPTY" import-all="true"/>
+   -->
+   
    <bean name="AspectManager" class="org.jboss.aop.AspectManager">
       <constructor factoryClass="org.jboss.aop.AspectManager" factoryMethod="instance"/>
    </bean>

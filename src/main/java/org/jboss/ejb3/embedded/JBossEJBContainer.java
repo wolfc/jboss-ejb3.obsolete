@@ -30,10 +30,12 @@ import javax.ejb.EJBContainer;
 
 import org.jboss.dependency.spi.Controller;
 import org.jboss.dependency.spi.ControllerState;
+import org.jboss.deployers.client.spi.Deployment;
 import org.jboss.deployers.client.spi.main.MainDeployer;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.vfs.spi.client.VFSDeployment;
 import org.jboss.deployers.vfs.spi.client.VFSDeploymentFactory;
+import org.jboss.ejb3.api.spi.EJBContainerWrapper;
 import org.jboss.kernel.Kernel;
 import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
 import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
@@ -62,6 +64,17 @@ public class JBossEJBContainer extends EJBContainer
    // stage 2
    private MainDeployer mainDeployer;
 
+   public static JBossEJBContainer on(EJBContainer container)
+   {
+      if(container == null)
+         throw new IllegalArgumentException("container is null");
+      if(container instanceof EJBContainerWrapper)
+         return on(((EJBContainerWrapper) container).getDelegate());
+      if(container instanceof JBossEJBContainer)
+         return (JBossEJBContainer) container;
+      throw new IllegalArgumentException(container + " is not an instance of JBossEJBContainer");
+   }
+   
    public JBossEJBContainer(Map<?, ?> properties, String... modules) throws Throwable
    {
       try
@@ -69,26 +82,31 @@ public class JBossEJBContainer extends EJBContainer
          bootstrap.run();
          kernel = bootstrap.getKernel();
          deployer = new BasicXMLDeployer(kernel);
+         
+         deploy("META-INF/classloader-beans.xml", true);
+         
          // bring the main deployer online
-         deploy("META-INF/embedded-bootstrap-beans.xml");
+         deploy("META-INF/embedded-bootstrap-beans.xml", true);
 
          // we're at stage 2
          mainDeployer = getBean("MainDeployer", ControllerState.INSTALLED, MainDeployer.class);
 
-         deploy("META-INF/ejb-deployers-beans.xml");
+         deploy("META-INF/ejb-deployers-beans.xml", false);
 
-         deploy("META-INF/namingserver-beans.xml");
+         deploy("META-INF/namingserver-beans.xml", true);
 
-         deploy("META-INF/aop-beans.xml");
+         deploy("META-INF/aop-beans.xml", true);
 
-         deploy("META-INF/transactionmanager-beans.xml");
+         deploy("META-INF/transactionmanager-beans.xml", true);
 
-         deploy("META-INF/jpa-deployers-beans.xml");
+         deploy("META-INF/jpa-deployers-beans.xml", true);
 
-         deploy("META-INF/ejb-container-beans.xml");
+         deploy("META-INF/ejb-container-beans.xml", true);
 
-         deploy("META-INF/ejb3-connectors-jboss-beans.xml");
+         deploy("META-INF/ejb3-connectors-jboss-beans.xml", true);
 
+         deployer.validate();
+         
          deployMain("ejb3-interceptors-aop.xml");
 
          deployModules(modules);
@@ -119,32 +137,47 @@ public class JBossEJBContainer extends EJBContainer
       bootstrap = null;
    }
 
-   private KernelDeployment deploy(String name) throws Throwable
+   private Deployment deploy(Deployment deployment) throws DeploymentException
    {
-      return deploy(getResource(name));
+      log.info("Deploying " + deployment.getName());
+      mainDeployer.deploy(deployment);
+      mainDeployer.checkComplete(deployment);
+      return deployment;
+   }
+   
+   public void deploy(Deployment... deployments) throws DeploymentException, IOException
+   {
+      for(Deployment deployment : deployments)
+      {
+         deploy(deployment);
+      }
    }
 
-   private KernelDeployment deploy(URL url) throws Throwable
+   private KernelDeployment deploy(String name, boolean validate) throws Throwable
+   {
+      return deployKernel(getResource(name), validate);
+   }
+
+   public Deployment deploy(URL url) throws DeploymentException, IOException
+   {
+      VirtualFile root = VFS.getRoot(url);
+      VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
+      return deploy(deployment);
+   }
+
+   private KernelDeployment deployKernel(URL url, boolean validate) throws Throwable
    {
       log.info("Deploying " + url);
       KernelDeployment deployment = deployer.deploy(url);
-      deployer.validate(deployment);
+      if(validate)
+         deployer.validate(deployment);
       return deployment;
    }
 
    private void deployMain(String name) throws DeploymentException, IllegalArgumentException, MalformedURLException, IOException
    {
       URL url = getResource(name);
-      deployMain(url);
-   }
-
-   private void deployMain(URL url) throws DeploymentException, IOException
-   {
-      log.info("Deploying " + url);
-      VirtualFile root = VFS.getRoot(url);
-      VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
-      mainDeployer.deploy(deployment);
-      mainDeployer.checkComplete(deployment);
+      deploy(url);
    }
 
    private void deployModules(String modules[]) throws MalformedURLException, IOException, DeploymentException
@@ -155,7 +188,7 @@ public class JBossEJBContainer extends EJBContainer
 
       for(String module : modules)
       {
-         deployMain(new URL(module));
+         deploy(new URL(module));
       }
    }
 
