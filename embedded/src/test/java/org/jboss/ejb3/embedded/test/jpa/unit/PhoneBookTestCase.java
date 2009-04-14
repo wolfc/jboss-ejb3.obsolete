@@ -26,6 +26,8 @@ import static org.jboss.ejb3.embedded.dsl.DeploymentBuilder.deployment;
 import static org.jboss.ejb3.embedded.dsl.PackageBuilder.pkg;
 import static org.jboss.ejb3.embedded.dsl.ResourceFinder.resource;
 import static org.jboss.ejb3.embedded.test.dsl.DataSourceBuilder.localDataSource;
+import static org.jboss.ejb3.embedded.test.dsl.PersistenceBuilder.persistence;
+import static org.jboss.ejb3.embedded.test.dsl.PersistenceUnitBuilder.unit;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -48,7 +50,7 @@ import org.junit.Test;
  */
 public class PhoneBookTestCase extends AbstractEmbeddedTestCase
 {
-   private static Logger logger = Logger.getLogger(PhoneBookTestCase.class);
+   private static Logger log = Logger.getLogger(PhoneBookTestCase.class);
 
    @BeforeClass
    public static void beforeClass() throws DeploymentException, IOException
@@ -69,7 +71,14 @@ public class PhoneBookTestCase extends AbstractEmbeddedTestCase
                   .password("")
                   .getMetaData()
             ),
-            deployment(pkg("org.jboss.ejb3.embedded.test.jpa")));
+            deployment(
+                  pkg("org.jboss.ejb3.embedded.test.jpa"),
+                  persistence(
+                        unit("tempdb")
+                           .jtaDataSource("java:/DefaultDS")
+                           .property("hibernate.hbm2ddl.auto", "create-drop")
+                        ))
+            );
    }
 
    @Test
@@ -77,5 +86,7 @@ public class PhoneBookTestCase extends AbstractEmbeddedTestCase
    {
       InitialContext ctx = new InitialContext();
       PhoneBookLocal phoneBook = (PhoneBookLocal) ctx.lookup("PhoneBookBean/local");
+      
+      phoneBook.addEntry("test", "test");
    }
 }

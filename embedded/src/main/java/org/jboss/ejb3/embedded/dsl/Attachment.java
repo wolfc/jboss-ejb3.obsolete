@@ -19,16 +19,15 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.test.jpa;
-
-import javax.ejb.Local;
+package org.jboss.ejb3.embedded.dsl;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-@Local
-public interface PhoneBookLocal
+public interface Attachment<T>
 {
-   long addEntry(String name, String phone);
+   T getAttachment();
+   
+   Class<T> getAttachmentType();
 }

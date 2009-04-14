@@ -19,38 +19,51 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.embedded.dsl;
+package org.jboss.ejb3.embedded.test.dsl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.jboss.ejb3.embedded.dsl.Attachment;
+import org.jboss.metadata.jpa.spec.PersistenceMetaData;
+import org.jboss.metadata.jpa.spec.PersistenceUnitMetaData;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class AttachmentBuilder
+public class PersistenceBuilder extends PersistenceMetaData
+   implements Attachment<PersistenceMetaData>
 {
-   public static class AttachmentHolder<T> implements Attachment<T>
+   private static final long serialVersionUID = 1L;
+
+   public static PersistenceBuilder persistence()
    {
-      private Class<T> type;
-      private T attachment;
-      
-      public AttachmentHolder(Class<T> type, T attachment)
-      {
-         this.type = type;
-         this.attachment = attachment;
-      }
-
-      public T getAttachment()
-      {
-         return attachment;
-      }
-
-      public Class<T> getAttachmentType()
-      {
-         return type;
-      }
+      return new PersistenceBuilder();
    }
    
-   public static <T> AttachmentHolder<T> attachment(Class<T> type, T attachment)
+   public static PersistenceBuilder persistence(PersistenceUnitMetaData... units)
    {
-      return new AttachmentHolder<T>(type, attachment);
+      PersistenceBuilder builder = new PersistenceBuilder();
+      builder.setPersistenceUnits(Arrays.asList(units));
+      return builder;
+   }
+
+   public PersistenceMetaData getAttachment()
+   {
+      return this;
+   }
+
+   public Class<PersistenceMetaData> getAttachmentType()
+   {
+      return PersistenceMetaData.class;
+   }
+   
+   public PersistenceBuilder unit(PersistenceUnitMetaData unit)
+   {
+      if(getPersistenceUnits() == null)
+         setPersistenceUnits(new ArrayList<PersistenceUnitMetaData>());
+      getPersistenceUnits().add(unit);
+      return this;
    }
 }

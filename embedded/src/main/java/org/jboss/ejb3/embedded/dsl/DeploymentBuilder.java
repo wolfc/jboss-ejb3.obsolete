@@ -37,6 +37,19 @@ import org.jboss.virtual.VirtualFile;
  */
 public class DeploymentBuilder
 {
+   public static <T> Deployment deployment(String name, Attachment<?>... attachments)
+   {
+      try
+      {
+         URL url = new URL("vfsmemory", name, "");
+         return deployment(url, attachments);
+      }
+      catch(IOException e)
+      {
+         throw new RuntimeException(e);
+      }
+   }
+   
    public static <T> Deployment deployment(String name, Class<T> attachmentType, T attachment)
    {
       try
@@ -81,5 +94,22 @@ public class DeploymentBuilder
       attachments.addAttachment(ScanningMetaData.class, scanningMetaData);
       */
       return deployment;
+   }
+
+   public static Deployment deployment(URL url, Attachment<?>... attachments) throws IOException
+   {
+      VirtualFile root = VFS.getRoot(url);
+      VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(root);
+      MutableAttachments managedObjects = (MutableAttachments) deployment.getPredeterminedManagedObjects();
+      for(Attachment<?> attachment : attachments)
+      {
+         processAttachment(managedObjects, attachment);
+      }
+      return deployment;
+   }
+   
+   private static <T> void processAttachment(MutableAttachments managedObjects, Attachment<T> attachment)
+   {
+      managedObjects.addAttachment(attachment.getAttachmentType(), attachment.getAttachment());
    }
 }

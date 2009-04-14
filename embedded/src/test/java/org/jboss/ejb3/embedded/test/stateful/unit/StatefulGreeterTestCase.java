@@ -22,7 +22,10 @@
 package org.jboss.ejb3.embedded.test.stateful.unit;
 
 import static org.jboss.ejb3.embedded.JBossEJBContainer.on;
+import static org.jboss.ejb3.embedded.dsl.DeploymentBuilder.deployment;
 import static org.jboss.ejb3.embedded.dsl.PackageBuilder.pkg;
+import static org.jboss.ejb3.embedded.test.dsl.PersistenceBuilder.persistence;
+import static org.jboss.ejb3.embedded.test.dsl.PersistenceUnitBuilder.unit;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -48,7 +51,15 @@ public class StatefulGreeterTestCase extends AbstractEmbeddedTestCase
    {
       AbstractEmbeddedTestCase.beforeClass();
       
-      on(container).deploy(pkg("org.jboss.ejb3.embedded.test.stateful"));
+      on(container).deploy(
+            deployment(
+                  pkg("org.jboss.ejb3.embedded.test.stateful"),
+                  // FIXME: filtering doesn't work yet
+                  persistence(
+                        unit("tempdb")
+                           .jtaDataSource("java:/DefaultDS")
+                           .property("hibernate.hbm2ddl.auto", "create-drop")
+                           )));
    }
    
    @Test
