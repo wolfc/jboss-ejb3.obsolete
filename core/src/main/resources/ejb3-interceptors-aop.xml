@@ -73,7 +73,7 @@
    <!--
          INTERCEPTORS
      -->
-   
+
    <aspect name="InjectInterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InjectInterceptorsFactory" scope="PER_JOINPOINT"/>
    <aspect name="InterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InterceptorsFactory" scope="PER_INSTANCE"/>
    <aspect name="InvocationContextInterceptor" class="org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor" scope="PER_VM"/>
@@ -83,16 +83,16 @@
       <pointcut name="beanAroundInvokeCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.AroundInvoke(..))"/>
       <pointcut name="beanPostConstructCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PostConstruct(..))"/>
       <pointcut name="beanPreDestroyCallbackMethods" expr="execution(* @org.jboss.ejb3.interceptors.ManagedObject->@javax.interceptor.PreDestroy(..))"/>
-      
+
       <pointcut name="beanLifecycleCallbackMethods" expr="beanAroundInvokeCallbackMethods OR beanPostConstructCallbackMethods OR beanPreDestroyCallbackMethods"/>
-      
+
       <!-- Prepare for dynamic AOP -->
       <!-- TODO: optimize, we only need managed objects (and interceptors!) to be aspectized -->
       <!-- prepare expr="all(*) AND has(@org.jboss.ejb3.interceptors.ManagedObject->new(..))"/ -->
-      <!-- TODO: let's see if we can do without 
+      <!-- TODO: let's see if we can do without
       <prepare expr="all(*)"/>
       -->
-      
+
       <!-- Setup AOP interceptors based on spec interceptors -->
       <bind pointcut="construction(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
          <!-- interceptor-ref name="LoggingInterceptor"/ -->
@@ -101,18 +101,17 @@
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <advice name="invoke" aspect="InterceptorsFactory"/>
       </bind>
-      
+
       <!-- Lifecycle Event Callbacks (EJB 3 12.4) -->
-      
-      <!-- TODO: for now handled in EJBContainer.invokePostConstruct until injection is refactored 
+      <!-- TODO: for now handled in EJBContainer.invokePostConstruct until injection is refactored
       <bind pointcut="construction(@org.jboss.ejb3.interceptors.ManagedObject->new(..))">
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <advice name="postConstruct" aspect="InjectInterceptorsFactory"/>
       </bind>
       -->
-      
+
       <!-- this is the usual way, now we move it into the other domains, because the
-           invocation of EJB interceptors must be the last in the chain 
+           invocation of EJB interceptors must be the last in the chain
       <bind pointcut="execution(* @org.jboss.ejb3.interceptors.ManagedObject->*(..)) AND !beanLifecycleCallbackMethods">
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
@@ -121,25 +120,25 @@
       -->
       <stack name="EJBInterceptors">
          <interceptor-ref name="org.jboss.ejb3.connectionmanager.CachedConnectionInterceptorFactory"/>
-         
+
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <advice name="fillMethod" aspect="InvocationContextInterceptor"/>
          <advice name="aroundInvoke" aspect="InjectInterceptorsFactory"/>
       </stack>
-      
+
       <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.BlockContainerShutdownInterceptor"/>
       </bind>
-      
+
       <stack name="LifecycleCallbackStack">
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
          <advice name="setup" aspect="InvocationContextInterceptor"/>
       </stack>
    </domain>
-   
-   
-   
+
+
+
    <domain name="Stateless Bean" extends="Intercepted Bean" inheritBindings="true">
       <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.ejb3.ENCPropagationInterceptor"/>
@@ -164,7 +163,7 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
    </domain>
@@ -193,7 +192,7 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
    </domain>
@@ -241,28 +240,28 @@
          <stack-ref name="EJBInterceptors"/>
       </bind>
 
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
    </domain>
 
    <domain name="Stateful Bean" extends="Base Stateful Bean" inheritBindings="true">
       <!-- NON Clustered cache configuration -->
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Cache) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Cache) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.Cache ("SimpleStatefulCache")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.PersistenceManager) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.PersistenceManager) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.PersistenceManager ("StatefulSessionFilePersistenceManager")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.CacheConfig) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.CacheConfig) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.CacheConfig (maxSize=100000, idleTimeoutSeconds=300, removalTimeoutSeconds=0)
       </annotation>
 
       <!-- Clustered cache configuration -->
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Cache) AND class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Cache) AND class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.Cache ("StatefulTreeCache")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.CacheConfig) AND class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.CacheConfig) AND class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.CacheConfig (name="sfsb-cache", maxSize=100000, idleTimeoutSeconds=300, removalTimeoutSeconds=0)
       </annotation>
    </domain>
@@ -306,33 +305,33 @@
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.Clustered->*(..)) AND !execution(public * *->@javax.ejb.Remove(..))">
          <interceptor-ref name="org.jboss.ejb3.cache.StatefulReplicationInterceptor"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="ThreadlocalPool", maxSize=30, timeout=10000)
       </annotation>
 
       <!-- NON Clustered cache configuration -->
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Cache) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Cache) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.Cache ("SimpleStatefulCache")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.PersistenceManager) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.PersistenceManager) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.PersistenceManager ("StatefulSessionFilePersistenceManager")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.CacheConfig) AND !class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.CacheConfig) AND !class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.CacheConfig (maxSize=100000, idleTimeoutSeconds=300, removalTimeoutSeconds=0)
       </annotation>
 
       <!-- Clustered cache configuration -->
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Cache) AND class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Cache) AND class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.Cache ("StatefulTreeCache")
       </annotation>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.CacheConfig) AND class(@org.jboss.ejb3.annotation.Clustered)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.CacheConfig) AND class(@org.jboss.ejb3.annotation.Clustered)">
          @org.jboss.ejb3.annotation.CacheConfig (name="sfsb-cache", maxSize=100000, idleTimeoutSeconds=300, removalTimeoutSeconds=0)
       </annotation>
    </domain>
 
    <domain name="Embedded Stateful Bean" extends="Base Stateful Bean" inheritBindings="true">
       <!-- NON Clustered cache configuration -->
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Cache)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Cache)">
          @org.jboss.ejb3.annotation.Cache ("NoPassivationCache")
       </annotation>
 
@@ -353,7 +352,7 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
       </annotation>
    </domain>
@@ -376,7 +375,7 @@
          <!-- interceptor-ref name="org.jboss.ejb3.interceptor.EJB3InterceptorsFactory"/ -->
          <stack-ref name="EJBInterceptors"/>
       </bind>
-      <annotation expr="!class(@org.jboss.ejb3.annotation.Pool)">
+      <annotation expr="class(*) AND !class(@org.jboss.ejb3.annotation.Pool)">
          @org.jboss.ejb3.annotation.Pool (value="StrictMaxPool", maxSize=15, timeout=10000)
       </annotation>
    </domain>
