@@ -58,12 +58,6 @@
       <version>${version.org.jboss.ejb3_mc.int}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-proxy</artifactId>
-      <version>1.0.1</version>
-    </dependency>
-     
     <!-- All other dependencies -->
   
   </dependencies>
