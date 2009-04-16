@@ -21,23 +21,25 @@
  */
 package org.jboss.ejb3.endpoint.deployers;
 
+import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 
 /**
- * Find EJB containers in a deployment unit.
- * 
- * Do not use this one, use EndpointResolver.
- * TODO: move to ejb3-deployers
- * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public interface EJBIdentifier
+public class DefaultEndpointResolver implements EndpointResolver
 {
-   /**
-    * @param unit       the unit in which the EJB is known to hide
-    * @param ejbName    the name of the EJB
-    * @return           the bean name of the EJB container
-    */
-   String identifyEJB(DeploymentUnit unit, String ejbName);
+   private EJBIdentifier identifier;
+
+   public String resolve(DeploymentUnit unit, String ejbName)
+   {
+      return identifier.identifyEJB(unit, ejbName).concat("_endpoint");
+   }
+   
+   @Inject
+   public void setEJBIdentifier(EJBIdentifier identifier)
+   {
+      this.identifier = identifier;
+   }
 }

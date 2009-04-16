@@ -24,7 +24,7 @@
   <appender name="FILE" class="org.jboss.logging.appender.DailyRollingFileAppender">
     <param name="File" value="target/test.log"/>
     <param name="Append" value="false"/>
-    
+
     <!-- Rollover at midnight each day -->
     <param name="DatePattern" value="'.'yyyy-MM-dd"/>
 
@@ -61,7 +61,7 @@
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
     <param name="Target" value="System.out"/>
-    <param name="Threshold" value="ALL"/>
+    <param name="Threshold" value="DEBUG"/>
 
     <layout class="org.apache.log4j.PatternLayout">
       <!-- The default pattern: Date Priority [Category] Message\n -->
@@ -103,29 +103,29 @@
   -->
 
   <category name="org.jboss">
-    <priority value="DEBUG"/>
+    <priority value="INFO"/>
   </category>
   
-  
+  <!-- 
   <category name="org.jboss.ejb3">
     <priority value="ALL"/>
   </category>
+  -->
   
-   
-  <category name="org.jboss.kernel">
-    <priority value="TRACE"/>
+  <category name="org.jboss.kernel.plugins.dependency">
+    <priority value="ERROR"/>
   </category>
   
-  <category name="org.jboss.deployers">
-    <priority value="TRACE"/>
+  <category name="org.jboss.deployers.plugins.deployers.DeployWrapper">
+    <priority value="ERROR"/>
   </category>
-   
+  
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
 
   <root>
-    
+    <priority value="WARN" />
     <appender-ref ref="CONSOLE"/>
     <appender-ref ref="FILE"/>
   </root>
