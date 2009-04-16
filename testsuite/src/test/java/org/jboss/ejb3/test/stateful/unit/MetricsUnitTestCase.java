@@ -79,6 +79,7 @@ extends JBossTestCase
       
       // Get the start cache size 
       int startCacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
+      int startTotalSize = (Integer)server.getAttribute(testerName, "TotalSize");
       
       // Establish how many beans are already active
       int prevCount = (Integer)server.getAttribute(testerName, "CreateCount");
@@ -89,12 +90,15 @@ extends JBossTestCase
       assertNotNull(stateful);
       stateful.setState("state");
       
-      int count = (Integer)server.getAttribute(testerName, "CreateCount");
-      assertEquals(1, count - prevCount);
+      int createCount = (Integer)server.getAttribute(testerName, "CreateCount");
+      assertEquals(1, createCount - prevCount);
       
       // Ensure cache is incremented
       int newCacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(startCacheSize+1, newCacheSize);
+      
+      int totalSize = (Integer)server.getAttribute(testerName, "TotalSize");
+      assertEquals(startTotalSize+1, totalSize);
       
       assertEquals("state", stateful.getState());
       stateful.testSerializedState("state");
@@ -107,12 +111,18 @@ extends JBossTestCase
       int cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(0, cacheSize);
       
-      count = (Integer)server.getAttribute(testerName, "PassivatedCount");
-      assertEquals(1, count - prevCount);
+      int passivatedCount = (Integer)server.getAttribute(testerName, "PassivatedCount");
+      assertEquals(1, passivatedCount - prevCount);
       assertTrue(stateful.wasPassivated());
+      
+      totalSize = (Integer)server.getAttribute(testerName, "TotalSize");
+      assertEquals(cacheSize + passivatedCount, totalSize);
       
       assertEquals("state", stateful.getState());
       assertEquals("hello world", stateful.getInterceptorState());
+      
+      passivatedCount = (Integer)server.getAttribute(testerName, "PassivatedCount");
+      assertEquals(0, passivatedCount - prevCount);
 
       Stateful another = (Stateful)getInitialContext().lookup(jndiBinding);
       assertEquals(null, another.getInterceptorState());
@@ -124,8 +134,8 @@ extends JBossTestCase
       
       stateful.testResources();
       
-      count = (Integer)server.getAttribute(testerName, "CreateCount");
-      assertEquals(2, count - prevCount);
+      createCount = (Integer)server.getAttribute(testerName, "CreateCount");
+      assertEquals(2, createCount - prevCount);
       
       // the injected beans are passivated at this point in time
       
@@ -134,22 +144,28 @@ extends JBossTestCase
       
       // keep in mind, we're not removing already injected beans
       
-      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(0, cacheSize);
+      int removeCount = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(0, removeCount);
       
       another.removeMe();
       cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(1, cacheSize);
       
-      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(1, cacheSize);
+      removeCount = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(1, removeCount);
+      
+      totalSize = (Integer)server.getAttribute(testerName, "TotalSize");
+      assertEquals(cacheSize + passivatedCount, totalSize);
       
       stateful.removeMe();
       cacheSize = (Integer)server.getAttribute(testerName, "CacheSize");
       assertEquals(0, cacheSize);
       
-      cacheSize = (Integer)server.getAttribute(testerName, "RemoveCount");
-      assertEquals(2, cacheSize);
+      removeCount = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals(2, removeCount);
+      
+      totalSize = (Integer)server.getAttribute(testerName, "TotalSize");
+      assertEquals(cacheSize + passivatedCount, totalSize);
       
    }
 
@@ -167,5 +183,12 @@ extends JBossTestCase
       MBeanServerConnection server = getServer();
 
       testJmxMetrics(server, "TreeCacheStateful", "jboss.j2ee:jar=stateful-test.jar,name=TreeCacheStatefulBean,service=EJB3");
+   }
+   
+   public void testJmxMetricsTreeCacheRemovalStateful() throws Exception
+   {
+      MBeanServerConnection server = getServer();
+
+      testJmxMetrics(server, "TreeCacheRemovalStateful", "jboss.j2ee:jar=stateful-test.jar,name=TreeCacheRemovalStatefulBean,service=EJB3");
    }
 }

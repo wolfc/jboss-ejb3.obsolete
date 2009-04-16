@@ -21,46 +21,34 @@
  */
 package org.jboss.ejb3.test.stateful;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 import javax.annotation.Resource;
 import javax.annotation.Resources;
-import javax.ejb.Init;
 import javax.ejb.Local;
-import javax.ejb.PostActivate;
-import javax.ejb.PrePassivate;
 import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
-import javax.interceptor.Interceptors;
-import javax.naming.InitialContext;
 
-import org.jboss.ejb3.Container;
 import org.jboss.ejb3.annotation.Cache;
 import org.jboss.ejb3.annotation.CacheConfig;
 import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.annotation.defaults.RemoteBindingDefaults;
-import org.jboss.logging.Logger;
-import org.jboss.serial.io.JBossObjectInputStream;
-import org.jboss.serial.io.JBossObjectOutputStream;
 
 /**
- * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
+ * Same as TreeCacheStatefulBean, but configures a removalTimeoutSeconds to
+ * validate metrics when a removal thread is used.
+ * 
+ * @author Brian Stansberry
  */
-@Stateful(name = "TreeCacheStatefulBean")
+@Stateful(name = "TreeCacheRemovalStatefulBean")
 @Remote(org.jboss.ejb3.test.stateful.Stateful.class)
 @Local(org.jboss.ejb3.test.stateful.StatefulLocal.class)
-@RemoteBinding(jndiBinding = "TreeCacheStateful", interceptorStack = "RemoteBindingStatefulSessionClientInterceptors", factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
-@CacheConfig(name = "jboss.cache:service=EJB3SFSBClusteredCache", maxSize = 1000, idleTimeoutSeconds = 1)
+@RemoteBinding(jndiBinding = "TreeCacheRemovalStateful", interceptorStack = "RemoteBindingStatefulSessionClientInterceptors", factory = RemoteBindingDefaults.PROXY_FACTORY_STATEFUL_REMOTE)
+@CacheConfig(name = "jboss.cache:service=EJB3SFSBClusteredCache", maxSize = 1000, idleTimeoutSeconds = 1, removalTimeoutSeconds = 20)
 @SecurityDomain("test")
 @Resources(
 {@Resource(name = "jdbc/ds", mappedName = "java:/DefaultDS")})
 @Cache("StatefulTreeCache")
-public class TreeCacheStatefulBean extends TreeCacheStatefulBase
+public class TreeCacheRemovalStatefulBean extends TreeCacheStatefulBase
 {
+   
 }
