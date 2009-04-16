@@ -9,5 +9,7 @@
    
    <bean name="EJBIdentifier" class="org.jboss.ejb3.endpoint.deployers.test.common.MockEJBIdentifier"/>
    
+   <bean name="EJB3EndpointResolver" class="org.jboss.ejb3.endpoint.deployers.DefaultEndpointResolver"/>
+   
    <bean name="TimerServiceFactory" class="org.jboss.ejb3.endpoint.deployers.test.common.MockTimerServiceFactory"/>
 </deployment>

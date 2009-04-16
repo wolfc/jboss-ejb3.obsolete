@@ -41,6 +41,7 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 public class EJB3EndpointDeployer extends AbstractSimpleRealDeployer<JBossMetaData>
 {
    private EJBIdentifier identifier;
+   private EndpointResolver resolver;
 
    public EJB3EndpointDeployer()
    {
@@ -65,8 +66,9 @@ public class EJB3EndpointDeployer extends AbstractSimpleRealDeployer<JBossMetaDa
 
    protected void deploy(DeploymentUnit unit, JBossSessionBeanMetaData beanMetaData) throws DeploymentException
    {
-      String ejbBeanName = identifier.identifyEJB(unit, beanMetaData.getEjbName());
-      String name = ejbBeanName + "_endpoint";
+      String ejbName = beanMetaData.getEjbName();
+      String ejbBeanName = identifier.identifyEJB(unit, ejbName);
+      String name = resolver.resolve(unit, ejbName);
       BeanMetaDataBuilder builder = BeanMetaDataBuilderFactory.createBuilder(name, EndpointImpl.class.getName());
       builder.addPropertyMetaData("container", builder.createInject(ejbBeanName));
       BeanMetaData bmd = builder.getBeanMetaData();
@@ -78,6 +80,12 @@ public class EJB3EndpointDeployer extends AbstractSimpleRealDeployer<JBossMetaDa
    public void setEJBIdentifier(EJBIdentifier identifier)
    {
       this.identifier = identifier;
+   }
+   
+   @Inject
+   public void setEndpointResolver(EndpointResolver resolver)
+   {
+      this.resolver = resolver;
    }
    
    @Override
