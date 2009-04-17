@@ -24,7 +24,6 @@ package org.jboss.ejb3.test.ejbthree1807;
 
 import javax.annotation.PreDestroy;
 import javax.ejb.Remote;
-import javax.ejb.Remove;
 import javax.ejb.Stateful;
 
 import org.jboss.ejb3.annotation.Cache;
