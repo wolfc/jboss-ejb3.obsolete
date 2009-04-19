@@ -75,6 +75,7 @@ import org.jboss.ejb3.util.CollectionHelper;
 import org.jboss.injection.WebServiceContextProxy;
 import org.jboss.injection.lang.reflect.BeanProperty;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.metadata.ejb.spec.NamedMethodMetaData;
 import org.jboss.proxy.ejb.handle.HomeHandleImpl;
@@ -161,6 +162,11 @@ public class StatelessContainer extends SessionSpecContainer
    
    public boolean isClustered()
    {
+      JBossEnterpriseBeanMetaData md = getXml();
+      if (md instanceof JBossSessionBeanMetaData)
+      {
+         return ((JBossSessionBeanMetaData)md).isClustered();
+      }
       return isAnnotationPresent(Clustered.class);
    }
    
