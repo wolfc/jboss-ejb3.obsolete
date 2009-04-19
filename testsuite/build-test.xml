@@ -4271,16 +4271,25 @@
 		</jar>
 	</target>
 
-  <target name="ejbthree1807"
-      description="Builds all jar files required to test EJBTHREE-1807.">
-      <delete file="${build.lib}/ejbthree1807.jar"/>
+   <target name="ejbthree1346">
+
+      <delete file="${build.lib}/ejbthree1346.jar"/>
       <mkdir dir="${build.lib}"/>
 
-      <jar jarfile="${build.lib}/ejbthree1807.jar">
+      <jar jarfile="${build.lib}/ejbthree1346.jar">
          <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/ejbthree1807/*.class"/>
+            <include name="org/jboss/ejb3/test/ejbthree1346/*.class"/>
+            <include name="org/jboss/ejb3/test/clusteredsession/NodeAnswer.class"/>
+            <include name="org/jboss/ejb3/test/clusteredsession/util/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/ejbthree1346">
+            <include name="META-INF/*.xml"/>
          </fileset>
       </jar>
+   </target>
+
+   <target name="ejbthree1807">
+  	   <build-simple-jar name="ejbthree1807"/>
    </target>
 
    
@@ -4312,7 +4321,8 @@
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
-      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677, ejbthree1629, ejbthree1807"/>
+      statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677, ejbthree1629, 
+   	  ejbthree1807, ejbthree1346"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
@@ -5288,6 +5298,18 @@
 
      <antcall target="test-clustered-entity"/>
      <antcall target="test-cluster-session"/>
+      
+     <antcall target="test-with-jvmargs" inheritRefs="true">
+         <param name="test" value="ejbthree1346"/>
+         <param name="jvmargs" value=""/>
+         <param name="test.extension" value="BR-disabled"/> 
+     </antcall>
+      
+     <antcall target="test-with-jvmargs" inheritRefs="true">
+         <param name="test" value="ejbthree1053"/>
+         <param name="jvmargs" value=""/>
+     	   <!-- Not "test-extension" param or ingnoring the known-issue won't work -->
+     </antcall>
 
      <server:stop name="clustered-ejb3-totalrep-0"/>
      <server:stop name="clustered-ejb3-totalrep-1"/>
