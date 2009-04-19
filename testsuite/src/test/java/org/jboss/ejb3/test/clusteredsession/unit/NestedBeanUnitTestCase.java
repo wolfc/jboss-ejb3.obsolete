@@ -28,12 +28,12 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.stateful.nested.base.std.ParentStatefulRemote;
 import org.jboss.ejb3.test.stateful.unit.NestedBeanTestRunner;
 import org.jboss.ejb3.test.stateful.unit.NestedBeanTestRunner.NestedBeanSet;
 import org.jboss.test.JBossClusteredTestCase;
-
-import junit.framework.Test;
 
 /**
  * Overrides the parent test to use clustered versions of

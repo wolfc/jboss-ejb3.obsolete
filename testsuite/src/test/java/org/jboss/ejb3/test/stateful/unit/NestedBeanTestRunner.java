@@ -155,115 +155,250 @@ public class NestedBeanTestRunner extends BaseTestRunner
       ParentStatefulRemote parent = beanSet.parent;
       NestedStateful nested = beanSet.nested;
       
-      int parentInv = beanSet.parentInvocations;
-      int nestedInv = beanSet.nestedInvocations;
+      int parentInv = beanSet.parentInvocations; // 2
+      int nestedInv = beanSet.nestedInvocations; // 1
 
-      Assert.assertEquals("Remote counter: ", 1, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Remote counter: ", 2, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Local counter: ", 1, parent.incrementLocal());
-      parentInv++;
-      Assert.assertEquals("Local counter: ", 2, parent.incrementLocal());
-      parentInv++;
+//    Assert.assertEquals("Remote counter: ", 1, parent.increment());
+      Assert.assertEquals("Remote counter: ", 1, monitor.incrementParent());
+      parentInv++; //3
+      nestedInv++; //2
+
+//    Assert.assertEquals("Remote counter: ", 2, parent.increment());
+      Assert.assertEquals("Remote counter: ", 2, monitor.incrementParent());
+      parentInv++; //4
+      nestedInv++; //3
+//    Assert.assertEquals("Local counter: ", 1, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 1, monitor.incrementLocalNested());
+      parentInv++; //5
+//    Assert.assertEquals("Local counter: ", 2, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 2, monitor.incrementLocalNested());
+      parentInv++; //6
+      
+      // How the nested bean behaves depends on whether its context is
+      // contained by the parent bean context, which varies. Here we use
+      // the passivation counts to determine what the situation is and
+      // then use that behavior later to establish correct assertions.
+      int parentPre = monitor.getParentPassivations();
+      Assert.assertEquals("Parent passivate count: ",
+                          getExpectedPassivations(0, parentInv), 
+                          parentPre);
+      parentInv++; //7
+      boolean nestedIsContained = (monitor.getNestedPassivations() == parentPre + 1); // add one because parent.getPrePassivate() added one
+      System.err.println("nestedIsContained = " + nestedIsContained);
+      if (nestedIsContained)
+      {
+         // Above parentInv++ should also have been nestedInv++
+         // plus one more from getNestedBeanSet()
+         nestedInv += 4; //3-7
+         // nested.getPrePassivate() activates the parent, which means
+         // the passivation below will increment the passivate count.
+         // So record that
+         parentInv++; //6-7
+      }
+      // nested.getPrePassivate() activates nested, which means
+      // the passivation below will increment the passivate count.
+      // So record that 
+      nestedInv++; //4-8
       
       sleep(getSleepTime());  // should passivate
 
       Assert.assertEquals("Parent passivate count: ",
-                          getExpectedPassivations(1, parentInv), 
-                          parent.getPrePassivate());
-      parentInv++;
+                          getExpectedPassivations(1, parentInv),  
+//                          parent.getPrePassivate());
+                          monitor.getParentPassivations());
+      parentInv++; //7-8
+      if (nestedIsContained)
+      {
+         nestedInv++; //4-9
+      }
       Assert.assertEquals("Parent activate count: ",
-                          getExpectedPassivations(1, parentInv), 
-                          parent.getPostActivate());
-      parentInv++;
+                          getExpectedPassivations(1, parentInv),
+//                          parent.getPostActivate());
+                          monitor.getParentActivations());
+      parentInv++; //8-9
+      if (nestedIsContained)
+      {
+         nestedInv++; //4-10
+      }
       Assert.assertEquals("Remote nested passivate count: ",
-                          getExpectedPassivations(1, nestedInv), 
-                          nested.getPrePassivate());
+                          getExpectedPassivations(1, nestedInv),  
+//                          nested.getPrePassivate());
+                          monitor.getNestedPassivations());
       Assert.assertEquals("Remote nested activate count: ",
-                          getExpectedPassivations(1, nestedInv), 
-                          nested.getPostActivate());
+                          getExpectedPassivations(1, nestedInv),
+//                          nested.getPostActivate());
+                          monitor.getNestedActivations());
       Assert.assertEquals("Local nested passivate count: ",
-                          getExpectedPassivations(1, parentInv), 
-                          parent.getLocalNestedPrePassivate());
-      parentInv++;
+                          getExpectedPassivations(1, parentInv),
+//                          parent.getLocalNestedPrePassivate());
+                          monitor.getLocalNestedPassivations());
+      parentInv++; //9-10
+      if (nestedIsContained)
+      {
+         nestedInv++; //4-11
+      }
       Assert.assertEquals("Local nested activate count: ",
-                          getExpectedPassivations(1, parentInv), 
-                          parent.getLocalNestedPostActivate());
-      parentInv++;
+                          getExpectedPassivations(1, parentInv),
+//                          parent.getLocalNestedPostActivate());
+                          monitor.getLocalNestedActivations());
+      parentInv++; //10-11
+      if (nestedIsContained)
+      {
+         nestedInv++; //4-12
+      }
       
       // Use the monitor to check the deep nested beans.  In a cluster these
       // are marked not to treat replication as passivation, so we ignore 
       // the number of invocations
       Assert.assertEquals("Deep nested passivate count: ", 1, monitor.getDeepNestedPassivations());
-      nestedInv++;
+      nestedInv++; //5-13
+      if (nestedIsContained)
+      {
+         parentInv++; //10-12
+      }
       Assert.assertEquals("Deep nested activate count: ", 1, monitor.getDeepNestedActivations());
-      nestedInv++;
+      nestedInv++; //6-14
+      if (nestedIsContained)
+      {
+         parentInv++; //10-13
+      }
       Assert.assertEquals("Local deep nested passivate count: ", 1, monitor.getLocalDeepNestedPassivations());
-      parentInv++;
+      parentInv++; //11-14
+      if (nestedIsContained)
+      {
+         nestedInv++; //6-15
+      }
       Assert.assertEquals("Local deep nested activate count: ", 1, monitor.getLocalDeepNestedActivations());
-      parentInv++;
+      parentInv++; //12-15
+      if (nestedIsContained)
+      {
+         nestedInv++; //6-16
+      }
       
-      Assert.assertEquals("Remote counter: ", 3, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Remote counter: ", 4, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Local counter: ", 3, parent.incrementLocal());
-      parentInv++;
-      Assert.assertEquals("Local counter: ", 4, parent.incrementLocal());  
-      parentInv++;    
+//    Assert.assertEquals("Remote counter: ", 3, parent.increment());
+      Assert.assertEquals("Remote counter: ", 3, monitor.incrementParent());
+      parentInv++; //13-16
+      nestedInv++; //7-17
+//    Assert.assertEquals("Remote counter: ", 4, parent.increment());
+      Assert.assertEquals("Remote counter: ", 4, monitor.incrementParent());
+      parentInv++; //14-17
+      nestedInv++; //8-18
+//    Assert.assertEquals("Local counter: ", 3, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 3, monitor.incrementLocalNested());
+      parentInv++; //15-18
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-19
+      }
+//    Assert.assertEquals("Local counter: ", 4, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 4, monitor.incrementLocalNested()); 
+      parentInv++;  //16-19
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-20
+      }   
       
       sleep(getSleepTime());  // should passivate
 
       Assert.assertEquals("Parent passivate count: ",
-                          getExpectedPassivations(2, parentInv), 
-                          parent.getPrePassivate());
-      parentInv++;
+                          getExpectedPassivations(2, parentInv),  
+//                          parent.getPrePassivate());
+                          monitor.getParentPassivations());
+      parentInv++; //17-20
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-21
+      }
       Assert.assertEquals("Parent activate count: ",
-                          getExpectedPassivations(2, parentInv), 
-                          parent.getPostActivate());
-      parentInv++;
+                          getExpectedPassivations(2, parentInv),
+//                          parent.getPostActivate());
+                          monitor.getParentActivations());
+      parentInv++; //18-21
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-22
+      }
       Assert.assertEquals("Remote nested passivate count: ",
-                          getExpectedPassivations(2, nestedInv), 
-                          nested.getPrePassivate());
+                          getExpectedPassivations(2, nestedInv),  
+//                          nested.getPrePassivate());
+                          monitor.getNestedPassivations());
       Assert.assertEquals("Remote nested activate count: ",
-                          getExpectedPassivations(2, nestedInv), 
-                          nested.getPostActivate());
+                          getExpectedPassivations(2, nestedInv),  
+//                          nested.getPostActivate());
+                          monitor.getNestedActivations());
       Assert.assertEquals("Local nested passivate count: ",
                           getExpectedPassivations(2, parentInv), 
-                          parent.getLocalNestedPrePassivate());
-      parentInv++;
+//                          parent.getLocalNestedPrePassivate());
+                          monitor.getLocalNestedPassivations());
+      parentInv++; //19-22
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-23
+      }
       Assert.assertEquals("Local nested activate count: ",
                           getExpectedPassivations(2, parentInv), 
-                          parent.getLocalNestedPostActivate());
-      parentInv++;
+//                          parent.getLocalNestedPostActivate());
+                          monitor.getLocalNestedActivations());
+      parentInv++; //20-23
+      if (nestedIsContained)
+      {
+         nestedInv++; //8-24
+      }
       
       // Use the monitor to check the deep nested beans.
       Assert.assertEquals("Deep nested passivate count: ", 2, monitor.getDeepNestedPassivations());
-      nestedInv++;
+      nestedInv++; //9-25
+      if (nestedIsContained)
+      {
+         parentInv++; //20-24
+      }
       Assert.assertEquals("Deep nested activate count: ", 2, monitor.getDeepNestedActivations());
-      nestedInv++;
+      nestedInv++; //10-26
+      if (nestedIsContained)
+      {
+         parentInv++; //20-25
+      }
       Assert.assertEquals("Local deep nested passivate count: ", 2, monitor.getLocalDeepNestedPassivations());
-      parentInv++;
+      parentInv++; //21-26
+      if (nestedIsContained)
+      {
+         nestedInv++; //10-27
+      }
       Assert.assertEquals("Local deep nested activate count: ", 2, monitor.getLocalDeepNestedActivations());
-      parentInv++;
+      parentInv++; //22-27
+      if (nestedIsContained)
+      {
+         nestedInv++; //10-28
+      }
       
-      Assert.assertEquals("Remote counter: ", 5, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Remote counter: ", 6, parent.increment());
-      parentInv++;
-      nestedInv++;
-      Assert.assertEquals("Local counter: ", 5, parent.incrementLocal());
-      parentInv++;
-      Assert.assertEquals("Local counter: ", 6, parent.incrementLocal());
-      parentInv++;
+//    Assert.assertEquals("Remote counter: ", 5, parent.increment());
+      Assert.assertEquals("Remote counter: ", 5, monitor.incrementParent());
+      parentInv++; //23-28
+      nestedInv++; //11-29
+//    Assert.assertEquals("Remote counter: ", 6, parent.increment());
+      Assert.assertEquals("Remote counter: ", 6, monitor.incrementParent());
+      parentInv++; // 24-29
+      nestedInv++; //12-30
+//    Assert.assertEquals("Local counter: ", 5, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 5, monitor.incrementLocalNested());
+      parentInv++;  //25-30
+      if (nestedIsContained)
+      {
+         nestedInv++; //12-31
+      }
+//    Assert.assertEquals("Local counter: ", 6, parent.incrementLocal());
+      Assert.assertEquals("Local counter: ", 6, monitor.incrementLocalNested());
+      parentInv++; //26-31
+      if (nestedIsContained)
+      {
+         nestedInv++; //12-32
+      }
       
       removeBean(parent);
+      if (nestedIsContained)
+      {
+         nestedInv++; //12-33
+      }
       
       // Force the nested bean to go through another passivation
       // to check the activation process can survive the removal 
@@ -271,14 +406,17 @@ public class NestedBeanTestRunner extends BaseTestRunner
       sleep(getSleepTime());
       
       // Confirm nested still works following parent remove
-      Assert.assertEquals("Remote counter (direct): ", 7, nested.increment());
-      nestedInv++;
+//    Assert.assertEquals("Remote counter (direct): ", 7, nested.increment());
+      Assert.assertEquals("Remote counter (direct): ", 7, monitor.incrementNested());
+      nestedInv++; //13-34
       Assert.assertEquals("Remote nested passivate count: ",
                           getExpectedPassivations(3, nestedInv), 
-                          nested.getPrePassivate());
+//                          nested.getPrePassivate());
+                          monitor.getNestedPassivations());
       Assert.assertEquals("Remote nested activate count: ",
                           getExpectedPassivations(3, nestedInv), 
-                          nested.getPostActivate());
+//                          nested.getPostActivate());
+                          monitor.getNestedActivations());
       
       removeBean(nested);
       
