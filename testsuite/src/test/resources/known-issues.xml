@@ -48,5 +48,7 @@
   <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testStringInjectionUsingResourceMappedName">show</entry>
   <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntInjectionUsingResourceMappedName">show</entry>
   <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntegerInjectionUsingResourceMappedName">show</entry>
+  <!-- EJBTHREE-1053 -->
+  <entry key="org.jboss.ejb3.test.ejbthree1053.unit.ConsistentPassivatedStateUnitTestCase.testConsistentPassivatedState">show</entry>
   
 </properties>

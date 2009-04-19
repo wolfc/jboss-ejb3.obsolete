@@ -7,10 +7,13 @@
 
 package org.jboss.ejb3.test.stateful.nested;
 
+import java.rmi.dgc.VMID;
+
 import javax.ejb.Remote;
 import javax.ejb.Stateful;
 
 import org.jboss.ejb3.annotation.CacheConfig;
+import org.jboss.ejb3.test.stateful.nested.base.VMTracker;
 import org.jboss.ejb3.test.stateful.nested.base.std.NestedStateful;
 import org.jboss.ejb3.test.stateful.nested.base.std.OptimizedNestedStatefulBean;
 
@@ -29,4 +32,9 @@ public class SimpleRemoteNestedStatefulBean extends OptimizedNestedStatefulBean
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = 1L;
+   
+   public VMID getVMID()
+   {
+      return VMTracker.VMID;
+   }
 }

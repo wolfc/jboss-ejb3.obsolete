@@ -7,6 +7,8 @@
 
 package org.jboss.ejb3.test.stateful.nested.base.std;
 
+import java.rmi.dgc.VMID;
+
 import org.jboss.ejb3.test.stateful.nested.base.MidLevel;
 
 
@@ -18,5 +20,6 @@ import org.jboss.ejb3.test.stateful.nested.base.MidLevel;
  */
 public interface NestedStateful extends MidLevel
 {
+   VMID getVMID();
    int increment();
 }
