@@ -236,6 +236,7 @@
       <jvmarg value="-Dresolve.dns=false" />
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=0" />
+      <jvmarg value="-Djboss.server.log.threshold=DEBUG" />
     </server>
    
     <!-- clustered-ejb3-totalrep-1 -->
@@ -247,6 +248,7 @@
       <jvmarg value="-Dresolve.dns=false" />
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
+      <jvmarg value="-Djboss.server.log.threshold=DEBUG" />
    </server>
    
     <!-- clustered-ejb3-BR-0 -->
@@ -258,6 +260,7 @@
       <jvmarg value="-Dresolve.dns=false" />
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=0" />
+      <jvmarg value="-Djboss.server.log.threshold=DEBUG" />
     </server>
    
     <!-- clustered-ejb3-BR-1 -->
@@ -269,6 +272,7 @@
       <jvmarg value="-Dresolve.dns=false" />
       <jvmarg value="-Djgroups.udp.ip_ttl=${jbosstest.udp.ip_ttl}" />
       <jvmarg value="-Djboss.messaging.ServerPeerID=1" />
+      <jvmarg value="-Djboss.server.log.threshold=DEBUG" />
    </server>
   	
     <!-- ejbthree1671 -->
