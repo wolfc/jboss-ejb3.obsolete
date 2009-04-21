@@ -58,6 +58,8 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.endpoint.Endpoint;
+import org.jboss.ejb3.endpoint.SessionFactory;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
@@ -77,7 +79,7 @@ import org.jboss.serial.io.MarshalledObjectForLocalCalls;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class SessionContainer extends EJBContainer implements InvokableContext
+public abstract class SessionContainer extends EJBContainer implements InvokableContext, Endpoint
 {
    @SuppressWarnings("unused")
    private static final Logger log = Logger.getLogger(SessionContainer.class);
@@ -821,4 +823,41 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
    }
    
    abstract protected void removeHandle(Handle handle) throws Exception;
+   
+   /**
+    * Base implementation, assumes that this Container is not session-aware.
+    * May be overridden at lower levels to support this feature.
+    * 
+    * @see org.jboss.ejb3.endpoint.Endpoint#getSessionFactory()
+    * @throws IllegalStateException If this Container is not session-aware
+    */
+   public SessionFactory getSessionFactory() throws IllegalStateException
+   {
+      // Check that we don't support sessions
+      if (!this.isSessionAware())
+      {
+         // Throw the contracted exception
+         throw new IllegalStateException("This Container does not support the notion of Sessions: " + this);
+      }
+
+      /*
+       * Should not be reached; shows a problem with the Endpoint contract implementation 
+       * of this Container (ie. isSessionAware has been overridden or is incorrectly returning
+       * true, while this method has not been overridden for a real impl to provide a SessionFactory)
+       */
+      throw new RuntimeException("Container has overridden \"isSessionAware\" but has not been written to supply a "
+            + SessionFactory.class.getName()
+            + ".  Please file a JIRA referencing this error message and EJBTHREE-1782.");
+   }
+
+   /**
+    * Designates that this Container is not session-aware.  May
+    * be overridden at lower levels to support this feature.
+    * 
+    * @see org.jboss.ejb3.endpoint.Endpoint#isSessionAware()
+    */
+   public boolean isSessionAware()
+   {
+      return false;
+   }
 }

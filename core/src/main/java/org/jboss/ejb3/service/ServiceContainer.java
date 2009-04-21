@@ -600,11 +600,25 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
    /**
     * @see InvokableContext
+    * @deprecated To be removed alongside {@link InvokableContext}
     */
+   @Deprecated
    public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
    {
       return this.localInvoke(method.toMethod(), args);
    }
+
+   /**
+    * Invokes upon the specified method, using the specified arguments
+    * 
+    * @see org.jboss.ejb3.endpoint.Endpoint#invoke(java.io.Serializable, java.lang.Class, java.lang.reflect.Method, java.lang.Object[])
+    */
+   public Object invoke(Serializable session, Class<?> invokedBusinessInterface, Method method, Object[] args)
+         throws Throwable
+   {
+      return this.localInvoke(method, args);
+   }
+   
 
    public Object invoke(String actionName, Object params[], String signature[]) throws MBeanException,
          ReflectionException
