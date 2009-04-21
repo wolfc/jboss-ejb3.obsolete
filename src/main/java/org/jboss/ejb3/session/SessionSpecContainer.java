@@ -20,6 +20,7 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionSpecProxyFactory;
 import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
@@ -67,18 +68,54 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
    {
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
    }
-
+   
    /**
-    * Invokes the method described by the specified serializable method
-    * as called from the specified proxy, using the specified arguments
+    * Invokes the specified method upon the specified session, passing the specified
+    * arguments.
     * 
-    * @param proxy The proxy making the invocation
-    * @param method The method to be invoked
-    * @param args The arguments to the invocation
-    * @throws Throwable A possible exception thrown by the invocation
-    * @return
+    * This is required by the {@link Endpoint} interface and is the correct implementation 
+    * of the ejb3-core containers looking forward.
+    * 
+    * @param session
+    * @param invokedBusinessInterface
+    * @param method
+    * @param args
+    * @see org.jboss.ejb3.endpoint.Endpoint#invoke(java.io.Serializable, java.lang.Class, java.lang.reflect.Method, java.lang.Object[])
     */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   public Object invoke(final Serializable session, final Class<?> invokedBusinessInterface, final Method method,
+         final Object[] args)
+         throws Throwable
+   {
+      /*
+       * For now we'll just delegate to the legacy implementation 
+       * defined by InvokableContext.invoke; in the future this method 
+       * will be the real handler
+       */
+      //TODO Move away from InvokableContext contract EJBTHREE-1782
+      
+      // Create a SerializableMethod view
+      SerializableMethod sMethod = new SerializableMethod(method,invokedBusinessInterface);
+      
+      // Handle in the transition method
+      return this.invoke(session, sMethod, args);
+   }
+   
+   
+   /**
+    * A transition method in moving from InvokableContext.invoke to Endpoint.invoke.
+    * 
+    * Invokes the specified method upon the specified session, passing the specified
+    * arguments
+    * 
+    * @param session
+    * @param method
+    * @param args
+    * @return
+    * @throws Throwable
+    */
+   @Deprecated
+   public Object invoke(final Serializable session, final SerializableMethod method, final Object[] args)
+         throws Throwable
    {
       /*
        * Replace the TCL with the CL for this Container
@@ -107,22 +144,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          Method unadvisedMethod = info.getUnadvisedMethod();
          SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
 
-         /*
-          *  Obtain Session ID
-          */
-         Serializable sessionId = null;
 
-         // If coming from ejb3-proxy-impl
-         if (Proxy.isProxyClass(proxy.getClass()))
-         {
-            InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-            assert handler instanceof SessionProxyInvocationHandler : "Requires "
-                  + SessionProxyInvocationHandler.class.getName();
-            SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
-            sessionId = (Serializable) sHandler.getTarget();
-         }
-         
-         //TODO Session ID if nointerface
 
          /*
           * Invoke directly if this is an EJB2.x Method
@@ -134,7 +156,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          }
          else if (unadvisedMethod != null && this.isEjbObjectMethod(unadvisedSerializableMethod))
          {
-            return invokeEJBObjectMethod(sessionId, info, args);
+            return invokeEJBObjectMethod(session, info, args);
          }
 
          // FIXME: Ahem, stateful container invocation works on all.... (violating contract though)         
@@ -142,7 +164,7 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
           * Build an invocation
           */
 
-         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, sessionId);
+         StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, session);
          nextInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
                SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, method);
          nextInvocation.setArguments(args);
@@ -159,6 +181,39 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
          invokedMethod.pop();
          SecurityActions.setContextClassLoader(oldLoader);
       }
+   }
+
+   /**
+    * Invokes the method described by the specified serializable method
+    * as called from the specified proxy, using the specified arguments
+    * 
+    * @param proxy The proxy making the invocation
+    * @param method The method to be invoked
+    * @param args The arguments to the invocation
+    * @throws Throwable A possible exception thrown by the invocation
+    * @return
+    */
+   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
+   {
+      /*
+       *  Obtain Session ID
+       */
+      Serializable sessionId = null;
+
+      // If coming from ejb3-proxy-impl
+      if (Proxy.isProxyClass(proxy.getClass()))
+      {
+         InvocationHandler handler = Proxy.getInvocationHandler(proxy);
+         assert handler instanceof SessionProxyInvocationHandler : "Requires "
+               + SessionProxyInvocationHandler.class.getName();
+         SessionProxyInvocationHandler sHandler = (SessionProxyInvocationHandler) handler;
+         sessionId = (Serializable) sHandler.getTarget();
+      }
+
+      //TODO Session ID if nointerface
+
+      // Send along to the transition method
+      return this.invoke(sessionId, method, args);
    }
 
    /**

@@ -64,6 +64,7 @@ import org.jboss.ejb3.cache.StatefulCache;
 import org.jboss.ejb3.cache.StatefulObjectFactory;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.endpoint.SessionFactory;
 import org.jboss.ejb3.interceptors.container.StatefulSessionContainerMethodInvocation;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
@@ -87,7 +88,6 @@ import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.NotImplementedException;
 
-
 /**
  * Comment
  *
@@ -97,17 +97,25 @@ import org.jboss.util.NotImplementedException;
 public class StatefulContainer extends SessionSpecContainer
       implements
          StatefulObjectFactory<StatefulBeanContext>,
-         StatefulSessionFactory
+         StatefulSessionFactory, SessionFactory
 {
    private static final Logger log = Logger.getLogger(StatefulContainer.class);
 
    protected StatefulCache cache;
+
    private StatefulDelegateWrapper mbean = new StatefulDelegateWrapper(this);
 
+   private SessionFactory sessionFactory;
+
    public StatefulContainer(ClassLoader cl, String beanClassName, String ejbName, Domain domain,
-                            Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData) throws ClassNotFoundException
+         Hashtable ctxProperties, Ejb3Deployment deployment, JBossSessionBeanMetaData beanMetaData)
+         throws ClassNotFoundException
    {
       super(cl, beanClassName, ejbName, domain, ctxProperties, deployment, beanMetaData);
+      
+      // For the time being, this container is its own SessionFactory
+      //TODO Externalize the SessionFactory into its own component
+      this.sessionFactory = this;
    }
 
    public StatefulBeanContext create(Class<?>[] initTypes, Object[] initValues)
@@ -122,7 +130,7 @@ public class StatefulContainer extends SessionSpecContainer
 
       // this is for propagated extended PC's
       sfctx = sfctx.pushContainedIn();
-      
+
       pushContext(sfctx);
       try
       {
@@ -137,45 +145,45 @@ public class StatefulContainer extends SessionSpecContainer
          // this is for propagated extended PC's
          sfctx.popContainedIn();
       }
-      
+
       invokePostConstruct(sfctx, initValues);
-      
+
       //TODO This needs to be reimplemented as replacement for create() on home interface
       invokeInit(sfctx.getInstance(), initTypes, initValues);
-      
+
       return sfctx;
    }
-   
+
    @Override
    public BeanContext<?> createBeanContext()
    {
       return new StatefulBeanContext(this, construct());
    }
-   
+
    public Object createProxyLocalEjb21(Object id, LocalBinding binding) throws Exception
    {
-      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory)this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb2x((Serializable)id);
+      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory) this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb2x((Serializable) id);
    }
-   
+
    public Object createProxyRemoteEjb21(Object id) throws Exception
    {
       RemoteBinding binding = this.getRemoteBinding();
-      return this.createProxyRemoteEjb21(id,binding);
+      return this.createProxyRemoteEjb21(id, binding);
    }
 
    public Object createProxyRemoteEjb21(Object id, RemoteBinding binding) throws Exception
-   { 
-      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory)this.getProxyFactory(binding);
-      return proxyFactory.createProxyEjb2x((Serializable)id);
+   {
+      StatefulSessionProxyFactory proxyFactory = (StatefulSessionProxyFactory) this.getProxyFactory(binding);
+      return proxyFactory.createProxyEjb2x((Serializable) id);
    }
-   
+
    public Object createProxyLocalEjb21(Object id) throws Exception
    {
       LocalBinding binding = this.getAnnotation(LocalBinding.class);
-      return this.createProxyLocalEjb21(id,binding);
+      return this.createProxyLocalEjb21(id, binding);
    }
-   
+
    public void destroy(StatefulBeanContext ctx)
    {
       try
@@ -187,26 +195,27 @@ public class StatefulContainer extends SessionSpecContainer
          ctx.remove();
       }
    }
-   
+
    public Object getMBean()
    {
       return mbean;
    }
-   
+
    /**
     * Creates and starts the configured cache, if not
     * started already
     * 
     * @throws Exception
     */
-   protected void createAndStartCache() throws Exception {
-      
+   protected void createAndStartCache() throws Exception
+   {
+
       // If Cache is initialized, exit
-      if(this.cache!=null && this.cache.isStarted())
+      if (this.cache != null && this.cache.isStarted())
       {
          return;
       }
-      
+
       Cache cacheConfig = getAnnotation(Cache.class);
       CacheFactoryRegistry registry = getCacheFactoryRegistry();
       Ejb3CacheFactory factory = registry.getCacheFactory(cacheConfig.value());
@@ -214,7 +223,7 @@ public class StatefulContainer extends SessionSpecContainer
       this.cache.initialize(this);
       this.cache.start();
    }
-   
+
    @Override
    protected void lockedStart() throws Exception
    {
@@ -241,31 +250,33 @@ public class StatefulContainer extends SessionSpecContainer
    @Override
    protected void lockedStop() throws Exception
    {
-      if (cache != null) cache.stop();
-      
+      if (cache != null)
+         cache.stop();
+
       super.lockedStop();
    }
 
    public StatefulCache getCache()
    {
       // Ensure initialized
-      try{
+      try
+      {
          this.createAndStartCache();
       }
       catch (Exception e)
       {
          throw new RuntimeException(e);
       }
-      
+
       // Return
       return cache;
    }
-   
+
    public CacheFactoryRegistry getCacheFactoryRegistry()
    {
       return this.getDeployment().getCacheFactoryRegistry();
    }
-   
+
    /**
     * Returns the name under which the JNDI Registrar for this container is bound
     * 
@@ -273,8 +284,9 @@ public class StatefulContainer extends SessionSpecContainer
     */
    protected String getJndiRegistrarBindName()
    {
-      return isClustered() ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB
-                           : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB;
+      return isClustered()
+            ? ClusteredObjectStoreBindings.CLUSTERED_OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB
+            : ObjectStoreBindings.OBJECTSTORE_BEAN_NAME_JNDI_REGISTRAR_SFSB;
    }
 
    /**
@@ -291,9 +303,7 @@ public class StatefulContainer extends SessionSpecContainer
          MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
-            throw new RuntimeException(
-                    "Could not resolve beanClass method from proxy call: "
-                            + method.toString());
+            throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
          }
          return invokeLocalHomeMethod(info, args);
       }
@@ -321,35 +331,32 @@ public class StatefulContainer extends SessionSpecContainer
          MethodInfo info = getAdvisor().getMethodInfo(hash);
          if (info == null)
          {
-            throw new RuntimeException(
-                  "Could not resolve beanClass method from proxy call: "
-                  + method.toString());
+            throw new RuntimeException("Could not resolve beanClass method from proxy call: " + method.toString());
          }
-      
+
          Method unadvisedMethod = info.getUnadvisedMethod();
-      
+
          try
          {
             invokeStats.callIn();
-      
+
             if (unadvisedMethod != null && isHomeMethod(unadvisedMethod))
             {
                return invokeLocalHomeMethod(info, args);
             }
-            else if (unadvisedMethod != null
-                  && isEJBObjectMethod(unadvisedMethod))
+            else if (unadvisedMethod != null && isEJBObjectMethod(unadvisedMethod))
             {
                return invokeEJBLocalObjectMethod(id, info, args);
             }
-            
+
             SerializableMethod invoked = new SerializableMethod(method, method.getClass());
-            
+
             StatefulContainerInvocation nextInvocation = new StatefulContainerInvocation(info, id);
             //StatefulSessionContainerMethodInvocation nextInvocation = new StatefulSessionContainerMethodInvocation(info);
             //nextInvocation.setSessionId(id);
             nextInvocation.setAdvisor(getAdvisor());
             nextInvocation.setArguments(args);
-            
+
             //invokedMethod.push(invoked);
             return nextInvocation.invokeNext();
          }
@@ -361,9 +368,9 @@ public class StatefulContainer extends SessionSpecContainer
                long elapsed = end - start;
                invokeStats.updateStats(unadvisedMethod, elapsed);
             }
-         
+
             invokeStats.callOut();
-            
+
             //invokedMethod.pop();
          }
       }
@@ -373,7 +380,7 @@ public class StatefulContainer extends SessionSpecContainer
          popEnc();
       }
    }
-   
+
    /**
     * Create a stateful bean and return its oid.
     *
@@ -401,11 +408,15 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
 
+   /**
+    * @deprecated To be handled by {@link SessionFactory#destroySession(Serializable)}
+    */
+   @Deprecated
    protected void destroySession(Object id)
    {
-      getCache().remove(id);
+      this.destroySession((Serializable)id);
    }
-   
+
    /**
     * Remote Invocation entry point, as delegated from
     * InvokableContextClassProxyHack (Remoting Dispatcher)
@@ -461,7 +472,7 @@ public class StatefulContainer extends SessionSpecContainer
          MethodInfo info = advisor.getMethodInfo(methodHash);
          Method unadvisedMethod = info.getMethod();
          SerializableMethod unadvisedMethodSerializable = new SerializableMethod(unadvisedMethod);
-         
+
          // Get the invoked method from invocation metadata
          Object objInvokedMethod = si.getMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
                SessionSpecRemotingMetadata.KEY_INVOKED_METHOD);
@@ -469,12 +480,11 @@ public class StatefulContainer extends SessionSpecContainer
          assert objInvokedMethod instanceof SerializableMethod : "Invoked Method set on invocation metadata is not of type "
                + SerializableMethod.class.getName() + ", instead: " + objInvokedMethod;
          SerializableMethod invokedMethod = (SerializableMethod) objInvokedMethod;
-         
+
          /*
           * Set the invoked method
           */
          //TODO Remove when CurrentInvocation is ironed out
-         
          // Set onto stack
          SessionSpecContainer.invokedMethod.push(invokedMethod);
 
@@ -522,7 +532,7 @@ public class StatefulContainer extends SessionSpecContainer
                         + ", which is not " + Serializable.class.getSimpleName();
                   sessionId = (Serializable) objNewId;
                }
-               
+
                /*
                 * Build a new Invocation
                 */
@@ -534,9 +544,9 @@ public class StatefulContainer extends SessionSpecContainer
                newSi.setMetaData(si.getMetaData());
                newSi.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
                      SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, invokedMethod, PayloadKey.AS_IS);
-               
+
                //newSi.setAdvisor(getAdvisor());
-               
+
                /*
                 * Ensure ID exists (useful for catching problems while we have context as
                 * to the caller, whereas in Interceptors we do not)
@@ -545,15 +555,15 @@ public class StatefulContainer extends SessionSpecContainer
                {
                   this.getCache().get(sessionId);
                }
-               catch(NoSuchEJBException nsee)
+               catch (NoSuchEJBException nsee)
                {
-                  throw this.constructProperNoSuchEjbException(nsee, invokedMethod.getActualClassName()); 
+                  throw this.constructProperNoSuchEjbException(nsee, invokedMethod.getActualClassName());
                }
 
                /*
                 * Perform Invocation
                 */
-               
+
                // Create an object to hold the return value
                Object returnValue = null;
 
@@ -566,23 +576,23 @@ public class StatefulContainer extends SessionSpecContainer
                {
                   response.addAttachment(StatefulConstants.NEW_ID, sessionId);
                }
-               
-//               response = marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
-//               if (newId != null) response.addAttachment(StatefulConstants.NEW_ID, newId);
-               
+
+               //               response = marshallResponse(invocation, rtn, newSi.getResponseContextInfo());
+               //               if (newId != null) response.addAttachment(StatefulConstants.NEW_ID, newId);
+
                // Create a Response
-//             response = new InvocationResponse(returnValue);
-//             Map<Object, Object> responseContext = newSi.getResponseContextInfo();
-//             response.setContextInfo(responseContext);
+               //             response = new InvocationResponse(returnValue);
+               //             Map<Object, Object> responseContext = newSi.getResponseContextInfo();
+               //             response.setContextInfo(responseContext);
             }
          }
          catch (Throwable t)
          {
             Throwable exception = t;
-//            if (sessionId != null)
-//            {
-//               exception = new ForwardId(t, sessionId);
-//            }
+            //            if (sessionId != null)
+            //            {
+            //               exception = new ForwardId(t, sessionId);
+            //            }
             Map<Object, Object> responseContext = null;
             if (newSi != null)
             {
@@ -618,16 +628,16 @@ public class StatefulContainer extends SessionSpecContainer
       }
       finally
       {
-         
+
          // Pop invoked method off the stack
          //TODO Remove when CurrentInvocation handles this
          SessionSpecContainer.invokedMethod.pop();
-         
+
          // Reset the TCL to original
          Thread.currentThread().setContextClassLoader(originalLoader);;
       }
    }
-   
+
    public TimerService getTimerService()
    {
       throw new UnsupportedOperationException("stateful bean doesn't support TimerService (EJB3 18.2#2)");
@@ -637,7 +647,7 @@ public class StatefulContainer extends SessionSpecContainer
    {
       return getTimerService();
    }
-   
+
    @Override
    public void invokePostActivate(BeanContext beanContext)
    {
@@ -646,21 +656,21 @@ public class StatefulContainer extends SessionSpecContainer
          if (injector instanceof JndiPropertyInjector)
          {
             AccessibleObject field = ((JndiPropertyInjector) injector).getAccessibleObject();
-            
+
             if (field.isAnnotationPresent(javax.ejb.EJB.class))
             {
                continue; // skip nested EJB injection since the local proxy will be (de)serialized correctly
             }
-            
+
             if (field instanceof Field)
             {
                // reinject transient fields
-               if ((((Field)field).getModifiers() & Modifier.TRANSIENT) > 0)
+               if ((((Field) field).getModifiers() & Modifier.TRANSIENT) > 0)
                   injector.inject(beanContext);
             }
          }
       }
-      
+
       this.invokeCallback(beanContext, PostActivate.class);
    }
 
@@ -680,36 +690,32 @@ public class StatefulContainer extends SessionSpecContainer
    }
    */
 
-   public void invokeInit(Object bean, Class[] initParameterTypes,
-         Object[] initParameterValues)
+   public void invokeInit(Object bean, Class[] initParameterTypes, Object[] initParameterValues)
    {
       invokeInit(bean, bean.getClass(), initParameterTypes, initParameterValues);
    }
-   
-   private void invokeInit(Object bean, Class<?> cls, Class<?>[] initParameterTypes,
-                          Object[] initParameterValues)
+
+   private void invokeInit(Object bean, Class<?> cls, Class<?>[] initParameterTypes, Object[] initParameterValues)
    {
       Class<?> superclass = cls.getSuperclass();
-      if(superclass != null)
+      if (superclass != null)
          invokeInit(bean, superclass, initParameterTypes, initParameterValues);
       int numParameters = 0;
-      if(initParameterTypes != null)
+      if (initParameterTypes != null)
          numParameters = initParameterTypes.length;
       try
       {
-         for(Method method : cls.getDeclaredMethods())
+         for (Method method : cls.getDeclaredMethods())
          {
-            if(numParameters != method.getParameterTypes().length)
+            if (numParameters != method.getParameterTypes().length)
                continue;
-            
-            if ((method.getAnnotation(Init.class) != null)
-                    || (resolveAnnotation(method, Init.class) != null))
+
+            if ((method.getAnnotation(Init.class) != null) || (resolveAnnotation(method, Init.class) != null))
             {
-               if(initParameterTypes != null)
+               if (initParameterTypes != null)
                {
-                  Object[] parameters = getInitParameters(method,
-                          initParameterTypes, initParameterValues);
-   
+                  Object[] parameters = getInitParameters(method, initParameterTypes, initParameterValues);
+
                   if (parameters != null)
                      method.invoke(bean, parameters);
                }
@@ -726,8 +732,7 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
 
-   protected Object[] getInitParameters(Method method,
-                                        Class[] initParameterTypes, Object[] initParameterValues)
+   protected Object[] getInitParameters(Method method, Class[] initParameterTypes, Object[] initParameterValues)
    {
       if (method.getParameterTypes().length == initParameterTypes.length)
       {
@@ -735,8 +740,7 @@ public class StatefulContainer extends SessionSpecContainer
          {
             Class formal = method.getParameterTypes()[i];
             Class actual = initParameterTypes[i];
-            if (!isMethodInvocationConvertible(formal, actual == null ? null
-                    : actual))
+            if (!isMethodInvocationConvertible(formal, actual == null ? null : actual))
                return null;
          }
          return initParameterValues;
@@ -761,8 +765,7 @@ public class StatefulContainer extends SessionSpecContainer
     *         type or an object type of a primitive type that can be converted
     *         to the formal type.
     */
-   private static boolean isMethodInvocationConvertible(Class formal,
-                                                        Class actual)
+   private static boolean isMethodInvocationConvertible(Class formal, Class actual)
    {
       /*
        * if it's a null, it means the arg was null
@@ -790,31 +793,25 @@ public class StatefulContainer extends SessionSpecContainer
             return true;
          if (formal == Byte.TYPE && actual == Byte.class)
             return true;
-         if (formal == Short.TYPE
-                 && (actual == Short.class || actual == Byte.class))
+         if (formal == Short.TYPE && (actual == Short.class || actual == Byte.class))
             return true;
-         if (formal == Integer.TYPE
-                 && (actual == Integer.class || actual == Short.class || actual == Byte.class))
+         if (formal == Integer.TYPE && (actual == Integer.class || actual == Short.class || actual == Byte.class))
             return true;
          if (formal == Long.TYPE
-                 && (actual == Long.class || actual == Integer.class
-                 || actual == Short.class || actual == Byte.class))
+               && (actual == Long.class || actual == Integer.class || actual == Short.class || actual == Byte.class))
             return true;
          if (formal == Float.TYPE
-                 && (actual == Float.class || actual == Long.class
-                 || actual == Integer.class || actual == Short.class || actual == Byte.class))
+               && (actual == Float.class || actual == Long.class || actual == Integer.class || actual == Short.class || actual == Byte.class))
             return true;
          if (formal == Double.TYPE
-                 && (actual == Double.class || actual == Float.class
-                 || actual == Long.class || actual == Integer.class
-                 || actual == Short.class || actual == Byte.class))
+               && (actual == Double.class || actual == Float.class || actual == Long.class || actual == Integer.class
+                     || actual == Short.class || actual == Byte.class))
             return true;
       }
       return false;
    }
 
-   private Object invokeEJBLocalObjectMethod(Object id, MethodInfo info,
-                                             Object[] args) throws Exception
+   private Object invokeEJBLocalObjectMethod(Object id, MethodInfo info, Object[] args) throws Exception
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("remove"))
@@ -823,7 +820,7 @@ public class StatefulContainer extends SessionSpecContainer
          {
             destroySession(id);
          }
-         catch(NoSuchEJBException e)
+         catch (NoSuchEJBException e)
          {
             throw new NoSuchObjectLocalException(e.getMessage(), e);
          }
@@ -856,77 +853,76 @@ public class StatefulContainer extends SessionSpecContainer
       }
    }
 
-   private Object invokeLocalHomeMethod(MethodInfo info, Object[] args)
-           throws Exception
+   private Object invokeLocalHomeMethod(MethodInfo info, Object[] args) throws Exception
    {
       throw new NotImplementedException("EJBTHREE-1641");
-//      Method unadvisedMethod = info.getUnadvisedMethod();
-//      if (unadvisedMethod.getName().startsWith("create"))
-//      {
-//         Class<?>[] initParameterTypes =
-//                 {};
-//         Object[] initParameterValues =
-//                 {};
-//         if (unadvisedMethod.getParameterTypes().length > 0)
-//         {
-//            initParameterTypes = unadvisedMethod.getParameterTypes();
-//            initParameterValues = args;
-//         }
-//
-//         LocalBinding binding = this.getAnnotation(LocalBinding.class);
-//
-//         StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
-//         factory.init();
-//
-//         Object proxy = factory.createProxyEjb21(initParameterTypes,
-//                 initParameterValues, unadvisedMethod.getReturnType().getName());
-//
-//         return proxy;
-//      }
-//      else if (unadvisedMethod.getName().equals("remove"))
-//      {
-//         remove(args[0]);
-//
-//         return null;
-//      }
-//      else
-//      {
-//         return null;
-//      }
+      //      Method unadvisedMethod = info.getUnadvisedMethod();
+      //      if (unadvisedMethod.getName().startsWith("create"))
+      //      {
+      //         Class<?>[] initParameterTypes =
+      //                 {};
+      //         Object[] initParameterValues =
+      //                 {};
+      //         if (unadvisedMethod.getParameterTypes().length > 0)
+      //         {
+      //            initParameterTypes = unadvisedMethod.getParameterTypes();
+      //            initParameterValues = args;
+      //         }
+      //
+      //         LocalBinding binding = this.getAnnotation(LocalBinding.class);
+      //
+      //         StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
+      //         factory.init();
+      //
+      //         Object proxy = factory.createProxyEjb21(initParameterTypes,
+      //                 initParameterValues, unadvisedMethod.getReturnType().getName());
+      //
+      //         return proxy;
+      //      }
+      //      else if (unadvisedMethod.getName().equals("remove"))
+      //      {
+      //         remove(args[0]);
+      //
+      //         return null;
+      //      }
+      //      else
+      //      {
+      //         return null;
+      //      }
    }
-   
+
    public Object createLocalProxy(Object id) throws Exception
    {
       return this.createLocalProxy(id, this.getAnnotation(LocalBinding.class));
    }
-   
+
    public Object createLocalProxy(Object id, LocalBinding binding) throws Exception
    {
       throw new NotImplementedException("EJBTHREE-1641");
-//      StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
-//      factory.init();
-//
-//      return factory.createProxyBusiness(id);
+      //      StatefulLocalProxyFactory factory = new StatefulLocalProxyFactory(this, binding);
+      //      factory.init();
+      //
+      //      return factory.createProxyBusiness(id);
    }
-   
+
    public Object createRemoteProxy(Object id, RemoteBinding binding) throws Exception
    {
       throw new NotImplementedException("EJBTHREE-1641");
-//      StatefulRemoteProxyFactory factory = new StatefulRemoteProxyFactory(this, binding);
-//      factory.init();
-//
-//      if (id != null)
-//         return factory.createProxyBusiness(id,null);
-//      else
-//         return factory.createProxyBusiness();
+      //      StatefulRemoteProxyFactory factory = new StatefulRemoteProxyFactory(this, binding);
+      //      factory.init();
+      //
+      //      if (id != null)
+      //         return factory.createProxyBusiness(id,null);
+      //      else
+      //         return factory.createProxyBusiness();
    }
-   
+
    public boolean isClustered()
    {
       JBossEnterpriseBeanMetaData md = getXml();
       if (md instanceof JBossSessionBeanMetaData)
       {
-         return ((JBossSessionBeanMetaData)md).isClustered();
+         return ((JBossSessionBeanMetaData) md).isClustered();
       }
       return isAnnotationPresent(Clustered.class);
    }
@@ -935,7 +931,7 @@ public class StatefulContainer extends SessionSpecContainer
    protected Object invokeHomeCreate(Method method, Object[] args) throws Exception
    {
       // TODO: this is almost identical to SessionSpecContainer.invokeHomeCreate, so unify
-      
+
       // Hold the JNDI Name
       String jndiName = null;
 
@@ -982,46 +978,46 @@ public class StatefulContainer extends SessionSpecContainer
                + ejb2xInterface + "; this could not be found as either a valid remote or local interface for EJB "
                + this.getEjbName());
       }
-      
+
       // Lookup
       String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, smd, isLocal);
       Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
-      
+
       // Cast
-      assert factory instanceof StatefulSessionProxyFactory : "Specified factory " + factory.getClass().getName() + " is not of type "
-         + StatefulSessionProxyFactory.class.getName() + " as required by " + StatefulContainer.class.getName() + ", but was instead " + factory;
+      assert factory instanceof StatefulSessionProxyFactory : "Specified factory " + factory.getClass().getName()
+            + " is not of type " + StatefulSessionProxyFactory.class.getName() + " as required by "
+            + StatefulContainer.class.getName() + ", but was instead " + factory;
       StatefulSessionProxyFactory statefulFactory = null;
       statefulFactory = StatefulSessionProxyFactory.class.cast(factory);
-      
+
       Serializable sessionId = createSession(method.getParameterTypes(), args);
       Object proxy = statefulFactory.createProxyEjb2x(sessionId);
-      
+
       return proxy;
    }
-   
-   protected InvocationResponse invokeHomeMethod(MethodInfo info,
-         StatefulRemoteInvocation statefulInvocation) throws Throwable
+
+   protected InvocationResponse invokeHomeMethod(MethodInfo info, StatefulRemoteInvocation statefulInvocation)
+         throws Throwable
    {
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().startsWith("create"))
       {
          Class<?>[] initParameterTypes =
-                 {};
+         {};
          Object[] initParameterValues =
-                 {};
+         {};
          if (unadvisedMethod.getParameterTypes().length > 0)
          {
             initParameterTypes = unadvisedMethod.getParameterTypes();
             initParameterValues = statefulInvocation.getArguments();
          }
 
-         StatefulSessionContainerMethodInvocation newStatefulInvocation = buildNewInvocation(
-                 info, statefulInvocation, initParameterTypes,
-                 initParameterValues);
+         StatefulSessionContainerMethodInvocation newStatefulInvocation = buildNewInvocation(info, statefulInvocation,
+               initParameterTypes, initParameterValues);
 
          // Get JNDI Registrar
          JndiSessionRegistrarBase sfsbJndiRegistrar = this.getJndiRegistrar();
-         
+
          // Determine if local/remote
          boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
 
@@ -1037,14 +1033,14 @@ public class StatefulContainer extends SessionSpecContainer
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
                StatefulSessionProxyFactory.class);
-         
+
          // Create a new EJB2.x Proxy
-         Object proxy = proxyFactory.createProxyEjb2x((Serializable)newStatefulInvocation.getSessionId());
-         
-         InvocationResponse response = marshallResponse(statefulInvocation, proxy, newStatefulInvocation.getResponseContextInfo());
+         Object proxy = proxyFactory.createProxyEjb2x((Serializable) newStatefulInvocation.getSessionId());
+
+         InvocationResponse response = marshallResponse(statefulInvocation, proxy, newStatefulInvocation
+               .getResponseContextInfo());
          if (newStatefulInvocation.getSessionId() != null)
-            response.addAttachment(StatefulConstants.NEW_ID,
-                    newStatefulInvocation.getSessionId());
+            response.addAttachment(StatefulConstants.NEW_ID, newStatefulInvocation.getSessionId());
          return response;
       }
       else if (unadvisedMethod.getName().equals("remove"))
@@ -1071,13 +1067,12 @@ public class StatefulContainer extends SessionSpecContainer
          RemoteHome homeAnnotation = this.getAnnotation(RemoteHome.class);
          if (homeAnnotation != null)
             home = homeAnnotation.value();
-         
+
          RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
          assert remoteHomeBinding != null : "remoteHomeBinding is null";
          homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
-         
-         EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass,
-                 true, false, homeHandle);
+
+         EJBMetaDataImpl metadata = new EJBMetaDataImpl(remote, home, pkClass, true, false, homeHandle);
 
          InvocationResponse response = marshallResponse(statefulInvocation, metadata, null);
          return response;
@@ -1089,7 +1084,7 @@ public class StatefulContainer extends SessionSpecContainer
          RemoteHomeBinding remoteHomeBinding = this.getAnnotation(RemoteHomeBinding.class);
          assert remoteHomeBinding != null : "remoteHomeBinding is null";
          homeHandle = new HomeHandleImpl(remoteHomeBinding.jndiBinding());
-         
+
          InvocationResponse response = marshallResponse(statefulInvocation, homeHandle, null);
          return response;
       }
@@ -1104,45 +1099,44 @@ public class StatefulContainer extends SessionSpecContainer
    {
       // Initialize
       ClassLoader cl = this.getClassloader();
-      
+
       // Obtain actual method
       Method actualMethod = method.toMethod(cl);
       long hash = MethodHashing.calculateHash(actualMethod);
       MethodInfo info = this.getAdvisor().getMethodInfo(hash);
       Method unadvisedMethod = info.getUnadvisedMethod();
-      
+
       if (unadvisedMethod.getName().equals("getHandle"))
       {
-         StatefulContainerInvocation newStatefulInvocation = buildInvocation(
-                 info, statefulInvocation);
-         
+         StatefulContainerInvocation newStatefulInvocation = buildInvocation(info, statefulInvocation);
+
          // Get JNDI Registrar
          JndiSessionRegistrarBase sfsbJndiRegistrar = this.getJndiRegistrar();
 
          // Determine if local/remote
          boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
-         
+
          // Get the metadata
          JBossSessionBeanMetaData smd = this.getMetaData();
 
          // Get the appropriate JNDI Name
          String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
-         
+
          // Find the Proxy Factory Key for this SFSB
          String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
 
          // Lookup the Proxy Factory in the Object Store
          StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
                StatefulSessionProxyFactory.class);
-         
+
          // Create a new EJB2.x Proxy
-         EJBObject proxy = (EJBObject)proxyFactory.createProxyEjb2x((Serializable)newStatefulInvocation.getId());
-         
+         EJBObject proxy = (EJBObject) proxyFactory.createProxyEjb2x((Serializable) newStatefulInvocation.getId());
+
          StatefulHandleRemoteImpl handle = new StatefulHandleRemoteImpl(proxy);
          InvocationResponse response = marshallResponse(statefulInvocation, handle, null);
          return response;
       }
-      
+
       // SFSB remove()
       else if (unadvisedMethod.getName().equals(Ejb2xMethodNames.METHOD_NAME_HOME_REMOVE))
       {
@@ -1200,16 +1194,15 @@ public class StatefulContainer extends SessionSpecContainer
    }
 
    private StatefulSessionContainerMethodInvocation buildNewInvocation(MethodInfo info,
-         StatefulRemoteInvocation statefulInvocation, Class<?>[] initParameterTypes,
-         Object[] initParameterValues)
+         StatefulRemoteInvocation statefulInvocation, Class<?>[] initParameterTypes, Object[] initParameterValues)
    {
       StatefulSessionContainerMethodInvocation newStatefulInvocation = null;
 
       StatefulBeanContext ctx = null;
-      
+
       // ENC is required in scope to create a session
       this.pushEnc();
-      
+
       try
       {
          if (initParameterTypes.length > 0)
@@ -1230,7 +1223,7 @@ public class StatefulContainer extends SessionSpecContainer
       newStatefulInvocation.setArguments(statefulInvocation.getArguments());
       newStatefulInvocation.setMetaData(statefulInvocation.getMetaData());
       newStatefulInvocation.setAdvisor(getAdvisor());
-      
+
       SerializableMethod invokedMethod = new SerializableMethod(info.getUnadvisedMethod());
       newStatefulInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
             SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, invokedMethod, PayloadKey.AS_IS);
@@ -1238,8 +1231,7 @@ public class StatefulContainer extends SessionSpecContainer
       return newStatefulInvocation;
    }
 
-   private StatefulContainerInvocation buildInvocation(MethodInfo info,
-                                                       StatefulRemoteInvocation statefulInvocation)
+   private StatefulContainerInvocation buildInvocation(MethodInfo info, StatefulRemoteInvocation statefulInvocation)
    {
       StatefulContainerInvocation newStatefulInvocation = null;
       Object newId = null;
@@ -1257,7 +1249,7 @@ public class StatefulContainer extends SessionSpecContainer
       newStatefulInvocation.setArguments(statefulInvocation.getArguments());
       newStatefulInvocation.setMetaData(statefulInvocation.getMetaData());
       newStatefulInvocation.setAdvisor(getAdvisor());
-      
+
       SerializableMethod invokedMethod = new SerializableMethod(info.getUnadvisedMethod());
       newStatefulInvocation.getMetaData().addMetaData(SessionSpecRemotingMetadata.TAG_SESSION_INVOCATION,
             SessionSpecRemotingMetadata.KEY_INVOKED_METHOD, invokedMethod, PayloadKey.AS_IS);
@@ -1270,12 +1262,12 @@ public class StatefulContainer extends SessionSpecContainer
    {
       assert beanContext != null : "beanContext is null";
       assert businessInterface != null : "businessInterface is null";
-      
+
       StatefulBeanContext ctx = (StatefulBeanContext) beanContext;
-      
+
       SessionContainer container = ctx.getContainer();
       assert container == this : "beanContext not of this container (" + container + " != " + this + ")";
-      
+
       boolean isRemote = false;
       boolean found = false;
       Class<?>[] remoteInterfaces = ProxyFactoryHelper.getRemoteAndBusinessRemoteInterfaces(this);
@@ -1300,57 +1292,59 @@ public class StatefulContainer extends SessionSpecContainer
             }
          }
       }
-      if (found == false) throw new IllegalStateException(businessInterface.getName() + " is not a business interface for container " + this);
-      
+      if (found == false)
+         throw new IllegalStateException(businessInterface.getName() + " is not a business interface for container "
+               + this);
+
       // Obtain SFSB JNDI Registrar
       String sfsbJndiRegistrarObjectStoreBindName = this.getJndiRegistrarBindName();
-      JndiStatefulSessionRegistrar sfsbJndiRegistrar = Ejb3RegistrarLocator
-            .locateRegistrar().lookup(sfsbJndiRegistrarObjectStoreBindName,JndiStatefulSessionRegistrar.class);
-      
+      JndiStatefulSessionRegistrar sfsbJndiRegistrar = Ejb3RegistrarLocator.locateRegistrar().lookup(
+            sfsbJndiRegistrarObjectStoreBindName, JndiStatefulSessionRegistrar.class);
+
       // Get the metadata
       JBossSessionBeanMetaData smd = this.getMetaData();
 
       // Get the appropriate JNDI Name
       String jndiName = !isRemote ? smd.getLocalJndiName() : smd.getJndiName();
-      
+
       // Find the Proxy Factory Key for this SFSB
       String proxyFactoryKey = sfsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, !isRemote);
-      
+
       // Lookup the Proxy Factory in the Object Store
       StatefulSessionProxyFactory proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
             StatefulSessionProxyFactory.class);
-      
+
       // Create a new business proxy
       Object proxy = proxyFactory.createProxyBusiness((Serializable) ctx.getId(), businessInterface.getName());
-      
+
       // Return the Proxy
       return proxy;
 
-//      Collection<ProxyFactory> proxyFactories = this.proxyDeployer.getProxyFactories().values();
-//      for (ProxyFactory factory : proxyFactories)
-//      {
-//         if (isRemote && factory instanceof StatefulRemoteProxyFactory)
-//         {
-//            return ((StatefulRemoteProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
-//         }
-//         else if (!isRemote && factory instanceof StatefulLocalProxyFactory)
-//         {
-//            return ((StatefulLocalProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
-//         }
-//      }
-//      throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");
+      //      Collection<ProxyFactory> proxyFactories = this.proxyDeployer.getProxyFactories().values();
+      //      for (ProxyFactory factory : proxyFactories)
+      //      {
+      //         if (isRemote && factory instanceof StatefulRemoteProxyFactory)
+      //         {
+      //            return ((StatefulRemoteProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
+      //         }
+      //         else if (!isRemote && factory instanceof StatefulLocalProxyFactory)
+      //         {
+      //            return ((StatefulLocalProxyFactory) factory).createProxyBusiness(ctx.getId(),null);
+      //         }
+      //      }
+      //      throw new IllegalStateException("Unable to create proxy for getBusinessObject as a proxy factory was not found");
    }
 
    protected void popEnc()
    {
       super.popEnc();
    }
-   
+
    protected void pushEnc()
    {
       super.pushEnc();
    }
-   
+
    /**
     * Remove the given object. Called when remove on Home is invoked.
     * 
@@ -1360,21 +1354,21 @@ public class StatefulContainer extends SessionSpecContainer
    private void remove(Object target) throws RemoveException
    {
       // EJBTHREE-1217: EJBHome.remove(Object primaryKey) must throw RemoveException
-      if(!(target instanceof Handle))
+      if (!(target instanceof Handle))
          throw new RemoveException("EJB 3 3.6.2.2: Session beans do not have a primary key");
-      
+
       StatefulHandleRemoteImpl handle = (StatefulHandleRemoteImpl) target;
 
       try
       {
          handle.getEJBObject().remove();
       }
-      catch(RemoteException re)
+      catch (RemoteException re)
       {
          throw new RemoveException(re.getMessage());
       }
    }
-   
+
    protected void removeHandle(Handle arg) throws Exception
    {
       /*
@@ -1383,5 +1377,49 @@ public class StatefulContainer extends SessionSpecContainer
       destroySession(handle.id);
       */
       arg.getEJBObject().remove();
+   }
+
+   /**
+    * Returns the SessionFactory for this SFSB Container
+    * 
+    * @see org.jboss.ejb3.endpoint.Endpoint#getSessionFactory()
+    * @throws IllegalStateException If this Container is not session-aware
+    */
+   @Override
+   public SessionFactory getSessionFactory() throws IllegalStateException
+   {
+      // Precondition checks
+      assert sessionFactory != null : "Session Factory for SFSB Container should never be null: " + this;
+      if (sessionFactory == null)
+      {
+         throw new IllegalStateException("This container is session-aware, though has a null "
+               + SessionFactory.class.getName() + "; please file a JIRA referencing EJBTHREE-1782");
+      }
+
+      // Return
+      return this.sessionFactory;
+   }
+   
+
+   /**
+    * Designates that this SFSB Container is session-aware.
+    * 
+    * @see org.jboss.ejb3.endpoint.Endpoint#isSessionAware()
+    */
+   @Override
+   public boolean isSessionAware()
+   {
+      // We're session-aware
+      return true;
+   }
+
+   /**
+    * Destroys the specified session
+    * 
+    * @see org.jboss.ejb3.endpoint.SessionFactory#destroySession(java.io.Serializable)
+    */
+   public void destroySession(Serializable session)
+   {
+      getCache().remove(session);
    }
 }
