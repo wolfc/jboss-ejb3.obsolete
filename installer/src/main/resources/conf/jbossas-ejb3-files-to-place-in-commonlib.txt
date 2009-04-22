@@ -2,6 +2,7 @@ jboss-ejb3-cache.jar
 jboss-ejb3-common.jar
 jboss-ejb3-core.jar
 jboss-ejb3-deployers.jar
+jboss-ejb3-endpoint.jar
 jboss-ejb3-ext-api.jar
 jboss-ejb3-ext-api-impl.jar
 jboss-ejb3-interceptors.jar

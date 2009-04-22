@@ -6,4 +6,4 @@ jboss-ejb3-ext-api.jar
 jboss-ejb3-common-client.jar
 jboss-ejb3-core-client.jar
 jboss-metadata.jar
-
+jboss-ejb3-endpoint.jar
