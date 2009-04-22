@@ -10,6 +10,24 @@ Create two partitions for a slave within LVM:
 lvm lvcreate -L 16G -n V_ROOT2 FAST
 lvm lvcreate -L 2G -n V_SWAP2 FAST
 
+Either do a slave clone or a clean slave install.
+
+1.1. Slave Clone
+================
+
+dd a root of another slave to this root.
+Use rhel-5.3-template.xml to create a new vm.
+
+Configure the following items:
+- mac
+- source dev
+- vnc port
+
+# virsh create rhel-5.3-guestX.xml
+
+1.2. Clean Slave Install
+========================
+
 virt-install \
         --name rhel-5.3-guest2 \
         --ram 1024 \

@@ -1,0 +1,28 @@
+<domain type='xen'>
+  <name>rhel-5.3-guest3</name>
+  <bootloader>/usr/bin/pygrub</bootloader>
+  <memory>2097152</memory>
+  <vcpu>2</vcpu>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <interface type='bridge'>
+      <source bridge='vnet0'/>
+      <mac address='00:16:3e:09:04:22'/>
+      <script path='vif-bridge'/>
+    </interface>
+    <disk type='block' device='disk'>
+      <driver name='phy'/>
+      <source dev='/dev/mapper/FAST-V_ROOT3'/>
+      <target dev='xvda'/>
+    </disk>
+    <disk type='block' device='disk'>
+      <driver name='phy'/>
+      <source dev='/dev/mapper/FAST-V_SWAP3'/>
+      <target dev='xvdb'/>
+    </disk>
+    <input type='mouse' bus='xen'/>
+    <graphics type='vnc' port='5903'/>
+  </devices>
+</domain>
