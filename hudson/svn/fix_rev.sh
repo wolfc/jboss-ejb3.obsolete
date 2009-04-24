@@ -1,7 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # vim:ts=3:sw=3:expandtab:
 set -e
-#set -x
+
+# dump everything we do to a log
+set -x
+exec > >(tee -a /tmp/$0.log)
+exec 2>&1
 
 # Fix the svn:date of a revision in a SVN mirror
 # http://subversion.tigris.org/issues/show_bug.cgi?id=3194
@@ -14,7 +18,7 @@ fi
 REPOS="$1"
 REV="$2"
 
-DATE=`svn pg -r $REV --revprop svn:date $REPOS`
+DATE=`svn pg -r $REV --revprop svn:date file://$REPOS`
 
 if [ -n "$DATE" ]; then
    echo "$REV already has svn:date $DATE"
@@ -28,8 +32,8 @@ while [ -z "$DATE" ]; do
       echo 1>&2 "can't find a previous date for $REV"
       exit 1
    fi
-   DATE=`svn pg -r $PREV_REV --revprop svn:date $REPOS`
+   DATE=`svn pg -r $PREV_REV --revprop svn:date file://$REPOS`
 done
 
 echo "setting svn:date to $DATE on $REV"
-svn ps -r $REV --revprop svn:date $DATE $REPOS
+svn ps -r $REV --revprop svn:date $DATE file://$REPOS
