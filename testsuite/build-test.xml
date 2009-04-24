@@ -5306,13 +5306,13 @@
      <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="ejbthree1346"/>
          <param name="jvmargs" value=""/>
-         <param name="test.extension" value="BR-disabled"/> 
+         <!-- No "test-extension" param or ingnoring the known-issue won't work -->
      </antcall>
       
      <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="ejbthree1053"/>
          <param name="jvmargs" value=""/>
-     	   <!-- Not "test-extension" param or ingnoring the known-issue won't work -->
+     	   <!-- No "test-extension" param or ingnoring the known-issue won't work -->
      </antcall>
 
      <server:stop name="clustered-ejb3-totalrep-0"/>
