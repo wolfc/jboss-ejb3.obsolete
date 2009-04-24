@@ -26,6 +26,7 @@ import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NameNotFoundException;
 
 import junit.framework.Test;
 
@@ -71,7 +72,15 @@ public class DisableClusteredAnnotationUnitTestCase extends JBossClusteredTestCa
       // Connect to the server0 JNDI
       InitialContext ctx = getInitialContext(0);
 
-      DisableClusteredAnnotationRemote stateful = (DisableClusteredAnnotationRemote) ctx.lookup("DisableClusteredAnnotationStateful/remote");
+      DisableClusteredAnnotationRemote stateful = null;      
+      try
+      {
+         stateful = (DisableClusteredAnnotationRemote) ctx.lookup("DisableClusteredAnnotationStateful/remote");
+      }
+      catch (NameNotFoundException nnfe)
+      {
+         fail(nnfe.getMessage());
+      }
 
       NodeAnswer node1 = stateful.getNodeState ();
       getLog ().debug ("Node 1 ID: " +node1);
@@ -92,8 +101,16 @@ public class DisableClusteredAnnotationUnitTestCase extends JBossClusteredTestCa
    {
       InitialContext ctx = getInitialContext(0);
 
-      DisableClusteredAnnotationRemote stateless = 
-         (DisableClusteredAnnotationRemote) ctx.lookup("DisableClusteredAnnotationStateless/remote");
+      DisableClusteredAnnotationRemote stateless = null;
+      
+      try
+      {
+         stateless = (DisableClusteredAnnotationRemote) ctx.lookup("DisableClusteredAnnotationStateless/remote");
+      }
+      catch (NameNotFoundException nnfe)
+      {
+         fail(nnfe.getMessage());
+      }
       
       NodeAnswer node1 = stateless.getNodeState();
       assertNotNull(node1);
@@ -104,4 +121,22 @@ public class DisableClusteredAnnotationUnitTestCase extends JBossClusteredTestCa
          assertEquals(node1, stateless.getNodeState());
       }
    }
+
+   @Override
+   public void testServerFound() throws Exception
+   {      
+      // The superclass throws an exception, but we want this
+      // to be a failure, not an error
+      try
+      {
+         super.testServerFound();
+      }
+      catch (Exception e)
+      {
+         // Use assertNull to get the stack trace in the test report
+         assertNull("Deployment had no exceptions", e);
+      }
+   }
+   
+   
 }
