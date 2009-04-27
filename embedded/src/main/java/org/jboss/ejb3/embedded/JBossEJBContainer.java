@@ -24,10 +24,18 @@ package org.jboss.ejb3.embedded;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJBContainer;
 
+import org.jboss.bootstrap.spi.mc.config.MCServerConfig;
+import org.jboss.bootstrap.spi.mc.config.MCServerConfigFactory;
+import org.jboss.bootstrap.spi.mc.server.MCServer;
+import org.jboss.bootstrap.spi.mc.server.MCServerFactory;
+import org.jboss.classloader.spi.ClassLoaderSystem;
+import org.jboss.classloading.spi.vfs.policy.VFSClassLoaderPolicy;
 import org.jboss.dependency.spi.Controller;
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.deployers.client.spi.Deployment;
@@ -37,11 +45,8 @@ import org.jboss.deployers.vfs.spi.client.VFSDeployment;
 import org.jboss.deployers.vfs.spi.client.VFSDeploymentFactory;
 import org.jboss.ejb3.api.spi.EJBContainerWrapper;
 import org.jboss.kernel.Kernel;
-import org.jboss.kernel.plugins.bootstrap.basic.BasicBootstrap;
-import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.kernel.spi.dependency.KernelController;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
-import org.jboss.kernel.spi.deployment.KernelDeployment;
 import org.jboss.logging.Logger;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VirtualFile;
@@ -54,14 +59,14 @@ public class JBossEJBContainer extends EJBContainer
 {
    private static final Logger log = Logger.getLogger(JBossEJBContainer.class);
 
-   private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
+   // stage 0
+   private ClassLoader classLoader;
+   
    // stage 1
-   private BasicBootstrap bootstrap = new BasicBootstrap();
-   private Kernel kernel;
-   private BasicXMLDeployer deployer;
+   private MCServer server;
 
    // stage 2
+   private Kernel kernel;
    private MainDeployer mainDeployer;
 
    public static JBossEJBContainer on(EJBContainer container)
@@ -79,37 +84,38 @@ public class JBossEJBContainer extends EJBContainer
    {
       try
       {
-         bootstrap.run();
-         kernel = bootstrap.getKernel();
-         deployer = new BasicXMLDeployer(kernel);
-         
-         deploy("META-INF/classloader-beans.xml", true);
-         
-         // bring the main deployer online
-         deploy("META-INF/embedded-bootstrap-beans.xml", true);
-
-         // we're at stage 2
-         mainDeployer = getBean("MainDeployer", ControllerState.INSTALLED, MainDeployer.class);
-
-         deploy("META-INF/ejb-deployers-beans.xml", false);
-
-         deploy("META-INF/namingserver-beans.xml", true);
-
-         deploy("META-INF/aop-beans.xml", true);
-
-         deploy("META-INF/transactionmanager-beans.xml", true);
-
-         deploy("META-INF/jpa-deployers-beans.xml", true);
-
-         deploy("META-INF/ejb-container-beans.xml", true);
-
-         deploy("META-INF/ejb3-connectors-jboss-beans.xml", true);
-
-         deployer.validate();
-         
-         deployMain("ejb3-interceptors-aop.xml");
-
-         deployModules(modules);
+         VirtualFile roots[] = { };
+         classLoader = ClassLoaderSystem.getInstance().registerClassLoaderPolicy(VFSClassLoaderPolicy.createVFSClassLoaderPolicy("preboot-cl", roots));
+         URL confURL = classLoader.getResource("conf");
+         if(confURL == null)
+            throw new IllegalStateException("can't find a 'conf' directory on the classpath of " + classLoader);
+         MCServerConfig config = MCServerConfigFactory.createServerConfig(classLoader);
+         // To Bootstrap the home is where bootstrap.xml lives
+         config.bootstrapHome(confURL);
+         MCServer server = MCServerFactory.createServer(classLoader);
+         server.setConfiguration(config);
+         server.initialize();
+         ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
+         Thread.currentThread().setContextClassLoader(classLoader);
+         try
+         {
+            server.start();
+            
+            // we're at stage 2
+            kernel = server.getKernel();
+            mainDeployer = getBean("MainDeployer", ControllerState.INSTALLED, MainDeployer.class);
+   
+            deployDeployDirectory();
+            
+            // TODO: I need a cunning plan
+            deployMain("ejb3-interceptors-aop.xml");
+   
+            deployModules(modules);
+         }
+         finally
+         {
+            Thread.currentThread().setContextClassLoader(oldCl);
+         }
       }
       catch(Throwable t)
       {
@@ -121,20 +127,34 @@ public class JBossEJBContainer extends EJBContainer
    @Override
    public void close()
    {
+      // TODO: why does this not happen on mainDeployer.stop?
       if(mainDeployer != null)
       {
          mainDeployer.prepareShutdown();
          mainDeployer.shutdown();
          mainDeployer = null;
       }
-
-      if(deployer != null)
+      
+      if(server != null)
       {
-         deployer.shutdown();
-         deployer = null;
+         within(classLoader, new Runnable() {
+            public void run()
+            {
+               try
+               {
+                  server.shutdown();
+               }
+               catch(Exception e)
+               {
+                  log.warn("Failed to shutdown server " + server, e);
+               }
+            }
+         });
       }
+      
       kernel = null;
-      bootstrap = null;
+      
+      ClassLoaderSystem.getInstance().unregisterClassLoader(classLoader);
    }
 
    private Deployment deploy(Deployment deployment) throws DeploymentException
@@ -153,11 +173,6 @@ public class JBossEJBContainer extends EJBContainer
       }
    }
 
-   private KernelDeployment deploy(String name, boolean validate) throws Throwable
-   {
-      return deployKernel(getResource(name), validate);
-   }
-
    public Deployment deploy(URL url) throws DeploymentException, IOException
    {
       VirtualFile root = VFS.getRoot(url);
@@ -165,15 +180,27 @@ public class JBossEJBContainer extends EJBContainer
       return deploy(deployment);
    }
 
-   private KernelDeployment deployKernel(URL url, boolean validate) throws Throwable
+   protected void deployDeployDirectory() throws DeploymentException, IOException
    {
-      log.info("Deploying " + url);
-      KernelDeployment deployment = deployer.deploy(url);
-      if(validate)
-         deployer.validate(deployment);
-      return deployment;
+      URL deployDirURL = classLoader.getResource("deploy");
+      if(deployDirURL == null)
+      {
+         // We can function without it, but to what extend?
+         log.warn("Can't find a deploy directory resource on class loader " + classLoader);
+         return;
+      }
+      
+      List<Deployment> deployments = new ArrayList<Deployment>();
+      VirtualFile deployDir = VFS.getRoot(deployDirURL);
+      for(VirtualFile child : deployDir.getChildren())
+      {
+         VFSDeployment deployment = VFSDeploymentFactory.getInstance().createVFSDeployment(child);
+         log.info("Deploying " + deployment.getName());
+         deployments.add(deployment);
+      }
+      mainDeployer.deploy(deployments.toArray(new Deployment[0]));
    }
-
+   
    private void deployMain(String name) throws DeploymentException, IllegalArgumentException, MalformedURLException, IOException
    {
       URL url = getResource(name);
@@ -264,4 +291,17 @@ public class JBossEJBContainer extends EJBContainer
       throw new IllegalStateException("Bean not found " + name + " at state " + state + " in controller " + controller);
    }
 
+   private static void within(ClassLoader cl, Runnable task)
+   {
+      ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+      try
+      {
+         Thread.currentThread().setContextClassLoader(cl);
+         task.run();
+      }
+      finally
+      {
+         Thread.currentThread().setContextClassLoader(oldCL);
+      }
+   }
 }
