@@ -175,6 +175,11 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.jboss.bootstrap</groupId>
+      <artifactId>jboss-bootstrap-impl-mc</artifactId>
+      <version>0.1.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-api</artifactId>
       <version>3.1.0-SNAPSHOT</version>
@@ -268,10 +273,6 @@
       <groupId>org.jboss.microcontainer</groupId>
       <artifactId>jboss-dependency</artifactId>
       <version>${version.org.jboss.microcontainer}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.microcontainer</groupId>
-      <artifactId>jboss-kernel</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.naming</groupId>
