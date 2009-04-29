@@ -1,5 +1,6 @@
 #!/bin/sh
-set -ex
+set -e
+#set -x
 
 DIRNAME=`dirname $0`
 HERE=${DIRNAME:-.}

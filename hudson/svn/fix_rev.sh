@@ -3,9 +3,9 @@
 set -e
 
 # dump everything we do to a log
-set -x
-exec > >(tee -a /tmp/$0.log)
-exec 2>&1
+#set -x
+#exec > >(tee -a /tmp/$0.log)
+#exec 2>&1
 
 # Fix the svn:date of a revision in a SVN mirror
 # http://subversion.tigris.org/issues/show_bug.cgi?id=3194
