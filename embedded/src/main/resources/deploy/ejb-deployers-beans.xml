@@ -61,6 +61,12 @@
    <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
    <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer">
       <depends>org.jboss.ejb3.RemotingConnector</depends>
+      <property name="additionalContainerDependencies">
+         <set elementClass="java.lang.String">
+            <!-- We need the registrar so proxy can bind/unbind -->
+            <value>Ejb3Registrar</value>
+         </set>
+      </property>
    </bean>
 
    <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.embedded.resolvers.EmbeddedMessageDestinationReferenceResolver"/>

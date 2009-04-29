@@ -22,8 +22,6 @@
 package org.jboss.ejb3.embedded.deployers;
 
 import org.jboss.beans.metadata.api.annotations.Inject;
-import org.jboss.beans.metadata.api.annotations.Start;
-import org.jboss.beans.metadata.api.annotations.Stop;
 import org.jboss.beans.metadata.spi.BeanMetaData;
 import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
@@ -32,9 +30,6 @@ import org.jboss.deployers.spi.deployer.helpers.DeploymentVisitor;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.DeploymentScope;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
-import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
-import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.embedded.deployment.EjbDeployment;
 import org.jboss.ejb3.embedded.deployment.EmbeddedEjb3DeploymentUnit;
 import org.jboss.jpa.resolvers.PersistenceUnitDependencyResolver;
@@ -140,46 +135,5 @@ public class EjbModuleDeployer extends AbstractRealDeployerWithInput<JBossMetaDa
    public void setPersistenceUnitDependencyResolver(PersistenceUnitDependencyResolver resolver)
    {
       this.persistenceUnitDependencyResolver = resolver;
-   }
-   
-   /**
-    * LifeCycle Start
-    * 
-    * Responsible for Binding an MC-based EJB3 Registrar Object Store
-    * 
-    * @author ALR
-    * @throws Throwable
-    */
-   @Start
-   public void start() throws Throwable
-   {
-      // FIXME: do all this stuff in beans.xml
-      
-      // Bind an EJB3 Registrar Implementation if not already bound
-      if (!Ejb3RegistrarLocator.isRegistrarBound())
-      {
-         // Obtain the Kernel
-         Kernel sanders = this.kernel;
-         assert sanders != null : Kernel.class.getSimpleName() + " must be provided in order to bind "
-               + Ejb3Registrar.class.getSimpleName();
-
-         // Create an EJB3 Registrar
-         Ejb3Registrar registrar = new Ejb3McRegistrar(sanders);
-
-         // Bind Registrar to the Locator
-         Ejb3RegistrarLocator.bindRegistrar(registrar);
-         
-         // Log
-         log.debug("Bound " + Ejb3Registrar.class.getSimpleName() + " to static "
-               + Ejb3RegistrarLocator.class.getSimpleName());
-      }
-   }
-   
-   @Stop
-   public void stop()
-   {
-      // FIXME: see start
-      if(Ejb3RegistrarLocator.isRegistrarBound())
-         Ejb3RegistrarLocator.unbindRegistrar();
    }
 }
