@@ -47,7 +47,8 @@ import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
  */
 public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterpriseBeanMetaData>
 {
-   private Set<String> additionalContainerDependencies;
+   // set to an empty set, so we don't run into NPE when additionalContainerDependencies is left unconfigured
+   private Set<String> additionalContainerDependencies = Collections.emptySet();
    
    public EjbComponentDeployer()
    {
