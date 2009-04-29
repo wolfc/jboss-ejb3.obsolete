@@ -12,4 +12,14 @@
    <bean name="EJB3EndpointResolver" class="org.jboss.ejb3.endpoint.deployers.DefaultEndpointResolver"/>
    
    <bean name="TimerServiceFactory" class="org.jboss.ejb3.endpoint.deployers.test.common.MockTimerServiceFactory"/>
+   
+   <!-- The Ejb3Registrar provides static access to the kernel -->
+   <!-- It should actually not be used. -->
+   <bean name="Ejb3RegistrarService" class="org.jboss.ejb3.embedded.registrar.Ejb3RegistrarService"/>
+   
+   <bean name="Ejb3Registrar">
+      <constructor factoryMethod="getRegistrar">
+         <factory bean="Ejb3RegistrarService"/>
+      </constructor>
+   </bean>
 </deployment>

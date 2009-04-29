@@ -53,7 +53,14 @@
    <bean name="Ejb3MetadataProcessingDeployer" class="org.jboss.ejb3.deployers.Ejb3MetadataProcessingDeployer" />
 
    <bean name="EjbModuleDeployer" class="org.jboss.ejb3.embedded.deployers.EjbModuleDeployer"/>
-   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer"/>
+   <bean name="EjbComponentDeployer" class="org.jboss.ejb3.embedded.deployers.EjbComponentDeployer">
+      <property name="additionalContainerDependencies">
+         <set elementClass="java.lang.String">
+            <!-- We need the registrar so proxy can bind/unbind -->
+            <value>Ejb3Registrar</value>
+         </set>
+      </property>
+   </bean>
 
    <bean name="MessageDestinationReferenceResolver" class="org.jboss.ejb3.embedded.resolvers.EmbeddedMessageDestinationReferenceResolver"/>
 
