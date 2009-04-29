@@ -1,0 +1,34 @@
+#!/bin/sh
+set -e
+
+if [ $# -lt 2 ]; then
+   echo 1>&2 "Usage: $0 <url> <num> [<toNum>]"
+   exit 1
+fi
+
+#BASE_URL=http://mike.lab.bos.redhat.com:8380/hudson/job/JBoss-AS-5.x-TestSuite-sun15/
+BASE_URL=$1
+START=$2
+END=$3
+
+doDelete()
+{
+   if curl >/dev/null --fail --silent $1$2/doDelete
+   then
+      RC=0
+      echo "$1$2: deleted"
+   else
+      RC=$?
+      echo "$1$2: failed: $RC"
+   fi
+   return $RC
+}
+
+if [ -z "$END" ]; then
+   doDelete $BASE_URL $START
+else
+   for i in $(seq $START $END); do
+      echo $BASE_URL$i/doDelete
+      doDelete $BASE_URL $i
+   done
+fi
