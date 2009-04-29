@@ -21,6 +21,9 @@
  */
 package org.jboss.ejb3.embedded.deployers;
 
+import java.util.Collections;
+import java.util.Set;
+
 import org.jboss.beans.metadata.spi.BeanMetaData;
 import org.jboss.beans.metadata.spi.DemandMetaData;
 import org.jboss.beans.metadata.spi.DependencyMetaData;
@@ -44,6 +47,8 @@ import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
  */
 public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterpriseBeanMetaData>
 {
+   private Set<String> additionalContainerDependencies;
+   
    public EjbComponentDeployer()
    {
       super(JBossEnterpriseBeanMetaData.class);
@@ -55,6 +60,11 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
 
    protected void addDependencies(BeanMetaDataBuilder builder, DeploymentUnit unit, EJBContainer component)
    {
+      for(String dependency : additionalContainerDependencies)
+      {
+         builder.addDependency(dependency);
+      }
+      
       // TODO: ask something else for that name
       builder.addDependency("org.jboss.ejb3.deployment:" + unit.getParent().getSimpleName());
       
@@ -101,8 +111,38 @@ public class EjbComponentDeployer extends AbstractSimpleRealDeployer<JBossEnterp
       DeploymentUnit parent = unit.getParent();
       assert parent != null : "parent should not be null of component " + unit;
       
+      BeanMetaData bmd = builder.getBeanMetaData();
+      
+      log.debug("deploying bean: " + bmd.getName());
+      log.debug("  with dependencies:");
+      for (DependencyMetaData dependency : in(bmd.getDepends()))
+      {
+         log.debug("\t" + dependency.getDependency());
+      }
+      log.debug("  and demands:");
+      for(DemandMetaData dmd : in(bmd.getDemands()))
+      {
+         log.debug("\t" + dmd.getDemand());
+      }
+      log.debug("  and supplies:");
+      for(SupplyMetaData smd : in(bmd.getSupplies()))
+      {
+         log.debug("\t" + smd.getSupply());
+      }
+      
       // add the bean meta data to the parent, because else scope merging won't occur (whatever that is)
       // (e.g. the bean won't get injected)
-      parent.addAttachment(BeanMetaData.class + ":" + componentName, builder.getBeanMetaData());
+      parent.addAttachment(BeanMetaData.class + ":" + componentName, bmd);
+   }
+   
+   private static <T> Set<T> in(Set<T> c)
+   {
+      if(c != null) return c;
+      return Collections.emptySet();
+   }
+   
+   public void setAdditionalContainerDependencies(Set<String> s)
+   {
+      this.additionalContainerDependencies = s;
    }
 }

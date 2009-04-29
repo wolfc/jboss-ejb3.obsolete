@@ -8,4 +8,14 @@
    <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
    
    <bean name="EmbeddedXPCResolver" class="org.jboss.ejb3.stateful.EJB3XPCResolver"/>
+   
+   <!-- The Ejb3Registrar provides static access to the kernel -->
+   <!-- It should actually not be used. -->
+   <bean name="Ejb3RegistrarService" class="org.jboss.ejb3.embedded.registrar.Ejb3RegistrarService"/>
+   
+   <bean name="Ejb3Registrar">
+      <constructor factoryMethod="getRegistrar">
+         <factory bean="Ejb3RegistrarService"/>
+      </constructor>
+   </bean>
 </deployment>
