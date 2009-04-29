@@ -2,7 +2,7 @@
 set -ex
 
 DIRNAME=`dirname $0`
-HERE=${$DIRNAME:-.}
+HERE=${DIRNAME:-.}
 
 if [ $# -lt 1 ]; then
    echo 1>&2 "Usage: $0 <path>"
