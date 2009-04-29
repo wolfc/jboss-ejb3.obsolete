@@ -1,6 +1,9 @@
 #!/bin/sh
 set -ex
 
+DIRNAME=`dirname $0`
+HERE=${$DIRNAME:-.}
+
 if [ $# -lt 1 ]; then
    echo 1>&2 "Usage: $0 <path>"
    exit 1
@@ -15,5 +18,5 @@ PREV_REV=`expr $PREV_REV + 1`
 CURRENT_REV=`svn info $URL | grep "^Revision:" | cut -c11-`
 
 for rev in $(seq $PREV_REV $CURRENT_REV); do
-   ./fix_rev.sh $REPO_PATH $rev
+   $HERE/fix_rev.sh $REPO_PATH $rev
 done
