@@ -441,7 +441,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       }
       catch (Exception e)
       {
-         log.debug("error trying to stop ejb deployment", e);
+         log.debug("error trying to stop ejb deployment: " + objectName, e);
       }
    }
 
@@ -515,37 +515,75 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    public void start() throws Exception
    {
-      try
+     
+      if (reinitialize)
+         reinitialize();
+      
+      for (Object o : ejbContainers.values())
       {
-         if (reinitialize)
-            reinitialize();
-         
-         for (Object o : ejbContainers.values())
+         Container con = (Container) o;
+         try 
          {
-            Container con = (Container) o;
             processEJBContainerMetadata(con);
          }
-
-         for (Object o : ejbContainers.values())
+         catch (Exception e)
          {
-            Container con = (Container) o;
+            String message = "Exception while processing container metadata for EJB: " + con.getEjbName() + " in unit: " + this.getDeploymentUnit().getShortName();
+            // just log the message, no need to dump the stacktrace since we are finally going to
+            // throw back the exception
+            log.error(message);
+            // stop/destroy the container(s) in this deployment
+            try 
+            {
+               stop();
+               destroy();
+            }
+            catch (Exception ignoredException)  
+            {
+               // we catch this exception during stop/destroy to ensure that this 
+               // exception is NOT propagated up, instead of the original exception
+               // that forced this stop/destroy
+            }
+            // now wrap the original exception with a meaningful message and
+            // throw back the exception.
+            throw new Exception(message, e);
+         }
+      }
+
+      for (Object o : ejbContainers.values())
+      {
+         Container con = (Container) o;
+         try 
+         {
             registerEJBContainer(con);
          }
+         catch (Exception e)
+         {
+            String message = "Exception while registering EJB container for EJB: " + con.getEjbName() + " in unit: " + this.getDeploymentUnit().getShortName();
+            // just log the message, no need to dump the stacktrace since we are finally going to
+            // throw back the exception
+            log.error(message);
+            // stop/destroy the container(s) in this deployment
+            try 
+            {
+               stop();
+               destroy();
+            }
+            catch (Exception ignoredException)  
+            {
+               // we catch this exception during stop/destroy to ensure that this 
+               // exception is NOT propagated up, instead of the original exception
+               // that forced this stop/destroy
+            }
+            // now wrap the original exception with a meaningful message and
+            // throw back the exception.
+            throw new Exception(message, e);
 
-         //putJaccInService(pc, unit);
-      }
-      catch (Exception ex)
-      {
-         try
-         {
-            stop();
-            destroy();
          }
-         catch (Exception ignored)
-         {
-         }
-         throw ex;
       }
+
+      //putJaccInService(pc, unit);
+      
    }
    
    public void stop() //throws Exception
@@ -559,7 +597,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
          }
          catch (Exception e)
          {
-            log.debug("error trying to stop ejb container", e);
+            log.debug("error trying to stop ejb container: " + on, e);
          }
       }
       
@@ -654,9 +692,18 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
             // EJBContainer has finished with all metadata initialization from XML files and such.
             // this is really a hook to do some processing after XML has been set up and before
             // and processing of dependencies and such.
-            ((EJBContainer) con).instantiated();
-            this.ejbContainers.put(con.getObjectName(), con);
-            Ejb3Registry.register(con);
+            try 
+            {
+               ((EJBContainer) con).instantiated();
+               this.ejbContainers.put(con.getObjectName(), con);
+               Ejb3Registry.register(con);
+               
+            } catch (Throwable t)
+            {
+               throw new DeploymentException(
+                     "Error creating ejb container " + con.getEjbName() + ": " + t.getMessage(), t);
+
+            }
          }
       }
    }
