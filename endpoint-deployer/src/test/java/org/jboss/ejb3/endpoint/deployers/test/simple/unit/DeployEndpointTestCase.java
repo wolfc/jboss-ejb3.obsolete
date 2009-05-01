@@ -67,13 +67,15 @@ public class DeployEndpointTestCase
    @AfterClass
    public static void afterClass()
    {
-      if(server != null)
+      if(server != null && server.isStarted())
          server.shutdown();
    }
    
    @BeforeClass
    public static void beforeClass() throws Exception
    {
+      System.setProperty("xb.builder.useUnorderedSequence", "true");
+      
       server = new ServerImpl();
       
       String dir = mkdir("target/bootstrap");
