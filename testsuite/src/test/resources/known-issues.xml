@@ -50,9 +50,5 @@
   <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntegerInjectionUsingResourceMappedName">show</entry>
   <!-- EJBTHREE-1053 -->
   <entry key="org.jboss.ejb3.test.ejbthree1053.unit.ConsistentPassivatedStateUnitTestCase.testConsistentPassivatedState">show</entry>
-  <!-- EJBTHREE-1346 won't pass until 1.1.5 or later is used in AS 5.1.0.CR1 or later -->
-  <entry key="org.jboss.ejb3.test.ejbthree1346.unit.DisableClusteredAnnotationUnitTestCase.testStatefulBean">show</entry>
-  <entry key="org.jboss.ejb3.test.ejbthree1346.unit.DisableClusteredAnnotationUnitTestCase.testStatelessBean">show</entry>
-  <entry key="org.jboss.ejb3.test.ejbthree1346.unit.DisableClusteredAnnotationUnitTestCase.testServerFound">show</entry>
   
 </properties>
