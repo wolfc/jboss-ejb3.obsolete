@@ -20,8 +20,8 @@
   </description>
   
   <properties>
-    <version.org.jboss.deployers>[2.0.5.GA]</version.org.jboss.deployers>
-    <version.org.jboss.microcontainer>[2.0.4.GA]</version.org.jboss.microcontainer>
+    <version.org.jboss.deployers>2.0.5.GA</version.org.jboss.deployers>
+    <version.org.jboss.microcontainer>2.0.4.GA</version.org.jboss.microcontainer>
     <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1-SNAPSHOT</version.org.jboss.ejb3_jboss-ejb3-deployers>
   </properties>
 
@@ -129,17 +129,17 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
-        <version>[2.2.11.GA]</version>
+        <version>2.2.11.GA</version>
       </dependency>
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-reflect</artifactId>
-        <version>[2.0.2.GA]</version>
+        <version>2.0.2.GA</version>
       </dependency>
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jbossxb</artifactId>
-        <version>[2.0.0.GA]</version>
+        <version>2.0.0.GA</version>
       </dependency>
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
