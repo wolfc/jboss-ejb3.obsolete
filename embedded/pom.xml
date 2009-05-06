@@ -121,6 +121,12 @@
         </dependencies>
         -->
       </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <javadocExecutable>${JDK6_HOME}/bin/javadoc</javadocExecutable>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
