@@ -33,7 +33,7 @@ import org.jboss.security.SecurityContextAssociation;
  * Privileged actions available publically.
  * 
  * Note that this implementation may have exported visibility
- * only by nature of tha tit's in a test package, and not
+ * only by nature of that it's in a test package, and not
  * in the main of ejb3-async
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>

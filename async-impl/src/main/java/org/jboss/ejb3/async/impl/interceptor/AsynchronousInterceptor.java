@@ -169,8 +169,8 @@ public class AsynchronousInterceptor implements Interceptor
 
       //TODO 
       /*
-       * Should this be better handled by jboss-metadata
-       * (ie. JBossSessionBeanMetadata.getAsynchronousMethods().match(method))) ? 
+       * Would be better handled by jboss-metadata
+       * (ie. JBossSessionBeanMetadata.getAsynchronousMethods().match(method))) 
        */
 
       // Has met no conditions
