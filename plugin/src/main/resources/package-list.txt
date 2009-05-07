@@ -1,1 +1,2 @@
 jboss-ejb3-timerservice-spi.xml
+jboss-ejb3-endpointdeployer.xml

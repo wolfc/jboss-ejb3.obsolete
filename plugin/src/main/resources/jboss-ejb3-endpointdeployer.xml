@@ -1,0 +1,18 @@
+<!-- 
+   vi:ts=3:sw:expandtab
+-->
+<project name="jboss-ejb3-endpointdeployer" default="install">
+   <import file="setup.xml"/>
+
+   <target name="install">
+      <copy file="lib/jboss-ejb3-endpoint-deployer.jar" todir="${jboss.home}/server/default/deployers" verbose="${verbose}"/>
+   	  <copy file="lib/jboss-ejb3-endpoint-deployer.jar" todir="${jboss.home}/server/all/deployers" verbose="${verbose}"/>
+   	  <copy file="lib/jboss-ejb3-endpoint-deployer.jar" todir="${jboss.home}/server/standard/deployers" verbose="${verbose}"/>
+   </target>
+
+   <target name="uninstall">
+      <delete file="${jboss.home}/server/default/deployers/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
+   	  <delete file="${jboss.home}/server/default/all/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
+      <delete file="${jboss.home}/server/standard/deployers/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
+   </target>
+</project>
