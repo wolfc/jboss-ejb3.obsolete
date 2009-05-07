@@ -7,9 +7,9 @@
    
    <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
    
-   <bean name="EJBIdentifier" class="org.jboss.ejb3.endpoint.deployers.test.common.MockEJBIdentifier"/>
+   <bean name="MockEJBIdentifier" class="org.jboss.ejb3.endpoint.deployers.test.common.MockEJBIdentifier"/>
    
-   <bean name="EJB3EndpointResolver" class="org.jboss.ejb3.endpoint.deployers.DefaultEndpointResolver"/>
+   <bean name="MockEJB3EndpointResolver" class="org.jboss.ejb3.endpoint.deployers.DefaultEndpointResolver"/>
    
    <bean name="TimerServiceFactory" class="org.jboss.ejb3.endpoint.deployers.test.common.MockTimerServiceFactory"/>
    

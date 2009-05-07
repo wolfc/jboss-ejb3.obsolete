@@ -31,7 +31,6 @@ import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.endpoint.SessionFactory;
 import org.jboss.ejb3.proxy.impl.handler.session.SessionProxyInvocationHandler;
 import org.jboss.ejb3.proxy.spi.container.InvokableContext;
-import org.jboss.ejb3.proxy.spi.container.StatefulSessionFactory;
 import org.jboss.logging.Logger;
 
 /**
@@ -43,7 +42,7 @@ public class EndpointImpl implements Endpoint, SessionFactory
    private static final Logger log = Logger.getLogger(EndpointImpl.class);
    
    private InvokableContext container;
-   private StatefulSessionFactory factory;
+   private SessionFactory factory;
    
    public Serializable createSession(Class<?>[] initTypes, Object[] initValues)
    {
@@ -51,12 +50,15 @@ public class EndpointImpl implements Endpoint, SessionFactory
          throw new UnsupportedOperationException("SessionFactory " + this + " does not support arguments");
       if(initValues != null && initValues.length != 0)
          throw new UnsupportedOperationException("SessionFactory " + this + " does not support arguments");
-      return factory.createSession();
+      return factory.createSession(initTypes, initValues);
    }
    
    public void destroySession(Serializable session)
    {
-      log.debug("Session destruction is not supported");
+      if(factory == null)
+         throw new IllegalStateException("Endpoint " + this + " is not session aware");
+      
+      factory.destroySession(session);
    }
    
    public SessionFactory getSessionFactory() throws IllegalStateException
@@ -143,8 +145,11 @@ public class EndpointImpl implements Endpoint, SessionFactory
    public void setContainer(InvokableContext container)
    {
       this.container = container;
-      log.info("container " + container.getClass().getName());
-      if(container instanceof StatefulSessionFactory)
-         this.factory = (StatefulSessionFactory) container;
+      if (log.isTraceEnabled())
+      {
+         log.trace("Set container: " + container.getClass().getName());
+      }
+      if(container instanceof SessionFactory)
+         this.factory = (SessionFactory) container;
    }
 }
