@@ -38,12 +38,12 @@
         <include>org.jboss.ejb3:jboss-ejb3-core:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-deployers:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-endpoint:jar</include>
+        <include>org.jboss.ejb3:jboss-ejb3-endpoint-deployer:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-ext-api-impl:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-interceptors:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-metadata:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-mc-int:jar</include>
-        <include>org.jboss.ejb3:jboss-ejb3-pool:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-proxy-impl:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-proxy-spi:jar</include>
         <include>org.jboss.ejb3:jboss-ejb3-proxy-clustered:jar</include>
