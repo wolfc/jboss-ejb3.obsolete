@@ -4290,13 +4290,16 @@
             <include name="META-INF/*.xml"/>
          </fileset>
       </jar>
-   </target>
+   </target>	
 
-   <target name="ejbthree1807">
-  	   <build-simple-jar name="ejbthree1807"/>
-   </target>
+	<target name="ejbthree1786">
+	   <build-simple-jar name="ejbthree1786"/>
+	</target> 
+	   
+  <target name="ejbthree1807">
+     <build-simple-jar name="ejbthree1807"/>
+  </target>
 
-   
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
       circulardependency, jsp, timerdependency, servicedependency, stateless14, webservices, ear, ejbthree440,
@@ -4313,7 +4316,7 @@
       ejbthree1040,
       ejbthree1057, ejbthree1059, ejbthree1060,
       ejbthree1062,
-      ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
+      ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1786, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
       ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,
@@ -5088,6 +5091,9 @@
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1075"/>
       </antcall>
+   	  <antcall target="test" inheritRefs="true">
+   	     <param name="test" value="ejbthree1786"/>
+   	  </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1082"/>
       </antcall>
