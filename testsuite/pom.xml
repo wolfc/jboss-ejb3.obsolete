@@ -222,6 +222,69 @@
       <artifactId>jboss-ejb3-core</artifactId>
       <version>1.1.3-SNAPSHOT</version>
       <scope>test</scope>
+      <!--  Remove once ejb3-core is updated to at least 1.1.5-SNAPSHOT -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.cluster</groupId>
+          <artifactId>jboss-ha-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cluster</groupId>
+          <artifactId>jboss-ha-server-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!--  Remove once ejb3-core is updated to at least 1.1.5-SNAPSHOT -->
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-client</artifactId>
+      <version>1.1.1.GA</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.aspects</groupId>
+          <artifactId>jboss-remoting-aspects</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jboss.remoting</groupId>
+          <artifactId>jboss-remoting</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.aop</groupId>
+          <artifactId>jboss-aop</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!--  Remove once ejb3-core is updated to at least 1.1.5-SNAPSHOT -->
+    <dependency>
+      <groupId>org.jboss.cluster</groupId>
+      <artifactId>jboss-ha-server-api</artifactId>
+      <version>1.1.1.GA</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss</groupId>
+          <artifactId>jboss-common-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.cache</groupId>
+          <artifactId>jbosscache-pojo</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jgroups</groupId>
+          <artifactId>jgroups</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     
     <dependency>
