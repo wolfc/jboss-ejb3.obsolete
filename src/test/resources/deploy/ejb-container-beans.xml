@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+   <!-- The provider for EJB3 UserTransactions -->
+   <bean name="EJB3UserTransactionprovider" class="org.jboss.ejb3.tx.EJB3UserTransactionProvider">
+      <constructor factoryClass="org.jboss.ejb3.tx.EJB3UserTransactionProvider" factoryMethod="getSingleton"/>
+   </bean>
+   
+   <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
+   
+   <bean name="MockEJBIdentifier" class="org.jboss.ejb3.endpoint.deployers.test.common.MockEJBIdentifier"/>
+   
+   <bean name="MockEJB3EndpointResolver" class="org.jboss.ejb3.endpoint.deployers.DefaultEndpointResolver"/>
+   
+   <bean name="TimerServiceFactory" class="org.jboss.ejb3.endpoint.deployers.test.common.MockTimerServiceFactory"/>
+   
+   <!-- The Ejb3Registrar provides static access to the kernel -->
+   <!-- It should actually not be used. -->
+   <bean name="Ejb3RegistrarService" class="org.jboss.ejb3.embedded.registrar.Ejb3RegistrarService"/>
+   
+   <bean name="Ejb3Registrar">
+      <constructor factoryMethod="getRegistrar">
+         <factory bean="Ejb3RegistrarService"/>
+      </constructor>
+   </bean>
+</deployment>
