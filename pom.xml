@@ -14,7 +14,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-endpoint-deployer</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>JBoss EJB 3.x Endpoint Deployer</name>
   <description>
     The Endpoint Deployer is an adapter for component
