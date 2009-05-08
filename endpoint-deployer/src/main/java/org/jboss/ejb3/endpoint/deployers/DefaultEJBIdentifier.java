@@ -81,7 +81,7 @@ public class DefaultEJBIdentifier implements EJBIdentifier
       containerName.append(",name=");
       containerName.append(ejbName);
 
-      log.info("Container name generated for ejb = " + ejbName + " in unit " + unit + " is " + containerName);
+      log.debug("Container name generated for ejb = " + ejbName + " in unit " + unit + " is " + containerName);
 
       try
       {
