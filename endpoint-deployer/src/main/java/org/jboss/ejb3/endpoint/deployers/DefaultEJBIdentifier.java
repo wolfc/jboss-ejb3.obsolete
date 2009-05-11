@@ -26,7 +26,7 @@ import javax.management.ObjectName;
 
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.logging.Logger;
-import org.jboss.metadata.ear.spec.EarMetaData;
+import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 
 /**
  * DefaultEJBIdentifier
@@ -34,6 +34,8 @@ import org.jboss.metadata.ear.spec.EarMetaData;
  * Default implementation of an EJB Identifier; returns the name under
  * which a specified EJB (within some scoped DeploymentUnit) is bound into
  * MC 
+ * 
+ * TODO: move this to the component defining the EJB container name
  *
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
@@ -48,6 +50,8 @@ public class DefaultEJBIdentifier implements EJBIdentifier
     */
    public String identifyEJB(DeploymentUnit unit, String ejbName)
    {
+      // See JavaEEComponentHelper.createObjectName
+      
       // TODO the base ejb3 jmx object name comes from Ejb3Module.BASE_EJB3_JMX_NAME, but
       // we don't need any reference to ejb3-core. Right now just hard code here, we need
       // a better way/place for this later
@@ -55,17 +59,14 @@ public class DefaultEJBIdentifier implements EJBIdentifier
 
       // Get the top level unit for this unit (ex: the top level might be an ear and this unit might be the jar
       // in that ear
+      // See AS Ejb3Deployer.deploy
       DeploymentUnit toplevelUnit = unit.getTopLevel();
-      if (toplevelUnit != null)
+      boolean isEar = unit != unit.getTopLevel() || toplevelUnit.isAttachmentPresent(JBossAppMetaData.class);
+      if (isEar)
       {
-         // if top level is an ear, then create the name with the ear reference
-         if (toplevelUnit.getAttachment(EarMetaData.class) != null)
-         {
-            containerName.append("ear=");
-            containerName.append(toplevelUnit.getSimpleName());
-            containerName.append(",");
-
-         }
+         containerName.append("ear=");
+         containerName.append(toplevelUnit.getSimpleName());
+         containerName.append(",");
       }
       // now work on the passed unit, to get the jar name
       if (unit.getSimpleName() == null)
