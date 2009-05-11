@@ -11,8 +11,8 @@
    </target>
 
    <target name="uninstall">
-      <delete file="${jboss.home}/server/default/deployers/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
-   	  <delete file="${jboss.home}/server/default/all/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
-      <delete file="${jboss.home}/server/standard/deployers/jboss-ejb3-endpoint-deployer" verbose="${verbose}"/>
+      <delete file="${jboss.home}/server/default/deployers/jboss-ejb3-endpoint-deployer.jar" verbose="${verbose}"/>
+   	  <delete file="${jboss.home}/server/all/deployers/jboss-ejb3-endpoint-deployer.jar" verbose="${verbose}"/>
+      <delete file="${jboss.home}/server/standard/deployers/jboss-ejb3-endpoint-deployer.jar" verbose="${verbose}"/>
    </target>
 </project>
