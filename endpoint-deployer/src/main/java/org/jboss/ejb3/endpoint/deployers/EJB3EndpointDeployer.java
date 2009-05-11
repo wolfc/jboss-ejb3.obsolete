@@ -52,6 +52,10 @@ public class EJB3EndpointDeployer extends AbstractSimpleRealDeployer<JBossMetaDa
    @Override
    public void deploy(DeploymentUnit unit, JBossMetaData metaData) throws DeploymentException
    {
+      if (!metaData.isEJB3x())
+      {
+         return;
+      }
       JBossEnterpriseBeansMetaData beans = metaData.getEnterpriseBeans();
       for (JBossEnterpriseBeanMetaData bean : beans)
       {
