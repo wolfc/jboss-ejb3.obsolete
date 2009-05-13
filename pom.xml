@@ -11,7 +11,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-plugin</artifactId>
-  <version>1.0.7-SNAPSHOT</version>
+  <version>1.0.7</version>
   <name>JBoss EJB 3.0 Plugin Installer Assembly</name>
   <description>JBoss EJB3 Plugin Installer Assembly</description>
   <packaging>pom</packaging>
@@ -123,4 +123,10 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.7</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.7</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-plugin-1.0.7</url>
+  </scm>
 </project>
