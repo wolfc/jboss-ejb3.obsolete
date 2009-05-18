@@ -36,16 +36,28 @@ import org.jboss.aop.AspectManager;
 import org.jboss.aop.AspectXmlLoader;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
+import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
+import org.jboss.beans.metadata.plugins.AbstractDemandMetaData;
+import org.jboss.beans.metadata.spi.DemandMetaData;
+import org.jboss.beans.metadata.spi.SupplyMetaData;
+import org.jboss.deployers.spi.DeploymentException;
+import org.jboss.deployers.structure.spi.ClassLoaderFactory;
+import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentContext;
+import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentUnit;
+import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.DeploymentUnit;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.Ejb3Registry;
 import org.jboss.ejb3.InitialContextFactory;
+import org.jboss.ejb3.MCDependencyPolicy;
+import org.jboss.ejb3.MCKernelAbstraction.AlreadyInstantiated;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
+import org.jboss.ejb3.common.deployers.spi.AttachmentNames;
 import org.jboss.ejb3.common.registrar.plugin.mc.Ejb3McRegistrar;
-import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.core.resolvers.ScopedEJBReferenceResolver;
 import org.jboss.ejb3.service.ServiceContainer;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
@@ -184,8 +196,9 @@ public abstract class AbstractEJB3TestCase
     * 
     * @param beanImplementationClasses
     * @return
+    * @throws DeploymentException 
     */
-   public static Collection<SessionContainer> deploySessionEjbs(Class<?>[] beanImplementationClasses)
+   public static Collection<SessionContainer> deploySessionEjbs(Class<?>... beanImplementationClasses) throws DeploymentException
    {
       // Initialize
       Collection<SessionContainer> containers = new HashSet<SessionContainer>();
@@ -199,6 +212,22 @@ public abstract class AbstractEJB3TestCase
          }
       });
 
+      AbstractDeploymentUnit deploymentUnit = new AbstractDeploymentUnit(new AbstractDeploymentContext("test", ""));
+      deploymentUnit.createClassLoader(new ClassLoaderFactory() {
+         public ClassLoader createClassLoader(org.jboss.deployers.structure.spi.DeploymentUnit unit) throws Exception
+         {
+            return Thread.currentThread().getContextClassLoader();
+         }
+
+         public void removeClassLoader(org.jboss.deployers.structure.spi.DeploymentUnit unit) throws Exception
+         {
+         }
+      });
+      DeploymentUnit unit = new MockDeploymentUnit(deploymentUnit);
+      Ejb3Deployment deployment = new MockEjb3Deployment(unit, deploymentUnit);
+
+      deployment.setEJBReferenceResolver(new ScopedEJBReferenceResolver());
+      
       /*
        * Create Metadata
        */
@@ -206,6 +235,8 @@ public abstract class AbstractEJB3TestCase
       // Create metadata
       JBossMetaData jbossMetaData = MetaDataHelper.getMetaDataFromBeanImplClasses(beanImplementationClasses);
 
+      unit.addAttachment(AttachmentNames.PROCESSED_METADATA, jbossMetaData);
+      
       // Iterate through each EJB
       for (JBossEnterpriseBeanMetaData beanMetaData : jbossMetaData.getEnterpriseBeans())
       {
@@ -240,9 +271,7 @@ public abstract class AbstractEJB3TestCase
                ? AbstractEJB3TestCase.DOMAIN_NAME_SLSB
                : AbstractEJB3TestCase.DOMAIN_NAME_SFSB);
          Hashtable<?, ?> ctxProperties = null;
-         DeploymentUnit unit = new MockDeploymentUnit();
-         Ejb3Deployment deployment = new MockEjb3Deployment(unit);
-
+         
          // Is SFSB, manually set a PM Factory Registry and Cache Factory
          //TODO C'mon, here?  Much better elsewhere.
          if (sessionType.equals(ContainerType.SFSB))
@@ -277,8 +306,9 @@ public abstract class AbstractEJB3TestCase
     * 
     * @param beanImplementationClass
     * @return
+    * @throws DeploymentException 
     */
-   public static SessionContainer deploySessionEjb(Class<?> beanImplementationClass)
+   public static SessionContainer deploySessionEjb(Class<?> beanImplementationClass) throws DeploymentException
    {
       Collection<SessionContainer> containers = deploySessionEjbs(new Class<?>[]
       {beanImplementationClass});
@@ -287,6 +317,48 @@ public abstract class AbstractEJB3TestCase
       return containers.iterator().next();
    }
 
+   private static void install(String name, Object service, DependencyPolicy dependencies) throws Exception
+   {
+      AbstractBeanMetaData bean = new AbstractBeanMetaData(name, service.getClass().getName());
+      bean.setConstructor(new AlreadyInstantiated(service));
+      MCDependencyPolicy policy = (MCDependencyPolicy) dependencies;
+      bean.setDepends(policy.getDependencies());
+      bean.setDemands(policy.getDemands());
+      bean.setSupplies(policy.getSupplies());
+      log.info("installing bean: " + name);
+      log.info("  with dependencies:");
+      for (Object obj : policy.getDependencies())
+      {
+         Object msgObject = obj;
+         if (obj instanceof AbstractDemandMetaData)
+         {
+            msgObject = ((AbstractDemandMetaData)obj).getDemand();
+         }
+         log.info("\t" + msgObject);
+      }
+      log.info("  and demands:");
+      for(DemandMetaData dmd : policy.getDemands())
+      {
+         log.info("\t" + dmd.getDemand());
+      }
+      log.info("  and supplies:");
+      for(SupplyMetaData smd : policy.getSupplies())
+      {
+         log.info("\t" + smd.getSupply());
+      }
+      try
+      {
+         bootstrap.getKernel().getController().install(bean);
+      }
+      catch(Throwable t)
+      {
+         if(t instanceof Error)
+            throw (Error) t;
+         if(t instanceof RuntimeException)
+            throw (RuntimeException) t;
+         throw (Exception) t;
+      }
+   }
    /**
     * Instanciates the appropriate SessionContainer based on the specified arguments and returns it
     *  
@@ -362,8 +434,9 @@ public abstract class AbstractEJB3TestCase
     * 
     * @param beanImplementationClass
     * @return
+    * @throws DeploymentException 
     */
-   private static SessionContainer registerContainer(SessionContainer container)
+   private static SessionContainer registerContainer(SessionContainer container) throws DeploymentException
    {
       //FIXME
       // Typically these steps are done by Ejb3Deployment
@@ -378,19 +451,11 @@ public abstract class AbstractEJB3TestCase
       String containerName = container.getObjectName().getCanonicalName();
       try
       {
-         Ejb3RegistrarLocator.locateRegistrar().bind(containerName, container);
+         install(containerName, container, container.getDependencyPolicy());
       }
-      catch (DuplicateBindException dbe)
+      catch(Exception e)
       {
-         try
-         {
-            container.stop();
-         }
-         catch (Exception e)
-         {
-            // Ignore
-         }
-         throw new RuntimeException("Object Store already has binding under " + containerName, dbe);
+         throw new DeploymentException(e);
       }
 
       // make sure we're installed

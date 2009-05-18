@@ -95,6 +95,7 @@ import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.UserTransactionImpl;
 import org.jboss.injection.DependsHandler;
 import org.jboss.injection.EJBHandler;
+import org.jboss.injection.EJBInjectionContainer;
 import org.jboss.injection.EncInjector;
 import org.jboss.injection.ExtendedInjectionContainer;
 import org.jboss.injection.InjectionHandler;
@@ -125,7 +126,9 @@ import org.jboss.virtual.VirtualFile;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public abstract class EJBContainer implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, ExtendedInjectionContainer, JavaEEComponent
+public abstract class EJBContainer 
+   implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, 
+      EJBInjectionContainer, ExtendedInjectionContainer, JavaEEComponent
 {
    private static final Logger log = Logger.getLogger(EJBContainer.class);
 
@@ -140,7 +143,7 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
    protected Pool pool;
 
    protected String ejbName;
-
+   
    protected ObjectName objectName;
 
    protected int defaultConstructorIndex;
@@ -296,6 +299,12 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       {
          throw new RuntimeException(e);
       }
+   }
+   
+   @Deprecated
+   public boolean canResolveEJB()
+   {
+      return deployment.canResolveEJB();
    }
    
    public abstract BeanContext<?> createBeanContext();
@@ -1407,6 +1416,11 @@ public abstract class EJBContainer implements Container, IndirectContainer<EJBCo
       }
    }
    */
+   
+   public String resolveEJB(String link, Class<?> beanInterface, String mappedName)
+   {
+      return deployment.resolveEJB(link, beanInterface, mappedName);
+   }
    
    public Container resolveEjbContainer(String link, Class businessIntf)
    {

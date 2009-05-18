@@ -25,6 +25,7 @@ import javax.naming.NameNotFoundException;
 
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
+import org.jboss.logging.Logger;
 import org.jboss.metadata.javaee.spec.RemoteEnvironment;
 
 /**
@@ -35,6 +36,8 @@ import org.jboss.metadata.javaee.spec.RemoteEnvironment;
  */
 public abstract class AbstractHandler<X extends RemoteEnvironment> implements InjectionHandler<X>
 {
+   private static final Logger log = Logger.getLogger(AbstractHandler.class);
+   
 //   protected void addDependency(String refName, EJBContainer refcon, InjectionContainer container)
 //   {
 //      // Do not depend on myself
@@ -42,8 +45,15 @@ public abstract class AbstractHandler<X extends RemoteEnvironment> implements In
 //         container.getDependencyPolicy().addDependency(refcon.getObjectName().getCanonicalName());
 //   }
    
+   
+   /**
+    * @deprecated resolve until a bean name is acquired, do not depend on a business interface
+    */
+   @Deprecated
    protected void addDependency(InjectionContainer container, Class<?> businessIntf)
    {
+      log.warn("EJBTHREE-1828: calling deprecated addDependency");
+      
       EJBContainer refCon = null;
       try
       {
@@ -60,8 +70,14 @@ public abstract class AbstractHandler<X extends RemoteEnvironment> implements In
       ((JBoss5DependencyPolicy) container.getDependencyPolicy()).addDependency(businessIntf);
    }
    
+   /**
+    * @deprecated resolve until a bean name is acquired, do not depend on a business interface
+    */
+   @Deprecated
    protected void addDependency(InjectionContainer container, String link, Class<?> businessIntf)
    {
+      log.warn("EJBTHREE-1828: calling deprecated addDependency");
+      
       EJBContainer refCon = (EJBContainer) container.resolveEjbContainer(link, businessIntf);
       
       // Do not depend on myself

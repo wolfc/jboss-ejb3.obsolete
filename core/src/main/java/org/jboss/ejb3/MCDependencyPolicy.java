@@ -81,7 +81,11 @@ public class MCDependencyPolicy implements DependencyPolicy
       addDependency(ds);
    }
 
-   
+   /**
+    * @param businessInterface
+    * @deprecated See EJBTHREE-1828, depend on a bean name not business interface
+    */
+   @Deprecated
    public void addDependency(Class<?> businessInterface)
    {
       // TODO: more sophisticated
@@ -96,7 +100,9 @@ public class MCDependencyPolicy implements DependencyPolicy
     * 
     * @param ejbLink        the name of the target enterprise bean
     * @param businessInterface
+    * @deprecated See EJBTHREE-1828, depend on a bean name not business interface
     */
+   @Deprecated
    public void addDependency(String ejbLink, Class<?> businessInterface)
    {
       assert ejbLink != null : "ejbLink is null";

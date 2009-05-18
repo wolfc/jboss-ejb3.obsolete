@@ -8,4 +8,6 @@
    
    <bean name="MockConnectionManager" class="org.jboss.ejb3.core.test.common.MockCachedConnectionManager">
    </bean>
+   
+   <bean name="JNDIKernelRegistryPlugin" class="org.jboss.ejb3.kernel.JNDIKernelRegistryPlugin"/>
 </deployment>

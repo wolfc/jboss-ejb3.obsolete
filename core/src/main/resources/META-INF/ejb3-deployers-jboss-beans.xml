@@ -330,12 +330,7 @@
     class="org.jboss.ejb3.deployers.EjbMetadataJndiPolicyDecoratorDeployer" />
     
   <!-- EJB Reference Resolver -->
-  <bean name="org.jboss.ejb3.EjbReferenceResolver" class="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver">
-    <constructor factoryClass="org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolverFactory"
-                 factoryMethod="newInstance">
-      <parameter>org.jboss.ejb3.common.resolvers.plugins.FirstMatchEjbReferenceResolver</parameter>
-    </constructor>
-  </bean>
+  <bean name="org.jboss.ejb3.EjbReferenceResolver" class="org.jboss.ejb3.core.resolvers.ScopedEJBReferenceResolver"/>
   
   <!-- Add Annotation Plugins upon installation -->
   <bean name="org.jboss.ejb3.AddAnnotationPluginOnBeanAnnotationAdaptorCallbackService" 
