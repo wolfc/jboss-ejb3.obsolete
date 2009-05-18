@@ -57,24 +57,24 @@ import org.omg.CORBA.ORB;
 public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHandler<X>
 {
    private static final Logger log = Logger.getLogger(ResourceHandler.class);
-   
+
    private boolean checkEncInjectors;
 
    public ResourceHandler()
    {
       this(true);
    }
-   
+
    public ResourceHandler(boolean checkEncInjectors)
    {
       this.checkEncInjectors = checkEncInjectors;
    }
-   
+
    private static void createURLInjector(String encName, String mappedName, InjectionContainer container)
    {
       assert encName.length() > 0 : "encName is empty";
       assert mappedName.length() > 0 : "mappedName is empty";
-      
+
       // Create a URL from the mappedName
       try
       {
@@ -86,7 +86,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          throw new RuntimeException(e);
       }
    }
-   
+
    private static void loadEnvEntry(InjectionContainer container, Collection<EnvironmentEntryMetaData> envEntries)
    {
       for (EnvironmentEntryMetaData envEntry : envEntries)
@@ -172,7 +172,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                else if (ORB.class.getName().equals(envRef.getType()))
                {
                   mappedName = "java:comp/ORB";
-               }            
+               }
                else
                {
                   throw new RuntimeException("mapped-name is required for " + envRef.getResourceRefName() + " of deployment " + container.getIdentifier());
@@ -182,10 +182,20 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          }
          else
          {
-            if(envRef.getType().equals(URL.class.getName()))
+            String resType = envRef.getType();
+            if(resType != null && resType.equals(URL.class.getName()))
+            {
                createURLInjector(encName, mappedName, container);
+            }
             else
+            {
+               if (resType == null)
+               {
+                  log.warn("EJBTHREE-1823 : <res-type> not specified for the <resource-ref> " + envRef.getResourceRefName() + " in bean " + container.getIdentifier());
+
+               }
                container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, envRef.getMappedName(), "<resource-ref>"));
+            }
          }
          InjectionUtil.injectionTarget(encName, envRef, container, container.getEncInjections());
       }
@@ -285,7 +295,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          {
             throw new EJBException(e);
          }
-         
+
          String encName = "env/" + envRef.getResourceEnvRefName();
          if (container.getEncInjectors().containsKey(encName)) continue;
          if (mappedName == null || mappedName.equals(""))
@@ -396,7 +406,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
       if (ref == null) return;
 
       log.trace("method " + method + " has @Resource");
-      
+
       handlePropertyAnnotation(ref, new MethodBeanProperty(method), container, injectors);
       /*
       String encName = ref.name();
@@ -486,14 +496,14 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
       }
       */
    }
-   
+
    public void handleFieldAnnotations(Field field, InjectionContainer container, Map<AccessibleObject, Injector> injectors)
    {
       Resource ref = container.getAnnotation(Resource.class, field);
       if (ref == null) return;
 
       log.trace("field " + field + " has @Resource");
-      
+
       handlePropertyAnnotation(ref, new FieldBeanProperty(field), container, injectors);
       /*
       String encName = ref.name();
@@ -588,7 +598,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
       assert property != null;
       assert container != null;
       assert injectors != null;
-      
+
       String encName = ref.name();
       if (encName == null || encName.equals(""))
       {
@@ -601,13 +611,13 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
       }
 
       AccessibleObject accObj = property.getAccessibleObject();
-      
+
       Class<?> type = property.getType();
       if (!ref.type().equals(Object.class))
       {
          type = ref.type();
       }
-      
+
       if (type.equals(UserTransaction.class))
       {
          injectors.put(accObj, new UserTransactionPropertyInjector(property, container));
@@ -686,6 +696,6 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
             container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, mappedName, "@Resource"));
          }
          injectors.put(accObj, new JndiPropertyInjector(property, encName, container.getEnc()));
-      }      
+      }
    }
 }
