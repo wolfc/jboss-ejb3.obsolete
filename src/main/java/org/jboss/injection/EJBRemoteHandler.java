@@ -31,7 +31,6 @@ import javax.ejb.EJB;
 import javax.ejb.EJBs;
 import javax.naming.NameNotFoundException;
 
-import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.annotation.IgnoreDependency;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.javaee.spec.AbstractEJBReferenceMetaData;
@@ -126,6 +125,17 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if(mappedName != null && mappedName.length() == 0) mappedName = null;
       if (refClass != null && (refClass.equals(Object.class) || refClass.equals(void.class))) refClass = null;
       
+      if(container instanceof EJBInjectionContainer)
+      {
+         if(((EJBInjectionContainer) container).canResolveEJB())
+         {
+            addJNDIDependency(container, ((EJBInjectionContainer) container).resolveEJB(link, refClass, null));
+            return;
+         }
+         else
+            log.warn("EJBTHREE-1828: EJBInjectionContainer " + container + " is unconfigured, using legacy resolve");
+      }
+      
       if(mappedName == null)
          mappedName = getMappedName(encName, container);
       
@@ -161,6 +171,18 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       if (mappedName != null && mappedName.trim().equals(""))
          mappedName = null;
       
+      if(container instanceof EJBInjectionContainer)
+      {
+         if(((EJBInjectionContainer) container).canResolveEJB())
+         {
+            mappedName = ((EJBInjectionContainer) container).resolveEJB(link, refClass, null);
+            if(mappedName == null)
+               throw new IllegalStateException("unable to resolve " + link + " " + refClass);
+         }
+         else
+            log.warn("EJBTHREE-1828: EJBInjectionContainer " + container + " is unconfigured, using legacy resolve");
+      }
+      
       if(mappedName == null)
          mappedName = getMappedName(encName, container, fieldName);
 
@@ -181,43 +203,6 @@ public class EJBRemoteHandler<X extends RemoteEnvironment> extends EJBInjectionH
       }
 
       container.getEncInjectors().put(encName, injector);
-   }
-
-   public static EJBContainer getEjbContainer(EJB ref, InjectionContainer container, Class<?> memberType)
-   {
-      EJBContainer rtn = null;
-
-      if (ref.mappedName() != null && !"".equals(ref.mappedName()))
-      {
-         return null;
-      }
-
-      if (ref.beanName().equals("") && memberType == null)
-         throw new RuntimeException("For deployment " + container.getIdentifier() + "not enough information for @EJB.  Please fill out the beanName and/or businessInterface attributes");
-
-      Class<?> businessInterface = memberType;
-      if (!ref.beanInterface().getName().equals(Object.class.getName()))
-      {
-         businessInterface = ref.beanInterface();
-      }
-
-      if (ref.beanName().equals(""))
-      {
-         try
-         {
-            rtn = (EJBContainer) container.resolveEjbContainer(businessInterface);
-         }
-         catch (NameNotFoundException e)
-         {
-            log.warn("For deployment " + container.getIdentifier() + " could not find jndi binding based on interface only for @EJB(" + businessInterface.getName() + ") " + e.getMessage());
-         }
-      }
-      else
-      {
-         rtn = (EJBContainer) container.resolveEjbContainer(ref.beanName(), businessInterface);
-      }
-
-      return rtn;
    }
 
    public static String getJndiName(EJB ref, InjectionContainer container, Class<?> memberType)

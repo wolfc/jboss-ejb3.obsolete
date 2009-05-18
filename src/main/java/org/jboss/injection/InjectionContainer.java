@@ -66,8 +66,24 @@ public interface InjectionContainer
 
    Context getEnc();
 
+   /**
+    * @param link
+    * @param businessIntf
+    * @return
+    * @deprecated dependency resolving must not rely on runtime components
+    */
+   @Deprecated
    Container resolveEjbContainer(String link, Class<?> businessIntf);
+   
+   /**
+    * @param businessIntf
+    * @return
+    * @throws NameNotFoundException
+    * @deprecated dependency resolving must not rely on runtime components
+    */
+   @Deprecated
    Container resolveEjbContainer(Class<?> businessIntf) throws NameNotFoundException;
+   
    String getEjbJndiName(Class<?> businessInterface) throws NameNotFoundException;
    String getEjbJndiName(String link, Class<?> businessInterface);
    

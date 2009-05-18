@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 import javax.security.jacc.PolicyConfiguration;
 
+import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentContext;
 import org.jboss.deployers.structure.spi.helpers.AbstractDeploymentUnit;
 import org.jboss.ejb3.DependencyPolicy;
 import org.jboss.ejb3.DeploymentScope;
@@ -56,7 +57,7 @@ public class MockEjb3Deployment extends Ejb3Deployment
    {
       // TODO This should be replaced w/ a MockDeploymentUnit when completed, 
       // to support nested deployments, @see ejb3-test MockDeploymentUnit
-      this(unit, new AbstractDeploymentUnit());
+      this(unit, new AbstractDeploymentUnit(new AbstractDeploymentContext("test", "")));
    }
 
    public MockEjb3Deployment(DeploymentUnit unit, org.jboss.deployers.structure.spi.DeploymentUnit du)

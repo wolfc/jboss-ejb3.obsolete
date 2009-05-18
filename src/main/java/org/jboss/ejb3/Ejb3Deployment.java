@@ -48,6 +48,8 @@ import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.ejb3.cache.CacheFactoryRegistry;
 import org.jboss.ejb3.cache.persistence.PersistenceManagerFactoryRegistry;
 import org.jboss.ejb3.common.lang.ClassHelper;
+import org.jboss.ejb3.common.resolvers.spi.EjbReference;
+import org.jboss.ejb3.common.resolvers.spi.EjbReferenceResolver;
 import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
@@ -130,6 +132,8 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
 
    private org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit;
    
+   private EjbReferenceResolver ejbReferenceResolver;
+
    private PersistenceUnitDependencyResolver persistenceUnitDependencyResolver;
 
    /**
@@ -162,6 +166,12 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       this.deploymentUnit = deploymentUnit;
    }
 
+   @Deprecated
+   public boolean canResolveEJB()
+   {
+      return ejbReferenceResolver != null;
+   }
+   
    public JavaEEApplication getApplication()
    {
       return deploymentScope;
@@ -222,6 +232,12 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    public PersistenceManagerFactoryRegistry getPersistenceManagerFactoryRegistry()
    {
       return persistenceManagerFactoryRegistry;
+   }
+   
+   @Inject
+   public void setEJBReferenceResolver(EjbReferenceResolver resolver)
+   {
+      this.ejbReferenceResolver = resolver;
    }
    
    @Inject
@@ -760,6 +776,12 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       }
    }
 
+   public String resolveEJB(String link, Class<?> beanInterface, String mappedName)
+   {
+      EjbReference reference = new EjbReference(link, beanInterface.getName(), mappedName);
+      return ejbReferenceResolver.resolveEjb(deploymentUnit, reference);
+   }
+   
    public String resolveMessageDestination(String link)
    {
       return messageDestinationReferenceResolver.resolveMessageDestinationJndiName(deploymentUnit, link);

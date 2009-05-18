@@ -41,18 +41,32 @@ import org.jboss.virtual.VirtualFileFilter;
  */
 public class MockDeploymentUnit implements DeploymentUnit
 {
+   private org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit;
 
+   /**
+    * @deprecated supply a deploymentUnit
+    */
+   public MockDeploymentUnit()
+   {
+      // TODO Auto-generated constructor stub
+   }
+   
+   public MockDeploymentUnit(org.jboss.deployers.structure.spi.DeploymentUnit deploymentUnit)
+   {
+      this.deploymentUnit = deploymentUnit;
+   }
+   
    public Object addAttachment(String name, Object attachment)
    {
-      return null;
+      return deploymentUnit.addAttachment(name, attachment);
    }
    public Object getAttachment(String name)
    {
-      return null;
+      return deploymentUnit.getAttachment(name);
    }
    public Object removeAttachment(String name)
    {
-      return null;
+      return deploymentUnit.removeAttachment(name);
    }
 
    /* (non-Javadoc)
