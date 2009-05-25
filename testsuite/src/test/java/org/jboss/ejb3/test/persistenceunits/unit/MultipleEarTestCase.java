@@ -108,10 +108,21 @@ public class MultipleEarTestCase extends JBossTestCase
          log.info("Error message is: " + entryKey + ", looking for this to contain " + expectedEntryKey);
          assertTrue(entryKey.contains(expectedEntryKey));
 
-         // Check that it's Entity1 PU that cannot be resolved 
-         String message = entry.getValue().getMessage();
-         assertTrue(message.contains(PersistenceUnitHandler.ERROR_MESSAGE_FAILED_TO_RESOVLE_PU));
-         assertTrue(message.contains("Entity1"));
+         // Check that it's Entity1 PU that cannot be resolved
+         Throwable error = entry.getValue();
+         boolean foundExpectedError = false;
+         while (error != null)
+         {
+            String message = error.getMessage();
+            if (message.contains(PersistenceUnitHandler.ERROR_MESSAGE_FAILED_TO_RESOVLE_PU) && message.contains("Entity1"))
+            {
+               foundExpectedError = true;
+               break;
+            }
+            error = error.getCause();
+         }
+         assertTrue("Did not find the expected error message in the exception stacktrace",foundExpectedError);
+         
       }
    }
 
