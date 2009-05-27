@@ -1,0 +1,78 @@
+<!--
+  vi:ts=2:sw=2:expandtab
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <!-- Define Parent -->
+  <parent>
+    <groupId>org.jboss.ejb3</groupId>
+    <artifactId>jboss-ejb3-build</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../build/pom.xml</relativePath>
+  </parent>
+
+  <!-- Maven POM Model Version -->
+  <modelVersion>4.0.0</modelVersion>
+
+  <!-- Artifact Information -->
+  <groupId>org.jboss.ejb3</groupId>
+  <artifactId>jboss-ejb3-metrics-deployer</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>JBoss EJB 3.x Metrics Implementation</name>
+  <description>Metrics Implementation for EJB 3.x Containers</description>
+
+  <!-- Build Configuration -->
+  <build>
+    
+  </build>
+  
+  <properties>
+  
+    <!-- Versioning -->
+    <version.org.jboss.deployers.jboss_deployers_spi>2.0.0.CR2</version.org.jboss.deployers.jboss_deployers_spi>
+    <version.org.jboss.ejb3_jboss.ejb3.core>1.1.7-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.core>
+    <version.org.jboss.man_jboss.managed>2.1.0.SP1</version.org.jboss.man_jboss.managed>
+    <version.org.jboss.microcontainer_jboss.jmx.mc.int>2.2.0.M2</version.org.jboss.microcontainer_jboss.jmx.mc.int>
+  
+  </properties>
+
+  <dependencies>
+  
+    <!-- 
+    Dependencies: org.jboss.ejb3 
+    -->
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-core</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.core}</version>
+    </dependency>
+    
+    <!-- 
+    Dependencies: External to EJB3 
+    -->
+    
+    <dependency>
+      <groupId>org.jboss.deployers</groupId>
+      <artifactId>jboss-deployers-spi</artifactId>
+      <version>${version.org.jboss.deployers.jboss_deployers_spi}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.man</groupId>
+      <artifactId>jboss-managed</artifactId>
+      <version>${version.org.jboss.man_jboss.managed}</version>
+    </dependency>
+    
+    <!-- For compilation -->
+    <dependency>
+      <groupId>org.jboss.microcontainer</groupId>
+      <artifactId>jboss-jmx-mc-int</artifactId>
+      <version>${version.org.jboss.microcontainer_jboss.jmx.mc.int}</version>
+    </dependency>
+    
+  </dependencies>
+</project>
