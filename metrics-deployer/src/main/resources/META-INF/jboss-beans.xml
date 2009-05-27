@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+  <!-- Define the EJB3 Metrics Deployer -->
+  <bean name="org.jboss.ejb3.Ejb3MetricsDeployer"
+    class="org.jboss.ejb3.metrics.deployer.Ejb3MetricsDeployer" />
+
+</deployment>

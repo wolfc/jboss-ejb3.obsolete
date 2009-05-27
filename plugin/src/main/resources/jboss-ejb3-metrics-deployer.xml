@@ -1,0 +1,18 @@
+<!-- 
+   vi:ts=3:sw:expandtab
+-->
+<project name="jboss-ejb3-metrics-deployer" default="install">
+  <import file="setup.xml"/>
+
+  <target name="install">
+     <copy file="lib/jboss-ejb3-metrics-deployer.jar" todir="${jboss.home}/server/default/deployers" verbose="${verbose}"/>
+     <copy file="lib/jboss-ejb3-metrics-deployer.jar" todir="${jboss.home}/server/all/deployers" verbose="${verbose}"/>
+     <copy file="lib/jboss-ejb3-metrics-deployer.jar" todir="${jboss.home}/server/standard/deployers" verbose="${verbose}"/>
+  </target>
+
+  <target name="uninstall">
+     <delete file="${jboss.home}/server/default/deployers/jboss-ejb3-metrics-deployer.jar" verbose="${verbose}"/>
+     <delete file="${jboss.home}/server/all/deployers/jboss-ejb3-endpoint-metrics.jar" verbose="${verbose}"/>
+     <delete file="${jboss.home}/server/standard/deployers/jboss-ejb3-metrics-deployer.jar" verbose="${verbose}"/>
+  </target>
+</project>

@@ -55,6 +55,8 @@
     <module>interceptors</module>
     <!-- <module>locator</module> -->
     <module>metadata</module>
+    <module>metrics-deployer</module>
+    <module>metrics-spi</module>
     <module>mc-int</module>
     <module>plugin</module>
     <module>pool</module>

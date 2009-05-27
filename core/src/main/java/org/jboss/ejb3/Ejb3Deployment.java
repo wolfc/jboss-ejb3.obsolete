@@ -55,6 +55,7 @@ import org.jboss.ejb3.javaee.JavaEEComponent;
 import org.jboss.ejb3.javaee.JavaEEComponentHelper;
 import org.jboss.ejb3.javaee.JavaEEModule;
 import org.jboss.ejb3.metadata.JBossSessionGenericWrapper;
+import org.jboss.ejb3.metrics.spi.SessionMetrics;
 import org.jboss.ejb3.pool.PoolFactoryRegistry;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.factory.RemoteProxyFactoryRegistry;
@@ -135,6 +136,11 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    private EjbReferenceResolver ejbReferenceResolver;
 
    private PersistenceUnitDependencyResolver persistenceUnitDependencyResolver;
+   
+   /**
+    * Metrics used in Session Beans
+    */
+   private SessionMetrics metrics;
 
    /**
     * Do not deploy persistence unit anymore.
@@ -264,6 +270,22 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
    public void setPoolFactoryRegistry(PoolFactoryRegistry poolFactoryRegistry)
    {
       this.poolFactoryRegistry = poolFactoryRegistry;
+   }
+   
+   /**
+    * @return the metrics
+    */
+   public SessionMetrics getMetrics()
+   {
+      return metrics;
+   }
+
+   /**
+    * @param metrics the metrics to set
+    */
+   public void setMetrics(final SessionMetrics metrics)
+   {
+      this.metrics = metrics;
    }
 
    /**
