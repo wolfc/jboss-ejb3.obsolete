@@ -21,7 +21,9 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
-import org.jboss.ejb3.metrics.spi.SessionMetrics;
+import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
+import org.jboss.ejb3.pool.Pool;
+import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.managed.api.annotation.ManagementComponent;
 import org.jboss.managed.api.annotation.ManagementObject;
 import org.jboss.managed.api.annotation.ManagementProperties;
@@ -29,16 +31,17 @@ import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
 
 /**
- * BasicSessionMetrics
+ * BasicStatelessSessionInstanceMetrics
  * 
- * Threadsafe implementation of a session metrics collector.
- * Additionally exposed as a management object
+ * Threadsafe implementation of a SLSB instance
+ * metrics collector.  Additionally exposed as a 
+ * management object.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Some test", componentType = @ManagementComponent(type = "MCBean", subtype = "*"))
-public class BasicSessionMetrics implements SessionMetrics
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateless Session Bean Instance Metrics", componentType = @ManagementComponent(type = "MCBean", subtype = "*"))
+public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetrics
 {
 
    // --------------------------------------------------------------------------------||
@@ -46,34 +49,31 @@ public class BasicSessionMetrics implements SessionMetrics
    // --------------------------------------------------------------------------------||
 
    /**
-    * Number of bean instances in the underlying pool/cache
-    * available for service.  Synchronized on "this".  
+    * Underlying Container through which we'll get the metrics
     */
-   private int availableCount;
+   private StatelessContainer slsb;
+
+   // --------------------------------------------------------------------------------||
+   // Constructor --------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
 
    /**
-    * Number of bean instances created for this EJB.
-    * Synchronized on "this".
+    * Constructor
+    * 
+    * @param slsb The underlying container
+    * @throws IllegalArgumentException If the underlying container is not supplied
     */
-   private int createCount;
+   public BasicStatelessSessionInstanceMetrics(final StatelessContainer slsb) throws IllegalArgumentException
+   {
+      // Precondition check
+      if (slsb == null)
+      {
+         throw new IllegalArgumentException("Underlying container was null");
+      }
 
-   /**
-    * Number of bean instances in the underlying 
-    * pool/cache.  Synchronized on "this".
-    */
-   private int currentSize;
-
-   /**
-    * Size of the underlying instance pool/cache
-    * at its highest.  Synchronized on "this".
-    */
-   private int maxSize;
-
-   /**
-    * Number of bean instances removed from the
-    * underlying pool/cache.  Synchronized on "this".
-    */
-   private int removeCount;
+      // Set
+      this.setSlsb(slsb);
+   }
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
@@ -83,89 +83,72 @@ public class BasicSessionMetrics implements SessionMetrics
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getAvailableCount()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public synchronized int getAvailableCount()
+   public int getAvailableCount()
    {
-      return this.availableCount;
+      return this.getPool().getAvailableCount();
    }
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCreateCount()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public synchronized int getCreateCount()
+   public int getCreateCount()
    {
-      return this.createCount;
+      return this.getPool().getCreateCount();
    }
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCurrentSize()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public synchronized int getCurrentSize()
+   public int getCurrentSize()
    {
-      return this.currentSize;
+      return this.getPool().getCurrentSize();
    }
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getMaxSize()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public synchronized int getMaxSize()
+   public int getMaxSize()
    {
-      return this.maxSize;
+      return this.getPool().getMaxSize();
    }
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getRemoveCount()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public synchronized int getRemoveCount()
+   public int getRemoveCount()
    {
-      return this.removeCount;
+      return this.getPool().getRemoveCount();
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#setAvailableCount(int)
+   // --------------------------------------------------------------------------------||
+   // Accessors / Mutators -----------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /**
+    * Obtains the underlying pool
     */
-   public synchronized void setAvailableCount(final int availableCount)
+   private Pool getPool()
    {
-      this.availableCount = availableCount;
+      return this.getSlsb().getPool();
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#setCreateCount(int)
+   /**
+    * @return the slsb
     */
-   public synchronized void setCreateCount(final int createCount)
+   private StatelessContainer getSlsb()
    {
-      this.createCount = createCount;
+      return slsb;
    }
 
-   /*
-    * (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#setCurrentSize(int)
+   /**
+    * @param slsb the slsb to set
     */
-   public synchronized void setCurrentSize(final int currentSize)
+   private void setSlsb(final StatelessContainer slsb)
    {
-      this.currentSize = currentSize;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#setMaxSize(int)
-    */
-   public synchronized void setMaxSize(final int maxSize)
-   {
-      this.maxSize = maxSize;
-   }
-
-   /*
-    * (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#setRemoveCount(int)
-    */
-   public synchronized void setRemoveCount(final int removeCount)
-   {
-      this.removeCount = removeCount;
+      this.slsb = slsb;
    }
 }

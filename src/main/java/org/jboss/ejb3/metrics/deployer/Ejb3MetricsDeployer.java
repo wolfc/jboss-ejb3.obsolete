@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
+import java.util.Collection;
+
 import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
 import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.spi.BeanMetaData;
@@ -28,12 +30,22 @@ import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.helpers.AbstractSimpleRealDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
+import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.metrics.spi.SessionMetrics;
+import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
+import org.jboss.ejb3.session.SessionContainer;
+import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.ejb3.stateless.StatelessContainer;
+import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.logging.Logger;
 
 /**
  * Ejb3MetricsDeployer
+ * 
+ * Creates ManagedObject attachments to the current EJB3 deployment
+ * for Session Bean metrics.
+ * 
+ * EJBTHREE-1839
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
@@ -60,6 +72,18 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
     * for the metrics POJO
     */
    private static final String BEAN_NAME_METRICS_SUFFIX = "-metrics";
+
+   /**
+    * Suffix to append to the Deployment name in order to create a unique bind name 
+    * for the instance metrics POJO
+    */
+   private static final String BEAN_NAME_METRICS_SUFFIX_INSTANCE = BEAN_NAME_METRICS_SUFFIX + "-instance";
+
+   /**
+    * Suffix to append to the Deployment name in order to create a unique bind name 
+    * for the invocation metrics POJO
+    */
+   private static final String BEAN_NAME_METRICS_SUFFIX_INVOCATION = BEAN_NAME_METRICS_SUFFIX + "-invocation";
 
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
@@ -106,26 +130,108 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
          log.trace("Deploying EJB3 Session metrics for : " + du);
       }
 
-      // Make a new metrics definition
-      final String metricsBeanName = deployment.getName() + BEAN_NAME_METRICS_SUFFIX;
-      final SessionMetrics metrics = new BasicSessionMetrics();
-      final BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(metricsBeanName, metrics.getClass().getName());
-      bmdb.setConstructorValue(new AlreadyInstantiated(metrics));
-      final BeanMetaData bean = bmdb.getBeanMetaData();
+      // Get out all EJB3 Containers
+      final Collection<Container> containers = deployment.getEjbContainers().values();
+      if (containers != null)
+      {
+         // For each EJB Container
+         for (final Container container : containers)
+         {
+            // Session Containers
+            if (container instanceof SessionContainer)
+            {
 
-      // Add the attachment
-      du.addAttachment(BeanMetaData.class, bean);
+               // Cast
+               final SessionContainer sessionContainer = (SessionContainer) container;
 
-      // Set metrics upon the deployment
-      deployment.setMetrics(metrics);
-      log.debug("Set EJB3 metrics upon " + du);
+               // Get the invocation stats
+               final InvocationStatistics stats = sessionContainer.getInvokeStats();
+               if (stats == null)
+               {
+                  throw new IllegalStateException("Invocation statistics was null");
+               }
+               final ManagedInvocationStatisticsWrapper wrapper = new ManagedInvocationStatisticsWrapper(stats);
+
+               // Attach to the DU
+               final String invocationBeanName = sessionContainer.getName() + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
+               this.attach(wrapper, invocationBeanName, du);
+
+               // SLSB
+               if (sessionContainer instanceof StatelessContainer)
+               {
+                  // Cast
+                  final StatelessContainer slsb = (StatelessContainer) sessionContainer;
+
+                  // Make new metrics
+                  final SessionInstanceMetrics metrics = new BasicStatelessSessionInstanceMetrics(slsb);
+
+                  // Attach to the DU
+                  final String beanName = slsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
+                  this.attach(metrics, beanName, du);
+               }
+
+               // SFSB
+               else if (sessionContainer instanceof StatefulContainer)
+               {
+                  // Cast
+                  final StatefulContainer sfsb = (StatefulContainer) sessionContainer;
+
+                  // Make new metrics
+                  final SessionInstanceMetrics metrics = new BasicStatefulSessionInstanceMetrics(sfsb);
+
+                  // Attach to the DU
+                  final String beanName = sfsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
+                  this.attach(metrics, beanName, du);
+               }
+
+            }
+         }
+      }
 
       // Set a flag showing we were here as the output
       du.addAttachment(NAME_OUTPUT, true, Boolean.class);
    }
 
    // ------------------------------------------------------------------------------||
-   // Required Implementations -----------------------------------------------------||
+   // Internal Helper Methods -----------------------------------------------------||
+   // ------------------------------------------------------------------------------||
+
+   /**
+    * Attaches the specified object to the specified DeploymentUnit
+    * 
+    * @param attachment
+    * @param beanName
+    * @param du
+    * @throws IllegalArgumentException If any argument is not specified
+    */
+   private void attach(final Object attachment, final String beanName, final DeploymentUnit du)
+         throws IllegalArgumentException
+   {
+      // Precondition Checks
+      if (attachment == null)
+      {
+         throw new IllegalArgumentException("metrics is null");
+      }
+      if (du == null)
+      {
+         throw new IllegalArgumentException("Deployment Unit is null");
+      }
+
+      // Make a new metrics definition
+      final BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(beanName, attachment.getClass().getName());
+      bmdb.setConstructorValue(new AlreadyInstantiated(attachment));
+      final BeanMetaData bean = bmdb.getBeanMetaData();
+
+      // Add the attachment
+      du.addAttachment(BeanMetaData.class, bean);
+      if (log.isTraceEnabled())
+      {
+         log.trace("Added metrics attachment to " + du + ": " + bean);
+      }
+   }
+
+   // ------------------------------------------------------------------------------||
+   // Inner Classes ----------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
    /**
