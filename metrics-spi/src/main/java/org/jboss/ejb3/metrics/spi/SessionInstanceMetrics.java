@@ -22,14 +22,16 @@
 package org.jboss.ejb3.metrics.spi;
 
 /**
- * SessionMetrics
+ * SessionInstanceMetrics
  * 
- * Represents metrics of any type of EJB 3.x Session Bean
+ * Represents backing instance metrics of any type of 
+ * EJB 3.x Session Bean, typically targeting the underlying 
+ * instance pool or cache
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public interface SessionMetrics
+public interface SessionInstanceMetrics
 {
    // --------------------------------------------------------------------------------||
    // Contracts ----------------------------------------------------------------------||
@@ -44,15 +46,6 @@ public interface SessionMetrics
    int getCurrentSize();
 
    /**
-    * Sets the current size of the underlying 
-    * pool/cache of bean instances
-    * 
-    * @param currentSize
-    * @throws IllegalArgumentException If the count is < 0
-    */
-   void setCurrentSize(int currentSize) throws IllegalArgumentException;
-
-   /**
     * Obtains the number of instances created for this EJB
     * 
     * @return
@@ -60,27 +53,11 @@ public interface SessionMetrics
    int getCreateCount();
 
    /**
-    * Sets the number of instances created for this EJB
-    * 
-    * @param createCount
-    * @throws IllegalArgumentException If the count is < 0
-    */
-   void setCreateCount(int createCount) throws IllegalArgumentException;
-
-   /**
     * Obtains the number of instances removed for this EJB
     * 
     * @return
     */
    int getRemoveCount();
-
-   /**
-    * Sets the number of instances removed for this EJB
-    * 
-    * @param removeCount
-    * @throws IllegalArgumentException If the count is < 0
-    */
-   void setRemoveCount(int removeCount) throws IllegalArgumentException;
 
    /**
     * Obtains the number of instances currently available for 
@@ -91,28 +68,10 @@ public interface SessionMetrics
    int getAvailableCount();
 
    /**
-    * Sets the number of instances currently available for 
-    * service for this EJB
-    * 
-    * @param availableCount
-    * @throws IllegalArgumentException If the count is < 0
-    */
-   void setAvailableCount(int availableCount) throws IllegalArgumentException;
-
-   /**
     * Obtains the size of the underlying instance pool/cache
     * at it highest 
     * 
     * @return
     */
    int getMaxSize();
-
-   /**
-    * Sets the size of the underlying instance pool/cache
-    * at it highest 
-    * 
-    * @param maxSize
-    * @throws IllegalArgumentException If the count is < 0
-    */
-   void setMaxSize(int maxSize) throws IllegalArgumentException;
 }
