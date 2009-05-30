@@ -39,7 +39,7 @@ import org.jboss.managed.api.annotation.ViewUse;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Session Bean Invocation Metrics", componentType = @ManagementComponent(type = "MCBean", subtype = "*"))
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Session Bean Invocation Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "Session"))
 public class ManagedInvocationStatisticsWrapper
 {
    // --------------------------------------------------------------------------------||

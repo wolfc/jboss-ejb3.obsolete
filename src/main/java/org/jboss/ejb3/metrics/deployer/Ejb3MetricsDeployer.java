@@ -155,7 +155,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                // Attach to the DU
                final String invocationBeanName = sessionContainer.getName() + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
                this.attach(wrapper, invocationBeanName, du);
-               log.debug("Attached invocation stats for :" + invocationBeanName);
+               log.debug("Attached invocation stats for: " + invocationBeanName);
 
                // SLSB
                if (sessionContainer instanceof StatelessContainer)
@@ -169,7 +169,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   // Attach to the DU
                   final String beanName = slsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
                   this.attach(metrics, beanName, du);
-                  log.debug("Attached metrics stats for :" + beanName);
+                  log.debug("Attached metrics stats for: " + beanName);
                }
 
                // SFSB
@@ -184,7 +184,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   // Attach to the DU
                   final String beanName = sfsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
                   this.attach(metrics, beanName, du);
-                  log.debug("Attached metrics stats for :" + beanName);
+                  log.debug("Attached metrics stats for: " + beanName);
                }
 
             }
