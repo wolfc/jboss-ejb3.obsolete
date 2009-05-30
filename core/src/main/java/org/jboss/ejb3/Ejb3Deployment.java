@@ -387,7 +387,7 @@ public abstract class Ejb3Deployment extends ServiceMBeanSupport
       return (Container) ejbContainers.get(name);
    }
 
-   public java.util.Map<ObjectName,Container> getEjbContainers()
+   public java.util.Map getEjbContainers()
    {
       return ejbContainers;
    }
