@@ -26,6 +26,7 @@ import java.util.Map;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.managed.api.annotation.ManagementComponent;
 import org.jboss.managed.api.annotation.ManagementObject;
+import org.jboss.managed.api.annotation.ManagementOperation;
 import org.jboss.managed.api.annotation.ManagementProperties;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
@@ -84,6 +85,16 @@ public class ManagedInvocationStatisticsWrapper
    public Map getStats()
    {
       return delegate.getStats();
+   }
+
+   /**
+    * 
+    * @see org.jboss.ejb3.statistics.InvocationStatistics#resetStats()
+    */
+   @ManagementOperation
+   public void resetStats()
+   {
+      delegate.resetStats();
    }
 
    // --------------------------------------------------------------------------------||
