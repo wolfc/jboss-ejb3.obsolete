@@ -27,7 +27,7 @@
   <properties>
   
     <!-- Versioning -->
-    <version.org.jboss.deployers.jboss_deployers_spi>2.0.0.CR2</version.org.jboss.deployers.jboss_deployers_spi>
+    <version.org.jboss.deployers.jboss_deployers_spi>2.0.7.GA</version.org.jboss.deployers.jboss_deployers_spi>
     <version.org.jboss.ejb3_jboss.ejb3.core>1.1.6</version.org.jboss.ejb3_jboss.ejb3.core>
     <version.org.jboss.ejb3_jboss.ejb3.metrics.spi>1.0.0-alpha-1</version.org.jboss.ejb3_jboss.ejb3.metrics.spi>
     <version.org.jboss.man_jboss.managed>2.1.0.SP1</version.org.jboss.man_jboss.managed>

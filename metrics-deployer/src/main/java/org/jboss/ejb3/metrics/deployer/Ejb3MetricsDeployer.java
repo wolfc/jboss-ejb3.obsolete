@@ -21,14 +21,20 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.jboss.beans.metadata.plugins.AbstractBeanMetaData;
 import org.jboss.beans.metadata.plugins.AbstractConstructorMetaData;
 import org.jboss.beans.metadata.plugins.AbstractValueMetaData;
 import org.jboss.beans.metadata.spi.BeanMetaData;
-import org.jboss.beans.metadata.spi.builder.BeanMetaDataBuilder;
+import org.jboss.beans.metadata.spi.BeanMetaDataFactory;
 import org.jboss.deployers.spi.DeploymentException;
 import org.jboss.deployers.spi.deployer.helpers.AbstractSimpleRealDeployer;
+import org.jboss.deployers.spi.deployer.managed.ManagedObjectCreator;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
@@ -37,7 +43,12 @@ import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
 import org.jboss.ejb3.statistics.InvocationStatistics;
+import org.jboss.kernel.plugins.deployment.AbstractKernelDeployment;
+import org.jboss.kernel.spi.deployment.KernelDeployment;
 import org.jboss.logging.Logger;
+import org.jboss.managed.api.ManagedObject;
+import org.jboss.managed.api.factory.ManagedObjectFactory;
+import org.jboss.metadata.spi.MetaData;
 
 /**
  * Ejb3MetricsDeployer
@@ -51,6 +62,7 @@ import org.jboss.logging.Logger;
  * @version $Revision: $
  */
 public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployment>
+   implements ManagedObjectCreator
 {
 
    // ------------------------------------------------------------------------------||
@@ -85,6 +97,11 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
     */
    private static final String BEAN_NAME_METRICS_SUFFIX_INVOCATION = BEAN_NAME_METRICS_SUFFIX + "-invocation";
 
+   /** 
+    * The managed object factory.
+    */
+   private ManagedObjectFactory managedObjectFactory = ManagedObjectFactory.getInstance();
+   
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -96,7 +113,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
    {
       // Invoke super
       super(Ejb3Deployment.class);
-
+      
       // Output is a flag upon which other deployers may rely
       this.addOutput(NAME_OUTPUT);
    }
@@ -134,6 +151,10 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
       final Collection<Container> containers = deployment.getEjbContainers().values();
       if (containers != null)
       {
+         final AbstractKernelDeployment kernelDeployment = new AbstractKernelDeployment();
+         List<BeanMetaDataFactory> beanFactories = new ArrayList<BeanMetaDataFactory>();
+         kernelDeployment.setBeanFactories(beanFactories);
+         
          // For each EJB Container
          for (final Container container : containers)
          {
@@ -152,9 +173,9 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                }
                final ManagedInvocationStatisticsWrapper wrapper = new ManagedInvocationStatisticsWrapper(stats);
 
-               // Attach to the DU
+               // Add to beanFactories
                final String invocationBeanName = sessionContainer.getName() + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
-               this.attach(wrapper, invocationBeanName, du);
+               this.attach(wrapper, invocationBeanName, beanFactories);
                log.debug("Attached invocation stats for: " + invocationBeanName);
 
                // SLSB
@@ -166,9 +187,9 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   // Make new metrics
                   final SessionInstanceMetrics metrics = new BasicStatelessSessionInstanceMetrics(slsb);
 
-                  // Attach to the DU
+                  // Add to beanFactories
                   final String beanName = slsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
-                  this.attach(metrics, beanName, du);
+                  this.attach(metrics, beanName, beanFactories);
                   log.debug("Attached metrics stats for: " + beanName);
                }
 
@@ -181,33 +202,56 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   // Make new metrics
                   final SessionInstanceMetrics metrics = new BasicStatefulSessionInstanceMetrics(sfsb);
 
-                  // Attach to the DU
+                  // Add to beanFactories
                   final String beanName = sfsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
-                  this.attach(metrics, beanName, du);
+                  this.attach(metrics, beanName, beanFactories);
                   log.debug("Attached metrics stats for: " + beanName);
                }
 
             }
          }
+         // 
+         du.addAttachment(NAME_OUTPUT, kernelDeployment, KernelDeployment.class);
       }
 
-      // Set a flag showing we were here as the output
-      du.addAttachment(NAME_OUTPUT, true, Boolean.class);
    }
 
+   /**
+    * Build the managed object for the ejb3 metrics.
+    */
+   public void build(DeploymentUnit unit, Set<String> attachmentNames,
+         Map<String, ManagedObject> managedObjects) throws DeploymentException
+   {
+      KernelDeployment deployment = unit.getAttachment(NAME_OUTPUT, KernelDeployment.class);
+      if(deployment != null)
+      {
+         for(BeanMetaData bmd : deployment.getBeans())
+         {
+            MetaData metaData = null;
+            DeploymentUnit compUnit = unit.getComponent(bmd.getName());
+            if(compUnit != null)
+               metaData = compUnit.getMetaData();
+            
+            ManagedObject mo = managedObjectFactory.initManagedObject(bmd, null, metaData, bmd.getName(), null);
+            if(mo != null)
+               managedObjects.put(bmd.getName(), mo);
+         }
+      }
+   }
+   
    // ------------------------------------------------------------------------------||
    // Internal Helper Methods -----------------------------------------------------||
    // ------------------------------------------------------------------------------||
 
    /**
-    * Attaches the specified object to the specified DeploymentUnit
+    * Attaches the specified object to the specified beanFactories
     * 
     * @param attachment
     * @param beanName
-    * @param du
+    * @param beanFactories
     * @throws IllegalArgumentException If any argument is not specified
     */
-   private void attach(final Object attachment, final String beanName, final DeploymentUnit du)
+   private void attach(final Object attachment, final String beanName, final List<BeanMetaDataFactory> beanFactories)
          throws IllegalArgumentException
    {
       // Precondition Checks
@@ -215,55 +259,15 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
       {
          throw new IllegalArgumentException("metrics is null");
       }
-      if (du == null)
-      {
-         throw new IllegalArgumentException("Deployment Unit is null");
-      }
 
-      // Make a new metrics definition
-      final BeanMetaDataBuilder bmdb = BeanMetaDataBuilder.createBuilder(beanName, attachment.getClass().getName());
-      bmdb.setConstructorValue(new AlreadyInstantiated(attachment));
-      final BeanMetaData bean = bmdb.getBeanMetaData();
-
-      // Add the attachment
-      du.addAttachment(beanName, bean, BeanMetaData.class);
-      if (log.isTraceEnabled())
-      {
-         log.trace("Added metrics attachment to " + du + ": " + bean);
-      }
-   }
-
-   // ------------------------------------------------------------------------------||
-   // Inner Classes ----------------------------------------------------------------||
-   // ------------------------------------------------------------------------------||
-
-   /**
-    * Constructor metadata which uses an underlying bean already 
-    * instanciated.
-    * 
-    * @author Scott Stark
-    */
-   private static class AlreadyInstantiated extends AbstractConstructorMetaData
-   {
-      private static final long serialVersionUID = 1L;
-
-      private Object bean;
-
-      public class Factory
-      {
-         public Object create()
-         {
-            return bean;
-         }
-      }
-
-      public AlreadyInstantiated(Object bean)
-      {
-         this.bean = bean;
-         this.setFactory(new AbstractValueMetaData(new Factory()));
-         this.setFactoryClass(Factory.class.getName());
-         this.setFactoryMethod("create");
-      }
+      // Create the BeanMetaData manually, as
+      // BeanMetaDataBuilder.setConstructor is doing some nonsense
+      AbstractBeanMetaData bmd = new AbstractBeanMetaData(beanName, attachment.getClass().getName()); 
+      AbstractConstructorMetaData cmd = new AbstractConstructorMetaData();
+      cmd.setValue(new AbstractValueMetaData(attachment));    
+      bmd.setConstructor(cmd);
+      // Add to beanFactories
+      beanFactories.add(bmd);
    }
 
 }
