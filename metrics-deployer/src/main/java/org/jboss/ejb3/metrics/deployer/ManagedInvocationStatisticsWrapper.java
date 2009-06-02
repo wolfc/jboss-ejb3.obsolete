@@ -97,6 +97,17 @@ public class ManagedInvocationStatisticsWrapper
       delegate.resetStats();
    }
 
+   /**
+    * Exposes the time, represented in milliseconds since the epoch, 
+    * that the stats were last reset
+    * @return
+    */
+   @ManagementOperation
+   public long getLastResetTime()
+   {
+      return delegate.lastResetTime;
+   }
+
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
