@@ -102,7 +102,7 @@ public class ManagedInvocationStatisticsWrapper
     * that the stats were last reset
     * @return
     */
-   @ManagementOperation
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
    public long getLastResetTime()
    {
       return delegate.lastResetTime;
