@@ -24,10 +24,11 @@ package org.jboss.ejb3.test.stateless.unit;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
+import junit.framework.Test;
+
 import org.jboss.ejb3.test.stateless.StatelessRemote;
 import org.jboss.logging.Logger;
 import org.jboss.test.JBossTestCase;
-import junit.framework.Test;
 
 
 /**
@@ -42,76 +43,77 @@ extends JBossTestCase
    {
       super(name);
    }
-   
+
    public void testDefaultJmxMetrics() throws Exception
    {
       MBeanServerConnection server = getServer();
       ObjectName testerName = new ObjectName("jboss.j2ee:jar=stateless-test.jar,name=DefaultPoolStatelessBean,service=EJB3");
-      
+
       int size = 0;
-      
+
       size = (Integer)server.getAttribute(testerName, "CurrentSize");
       assertEquals(0, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(0, size);
-      
+
       StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("DefaultPoolStatelessBean/remote");
       assertNotNull(stateless);
-      stateless.test();     
-      
+      stateless.test();
+
       size = (Integer)server.getAttribute(testerName, "CurrentSize");
       assertEquals(1, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "AvailableCount");
       assertEquals(30, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "MaxSize");
       assertEquals(30, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(1, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "RemoveCount");
       assertEquals(0, size);
-      
+
    }
-   
+
    public void testStrictMaxPoolJmxMetrics() throws Exception
    {
       MBeanServerConnection server = getServer();
       ObjectName testerName = new ObjectName("jboss.j2ee:jar=stateless-test.jar,name=StrictMaxPoolStatelessBean,service=EJB3");
       int size = 0;
-      
+
       size = (Integer)server.getAttribute(testerName, "CurrentSize");
       assertEquals(0, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(0, size);
-      
+
       StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("StrictMaxPoolStatelessBean/remote");
       assertNotNull(stateless);
-      stateless.test();     
-      
+      stateless.test();
+
       size = (Integer)server.getAttribute(testerName, "CurrentSize");
       assertEquals(1, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "AvailableCount");
       assertEquals(3, size);
-      
+
       size = (Integer)server.getAttribute(testerName, "MaxSize");
       assertEquals(3, size);
-      
-      size = (Integer)server.getAttribute(testerName, "CreateCount");
-      assertEquals(1, size);
-      
+
+      int createCount = (Integer)server.getAttribute(testerName, "CreateCount");
+      assertEquals(1, createCount);
+
       runConcurrentTests(20, 1);
-      
+
       int currentSize = (Integer)server.getAttribute(testerName, "CurrentSize");
-      assertEquals(1, size);
-      
+
       checkMetrics(server, testerName, currentSize, 3, 3, currentSize, 0);
-     
+
+      createCount = (Integer)server.getAttribute(testerName, "CreateCount");
+
       for (int i = 1 ; i <= 10 ; ++i)
       {
          try
@@ -126,22 +128,52 @@ extends JBossTestCase
             assertEquals(i, removeCount);
          }
       }
-      
-      runConcurrentTests(20, 1);
-      
+      //  New instances should have been created in the loop above,
+      // since 10 bean instances were discarded because of exception.
+      int createCountAfterExceptionOnBeanInstances = (Integer)server.getAttribute(testerName, "CreateCount");
+      assertTrue("New instances not created", createCountAfterExceptionOnBeanInstances > createCount);
+
+
+      // 10 method calls led to exceptions so 10 bean instances would be removed
+      int removedCount = (Integer)server.getAttribute(testerName, "RemoveCount");
+      assertEquals("Removed count does not match", 10, removedCount);
+
+      // current size (created - removed) should now be zero
+      // since all the created ones have been removed after exception
       currentSize = (Integer)server.getAttribute(testerName, "CurrentSize");
-      assertEquals(1, size);
-      
-      checkMetrics(server, testerName, currentSize, 3, 3, currentSize + 10, 10);
-      
+      assertEquals("Current size is incorrect", 0, currentSize);
+
+      // none of the instances are in use, so available count should be
+      // max (=3)
+      int availableCount = (Integer) server.getAttribute(testerName, "AvailableCount");
+      assertEquals("Available count does not match", 3, availableCount);
+
+
+      // one more round of concurrent invocations
+      runConcurrentTests(20, 1);
+
+      // again there should be no "inUse" instances and hence available count
+      // should be equal to max (=3)
+      availableCount = (Integer) server.getAttribute(testerName, "AvailableCount");
+      assertEquals("Available count not matching", 3, availableCount);
+
+      // some new instances should have been created in runconcurrent tests,
+      // since all the bean instances were earlier removed because of exception.
+      // We won't know the exact count because of the thread concurrency involved
+      // but the create count should definitely be greater than the earlier
+      // create count
+      createCount = (Integer)server.getAttribute(testerName, "CreateCount");
+      assertTrue("Create count does not match after concurrent test",createCount > createCountAfterExceptionOnBeanInstances);
+
+
       Runnable r = new Runnable()
       {
          public void run()
          {
             try
             {
-               StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("StrictMaxPoolStatelessBean/remote");                                            
-               stateless.delay();     
+               StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("StrictMaxPoolStatelessBean/remote");
+               stateless.delay();
             }
             catch (Exception e)
             {
@@ -149,54 +181,54 @@ extends JBossTestCase
             }
          }
       };
-      
+
       new Thread(r).start();
-      
+
       Thread.sleep(10 * 1000);
-      
+
       int maxSize = (Integer)server.getAttribute(testerName, "MaxSize");
       System.out.println("MaxSize=" + maxSize);
-      
-      int availableCount = (Integer)server.getAttribute(testerName, "AvailableCount");
+
+      availableCount = (Integer)server.getAttribute(testerName, "AvailableCount");
       System.out.println("AvailableCount=" + availableCount);
-     
+
       assertEquals(maxSize - 1, availableCount);
    }
-   
+
    protected void checkMetrics(MBeanServerConnection server, ObjectName testerName, int current, int available, int max, int create, int remove)
       throws Exception
    {
-      
+
       int currentSize = (Integer)server.getAttribute(testerName, "CurrentSize");
       System.out.println("CurrentSize=" + currentSize);
-      
+
       int availableCount = (Integer)server.getAttribute(testerName, "AvailableCount");
       System.out.println("AvailableCount=" + availableCount);
-      
+
       int maxSize = (Integer)server.getAttribute(testerName, "MaxSize");
       System.out.println("MaxSize=" + maxSize);
-      
+
       int createCount = (Integer)server.getAttribute(testerName, "CreateCount");
       System.out.println("CreateCount=" + createCount);
-      
+
       int removeCount = (Integer)server.getAttribute(testerName, "RemoveCount");
       System.out.println("RemoveCount=" + removeCount);
-      
+
       if (availableCount != maxSize)
       {
          System.out.println("Waiting to stabilize ... " + availableCount + "<" + maxSize);
          Thread.sleep(1 * 60 * 1000);
          availableCount = (Integer)server.getAttribute(testerName, "AvailableCount");
       }
-      
+
       assertEquals(current, currentSize);
       assertEquals(available, availableCount);
       assertEquals(max, maxSize);
       assertEquals(create, createCount);
       assertEquals(remove, removeCount);
-      
+
    }
-   
+
    protected void runConcurrentTests(int numThreads, int sleepSecs) throws Exception
    {
       for (int i = 0 ; i < numThreads ; ++i)
@@ -207,10 +239,10 @@ extends JBossTestCase
             {
                try
                {
-                  StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("StrictMaxPoolStatelessBean/remote");                              
+                  StatelessRemote stateless = (StatelessRemote)getInitialContext().lookup("StrictMaxPoolStatelessBean/remote");
                   for (int i = 0 ; i < 25 ; ++i)
-                  {                  
-                     stateless.test();     
+                  {
+                     stateless.test();
                   }
                }
                catch (Exception e)
@@ -219,11 +251,11 @@ extends JBossTestCase
                }
             }
          };
-         
+
          new Thread(r).start();
       }
-      
-      Thread.sleep(sleepSecs * 60 * 1000);  
+
+      Thread.sleep(sleepSecs * 60 * 1000);
    }
 
    public static Test suite() throws Exception
