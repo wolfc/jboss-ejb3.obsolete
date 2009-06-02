@@ -29,7 +29,8 @@
     into the AS
     
      -->
-    <version.org.jboss.ejb3_jboss.ejb3>1.1.7-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3>
+    <version.org.jboss.ejb3_jboss.ejb3>1.1.6</version.org.jboss.ejb3_jboss.ejb3>
+    <version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>1.0.0-alpha-3</version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>
     <version.org.jboss.ejb3_mc.int>1.0.1</version.org.jboss.ejb3_mc.int>
   
   </properties>
@@ -57,6 +58,14 @@
       <artifactId>jboss-ejb3-mc-int</artifactId>
       <version>${version.org.jboss.ejb3_mc.int}</version>
     </dependency>
+    
+    <!-- jboss-ejb3-metrics-deployer -->
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-metrics-deployer</artifactId>
+      <version>${version.org.jboss.ejb3_jboss.ejb3.metrics.deployer}</version>
+    </dependency>
+    
 
     <!-- All other dependencies -->
   
