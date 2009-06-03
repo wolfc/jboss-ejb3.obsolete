@@ -38,6 +38,7 @@ import org.jboss.deployers.spi.deployer.managed.ManagedObjectCreator;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
 import org.jboss.ejb3.session.SessionContainer;
@@ -159,12 +160,18 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
          for (final Container container : containers)
          {
             // Get the EJB Name
-            final String ejbName = container.getEjbName();
+            String ejbName = container.getEjbName();
+            final JavaEEApplication application = deployment.getApplication();
+            // If we're in an EAR
+            if (application != null)
+            {
+               // Prepend the EAR name
+               ejbName = application.getName() + "-" + ejbName;
+            }
 
             // Session Containers
             if (container instanceof SessionContainer)
             {
-
                // Cast
                final SessionContainer sessionContainer = (SessionContainer) container;
 
