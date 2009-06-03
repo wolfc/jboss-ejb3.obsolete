@@ -181,8 +181,10 @@ public class JBossMessageEndpointFactory implements MessageEndpointFactory
       TransactionManagementType mtype = TxUtil.getTransactionManagementType(container.getAdvisor());
       if (mtype == javax.ejb.TransactionManagementType.BEAN) return false;
 
-
-      TransactionAttribute attr = (TransactionAttribute)container.resolveAnnotation(method, TransactionAttribute.class);
+      // JBPAPP-1668: the method can be called by anybody using the interface method (== unadvised)
+      Method advisedMethod = container.getMethodInfo(method).getAdvisedMethod();
+      
+      TransactionAttribute attr = (TransactionAttribute)container.resolveAnnotation(advisedMethod, TransactionAttribute.class);
       if (attr == null)
       {
          attr =(TransactionAttribute)container.resolveAnnotation(TransactionAttribute.class);
