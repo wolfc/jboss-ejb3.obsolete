@@ -85,7 +85,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#getKeepAliveMillis()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of milliseconds the instance will keep-alive")
    public int getKeepAliveMillis()
    {
       return this.getMBean().getKeepAliveMillis();
@@ -94,7 +94,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#getMaxMessages()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The maximum number of messages")
    public int getMaxMessages()
    {
       return this.getMBean().getMaxMessages();
@@ -103,7 +103,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#getMaxPoolSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The maximum number of backing objects allowed in the instance pool")
    public int getMaxPoolSize()
    {
       return this.getMBean().getMaxPoolSize();
@@ -112,7 +112,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#getMinPoolSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The minimum number of backing objects allowed in the instance pool")
    public int getMinPoolSize()
    {
       return this.getMBean().getMinPoolSize();
@@ -121,7 +121,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#isDeliveryActive()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "If active delivery is enabled")
    public boolean isDeliveryActive()
    {
       return this.getMBean().isDeliveryActive();
@@ -130,7 +130,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#startDelivery()
     */
-   @ManagementOperation
+   @ManagementOperation(description = "Starts delivery to the MDB")
    public void startDelivery()
    {
       this.getMBean().startDelivery();
@@ -139,7 +139,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#stopDelivery()
     */
-   @ManagementOperation
+   @ManagementOperation(description = "Stops delivery to the MDB")
    public void stopDelivery()
    {
       this.getMBean().stopDelivery();
@@ -148,7 +148,7 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.ContainerDelegateWrapperMBean#getInvokeStats()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "Obtains the invocation statistics for this MDB")
    public InvocationStatistics getInvokeStats()
    {
       return this.getMBean().getInvokeStats();

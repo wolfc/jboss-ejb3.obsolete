@@ -82,7 +82,7 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getAvailableCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of slots available in the instance pool")
    public int getAvailableCount()
    {
       return this.getPool().getAvailableCount();
@@ -91,7 +91,7 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCreateCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of bean instances created")
    public int getCreateCount()
    {
       return this.getPool().getCreateCount();
@@ -100,7 +100,7 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCurrentSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The current number of bean instances in the backing pool for this SLSB")
    public int getCurrentSize()
    {
       return this.getPool().getCurrentSize();
@@ -109,7 +109,7 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getMaxSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The maxmimum size of the backing instance pool")
    public int getMaxSize()
    {
       return this.getPool().getMaxSize();
@@ -118,7 +118,7 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /* (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getRemoveCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of backing SLSB instances which have been removed")
    public int getRemoveCount()
    {
       return this.getPool().getRemoveCount();
