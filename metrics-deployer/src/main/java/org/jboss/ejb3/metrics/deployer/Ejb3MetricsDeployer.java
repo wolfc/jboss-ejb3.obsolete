@@ -61,8 +61,7 @@ import org.jboss.metadata.spi.MetaData;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployment>
-   implements ManagedObjectCreator
+public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployment> implements ManagedObjectCreator
 {
 
    // ------------------------------------------------------------------------------||
@@ -101,7 +100,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
     * The managed object factory.
     */
    private ManagedObjectFactory managedObjectFactory = ManagedObjectFactory.getInstance();
-   
+
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -113,7 +112,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
    {
       // Invoke super
       super(Ejb3Deployment.class);
-      
+
       // Output is a flag upon which other deployers may rely
       this.addOutput(NAME_OUTPUT);
    }
@@ -154,7 +153,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
          final AbstractKernelDeployment kernelDeployment = new AbstractKernelDeployment();
          List<BeanMetaDataFactory> beanFactories = new ArrayList<BeanMetaDataFactory>();
          kernelDeployment.setBeanFactories(beanFactories);
-         
+
          // For each EJB Container
          for (final Container container : containers)
          {
@@ -164,6 +163,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
 
                // Cast
                final SessionContainer sessionContainer = (SessionContainer) container;
+               final String ejbName = sessionContainer.getXml().getEjbName();
 
                // Get the invocation stats
                final InvocationStatistics stats = sessionContainer.getInvokeStats();
@@ -174,7 +174,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                final ManagedInvocationStatisticsWrapper wrapper = new ManagedInvocationStatisticsWrapper(stats);
 
                // Add to beanFactories
-               final String invocationBeanName = sessionContainer.getName() + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
+               final String invocationBeanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
                this.attach(wrapper, invocationBeanName, beanFactories);
                log.debug("Attached invocation stats for: " + invocationBeanName);
 
@@ -188,7 +188,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   final SessionInstanceMetrics metrics = new BasicStatelessSessionInstanceMetrics(slsb);
 
                   // Add to beanFactories
-                  final String beanName = slsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
+                  final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
                   this.attach(metrics, beanName, beanFactories);
                   log.debug("Attached metrics stats for: " + beanName);
                }
@@ -203,7 +203,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   final SessionInstanceMetrics metrics = new BasicStatefulSessionInstanceMetrics(sfsb);
 
                   // Add to beanFactories
-                  final String beanName = sfsb.getName() + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
+                  final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
                   this.attach(metrics, beanName, beanFactories);
                   log.debug("Attached metrics stats for: " + beanName);
                }
@@ -219,26 +219,26 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
    /**
     * Build the managed object for the ejb3 metrics.
     */
-   public void build(DeploymentUnit unit, Set<String> attachmentNames,
-         Map<String, ManagedObject> managedObjects) throws DeploymentException
+   public void build(DeploymentUnit unit, Set<String> attachmentNames, Map<String, ManagedObject> managedObjects)
+         throws DeploymentException
    {
       KernelDeployment deployment = unit.getAttachment(NAME_OUTPUT, KernelDeployment.class);
-      if(deployment != null)
+      if (deployment != null)
       {
-         for(BeanMetaData bmd : deployment.getBeans())
+         for (BeanMetaData bmd : deployment.getBeans())
          {
             MetaData metaData = null;
             DeploymentUnit compUnit = unit.getComponent(bmd.getName());
-            if(compUnit != null)
+            if (compUnit != null)
                metaData = compUnit.getMetaData();
-            
+
             ManagedObject mo = managedObjectFactory.initManagedObject(bmd, null, metaData, bmd.getName(), null);
-            if(mo != null)
+            if (mo != null)
                managedObjects.put(bmd.getName(), mo);
          }
       }
    }
-   
+
    // ------------------------------------------------------------------------------||
    // Internal Helper Methods -----------------------------------------------------||
    // ------------------------------------------------------------------------------||
@@ -262,9 +262,9 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
 
       // Create the BeanMetaData manually, as
       // BeanMetaDataBuilder.setConstructor is doing some nonsense
-      AbstractBeanMetaData bmd = new AbstractBeanMetaData(beanName, attachment.getClass().getName()); 
+      AbstractBeanMetaData bmd = new AbstractBeanMetaData(beanName, attachment.getClass().getName());
       AbstractConstructorMetaData cmd = new AbstractConstructorMetaData();
-      cmd.setValue(new AbstractValueMetaData(attachment));    
+      cmd.setValue(new AbstractValueMetaData(attachment));
       bmd.setConstructor(cmd);
       // Add to beanFactories
       beanFactories.add(bmd);
