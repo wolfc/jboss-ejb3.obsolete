@@ -33,7 +33,7 @@ import org.jboss.managed.api.annotation.ViewUse;
 /**
  * BasicStatelessSessionInstanceMetrics
  * 
- * Threadsafe implementation of a SLSB instance
+ * Implementation of a SLSB instance
  * metrics collector.  Additionally exposed as a 
  * management object.
  *
