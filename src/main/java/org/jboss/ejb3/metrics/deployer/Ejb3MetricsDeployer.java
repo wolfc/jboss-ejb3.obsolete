@@ -38,6 +38,7 @@ import org.jboss.deployers.spi.deployer.managed.ManagedObjectCreator;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
+import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
@@ -157,13 +158,15 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
          // For each EJB Container
          for (final Container container : containers)
          {
+            // Get the EJB Name
+            final String ejbName = container.getEjbName();
+
             // Session Containers
             if (container instanceof SessionContainer)
             {
 
                // Cast
                final SessionContainer sessionContainer = (SessionContainer) container;
-               final String ejbName = sessionContainer.getXml().getEjbName();
 
                // Get the invocation stats
                final InvocationStatistics stats = sessionContainer.getInvokeStats();
@@ -209,8 +212,23 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                }
 
             }
+            // MDB
+            else if (container instanceof MessagingContainer)
+            {
+               // Cast
+               final MessagingContainer mdb = (MessagingContainer) container;
+
+               // Make new metrics
+               final BasicMessageDrivenMetrics metrics = new BasicMessageDrivenMetrics(mdb);
+
+               // Add to beanFactories
+               final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
+               this.attach(metrics, beanName, beanFactories);
+               log.debug("Attached metrics stats for: " + beanName);
+            }
          }
-         // 
+
+         // Add the Kernel Attachment 
          du.addAttachment(NAME_OUTPUT, kernelDeployment, KernelDeployment.class);
       }
 
