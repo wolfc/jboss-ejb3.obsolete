@@ -83,7 +83,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.StatefulSessionInstanceMetrics#getCacheSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The size of the SFSB instance cache for currently active sessions")
    public int getCacheSize()
    {
       return this.getCache().getCacheSize();
@@ -93,7 +93,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.StatefulSessionInstanceMetrics#getTotalSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The total size of the SFSB instance cache, including passivated sessions")
    public int getTotalSize()
    {
       return this.getCache().getTotalSize();
@@ -103,7 +103,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.StatefulSessionInstanceMetrics#getPassivatedCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of sessions currently passivated")
    public int getPassivatedCount()
    {
       return this.getCache().getPassivatedCount();
@@ -113,7 +113,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionInstanceMetrics#getCreateCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of sessions created")
    public int getCreateCount()
    {
       return this.getCache().getCreateCount();
@@ -123,7 +123,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionInstanceMetrics#getRemoveCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of sessions removed")
    public int getRemoveCount()
    {
       return this.getCache().getRemoveCount();
@@ -133,7 +133,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionInstanceMetrics#getAvailableCount()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of sessions that may be added to the current cache")
    public int getAvailableCount()
    {
       return this.getCache().getAvailableCount();
@@ -143,7 +143,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionInstanceMetrics#getMaxSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The maximum size of the SFSB instance cache")
    public int getMaxSize()
    {
       return this.getCache().getMaxSize();
@@ -153,7 +153,7 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
     * (non-Javadoc)
     * @see org.jboss.ejb3.metrics.spi.SessionInstanceMetrics#getCurrentSize()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of sessions currently active")
    public int getCurrentSize()
    {
       return this.getCache().getCurrentSize();
