@@ -24,24 +24,21 @@ package org.jboss.ejb3.metrics.deployer;
 import java.util.Map;
 
 import org.jboss.ejb3.statistics.InvocationStatistics;
-import org.jboss.managed.api.annotation.ManagementComponent;
-import org.jboss.managed.api.annotation.ManagementObject;
 import org.jboss.managed.api.annotation.ManagementOperation;
-import org.jboss.managed.api.annotation.ManagementProperties;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
+import org.jboss.metatype.api.annotations.MetaMapping;
 
 /**
- * ManagedInvocationStatistics
+ * ManagedInvocationStatisticsSessionWrapperBase
  * 
- * Simple wrapper to delegate to the underlying invocation stats, 
- * exposing as a managed object
+ * Base class to to delegate to the underlying invocation stats, 
+ * exposing management properties and operations.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Session Bean Invocation Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "Session"))
-public class ManagedInvocationStatisticsWrapper
+class ManagedInvocationStatisticsSessionWrapperBase
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -62,7 +59,7 @@ public class ManagedInvocationStatisticsWrapper
     * @param delegate
     * @throws IllegalArgumentException If the delegate was not supplied
     */
-   public ManagedInvocationStatisticsWrapper(final InvocationStatistics delegate) throws IllegalArgumentException
+   ManagedInvocationStatisticsSessionWrapperBase(final InvocationStatistics delegate) throws IllegalArgumentException
    {
       // Precondition check
       if (delegate == null)
@@ -82,6 +79,7 @@ public class ManagedInvocationStatisticsWrapper
     * @see org.jboss.ejb3.statistics.InvocationStatistics#getStats()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   //@MetaMapping(value = InvocationStatisticMetaMapper.class)
    public Map getStats()
    {
       return delegate.getStats();

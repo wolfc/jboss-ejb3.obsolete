@@ -181,7 +181,7 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                {
                   throw new IllegalStateException("Invocation statistics was null");
                }
-               final ManagedInvocationStatisticsWrapper wrapper = new ManagedInvocationStatisticsWrapper(stats);
+               final ManagedInvocationStatisticsSessionWrapperBase wrapper = new ManagedInvocationStatisticsSessionWrapperBase(stats);
 
                // Add to beanFactories
                final String invocationBeanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
