@@ -34,7 +34,7 @@ import org.jboss.managed.api.annotation.ManagementProperties;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateless Session Bean Invocation Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SFSB"))
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateful Session Bean Invocation Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SFSB"))
 public class ManagedStatefulInvocationStatisticsWrapper extends ManagedInvocationStatisticsSessionWrapperBase
 {
 
