@@ -75,7 +75,8 @@
      -->
 
    <aspect name="InjectInterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InjectInterceptorsFactory" scope="PER_JOINPOINT"/>
-   <aspect name="InterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InterceptorsFactory" scope="PER_INSTANCE"/>
+   <!--  EJBTHREE-1841 No longer needed in core
+   <aspect name="InterceptorsFactory" factory="org.jboss.ejb3.interceptors.aop.InterceptorsFactory" scope="PER_INSTANCE"/> -->
    <aspect name="InvocationContextInterceptor" class="org.jboss.ejb3.interceptors.aop.InvocationContextInterceptor" scope="PER_VM"/>
 
    <!-- TODO: this is actually the bootstrap container -->
@@ -99,7 +100,8 @@
          <!-- TODO: we don't need invocation context here -->
          <!-- TODO: we do until we've seperated the post constructs -->
          <advice name="setup" aspect="InvocationContextInterceptor"/>
-         <advice name="invoke" aspect="InterceptorsFactory"/>
+         <!-- EJBTHREE-1841 No longer needed in core   
+         <advice name="invoke" aspect="InterceptorsFactory"/> -->
       </bind>
 
       <!-- Lifecycle Event Callbacks (EJB 3 12.4) -->
