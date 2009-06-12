@@ -300,9 +300,14 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
       AbstractConstructorMetaData cmd = new AbstractConstructorMetaData();
       cmd.setValue(new AbstractValueMetaData(attachment));
       bmd.setConstructor(cmd);
+
       // Add to beanFactories
+      if (log.isTraceEnabled())
+      {
+         log.debug("Attaching MC Bean with name \"" + beanName + "\": " + bmd);
+      }
       beanFactories.add(bmd);
-      log.info("Attaching MC Bean: " + beanName);
+
    }
 
 }
