@@ -76,7 +76,7 @@ public class EJB3EndpointDeployer extends AbstractSimpleRealDeployer<JBossMetaDa
       BeanMetaDataBuilder builder = BeanMetaDataBuilderFactory.createBuilder(name, EndpointImpl.class.getName());
       builder.addPropertyMetaData("container", builder.createInject(ejbBeanName));
       BeanMetaData bmd = builder.getBeanMetaData();
-      log.info("Deploy " + bmd);
+      log.debug("Deploy " + bmd);
       unit.addAttachment(BeanMetaData.class + ":" + name, bmd);
    }
    
