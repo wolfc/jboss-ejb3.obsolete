@@ -40,7 +40,6 @@ import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.mdb.MessagingContainer;
-import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
 import org.jboss.ejb3.stateless.StatelessContainer;
@@ -79,24 +78,6 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
     * Name of our output, a flag upon which other deployers may rely
     */
    public static final String NAME_OUTPUT = Ejb3MetricsDeployer.class.getName();
-
-   /**
-    * Suffix to append to the Deployment name in order to create a unique bind name 
-    * for the metrics POJO
-    */
-   private static final String BEAN_NAME_METRICS_SUFFIX = "-metrics";
-
-   /**
-    * Suffix to append to the Deployment name in order to create a unique bind name 
-    * for the instance metrics POJO
-    */
-   private static final String BEAN_NAME_METRICS_SUFFIX_INSTANCE = BEAN_NAME_METRICS_SUFFIX + "-instance";
-
-   /**
-    * Suffix to append to the Deployment name in order to create a unique bind name 
-    * for the invocation metrics POJO
-    */
-   private static final String BEAN_NAME_METRICS_SUFFIX_INVOCATION = BEAN_NAME_METRICS_SUFFIX + "-invocation";
 
    /** 
     * The managed object factory.
@@ -182,28 +163,18 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   throw new IllegalStateException("Invocation statistics was null");
                }
 
-               // Define invocation metrics bean name
-               final String invocationBeanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INVOCATION;
-
                // SLSB
                if (sessionContainer instanceof StatelessContainer)
                {
                   // Cast
                   final StatelessContainer slsb = (StatelessContainer) sessionContainer;
 
-                  // Make new instance metrics
-                  final SessionInstanceMetrics metrics = new BasicStatelessSessionInstanceMetrics(slsb);
-
-                  // Make new invocation metrics
-                  final ManagedInvocationStatisticsSessionWrapperBase invocationMetrics = new ManagedStatelessInvocationStatisticsWrapper(
-                        stats);
+                  // Make new metrics
+                  final BasicStatelessSessionMetrics metrics = new BasicStatelessSessionMetrics(stats, slsb);
 
                   // Add to beanFactories
-                  final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
-                  this.attach(metrics, beanName, beanFactories);
-                  log.debug("Attached metrics stats for: " + beanName);
-                  this.attach(invocationMetrics, invocationBeanName, beanFactories);
-                  log.debug("Attached invocation stats for: " + invocationBeanName);
+                  this.attach(metrics, ejbName, beanFactories);
+                  log.debug("Attached metrics for: " + ejbName);
                }
 
                // SFSB
@@ -213,18 +184,11 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   final StatefulContainer sfsb = (StatefulContainer) sessionContainer;
 
                   // Make new metrics
-                  final SessionInstanceMetrics metrics = new BasicStatefulSessionInstanceMetrics(sfsb);
-
-                  // Make new invocation metrics
-                  final ManagedInvocationStatisticsSessionWrapperBase invocationMetrics = new ManagedStatefulInvocationStatisticsWrapper(
-                        stats);
+                  final BasicStatefulSessionMetrics metrics = new BasicStatefulSessionMetrics(stats, sfsb);
 
                   // Add to beanFactories
-                  final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
-                  this.attach(metrics, beanName, beanFactories);
-                  log.debug("Attached metrics stats for: " + beanName);
-                  this.attach(invocationMetrics, invocationBeanName, beanFactories);
-                  log.debug("Attached invocation stats for: " + invocationBeanName);
+                  this.attach(metrics, ejbName, beanFactories);
+                  log.debug("Attached metrics for: " + ejbName);
                }
 
             }
@@ -238,9 +202,8 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                final BasicMessageDrivenMetrics metrics = new BasicMessageDrivenMetrics(mdb);
 
                // Add to beanFactories
-               final String beanName = ejbName + BEAN_NAME_METRICS_SUFFIX_INSTANCE;
-               this.attach(metrics, beanName, beanFactories);
-               log.debug("Attached metrics stats for: " + beanName);
+               this.attach(metrics, ejbName, beanFactories);
+               log.debug("Attached stats for: " + ejbName);
             }
          }
 

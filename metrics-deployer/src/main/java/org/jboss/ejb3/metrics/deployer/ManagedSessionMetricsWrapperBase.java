@@ -23,31 +23,36 @@ package org.jboss.ejb3.metrics.deployer;
 
 import java.util.Map;
 
+import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.managed.api.annotation.ManagementOperation;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
-import org.jboss.metatype.api.annotations.MetaMapping;
 
 /**
- * ManagedInvocationStatisticsSessionWrapperBase
+ * ManagedSessionMetricsWrapperBase
  * 
- * Base class to to delegate to the underlying invocation stats, 
- * exposing management properties and operations.
+ * Base class to to delegate to the underlying invocation stats and
+ * instance metrics, exposing management properties and operations.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-class ManagedInvocationStatisticsSessionWrapperBase
+abstract class ManagedSessionMetricsWrapperBase
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
+    * The underlying session container
+    */
+   private SessionContainer container;
+
+   /**
     * The delegate
     */
-   private InvocationStatistics delegate;
+   private InvocationStatistics invocationStats;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -56,18 +61,26 @@ class ManagedInvocationStatisticsSessionWrapperBase
    /**
     * Constructor
     * 
-    * @param delegate
-    * @throws IllegalArgumentException If the delegate was not supplied
+    * @param container
+    * @param invocationStats
+    * @throws IllegalArgumentException If the stats or EJB Name were not supplied
     */
-   ManagedInvocationStatisticsSessionWrapperBase(final InvocationStatistics delegate) throws IllegalArgumentException
+   ManagedSessionMetricsWrapperBase(final SessionContainer container, final InvocationStatistics invocationStats)
+         throws IllegalArgumentException
    {
       // Precondition check
-      if (delegate == null)
+      if (invocationStats == null)
       {
-         throw new IllegalArgumentException("Supplied delegate was null");
+         throw new IllegalArgumentException("Supplied invocation stats was null");
+      }
+      if (container == null)
+      {
+         throw new IllegalArgumentException("Container was null");
       }
 
-      this.setDelegate(delegate);
+      // Set properties
+      this.setInvocationStats(invocationStats);
+      this.setContainer(container);
    }
 
    // --------------------------------------------------------------------------------||
@@ -80,9 +93,9 @@ class ManagedInvocationStatisticsSessionWrapperBase
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
    //@MetaMapping(value = InvocationStatisticMetaMapper.class)
-   public Map getStats()
+   public Map getInvocationStats()
    {
-      return delegate.getStats();
+      return invocationStats.getStats();
    }
 
    /**
@@ -90,9 +103,9 @@ class ManagedInvocationStatisticsSessionWrapperBase
     * @see org.jboss.ejb3.statistics.InvocationStatistics#resetStats()
     */
    @ManagementOperation
-   public void resetStats()
+   public void resetInvocationStats()
    {
-      delegate.resetStats();
+      invocationStats.resetStats();
    }
 
    /**
@@ -101,21 +114,77 @@ class ManagedInvocationStatisticsSessionWrapperBase
     * @return
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   public long getLastResetTime()
+   public long getInvocationStatsLastResetTime()
    {
-      return delegate.lastResetTime;
+      return invocationStats.lastResetTime;
    }
+
+   /**
+    * Returns the EJB Name
+    * @return
+    */
+   @ManagementProperty(readOnly = true, use = ViewUse.CONFIGURATION)
+   public String getName()
+   {
+      return this.container.getEjbName();
+   }
+
+   // --------------------------------------------------------------------------------||
+   // Required Session Instance Metrics ----------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
+   /*
+    * The following properties are to be exposed by 
+    * the backing instance pool/cache
+    */
+
+   /**
+    * The number of instances available for service
+    */
+   abstract int getAvailableCount();
+
+   /**
+    * The number of instances created
+    * @return
+    */
+   abstract int getCreateCount();
+
+   /**
+    * The current size of the backing pool/cache
+    * @return
+    */
+   abstract int getCurrentSize();
+
+   /**
+    * The maximum size of the backing pool/cache
+    * @return
+    */
+   abstract int getMaxSize();
+
+   /**
+    * The number of instances removed 
+    * @return
+    */
+   abstract int getRemoveCount();
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * @param stats the stats to set
+    * @param invocationStats the stats to set
     */
-   private void setDelegate(final InvocationStatistics stats)
+   private void setInvocationStats(final InvocationStatistics invocationStats)
    {
-      this.delegate = stats;
+      this.invocationStats = invocationStats;
+   }
+
+   /**
+    * @param container The underlying Session Container
+    */
+   private void setContainer(final SessionContainer container)
+   {
+      this.container = container;
    }
 
 }
