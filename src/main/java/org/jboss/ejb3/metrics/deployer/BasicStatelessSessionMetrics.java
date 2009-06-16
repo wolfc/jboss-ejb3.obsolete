@@ -21,9 +21,9 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
-import org.jboss.ejb3.metrics.spi.SessionInstanceMetrics;
 import org.jboss.ejb3.pool.Pool;
 import org.jboss.ejb3.stateless.StatelessContainer;
+import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.managed.api.annotation.ManagementComponent;
 import org.jboss.managed.api.annotation.ManagementObject;
 import org.jboss.managed.api.annotation.ManagementProperties;
@@ -31,17 +31,16 @@ import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
 
 /**
- * BasicStatelessSessionInstanceMetrics
+ * BasicStatelessSessionMetrics
  * 
- * Implementation of a SLSB instance
- * metrics collector.  Additionally exposed as a 
+ * Implementation of a SLSB metrics collector.  Additionally exposed as a 
  * management object.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateless Session Bean Instance Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SLSB"))
-public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetrics
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateless Session Bean Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SLSB"))
+public class BasicStatelessSessionMetrics extends ManagedSessionMetricsWrapperBase
 {
 
    // --------------------------------------------------------------------------------||
@@ -60,16 +59,15 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    /**
     * Constructor
     * 
+    * @param delegate Invocation stats delegate
     * @param slsb The underlying container
-    * @throws IllegalArgumentException If the underlying container is not supplied
+    * @throws IllegalArgumentException If either argument is not supplied
     */
-   public BasicStatelessSessionInstanceMetrics(final StatelessContainer slsb) throws IllegalArgumentException
+   public BasicStatelessSessionMetrics(final InvocationStatistics delegate, final StatelessContainer slsb)
+         throws IllegalArgumentException
    {
-      // Precondition check
-      if (slsb == null)
-      {
-         throw new IllegalArgumentException("Underlying container was null");
-      }
+      // Invoke Super
+      super(slsb, delegate);
 
       // Set
       this.setSlsb(slsb);
@@ -80,44 +78,53 @@ public class BasicStatelessSessionInstanceMetrics implements SessionInstanceMetr
    // --------------------------------------------------------------------------------||
 
    /* (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getAvailableCount()
+    * @see org.jboss.ejb3.metrics.deployer.ManagedSessionMetricsWrapperBase#getAvailableCount()
     */
+   @Override
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of slots available in the instance pool")
    public int getAvailableCount()
    {
       return this.getPool().getAvailableCount();
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCreateCount()
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.ejb3.metrics.deployer.ManagedSessionMetricsWrapperBase#getCreateCount()
     */
+   @Override
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of bean instances created")
    public int getCreateCount()
    {
       return this.getPool().getCreateCount();
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getCurrentSize()
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.ejb3.metrics.deployer.ManagedSessionMetricsWrapperBase#getCurrentSize()
     */
+   @Override
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The current number of bean instances in the backing pool for this SLSB")
    public int getCurrentSize()
    {
       return this.getPool().getCurrentSize();
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getMaxSize()
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.ejb3.metrics.deployer.ManagedSessionMetricsWrapperBase#getMaxSize()
     */
+   @Override
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The maxmimum size of the backing instance pool")
    public int getMaxSize()
    {
       return this.getPool().getMaxSize();
    }
 
-   /* (non-Javadoc)
-    * @see org.jboss.ejb3.metrics.spi.SessionMetrics#getRemoveCount()
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.ejb3.metrics.deployer.ManagedSessionMetricsWrapperBase#getRemoveCount()
     */
+   @Override
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "The number of backing SLSB instances which have been removed")
    public int getRemoveCount()
    {

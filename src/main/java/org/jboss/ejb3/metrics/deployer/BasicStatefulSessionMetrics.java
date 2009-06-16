@@ -22,8 +22,8 @@
 package org.jboss.ejb3.metrics.deployer;
 
 import org.jboss.ejb3.cache.StatefulCache;
-import org.jboss.ejb3.metrics.spi.StatefulSessionInstanceMetrics;
 import org.jboss.ejb3.stateful.StatefulContainer;
+import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.managed.api.annotation.ManagementComponent;
 import org.jboss.managed.api.annotation.ManagementObject;
 import org.jboss.managed.api.annotation.ManagementProperties;
@@ -40,8 +40,8 @@ import org.jboss.managed.api.annotation.ViewUse;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateful Session Bean Instance Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SFSB"))
-public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInstanceMetrics
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateful Session Bean Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SFSB"))
+public class BasicStatefulSessionMetrics extends ManagedSessionMetricsWrapperBase
 {
 
    // --------------------------------------------------------------------------------||
@@ -60,16 +60,15 @@ public class BasicStatefulSessionInstanceMetrics implements StatefulSessionInsta
    /**
     * Constructor
     * 
+    * @param invocationStats Invocation stats delegate
     * @param slsb The underlying container
-    * @throws IllegalArgumentException If the underlying container is not supplied
+    * @throws IllegalArgumentException If either argument is not supplied
     */
-   public BasicStatefulSessionInstanceMetrics(final StatefulContainer sfsb) throws IllegalArgumentException
+   public BasicStatefulSessionMetrics(final InvocationStatistics invocationStats, final StatefulContainer sfsb)
+         throws IllegalArgumentException
    {
-      // Precondition check
-      if (sfsb == null)
-      {
-         throw new IllegalArgumentException("Underlying container was null");
-      }
+      // Invoke super
+      super(sfsb, invocationStats);
 
       // Set
       this.setSlsb(sfsb);
