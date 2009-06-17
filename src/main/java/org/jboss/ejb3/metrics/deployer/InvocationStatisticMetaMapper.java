@@ -21,10 +21,14 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
+import org.jboss.ejb3.statistics.InvocationStatistics;
+import org.jboss.ejb3.statistics.InvocationStatistics.TimeStatistic;
 import org.jboss.metatype.api.types.CompositeMetaType;
 import org.jboss.metatype.api.types.ImmutableCompositeMetaType;
 import org.jboss.metatype.api.types.MapCompositeMetaType;
@@ -38,90 +42,160 @@ import org.jboss.metatype.spi.values.MetaMapper;
 /**
  * InvocationStatisticMetaMapper
  *
- * {@link MetaMapper} for detyped EJB invocation statistics.
+ * {@link MetaMapper} for detyped EJB3 invocation statistics.  This
+ * is to avoid dependence upon the EJB3 internal implementation
+ * classes in possible remote JVMs or outside ClassLoaders.
  *
  * @author Jason T. Greene
- * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a> EJB3 Maintenance only
+ * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class InvocationStatisticMetaMapper extends MetaMapper<Map<String, Map<String, Long>>>
+public class InvocationStatisticMetaMapper extends MetaMapper<InvocationStatistics>
 {
+   // --------------------------------------------------------------------------------||
+   // Class Members ------------------------------------------------------------------||
+   // --------------------------------------------------------------------------------||
+
    public static final CompositeMetaType TYPE;
 
    public static final CompositeMetaType METHOD_STATS_TYPE;
 
-   private static String[] rootItemNames;
+   private static String[] metaTypePropertyNames;
 
-   private static MapCompositeMetaType METHOD_STATS_MAP_TYPE;
+   /**
+    * The composite type of the method stats; the value for the 
+    * {@link InvocationStatisticMetaMapper#PROP_NAME_ROOT_METHOD_STATS}
+    * property
+    */
+   private static MapCompositeMetaType VALUE_METHOD_STATS_MAP_TYPE;
+
+   /**
+    * Name of the "lastResetTime" property of the returned MetaValue
+    */
+   private static final String PROP_NAME_ROOT_LAST_RESET_TIME = "lastResetTime";
+
+   /**
+    * Name of the "methodStats" property of the returned MetaValue
+    */
+   private static final String PROP_NAME_ROOT_METHOD_STATS = "methodStats";
+
+   /**
+    * Name of the "count" property of the root MetaValue's "methodStats" property
+    */
+   private static final String PROP_NAME_METHODSTATS_COUNT = "count";
+
+   /**
+    * Name of the "minTime" property of the root MetaValue's "methodStats" property
+    */
+   private static final String PROP_NAME_METHODSTATS_MINTIME = "minTime";
+
+   /**
+    * Name of the "maxTime" property of the root MetaValue's "methodStats" property
+    */
+   private static final String PROP_NAME_METHODSTATS_MAXTIME = "maxTime";
+
+   /**
+    * Name of the "totalTime" property of the root MetaValue's "methodStats" property
+    */
+   private static final String PROP_NAME_METHODSTATS_TOTALTIME = "totalTime";
 
    static
    {
-      String[] methodItemNames =
-      {"count", "minTime", "maxTime", "totalTime"};
-      String[] methodItemDescriptions =
+      final String[] methodItemNames =
+      {PROP_NAME_METHODSTATS_COUNT, PROP_NAME_METHODSTATS_MINTIME, PROP_NAME_METHODSTATS_MAXTIME,
+            PROP_NAME_METHODSTATS_TOTALTIME};
+      final String[] methodItemDescriptions =
       {"the number of invocations", "the minimum invocation time", "the maximum invocation time",
             "the total invocation time",};
-      MetaType[] methodItemTypes =
+      final MetaType[] methodItemTypes =
       {SimpleMetaType.LONG, SimpleMetaType.LONG, SimpleMetaType.LONG, SimpleMetaType.LONG,};
       METHOD_STATS_TYPE = new ImmutableCompositeMetaType("MethodStatistics", "Method invocation statistics",
             methodItemNames, methodItemDescriptions, methodItemTypes);
 
-      METHOD_STATS_MAP_TYPE = new MapCompositeMetaType(METHOD_STATS_TYPE);
+      VALUE_METHOD_STATS_MAP_TYPE = new MapCompositeMetaType(METHOD_STATS_TYPE);
 
-      rootItemNames = new String[]
-      {"concurrentCalls", "maxConcurrentCalls", "lastResetTime", "methodStats"};
+      metaTypePropertyNames = new String[]
+      {PROP_NAME_ROOT_LAST_RESET_TIME, PROP_NAME_ROOT_METHOD_STATS};
 
-      String[] rootItemDescriptions =
-      {"the number of concurrent invocations", "the maximum number of concurrent invocations",
-            "last time statistics were reset", "method statistics",};
-      MetaType[] rootItemTypes =
-      {SimpleMetaType.LONG, SimpleMetaType.LONG, SimpleMetaType.LONG, METHOD_STATS_MAP_TYPE};
+      final String[] rootItemDescriptions =
+      {"last time statistics were reset", "method statistics",};
+      final MetaType[] rootItemTypes =
+      {SimpleMetaType.LONG, VALUE_METHOD_STATS_MAP_TYPE};
 
-      TYPE = new ImmutableCompositeMetaType("InvocationStatistics", "EJB3 invocation statistics", rootItemNames,
-            rootItemDescriptions, rootItemTypes);
+      TYPE = new ImmutableCompositeMetaType("InvocationStatistics", "EJB3 invocation statistics",
+            metaTypePropertyNames, rootItemDescriptions, rootItemTypes);
    }
 
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.metatype.spi.values.MetaMapper#getMetaType()
+    */
    @Override
    public MetaType getMetaType()
    {
       return TYPE;
    }
 
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.metatype.spi.values.MetaMapper#mapToType()
+    */
    @Override
    public Type mapToType()
    {
-      return Map.class;
+      return InvocationStatistics.class;
    }
 
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.metatype.spi.values.MetaMapper#createMetaValue(org.jboss.metatype.api.types.MetaType, java.lang.Object)
+    */
    @Override
-   public MetaValue createMetaValue(MetaType metaType, Map<String, Map<String, Long>> object)
+   public MetaValue createMetaValue(MetaType metaType, InvocationStatistics object)
    {
-      Map<String, MetaValue> methodMap = new HashMap<String, MetaValue>();
-      for (Map.Entry<String, Map<String, Long>> entry : object.entrySet())
+      // Make the method map from the stats
+      final Map<String, MetaValue> methodMap = new HashMap<String, MetaValue>();
+      @SuppressWarnings("unchecked")
+      final Map<Method, TimeStatistic> stats = (Map<Method, TimeStatistic>) object.getStats();
+      if (stats != null)
       {
-         if (entry.getKey().charAt(0) == '#')
-            continue;
+         final Set<Method> methods = stats.keySet();
+         for (final Method method : methods)
+         {
+            // Get the underlying time stat for this method
+            final TimeStatistic stat = stats.get(method);
 
-         MapCompositeValueSupport cvs = new MapCompositeValueSupport(METHOD_STATS_TYPE);
-         for (String name : METHOD_STATS_TYPE.itemSet())
-            cvs.put(name, SimpleValueSupport.wrap(entry.getValue().get(name)));
+            // Create a composite view of the stat's state
+            final MapCompositeValueSupport cvs = new MapCompositeValueSupport(METHOD_STATS_TYPE);
+            cvs.put(PROP_NAME_METHODSTATS_COUNT, SimpleValueSupport.wrap(stat.count));
+            cvs.put(PROP_NAME_METHODSTATS_MAXTIME, SimpleValueSupport.wrap(stat.maxTime));
+            cvs.put(PROP_NAME_METHODSTATS_MINTIME, SimpleValueSupport.wrap(stat.minTime));
+            cvs.put(PROP_NAME_METHODSTATS_TOTALTIME, SimpleValueSupport.wrap(stat.totalTime));
 
-         methodMap.put(entry.getKey(), cvs);
+            // Add the stat to the method map
+            final String methodName = method.getName();
+            methodMap.put(methodName, cvs);
+         }
       }
 
-      MapCompositeValueSupport root = new MapCompositeValueSupport(TYPE);
-      for (int i = 0; i < 3; i++)
-         root.put(rootItemNames[i], SimpleValueSupport.wrap(object.get("#Global").get(rootItemNames[i])));
+      // Make a composite value for the returned MetaType
+      final MapCompositeValueSupport root = new MapCompositeValueSupport(TYPE);
 
-      root.put(rootItemNames[3], new MapCompositeValueSupport(methodMap, METHOD_STATS_MAP_TYPE));
+      // Set the properties
+      root.put(PROP_NAME_ROOT_LAST_RESET_TIME, SimpleValueSupport.wrap(object.lastResetTime));
+      root.put(PROP_NAME_ROOT_METHOD_STATS, new MapCompositeValueSupport(methodMap, VALUE_METHOD_STATS_MAP_TYPE));
 
+      // Return
       return root;
    }
 
+   /*
+    * (non-Javadoc)
+    * @see org.jboss.metatype.spi.values.MetaMapper#unwrapMetaValue(org.jboss.metatype.api.values.MetaValue)
+    */
    @Override
-   public Map<String, Map<String, Long>> unwrapMetaValue(MetaValue metaValue)
+   public InvocationStatistics unwrapMetaValue(MetaValue metaValue)
    {
-      // This is read-only, so not needed
-      return null;
+      throw new UnsupportedOperationException(InvocationStatistics.class.getSimpleName() + " is a read-only property");
    }
 }

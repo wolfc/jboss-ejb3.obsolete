@@ -21,13 +21,12 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
-import java.util.Map;
-
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.managed.api.annotation.ManagementOperation;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
+import org.jboss.metatype.api.annotations.MetaMapping;
 
 /**
  * ManagedSessionMetricsWrapperBase
@@ -38,7 +37,7 @@ import org.jboss.managed.api.annotation.ViewUse;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-abstract class ManagedSessionMetricsWrapperBase
+public abstract class ManagedSessionMetricsWrapperBase
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
@@ -92,10 +91,10 @@ abstract class ManagedSessionMetricsWrapperBase
     * @see org.jboss.ejb3.statistics.InvocationStatistics#getStats()
     */
    @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
-   //@MetaMapping(value = InvocationStatisticMetaMapper.class)
-   public Map getInvocationStats()
+   @MetaMapping(value = InvocationStatisticMetaMapper.class)
+   public InvocationStatistics getInvocationStats()
    {
-      return invocationStats.getStats();
+      return invocationStats;
    }
 
    /**
