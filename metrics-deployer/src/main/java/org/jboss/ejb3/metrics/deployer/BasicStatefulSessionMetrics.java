@@ -40,7 +40,7 @@ import org.jboss.managed.api.annotation.ViewUse;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateful Session Bean Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "SFSB"))
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Stateful Session Bean Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "StatefulSession"))
 public class BasicStatefulSessionMetrics extends ManagedSessionMetricsWrapperBase
 {
 

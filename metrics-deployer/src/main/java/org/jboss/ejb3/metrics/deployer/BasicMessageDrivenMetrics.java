@@ -43,7 +43,7 @@ import org.jboss.managed.api.annotation.ViewUse;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Message-Driven Instance Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "MDB"))
+@ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Message-Driven Instance Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "MessageDriven"))
 public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
 {
 
