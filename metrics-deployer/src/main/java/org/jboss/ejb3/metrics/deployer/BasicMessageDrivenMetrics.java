@@ -32,6 +32,7 @@ import org.jboss.managed.api.annotation.ManagementOperation;
 import org.jboss.managed.api.annotation.ManagementProperties;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
+import org.jboss.metatype.api.annotations.MetaMapping;
 
 /**
  * BasicMessageDrivenMetrics
@@ -81,6 +82,12 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   public String getName()
+   {
+      return this.getMessagingContainer().getEjbName();
+   }
 
    /* (non-Javadoc)
     * @see org.jboss.ejb3.mdb.MessagingDelegateWrapperMBean#getKeepAliveMillis()
@@ -148,10 +155,20 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
    /* (non-Javadoc)
     * @see org.jboss.ejb3.ContainerDelegateWrapperMBean#getInvokeStats()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "Obtains the invocation statistics for this MDB")
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC, description = "Obtains the invocation statistics for this MDB", name = "invocationStats")
+   @MetaMapping(InvocationStatisticMetaMapper.class)
    public InvocationStatistics getInvokeStats()
    {
       return this.getMBean().getInvokeStats();
+   }
+
+   /** 
+    * @see org.jboss.ejb3.statistics.InvocationStatistics#resetStats()
+    */
+   @ManagementOperation
+   public void resetInvocationStats()
+   {
+      this.getMBean().getInvokeStats().resetStats();
    }
 
    /*
