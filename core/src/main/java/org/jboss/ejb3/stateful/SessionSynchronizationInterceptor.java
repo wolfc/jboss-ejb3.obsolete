@@ -151,7 +151,7 @@ public class SessionSynchronizationInterceptor implements Interceptor
       SFSBSessionSynchronization synch = new SFSBSessionSynchronization(ctx);
       try
       {
-         tx.registerSynchronization(synch);
+         ctx.registerSynchronization(tx, synch);
       }
       catch(RollbackException e)
       {

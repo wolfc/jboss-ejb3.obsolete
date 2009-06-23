@@ -102,6 +102,7 @@ public class StatefulInstanceInterceptor extends AbstractInterceptor
          synchronized (target)
          {
             target.setInInvocation(false);
+            // nobody attached the bean to the tx and nobody discarded it
             if (!target.isTxSynchronized() && !target.isDiscarded()) container.getCache().release(target);
             if (block) target.getLock().unlock();
          }
