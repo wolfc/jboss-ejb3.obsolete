@@ -22,13 +22,10 @@
 package org.jboss.ejb3;
 
 import java.net.URL;
-import org.jboss.ejb3.metamodel.EjbJarDD;
-import org.jboss.ejb3.metamodel.EjbJarDDObjectFactory;
-import org.jboss.ejb3.metamodel.JBossDDObjectFactory;
-import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
-import org.jboss.metadata.ejb.jboss.JBossMetaData;
 
 import javassist.bytecode.ClassFile;
+
+import org.jboss.metadata.ejb.jboss.JBossMetaData;
 
 public abstract class Ejb3HandlerFactory
 {
@@ -43,12 +40,8 @@ public abstract class Ejb3HandlerFactory
       {
          this.di = di;
          this.dd = di.getMetaData();
-         
-         InterceptorInfoRepository repository = this.di.getDeploymentUnit().getInterceptorInfoRepository(); 
-         repository.initialise(dd);
       }
-
-
+      
       public Ejb3Handler createHandler(ClassFile cf) throws Exception
       {
          return new Ejb3DescriptorHandler(di, cf, dd);
