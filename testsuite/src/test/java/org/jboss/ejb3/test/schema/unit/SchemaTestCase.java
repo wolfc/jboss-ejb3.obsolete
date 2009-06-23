@@ -28,9 +28,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 import org.jboss.logging.Logger;
-import org.jboss.test.JBossTestCase;
 import org.jboss.util.xml.JBossEntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXParseException;
@@ -40,20 +40,23 @@ import org.xml.sax.SAXParseException;
  * @version <tt>$Revision$</tt>
  * @author <a href="mailto:bdecoste@jboss.com">William DeCoste</a>
  */
-public class SchemaTestCase extends JBossTestCase implements ErrorHandler
+public class SchemaTestCase extends TestCase implements ErrorHandler
 {
    private static final Logger log = Logger.getLogger(SchemaTestCase.class);
 
    private static final String LOCATION_RESOURCES_TEST = "../src/test/resources/test";
 
-   public SchemaTestCase(String name)
+   private String schemaFilename;
+
+   public SchemaTestCase(String schemaFilename)
    {
-      super(name);
+      this.schemaFilename = schemaFilename;
    }
 
+   /*
    public void testEjbClassOptionalEjbJar() throws Exception
    {
-      DocumentBuilder builder = getDocumentBuilder();
+      DocumentBuilder builder = getDocumentBuilder(this);
 
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dd/override/META-INF/ejb-jarC.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/dd/override/META-INF/ejb-jarD.xml", builder);
@@ -61,10 +64,12 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/mail/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/reference21_30/META-INF/ejb-jar3.xml", builder);
    }
+   */
 
+   /*
    public void testTestEjbJar() throws Exception
    {
-      DocumentBuilder builder = getDocumentBuilder();
+      DocumentBuilder builder = getDocumentBuilder(this);
 
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/bank/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/bmt/META-INF/ejb-jar.xml", builder);
@@ -116,6 +121,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/txexceptions/META-INF/ejb-jar.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/unauthenticatedprincipal/META-INF/ejb-jar.xml", builder);
    }
+   */
 
    /*
     * This test has been removed as the documentation is
@@ -140,7 +146,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 
    public void testTestJBoss() throws Exception
    {
-      DocumentBuilder builder = getDocumentBuilder();
+      DocumentBuilder builder = getDocumentBuilder(this);
 
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/aspectdomain/META-INF/jboss.xml", builder);
       validateFile(SchemaTestCase.LOCATION_RESOURCES_TEST + "/bank/META-INF/jboss.xml", builder);
@@ -207,7 +213,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       //log.info("Success parsing " + filename);
    }
 
-   private DocumentBuilder getDocumentBuilder() throws Exception
+   private DocumentBuilder getDocumentBuilder(ErrorHandler eh) throws Exception
    {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
       factory.setAttribute("http://apache.org/xml/features/validation/schema", true);
@@ -216,7 +222,7 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
       factory.setNamespaceAware(true);
 
       DocumentBuilder builder = factory.newDocumentBuilder();
-      builder.setErrorHandler(this);
+      builder.setErrorHandler(eh);
 
       JBossEntityResolver entityResolver = new JBossEntityResolver();
       builder.setEntityResolver(entityResolver);
@@ -226,7 +232,10 @@ public class SchemaTestCase extends JBossTestCase implements ErrorHandler
 
    public static Test suite() throws Exception
    {
-      return getDeploySetup(SchemaTestCase.class, "");
+      //return getDeploySetup(SchemaTestCase.class, "");
+      TestSuite suite = new TestSuite();
+      //suite.addTest(test)
+      return suite;
    }
 
    public void fatalError(SAXParseException e)
