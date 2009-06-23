@@ -159,7 +159,7 @@ public class StatefulRemoveInterceptor extends AbstractInterceptor
       {
          try
          {
-            tx.registerSynchronization(new RemoveSynchronization(container, id, exceptionThrown != true && retainIfException));
+            ctx.registerSynchronization(tx, new RemoveSynchronization(container, id, exceptionThrown != true && retainIfException));
          }
          catch (RollbackException e)
          {

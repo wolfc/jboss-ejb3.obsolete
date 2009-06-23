@@ -34,7 +34,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.ejb.EJBContext;
 import javax.persistence.EntityManager;
+import javax.transaction.RollbackException;
 import javax.transaction.Synchronization;
+import javax.transaction.SystemException;
 import javax.transaction.Transaction;
 
 import org.jboss.aop.metadata.SimpleMetaData;
@@ -66,6 +68,41 @@ public class StatefulBeanContext
 {
    /** The serialVersionUID */
    private static final long serialVersionUID = -102470788178912606L;
+   
+   private class StatefulSynchronization implements Synchronization
+   {
+      public void afterCompletion(int status)
+      {
+         RuntimeException cause = null;
+         for(Synchronization sync : synchronizations)
+         {
+            try
+            {
+               sync.afterCompletion(status);
+            }
+            catch(RuntimeException e)
+            {
+               log.warn("afterCompletion failed on " + sync, e);
+               cause = e;
+            }
+         }
+         synchronizations.clear();
+         currentSyncTx = null;
+         
+         // EJBTHREE-1745: report at least one of the problems upward
+         if(cause != null)
+            throw cause;
+      }
+
+      public void beforeCompletion()
+      {
+         // if one of them throws up, the TM will initiate a rollback
+         for(Synchronization sync : synchronizations)
+         {
+            sync.beforeCompletion();
+         }
+      }
+   }
    
    protected Object id;
 
@@ -100,6 +137,9 @@ public class StatefulBeanContext
    protected boolean replicationIsPassivation = true;
    
    protected transient boolean passivated = false;
+   
+   private transient Transaction currentSyncTx;
+   private transient List<Synchronization> synchronizations;
 
    /**
     * An incoming context from serialization.
@@ -1002,6 +1042,32 @@ public class StatefulBeanContext
       result = 29 * result + containerClusterUid.hashCode();
       result = 29 * result + id.hashCode();
       return result;
+   }
+   
+   /**
+    * To make sure Synchronizations are executed in a given order we maintain
+    * a sync registry within this object.
+    *  
+    * @param sync
+    * @throws IllegalStateException
+    * @throws RollbackException
+    * @throws SystemException
+    */
+   protected void registerSynchronization(Transaction tx, Synchronization sync) throws IllegalStateException, RollbackException, SystemException
+   {
+      // sanity check
+      if(currentSyncTx != null)
+      {
+         if(currentSyncTx != tx)
+            throw new IllegalStateException("StatefulBeanContext " + this + " can't be synced with " + tx + ", it is already synced with " + currentSyncTx);
+      }
+      else
+      {
+         currentSyncTx = tx;
+         synchronizations = new ArrayList<Synchronization>();
+         tx.registerSynchronization(new StatefulSynchronization());
+      }
+      synchronizations.add(sync);
    }
    
    private static class XPCCloseSynchronization implements Synchronization
