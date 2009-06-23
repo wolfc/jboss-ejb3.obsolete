@@ -25,9 +25,9 @@ package org.jboss.ejb3.test.ejbthree1852;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class FirstCustomerInterceptor extends AbstractCustomInterceptor
+public class FirstCustomInterceptor extends AbstractCustomInterceptor
 {
-   public FirstCustomerInterceptor()
+   public FirstCustomInterceptor()
    {
       super("First");
    }
