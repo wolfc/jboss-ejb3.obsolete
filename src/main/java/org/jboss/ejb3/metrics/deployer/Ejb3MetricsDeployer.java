@@ -38,7 +38,6 @@ import org.jboss.deployers.spi.deployer.managed.ManagedObjectCreator;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.Ejb3Deployment;
-import org.jboss.ejb3.javaee.JavaEEApplication;
 import org.jboss.ejb3.mdb.MessagingContainer;
 import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.stateful.StatefulContainer;
@@ -49,6 +48,7 @@ import org.jboss.kernel.spi.deployment.KernelDeployment;
 import org.jboss.logging.Logger;
 import org.jboss.managed.api.ManagedObject;
 import org.jboss.managed.api.factory.ManagedObjectFactory;
+import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.spi.MetaData;
 
 /**
@@ -83,6 +83,11 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
     * The managed object factory.
     */
    private ManagedObjectFactory managedObjectFactory = ManagedObjectFactory.getInstance();
+
+   /**
+    * Delimiter in constructing bind / component names
+    */
+   private static final char DELIMITER = '/';
 
    // ------------------------------------------------------------------------------||
    // Constructor ------------------------------------------------------------------||
@@ -141,14 +146,32 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
          for (final Container container : containers)
          {
             // Get the EJB Name
-            String ejbName = container.getEjbName();
-            final JavaEEApplication application = deployment.getApplication();
+            final String deploymentUnitName = du.getSimpleName();
+            final StringBuilder bindNameBuilder = new StringBuilder();
+
             // If we're in an EAR
-            if (application != null)
+            final DeploymentUnit topLevelDu = du.getTopLevel();
+            boolean isEar = du != topLevelDu || topLevelDu.isAttachmentPresent(JBossAppMetaData.class);
+            if (isEar)
             {
                // Prepend the EAR name
-               ejbName = application.getName() + "-" + ejbName;
+               bindNameBuilder.append(topLevelDu.getSimpleName());
+               bindNameBuilder.append(DELIMITER);
             }
+            // JAR name
+            if (deploymentUnitName == null)
+            {
+               bindNameBuilder.append("*");
+            }
+            else
+            {
+               bindNameBuilder.append(deploymentUnitName);
+               bindNameBuilder.append(DELIMITER);
+            }
+            // EJB Name
+            final String ejbName = container.getEjbName();
+            bindNameBuilder.append(ejbName);
+            final String bindName = bindNameBuilder.toString();
 
             // Session Containers
             if (container instanceof SessionContainer)
@@ -173,8 +196,8 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   final BasicStatelessSessionMetrics metrics = new BasicStatelessSessionMetrics(stats, slsb);
 
                   // Add to beanFactories
-                  this.attach(metrics, ejbName, beanFactories);
-                  log.debug("Attached metrics for: " + ejbName);
+                  this.attach(metrics, bindName, beanFactories);
+                  log.debug("Attached metrics for: " + bindName);
                }
 
                // SFSB
@@ -187,8 +210,8 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                   final BasicStatefulSessionMetrics metrics = new BasicStatefulSessionMetrics(stats, sfsb);
 
                   // Add to beanFactories
-                  this.attach(metrics, ejbName, beanFactories);
-                  log.debug("Attached metrics for: " + ejbName);
+                  this.attach(metrics, bindName, beanFactories);
+                  log.debug("Attached metrics for: " + bindName);
                }
 
             }
@@ -202,8 +225,8 @@ public class Ejb3MetricsDeployer extends AbstractSimpleRealDeployer<Ejb3Deployme
                final BasicMessageDrivenMetrics metrics = new BasicMessageDrivenMetrics(mdb);
 
                // Add to beanFactories
-               this.attach(metrics, ejbName, beanFactories);
-               log.debug("Attached stats for: " + ejbName);
+               this.attach(metrics, bindName, beanFactories);
+               log.debug("Attached stats for: " + bindName);
             }
          }
 
