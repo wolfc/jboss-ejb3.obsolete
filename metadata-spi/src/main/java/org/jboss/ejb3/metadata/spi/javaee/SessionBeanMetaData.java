@@ -647,6 +647,11 @@ public interface SessionBeanMetaData extends IdMetaData
    /**
     * @return Returns the list of persistence context references of this bean
     *
+    * Returns an empty list if there are no such references.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
     */
    List<PersistenceContextRefMetaData> getPersistenceContextRefs();
 
@@ -659,168 +664,123 @@ public interface SessionBeanMetaData extends IdMetaData
 
 
    /**
-    * Gets the value of the persistenceUnitRef property.
+    * @returns Returns the persistence unit references associated with this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the persistenceUnitRef property.
+    * Returns an empty list if there are no such references.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPersistenceUnitRef().add(newItem);
-    * </pre>
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
+    */
+   List<PersistenceUnitRefMetaData> getPersistenceUnitRefs();
+
+   /**
+    * Sets the persistence unit references
     *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PersistenceUnitRefMetaData }
+    * @param persistenceUnitRefs The persistence unit references of this bean
+    */
+   void setPersistenceUnitRefs(List<PersistenceUnitRefMetaData> persistenceUnitRefs);
+
+   /**
+    * @return Returns a list of post-construct methods associated with this bean
+    * Returns an empty list if there are no post-constructs.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    */
+   List<LifecycleCallbackMetaData> getPostConstructs();
+
+   /**
+    * Sets the post-constructs associated with this bean
+    *
+    * @param postConstructs The list of post-constructs
+    */
+   void setPostConstructs(List<LifecycleCallbackMetaData> postConstructs);
+
+   /**
+    * @return Returns a list of pre-destroy methods associated with this bean
+    * Returns an empty list if there are no pre-destroy callbacks for this bean.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<PersistenceUnitRefMetaData> getPersistenceUnitRef();
+   List<LifecycleCallbackMetaData> getPreDestroys();
 
    /**
-    * Gets the value of the postConstruct property.
+    * Sets the list of pre-destroy callbacks associated with this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the postConstruct property.
+    * @param preDestroys The list of pre-destroys for this bean
+    */
+   void setPreDestroys(List<LifecycleCallbackMetaData> preDestroys);
+
+   /**
+    * @return Returns a list of post-activate methods associated with this bean
+    * Returns an empty list if there are no post-activate callbacks for this bean.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPostConstruct().add(newItem);
-    * </pre>
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
+    */
+   List<LifecycleCallbackMetaData> getPostActivates();
+
+   /**
+    * Sets the list of post-activate callbacks associated with this bean
     *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
+    * @param postActivates The post-activate callbacks associated with this bean
+    */
+   void setPostActivates(List<LifecycleCallbackMetaData> postActivates);
+
+   /**
+    * @return Returns a list of pre-passivate methods associated with this bean
+    * Returns an empty list if there are no pre-passivate callbacks for this bean.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<LifecycleCallbackMetaData> getPostConstruct();
+   List<LifecycleCallbackMetaData> getPrePassivates();
 
    /**
-    * Gets the value of the preDestroy property.
+    * Sets the list of pre-passivate callbacks associated with this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the preDestroy property.
+    * @param prePassivates The pre-passivate callbacks for this bean
+    */
+   void setPrePassivates(List<LifecycleCallbackMetaData> prePassivates);
+
+   /**
+    * @return Returns a list of security roles references associated with this bean
+    * Returns an empty list if there are no such references
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPreDestroy().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     */
-   List<LifecycleCallbackMetaData> getPreDestroy();
+   List<SecurityRoleRefMetaData> getSecurityRoleRefs();
 
    /**
-    * Gets the value of the postActivate property.
+    * Sets the security role references for this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the postActivate property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPostActivate().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    *
-    *
+    * @param securityRoleRefs The security role references for this bean
     */
-   List<LifecycleCallbackMetaData> getPostActivate();
+   void setSecurityRoleRefs(List<SecurityRoleRefMetaData> securityRoleRefs);
 
    /**
-    * Gets the value of the prePassivate property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the prePassivate property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPrePassivate().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    *
-    *
-    */
-   List<LifecycleCallbackMetaData> getPrePassivate();
-
-   /**
-    * Gets the value of the securityRoleRef property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the securityRoleRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getSecurityRoleRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link SecurityRoleRefMetaData }
-    *
-    *
-    */
-   List<SecurityRoleRefMetaData> getSecurityRoleRef();
-
-   /**
-    * Gets the value of the securityIdentity property.
-    *
-    * @return
-    *     possible object is
-    *     {@link SecurityIdentityMetaData }
+    * @return Returns the security identity associated with this bean
     *
     */
    SecurityIdentityMetaData getSecurityIdentity();
 
    /**
-    * Sets the value of the securityIdentity property.
+    * Sets the security identity associated with this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link SecurityIdentityMetaData }
+    * @param securityIdentity The security identity associated with this bean
     *
     */
-   void setSecurityIdentity(SecurityIdentityMetaData value);
+   void setSecurityIdentity(SecurityIdentityMetaData securityIdentity);
 
 
 

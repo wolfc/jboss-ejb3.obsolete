@@ -10,6 +10,7 @@ package org.jboss.ejb3.metadata.spi.jboss;
 import java.util.List;
 
 import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.InjectionTargetMetaData;
 
 /**
@@ -40,7 +41,7 @@ import org.jboss.ejb3.metadata.spi.javaee.InjectionTargetMetaData;
  *
  *
  */
-public interface JndiRefMetaData
+public interface JndiRefMetaData extends IdMetaData
 {
 
    /**
@@ -68,127 +69,85 @@ public interface JndiRefMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the jndiRefName property.
     *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return The jndi reference name. This is relative to the
+    * java:comp/env context
     *
     */
    String getJndiRefName();
 
    /**
-    * Sets the value of the jndiRefName property.
+    * Sets the jndi reference name, relative to the java:comp/env context
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param jndiRefName The jndi reference name
     *
     */
-   void setJndiRefName(String value);
+   void setJndiRefName(String jndiRefName);
 
    /**
-    * Gets the value of the jndiName property.
     *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi name
+    *
     *
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * Sets the jndi name
+    * @param jndiName The jndi name
     *
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
    /**
-    * Gets the value of the mappedName property.
     *
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the mapped name
     *
     */
    String getMappedName();
 
    /**
-    * Sets the value of the mappedName property.
+    * Sets the mapped name
     *
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param mappedName The mapped name
     *
     */
-   void setMappedName(String value);
+   void setMappedName(String mappedName);
 
    /**
-    * Gets the value of the injectionTarget property.
+    * Returns a list of injection target(s) metadata for
+    * this jndi reference
+    * Returns an empty list if there is no injection-target.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the injectionTarget property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getInjectionTarget().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link InjectionTargetMetaData }
-    *
-    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     */
-   List<InjectionTargetMetaData> getInjectionTarget();
+   List<InjectionTargetMetaData> getInjectionTargets();
 
    /**
-    * Gets the value of the ignoreDependency property.
+    * Sets the list of injection targets for this jndi reference
     *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
+    * @param injectionTargets List of injection targets metadata for this jndi reference
+    */
+   void setInjectionTargets(List<InjectionTargetMetaData> injectionTargets);
+
+   /**
     *
+    * @return Returns true if this jndi reference dependency has to be ignored.
+    * Else returns false
     */
    boolean isIgnoreDependency();
 
    /**
-    * Sets the value of the ignoreDependency property.
+    * Set to true if the jndi reference dependency has to be ignored. Else
+    * set to false.
     *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
+    * @param ignoreDependency True if the jndi reference dependency has to be ignored. Else
+    * set to false.
     *
     */
-   void setIgnoreDependency(boolean value);
+   void setIgnoreDependency(boolean ignoreDependency);
 
-   /**
-    * Gets the value of the id property.
-    *
-    * @return
-    *     possible object is
-    *     {@link String }
-    *
-    */
-   String getId();
 
-   /**
-    * Sets the value of the id property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *
-    */
-   void setId(String value);
 
 }

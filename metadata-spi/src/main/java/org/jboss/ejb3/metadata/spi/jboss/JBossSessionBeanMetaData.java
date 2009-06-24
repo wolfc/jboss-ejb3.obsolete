@@ -64,432 +64,342 @@ public interface JBossSessionBeanMetaData extends SessionBeanMetaData
    List<JBossMessageDestinationRefMetaData> getMessageDestinationRef();
 
    /**
-    * Gets the value of the localBinding property.
+    * @return Returns the local jndi bindings for this bean.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the localBinding property.
+    * Returns an empty list if there are no such bindings.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getLocalBinding().add(newItem);
-    * </pre>
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
+    */
+   List<LocalBindingMetaData> getLocalBindings();
+
+   /**
+    * Sets the local jndi bindings for the bean
     *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LocalBindingMetaData }
+    * @param localBindings Local jndi bindings
+    */
+   void setLocalBindings(List<LocalBindingMetaData> localBindings);
+
+   /**
+    * @return Returns the remote jndi bindings of this bean.
+    *
+    * Returns an empty list if there are no such bindings.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<LocalBindingMetaData> getLocalBinding();
+   List<RemoteBindingMetaData> getRemoteBindings();
 
    /**
-    * Gets the value of the remoteBinding property.
+    * Sets the remote jndi bindings of this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the remoteBinding property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getRemoteBinding().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link RemoteBindingMetaData }
-    *
-    *
+    * @param remoteBindings Remote jndi bindings
     */
-   List<RemoteBindingMetaData> getRemoteBinding();
+   void setRemoteBindings(List<RemoteBindingMetaData> remoteBindings);
 
    /**
-    * Gets the value of the jndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi-name for the default remote interface of this bean
     *
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
+    * Sets the jndi-name for the default remote interface of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param jndiName The jndi-name of the default remote interface
     *
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
    /**
-    * Gets the value of the homeJndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi-name for the remote home interface of this bean
     *
     */
    String getHomeJndiName();
 
    /**
-    * Sets the value of the homeJndiName property.
+    * Sets the jndi-name for the remote home interface of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param homeJndiName The jndi-name of the remote home interface
     *
     */
-   void setHomeJndiName(String value);
+   void setHomeJndiName(String homeJndiName);
 
    /**
-    * Gets the value of the localJndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link LocalJndiNameType }
+    * @return Returns the jndi-name for the default local interface of this bean
     *
     */
    String getLocalJndiName();
 
    /**
-    * Sets the value of the localJndiName property.
+    * Sets the jndi-name for the default local interface of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link LocalJndiNameType }
+    * @param localJndiName The jndi-name of the default local interface
     *
     */
-   void setLocalJndiName(String value);
+   void setLocalJndiName(String localJndiName);
 
    /**
-    * Gets the value of the localHomeJndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi-name for the local home interface of this bean
     *
     */
    String getLocalHomeJndiName();
 
    /**
-    * Sets the value of the localHomeJndiName property.
+    * Sets the jndi-name for the local home interface of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param localHomeJndiName The jndi-name of the local home interface
     *
     */
-   void setLocalHomeJndiName(String value);
+   void setLocalHomeJndiName(String localHomeJndiName);
 
    /**
-    * Gets the value of the jndiBindingPolicy property.
     *
-    * @return
-    *     possible object is
-    *     {@link JndiBindingPolicyType }
+    * @return Returns the jndi binding policy of this bean
     *
     */
    String getJndiBindingPolicy();
 
    /**
-    * Sets the value of the jndiBindingPolicy property.
+    * Sets the jndi binding policy of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiBindingPolicyType }
+    * @param jndiBindingPolicy The jndi binding policy of the bean
     *
     */
-   void setJndiBindingPolicy(String value);
+   void setJndiBindingPolicy(String jndiBindingPolicy);
 
    /**
-    * Gets the value of the clustered property.
     *
-    * @return
-    *     possible object is
-    *     {@link ClusteredType }
+    * @return Returns true if the bean is clustered. Else returns false.
     *
     */
-   boolean getClustered();
+   boolean isClustered();
 
    /**
-    * Sets the value of the clustered property.
+    * If the bean is clustered then this property is set to true. Else set to false
     *
-    * @param value
-    *     allowed object is
-    *     {@link ClusteredType }
+    * @param isClustered True if bean is clustered, false otherwise.
     *
     */
    void setClustered(boolean value);
 
    /**
-    * Gets the value of the clusterConfig property.
     *
-    * @return
-    *     possible object is
-    *     {@link ClusterConfigMetaData }
+    * @return Returns the cluster configuration associated with this bean.
     *
-    */
-   ClusterConfigMetaData getClusterConfig();
-
-   /**
-    * Sets the value of the clusterConfig property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link ClusterConfigMetaData }
+    * @throws IllegalStateException The cluster configuration applies only if the
+    * bean is clustered. An {@link IllegalStateException} is thrown if the bean is *not*
+    * clustered
     *
     */
-   void setClusterConfig(ClusterConfigMetaData value);
+   ClusterConfigMetaData getClusterConfig() throws IllegalStateException;
 
    /**
-    * Gets the value of the securityDomain property.
+    * Sets the cluster configuration for this bean.
     *
-    * @return
-    *     possible object is
-    *     {@link SecurityDomainType }
+    * @param clusterConfig The cluster configuration
+    *
+    * @throws IllegalStateException The cluster configuration applies only if the
+    * bean is clustered. An {@link IllegalStateException} is thrown if the bean is *not*
+    * clustered
+    */
+   void setClusterConfig(ClusterConfigMetaData value) throws IllegalStateException;
+
+   /**
+    *
+    * @return Return the security domain name associated with this bean
     *
     */
    String getSecurityDomain();
 
    /**
-    * Sets the value of the securityDomain property.
+    * Sets the security domain name for this bean.
     *
-    * @param value
-    *     allowed object is
-    *     {@link SecurityDomainType }
+    * @param securityDomain The security domain name
     *
     */
    void setSecurityDomain(String value);
 
    /**
-    * Gets the value of the methodAttributes property.
+    * @return Returns the method attributes associated with this bean
     *
-    * @return
-    *     possible object is
-    *     {@link MethodAttributesMetaData }
     *
     */
    MethodAttributesMetaData getMethodAttributes();
 
    /**
-    * Sets the value of the methodAttributes property.
+    * Sets the method attributes for this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link MethodAttributesMetaData }
+    * @param methodAttributes The method attributes for this bean
     *
     */
-   void setMethodAttributes(MethodAttributesMetaData value);
+   void setMethodAttributes(MethodAttributesMetaData methodAttributes);
 
    /**
-    * Gets the value of the depends property.
+    * @return Returns a list of dependencies for this bean. The list contains
+    * JMX ObjectName(s) of a service on which the EJB depends.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the depends property.
+    * Returns an empty list if there are no such dependencies.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDepends().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DependsType }
-    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     */
    List<String> getDepends();
 
    /**
-    * Gets the value of the annotation property.
+    * Sets the list of dependencies for this bean
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the annotation property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getAnnotation().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AnnotationMetaData }
-    *
-    *
+    * @param depends The list of JMX ObjectName(s) of services on which this bean depends
     */
-   List<AnnotationMetaData> getAnnotation();
+   void setDepends(List<String> depends);
 
    /**
-    * Gets the value of the ignoreDependency property.
+    * @return Returns a list of annotations that will be added to the bean class,
+    * method or field.
     *
-    * @return
-    *     possible object is
-    *     {@link IgnoreDependencyMetaData }
+    * Returns an empty list if there are no such dependencies.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    */
+   List<AnnotationMetaData> getAnnotations();
+
+   /**
+    * Set the list of annotations to be added to the bean class, method or field
+    *
+    * @param annotations The list of annotations
+    */
+   void setAnnotations(List<AnnotationMetaData> annotations);
+
+   /**
+    *  @return Returns the ignore dependency metadata associated with this bean
     *
     */
    IgnoreDependencyMetaData getIgnoreDependency();
 
    /**
-    * Sets the value of the ignoreDependency property.
+    * Sets the ignore dependency metadata for this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link IgnoreDependencyMetaData }
+    * @param ignoreDependency The ignore dependency metadata
     *
     */
-   void setIgnoreDependency(IgnoreDependencyMetaData value);
+   void setIgnoreDependency(IgnoreDependencyMetaData ignoreDependency);
 
    /**
-    * Gets the value of the aopDomainName property.
     *
-    * @return
-    *     possible object is
-    *     {@link AopDomainNameType }
+    * @return Returns the AOP domain name associated with this bean.
+    * The aspect domain contains the interceptor stack and bindings
     *
     */
    String getAopDomainName();
 
    /**
-    * Sets the value of the aopDomainName property.
+    * Sets the AOP domain name for this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link AopDomainNameType }
+    * @param aopDomainName The AOP domain name
     *
     */
-   void setAopDomainName(String value);
+   void setAopDomainName(String aopDomainName);
 
    /**
-    * Gets the value of the cacheConfig property.
     *
-    * @return
-    *     possible object is
-    *     {@link CacheConfigMetaData }
+    * @return Returns the cache configurations of this bean
+    *
     *
     */
    CacheConfigMetaData getCacheConfig();
 
    /**
-    * Sets the value of the cacheConfig property.
+    * Sets the cache configuration for this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link CacheConfigMetaData }
+    * @param cacheConfig The cache configuration
     *
     */
-   void setCacheConfig(CacheConfigMetaData value);
+   void setCacheConfig(CacheConfigMetaData cacheConfig);
 
    /**
-    * Gets the value of the poolConfig property.
     *
-    * @return
-    *     possible object is
-    *     {@link PoolConfigMetaData }
+    *
+    * @return Returns the pool configuration of this bean
     *
     */
    PoolConfigMetaData getPoolConfig();
 
    /**
-    * Sets the value of the poolConfig property.
+    * Sets the pool configuration of this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link PoolConfigMetaData }
+    * @param poolConfig The pool configuration for this bean
     *
     */
    void setPoolConfig(PoolConfigMetaData value);
 
    /**
-    * Gets the value of the concurrent property.
     *
-    * @return
-    *     possible object is
-    *     {@link ConcurrentType }
+    * @return Returns true if the bean is set to block/serialize access
+    * instead of throw an exception on concurrent access to the bean.
     *
-    */
-   boolean getConcurrent();
-
-   /**
-    * Sets the value of the concurrent property.
+    * @throws IllegalStateException The isConcurrent property is applicable
+    * only for stateful beans. An {@link IllegalStateException} is thrown
+    * if the bean is *not* stateful.
     *
-    * @param value
-    *     allowed object is
-    *     {@link ConcurrentType }
+    * @see #isStateful()
+    * @see #isStateless()
     *
     */
-   void setConcurrent(boolean value);
+   boolean isConcurrent() throws IllegalStateException;
 
    /**
-    * Gets the value of the jndiRef property.
+    * Set to true if the access to the bean has to be blocked/serialized, instead of
+    * throwing an exception, on concurrent access.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the jndiRef property.
+    * @param isConcurrent True if bean access has to be block/serialize instead of
+    * throwing an exception on concurrent access
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getJndiRef().add(newItem);
-    * </pre>
+    */
+   void setConcurrent(boolean isConcurrent) throws IllegalStateException;
+
+   /**
+    * @return Returns a list of jndi references for this bean.
+    * Returns an empty list if there are no such references.
     *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JndiRefMetaData }
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<JndiRefMetaData> getJndiRef();
+   List<JndiRefMetaData> getJndiRefs();
 
    /**
-    * Gets the value of the portComponent property.
+    * Set the jndi references used to inject generic types based on JNDI name,
+    * for this bean
     *
-    * @return
-    *     possible object is
-    *     {@link PortComponentMetaData }
+    * @param jndiRefs
+    */
+   void setJndiRefs(List<JndiRefMetaData> jndiRefs);
+
+   /**
+    *
+    * @return Returns the port component associated with this bean
     *
     */
    PortComponentMetaData getPortComponent();
 
    /**
-    * Sets the value of the portComponent property.
+    * Sets the port component metadata for this bean
     *
-    * @param value
-    *     allowed object is
-    *     {@link PortComponentMetaData }
+    * @param portComponent
     *
     */
-   void setPortComponent(PortComponentMetaData value);
+   void setPortComponent(PortComponentMetaData portComponent);
 
    /**
-    * Gets the value of the ejbTimeoutIdentity property.
     *
     * @return
-    *     possible object is
-    *     {@link JBossSecurityIdentityMetaData }
-    *
     */
    JBossSecurityIdentityMetaData getEjbTimeoutIdentity();
 
@@ -497,8 +407,6 @@ public interface JBossSessionBeanMetaData extends SessionBeanMetaData
     * Sets the value of the ejbTimeoutIdentity property.
     *
     * @param value
-    *     allowed object is
-    *     {@link JBossSecurityIdentityMetaData }
     *
     */
    void setEjbTimeoutIdentity(JBossSecurityIdentityMetaData value);

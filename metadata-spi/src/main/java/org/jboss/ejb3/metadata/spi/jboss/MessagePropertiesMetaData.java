@@ -61,20 +61,20 @@ public interface MessagePropertiesMetaData
     * 
     * @return
     *     possible object is
-    *     {@link MethodMetaData }
+    *     {@link JBossMethodMetaData }
     *     
     */
-   MethodMetaData getMethod();
+   JBossMethodMetaData getMethod();
 
    /**
     * Sets the value of the method property.
     * 
     * @param value
     *     allowed object is
-    *     {@link MethodMetaData }
+    *     {@link JBossMethodMetaData }
     *     
     */
-   void setMethod(MethodMetaData value);
+   void setMethod(JBossMethodMetaData value);
 
    /**
     * Gets the value of the delivery property.

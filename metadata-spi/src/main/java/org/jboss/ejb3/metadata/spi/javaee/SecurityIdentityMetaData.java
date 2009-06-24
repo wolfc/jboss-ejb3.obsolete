@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  *
+ * Represents the metadata for security-identity element
  *
  * 	The security-identityType specifies whether the caller's
  * 	security identity is to be used for the execution of the
@@ -43,7 +44,7 @@ import java.util.List;
  *
  *
  */
-public interface SecurityIdentityMetaData
+public interface SecurityIdentityMetaData extends IdMetaData
 {
 
    /**
@@ -71,63 +72,38 @@ public interface SecurityIdentityMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the useCallerIdentity property.
     *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
+    * @return Returns true if the caller's security identity is to be used as the
+    *   security identity for the execution of the enterprise bean's methods.
+    *   Else returns false.
     *
     */
    boolean isUseCallerIdentity();
 
    /**
-    * Sets the value of the useCallerIdentity property.
+    * Enable/Disable the use of caller's security identity for the execution of the enterprise bean's methods.
     *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
+    * @param useCallerIdentity If true then the caller's security identity will be used as the
+    *   security identity for the execution of the enterprise bean's methods.
     *
     */
-   void setUseCallerIdentity(boolean value);
+   void setUseCallerIdentity(boolean useCallerIdentity);
 
    /**
-    * Gets the value of the runAs property.
     *
-    * @return
-    *     possible object is
-    *     {@link RunAsMetaData }
+    * @return Returns the run-as metadata associated with this security identity
     *
     */
    RunAsMetaData getRunAs();
 
    /**
-    * Sets the value of the runAs property.
+    * Sets the run-as metadata associated with this security identity
     *
-    * @param value
-    *     allowed object is
-    *     {@link RunAsMetaData }
+    * @param runAs The run-as metadata
     *
     */
-   void setRunAs(RunAsMetaData value);
+   void setRunAs(RunAsMetaData runAs);
 
-   /**
-    * Gets the value of the id property.
-    *
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *
-    */
-   java.lang.String getId();
 
-   /**
-    * Sets the value of the id property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *
-    */
-   void setId(java.lang.String value);
 
 }
