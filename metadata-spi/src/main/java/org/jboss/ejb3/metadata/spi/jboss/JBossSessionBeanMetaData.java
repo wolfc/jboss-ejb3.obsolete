@@ -61,7 +61,8 @@ import org.jboss.ejb3.metadata.spi.javaee.SessionBeanMetaData;
 public interface JBossSessionBeanMetaData extends SessionBeanMetaData
 {
 
-   List<JBossMessageDestinationRefMetaData> getMessageDestinationRef();
+   //TODO
+   List<JBossMessageDestinationRefMetaData> getMessageDestinationRefs();
 
    /**
     * @return Returns the local jndi bindings for this bean.

@@ -600,7 +600,6 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    void setResourceRefs(List<ResourceRefMetaData> resourceRefs);
 
-
    /**
     * @return Returns the list of resource environment references of this bean.
     * Returns an empty list if there are no such references.
@@ -643,7 +642,6 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    // TODO: Revisit, we need this
    //List<MessageDestinationRefType> getMessageDestinationRef();
-
    /**
     * @return Returns the list of persistence context references of this bean
     *
@@ -661,7 +659,6 @@ public interface SessionBeanMetaData extends IdMetaData
     * @param persistenceContextRefs The persistence context references
     */
    void setPeristenceContextRefs(List<PersistenceContextRefMetaData> persistenceContextRefs);
-
 
    /**
     * @returns Returns the persistence unit references associated with this bean
@@ -781,7 +778,5 @@ public interface SessionBeanMetaData extends IdMetaData
     *
     */
    void setSecurityIdentity(SecurityIdentityMetaData securityIdentity);
-
-
 
 }
