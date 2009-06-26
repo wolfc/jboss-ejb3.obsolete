@@ -15,7 +15,7 @@
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-as-int</artifactId>
   <name>JBoss EJB 3.x AS Integration</name>
-  <version>1.1.8-SNAPSHOT</version>
+  <version>1.1.8</version>
   <description>Integration of the EJB3 Project with JBoss Application Server</description>
   
   <!-- Properties -->
@@ -70,4 +70,10 @@
     <!-- All other dependencies -->
   
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-as-int-1.1.8</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-as-int-1.1.8</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-as-int-1.1.8</url>
+  </scm>
 </project>
