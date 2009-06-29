@@ -297,6 +297,26 @@ public abstract class AbstractEJB3TestCase
 
       }
 
+      // make sure the containers are available through lookup
+      for(SessionContainer container : containers)
+      {
+         try
+         {
+            bootstrap.lookup(container.getObjectName().getCanonicalName(), Object.class);
+         }
+         catch (RuntimeException e)
+         {
+            throw e;
+         }
+         catch (Error e)
+         {
+            throw e;
+         }
+         catch (Throwable t)
+         {
+            throw new RuntimeException(t);
+         }
+      }
       // Return
       return containers;
    }
@@ -457,25 +477,6 @@ public abstract class AbstractEJB3TestCase
       {
          throw new DeploymentException(e);
       }
-
-      // make sure we're installed
-      try
-      {
-         bootstrap.lookup(containerName, Object.class);
-      }
-      catch (RuntimeException e)
-      {
-         throw e;
-      }
-      catch (Error e)
-      {
-         throw e;
-      }
-      catch (Throwable t)
-      {
-         throw new RuntimeException(t);
-      }
-
       // Return
       return container;
    }
