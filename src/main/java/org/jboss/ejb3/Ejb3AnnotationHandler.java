@@ -129,6 +129,9 @@ public class Ejb3AnnotationHandler implements Ejb3Handler
       if(ejbJarMetaData == null)
          return null;
       
+      if(!ejbJarMetaData.isEJB3x())
+         throw new IllegalStateException("Attempt to process non-EJB3.x EJB-JAR metadata as EJB3.x for deployment " + deployment.getName());
+      
       M beanMetaData = deployment.getEnterpriseBeanMetaData(ejbName, enterpriseBeanMetaDataClass);
       if(beanMetaData == null)
       {
