@@ -66,6 +66,7 @@ import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.joinpoint.ConstructionInvocation;
+import org.jboss.aop.microcontainer.annotations.DisableAOP;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
 import org.jboss.beans.metadata.api.annotations.Inject;
@@ -126,6 +127,7 @@ import org.jboss.virtual.VirtualFile;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
+@DisableAOP
 public abstract class EJBContainer 
    implements Container, IndirectContainer<EJBContainer, DirectContainer<EJBContainer>>, 
       EJBInjectionContainer, ExtendedInjectionContainer, JavaEEComponent

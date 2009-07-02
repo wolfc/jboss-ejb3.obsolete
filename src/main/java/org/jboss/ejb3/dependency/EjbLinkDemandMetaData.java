@@ -51,15 +51,15 @@ public class EjbLinkDemandMetaData extends JBossObject
    implements DemandMetaData, Serializable
 {
    private static final long serialVersionUID = 1L;
-   
+
    /** The demand */
    private ObjectName demand;
-   
+
    /** When the dependency is required */
    private ControllerState whenRequired = ControllerState.DESCRIBED;
 
    /**
-    * 
+    *
     * @param component      the component which needs the enterprise bean
     * @param ejbName        the name of the enterprise bean to find
     */
@@ -102,7 +102,7 @@ public class EjbLinkDemandMetaData extends JBossObject
       visitor.addDependency(item);
       visitor.initialVisit(this);
    }
-   
+
    @Override
    public void toString(JBossStringBuilder buffer)
    {
@@ -110,7 +110,7 @@ public class EjbLinkDemandMetaData extends JBossObject
       if (whenRequired != null)
          buffer.append(" whenRequired=").append(whenRequired.getStateString());
    }
-   
+
    @Override
    public void toShortString(JBossStringBuilder buffer)
    {
@@ -123,7 +123,7 @@ public class EjbLinkDemandMetaData extends JBossObject
       {
          super(name, null, whenRequired, null);
       }
-      
+
       @Override
       public boolean resolve(Controller controller)
       {
@@ -132,7 +132,7 @@ public class EjbLinkDemandMetaData extends JBossObject
             try
             {
                ObjectName otherName = new ObjectName(context.getName().toString());
-               
+
                if(demand.apply(otherName))
                {
                   setIDependOn(context.getName());
@@ -149,14 +149,14 @@ public class EjbLinkDemandMetaData extends JBossObject
          setResolved(false);
          return isResolved();
       }
-      
+
       @Override
       public void toString(JBossStringBuilder buffer)
       {
          super.toString(buffer);
          buffer.append(" demand=").append(demand.getCanonicalName());
       }
-      
+
       @Override
       public void toShortString(JBossStringBuilder buffer)
       {
@@ -170,5 +170,15 @@ public class EjbLinkDemandMetaData extends JBossObject
          builder.append("Demands '").append(demand.getCanonicalName());
          return builder.toString();
       }
+   }
+
+   /**
+    * @see DemandMetaData#getTargetState()
+    *
+    * @return Return the default {@link ControllerState#INSTALLED}
+    */
+   public ControllerState getTargetState()
+   {
+      return ControllerState.INSTALLED;
    }
 }
