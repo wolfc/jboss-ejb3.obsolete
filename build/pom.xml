@@ -7,10 +7,10 @@
   <parent>
     <groupId>org.jboss</groupId>
     <artifactId>jboss-parent</artifactId>
-    <!-- 
+    <!--
 
     This should be re-enabled after Plugin
-    configuration makes it into 
+    configuration makes it into
     release-pom.xml.  Otherwise all builds
     will break.
 
@@ -60,8 +60,8 @@
     <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
     <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
     <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</url>
-  </scm>  
-  
+  </scm>
+
   <!-- Issues -->
   <issueManagement>
     <system>jira</system>
@@ -73,30 +73,33 @@
 
     <!-- Versioning -->
 
-    <!-- 
-      
-      These versions will be picked up by 
+    <!--
+
+      These versions will be picked up by
       individual project POMs, should be centralized
-      here such that all modules of EJB3 have the same 
+      here such that all modules of EJB3 have the same
       dependencies.
-      
+
     -->
 
-    <!--  
-      
+    <!--
+
       External
-      
+
     -->
-          
+
     <version.ant_ant>1.6.5</version.ant_ant>
     <version.commons-validator_commons-validator>1.3.1</version.commons-validator_commons-validator>
     <version.junit_junit>4.4</version.junit_junit>
-    <version.org.jboss.aop_jboss-aop>2.0.0.GA</version.org.jboss.aop_jboss-aop>
-    <version.org.jboss.aop_jboss-aop-aspects>2.0.1.GA</version.org.jboss.aop_jboss-aop-aspects>
+    <version.org.jboss.aop_jboss-aop>2.1.0-SNAPSHOT</version.org.jboss.aop_jboss-aop>
+    <version.org.jboss.aop_jboss-aop-aspects>2.0.0.SP1</version.org.jboss.aop_jboss-aop-aspects>
+    <version.org.jboss.common.core>2.2.14.GA</version.org.jboss.common.core>
     <version.org.jboss.deployers>2.0.0.CR5</version.org.jboss.deployers>
-    <version.org.jboss.microcontainer>2.0.0.CR5</version.org.jboss.microcontainer>
+    <version.org.jboss.jbossxb>2.0.1.GA</version.org.jboss.jbossxb>
+    <version.org.jboss.microcontainer>2.0.8.GA</version.org.jboss.microcontainer>
+    <version.org.jboss.reflect>2.0.2.GA</version.org.jboss.reflect>
     <version.org.jboss.ws_jbossws-spi>1.0.3.GA</version.org.jboss.ws_jbossws-spi>
-   
+
     <!-- Miscellaneous -->
     <jvmargs />
 
@@ -121,7 +124,7 @@
           <optimize>true</optimize>
           <compilerVersion>1.5</compilerVersion>
           <fork>true</fork>
-          <executable>${JAVA_HOME}/bin/javac</executable>          
+          <executable>${JAVA_HOME}/bin/javac</executable>
         </configuration>
       </plugin>
 
@@ -185,17 +188,17 @@
 
       <!-- Surefire (Tests) Plugin -->
 
-      <!-- 
-        
+      <!--
+
         To pass JVM Arguments (ie. Remote Debugging w/ suspend),
         pass "maven.surefire.debug" as system property, ie:
-        
+
         mvn test -Dmaven.surefire.debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8787"
-        
+
       -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        
+
         <configuration>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
           <printSummary>true</printSummary>
@@ -207,6 +210,7 @@
           </includes>
           <forkMode>always</forkMode>
           <argLine>-ea</argLine>
+          <argLine>-Dxb.builder.useUnorderedSequence=true</argLine>
         </configuration>
       </plugin>
 
@@ -290,7 +294,7 @@
         <artifactId>activation</artifactId>
         <version>1.0.2</version>
       </dependency>
-    
+
       <!-- Apache Commons Validator -->
       <dependency>
         <groupId>commons-validator</groupId>
@@ -299,57 +303,57 @@
           ${version.commons-validator_commons-validator}
         </version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-log4j</artifactId>
         <version>2.0.5.GA</version>
         <scope>runtime</scope>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.logging</groupId>
         <artifactId>jboss-logging-spi</artifactId>
         <version>2.0.5.GA</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-common-core</artifactId>
         <version>2.2.5.GA</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.metadata</groupId>
         <artifactId>jboss-metadata</artifactId>
         <version>1.0.0.CR16</version>
       </dependency>
- 
+
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-mdr</artifactId>
         <version>2.0.0.CR3</version>
       </dependency>
- 
+
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-transaction-spi</artifactId>
         <version>5.0.0.Beta4</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-reflect</artifactId>
         <version>2.0.0.CR1</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.naming</groupId>
         <artifactId>jnpserver</artifactId>
         <version>5.0.0.CR1</version>
         <scope>test</scope>
       </dependency>
-      
+
       <!-- JBoss AOP -->
       <dependency>
         <groupId>org.jboss.aop</groupId>
@@ -371,7 +375,7 @@
         <version>1.0.0.Beta1</version>
         <scope>test</scope>
       </dependency>
-      
+
       <!-- Remoting Aspects -->
       <dependency>
         <groupId>org.jboss.aspects</groupId>
@@ -379,13 +383,13 @@
         <version>1.0.2</version>
       </dependency>
 
-      <!-- JavaEE APIs -->      
+      <!-- JavaEE APIs -->
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-ejb-api</artifactId>
         <version>3.0.0.CR1</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-jacc-api</artifactId>
@@ -397,19 +401,19 @@
         <artifactId>jboss-jaspi-api</artifactId>
         <version>1.0.0.CR1</version>
       </dependency>
-    
+
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-jca-api</artifactId>
         <version>1.5.0.CR1</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-persistence-api</artifactId>
         <version>3.0.0.CR1</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.javaee</groupId>
         <artifactId>jboss-servlet-api</artifactId>
@@ -421,20 +425,49 @@
         <artifactId>jboss-jms-api</artifactId>
         <version>1.1.0.CR1</version>
       </dependency>
-      
+
+      <!-- JBoss XB -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jbossxb</artifactId>
+        <version>${version.org.jboss.jbossxb}</version>
+      </dependency>
+
+      <!-- JBoss Common Core -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-common-core</artifactId>
+        <version>${version.org.jboss.common.core}</version>
+      </dependency>
+
+
+    <!--  JBoss Reflect -->
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-reflect</artifactId>
+        <version>${version.org.jboss.reflect}</version>
+      </dependency>
+
+
       <!-- JBoss Microcontainer -->
       <dependency>
         <groupId>org.jboss.microcontainer</groupId>
         <artifactId>jboss-kernel</artifactId>
         <version>${version.org.jboss.microcontainer}</version>
       </dependency>
-      
+
+      <dependency>
+        <groupId>org.jboss.microcontainer</groupId>
+        <artifactId>jboss-aop-mc-int</artifactId>
+        <version>${version.org.jboss.microcontainer}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.jboss.deployers</groupId>
         <artifactId>jboss-deployers-core-spi</artifactId>
         <version>${version.org.jboss.deployers}</version>
       </dependency>
-      
+
       <dependency>
         <groupId>org.jboss.deployers</groupId>
         <artifactId>jboss-deployers-spi</artifactId>
@@ -459,8 +492,8 @@
         <groupId>org.jboss.jbossas</groupId>
         <artifactId>jboss-server-manager</artifactId>
         <version>0.1.0.GA</version>
-      </dependency>  
-      
+      </dependency>
+
       <!-- JUnit -->
       <dependency>
         <groupId>junit</groupId>
@@ -479,7 +512,7 @@
   </dependencyManagement>
 
   <profiles>
-  
+
     <profile>
       <id>default</id>
       <activation>
@@ -492,7 +525,7 @@
         </ejb3.testOutputDirectory>
       </properties>
     </profile>
-        
+
     <profile>
       <id>eclipse</id>
       <build>
@@ -521,7 +554,7 @@
         <ejb3.testOutputDirectory>eclipse-target/tests-classes</ejb3.testOutputDirectory>
       </properties>
     </profile>
-    
+
   </profiles>
-  
+
 </project>
