@@ -31,16 +31,18 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.advice.AdviceStack;
 import org.jboss.aop.advice.Interceptor;
+import org.jboss.aop.microcontainer.annotations.DisableAOP;
 import org.jboss.logging.Logger;
 
 /**
  * ProxyFactoryBase
- * 
+ *
  * A Base upon which Proxy Factory Implementations may build
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
+@DisableAOP
 public abstract class ProxyFactoryBase implements ProxyFactory
 {
    // --------------------------------------------------------------------------------||
@@ -63,8 +65,8 @@ public abstract class ProxyFactoryBase implements ProxyFactory
     */
    private String containerName;
 
-   /** 
-    * The globally-unique name of the target container 
+   /**
+    * The globally-unique name of the target container
     */
    private String containerGuid;
 
@@ -78,7 +80,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    /**
     * Constructor
-    * 
+    *
     * @param name The unique name for this ProxyFactory
     * @param containerName The name of the InvokableContext (container)
     *   upon which Proxies will invoke
@@ -104,7 +106,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    /**
     * Create a Proxy Constructor for the specified interfaces, using the specified CL
-    * 
+    *
     * @param interfaces
     * @param cl
     * @return
@@ -132,7 +134,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    /**
     * Returns Proxy interfaces common to all Proxies generated
     * by this ProxyFactory
-    * 
+    *
     * @return
     */
    protected Set<Class<?>> getCommonProxyInterfaces()
@@ -149,10 +151,10 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    // --------------------------------------------------------------------------------||
 
    /**
-    * Return the name of the interceptor stack to apply to 
-    * proxies created by this proxy factory, or null 
+    * Return the name of the interceptor stack to apply to
+    * proxies created by this proxy factory, or null
     * if no interceptors should be applied
-    * 
+    *
     * @return
     */
    protected String getInterceptorStackName()
@@ -162,7 +164,7 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    /**
     * Obtains all interceptors in this Proxy Factory's stack
-    * 
+    *
     * @return
     */
    protected Interceptor[] getInterceptors()
@@ -189,9 +191,9 @@ public abstract class ProxyFactoryBase implements ProxyFactory
    // --------------------------------------------------------------------------------||
 
    /**
-    * Lifecycle callback to be invoked by 
+    * Lifecycle callback to be invoked by
     * before the ProxyFactory is able to service requests
-    * 
+    *
     *  @throws Exception
     */
    public void start() throws Exception
@@ -202,9 +204,9 @@ public abstract class ProxyFactoryBase implements ProxyFactory
 
    /**
     * Lifecycle callback to be invoked by the ProxyFactoryDeployer
-    * before the ProxyFactory is taken out of service, 
+    * before the ProxyFactory is taken out of service,
     * possibly GC'd
-    * 
+    *
     * @throws Exception
     */
    public void stop() throws Exception
