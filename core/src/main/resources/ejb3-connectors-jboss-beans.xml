@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  
+
   EJB3 Connectors
-  
+
 -->
 
 <deployment xmlns="urn:jboss:bean-deployer:2.0">
+    <!--  We don't want the AOPDependencyBuilder  -->
+    <annotation>@org.jboss.aop.microcontainer.annotations.DisableAOP</annotation>
 
-  <!-- 
-    
-    JBoss Remoting Connector  
-    
+  <!--
+
+    JBoss Remoting Connector
+
     Note: Bean Name "org.jboss.ejb3.RemotingConnector" is used
     as a lookup value; alter only after checking java references
     to this key.
-    
+
   -->
   <bean name="org.jboss.ejb3.RemotingConnector"
     class="org.jboss.remoting.transport.Connector">
