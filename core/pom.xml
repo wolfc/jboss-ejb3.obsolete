@@ -154,20 +154,36 @@
 
     <dependency>
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate</artifactId>
-      <version>3.2.6.ga</version>
+      <artifactId>hibernate-core</artifactId>
+      <version>3.3.1.GA</version>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
       <version>3.3.1.GA</version>
+      <!-- Exclude org.hibernate:hibernate which is banned in
+      favour of org.hibernate:hibernate-core -->
+      <exclusions>
+        <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
       <version>3.3.2.GA</version>
+      <!-- Exclude org.hibernate:hibernate which is banned in
+      favour of org.hibernate:hibernate-core -->
+      <exclusions>
+        <exclusion>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -354,7 +370,7 @@
       <artifactId>jboss-ejb3-common</artifactId>
       <version>1.0.0</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-endpoint</artifactId>
@@ -408,7 +424,7 @@
       <artifactId>jboss-ejb3-proxy-clustered</artifactId>
       <version>1.0.1</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-spi</artifactId>

@@ -165,6 +165,8 @@
                 <exclude>org.jboss.microcontainer:jboss-deployers-spi</exclude>
                 <!-- EJBTHREE-1767, now org.jboss.ejb3:jboss-ejb3-proxy-impl -->
                 <exclude>org.jboss.ejb3:jboss-ejb3-proxy</exclude>
+                <!-- EJBTHREE-1865 Use org.hibernate:hibernate-core-->
+                <exclude>org.hibernate:hibernate</exclude>
               </excludes>
             </bannedDependencies>
             <requireMavenVersion>
