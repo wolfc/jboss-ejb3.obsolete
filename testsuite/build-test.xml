@@ -94,7 +94,7 @@
   <property name="location.dependencies.lib" value="${location.dependencies}/lib"/>
 	<property name="location.dependencies.lib.ejb3persistence" value="${location.dependencies.lib}/ejb3-persistence.jar"/>
 	<property name="location.dependencies.lib.jbosssx" value="${location.dependencies.lib}/jbosssx.jar"/>
-  <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate.jar"/>
+  <property name="location.dependencies.lib.hibernate:hibernate3" value="${location.dependencies.lib}/hibernate-core.jar"/>
   <property name="location.dependencies.lib.jboss-test:jboss-test" value="${location.dependencies.lib}/jboss-test.jar"/>
   <property name="location.dependencies.lib.org.jboss.jbossas:server-manager" value="${location.dependencies.lib}/jboss-server-manager.jar"/>
   <property name="location.dependencies.lib.junit:junit" value="${location.dependencies.lib}/junit.jar"/>
