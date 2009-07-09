@@ -224,8 +224,15 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
                         return new EJBContextPropertyInjector(property);
                      }
                   };
-                  InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
-                  continue;
+                  if (envRef.getInjectionTargets() != null)
+                  {
+                     InjectionUtil.createInjectors(container.getInjectors(), container.getClassloader(), factory, envRef.getInjectionTargets());
+                     continue;
+                  }
+                  else
+                  {
+                     mappedName = "java:comp/EJBContext";
+                  }
                }
                else if (resType.equals(UserTransaction.class))
                {
@@ -302,7 +309,7 @@ public class ResourceHandler<X extends RemoteEnvironment> implements InjectionHa
          {
             throw new RuntimeException("mapped-name is required for " + envRef.getResourceEnvRefName() + " of deployment " + container.getIdentifier());
          }
-         container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, envRef.getMappedName(), "<resource-ref>"));
+         container.getEncInjectors().put(encName, new LinkRefEncInjector(encName, mappedName, "<resource-ref>"));
          InjectionUtil.injectionTarget(encName, envRef, container, container.getEncInjections());
       }
    }
