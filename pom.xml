@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.4</version>
   </parent>
 
   <!-- Model Version -->
@@ -16,7 +16,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-proxy-impl</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
   <name>JBoss EJB 3.x Proxy Implementation (Internals)</name>
   <description>JBoss EJB 3.x Proxy Implementation (Internals)</description>
   <url>http://www.jboss.org/jbossejb3</url>
@@ -157,4 +157,10 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-impl-1.0.3</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-impl-1.0.3</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-impl-1.0.3</url>
+  </scm>
 </project>
