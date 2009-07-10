@@ -91,7 +91,7 @@
     <version.ant_ant>1.6.5</version.ant_ant>
     <version.commons-validator_commons-validator>1.3.1</version.commons-validator_commons-validator>
     <version.junit_junit>4.4</version.junit_junit>
-    <version.org.jboss.aop_jboss-aop>2.1.0-SNAPSHOT</version.org.jboss.aop_jboss-aop>
+    <version.org.jboss.aop_jboss-aop>2.1.1.GA</version.org.jboss.aop_jboss-aop>
     <version.org.jboss.aop_jboss-aop-aspects>2.0.0.SP1</version.org.jboss.aop_jboss-aop-aspects>
     <version.org.jboss.common.core>2.2.14.GA</version.org.jboss.common.core>
     <version.org.jboss.deployers>2.0.0.CR5</version.org.jboss.deployers>
