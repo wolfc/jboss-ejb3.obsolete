@@ -156,11 +156,11 @@ public class InvocationStatisticMetaMapper extends MetaMapper<InvocationStatisti
       // Make the method map from the stats
       final Map<String, MetaValue> methodMap = new HashMap<String, MetaValue>();
       @SuppressWarnings("unchecked")
-      final Map<Method, TimeStatistic> stats = (Map<Method, TimeStatistic>) object.getStats();
+      final Map<String, TimeStatistic> stats = (Map<String, TimeStatistic>) object.getStats();
       if (stats != null)
       {
-         final Set<Method> methods = stats.keySet();
-         for (final Method method : methods)
+         final Set<String> methods = stats.keySet();
+         for (final String method : methods)
          {
             // Get the underlying time stat for this method
             final TimeStatistic stat = stats.get(method);
@@ -173,8 +173,7 @@ public class InvocationStatisticMetaMapper extends MetaMapper<InvocationStatisti
             cvs.put(PROP_NAME_METHODSTATS_TOTALTIME, SimpleValueSupport.wrap(stat.totalTime));
 
             // Add the stat to the method map
-            final String methodName = method.getName();
-            methodMap.put(methodName, cvs);
+            methodMap.put(method, cvs);
          }
       }
 

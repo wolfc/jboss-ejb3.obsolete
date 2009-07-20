@@ -21,31 +21,32 @@
  */
 package org.jboss.ejb3.metrics.deployer;
 
-import org.jboss.ejb3.session.SessionContainer;
 import org.jboss.ejb3.statistics.InvocationStatistics;
+import org.jboss.managed.api.annotation.ManagementOperation;
 import org.jboss.managed.api.annotation.ManagementProperty;
 import org.jboss.managed.api.annotation.ViewUse;
+import org.jboss.metatype.api.annotations.MetaMapping;
 
 /**
- * ManagedSessionMetricsWrapperBase
+ * ManagedMetricsWrapperBase
  * 
- * Base class to to delegate to the underlying invocation stats and
- * instance metrics, exposing management properties and operations.
+ * Base class to to delegate to the underlying invocation stats, 
+ * exposing management properties and operations.
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-//Must be public so ProfileService can pick up on annotations
-public abstract class ManagedSessionMetricsWrapperBase extends ManagedMetricsWrapperBase
+// Must be public so ProfileService can pick up on annotations
+public abstract class ManagedMetricsWrapperBase
 {
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * The underlying session container
+    * The delegate
     */
-   private SessionContainer container;
+   private InvocationStatistics invocationStats;
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -54,28 +55,19 @@ public abstract class ManagedSessionMetricsWrapperBase extends ManagedMetricsWra
    /**
     * Constructor
     * 
-    * @param container
     * @param invocationStats
-    * @throws IllegalArgumentException If the stats or container were not supplied
+    * @throws IllegalArgumentException If the stats were not specified
     */
-   ManagedSessionMetricsWrapperBase(final SessionContainer container, final InvocationStatistics invocationStats)
-         throws IllegalArgumentException
+   ManagedMetricsWrapperBase(final InvocationStatistics invocationStats) throws IllegalArgumentException
    {
-      // Invoke super
-      super(invocationStats);
-
       // Precondition check
       if (invocationStats == null)
       {
          throw new IllegalArgumentException("Supplied invocation stats was null");
       }
-      if (container == null)
-      {
-         throw new IllegalArgumentException("Container was null");
-      }
 
       // Set properties
-      this.setContainer(container);
+      this.setInvocationStats(invocationStats);
    }
 
    // --------------------------------------------------------------------------------||
@@ -83,63 +75,47 @@ public abstract class ManagedSessionMetricsWrapperBase extends ManagedMetricsWra
    // --------------------------------------------------------------------------------||
 
    /**
-    * Returns the EJB Name
     * @return
+    * @see org.jboss.ejb3.statistics.InvocationStatistics#getStats()
     */
-   @ManagementProperty(readOnly = true, use = ViewUse.CONFIGURATION)
-   public String getName()
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   @MetaMapping(value = InvocationStatisticMetaMapper.class)
+   public InvocationStatistics getInvocationStats()
    {
-      return this.container.getEjbName();
+      return invocationStats;
    }
 
-   // --------------------------------------------------------------------------------||
-   // Required Session Instance Metrics ----------------------------------------------||
-   // --------------------------------------------------------------------------------||
-
-   /*
-    * The following properties are to be exposed by 
-    * the backing instance pool/cache
+   /**
+    * 
+    * @see org.jboss.ejb3.statistics.InvocationStatistics#resetStats()
     */
+   @ManagementOperation
+   public void resetInvocationStats()
+   {
+      invocationStats.resetStats();
+   }
 
    /**
-    * The number of instances available for service
-    */
-   abstract int getAvailableCount();
-
-   /**
-    * The number of instances created
+    * Exposes the time, represented in milliseconds since the epoch, 
+    * that the stats were last reset
     * @return
     */
-   abstract int getCreateCount();
-
-   /**
-    * The current size of the backing pool/cache
-    * @return
-    */
-   abstract int getCurrentSize();
-
-   /**
-    * The maximum size of the backing pool/cache
-    * @return
-    */
-   abstract int getMaxSize();
-
-   /**
-    * The number of instances removed 
-    * @return
-    */
-   abstract int getRemoveCount();
+   @ManagementProperty(readOnly = true, use = ViewUse.STATISTIC)
+   public long getInvocationStatsLastResetTime()
+   {
+      return invocationStats.lastResetTime;
+   }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
    // --------------------------------------------------------------------------------||
 
    /**
-    * @param container The underlying Session Container
+    * @param invocationStats the stats to set
     */
-   private void setContainer(final SessionContainer container)
+   private void setInvocationStats(final InvocationStatistics invocationStats)
    {
-      this.container = container;
+      this.invocationStats = invocationStats;
    }
 
 }
