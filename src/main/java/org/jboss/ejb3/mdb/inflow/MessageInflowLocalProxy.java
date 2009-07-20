@@ -36,6 +36,7 @@ import org.jboss.aop.MethodInfo;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.ejb3.mdb.MessagingContainer;
+import org.jboss.ejb3.statistics.InvocationStatistics;
 import org.jboss.ejb3.tx.TxUtil;
 import org.jboss.logging.Logger;
 
@@ -120,24 +121,52 @@ public class MessageInflowLocalProxy implements InvocationHandler
       if (trace)
          log.trace("MessageEndpoint " + getProxyString(proxy) + " in use by " + method + " " + inUseThread);
       
+      // Remember the return value
+      final Object returnValue;
+
       // Which operation?
       if (method.getName().equals("release"))
       {
          release(proxy);
-         return null;
+         returnValue = null;
       }
       else if (method.getName().equals("beforeDelivery"))
       {
          before(proxy, container, method, args);
-         return null;
+         returnValue = null;
       }
       else if (method.getName().equals("afterDelivery"))
       {
          after(proxy);
-         return null;
+         returnValue = null;
       }
+      // Real inflow invocation (ie. from MessageListener.onMessage())
       else
-         return delivery(proxy, container, method, args);
+      {
+         // Tell invoke stats we're starting
+         final InvocationStatistics invokeStats = container.getInvokeStats();
+         invokeStats.callIn();
+         try
+         {
+            final long start = System.currentTimeMillis();
+            returnValue = delivery(proxy, container, method, args);
+            final long elapsed = System.currentTimeMillis() - start;
+            invokeStats.updateStats(method, elapsed);
+            if(log.isTraceEnabled())
+            {
+               log.trace("Invocation took " + elapsed + "ms: " + method);
+            }
+         }
+         finally
+         {
+            // Tell invoke stats we're done
+            invokeStats.callOut();
+         }
+
+      }
+
+      // Return
+      return returnValue;
    }
 
    public String toString()
