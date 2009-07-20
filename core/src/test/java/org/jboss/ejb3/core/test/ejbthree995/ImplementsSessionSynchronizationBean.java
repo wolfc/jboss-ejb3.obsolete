@@ -28,6 +28,8 @@ import javax.ejb.Remote;
 import javax.ejb.SessionSynchronization;
 import javax.ejb.Stateful;
 
+import org.jboss.logging.Logger;
+
 /**
  * ImplementsSessionSynchronizationBean
  * 
@@ -49,6 +51,8 @@ public class ImplementsSessionSynchronizationBean
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
+
+   private static final Logger log = Logger.getLogger(ImplementsSessionSynchronizationBean.class);
 
    /*
     * Define some counters to be used by the test.  Ensure that
@@ -74,16 +78,19 @@ public class ImplementsSessionSynchronizationBean
 
    public void afterBegin() throws EJBException, RemoteException
    {
+      log.info("afterBegin");
       CALLS_AFTER_BEGIN++;
    }
 
    public void afterCompletion(boolean committed) throws EJBException, RemoteException
    {
+      log.info("afterCompletion");
       CALLS_AFTER_COMPLETION++;
    }
 
    public void beforeCompletion() throws EJBException, RemoteException
    {
+      log.info("beforeCompletion");
       CALLS_BEFORE_COMPLETION++;
    }
 

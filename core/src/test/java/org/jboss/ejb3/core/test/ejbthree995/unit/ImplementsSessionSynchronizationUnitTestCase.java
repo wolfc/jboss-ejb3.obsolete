@@ -111,6 +111,12 @@ public class ImplementsSessionSynchronizationUnitTestCase extends AbstractEJB3Te
 
       // Check callbacks have been made exactly twice
       this.assertCallsExpected(2);      
+      
+      // Invoke again
+      sfsb.call();
+
+      // Check callbacks have been made exactly three times
+      this.assertCallsExpected(3);  
 
       // Reset
       ImplementsSessionSynchronizationBean.resetCounters();
