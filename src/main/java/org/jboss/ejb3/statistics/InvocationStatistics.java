@@ -21,11 +21,12 @@
 */
 package org.jboss.ejb3.statistics;
 
-import java.lang.reflect.Method;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /** A method invocation statistics collection class.
@@ -37,8 +38,8 @@ public class InvocationStatistics implements Serializable
 {
    private static final long serialVersionUID = -1637309757441812924L;
 
-   /** A HashMap<Method, TimeStatistic> of the method invocations */
-   private Map methodStats;
+   /** The method invocations */
+   private Map<String, TimeStatistic> methodStats;
 
    public long concurrentCalls = 0;
    public long maxConcurrentCalls = 0;
@@ -64,7 +65,7 @@ public class InvocationStatistics implements Serializable
 
    public InvocationStatistics()
    {
-      methodStats = new ConcurrentHashMap();
+      methodStats = new ConcurrentHashMap<String, TimeStatistic>();
    }
 
    /** Update the TimeStatistic for the given method. This synchronizes on
@@ -108,7 +109,7 @@ public class InvocationStatistics implements Serializable
    {
       synchronized (methodStats)
       {
-         Iterator iter = methodStats.values().iterator();
+         Iterator<TimeStatistic> iter = methodStats.values().iterator();
          while (iter.hasNext())
          {
             TimeStatistic stat = (TimeStatistic) iter.next();
@@ -123,7 +124,7 @@ public class InvocationStatistics implements Serializable
     *
     * @return A HashMap<Method, TimeStatistic> of the method invocations
     */
-   public Map getStats()
+   public Map<String,TimeStatistic> getStats()
    {
       return methodStats;
    }
@@ -142,12 +143,12 @@ public class InvocationStatistics implements Serializable
       tmp.append(concurrentCalls);
       tmp.append("'\n");
 
-      HashMap copy = new HashMap(methodStats);
-      Iterator iter = copy.entrySet().iterator();
+      HashMap<String,TimeStatistic> copy = new HashMap<String,TimeStatistic>(methodStats);
+      Iterator<Entry<String,TimeStatistic>> iter = copy.entrySet().iterator();
       while (iter.hasNext())
       {
-         Map.Entry entry = (Map.Entry) iter.next();
-         TimeStatistic stat = (TimeStatistic) entry.getValue();
+         Entry<String,TimeStatistic> entry = iter.next();
+         final TimeStatistic stat = entry.getValue();
          if (stat != null)
          {
             tmp.append("method name='");
@@ -172,11 +173,11 @@ public class InvocationStatistics implements Serializable
       tmp.append(concurrentCalls);
       tmp.append("' >\n");
 
-      HashMap copy = new HashMap(methodStats);
-      Iterator iter = copy.entrySet().iterator();
+      HashMap<String,TimeStatistic> copy = new HashMap<String,TimeStatistic>(methodStats);
+      Iterator<Entry<String,TimeStatistic>> iter = copy.entrySet().iterator();
       while (iter.hasNext())
       {
-         Map.Entry entry = (Map.Entry) iter.next();
+         Entry<String,TimeStatistic> entry = iter.next();
          TimeStatistic stat = (TimeStatistic) entry.getValue();
          if (stat != null)
          {
