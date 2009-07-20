@@ -45,7 +45,7 @@ import org.jboss.metatype.api.annotations.MetaMapping;
  * @version $Revision: $
  */
 @ManagementObject(isRuntime = true, properties = ManagementProperties.EXPLICIT, description = "Message-Driven Instance Metrics", componentType = @ManagementComponent(type = "EJB3", subtype = "MessageDriven"))
-public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
+public class BasicMessageDrivenMetrics extends ManagedMetricsWrapperBase implements MessagingDelegateWrapperMBean
 {
 
    // --------------------------------------------------------------------------------||
@@ -69,6 +69,9 @@ public class BasicMessageDrivenMetrics implements MessagingDelegateWrapperMBean
     */
    public BasicMessageDrivenMetrics(final MessagingContainer mdb) throws IllegalArgumentException
    {
+      // Invoke super
+      super(mdb.getInvokeStats());
+
       // Precondition check
       if (mdb == null)
       {
