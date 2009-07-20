@@ -23,6 +23,7 @@ package org.jboss.ejb3.statistics;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -69,12 +70,12 @@ public class InvocationStatistics implements Serializable
    }
 
    /** Update the TimeStatistic for the given method. This synchronizes on
-    * m to ensure that the TimeStatistic for m is updated atomically.
+    * this to ensure that the TimeStatistic for m is updated atomically.
     *
     * @param m the method to update the statistics for.
     * @param elapsed the elapsed time in milliseconds for the invocation.
     */
-   public void updateStats(Method m, long elapsed)
+   public synchronized void updateStats(Method m, long elapsed)
    {
       TimeStatistic stat = (TimeStatistic) methodStats.get(m.getName());
       if (stat == null)
@@ -105,28 +106,20 @@ public class InvocationStatistics implements Serializable
    /** Resets all current TimeStatistics.
     *
     */
-   public void resetStats()
+   public synchronized void resetStats()
    {
-      synchronized (methodStats)
-      {
-         Iterator<TimeStatistic> iter = methodStats.values().iterator();
-         while (iter.hasNext())
-         {
-            TimeStatistic stat = (TimeStatistic) iter.next();
-            stat.reset();
-         }
-      }
+      methodStats.clear();
       maxConcurrentCalls = 0;
       lastResetTime = System.currentTimeMillis();
    }
 
-   /** Access the current collection of method invocation statistics
+   /** Accesses an immutable view of the current collection of method invocation statistics
     *
     * @return A HashMap<Method, TimeStatistic> of the method invocations
     */
    public Map<String,TimeStatistic> getStats()
    {
-      return methodStats;
+      return Collections.unmodifiableMap(methodStats);
    }
 
    /** Generate an XML fragement for the InvocationStatistics. The format is
