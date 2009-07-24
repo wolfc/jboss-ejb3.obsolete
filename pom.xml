@@ -63,7 +63,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-as-int</artifactId>
-      <version>1.1.9</version>
+      <version>1.1.10</version>
       <optional>true</optional>
     </dependency>
 
@@ -79,7 +79,7 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-core</artifactId>
       <classifier>client</classifier>
-      <version>1.1.9</version>
+      <version>1.1.10</version>
       <optional>true</optional>
     </dependency>
 
@@ -101,7 +101,7 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metrics-deployer</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
       <!-- Prevent the EJB3 core dependency from being pulled in -->
       <exclusions>
         <exclusion>
