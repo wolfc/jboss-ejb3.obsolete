@@ -68,3 +68,11 @@ Make sure the slave is listed in hudson/scripts/common on do make.
 
 # rpm -i jdk-1_5_0_17-linux-amd64.rpm
 # rpm -i jdk-6u11-linux-amd64.rpm
+
+/etc/sysconfig/network-scripts/route-lo
+multicast 224.0.0.0/4 dev lo
+
+2. Misc problems
+================
+
+The network hudson should be in /etc/libvirt/qemu/networks/hudson.xml

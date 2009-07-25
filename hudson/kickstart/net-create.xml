@@ -1,0 +1,10 @@
+<network>
+  <name>hudson</name>
+  <forward/>
+  <bridge name='vnet0' stp='on' forwardDelay='0' />
+  <ip address='192.168.102.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.102.128' end='192.168.102.254' />
+    </dhcp>
+  </ip>
+</network>
