@@ -86,11 +86,11 @@ public interface ExcludeListMetaData
     * 
     * <p>
     * Objects of the following type(s) are allowed in the list
-    * {@link MethodMetaData }
+    * {@link EjbMethodMetaData }
     * 
     * 
     */
-   List<MethodMetaData> getMethod();
+   List<EjbMethodMetaData> getMethod();
 
    /**
     * Gets the value of the id property.

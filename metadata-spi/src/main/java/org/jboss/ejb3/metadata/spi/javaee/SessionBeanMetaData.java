@@ -129,107 +129,8 @@ import java.util.Set;
  *
  *
  */
-public interface SessionBeanMetaData extends IdMetaData
+public interface SessionBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
 {
-
-   /**
-    * Gets the value of the description property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the description property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDescription().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DescriptionMetaData }
-    *
-    *
-    */
-   List<DescriptionMetaData> getDescription();
-
-   /**
-    * Gets the value of the displayName property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the displayName property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDisplayName().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DisplayNameMetaData }
-    *
-    *
-    */
-   List<DisplayNameMetaData> getDisplayName();
-
-   /**
-    * Gets the value of the icon property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the icon property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getIcon().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link IconType }
-    *
-    *
-    */
-   List<IconType> getIcon();
-
-   /**
-    * Returns the ejb name
-    *
-    */
-   String getEjbName();
-
-   /**
-    * Sets the ejb name
-    *
-    * @param name EJB name
-    */
-   void setEjbName(String name);
-
-   /**
-    * Returns the mapped-name of the bean.
-    * Returns null if there is no mapped-name for
-    * this bean
-    *
-    */
-   String getMappedName();
-
-   /**
-    * Sets the mapped-name of the bean
-    * @param mappedName The mapped-name of the bean
-    */
-   void setMappedName(String mappedName);
 
    /**
     * Returns the classname of the home interface corresponding to this
@@ -376,20 +277,6 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    boolean isStateful();
 
-   /**
-    * Returns the fully qualified classname of the bean implementation
-    * class.
-    *
-    */
-   String getEjbClass();
-
-   /**
-    * Sets the fully qualified classname of the bean implementation class.
-    *
-    * @param beanClass Fully qualified classname of the bean implementation
-    *
-    */
-   void setEjbClass(String beanClass);
 
    /**
     * TODO: Revisit this - do we need this
@@ -511,112 +398,7 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    void setAroundInvokes(List<AroundInvokeMetaData> aroundInvokes);
 
-   /**
-    * Returns a list of env-entry metadata of this bean.
-    *
-    * Returns an empty list if there is no env-entry.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
-    *
-    */
-   List<EnvEntryMetaData> getEnvEntries();
 
-   /**
-    * Sets the list of env-entry metadata of this bean
-    *
-    * @param envEntries The list of env-entry of this bean
-    */
-   void setEnvEntries(List<EnvEntryMetaData> envEntries);
-
-   /**
-    * Returns the list of EJB references of this bean
-    * Returns an empty list if there is no EJB reference for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
-    *
-    */
-   List<EjbRefMetaData> getEjbRefs();
-
-   /**
-    * Sets the list of EJB references for this bean
-    *
-    * @param ejbRefs The list of EJB references
-    */
-   void setEjbRefs(List<EjbRefMetaData> ejbRefs);
-
-   /**
-    * Returns the list of EJB local references of this bean
-    * Returns an empty list if there is no EJB local reference for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
-    */
-   List<EjbLocalRefMetaData> getEjbLocalRefs();
-
-   /**
-    * Sets the list of EJB local references for this bean
-    *
-    * @param ejbLocalRefs The list of EJB local references
-    */
-   void setEjbLocalRefs(List<EjbLocalRefMetaData> ejbLocalRefs);
-
-   /**
-    * Returns the list of web service reference(s) of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
-    */
-   List<ServiceRefMetaData> getServiceRefs();
-
-   /**
-    * Sets the list of web service references for this bean
-    *
-    * @param serviceRefs The service references
-    */
-   void setServiceRefs(List<ServiceRefMetaData> serviceRefs);
-
-   /**
-    * @return Returns the list of resource references of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    *
-    */
-   List<ResourceRefMetaData> getResourceRefs();
-
-   /**
-    * Sets the resource references of this bean
-    *
-    * @param resourceRefs List of resource references of this bean
-    */
-   void setResourceRefs(List<ResourceRefMetaData> resourceRefs);
-
-   /**
-    * @return Returns the list of resource environment references of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    *
-    */
-   List<ResourceEnvRefMetaData> getResourceEnvRefs();
-
-   /**
-    * Sets the resource env references of this bean
-    *
-    * @param resourceEnvRefs
-    */
-   void setResourceEnvRefs(List<ResourceEnvRefMetaData> resourceEnvRefs);
 
    /**
     * Gets the value of the messageDestinationRef property.
@@ -642,76 +424,9 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    // TODO: Revisit, we need this
    //List<MessageDestinationRefType> getMessageDestinationRef();
-   /**
-    * @return Returns the list of persistence context references of this bean
-    *
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    */
-   List<PersistenceContextRefMetaData> getPersistenceContextRefs();
 
-   /**
-    * Sets the list of persistence context references of this bean
-    *
-    * @param persistenceContextRefs The persistence context references
-    */
-   void setPeristenceContextRefs(List<PersistenceContextRefMetaData> persistenceContextRefs);
 
-   /**
-    * @returns Returns the persistence unit references associated with this bean
-    *
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    */
-   List<PersistenceUnitRefMetaData> getPersistenceUnitRefs();
 
-   /**
-    * Sets the persistence unit references
-    *
-    * @param persistenceUnitRefs The persistence unit references of this bean
-    */
-   void setPersistenceUnitRefs(List<PersistenceUnitRefMetaData> persistenceUnitRefs);
-
-   /**
-    * @return Returns a list of post-construct methods associated with this bean
-    * Returns an empty list if there are no post-constructs.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    */
-   List<LifecycleCallbackMetaData> getPostConstructs();
-
-   /**
-    * Sets the post-constructs associated with this bean
-    *
-    * @param postConstructs The list of post-constructs
-    */
-   void setPostConstructs(List<LifecycleCallbackMetaData> postConstructs);
-
-   /**
-    * @return Returns a list of pre-destroy methods associated with this bean
-    * Returns an empty list if there are no pre-destroy callbacks for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    *
-    */
-   List<LifecycleCallbackMetaData> getPreDestroys();
-
-   /**
-    * Sets the list of pre-destroy callbacks associated with this bean
-    *
-    * @param preDestroys The list of pre-destroys for this bean
-    */
-   void setPreDestroys(List<LifecycleCallbackMetaData> preDestroys);
 
    /**
     * @return Returns a list of post-activate methods associated with this bean
@@ -765,18 +480,6 @@ public interface SessionBeanMetaData extends IdMetaData
     */
    void setSecurityRoleRefs(List<SecurityRoleRefMetaData> securityRoleRefs);
 
-   /**
-    * @return Returns the security identity associated with this bean
-    *
-    */
-   SecurityIdentityMetaData getSecurityIdentity();
 
-   /**
-    * Sets the security identity associated with this bean
-    *
-    * @param securityIdentity The security identity associated with this bean
-    *
-    */
-   void setSecurityIdentity(SecurityIdentityMetaData securityIdentity);
 
 }

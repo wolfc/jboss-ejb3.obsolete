@@ -51,7 +51,7 @@ import java.util.List;
  *
  *
  */
-public interface MethodPermissionMetaData
+public interface MethodPermissionMetaData extends IdMetaData
 {
 
    /**
@@ -79,91 +79,51 @@ public interface MethodPermissionMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the roleName property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the roleName property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getRoleName().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link RoleNameType }
-    *
+    * @return Returns a list of role names which are allowed
+    * to access the method
     *
     */
-   List<String> getRoleName();
+   List<String> getRoleNames();
 
    /**
-    * Gets the value of the unchecked property.
+    * Sets the role names which are allowed to access the method
     *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
+    * @param roleNames List of role names
+    */
+   void setRoleNames(List<String> roleNames);
+
+   /**
+    * @return Returns true if the method is not checked for authorization
+    * by the container prior to the method invocation. Else returns false.
     *
     */
    boolean isUnchecked();
 
    /**
-    * Sets the value of the unchecked property.
+    * Sets the value of unchecked attribute
     *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
-    *
+    * @param unchecked True if the method should not be checked for authorization.
+    * False otherwise
     */
-   void setUnchecked(boolean value);
+   void setUnchecked(boolean unchecked);
 
    /**
-    * Gets the value of the method property.
+    * @return Returns a list of methods which are configured for method permissions
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the method property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getMethod().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link MethodMetaData }
+    * Returns an empty list if no methods have been configured for method permissions
     *
     *
     */
-   List<MethodMetaData> getMethod();
+   List<EjbMethodMetaData> getMethods();
 
    /**
-    * Gets the value of the id property.
+    * Sets the method permissions for the <code>methods</code>
     *
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
+    * @param methods The methods for which the method permissions are to be
+    * configured
     *
     */
-   java.lang.String getId();
+   void setMethods(List<EjbMethodMetaData> methods);
 
-   /**
-    * Sets the value of the id property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *
-    */
-   void setId(java.lang.String value);
 
 }
