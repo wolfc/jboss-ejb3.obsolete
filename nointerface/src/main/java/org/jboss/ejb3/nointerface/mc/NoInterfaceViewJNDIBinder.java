@@ -51,7 +51,7 @@ public abstract class NoInterfaceViewJNDIBinder
    private static Logger logger = Logger.getLogger(NoInterfaceViewJNDIBinder.class);
 
    /**
-    * The container for which this {@link NoInterfaceViewJNDIBinder} holds
+    * The endpoint for which this {@link NoInterfaceViewJNDIBinder} holds
     * an no-interface view
     */
    // Bean name will be added to this Inject by the deployer.
@@ -59,7 +59,7 @@ public abstract class NoInterfaceViewJNDIBinder
    // dynamically. But having this here provides a better understanding about how
    // this field is used
    @Inject(dependentState = "Described", fromContext = FromContext.CONTEXT)
-   protected KernelControllerContext containerContext;
+   protected KernelControllerContext endpointContext;
 
    /**
     * The bean class for which the no-interface view corresponds
@@ -103,7 +103,7 @@ public abstract class NoInterfaceViewJNDIBinder
     * Will be called when the dependencies of this {@link NoInterfaceViewJNDIBinder} are
     * resolved and this MC bean reaches the START state.
     *
-    * At this point, the {@link #containerContext} associated with this {@link NoInterfaceViewJNDIBinder}
+    * At this point, the {@link #endpointContext} associated with this {@link NoInterfaceViewJNDIBinder}
     * is injected and is at a minimal of DESCRIBED state. We now create a no-interface view
     * for the corresponding bean.
     * Note: No validations (like whether the bean is eligible for no-interface view) is done at this
@@ -117,7 +117,7 @@ public abstract class NoInterfaceViewJNDIBinder
    {
       if (logger.isTraceEnabled())
       {
-         logger.trace("Creating no-interface view for container " + this.containerContext);
+         logger.trace("Creating no-interface view for endpoint " + this.endpointContext);
       }
 
       this.bindNoInterfaceView();
@@ -132,12 +132,12 @@ public abstract class NoInterfaceViewJNDIBinder
 
    /**
     * 
-    * @param containerContext The KernelControllerContext corresponding to the container
+    * @param endpointContext The KernelControllerContext corresponding to the endpoint
     * @throws Exception
     */
-   public void setContainerContext(KernelControllerContext containerContext) throws Exception
+   public void setEndpointContext(KernelControllerContext endpointContext) throws Exception
    {
-      this.containerContext = containerContext;
+      this.endpointContext = endpointContext;
 
    }
 

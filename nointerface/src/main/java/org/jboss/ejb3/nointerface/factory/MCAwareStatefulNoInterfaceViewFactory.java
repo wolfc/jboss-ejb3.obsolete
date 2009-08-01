@@ -25,7 +25,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
 import org.jboss.dependency.spi.ControllerState;
-import org.jboss.ejb3.endpoint.SessionFactory;
+import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
 import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
@@ -61,15 +61,7 @@ public class MCAwareStatefulNoInterfaceViewFactory
     * for pushing it to INSTALLED state whenever necessary. 
     * 
     */
-   protected KernelControllerContext containerContext;
-
-   /**
-    * The KernelControllerContext corresponding StatefulSessionFactory. This context
-    * may <i>not</i> be in INSTALLED state. This factory is responsible
-    * for pushing it to INSTALLED state whenever necessary. 
-    * 
-    */
-   protected KernelControllerContext statefulSessionFactoryContext;
+   protected KernelControllerContext endpointContext;
 
    /**
     * Constructor
@@ -77,12 +69,10 @@ public class MCAwareStatefulNoInterfaceViewFactory
     * @param container
     * @param statefulSessionFactory
     */
-   public MCAwareStatefulNoInterfaceViewFactory(Class<?> beanClass, KernelControllerContext containerContext,
-         KernelControllerContext statefulSessionFactoryContext)
+   public MCAwareStatefulNoInterfaceViewFactory(Class<?> beanClass, KernelControllerContext containerContext)
    {
       this.beanClass = beanClass;
-      this.containerContext = containerContext;
-      this.statefulSessionFactoryContext = statefulSessionFactoryContext;
+      this.endpointContext = containerContext;
    }
 
    /**
@@ -97,34 +87,38 @@ public class MCAwareStatefulNoInterfaceViewFactory
       logger.debug("Creating no-interface view for " + this.beanClass);
       try
       {
-         // first push the statefulSessionFactoryContext to INSTALLED
+         // first push the endpointContext to INSTALLED
          if (logger.isTraceEnabled())
          {
-            logger.trace("Changing the context " + this.statefulSessionFactoryContext.getName() + " to state "
+            logger.trace("Changing the context " + this.endpointContext.getName() + " to state "
                   + ControllerState.INSTALLED.getStateString() + " from current state "
-                  + this.statefulSessionFactoryContext.getState().getStateString());
+                  + this.endpointContext.getState().getStateString());
          }
-         this.statefulSessionFactoryContext.getController().change(this.statefulSessionFactoryContext,
-               ControllerState.INSTALLED);
+         this.endpointContext.getController().change(this.endpointContext, ControllerState.INSTALLED);
       }
       catch (Throwable t)
       {
-         throw new RuntimeException("Could not push the context " + this.statefulSessionFactoryContext.getName()
-               + " from its current state " + this.statefulSessionFactoryContext.getState().getStateString()
-               + " to INSTALLED", t);
+         throw new RuntimeException("Could not push the context " + this.endpointContext.getName()
+               + " from its current state " + this.endpointContext.getState().getStateString() + " to INSTALLED", t);
       }
 
       // now get hold of the StatefulSessionFactory from the context
-      Object statefulSessionFactory = this.statefulSessionFactoryContext.getTarget();
-      assert statefulSessionFactory instanceof SessionFactory : "Unexpected object type found "
-            + statefulSessionFactory + " - expected a " + SessionFactory.class;
+      Object target = this.endpointContext.getTarget();
+      assert target instanceof Endpoint : "Unexpected object type found " + target + " - expected a " + Endpoint.class;
+
+      Endpoint endpoint = (Endpoint) target;
+      if (!endpoint.isSessionAware())
+      {
+         throw new IllegalStateException("Endpoint " + endpoint
+               + " is not session aware. Cannot be used for Stateful no-interface view(s)");
+      }
 
       // create the session
-      Serializable session = ((SessionFactory) statefulSessionFactory).createSession(null, null);
+      Serializable session = endpoint.getSessionFactory().createSession(null, null);
       logger.debug("Created session " + session + " for " + this.beanClass);
 
       // create an invocation handler
-      InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.containerContext, session);
+      InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.endpointContext, session);
       // Now create the view for this bean class and the newly created invocation handler
       // TODO: Incorrect cardinality
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();

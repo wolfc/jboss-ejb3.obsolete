@@ -23,21 +23,20 @@ package org.jboss.ejb3.nointerface.test.common;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.jboss.bootstrap.microcontainer.ServerImpl;
-import org.jboss.bootstrap.spi.ServerConfig;
-import org.jboss.bootstrap.spi.microcontainer.MCServer;
+import org.jboss.bootstrap.impl.mc.server.MCServerImpl;
+import org.jboss.bootstrap.spi.config.ServerConfig;
+import org.jboss.bootstrap.spi.mc.config.MCServerConfig;
+import org.jboss.bootstrap.spi.mc.config.MCServerConfigFactory;
+import org.jboss.bootstrap.spi.mc.server.MCServer;
 import org.jboss.dependency.spi.ControllerContext;
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.deployers.client.spi.main.MainDeployer;
 import org.jboss.deployers.vfs.spi.client.VFSDeployment;
 import org.jboss.deployers.vfs.spi.client.VFSDeploymentFactory;
-import org.jboss.kernel.plugins.deployment.xml.BasicXMLDeployer;
 import org.jboss.logging.Logger;
 import org.jboss.virtual.VFS;
 import org.jboss.virtual.VirtualFile;
@@ -107,19 +106,19 @@ public abstract class AbstractNoInterfaceTestCase
     * tests. This is the place where we place our bootstrap.xml.
     *
     */
-   protected static final String SERVER_PROFILE_CONFIG_DIR_PATH = "src/test/resources/conf";
+   protected static final String SERVER_PROFILE_CONFIG_DIR_PATH = System.getProperty("basedir") + "/src/test/resources/conf";
 
    /**
     * This is where we place our configuration files which provide the runtime environment
     * for our server. Ex: ejb3-deployer-jboss-beans.xml is placed here
     */
-   protected static final String SERVER_PROFILE_DEPLOYERS_DIR_PATH = "src/test/resources/deployers";
+   protected static final String SERVER_PROFILE_DEPLOYERS_DIR_PATH = System.getProperty("basedir") + "/src/test/resources/deployers";
 
    /**
     * This is where we place our applications to be deployed. The "applications" can also include
     * EJB3 remoting connectors, interceptors etc...
     */
-   protected static final String SERVER_PROFILE_DEPLOY_DIR_PATH = "src/test/resources/deploy";
+   protected static final String SERVER_PROFILE_DEPLOY_DIR_PATH = System.getProperty("basedir") + "/src/test/resources/deploy";
 
 
 
@@ -133,16 +132,18 @@ public abstract class AbstractNoInterfaceTestCase
     */
    public static void bootstrap() throws Exception
    {
-      server = new ServerImpl();
-      Properties serverBootstrapProperties = createBootstrapEnv();
-      server.init(serverBootstrapProperties);
-      logger.trace("Inited the server");
-      long start = System.currentTimeMillis();
+      MCServerConfig config = createServerConfig();
+      server = new MCServerImpl(config);
       server.start();
-      long end = System.currentTimeMillis();
-      logger.info("no-interface ootstrap started in " + (end - start) + " milli sec.");
+      logger.trace("Started the server");
+   }
 
+   protected static MCServerConfig createServerConfig() throws Exception
+   {
+      MCServerConfig mcServerConfig = MCServerConfigFactory.createServerConfig();
+      mcServerConfig.bootstrapHome(findDir(SERVER_PROFILE_CONFIG_DIR_PATH));
 
+      return mcServerConfig;
    }
 
    /**
@@ -175,8 +176,8 @@ public abstract class AbstractNoInterfaceTestCase
       // classpath is OK as long as we know that those are non-conflicting and are infact
       // required to be deployed.
       deployClasspathJBossBeans();
-
-      logger.debug("Deployers ready");
+//
+//      logger.debug("Deployers ready");
       deployApplications();
       logger.debug("no-interface server completely started");
    }
@@ -201,13 +202,11 @@ public abstract class AbstractNoInterfaceTestCase
    {
       deploy(new File(SERVER_PROFILE_DEPLOY_DIR_PATH).toURL());
 
-      // We no longer use real containers in our unit tests. So no dependency on ejb3-core.
-      // We rely on mock containers.
-//      // additionally we need the ejb3-interceptors-aop.xml which we pull in from our
-//      // ejb3-core dependency jar (instead of duplicating that file in our test setup)
-//      URL ejb3InterceptorsConfigFile = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
-//      logger.debug("ejb3-interceptors-aop.xml being picked up from " + ejb3InterceptorsConfigFile);
-//      deploy(ejb3InterceptorsConfigFile);
+      // additionally we need the ejb3-interceptors-aop.xml which we pull in from our
+      // ejb3-core dependency jar (instead of duplicating that file in our test setup)
+      URL ejb3InterceptorsConfigFile = Thread.currentThread().getContextClassLoader().getResource("ejb3-interceptors-aop.xml");
+      logger.debug("ejb3-interceptors-aop.xml being picked up from " + ejb3InterceptorsConfigFile);
+      deploy(ejb3InterceptorsConfigFile);
    }
 
    /**
@@ -235,11 +234,11 @@ public abstract class AbstractNoInterfaceTestCase
       mkdir(SERVER_PROFILE_TMP_NATIVE_DIR_PATH);
 
       Properties serverBootstrapProperties = new Properties();
-      serverBootstrapProperties.put(ServerConfig.HOME_DIR, serverHome.getPath());
-      serverBootstrapProperties.put(ServerConfig.SERVER_HOME_DIR, serverProfileHome.getPath());
+      serverBootstrapProperties.put(ServerConfig.PROP_KEY_BOOTSTRAP_HOME_URL, serverHome);
+      //serverBootstrapProperties.put(ServerConfig., serverProfileHome.getPath());
 
       URL configDir = findDir(SERVER_PROFILE_CONFIG_DIR_PATH);
-      serverBootstrapProperties.put(ServerConfig.SERVER_CONFIG_URL, configDir.toString());
+      //serverBootstrapProperties.put(ServerConfig.SERVER_CONFIG_URL, configDir.toString());
       if (logger.isTraceEnabled())
       {
          logger.trace("Config URL is " + configDir);

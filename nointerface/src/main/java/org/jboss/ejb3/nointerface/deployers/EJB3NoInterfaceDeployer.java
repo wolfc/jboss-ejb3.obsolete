@@ -109,8 +109,8 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
    }
 
    /**
-    * Creates a {@link NoInterfaceViewMCBean} for the no-interface view represented by the
-    * <code>sessionBeanMetaData</code>. The {@link NoInterfaceViewMCBean} is created only
+    * Creates a {@link NoInterfaceViewJNDIBinder} MC bean for the no-interface view represented by the
+    * <code>sessionBeanMetaData</code>. The {@link NoInterfaceViewJNDIBinder} is created only
     * if the bean is eligible for a no-interface view as defined by the EJB3.1 spec
     *
     *
@@ -161,16 +161,8 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
 
          // Too bad we have to know the field name. Need to do more research on MC to see if we can
          // add property metadata based on type instead of field name.
-         builder.addPropertyMetaData("containerContext", injectMetaData);
-
-         // for SFSB we also need to inject the StatefulSessionFactory (which at the moment is 
-         // available at the same containerMCBeanName and is infact the container)
-         if (sessionBeanMetaData.isStateful())
-         {
-            // inject the KernelControllerContext of the StatefulSessionFactory (which at the moment is the container itself)
-            builder.addPropertyMetaData("statefulSessionFactoryContext", injectMetaData);
-         }
-
+         builder.addPropertyMetaData("endpointContext", injectMetaData);
+         
          // Add this as an attachment
          unit.addAttachment(BeanMetaData.class + ":" + noInterfaceViewMCBeanName, builder.getBeanMetaData());
          

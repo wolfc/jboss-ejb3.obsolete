@@ -27,12 +27,9 @@ import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
-import org.jboss.beans.metadata.api.annotations.Inject;
-import org.jboss.ejb3.nointerface.deployers.EJB3NoInterfaceDeployer;
 import org.jboss.ejb3.nointerface.factory.MCAwareStatefulNoInterfaceViewFactory;
 import org.jboss.ejb3.nointerface.objectfactory.NoInterfaceViewProxyFactoryRefAddrTypes;
 import org.jboss.ejb3.nointerface.objectfactory.StatefulNoInterfaceViewObjectFactory;
-import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.naming.NonSerializableFactory;
@@ -56,15 +53,10 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
    private static Logger logger = Logger.getLogger(StatefulNoInterfaceJNDIBinder.class);
 
    /**
-    * {@link StatefulSessionFactory} will be used to 
-    * create session(s) for a SFSB
-    * Note: The name of the correct MC bean to be injected will be 
-    * added programatically through BeanMetaData. 
-    * @see EJB3NoInterfaceDeployer#deploy(org.jboss.deployers.structure.spi.DeploymentUnit)
+    * Constructor
+    * @param beanClass The bean class
+    * @param sessionBeanMetadata Metadata of the bean
     */
-   @Inject(dependentState = "Described")
-   private KernelControllerContext statefulSessionFactoryContext;
-
    protected StatefulNoInterfaceJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
    {
       super(beanClass, sessionBeanMetadata);
@@ -92,7 +84,7 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
       // This factory will be bound to JNDI and will be invoked (through an objectfactory) to create
       // the no-interface view for a SFSB
       MCAwareStatefulNoInterfaceViewFactory statefulNoInterfaceViewFactory = new MCAwareStatefulNoInterfaceViewFactory(
-            this.beanClass, this.containerContext, this.statefulSessionFactoryContext);
+            this.beanClass, this.endpointContext);
 
       // TODO - Needs to be a proper jndi name for the factory
       String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + "/no-interface-stateful-proxyfactory";
@@ -122,16 +114,6 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
 
       logger.info("Bound the no-interface view for bean " + beanClass + " to jndi at " + noInterfaceJndiName);
 
-   }
-
-   public void setStatefulSessionFactoryContext(KernelControllerContext statefulSessFactoryContext)
-   {
-      this.statefulSessionFactoryContext = statefulSessFactoryContext;
-   }
-
-   public KernelControllerContext getStatefulSessionFactoryContext()
-   {
-      return this.statefulSessionFactoryContext;
    }
 
 }

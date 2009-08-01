@@ -212,10 +212,10 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    }
 
    /**
-    * The spec says that if the bean has been marked as local bean using 
+    * The spec says that if the bean has been marked as local bean using
     * @LocalBean, then even if it implements any other interfaces, a no-interface view must
     * be created. This test case ensures that this requirement is handled correctly
-    *  
+    *
     * @throws Exception
     */
    @Test
@@ -233,7 +233,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    /**
     * Test to ensure that a no-interface view is NOT created for session beans
     * which implement an interface (and do not explicitly mark themselves @LocalBean)
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -293,7 +293,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
 
    /**
     * Test that invocations on no-interface view of a SLSB work as expected
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -329,7 +329,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
 
    /**
     * Test that invocations on no-interface view of SFSB work as expected
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -353,7 +353,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
 
    /**
     * Test that sessions are created as expected for stateful session beans
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -407,7 +407,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    /**
     * Tests that the {@link Object#equals(Object)} method on a no-interface view of a SLSB, behaves
     * as per the contract
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -444,7 +444,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
       StatelessLocalBeanWithInterfaces differentSLSB = (StatelessLocalBeanWithInterfaces) ctx
             .lookup(oneMoreSLSBJndiName);
 
-      // compare no-interface views of 2 different SLS beans 
+      // compare no-interface views of 2 different SLS beans
       assertFalse("no-interfaces views of different SLSB classes should not be equal", slsbOne.equals(differentSLSB));
 
       // SFSB
@@ -464,7 +464,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    /**
     * Tests that the {@link Object#equals(Object)} method on a no-interface view of a SFSB, behaves
     * as per the contract
-    * 
+    *
     * @throws Exception
     */
    @Test
@@ -500,7 +500,7 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
       // at this point we are sure we will get the no-interface view
       StatefulLocalBeanWithInterfaces differentSFSB = (StatefulLocalBeanWithInterfaces) ctx.lookup(oneMoreSFSBJndiName);
 
-      // compare no-interface views of 2 different SFS beans 
+      // compare no-interface views of 2 different SFS beans
       assertFalse("no-interfaces views of different SFSB classes should not be equal", sfsbOne.equals(differentSFSB));
 
       // SLSB
@@ -520,11 +520,11 @@ public class NoInterfaceEJBViewCreatorTestCase extends AbstractNoInterfaceTestCa
    /**
     * Utility method for testing that the bean is bound at the <code>jndiName</code>
     * and is of the <code>expectedType</code>
-    * 
-    * @param ctx JNDI Context 
+    *
+    * @param ctx JNDI Context
     * @param jndiName The jndiname to lookup
     * @param expectedType The object returned from the jndi will be expected to be of this type
-    * 
+    *
     * @throws Exception
     */
    private void assertBoundAndOfExpectedType(Context ctx, String jndiName, Class<?> expectedType) throws Exception

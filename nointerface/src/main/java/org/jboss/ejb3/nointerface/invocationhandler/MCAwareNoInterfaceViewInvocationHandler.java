@@ -80,7 +80,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
    private static Logger logger = Logger.getLogger(MCAwareNoInterfaceViewInvocationHandler.class);
 
    /**
-    * The KernelControllerContext corresponding to the container of a bean for which
+    * The KernelControllerContext corresponding to the endpoint for which
     * the no-interface view is to be created by this factory. This context
     * may <i>not</i> be in INSTALLED state. This factory is responsible
     * for pushing it to INSTALLED state whenever necessary. 
@@ -90,7 +90,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     * 
     *
     */
-   private KernelControllerContext containerContext;
+   private KernelControllerContext endpointContext;
 
    /**
     * The session used to interact with the {@link Endpoint}
@@ -101,10 +101,10 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     * Constructor
     * @param container
     */
-   public MCAwareNoInterfaceViewInvocationHandler(KernelControllerContext containerContext, Serializable session)
+   public MCAwareNoInterfaceViewInvocationHandler(KernelControllerContext endpointContext, Serializable session)
    {
-      assert containerContext != null : "Container context is null for no-interface view invocation handler";
-      this.containerContext = containerContext;
+      assert endpointContext != null : "Endpoint context is null for no-interface view invocation handler";
+      this.endpointContext = endpointContext;
       this.session = session;
    }
 
@@ -132,13 +132,13 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
             logger.trace("Cannot handle method: " + method.getName() + " in " + this.getClass().getName());
          }
       }
-      // get the container (which will involve pushing it to INSTALLED state)
-      Endpoint container = getInstalledContainer();
-      assert container != null : "No container associated with context " + this.containerContext
+      // get the endpoint (which will involve pushing it to INSTALLED state)
+      Endpoint endpoint = getInstalledEndpoint();
+      assert endpoint != null : "No endpoint associated with context " + this.endpointContext
             + " - cannot invoke the method on bean";
 
-      // finally pass-on the control to the container
-      return container.invoke(this.session, null, method, args);
+      // finally pass-on the control to the endpoint
+      return endpoint.invoke(this.session, null, method, args);
    }
 
    /**
@@ -148,7 +148,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     */
    public KernelControllerContext getContainerContext()
    {
-      return this.containerContext;
+      return this.endpointContext;
    }
 
    /**
@@ -158,25 +158,25 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     * 
     * @return
     */
-   public Endpoint getInstalledContainer()
+   public Endpoint getInstalledEndpoint()
    {
       if (logger.isTraceEnabled())
       {
-         logger.trace("Pushing the container context to INSTALLED state from its current state = "
-               + this.containerContext.getState().getStateString());
+         logger.trace("Pushing the endpoint context to INSTALLED state from its current state = "
+               + this.endpointContext.getState().getStateString());
       }
       try
       {
-         // first push the context corresponding to the container to INSTALLED
-         this.containerContext.getController().change(this.containerContext, ControllerState.INSTALLED);
-         // get hold of the container from its context
-         Endpoint container = (Endpoint) this.containerContext.getTarget();
-         return container;
+         // first push the context corresponding to the endpoint to INSTALLED
+         this.endpointContext.getController().change(this.endpointContext, ControllerState.INSTALLED);
+         // get hold of the endpoint from its context
+         Endpoint endpoint = (Endpoint) this.endpointContext.getTarget();
+         return endpoint;
       }
       catch (Throwable t)
       {
-         throw new RuntimeException("Error getting container out of container KernelControllerContext "
-               + this.containerContext, t);
+         throw new RuntimeException("Error getting endpoint out of container KernelControllerContext "
+               + this.endpointContext, t);
       }
 
    }
@@ -186,18 +186,18 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
     * {@link MCAwareNoInterfaceViewInvocationHandler}. Note that this method does NOT
     * change the state of the KernelControllerContext of this Endpoint. As such,
     * the Endpoint returned by this method is NOT guaranteed to be in INSTALLED state.
-    * If the Endpoint with INSTALLED state is required, then use the {@link #getInstalledContainer()}
+    * If the Endpoint with INSTALLED state is required, then use the {@link #getInstalledEndpoint()}
     * method. 
     *  
     * @return
-    * @see #getInstalledContainer()
+    * @see #getInstalledEndpoint()
     */
-   private Endpoint getContainer()
+   private Endpoint getEndpoint()
    {
-      Object container = this.containerContext.getTarget();
-      assert container instanceof Endpoint : "Unexpected type " + container.getClass().getName() + " found in context "
-            + this.containerContext + " Expected " + Endpoint.class.getName();
-      return (Endpoint) container;
+      Object endpoint = this.endpointContext.getTarget();
+      assert endpoint instanceof Endpoint : "Unexpected type " + endpoint.getClass().getName() + " found in context "
+            + this.endpointContext + " Expected " + Endpoint.class.getName();
+      return (Endpoint) endpoint;
    }
 
    /**
@@ -230,7 +230,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
 
       // First check whether the Endpoints of both these InvocationHandlers are equal. If 
       // not, then no need for any further comparison, just return false
-      if (!(this.getInstalledContainer().equals(otherNoInterfaceViewInvocationHandler.getInstalledContainer())))
+      if (!(this.getInstalledEndpoint().equals(otherNoInterfaceViewInvocationHandler.getInstalledEndpoint())))
       {
          return false;
       }
@@ -251,7 +251,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
    @Override
    public int hashCode()
    {
-      int hashCode = this.getInstalledContainer().hashCode();
+      int hashCode = this.getInstalledEndpoint().hashCode();
       if (this.session != null)
       {
          hashCode += this.session.hashCode();
@@ -265,7 +265,7 @@ public class MCAwareNoInterfaceViewInvocationHandler implements InvocationHandle
    @Override
    public String toString()
    {
-      StringBuilder sb = new StringBuilder("No-Interface view for endpoint [ " + this.getContainer() + " ]");
+      StringBuilder sb = new StringBuilder("No-Interface view for endpoint [ " + this.getEndpoint() + " ]");
       if (this.session != null)
       {
          sb.append(" and session " + this.session);

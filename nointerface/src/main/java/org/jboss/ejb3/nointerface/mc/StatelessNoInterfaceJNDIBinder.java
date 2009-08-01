@@ -69,7 +69,7 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
       // TODO: Incorrect cardinality
       NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
 
-      InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.containerContext, null);
+      InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.endpointContext, null);
 
       Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
       // bind
