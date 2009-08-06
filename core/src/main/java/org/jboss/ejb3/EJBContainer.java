@@ -890,7 +890,10 @@ public abstract class EJBContainer
       */
    }
 
-   public final void start() throws Exception
+   /**
+    * This should have been final, but ServiceContainer wants to butt in.
+    */
+   public void start() throws Exception
    {
       this.lockedStart();
       
@@ -926,7 +929,10 @@ public abstract class EJBContainer
       log.info("STARTED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
    }
 
-   public final void stop() throws Exception
+   /**
+    * This should have been final, but ServiceContainer wants to butt in.
+    */
+   public void stop() throws Exception
    {
       // Wait for active invocations to complete - and block new invocations
       this.blockInvocations();
