@@ -260,8 +260,9 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
 
          injectDependencies(beanContext);
 
+         invokePostConstruct(beanContext);
+         
          timerServiceFactory.restoreTimerService(timerService);
-         invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
       }
       catch (Exception e)
       {
@@ -281,9 +282,8 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
    @Override
    protected void lockedStop() throws Exception
    {
-      // Make the lifecycle callback
-      invokeOptionalMethod(METHOD_NAME_LIFECYCLE_CALLBACK_STOP);
-
+      invokePreDestroy(beanContext);
+      
       if (timerService != null)
       {
          timerServiceFactory.suspendTimerService(timerService);
@@ -338,6 +338,31 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       });
    }
 
+   private Object invokeOptionalBusinessMethod(String methodName) throws Exception
+   {
+      try
+      {
+         Method method = getBeanClass().getMethod(methodName);
+         try
+         {
+            return localInvoke(method, null);
+         }
+         catch(Throwable t)
+         {
+            throw sanitize(t);
+         }
+      }
+      catch (SecurityException e)
+      {
+         throw new RuntimeException(e);
+      }
+      catch (NoSuchMethodException e)
+      {
+         // ignore
+         return null;
+      }
+   }
+   
    /**
     * Invoke a method on the singleton without a specific security or transaction context.
     * 
@@ -398,16 +423,6 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          this.setTcl(oldCl);
       }
 
-   }
-
-   public void invokePostConstruct(BeanContext beanContext, Object[] params)
-   {
-      //Ignore
-   }
-
-   public void invokePreDestroy(BeanContext beanContext)
-   {
-      //Ignore
    }
 
    public Object localInvoke(Object id, Method method, Object[] args) throws Throwable
@@ -797,9 +812,35 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       throw new RuntimeException("Don't do this");
    }
 
+   private Exception sanitize(Throwable t)
+   {
+      if(t instanceof Error)
+         throw (Error) t;
+      return (Exception) t;
+   }
+   
    @Inject
    public void setTimerServiceFactory(TimerServiceFactory factory)
    {
       this.timerServiceFactory = factory;
+   }
+   
+   @Override
+   public void start() throws Exception
+   {
+      super.start();
+      
+      // EJBTHREE-1738: method start/stop need to have a tx context
+      invokeOptionalBusinessMethod(METHOD_NAME_LIFECYCLE_CALLBACK_START);
+   }
+   
+   @Override
+   public void stop() throws Exception
+   {
+      // Make the lifecycle callback
+      // EJBTHREE-1738: method start/stop need to have a tx context
+      invokeOptionalBusinessMethod(METHOD_NAME_LIFECYCLE_CALLBACK_STOP);
+
+      super.stop();
    }
 }
