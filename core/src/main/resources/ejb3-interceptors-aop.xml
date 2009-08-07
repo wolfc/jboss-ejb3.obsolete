@@ -383,8 +383,8 @@
    </domain>
 
    <domain name="Service Bean" extends="Intercepted Bean" inheritBindings="true">
-      <!-- Override the default LifecycleCallbackStack so a tx context is set -->
-      <stack name="LifecycleCallbackStack">
+      <!-- Define a  ServiceLifecycleCallbackStack so a tx context is set -->
+      <stack name="ServiceLifecycleCallbackStack">
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
          <advice name="setup" aspect="InvocationContextInterceptor"/>
          <!-- TODO: EJB 3.1 PFD 4.8.3: if REQUIRED then interpret as REQUIRES_NEW -->
@@ -403,7 +403,7 @@
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="Basic Authorization"/>
       </bind>
-      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
+      <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
@@ -429,7 +429,7 @@
       <bind pointcut="execution(public * @org.jboss.ejb3.annotation.SecurityDomain->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->stop()) AND !execution(* *->destroy())">
          <interceptor-ref name="Basic Authorization"/>
       </bind>
-      <bind pointcut="execution(public * *->*(..)) AND !execution(* *->create()) AND !execution(* *->start()) AND !execution(* *->destroy())">
+      <bind pointcut="execution(public * *->*(..))">
          <interceptor-ref name="org.jboss.ejb3.security.RunAsSecurityInterceptorFactory"/>
       </bind>
       <bind pointcut="execution(public * *->*(..))">
