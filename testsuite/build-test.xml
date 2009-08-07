@@ -4297,6 +4297,19 @@
       </jar>
    </target>	
 
+	<target name="ejbthree1738">
+    <mkdir dir="${build.lib}"/>
+    <jar jarfile="${build.lib}/ejbthree1738.jar">
+      <fileset dir="${build.classes}">
+        <include name="org/jboss/ejb3/test/ejbthree1738/*.class"/>
+      </fileset>
+      <fileset dir="${resources}/test/ejbthree1738">
+        <include name="users.properties"/>
+        <include name="roles.properties"/>
+      </fileset>
+    </jar>
+	</target>
+
 	<target name="ejbthree1786">
 	   <build-simple-jar name="ejbthree1786"/>
 	</target> 
@@ -4357,7 +4370,7 @@
       ejbthree1066, ejbthree1071, ejbthree1075, ejbthree1786, ejbthree1082, ejbthree1090, ejbthree1092, ejbthree1116, ejbthree1119, ejbthree1122, ejbthree1123, ejbthree1127,
       ejbthree1130, 
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
-      ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,
+      ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,ejbthree1738,
       ejbthree1852,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
@@ -5184,6 +5197,9 @@
    	  <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1647"/>
    	  </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1738"/>
+      </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1852"/>
       </antcall>
