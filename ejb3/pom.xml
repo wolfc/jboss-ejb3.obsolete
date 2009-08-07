@@ -35,7 +35,7 @@
     into the AS
     
      -->
-    <version.org.jboss.ejb3_core>1.1.11-SNAPSHOT</version.org.jboss.ejb3_core>
+    <version.org.jboss.ejb3_core>1.1.11</version.org.jboss.ejb3_core>
     <version.org.jboss.ejb3_deployers>1.0.0</version.org.jboss.ejb3_deployers>
   
   </properties>
