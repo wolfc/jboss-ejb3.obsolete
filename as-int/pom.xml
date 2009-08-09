@@ -7,7 +7,7 @@
     <version>1.0.0</version>
     <relativePath>../ejb3/pom.xml</relativePath>
   </parent>
-  
+
   <!-- Model Version -->
   <modelVersion>4.0.0</modelVersion>
 
@@ -17,33 +17,33 @@
   <name>JBoss EJB 3.x AS Integration</name>
   <version>1.1.12-SNAPSHOT</version>
   <description>Integration of the EJB3 Project with JBoss Application Server</description>
-  
+
   <!-- Properties -->
   <properties>
-  
-    <!-- 
-    
+
+    <!--
+
     Here we define the versions of projects within
     the groupId org.jboss.ejb3 which are to be included
-    as dependencies and thus brought in transitively 
+    as dependencies and thus brought in transitively
     into the AS
-    
+
      -->
-    <version.org.jboss.ejb3_jboss.ejb3>1.1.11</version.org.jboss.ejb3_jboss.ejb3>
+    <version.org.jboss.ejb3_jboss.ejb3>1.1.12-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3>
     <version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>1.0.1</version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>
     <version.org.jboss.ejb3_mc.int>1.0.1</version.org.jboss.ejb3_mc.int>
-  
+
   </properties>
-  
+
   <!-- Dependencies -->
   <dependencies>
-  
-    <!-- 
-    
+
+    <!--
+
     Dependencies for groupId org.jboss.ejb3 ONLY go here
-    
+
     -->
-    
+
     <!-- jboss-ejb3 -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
@@ -51,23 +51,23 @@
       <version>${version.org.jboss.ejb3_jboss.ejb3}</version>
       <type>pom</type>
     </dependency>
-    
+
     <!-- jboss-ejb3-mc-int -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-mc-int</artifactId>
       <version>${version.org.jboss.ejb3_mc.int}</version>
     </dependency>
-    
+
     <!-- jboss-ejb3-metrics-deployer -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-metrics-deployer</artifactId>
       <version>${version.org.jboss.ejb3_jboss.ejb3.metrics.deployer}</version>
     </dependency>
-    
+
 
     <!-- All other dependencies -->
-  
+
   </dependencies>
 </project>
