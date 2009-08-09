@@ -31,23 +31,50 @@ import org.jboss.logging.Logger;
 
 /**
  * Routes the call to the local container, bypassing further client-side
- * interceptors and any remoting layer, if this interceptor was created 
+ * interceptors and any remoting layer, if this interceptor was created
  * in this JVM.
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @author Brian Stansberry
- * 
+ *
  * @version $Revision: 61667 $
  */
 public class IsLocalProxyFactoryInterceptor implements Interceptor, Serializable
 {
    private static final long serialVersionUID = -1264055696758370812L;
 
+   // Important implementation note : The order of the class field initialization
+   // (i.e. static fields) is important. This "stamp" field needs to be initialized
+   // *before* the static "singleton" field.
+   //
+   // If singleton is declared before "stamp" then it will cause the following bug
+   //
+   // public static final IsLocalProxyFactoryInterceptor singleton = new IsLocalProxyFactoryInterceptor();
+   // private static final long stamp = System.currentTimeMillis();
+   // private long marshalledStamp = stamp;
+   //
+   // 1) Default class initialization occurs and all static fields including "stamp" are set to default values
+   // 2) So at this point stamp = 0
+   // 3) Then class field intializer blocks are executed. Since "singleton" field intialization comes
+   //   before "stamp" field initialization, the new IsLocalProxyFactotyInterceptor gets called.
+   //   This results in object field initialization where the "marshalledStamp" is first set to
+   //   default value of 0 and then the object field initializer is called. The object field initializer
+   //   then sets the "marshalledStamp" to the value of "stamp" which is 0 (as per #2) because the static field
+   //   initializer for "stamp" has not yet executed.
+   // 4) So ultimately "marshalledStamp" will hold 0.
+   // 5) After the class field intializer block for "singleton" field completes, it moves onto class field
+   //   initialization of "stamp" and sets the value of "stamp" to the current system time (=xxxxx)
+   // 6) So ultimately after this complete initialization process, the values of marshalledStamp = 0
+   //   and that of stamp = xxxx
+   // 7) At a later point of time when isLocal() compares these 2 values(through stamp == marshalledStamp) it always returns
+   //   false and hence all calls are considered remote.
+   //
+   // So the rule is - declare class field "stamp" before the class field "singleton"
+   private static final long stamp = System.currentTimeMillis();
+
    public static final IsLocalProxyFactoryInterceptor singleton = new IsLocalProxyFactoryInterceptor();
 
    private static final Logger log = Logger.getLogger(IsLocalProxyFactoryInterceptor.class);
-
-   private static final long stamp = System.currentTimeMillis();
 
    private long marshalledStamp = stamp;
 
@@ -69,6 +96,7 @@ public class IsLocalProxyFactoryInterceptor implements Interceptor, Serializable
             return response.getResponse();
          }
       }
+      log.debug("NOT a local invocation, passing the control to next interceptor");
       return invocation.invokeNext();
    }
 
