@@ -45,7 +45,10 @@ public class IsLocalProxyFactoryInterceptor implements Interceptor, Serializable
 
    // Important implementation note : The order of the class field initialization
    // (i.e. static fields) is important. This "stamp" field needs to be initialized
-   // *before* the static "singleton" field.
+   // *before* the static "singleton" field. Note: The order of execution is guaranteed
+   // to be the same as the order in which the static fields appear as per the spec
+   // http://java.sun.com/docs/books/jls/second_edition/html/classes.doc.html#39245
+   // Section 8.7 : The static initializers and class variable initializers are executed in textual order.
    //
    // If singleton is declared before "stamp" then it will cause the following bug
    //
@@ -85,18 +88,19 @@ public class IsLocalProxyFactoryInterceptor implements Interceptor, Serializable
 
    public Object invoke(Invocation invocation) throws Throwable
    {
+      Object oid = invocation.getMetaData(Dispatcher.DISPATCHER, Dispatcher.OID);
       if (isLocal())
       {
-         Object oid = invocation.getMetaData(Dispatcher.DISPATCHER, Dispatcher.OID);
+         log.debug("Proxyfactory with id " + oid + " is local, will now check if the local dispatcher has the registered instance");
          if (Dispatcher.singleton.isRegistered(oid))
          {
             InvocationResponse response = Dispatcher.singleton.invoke(invocation);
             invocation.setResponseContextInfo(response.getContextInfo());
-            log.debug("Local invocation, handling locally via current Dispatcher");
+            log.debug("Local invocation for ProxyFactory with id " + oid + " - handling locally via current Dispatcher");
             return response.getResponse();
          }
       }
-      log.debug("NOT a local invocation, passing the control to next interceptor");
+      log.debug("NOT a local invocation for ProxyFactory with id " + oid + " -  passing the control to next interceptor");
       return invocation.invokeNext();
    }
 
