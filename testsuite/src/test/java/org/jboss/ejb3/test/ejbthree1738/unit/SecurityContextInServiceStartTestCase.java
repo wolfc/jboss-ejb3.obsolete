@@ -53,6 +53,11 @@ public class SecurityContextInServiceStartTestCase extends JBossTestCase
     */
    private static final Logger log = Logger.getLogger(SecurityContextInServiceStartTestCase.class);
 
+   /**
+    * Name of the deployment
+    */
+   private static final String NAME_DEPLOYMENT = "ejbthree1738.jar";
+
    //------------------------------------------------------------------------||
    // Instance Members ------------------------------------------------------||
    //------------------------------------------------------------------------||
@@ -83,7 +88,7 @@ public class SecurityContextInServiceStartTestCase extends JBossTestCase
     */
    public static Test suite() throws Exception
    {
-      return getDeploySetup(SecurityContextInServiceStartTestCase.class, "ejbthree1738.jar");
+      return getDeploySetup(SecurityContextInServiceStartTestCase.class, NAME_DEPLOYMENT);
    }
 
    //------------------------------------------------------------------------||
@@ -122,6 +127,35 @@ public class SecurityContextInServiceStartTestCase extends JBossTestCase
       Assert.assertNotNull("The value from the protected bean was not set", valueFromStart);
       // Ensure the value is correct
       Assert.assertEquals("The obtained value was incorrect", ProtectedLocalBusiness.VALUE, valueFromStart);
+   }
+
+   /**
+    * Ensures a bean with a @SecurityDomain may be redeployed
+    * 
+    * JBAS-6362
+    * 
+    * @throws Exception
+    */
+   public void testBeanOnRedeploy() throws Throwable
+   {
+
+      // Redeploy
+      redeploy(NAME_DEPLOYMENT);
+
+      // Log in as some user (with "unauthorized" role)
+      SecurityClient client = SecurityClientFactory.getSecurityClient();
+      client.setSimple("someuser", "password");
+      client.login();
+
+      // Get the bean
+      final RunAsRemoteBusiness bean = this.getBean();
+
+      // Get the value from a protected service lookup; the @RunAs should change the role used to "authorized"
+      final String valueFromBusinessInvocation = bean.getValueFromProtectedService();
+      // Ensure the value is correct
+      Assert
+            .assertEquals("The obtained value was incorrect", ProtectedLocalBusiness.VALUE, valueFromBusinessInvocation);
+
    }
 
    //------------------------------------------------------------------------||
