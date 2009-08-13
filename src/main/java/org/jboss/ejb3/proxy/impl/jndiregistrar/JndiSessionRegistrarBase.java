@@ -21,8 +21,12 @@
  */
 package org.jboss.ejb3.proxy.impl.jndiregistrar;
 
+import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -36,12 +40,16 @@ import javax.naming.spi.ObjectFactory;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.Dispatcher;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
+import org.jboss.aspects.remoting.PojiProxy;
 import org.jboss.ejb3.common.registrar.spi.DuplicateBindException;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.common.string.StringUtils;
 import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.impl.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.impl.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.ejb3.proxy.impl.remoting.ProxyRemotingUtils;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
@@ -56,9 +64,9 @@ import org.jboss.remoting.InvokerLocator;
 
 /**
  * JndiSessionRegistrarBase
- * 
+ *
  * Responsible for binding of ObjectFactories and
- * creation/registration of associated ProxyFactories, 
+ * creation/registration of associated ProxyFactories,
  * centralizing operations common to that of all Session
  * EJB Implementations
  *
@@ -96,8 +104,8 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Creates a JNDI Registrar from the specified configuration properties, none of
     * which may be null.
-    * 
-    * @param sessionProxyObjectFactoryType String representation of the JNDI Object 
+    *
+    * @param sessionProxyObjectFactoryType String representation of the JNDI Object
     *           Factory Class Name (fully-qualified) to use for this Session EJB
     */
    public JndiSessionRegistrarBase(final String sessionProxyObjectFactoryType)
@@ -130,11 +138,11 @@ public abstract class JndiSessionRegistrarBase
    // --------------------------------------------------------------------------------||
 
    /**
-    * Binds into JNDI all appropriate objects required 
+    * Binds into JNDI all appropriate objects required
     * by the EJB described by the specified metadata.  Additionally
     * responsible for creation and registration of any all ProxyFactory
     * implementations required by the EJB
-    * 
+    *
     * @param context The JNDI Context to use for binding
     * @param smd the Container's metadata
     * @param cl The CL of the Container
@@ -154,7 +162,7 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Creates all of the <code>Reference</code> objects that should be bound
     * in JNDI for the EJB, and determines the correct JNDI name for each.
-    * Additionally responsible for creation and registration of any all 
+    * Additionally responsible for creation and registration of any all
     * ProxyFactory implementations required by the EJB.
     *
     * @param smd the Container's metadata
@@ -162,14 +170,14 @@ public abstract class JndiSessionRegistrarBase
     * @param containerName The name under which the target container is registered
     * @param containerGuid The globally-unique name of the container
     * @param advisor The advisor to use for generated proxies
-    * 
+    *
     * @return data object encapsulating the references and their JNDI names
     */
    protected JndiReferenceBindingSet createJndiReferenceBindingSet(final Context context,
          final JBossSessionBeanMetaData smd, final ClassLoader cl, final String containerName,
          final String containerGuid, final Advisor advisor)
    {
-      // Log 
+      // Log
       String ejbName = smd.getEjbName();
       log.debug("Found Session Bean: " + ejbName);
 
@@ -252,6 +260,8 @@ public abstract class JndiSessionRegistrarBase
          Reference defaultRemoteRef = createStandardReference(JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX
                + defaultRemoteClassName, defaultRemoteProxyFactoryKey, containerName, false);
 
+         // Also bind remote proxy factory to jndi
+         this.bindRemoteProxyFactory(context, defaultRemoteProxyFactoryKey, defaultClientBindUrl, factory, cl, smd);
          /*
           * Set up references for Home
           */
@@ -288,7 +298,7 @@ public abstract class JndiSessionRegistrarBase
          }
 
          /*
-          * If no @RemoteBindings are defined, make a default remote binding 
+          * If no @RemoteBindings are defined, make a default remote binding
           */
 
          // Get RemoteBindings
@@ -327,7 +337,7 @@ public abstract class JndiSessionRegistrarBase
          }
 
          /*
-          * If there are @RemoteBindings and a remote view 
+          * If there are @RemoteBindings and a remote view
           */
 
          // Remote Bindings are defined, create a binding for each
@@ -431,6 +441,13 @@ public abstract class JndiSessionRegistrarBase
                Reference remoteBindingRef = createStandardReference(
                      JndiSessionRegistrarBase.OBJECT_FACTORY_CLASSNAME_PREFIX + defaultRemoteClassName,
                      remoteBindingProxyFactoryKey, containerName, false);
+
+               // Also bind the remote proxy factory to jndi (after unbinding any existing instances)
+               if (reregister)
+               {
+                  unbind(context, remoteBindingProxyFactoryKey);
+               }
+               this.bindRemoteProxyFactory(context, remoteBindingProxyFactoryKey, clientBindUrl, remoteBindingProxyFactory, cl, smd);
 
                // Add a Reference Address for the Remoting URL
                log.debug("Adding " + RefAddr.class.getSimpleName() + " to @RemoteBinding "
@@ -585,17 +602,17 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Unbinds from JNDI all appropriate objects registered 
+    * Unbinds from JNDI all appropriate objects registered
     * by the EJB described by the specified metadata.  Additionally
     * responsible for destruction and deregistration of any all ProxyFactory
     * implementations required by the EJB
-    * 
+    *
     * @param context The JNDI Context to use for unbinding
     * @param smd
     */
    public void unbindEjb(final Context context, final JBossSessionBeanMetaData smd)
    {
-      // Log 
+      // Log
       String ejbName = smd.getEjbName();
       log.debug("Unbinding JNDI References for Session Bean: " + ejbName);
 
@@ -635,6 +652,8 @@ public abstract class JndiSessionRegistrarBase
          // Find and deregister a remote proxy factory
          String remoteProxyFactoryKey = this.getProxyFactoryRegistryKey(defaultRemoteJndiName, smd, false);
          this.deregisterProxyFactory(remoteProxyFactoryKey);
+         // also remove the remote proxy factory from jndi
+         this.unbind(context, remoteProxyFactoryKey);
 
          // Determine if remote home and business remotes are bound to same JNDI Address
          boolean bindRemoteAndHomeTogether = this.isHomeAndBusinessBoundTogether(smd, false);
@@ -671,6 +690,8 @@ public abstract class JndiSessionRegistrarBase
                   String remoteBindingProxyFactoryKey = this.getProxyFactoryRegistryKey(remoteBindingJndiName, smd,
                         false);
                   this.deregisterProxyFactory(remoteBindingProxyFactoryKey);
+                  // also remove the remote proxy factory from jndi
+                  this.unbind(context, remoteBindingProxyFactoryKey);
                }
             }
          }
@@ -739,9 +760,9 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Creates and returns a new local proxy factory for this Session Bean
-    * 
+    *
     * @param name The unique name for the ProxyFactory
-    * @param containerName The name of the Container upon which Proxies 
+    * @param containerName The name of the Container upon which Proxies
     *   from the returned ProxyFactory will invoke
     * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this Session EJB
@@ -753,9 +774,9 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Creates and returns a new remote proxy factory for this Session Bean
-    * 
+    *
     * @param name The unique name for the ProxyFactory
-    * @param containerName The name of the Container upon which Proxies 
+    * @param containerName The name of the Container upon which Proxies
     *   from the returned ProxyFactory will invoke
     * @param containerGuid The globally-unique name of the container
     * @param smd The metadata representing this Session EJB
@@ -775,8 +796,8 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Creates a new <code>Reference</code> whose <code>classname</code> is
-    * the given <code>referenceName</code> and whose <code>classFactory</code> 
-    * is {@link #getSessionProxyObjectFactoryType()}, adding 
+    * the given <code>referenceName</code> and whose <code>classFactory</code>
+    * is {@link #getSessionProxyObjectFactoryType()}, adding
     * the requisite Registry key for the ProxyFactory and the requisite
     * target EJB Container Name as ReferenceAddresses.
     */
@@ -898,7 +919,7 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Binds the specified Reference into JNDI at the specified address
-    * 
+    *
     * @param context The JNDI Context to use
     * @param address the address
     * @param ref the reference to bind
@@ -918,7 +939,7 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Re-binds the specified Reference into JNDI at the specified address
-    * 
+    *
     * @param context The JNDI Context to use
     * @param address the address
     * @param object the object to bind
@@ -938,7 +959,7 @@ public abstract class JndiSessionRegistrarBase
 
    /**
     * Unbinds the specified address from JNDI
-    * 
+    *
     * @param context The JNDI Context to use
     * @param address
     */
@@ -960,9 +981,9 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Returns whether the business interfaces and EJB2.x Home should be bound to 
-    * the same JNDI Name 
-    * 
+    * Returns whether the business interfaces and EJB2.x Home should be bound to
+    * the same JNDI Name
+    *
     * @param smd
     * @param isLocal
     * @return
@@ -1022,8 +1043,8 @@ public abstract class JndiSessionRegistrarBase
    /**
     * Creates and returns a new RefAddr to flag the proper
     * InvokerLocator URL used by remoting for the EJB represented
-    * by the specified metadata 
-    * 
+    * by the specified metadata
+    *
     * @param clientBindUrl
     * @return
     */
@@ -1040,11 +1061,11 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Returns the name of the unique key under which a Proxy Factory will 
+    * Returns the name of the unique key under which a Proxy Factory will
     * be registered.  Will follow form:
-    * 
+    *
     * ProxyFactory/{ejbName}/{jndiName}
-    * 
+    *
     * @param jndiName
     * @param smd
     * @param isLocal
@@ -1077,10 +1098,10 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Makes a comma-delimited list of interfaces bound for setting the 
-    * Classname of the Reference.  This will show up in JNDIView and make 
+    * Makes a comma-delimited list of interfaces bound for setting the
+    * Classname of the Reference.  This will show up in JNDIView and make
     * it clear to application developers what will be castable from the lookup result
-    * 
+    *
     * @param refAddrs
     * @return
     */
@@ -1110,8 +1131,8 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Returns whether the specified RefAddr type denotes an EJB Interface 
-    * 
+    * Returns whether the specified RefAddr type denotes an EJB Interface
+    *
     * @param refAddrType
     * @return
     */
@@ -1124,8 +1145,8 @@ public abstract class JndiSessionRegistrarBase
    }
 
    /**
-    * Registers the specified proxy factory into the registry 
-    * 
+    * Registers the specified proxy factory into the registry
+    *
     * @param name The unique name for the ProxyFactory
     * @param factory
     * @param smd Metadata describing the EJB
@@ -1143,8 +1164,8 @@ public abstract class JndiSessionRegistrarBase
       {
          /*
           * Note on registry key collisions:
-          * 
-          * Indicates that either the keys created are not unique or that we're attempting to redeploy 
+          *
+          * Indicates that either the keys created are not unique or that we're attempting to redeploy
           * an EJB that was not properly deregistered.  Either way, this is a programmatic problem
           * and not the fault of the bean provider/developer/deployer
           */
@@ -1154,9 +1175,111 @@ public abstract class JndiSessionRegistrarBase
       }
    }
 
-   /** 
-    * Deregisters the proxy factory with the specified name from the registry
+   /**
+    * The remote proxy factory will be bound to the jndi at the key <code>proxyFactoryKey</code>.
+    *
+    * Internally this method creates a Remoting proxy for the remote proxyfactory, fronted by
+    * the {@link IsLocalProxyFactoryInterceptor} and the {@link InvokeRemoteInterceptor} interceptors
+    *
+    * @param context
+    * @param proxyFactoryKey
+    * @param remotingUrl
+    * @param proxyFactory
+    * @param cl
+    * @param smd
+    */
+   protected void bindRemoteProxyFactory(Context context, String proxyFactoryKey, String remotingUrl,
+         ProxyFactory proxyFactory, ClassLoader cl, JBossEnterpriseBeanMetaData smd)
+   {
+
+      ProxyFactory proxyToProxyFactory = this.createProxyToProxyFactory(proxyFactoryKey, remotingUrl, proxyFactory, cl, smd);
+      // now bind
+      try
+      {
+         log.debug("Binding remote ProxyFactory to JNDI, at key " + proxyFactoryKey);
+         Util.bind(context, proxyFactoryKey, proxyToProxyFactory);
+      }
+      catch (NamingException ne)
+      {
+         throw new RuntimeException("Could not bind remote proxy factory to JNDI, at key " + proxyFactoryKey, ne);
+      }
+
+   }
+
+   /**
+    * Creates a remoting {@link PojiProxy} for the proxy factory and fronts it with
+    * the {@link IsLocalProxyFactoryInterceptor} and {@link InvokeRemoteInterceptor} interceptors
+    *
+    * @param proxyFactoryKey
+    * @param remotingUrl
+    * @param proxyFactory
+    * @param cl
+    * @param smd
     * 
+    * @return
+    */
+   protected ProxyFactory createProxyToProxyFactory(String proxyFactoryKey, String remotingUrl,
+         ProxyFactory proxyFactory, ClassLoader cl, JBossEnterpriseBeanMetaData smd)
+   {
+      try
+      {
+         InvokerLocator locator = new InvokerLocator(remotingUrl);
+         // Create a POJI Proxy to the Registrar
+         Interceptor[] interceptors =
+         {IsLocalProxyFactoryInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+         PojiProxy handler = new PojiProxy(proxyFactoryKey, locator, interceptors);
+         // The proxy should me marked as implementing interface(s) of type ProxyFactory
+         // and the other sub-interfaces of ProxyFactory (whichever applicable for this specific
+         // proxyfactory). We need the specific sub-interfaces to ensure that the ObjectFactories
+         // can invoke the APIs on the sub-interfaces
+         Class<ProxyFactory>[] proxyFactoryInterfaces = this.getAllProxyFactoryInterfaces((Class<ProxyFactory>)proxyFactory.getClass());
+
+         return (ProxyFactory) Proxy.newProxyInstance(proxyFactoryInterfaces[0].getClassLoader(), proxyFactoryInterfaces, handler);
+      }
+      catch (MalformedURLException mue)
+      {
+         throw new RuntimeException("Unable to create a remoting proxy for ProxyFactory " + proxyFactoryKey
+               + " with remoting url " + remotingUrl, mue);
+
+      }
+   }
+
+   /**
+    * Returns all the interfaces of type {@link ProxyFactory} that are implemented
+    * by the proxyFactory klass
+    *
+    * @param klass
+    * @return
+    */
+   protected Class<ProxyFactory>[] getAllProxyFactoryInterfaces(Class<ProxyFactory> klass)
+   {
+      Set<Class<ProxyFactory>> proxyFactoryInterfaces = new HashSet<Class<ProxyFactory>>();
+
+      // See if super class implements and ProxyFactory interface(s)
+      if (klass.getSuperclass() != null && ProxyFactory.class.isAssignableFrom(klass.getSuperclass()))
+      {
+         Class<ProxyFactory>[] intfs = getAllProxyFactoryInterfaces((Class<ProxyFactory>)(klass.getSuperclass()));
+         proxyFactoryInterfaces.addAll(Arrays.asList(intfs));
+
+      }
+      // Iterate through the directly implemented interfaces and
+      // check whether any ProxyFactory interface is being implemented
+      Class<?>[] allInterfaces = klass.getInterfaces();
+      for (Class<?> intf : allInterfaces)
+      {
+         if (ProxyFactory.class.isAssignableFrom(intf))
+         {
+            proxyFactoryInterfaces.add((Class<ProxyFactory>)intf);
+         }
+      }
+      return (Class<ProxyFactory>[]) proxyFactoryInterfaces.toArray(new Class<?>[proxyFactoryInterfaces.size()]);
+   }
+
+
+
+   /**
+    * Deregisters the proxy factory with the specified name from the registry
+    *
     * @param name
     */
    protected void deregisterProxyFactory(String name)
@@ -1178,7 +1301,7 @@ public abstract class JndiSessionRegistrarBase
       // Deregister with AOP if registered
       //TODO This should probably be in a cleaner location, ie.
       // implement a callback for AOP Registration/Deregistration
-      // that decouples JNDI Registration and abstracts whether 
+      // that decouples JNDI Registration and abstracts whether
       // a Proxy Factory is Remote or not
       if (Dispatcher.singleton.isRegistered(name))
       {
