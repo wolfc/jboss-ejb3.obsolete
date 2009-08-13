@@ -141,12 +141,10 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
                   + " was expected to be of type " + ProxyFactory.class.getName() + " but was instead " + pfObj;
             proxyFactory = (ProxyFactory) pfObj;
          }
-         // BES 2008/08/22 -- a NotBoundException doesn't mean failure, just
-         // means the container isn't deployed in this server. So don't catch it
-         // in an inner try/catch; let it propagate to the outer catch.
          catch (NotBoundException nbe)
          {
-            proxyFactory = this.getProxyFactoryFromJNDI(proxyFactoryRegistryKey, nameCtx, environment);
+            throw new RuntimeException("Could not find proxyfactory at " + proxyFactoryRegistryKey
+                  + " -looking up local Proxy from Remote JVM?", nbe);
          }
       }
       // Registrar is not local, so use Remoting to Obtain Proxy Factory
@@ -232,14 +230,9 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
          return (ProxyFactory) factory;
       }
-      catch (NameNotFoundException nnfe)
-      {
-         throw new RuntimeException("Could not find proxyfactory in JNDI at " + proxyFactoryKey
-               + " -looking up local Proxy from Remote JVM?");
-      }
       catch (NamingException e)
       {
-         throw new RuntimeException("Exception while trying to locate proxy factory in JNDI, at key " + proxyFactoryKey);
+         throw new RuntimeException("Exception while trying to locate proxy factory in JNDI, at key " + proxyFactoryKey, e);
       }
 
    }
