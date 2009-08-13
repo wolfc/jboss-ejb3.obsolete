@@ -132,7 +132,7 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-clustered</artifactId>
       <classifier>client</classifier>
-      <version>1.0.1</version>
+      <version>1.0.2-SNAPSHOT</version>
       <optional>true</optional>
     </dependency>
 
