@@ -22,6 +22,8 @@
 
 package org.jboss.ejb3.proxy.clustered.jndiregistrar;
 
+import java.lang.reflect.Proxy;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,26 +31,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
 
 import org.jboss.aop.Advisor;
+import org.jboss.aop.advice.Interceptor;
+import org.jboss.aspects.remoting.ClusterChooserInterceptor;
+import org.jboss.aspects.remoting.ClusteredPojiProxy;
+import org.jboss.aspects.remoting.FamilyWrapper;
+import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.proxy.clustered.objectfactory.ClusteredProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringInfo;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistry;
 import org.jboss.ejb3.proxy.clustered.registry.ProxyClusteringRegistryListener;
+import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
 import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiReferenceBinding;
 import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiReferenceBindingSet;
 import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.impl.remoting.IsLocalProxyFactoryInterceptor;
+import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
 import org.jboss.ha.framework.interfaces.FamilyClusterInfo;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.ClusterConfigMetaData;
+import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
+import org.jboss.naming.Util;
 import org.jboss.remoting.InvokerLocator;
-
-
 
 /**
  * Responsible for binding of ObjectFactories and creation/registration of 
@@ -57,22 +68,23 @@ import org.jboss.remoting.InvokerLocator;
  * 
  * @author Brian Stansberry
  */
-public abstract class JndiClusteredSessionRegistrarBase 
-   extends JndiSessionRegistrarBase
-   implements ProxyClusteringRegistryListener
+public abstract class JndiClusteredSessionRegistrarBase extends JndiSessionRegistrarBase
+      implements
+         ProxyClusteringRegistryListener
 {
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    private static final Logger log = Logger.getLogger(JndiClusteredSessionRegistrarBase.class);
-   
+
    // --------------------------------------------------------------------------------||
    // Instance Members ---------------------------------------------------------------||
    // --------------------------------------------------------------------------------||
-   
+
    private final ProxyClusteringRegistry registry;
-   private final Map<String, BeanClusteringRegistryInfo> bindingsByContainer = new ConcurrentHashMap<String, BeanClusteringRegistryInfo>(); 
+
+   private final Map<String, BeanClusteringRegistryInfo> bindingsByContainer = new ConcurrentHashMap<String, BeanClusteringRegistryInfo>();
 
    // --------------------------------------------------------------------------------||
    // Constructor --------------------------------------------------------------------||
@@ -84,11 +96,10 @@ public abstract class JndiClusteredSessionRegistrarBase
     * @param sessionProxyObjectFactoryType
     * @param registry registry of clustering information about deployed containers
     */
-   public JndiClusteredSessionRegistrarBase(String sessionProxyObjectFactoryType, 
-                                            ProxyClusteringRegistry registry)
+   public JndiClusteredSessionRegistrarBase(String sessionProxyObjectFactoryType, ProxyClusteringRegistry registry)
    {
       super(sessionProxyObjectFactoryType);
-      
+
       assert registry != null : "registry is null";
       this.registry = registry;
       this.registry.registerListener(this);
@@ -110,45 +121,90 @@ public abstract class JndiClusteredSessionRegistrarBase
       BeanClusteringRegistryInfo registryEntry = bindingsByContainer.get(beanClusteringInfo.getContainerName());
       if (registryEntry != null)
       {
-         bindings= registryEntry.bindings;
+         bindings = registryEntry.bindings;
       }
-      
+
       if (bindings == null)
       {
          // We aren't handling this bean
          return;
       }
-      
+
       Context context = bindings.getContext();
-      
-      FamilyClusterInfo fci = beanClusteringInfo.getFamilyWrapper().get();     
+
+      FamilyClusterInfo fci = beanClusteringInfo.getFamilyWrapper().get();
       String familyName = fci.getFamilyName();
-      
+      log.debug("Cluster topology changed for family " + familyName + " new view id " + fci.getCurrentViewId()
+            + " - Updating JNDI bindings for container " + beanClusteringInfo.getContainerName());
+
       for (JndiReferenceBinding binding : bindings.getDefaultRemoteBindings())
       {
-         RefAddr refAddr = getFirstRefAddr(binding.getReference(), ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
+         RefAddr refAddr = getFirstRefAddr(binding.getReference(),
+               ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
          if (refAddr != null && familyName.equals(refAddr.getContent()))
          {
             redecorateReferenceForClusteringTargets(binding.getReference(), fci);
             rebind(context, binding.getJndiName(), binding.getReference());
          }
+
+         // The remote proxyfactory in JNDI too needs to be updated with the changes in the
+         // clustering family. This involves unbinding the remote proxyfactory from JNDI,
+         // creating a new proxy for the proxyfactory with this new FamilyCluster info
+         // and finally binding this new proxy for the proxyfactory to the JNDI
+         String proxyFactoryKey = this.getSingleRequiredRefAddr(binding.getReference(),
+               ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
+         // first create a new proxy. if we run into problems creating a new proxy,
+         // let's NOT unbind the existing one since a change in topology should not
+         // result in loss of proxy factory
+         ProxyFactory existingProxyFactoryInJNDI = null;
+         try
+         {
+            existingProxyFactoryInJNDI = (ProxyFactory) context.lookup(proxyFactoryKey);
+
+         }
+         catch (NamingException ne)
+         {
+            // ignore and skip. If there is not proxyfactory bound or if there is some other
+            // issue related to naming, let's not try to "update" the proxy factory.
+            log.debug("Could not update the cluster topology changes to proxyfactory at key " + proxyFactoryKey);
+            continue;
+         }
+         // create a new proxy to proxyfactory with the available information in JNDI Reference,
+         // the previously bound proxy to the proxyfactory and the beanClusteringInfo which has
+         // contains the updated information of the cluster topology
+         ProxyFactory updatedProxyToProxyFactory = this.updateProxyForRemoteProxyFactory(proxyFactoryKey, binding
+               .getReference(), existingProxyFactoryInJNDI, beanClusteringInfo);
+         try
+         {
+            Util.rebind(context, proxyFactoryKey, updatedProxyToProxyFactory);
+            log.debug("Bound an updated proxyfactory at key " + proxyFactoryKey);
+         }
+         catch (NamingException ne)
+         {
+            // let's just log a WARN since we don't want the other operations to fail because of this
+            log.warn("Exception while rebinding a new proxyfactory at key " + proxyFactoryKey
+                  + " with updated clustered topology", ne);
+         }
+
       }
-      
+
       for (JndiReferenceBinding binding : bindings.getHomeRemoteBindings())
       {
-         RefAddr refAddr = getFirstRefAddr(binding.getReference(), ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
+         RefAddr refAddr = getFirstRefAddr(binding.getReference(),
+               ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
          if (refAddr != null && familyName.equals(refAddr.getContent()))
          {
             redecorateReferenceForClusteringTargets(binding.getReference(), fci);
             rebind(context, binding.getJndiName(), binding.getReference());
          }
       }
-      
+
       for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessRemoteBindings().values())
-      {         
+      {
          for (JndiReferenceBinding binding : businessBindings)
          {
-            RefAddr refAddr = getFirstRefAddr(binding.getReference(), ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
+            RefAddr refAddr = getFirstRefAddr(binding.getReference(),
+                  ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME);
             if (refAddr != null && familyName.equals(refAddr.getContent()))
             {
                redecorateReferenceForClusteringTargets(binding.getReference(), fci);
@@ -156,6 +212,7 @@ public abstract class JndiClusteredSessionRegistrarBase
             }
          }
       }
+
    }
 
    public void beanClusteringInfoAdded(ProxyClusteringInfo beanClusteringInfo)
@@ -172,7 +229,7 @@ public abstract class JndiClusteredSessionRegistrarBase
       {
          bindingsByContainer.remove(containerName);
       }
-   }   
+   }
 
    // --------------------------------------------------------------------------------||
    // Accessors / Mutators -----------------------------------------------------------||
@@ -200,25 +257,90 @@ public abstract class JndiClusteredSessionRegistrarBase
       }
       return key;
    }
-   
+
    /**
     * Overrides the superclass version to add clustering related {@link RefAddr}s
     * to the binding references.
     */
    @Override
-   protected JndiReferenceBindingSet createJndiReferenceBindingSet(final Context context, 
-         final JBossSessionBeanMetaData smd, final ClassLoader cl,
-         final String containerName, final String containerGuid, final Advisor advisor)
+   protected JndiReferenceBindingSet createJndiReferenceBindingSet(final Context context,
+         final JBossSessionBeanMetaData smd, final ClassLoader cl, final String containerName,
+         final String containerGuid, final Advisor advisor)
    {
-      JndiReferenceBindingSet bindings = super.createJndiReferenceBindingSet(context, smd, cl, containerName, containerGuid, advisor);
-      
+      JndiReferenceBindingSet bindings = super.createJndiReferenceBindingSet(context, smd, cl, containerName,
+            containerGuid, advisor);
+
       decorateReferencesForClustering(bindings);
-      
+
       // Store ref to bindings so we can rebind upon topology changes
-      BeanClusteringRegistryInfo registryInfo = getBeanClusteringRegistryInfo(containerName);      
+      BeanClusteringRegistryInfo registryInfo = getBeanClusteringRegistryInfo(containerName);
       registryInfo.bindings = bindings;
-      
+
       return bindings;
+   }
+
+   @Override
+   protected ProxyFactory createProxyToProxyFactory(String proxyFactoryKey, String remotingUrl,
+         ProxyFactory proxyFactory, ClassLoader cl, JBossEnterpriseBeanMetaData smd)
+   {
+      InvokerLocator locator = null;
+      try
+      {
+         locator = new InvokerLocator(remotingUrl);
+      }
+      catch (MalformedURLException mue)
+      {
+         throw new RuntimeException("Unable to create a remoting proxy for ProxyFactory " + proxyFactoryKey
+               + " with remoting url " + remotingUrl, mue);
+
+      }
+
+      ProxyClusteringInfo bci = registry.getBeanClusteringInfo(proxyFactoryKey);
+
+      if (bci == null)
+      {
+         throw new IllegalStateException("Cannot find " + ProxyClusteringInfo.class.getSimpleName()
+               + " for proxyFactoryKey " + proxyFactoryKey);
+      }
+
+      String partitionName = bci.getPartitionName();
+
+      assert partitionName != null && !partitionName.trim().equals("") : " Partition name is required, but is not available in ProxyClusteringInfo";
+
+      String lbpClass = bci.getHomeLoadBalancePolicy().getName();
+
+      assert lbpClass != null && !lbpClass.trim().equals("") : LoadBalancePolicy.class.getSimpleName()
+            + " class name is required, but is not available in ProxyClusteringInfo";
+
+      LoadBalancePolicy loadBalancePolicy;
+      try
+      {
+         log.debug("Instantiating loadbalancer policy " + lbpClass + " for remote proxyfactory bound at key "
+               + proxyFactoryKey);
+         loadBalancePolicy = (LoadBalancePolicy) cl.loadClass(lbpClass).newInstance();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Could not load loadbalancer policy " + lbpClass
+               + " while creating a proxy to remote proxyfactory", e);
+      }
+
+      FamilyWrapper wrapper = bci.getFamilyWrapper();
+      FamilyClusterInfo familyClusterInfo = wrapper.get();
+      log.debug("Remote proxyfactory for key " + proxyFactoryKey + " will be associated with family name "
+            + familyClusterInfo.getFamilyName() + " view id " + familyClusterInfo.getCurrentViewId()
+            + " with available targets " + familyClusterInfo.getTargets());
+
+      Class<ProxyFactory>[] interfaces = this.getAllProxyFactoryInterfaces((Class<ProxyFactory>) proxyFactory
+            .getClass());
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, ClusterChooserInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+
+      ClusteredPojiProxy handler = new ClusteredPojiProxy(proxyFactoryKey, locator, interceptors, wrapper,
+            loadBalancePolicy, partitionName, null);
+      // register the handler
+
+      return (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
    }
 
    // --------------------------------------------------------------------------------||
@@ -248,12 +370,12 @@ public abstract class JndiClusteredSessionRegistrarBase
       {
          decorateReferenceForClustering(binding.getReference());
       }
-      
+
       for (JndiReferenceBinding binding : bindings.getHomeRemoteBindings())
       {
          decorateReferenceForClustering(binding.getReference());
       }
-      
+
       for (Set<JndiReferenceBinding> businessBindings : bindings.getBusinessRemoteBindings().values())
       {
          for (JndiReferenceBinding binding : businessBindings)
@@ -262,7 +384,7 @@ public abstract class JndiClusteredSessionRegistrarBase
          }
       }
    }
-   
+
    /**
     * Add clustering related <code>RefAddr</code>s to <code>Reference</code>
     * 
@@ -270,24 +392,28 @@ public abstract class JndiClusteredSessionRegistrarBase
     */
    private void decorateReferenceForClustering(Reference ref)
    {
-      String proxyFactoryKey = getSingleRequiredRefAddr(ref, ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
+      String proxyFactoryKey = getSingleRequiredRefAddr(ref,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_PROXY_FACTORY_REGISTRY_KEY);
       ProxyClusteringInfo bci = registry.getBeanClusteringInfo(proxyFactoryKey);
-      
+
       if (bci == null)
       {
-         throw new IllegalStateException("Cannot find " + ProxyClusteringInfo.class.getSimpleName() + 
-                                         " for proxyFactoryKey " + proxyFactoryKey);
+         throw new IllegalStateException("Cannot find " + ProxyClusteringInfo.class.getSimpleName()
+               + " for proxyFactoryKey " + proxyFactoryKey);
       }
-      
-      RefAddr partitionRef = new StringRefAddr(ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_PARTITION_NAME, bci.getPartitionName());
+
+      RefAddr partitionRef = new StringRefAddr(
+            ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_PARTITION_NAME, bci.getPartitionName());
       addRefAddrToReference(ref, partitionRef);
-      RefAddr lbpRef = new StringRefAddr(ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_PROXY_FACTORY_LOAD_BALANCE_POLICY, bci.getHomeLoadBalancePolicy().getName());
+      RefAddr lbpRef = new StringRefAddr(
+            ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_PROXY_FACTORY_LOAD_BALANCE_POLICY, bci
+                  .getHomeLoadBalancePolicy().getName());
       addRefAddrToReference(ref, lbpRef);
       FamilyClusterInfo fci = bci.getFamilyWrapper().get();
-      RefAddr familyNameRef = new StringRefAddr(ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME, 
-                                                fci.getFamilyName());
+      RefAddr familyNameRef = new StringRefAddr(
+            ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_FAMILY_NAME, fci.getFamilyName());
       addRefAddrToReference(ref, familyNameRef);
-      
+
       decorateReferenceForClusteringTargets(ref, fci);
    }
 
@@ -304,7 +430,8 @@ public abstract class JndiClusteredSessionRegistrarBase
       for (int i = 0; i < ref.size(); i++)
       {
          RefAddr refAddr = ref.get(i);
-         if (ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_TARGET_INVOKER_LOCATOR_URL.equals(refAddr.getType()))
+         if (ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_TARGET_INVOKER_LOCATOR_URL.equals(refAddr
+               .getType()))
          {
             ref.remove(i);
             i--;
@@ -312,7 +439,7 @@ public abstract class JndiClusteredSessionRegistrarBase
       }
       decorateReferenceForClusteringTargets(ref, fci);
    }
-   
+
    /**
     * Adds a <code>RefAddr</code> of type {@link ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_TARGET_INVOKER_LOCATOR_URL}
     * to <code>ref</code> for each target associated with <code>fci</code>.
@@ -332,18 +459,18 @@ public abstract class JndiClusteredSessionRegistrarBase
          assert correctType : target + " is not an instance of InvokerLocator";
          if (!correctType)
             throw new IllegalStateException(target + " is not an instance of InvokerLocator");
-         
+
          String url = ((InvokerLocator) target).getOriginalURI();
-         RefAddr targetRef = new StringRefAddr(ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_TARGET_INVOKER_LOCATOR_URL, url);
+         RefAddr targetRef = new StringRefAddr(
+               ClusteredProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_CLUSTER_TARGET_INVOKER_LOCATOR_URL, url);
          addRefAddrToReference(ref, targetRef);
       }
    }
-   
+
    private void addRefAddrToReference(Reference ref, RefAddr refAddr)
    {
-      log.debug("Adding " + RefAddr.class.getSimpleName() + " to "
-            + Reference.class.getSimpleName() + ": Type \"" + refAddr.getType() + "\", Content \""
-            + refAddr.getContent() + "\"");
+      log.debug("Adding " + RefAddr.class.getSimpleName() + " to " + Reference.class.getSimpleName() + ": Type \""
+            + refAddr.getType() + "\", Content \"" + refAddr.getContent() + "\"");
       ref.add(refAddr);
    }
 
@@ -365,12 +492,12 @@ public abstract class JndiClusteredSessionRegistrarBase
             }
          }
       }
-      
+
       if (result == null)
       {
          throw new IllegalStateException(ref + " has no RefAddr object of type " + refAddrType);
       }
-      
+
       return (String) result.getContent();
    }
 
@@ -386,11 +513,96 @@ public abstract class JndiClusteredSessionRegistrarBase
       }
       return null;
    }
-   
+
    private static class BeanClusteringRegistryInfo
    {
       private final AtomicInteger familyCount = new AtomicInteger();
+
       private JndiReferenceBindingSet bindings;
-   }   
+   }
+
+   /**
+    * Utility method to create an updated proxy for the remote proxyfactory.
+    * <br>
+    * Note that this method is expected to be used at runtime (i.e. when the EJB container bindings are
+    * available in JNDI)  for recreation of an existing proxy to the proxyfactory. This method must 
+    * not be used during deployment (when the JNDI bindings are not yet available). For deployment time
+    * creation of proxy for the proxyFactory is handled by the other method 
+    * {@link JndiClusteredSessionRegistrarBase#createProxyToProxyFactory(String, String, ProxyFactory, ClassLoader, JBossEnterpriseBeanMetaData)}
+    * 
+    * <p>
+    *   Also see {@link JndiClusteredSessionRegistrarBase#clusterTopologyChanged(ProxyClusteringInfo)} method
+    *   where this is used. Internally this method uses a combination of information available in JNDI and also
+    *   the latest clustering topology (that is available in the passed <code>clusteringInfo</code> parameter),
+    *   to (re)create an updated proxy for the proxyfactory.
+    * </p>
+    *   
+    * @param proxyFactoryKey
+    * @param reference
+    * @param proxyFactory
+    * @param clusteringInfo
+    * @return
+    */
+   private ProxyFactory updateProxyForRemoteProxyFactory(String proxyFactoryKey, Reference reference,
+         ProxyFactory proxyFactory, ProxyClusteringInfo clusteringInfo)
+   {
+      // Obtain the URL for invoking upon the Registry
+      String url = this.getSingleRequiredRefAddr(reference,
+            ProxyFactoryReferenceAddressTypes.REF_ADDR_TYPE_INVOKER_LOCATOR_URL);
+
+      // Create an InvokerLocator
+      assert url != null && !url.trim().equals("") : InvokerLocator.class.getSimpleName()
+            + " URL is required, but is not specified; improperly bound reference in JNDI";
+      InvokerLocator locator;
+      try
+      {
+         locator = new InvokerLocator(url);
+      }
+      catch (MalformedURLException mue)
+      {
+         throw new RuntimeException("Unable to create a remoting proxy for ProxyFactory " + proxyFactoryKey
+               + " with remoting url " + url, mue);
+      }
+
+      // get the partition name
+      String partitionName = clusteringInfo.getPartitionName();
+
+      assert partitionName != null && !partitionName.trim().equals("") : " Partition name is required, but was not available in ProxyClusteringInfo "
+            + clusteringInfo;
+
+      // load balancer policy - Note we are creating a proxyfactory so we use the *home* loadbalance policy
+      // and not the loadbalance policy
+      Class<? extends LoadBalancePolicy> lbpClass = clusteringInfo.getHomeLoadBalancePolicy();
+
+      assert lbpClass != null : " LoadBalancePolicy is required, but is not available in the ProxyClusteringInfo "
+            + clusteringInfo;
+
+      LoadBalancePolicy loadBalancePolicyInstance = null;
+
+      try
+      {
+         // create a loadbalancer policy instance using the classloader associated with the
+         // previous proxy
+         loadBalancePolicyInstance = lbpClass.newInstance();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Could not create loadbalancer policy instance for " + lbpClass
+               + " while creating a proxy to remote proxyfactory", e);
+      }
+      // family wrapper (which contains the latest information of the cluster topology)
+      FamilyWrapper wrapper = clusteringInfo.getFamilyWrapper();
+      // the interfaces to be exposed by the proxy for the proxyfactory
+      Class<?>[] interfaces = this.getAllProxyFactoryInterfaces((Class<ProxyFactory>) proxyFactory.getClass());
+      // interceptors to the proxy
+      Interceptor[] interceptors =
+      {IsLocalProxyFactoryInterceptor.singleton, ClusterChooserInterceptor.singleton, InvokeRemoteInterceptor.singleton};
+      // an invocation handler which internally will apply the interceptors and do other magic :)
+      ClusteredPojiProxy handler = new ClusteredPojiProxy(proxyFactoryKey, locator, interceptors, wrapper,
+            loadBalancePolicyInstance, partitionName, null);
+
+      // finally the proxy for the proxyfactory
+      return (ProxyFactory) Proxy.newProxyInstance(interfaces[0].getClassLoader(), interfaces, handler);
+   }
 
 }

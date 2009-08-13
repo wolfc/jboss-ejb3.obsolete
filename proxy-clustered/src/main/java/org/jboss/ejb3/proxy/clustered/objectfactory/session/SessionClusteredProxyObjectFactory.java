@@ -37,7 +37,9 @@ import org.jboss.aspects.remoting.FamilyWrapper;
 import org.jboss.aspects.remoting.InvokeRemoteInterceptor;
 import org.jboss.ejb3.proxy.clustered.objectfactory.ClusteredProxyFactoryReferenceAddressTypes;
 import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.objectfactory.ProxyFactoryReferenceAddressTypes;
+import org.jboss.ejb3.proxy.impl.objectfactory.ProxyObjectFactory;
 import org.jboss.ejb3.proxy.impl.objectfactory.session.SessionProxyObjectFactory;
 import org.jboss.ejb3.proxy.impl.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.ha.client.loadbalance.LoadBalancePolicy;
@@ -91,8 +93,18 @@ public class SessionClusteredProxyObjectFactory extends SessionProxyObjectFactor
     * Here we replace the superclass implementation to create a cluster aware
     * proxy that will load balance requests to the server-side proxy factory.
     * 
+    * Deprecated since https://jira.jboss.org/jira/browse/EJBTHREE-1884 - The
+    * {@link ProxyObjectFactory} is no longer responsible for creating a proxy
+    * to the {@link ProxyFactory}. Instead the {@link ProxyObjectFactory} will
+    * lookup in the JNDI for the {@link ProxyFactory} using the
+    * <code>proxyFactoryRegistryKey</code>. The responsibility of
+    * binding the proxyfactory to jndi will rest with the {@link JndiSessionRegistrarBase}
+    * 
+    * @see The new {@link #getProxyFactoryFromJNDI(String, javax.naming.Context, java.util.Hashtable) 
+    *  
     * {@inheritDoc}
     */
+   @Deprecated
    @Override
    protected ProxyFactory createProxyFactoryProxy(Name name, Map<String, List<String>> refAddrs,
          String proxyFactoryRegistryKey) throws Exception

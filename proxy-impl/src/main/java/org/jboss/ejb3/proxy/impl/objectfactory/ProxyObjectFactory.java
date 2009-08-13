@@ -35,6 +35,8 @@ import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.Name;
+import javax.naming.NameNotFoundException;
+import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.spi.ObjectFactory;
@@ -46,6 +48,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
 import org.jboss.remoting.InvokerLocator;
@@ -53,14 +56,12 @@ import org.jboss.remoting.InvokerLocator;
 /**
  * ProxyObjectFactory
  *
- * Base upon which Proxy Object Factories may build.  Defines 
- * abstractions to:
- * 
+ * Base upon which Proxy Object Factories may build. Defines abstractions to:
+ *
  * <ul>
- *  <li>Obtain a proxy based on metadata received 
- *  from Reference Address information associated with the bound 
- *  Reference</li> 
- *  <li>Use a pluggable ProxyFactoryRegistry</li>
+ * <li>Obtain a proxy based on metadata received from Reference Address
+ * information associated with the bound Reference</li>
+ * <li>Use a pluggable ProxyFactoryRegistry</li>
  * </ul>
  *
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
@@ -73,7 +74,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    // --------------------------------------------------------------------------------||
 
    private static final long serialVersionUID = 1L;
-   
+
    /**
     * Logger
     */
@@ -85,11 +86,11 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    /**
     * Returns an appropriate Proxy based on the Reference Address information
-    * associated with the Reference (obj) bound at name in the specified nameCtx with 
-    * specified environment.
-    * 
-    * @see javax.naming.spi.ObjectFactory#getObjectInstance(java.lang.Object, 
-    *       javax.naming.Name, javax.naming.Context, java.util.Hashtable)
+    * associated with the Reference (obj) bound at name in the specified nameCtx
+    * with specified environment.
+    *
+    * @see javax.naming.spi.ObjectFactory#getObjectInstance(java.lang.Object,
+    *      javax.naming.Name, javax.naming.Context, java.util.Hashtable)
     */
    public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable<?, ?> environment)
          throws Exception
@@ -131,7 +132,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       {
          try
          {
-            // Get local EJB3 Registrar 
+            // Get local EJB3 Registrar
             Ejb3Registrar registrar = Ejb3RegistrarLocator.locateRegistrar();
 
             Object pfObj = registrar.lookup(proxyFactoryRegistryKey);
@@ -145,13 +146,13 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          // in an inner try/catch; let it propagate to the outer catch.
          catch (NotBoundException nbe)
          {
-            proxyFactory = createProxyFactoryProxy(name, refAddrs, proxyFactoryRegistryKey);
+            proxyFactory = this.getProxyFactoryFromJNDI(proxyFactoryRegistryKey, nameCtx, environment);
          }
       }
       // Registrar is not local, so use Remoting to Obtain Proxy Factory
       else
       {
-         proxyFactory = createProxyFactoryProxy(name, refAddrs, proxyFactoryRegistryKey);
+         proxyFactory = this.getProxyFactoryFromJNDI(proxyFactoryRegistryKey, nameCtx, environment);
       }
 
       // Get the proxy returned from the ProxyFactory
@@ -164,13 +165,23 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    /**
     * Creates a remoting proxy to the proxy factory.
-    * 
+    *
+    * Deprecated since https://jira.jboss.org/jira/browse/EJBTHREE-1884 - The
+    * {@link ProxyObjectFactory} is no longer responsible for creating a proxy
+    * to the {@link ProxyFactory}. Instead the {@link ProxyObjectFactory} will
+    * lookup in the JNDI for the {@link ProxyFactory} using the
+    * <code>proxyFactoryRegistryKey</code>. The responsibility of
+    * binding the proxyfactory to jndi will rest with the {@link JndiSessionRegistrarBase}
+    * and it's sub-implementations.
+    *
     * @param name
     * @param refAddrs
     * @param proxyFactoryRegistryKey
     * @return
     * @throws Exception
+    *
     */
+   @Deprecated
    protected ProxyFactory createProxyFactoryProxy(Name name, Map<String, List<String>> refAddrs,
          String proxyFactoryRegistryKey) throws Exception
    {
@@ -200,10 +211,44 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    }
 
    /**
-    * Obtains the single value of the specified type as obtained from the specified reference 
-    * addresses bound at the specified Name.  Asserts that the value exists and is the only one
-    * for the specified type. 
-    * 
+    * Returns the {@link ProxyFactory} from the JNDI.
+    *
+    * @param proxyFactoryKey
+    *           The key to {@link ProxyFactory} in the JNDI
+    * @param context
+    *           The JNDI context
+    * @param environment
+    *           JNDI environment
+    * @return
+    */
+   protected ProxyFactory getProxyFactoryFromJNDI(String proxyFactoryKey, Context context, Hashtable<?, ?> environment)
+   {
+      try
+      {
+         Object factory = context.lookup(proxyFactoryKey);
+
+         assert factory instanceof ProxyFactory : "Unexpected object of type " + factory.getClass()
+               + " in JNDI, at key " + proxyFactoryKey + " Expected type " + ProxyFactory.class;
+
+         return (ProxyFactory) factory;
+      }
+      catch (NameNotFoundException nnfe)
+      {
+         throw new RuntimeException("Could not find proxyfactory in JNDI at " + proxyFactoryKey
+               + " -looking up local Proxy from Remote JVM?");
+      }
+      catch (NamingException e)
+      {
+         throw new RuntimeException("Exception while trying to locate proxy factory in JNDI, at key " + proxyFactoryKey);
+      }
+
+   }
+
+   /**
+    * Obtains the single value of the specified type as obtained from the
+    * specified reference addresses bound at the specified Name. Asserts that
+    * the value exists and is the only one for the specified type.
+    *
     * @param name
     * @param referenceAddresses
     * @param refAddrType
@@ -222,10 +267,10 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    }
 
    /**
-    * Obtains the single value of the specified type as obtained from the specified reference 
-    * addresses bound at the specified Name.  Asserts that the value exists and is the only one
-    * for the specified type. 
-    * 
+    * Obtains the single value of the specified type as obtained from the
+    * specified reference addresses bound at the specified Name. Asserts that
+    * the value exists and is the only one for the specified type.
+    *
     * @param name
     * @param referenceAddresses
     * @param refAddrType
@@ -250,9 +295,9 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    /**
     * Looks to the metadata specified by the reference addresses to determine if
-    * an EJB3 Business View is defined here.  Additionally checks that both local 
+    * an EJB3 Business View is defined here. Additionally checks that both local
     * and remote business interfaces are not bound to the same JNDI Address
-    * 
+    *
     * @param name
     * @param referenceAddresses
     * @return
@@ -275,7 +320,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
          throw new RuntimeException(errorMessage);
       }
 
-      // Set 
+      // Set
       hasBusiness = hasLocalBusiness || hasRemoteBusiness;
 
       // Return
@@ -284,11 +329,11 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    }
 
    /**
-    * If the specified proxy has been defined outside of 
-    * this naming Context's ClassLoader, it must be reconstructed
-    * using the TCL so we avoid CCE.  This is especially vital using
-    * a scope ClassLoader (ie. has defined by Servlet spec during Web Injection)
-    * 
+    * If the specified proxy has been defined outside of this naming Context's
+    * ClassLoader, it must be reconstructed using the TCL so we avoid CCE. This
+    * is especially vital using a scope ClassLoader (ie. has defined by Servlet
+    * spec during Web Injection)
+    *
     * @param proxy
     */
    protected Object redefineProxyInTcl(Object proxy)
@@ -362,7 +407,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    /**
     * Determines if the specified metadata contains a type of local business
-    * 
+    *
     * @param referenceAddresses
     * @return
     */
@@ -374,7 +419,7 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    /**
     * Determines if the specified metadata contains a type of remote business
-    * 
+    *
     * @param referenceAddresses
     * @return
     */
@@ -391,7 +436,9 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    protected abstract Object getProxy(ProxyFactory proxyFactory, Name name, Map<String, List<String>> referenceAddresses);
 
    /**
-    * Obtains the type or supertype used by proxy factories for this Object Factory
+    * Obtains the type or supertype used by proxy factories for this Object
+    * Factory
+    *
     * @return
     */
    protected abstract Class<?> getProxyFactoryClass();
@@ -401,12 +448,13 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
    // --------------------------------------------------------------------------------||
 
    /**
-    * Underlying Enumeration for handling Reference Addresses is clumsy (though ordered properly);
-    * iterate through and put in a useful form for this implementation
-    * 
+    * Underlying Enumeration for handling Reference Addresses is clumsy (though
+    * ordered properly); iterate through and put in a useful form for this
+    * implementation
+    *
     * @param ref
     * @return A Map consisting of keys holding reference types, and values of
-    *   Lists containing their contents
+    *         Lists containing their contents
     */
    private Map<String, List<String>> getReferenceAddresses(Reference ref)
    {
