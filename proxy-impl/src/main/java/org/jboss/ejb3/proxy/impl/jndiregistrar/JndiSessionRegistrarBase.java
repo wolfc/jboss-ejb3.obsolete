@@ -447,7 +447,8 @@ public abstract class JndiSessionRegistrarBase
                {
                   unbind(context, remoteBindingProxyFactoryKey);
                }
-               this.bindRemoteProxyFactory(context, remoteBindingProxyFactoryKey, clientBindUrl, remoteBindingProxyFactory, cl, smd);
+               this.bindRemoteProxyFactory(context, remoteBindingProxyFactoryKey, clientBindUrl,
+                     remoteBindingProxyFactory, cl, smd);
 
                // Add a Reference Address for the Remoting URL
                log.debug("Adding " + RefAddr.class.getSimpleName() + " to @RemoteBinding "
@@ -1094,6 +1095,11 @@ public abstract class JndiSessionRegistrarBase
       // Assemble and return
       String key = JndiSessionRegistrarBase.KEY_PREFIX_PROXY_FACTORY_REGISTRY + earPrefix + smd.getEjbName() + "/"
             + suffix;
+
+      // Workaround for issue https://jira.jboss.org/jira/browse/EJBTHREE-1886
+      // Actual fix needs to come from jboss-naming which has to handle "/" correctly
+      // Discussion http://www.jboss.org/index.html?module=bb&op=viewtopic&t=159766
+      key = this.cleanseProxyFactoryJNDIName(key);
       return key;
    }
 
@@ -1192,7 +1198,8 @@ public abstract class JndiSessionRegistrarBase
          ProxyFactory proxyFactory, ClassLoader cl, JBossEnterpriseBeanMetaData smd)
    {
 
-      ProxyFactory proxyToProxyFactory = this.createProxyToProxyFactory(proxyFactoryKey, remotingUrl, proxyFactory, cl, smd);
+      ProxyFactory proxyToProxyFactory = this.createProxyToProxyFactory(proxyFactoryKey, remotingUrl, proxyFactory, cl,
+            smd);
       // now bind
       try
       {
@@ -1232,9 +1239,11 @@ public abstract class JndiSessionRegistrarBase
          // and the other sub-interfaces of ProxyFactory (whichever applicable for this specific
          // proxyfactory). We need the specific sub-interfaces to ensure that the ObjectFactories
          // can invoke the APIs on the sub-interfaces
-         Class<ProxyFactory>[] proxyFactoryInterfaces = this.getAllProxyFactoryInterfaces((Class<ProxyFactory>)proxyFactory.getClass());
+         Class<ProxyFactory>[] proxyFactoryInterfaces = this
+               .getAllProxyFactoryInterfaces((Class<ProxyFactory>) proxyFactory.getClass());
 
-         return (ProxyFactory) Proxy.newProxyInstance(proxyFactoryInterfaces[0].getClassLoader(), proxyFactoryInterfaces, handler);
+         return (ProxyFactory) Proxy.newProxyInstance(proxyFactoryInterfaces[0].getClassLoader(),
+               proxyFactoryInterfaces, handler);
       }
       catch (MalformedURLException mue)
       {
@@ -1258,7 +1267,7 @@ public abstract class JndiSessionRegistrarBase
       // See if super class implements and ProxyFactory interface(s)
       if (klass.getSuperclass() != null && ProxyFactory.class.isAssignableFrom(klass.getSuperclass()))
       {
-         Class<ProxyFactory>[] intfs = getAllProxyFactoryInterfaces((Class<ProxyFactory>)(klass.getSuperclass()));
+         Class<ProxyFactory>[] intfs = getAllProxyFactoryInterfaces((Class<ProxyFactory>) (klass.getSuperclass()));
          proxyFactoryInterfaces.addAll(Arrays.asList(intfs));
 
       }
@@ -1269,13 +1278,11 @@ public abstract class JndiSessionRegistrarBase
       {
          if (ProxyFactory.class.isAssignableFrom(intf))
          {
-            proxyFactoryInterfaces.add((Class<ProxyFactory>)intf);
+            proxyFactoryInterfaces.add((Class<ProxyFactory>) intf);
          }
       }
       return (Class<ProxyFactory>[]) proxyFactoryInterfaces.toArray(new Class<?>[proxyFactoryInterfaces.size()]);
    }
-
-
 
    /**
     * Deregisters the proxy factory with the specified name from the registry
@@ -1307,6 +1314,32 @@ public abstract class JndiSessionRegistrarBase
       {
          Dispatcher.singleton.unregisterTarget(name);
       }
+   }
+
+   /**
+    * Replaces any adjacent "/" characters in the <code>proxyFactoryJNDIName</code>
+    * with a single "/" character. This is a workaround for a bug in jboss-naming
+    * which does not correctly handle the "/" character in CompositeName.
+    * 
+    *  More info here http://www.jboss.org/index.html?module=bb&op=viewtopic&t=159766
+    * @param proxyFactoryJNDIName
+    * @return Returns null if <code>proxyFactoryName</code> is null. Else returns the
+    *       String after processing the <code>proxyFactoryJNDIName</code> as explained 
+    *       above 
+    */
+   private String cleanseProxyFactoryJNDIName(String proxyFactoryJNDIName)
+   {
+      if (proxyFactoryJNDIName == null)
+      {
+         return null;
+      }
+      // will recursively replace adjacent "/" characters
+      String cleansedProxyFactoryJNDIName = proxyFactoryJNDIName.replaceAll("//", "/");
+      if (log.isTraceEnabled())
+      {
+         log.trace("Cleansed proxy factory name from " + proxyFactoryJNDIName + " to " + cleansedProxyFactoryJNDIName);
+      }
+      return cleansedProxyFactoryJNDIName;
    }
 
    // --------------------------------------------------------------------------------||
