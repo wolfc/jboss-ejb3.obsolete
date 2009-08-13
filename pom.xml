@@ -90,13 +90,26 @@
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-impl</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.4-SNAPSHOT</version>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-spi</artifactId>
       <version>1.0.0</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.jboss.naming</groupId>
+        <artifactId>jnpserver</artifactId>
+        <version>5.0.0.CR1</version>
+        <scope>compile</scope>
+        <exclusions>
+            <exclusion>
+              <groupId>org.jboss</groupId>
+              <artifactId>jboss-common-core</artifactId>            
+            </exclusion>
+        </exclusions>
     </dependency>
     
     <dependency>
