@@ -27,8 +27,7 @@ import java.util.Map;
 import javax.naming.Name;
 
 import org.jboss.ejb3.proxy.clustered.objectfactory.session.SessionClusteredProxyObjectFactory;
-import org.jboss.ejb3.proxy.factory.ProxyFactory;
-import org.jboss.ejb3.proxy.objectfactory.session.stateful.StatefulSessionProxyObjectFactory;
+import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
 
 
 /**

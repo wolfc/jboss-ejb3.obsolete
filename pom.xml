@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>0.13.13</version>
+    <version>1.0.3</version>
   </parent>
 
   <!-- Model Version -->
@@ -13,7 +13,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-proxy-clustered</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.2</version>
   <name>JBoss EJB 3.0 Clustered Proxy</name>
   <description>JBoss EJB3 Clustered Proxy Component</description>
   <url>http://www.jboss.org/jbossejb3</url>
@@ -89,14 +89,33 @@
     <!-- We pull in most things via the proxy component we are extending -->
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-proxy</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <artifactId>jboss-ejb3-proxy-impl</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-proxy-spi</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.jboss.naming</groupId>
+        <artifactId>jnpserver</artifactId>
+        <version>5.0.0.CR1</version>
+        <scope>compile</scope>
+        <exclusions>
+            <exclusion>
+              <groupId>org.jboss</groupId>
+              <artifactId>jboss-common-core</artifactId>            
+            </exclusion>
+        </exclusions>
     </dependency>
     
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-client</artifactId>
-      <version>1.1.0.CR4</version>
+      <version>1.1.1.GA</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss.aspects</groupId>
@@ -116,7 +135,7 @@
     <dependency>
       <groupId>org.jboss.cluster</groupId>
       <artifactId>jboss-ha-server-api</artifactId>
-      <version>1.1.0.CR4</version>
+      <version>1.1.1.GA</version>
       <exclusions>
         <exclusion>
           <groupId>org.jboss</groupId>
@@ -142,4 +161,10 @@
     </dependency> 
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.2</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.2</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.2</url>
+  </scm>
 </project>
