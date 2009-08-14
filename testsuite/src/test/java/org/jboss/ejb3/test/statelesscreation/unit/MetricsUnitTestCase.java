@@ -114,6 +114,10 @@ public class MetricsUnitTestCase
       ObjectName testerName = new ObjectName("jboss.j2ee:jar=statelesscreation-test.jar,name=ThreadLocalPoolStatelessBean,service=EJB3");
       int size = 0;
       
+      // For a detailed explanation about what each metric value
+      // means when a ThreadLocalPool is used, check the comments
+      // from carlo in this JIRA https://jira.jboss.org/jira/browse/EJBTHREE-1703
+      
       int currentSize = (Integer)server.getAttribute(testerName, "CurrentSize");
       assertEquals(0, size);
       
@@ -128,10 +132,10 @@ public class MetricsUnitTestCase
       assertEquals(1, currentSize);
       
       size = (Integer)server.getAttribute(testerName, "AvailableCount");
-      assertEquals(20, size);
+      assertEquals(1, size);
       
       size = (Integer)server.getAttribute(testerName, "MaxSize");
-      assertEquals(20, size);
+      assertEquals(1, size);
       
       size = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(1, size);
