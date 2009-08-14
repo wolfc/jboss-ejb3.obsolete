@@ -46,6 +46,11 @@ extends JBossTestCase
 
    public void testDefaultJmxMetrics() throws Exception
    {
+      // The default pool used by a SLSB is the ThreadLocalPool
+      // For a detailed explanation about what each metric value
+      // means when a ThreadLocalPool is used, check the comments
+      // from carlo in this JIRA https://jira.jboss.org/jira/browse/EJBTHREE-1703
+      
       MBeanServerConnection server = getServer();
       ObjectName testerName = new ObjectName("jboss.j2ee:jar=stateless-test.jar,name=DefaultPoolStatelessBean,service=EJB3");
 
@@ -65,10 +70,10 @@ extends JBossTestCase
       assertEquals(1, size);
 
       size = (Integer)server.getAttribute(testerName, "AvailableCount");
-      assertEquals(30, size);
+      assertEquals(1, size);
 
       size = (Integer)server.getAttribute(testerName, "MaxSize");
-      assertEquals(30, size);
+      assertEquals(1, size);
 
       size = (Integer)server.getAttribute(testerName, "CreateCount");
       assertEquals(1, size);
