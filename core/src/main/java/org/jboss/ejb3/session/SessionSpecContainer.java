@@ -123,28 +123,32 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       ClassLoader oldLoader = SecurityActions.getContextClassLoader();
 
       SecurityActions.setContextClassLoader(this.getClassloader());
+      
+      /*
+       * Obtain the target method (advised)
+       */
+      Method actualMethod = method.toMethod(this.getClassloader());
+      long hash = MethodHashing.calculateHash(actualMethod);
+      MethodInfo info = getAdvisor().getMethodInfo(hash);
+      if (info == null)
+      {
+         throw new RuntimeException("Method invocation via Proxy could not be found handled for EJB "
+               + this.getEjbName() + " : " + method.toString()
+               + ", probable error in virtual method registration w/ Advisor for the Container");
+      }
+      Method unadvisedMethod = info.getUnadvisedMethod();
+      SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
+      
+      // Mark the start time
+      long start = System.currentTimeMillis();
 
       try
       {
 
          invokedMethod.push(method);
-
-         /*
-          * Obtain the target method (advised)
-          */
-         Method actualMethod = method.toMethod(this.getClassloader());
-         long hash = MethodHashing.calculateHash(actualMethod);
-         MethodInfo info = getAdvisor().getMethodInfo(hash);
-         if (info == null)
-         {
-            throw new RuntimeException("Method invocation via Proxy could not be found handled for EJB "
-                  + this.getEjbName() + " : " + method.toString()
-                  + ", probable error in virtual method registration w/ Advisor for the Container");
-         }
-         Method unadvisedMethod = info.getUnadvisedMethod();
-         SerializableMethod unadvisedSerializableMethod = new SerializableMethod(unadvisedMethod);
-
-
+         
+         // Increment invocation statistics
+         invokeStats.callIn();
 
          /*
           * Invoke directly if this is an EJB2.x Method
@@ -178,6 +182,24 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
       }
       finally
       {
+         /*
+          * Update Invocation Statistics
+          */
+         if (unadvisedMethod != null)
+         {
+            // Mark end time
+            long end = System.currentTimeMillis();
+
+            // Calculate elapsed time
+            long elapsed = end - start;
+
+            // Update statistics with elapsed time
+            invokeStats.updateStats(unadvisedMethod, elapsed);
+         }
+
+         // Complete call to increment statistics
+         invokeStats.callOut();
+         
          invokedMethod.pop();
          SecurityActions.setContextClassLoader(oldLoader);
       }
