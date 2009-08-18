@@ -33,6 +33,7 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.advice.AspectFactory;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.annotation.RunAsPrincipal;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.ejb3.tx.NullInterceptor;
 import org.jboss.logging.Logger;
@@ -59,7 +60,11 @@ implements AspectFactory
       if (runAs == null)
          return null;
       
-      String runAsPrincipal = runAs.value(); 
+      RunAsPrincipal rap = (RunAsPrincipal) container.resolveAnnotation(RunAsPrincipal.class);
+      String runAsPrincipal = null;
+      if (rap != null) 
+         runAsPrincipal = rap.value();
+      
       Set<String> extraRoles = new HashSet<String>();
       
       JBossEnterpriseBeanMetaData jbEnterpriseBeanMetaData = container.getXml();
@@ -67,11 +72,17 @@ implements AspectFactory
       {
          SecurityIdentityMetaData securityIdentity = jbEnterpriseBeanMetaData.getSecurityIdentity();
          if(securityIdentity.isUseCallerId())
-            return null; //Overriden in xml 
-         runAsPrincipal = securityIdentity.getRunAsPrincipal();  
-         Map<String,Set<String>> principalVsRoleMap = 
-        	 jbEnterpriseBeanMetaData.getSecurityRolesPrincipalVersusRolesMap(); 
-         extraRoles = principalVsRoleMap.get(runAsPrincipal);  
+            return null; //Overriden in xml
+         String s = securityIdentity.getRunAsPrincipal();
+         if(s != null && s.length() != 0)
+            runAsPrincipal = s;  
+      }
+      if(runAsPrincipal != null)
+      {
+         Map<String,Set<String>> principalVsRoleMap = jbEnterpriseBeanMetaData.getSecurityRolesPrincipalVersusRolesMap();
+         Set<String> roles = principalVsRoleMap.get(runAsPrincipal);
+         if(roles != null)
+            extraRoles.addAll(roles);
       }
        
       JBossAssemblyDescriptorMetaData ad = container.getAssemblyDescriptor();
