@@ -32,7 +32,7 @@ import org.jboss.logging.Logger;
  * Invokes some interceptors in sequence.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorSequencer implements Interceptor 
 {
@@ -55,7 +55,10 @@ public class InterceptorSequencer implements Interceptor
    
    public Object aroundInvoke(Invocation invocation) throws Throwable
    {
-      log.debug("aroundInvoke " + invocation);
+      if (log.isTraceEnabled())
+      {
+         log.trace("aroundInvoke " + invocation);
+      }
       return invoke(invocation);
    }
    
