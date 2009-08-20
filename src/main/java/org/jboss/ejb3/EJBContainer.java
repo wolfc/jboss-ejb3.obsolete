@@ -1123,6 +1123,19 @@ public abstract class EJBContainer
    {
       try
       {
+         // Yes, ugly way of doing things. But, this is only way to be able to
+         // support this existing invokeCallback(BeanContext<?> beanContext...)
+         // API
+         if (beanContext instanceof EnterpriseBeanContext)
+         {
+            // the EnterpriseBeanContext is capable of caching the AOP interceptor
+            // instances and hence faster. So let's use that version of
+            // invokeCallback(EnterpriseBeanContext, Class)
+            EnterpriseBeanContext<?> enterpriseBeanContext = (EnterpriseBeanContext<?>) beanContext;
+            this.invokeCallback(enterpriseBeanContext, callbackAnnotationClass);
+            return;
+         }
+         
          // Do lifecycle callbacks
          List<Class<?>> lifecycleInterceptorClasses = beanContainer.getInterceptorRegistry().getLifecycleInterceptorClasses();
          Advisor advisor = getAdvisor();
@@ -1133,6 +1146,32 @@ public abstract class EJBContainer
          ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
          invocation.setAdvisor(advisor);
          invocation.setTargetObject(beanContext.getInstance());
+         invocation.invokeNext();
+      }
+      catch(Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
+   }
+   
+   /**
+    * Invokes the lifecycle callback(s) represented by <code>callbackAnnotationClass</code>
+    * through a (cached) AOP interceptor chain, on the bean context represented by 
+    * <code>enterpriseBeanContext</code>.
+    * 
+    * @param enterpriseBeanContext
+    * @param callbackAnnotationClass
+    */
+   protected void invokeCallback(EnterpriseBeanContext<?> enterpriseBeanContext, Class<? extends Annotation> callbackAnnotationClass)
+   {
+      try
+      {
+         Interceptor interceptors[] = enterpriseBeanContext.getLifecycleInterceptors(callbackAnnotationClass);
+         Constructor<?> constructor = beanClass.getConstructor();
+         Object initargs[] = null;
+         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
+         invocation.setAdvisor(this.getAdvisor());
+         invocation.setTargetObject(enterpriseBeanContext.getInstance());
          invocation.invokeNext();
       }
       catch(Throwable t)
@@ -1729,5 +1768,16 @@ public abstract class EJBContainer
       {
          this.semaphore.release();
       }
+   }
+   
+   /**
+    * Returns the lifecycle callback interceptors (javax.interceptor.Interceptors)
+    * that have been defined on the bean
+    *  
+    * @return
+    */
+   public List<Class<?>> getLifecycleInterceptorClasses()
+   {
+      return this.beanContainer.getInterceptorRegistry().getLifecycleInterceptorClasses();
    }
 }
