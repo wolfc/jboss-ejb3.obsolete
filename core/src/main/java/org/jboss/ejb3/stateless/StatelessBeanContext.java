@@ -64,7 +64,8 @@ public class StatelessBeanContext extends SessionSpecBeanContext<StatelessContai
    @Deprecated
    public BeanProperty getWebServiceContextProperty()
    {
-      log.warn("EJBTHREE-1337: do not get WebServiceContext property from stateless bean context, it should already have been injected");
+      // Also see, https://jira.jboss.org/jira/browse/EJBTHREE-1847
+      log.debug("EJBTHREE-1337: do not get WebServiceContext property from stateless bean context, it should already have been injected");
       return webServiceContextProperty;
    }
 
