@@ -68,20 +68,19 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
    /*
     * Local Methods
     */
-   private static final SerializableMethod METHOD_TO_STRING;
+   private static final Method METHOD_TO_STRING;
 
-   private static final SerializableMethod METHOD_EQUALS;
+   private static final Method METHOD_EQUALS;
 
-   private static final SerializableMethod METHOD_HASH_CODE;
+   private static final Method METHOD_HASH_CODE;
 
    static
    {
       try
       {
-         METHOD_TO_STRING = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_TO_STRING), Object.class);
-         METHOD_EQUALS = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_EQUALS, Object.class),
-               Object.class);
-         METHOD_HASH_CODE = new SerializableMethod(Object.class.getDeclaredMethod(METHOD_NAME_HASH_CODE), Object.class);
+         METHOD_TO_STRING = Object.class.getMethod(METHOD_NAME_TO_STRING);
+         METHOD_EQUALS = Object.class.getMethod(METHOD_NAME_EQUALS, Object.class);
+         METHOD_HASH_CODE = Object.class.getMethod(METHOD_NAME_HASH_CODE);
       }
       catch (NoSuchMethodException nsme)
       {
@@ -150,36 +149,18 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
    // ------------------------------------------------------------------------------||
 
    /**
-    * Required "invoke" as defined by InvocationHandler interface
+    * {@inheritDoc}
+    * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
     */
-   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+   public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable
    {
       // Obtain an explicitly-specified actual class
-      String actualClass = this.getBusinessInterfaceType();
+      final String actualClass = this.getBusinessInterfaceType();
 
-      // Set the invoked method
-      SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
-
-      // Use the overloaded implementation
-      return this.invoke(proxy, invokedMethod, args);
-   }
-
-   /**
-    * Overloaded "invoke" which takes into account a {@link SerializableMethod} 
-    * view
-    * 
-    * @param proxy
-    * @param method
-    * @param args
-    * @return
-    * @throws Throwable
-    */
-   public Object invoke(Object proxy, SerializableMethod method, Object[] args) throws Throwable
-   {
       // Attempt to handle directly
       try
       {
-         return this.handleInvocationDirectly(proxy, args, method.toMethod());
+         return this.handleInvocationDirectly(proxy, args, method);
       }
       // Ignore this, we just couldn't handle here
       catch (NotEligibleForDirectInvocationException nefdie)
@@ -190,21 +171,25 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       /*
        * Obtain the Container
        */
-      InvokableContext container = this.getContainer();
+      final InvokableContext container = this.getContainer();
 
       /*
        * Invoke
        */
 
       // Adjust args if null to empty array
-      if (args == null)
+      Object[] usedArgs = args;
+      if (usedArgs == null)
       {
-         args = new Object[]
+         usedArgs = new Object[]
          {};
       }
 
+      // Set the invoked method
+      final SerializableMethod invokedMethod = new SerializableMethod(method, actualClass);
+
       // Invoke
-      Object result = container.invoke(proxy, method, args);
+      final Object result = container.invoke(proxy, invokedMethod, usedArgs);
 
       // Return
       return result;
@@ -228,7 +213,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       assert invokedMethod != null : "Invoked Method was not set upon invocation of " + this.getClass().getName();
 
       // equals
-      if (invokedMethod.equals(METHOD_EQUALS.toMethod()))
+      if (invokedMethod.equals(METHOD_EQUALS))
       {
          assert args.length == 1 : "Invocation for 'equals' should have exactly one argument, instead was: "
                + invokedMethod;
@@ -237,7 +222,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       }
 
       // toString
-      if (invokedMethod.equals(METHOD_TO_STRING.toMethod()))
+      if (invokedMethod.equals(METHOD_TO_STRING))
       {
          // Perform assertions
          assert Proxy.isProxyClass(proxy.getClass()) : "Specified proxy invoked is not of type "
@@ -262,7 +247,7 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
          return sb.toString();
       }
       // hashCode
-      if (invokedMethod.equals(METHOD_HASH_CODE.toMethod()))
+      if (invokedMethod.equals(METHOD_HASH_CODE))
       {
          return this.invokeHashCode(proxy);
       }
