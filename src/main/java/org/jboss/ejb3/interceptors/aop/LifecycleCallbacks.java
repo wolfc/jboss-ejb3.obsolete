@@ -32,6 +32,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.PostActivate;
 import javax.ejb.PrePassivate;
+import javax.interceptor.InvocationContext;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
@@ -54,6 +55,18 @@ public class LifecycleCallbacks
 {
    private static final Logger log = Logger.getLogger(LifecycleCallbacks.class);
    
+   /**
+    * 
+    * @param advisor
+    * @param lifecycleInterceptorClasses
+    * @param component
+    * @param lifecycleAnnotationType
+    * @return
+    * @throws Exception
+    * 
+    * @deprecated Use {@link #createLifecycleCallbackInterceptors(Advisor, List, Class)} instead 
+    */
+   @Deprecated
    public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, BeanContext<?> component, Class<? extends Annotation> lifecycleAnnotationType) throws Exception
    {
       List<Interceptor> interceptors = new ArrayList<Interceptor>();
@@ -148,5 +161,97 @@ public class LifecycleCallbacks
       if(manager instanceof Domain)
          return "domain '" + ((Domain) manager).getDomainName() + "'";
       return manager.toString();
+   }
+   
+
+   /**
+    * Creates an AOP interceptor chain for the lifecycle represented by
+    * the <code>lifecycleAnnotationType</code>.
+    * 
+    * Internally, the AOP interceptor chain consists of the LifecycleCallback AOP stack
+    * interceptors, the javax.interceptor.Interceptor(s) and the lifecycle methods on the bean 
+    * implementation class
+    * 
+    * @param advisor The bean class advisor
+    * @param lifecycleInterceptorClasses The lifecycle interceptor classes associated with the bean
+    * @param lifecycleAnnotationType The lifecycle annotation (ex: @PostConstruct, @PrePassivate and
+    *                               other similar lifecycle types).
+    * @return Returns an empty array if there are no interceptors corresponding to the bean for
+    *       the <code>lifecycleAnnotationType</code>. Else returns the applicable interceptors
+    */
+   public static Interceptor[] createLifecycleCallbackInterceptors(Advisor advisor, List<Class<?>> lifecycleInterceptorClasses, Class<? extends Annotation> lifecycleAnnotationType)
+   {
+      List<Interceptor> interceptors = new ArrayList<Interceptor>();
+      
+      AdviceStack stack = advisor.getManager().getAdviceStack("LifecycleCallbackStack");
+      if(stack == null)
+      {
+         log.warn("EJBTHREE-1480: LifecycleCallbackStack has not been defined for " + toString(advisor.getManager()));
+         interceptors.add(new CurrentInvocationInterceptor());
+         Interceptor invocationContextInterceptor;
+         try
+         {
+            invocationContextInterceptor = PerVmAdvice.generateInterceptor(null, new InvocationContextInterceptor(), "setup");
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException("Could not generate invocation context interceptor", e);
+         }
+         interceptors.add(invocationContextInterceptor);
+      }
+      else
+      {
+         interceptors.addAll(Arrays.asList(stack.createInterceptors(advisor, null)));
+      }
+      
+      // 12.7 footnote 57: ignore method level interceptors
+      // The lifecycle callbacks on the interceptors must be invoked in order
+      for(Class<?> interceptorClass : lifecycleInterceptorClasses)
+      {
+         ExtendedAdvisor interceptorAdvisor = ExtendedAdvisorHelper.getExtendedAdvisor(advisor);
+         HashSet<Class<?>> classes = null;
+         // Get all public/private/protected/package access methods of signature:
+         // void <MethodName> (InvocationContext) 
+         Method[] possibleLifecycleInterceptorMethods = ClassHelper.getMethods(interceptorClass, void.class,new Class<?>[] {InvocationContext.class});
+         for(Method interceptorMethod : possibleLifecycleInterceptorMethods)
+         {
+            // Now check if the lifecycle annotation is present
+            if(interceptorAdvisor.isAnnotationPresent(interceptorClass, interceptorMethod, lifecycleAnnotationType)) //For Xml this returns true sometimes
+            {
+               // And finally consider it only if it's not overriden
+               if (!ClassHelper.isOverridden(interceptorClass, interceptorMethod))
+               {
+                  classes = checkClass(classes, interceptorMethod, advisor, lifecycleAnnotationType);
+                  interceptors.add(new LifecycleCallbackInterceptorMethodLazyInterceptor(interceptorClass, interceptorMethod));
+               }
+            }
+            
+         }
+         
+      }
+      
+      // Bean lifecycle callbacks
+      Class<?> beanClass = advisor.getClazz();
+      HashSet<Class<?>> classes = null;
+      // Get all public/private/protected/package access methods of signature:
+      // void <MethodName> ()
+      Method[] possibleLifecycleMethods = ClassHelper.getMethods(beanClass, void.class, new Class<?>[] {});
+      for(Method beanMethod : possibleLifecycleMethods)
+      {
+         // Now check if the method is marked with a lifecycle annotation
+         if(advisor.hasAnnotation(beanMethod, lifecycleAnnotationType))
+         {
+            // And finally consider it only if it's not overriden
+            if (!ClassHelper.isOverridden(beanClass, beanMethod))
+            {
+               classes = checkClass(classes, beanMethod, advisor, lifecycleAnnotationType);
+               interceptors.add(new LifecycleCallbackBeanMethodInterceptor(beanMethod));
+
+            }
+         }
+         
+      }
+      
+      return interceptors.toArray(new Interceptor[0]);
    }
 }
