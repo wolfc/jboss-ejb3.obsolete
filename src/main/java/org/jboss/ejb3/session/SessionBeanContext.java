@@ -23,7 +23,7 @@ package org.jboss.ejb3.session;
 
 import javax.ejb.EJBContext;
 
-import org.jboss.ejb3.EnterpriseBeanContext;
+import org.jboss.ejb3.BaseContext;
 
 /**
  * An instance of an enterprise bean link to its container.
@@ -31,7 +31,7 @@ import org.jboss.ejb3.EnterpriseBeanContext;
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
  * @version $Revision$
  */
-public abstract class SessionBeanContext<T extends SessionContainer> extends EnterpriseBeanContext<T>
+public abstract class SessionBeanContext<T extends SessionContainer> extends BaseContext<T>
 {
    protected EJBContext ejbContext;
 

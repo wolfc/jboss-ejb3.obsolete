@@ -23,7 +23,7 @@ package org.jboss.ejb3.mdb;
 
 import javax.ejb.EJBContext;
 
-import org.jboss.ejb3.EnterpriseBeanContext;
+import org.jboss.ejb3.BaseContext;
 
 /**
  * Comment
@@ -31,7 +31,7 @@ import org.jboss.ejb3.EnterpriseBeanContext;
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  * @version $Revision$
  */
-public class MDBContext extends EnterpriseBeanContext<MessagingContainer>
+public class MDBContext extends BaseContext<MessagingContainer>
 {
    protected EJBContext ejbContext;
 

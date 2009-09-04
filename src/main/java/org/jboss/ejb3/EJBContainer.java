@@ -25,7 +25,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -65,7 +64,6 @@ import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationRepository;
-import org.jboss.aop.joinpoint.ConstructionInvocation;
 import org.jboss.aop.microcontainer.annotations.DisableAOP;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor;
@@ -80,7 +78,6 @@ import org.jboss.ejb3.deployers.JBoss5DependencyPolicy;
 import org.jboss.ejb3.injection.InjectionInvocation;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.interceptor.InterceptorInjector;
-import org.jboss.ejb3.interceptors.aop.LifecycleCallbacks;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.interceptors.direct.IndirectContainer;
@@ -1121,63 +1118,9 @@ public abstract class EJBContainer
     */
    protected void invokeCallback(BeanContext<?> beanContext, Class<? extends Annotation> callbackAnnotationClass)
    {
-      try
-      {
-         // Yes, ugly way of doing things. But, this is only way to be able to
-         // support this existing invokeCallback(BeanContext<?> beanContext...)
-         // API
-         if (beanContext instanceof EnterpriseBeanContext)
-         {
-            // the EnterpriseBeanContext is capable of caching the AOP interceptor
-            // instances and hence faster. So let's use that version of
-            // invokeCallback(EnterpriseBeanContext, Class)
-            EnterpriseBeanContext<?> enterpriseBeanContext = (EnterpriseBeanContext<?>) beanContext;
-            this.invokeCallback(enterpriseBeanContext, callbackAnnotationClass);
-            return;
-         }
-         
-         // Do lifecycle callbacks
-         List<Class<?>> lifecycleInterceptorClasses = beanContainer.getInterceptorRegistry().getLifecycleInterceptorClasses();
-         Advisor advisor = getAdvisor();
-         Interceptor interceptors[] = LifecycleCallbacks.createLifecycleCallbackInterceptors(advisor, lifecycleInterceptorClasses, beanContext, callbackAnnotationClass);
-         
-         Constructor<?> constructor = beanClass.getConstructor();
-         Object initargs[] = null;
-         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
-         invocation.setAdvisor(advisor);
-         invocation.setTargetObject(beanContext.getInstance());
-         invocation.invokeNext();
-      }
-      catch(Throwable t)
-      {
-         throw new RuntimeException(t);
-      }
-   }
-   
-   /**
-    * Invokes the lifecycle callback(s) represented by <code>callbackAnnotationClass</code>
-    * through a (cached) AOP interceptor chain, on the bean context represented by 
-    * <code>enterpriseBeanContext</code>.
-    * 
-    * @param enterpriseBeanContext
-    * @param callbackAnnotationClass
-    */
-   protected void invokeCallback(EnterpriseBeanContext<?> enterpriseBeanContext, Class<? extends Annotation> callbackAnnotationClass)
-   {
-      try
-      {
-         Interceptor interceptors[] = enterpriseBeanContext.getLifecycleInterceptors(callbackAnnotationClass);
-         Constructor<?> constructor = beanClass.getConstructor();
-         Object initargs[] = null;
-         ConstructionInvocation invocation = new ConstructionInvocation(interceptors, constructor, initargs);
-         invocation.setAdvisor(this.getAdvisor());
-         invocation.setTargetObject(enterpriseBeanContext.getInstance());
-         invocation.invokeNext();
-      }
-      catch(Throwable t)
-      {
-         throw new RuntimeException(t);
-      }
+      // it's the BeanContainer's responsibility to invoke the callback
+      // through the correct interceptors. So let's pass the call to the beanContainer
+      this.getBeanContainer().invokeCallback(beanContext, callbackAnnotationClass);
    }
    
    public void invokePostConstruct(BeanContext<?> beanContext)
@@ -1768,16 +1711,5 @@ public abstract class EJBContainer
       {
          this.semaphore.release();
       }
-   }
-   
-   /**
-    * Returns the lifecycle callback interceptors (javax.interceptor.Interceptors)
-    * that have been defined on the bean
-    *  
-    * @return
-    */
-   public List<Class<?>> getLifecycleInterceptorClasses()
-   {
-      return this.beanContainer.getInterceptorRegistry().getLifecycleInterceptorClasses();
    }
 }
