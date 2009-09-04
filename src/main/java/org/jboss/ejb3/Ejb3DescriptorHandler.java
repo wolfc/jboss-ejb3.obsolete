@@ -132,7 +132,7 @@ import org.jboss.ejb3.annotation.impl.StatelessImpl;
 import org.jboss.ejb3.annotation.impl.TransactionAttributeImpl;
 import org.jboss.ejb3.annotation.impl.TransactionManagementImpl;
 import org.jboss.ejb3.annotation.impl.TransactionTimeoutImpl;
-import org.jboss.ejb3.common.classloader.PrimitiveAwareClassLoader;
+import org.jboss.ejb3.common.classloader.util.PrimitiveClassLoadingUtil;
 import org.jboss.ejb3.common.lang.ClassHelper;
 import org.jboss.ejb3.interceptor.InterceptorInfoRepository;
 import org.jboss.ejb3.mdb.ConsumerContainer;
@@ -2188,7 +2188,7 @@ public class Ejb3DescriptorHandler extends Ejb3AnnotationHandler
                int paramIndex = 0;
                for(String param : params)
                {
-                  Class<?> paramClass = new PrimitiveAwareClassLoader(di.getClassLoader()).loadClass(param);
+                  Class<?> paramClass = PrimitiveClassLoadingUtil.loadClass(param, di.getClassLoader());
                   methodSignature[paramIndex++] = paramClass;
                }
                if(log.isTraceEnabled())
