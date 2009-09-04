@@ -21,19 +21,30 @@
  */
 package org.jboss.ejb3.interceptors.container;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.PostActivate;
+import javax.ejb.PrePassivate;
 
 import org.jboss.aop.Advisor;
 import org.jboss.aop.AspectManager;
 import org.jboss.aop.Domain;
 import org.jboss.aop.DomainDefinition;
 import org.jboss.aop.MethodInfo;
+import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.InterceptorFactoryRef;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisor;
 import org.jboss.ejb3.interceptors.annotation.AnnotationAdvisorSupport;
+import org.jboss.ejb3.interceptors.aop.LifecycleCallbacks;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.registry.InterceptorRegistry;
 import org.jboss.logging.Logger;
@@ -58,6 +69,13 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
    //private Class<BeanContextFactory<T, C>> beanContextFactoryClass = SimpleBeanContextFactory.class;
    private Class<? extends BeanContextFactory> beanContextFactoryClass = SimpleBeanContextFactory.class;
    private BeanContextFactory<T, C> beanContextFactory;
+   
+   /**
+    * Maintains a array of interceptors applicable to this bean context
+    * for each of the lifecycle callbacks
+    */
+   protected Map<Class<? extends Annotation>, Interceptor[]> lifecycleCallbackInterceptors = new HashMap<Class<? extends Annotation>, Interceptor[]>();
+
    
    /**
     * For a completely customized startup.
@@ -214,6 +232,75 @@ public abstract class AbstractContainer<T, C extends AbstractContainer<T, C>> ex
          }
       }
       return interceptorRegistry;
+   }
+   
+   /**
+    * Invokes the lifecycle callback(s) represented by the <code>callbackAnnotationClass</code>
+    * through (cached) AOP interceptor chain.
+    * 
+    * Internally, the AOP interceptor chain consists of the LifecycleCallback AOP stack
+    * interceptors, the javax.interceptor.Interceptor(s) and the lifecycle methods on the bean 
+    * implementation class
+    * 
+    * @see AbstractContainer#getLifecycleInterceptors(Class) for more details.  
+    * 
+    * @param beanContext The bean context
+    * @param callbackAnnotationClass The lifecycle callback (ex: @PostConstruct, @PrePassivate etc...)
+    */
+   public void invokeCallback(BeanContext<?> beanContext, Class<? extends Annotation> callbackAnnotationClass)
+   {
+      try
+      {
+         Interceptor interceptors[] = this.getLifecycleInterceptors(callbackAnnotationClass);
+         LifecycleMethodInterceptorsInvocation invocation = new LifecycleMethodInterceptorsInvocation(beanContext,
+               interceptors);
+         invocation.setAdvisor(this.getAdvisor());
+         invocation.invokeNext();
+      }
+      catch (Throwable t)
+      {
+         throw new RuntimeException(t);
+      }
+   }
+
+   /**
+    * Returns the interceptor instances (which is a combination of our internal
+    * AOP interceptors and bean developer defined {@link javax.interceptor.Interceptors}),
+    * corresponding to the <code>lifecycleCallbackAnnotation</code>.
+    * 
+    * Internally caches the interceptor instances corresponding to each of the lifecycle 
+    * callbacks, for this bean context 
+    *  
+    * @param lifecycleCallbackAnnotation Lifecycle callback annotations like {@link PrePassivate},
+    *       {@link PostActivate}, {@link PreDestroy}, {@link PostConstruct} 
+    *       
+    * @return Returns an empty array if there are no interceptor instances associated with this
+    *       bean context, for the <code>lifecycleCallbackAnnotation</code>. Else, returns the
+    *       array of interceptors applicable to this bean context for the 
+    *       <code>lifecycleCallbackAnnotation</code>
+    */
+   protected Interceptor[] getLifecycleInterceptors(Class<? extends Annotation> lifecycleCallbackAnnotation)
+   {
+      Interceptor[] interceptors = this.lifecycleCallbackInterceptors.get(lifecycleCallbackAnnotation);
+      // If null then we haven't yet initialized the lifecycle callback interceptors, since
+      // we intentionally do a lazy initialization per lifecycle callback. The initialization
+      // happens only once per bean for each lifecycle callback annotation type
+      if (interceptors == null)
+      {
+         List<Class<?>> lifecycleInterceptorClasses = this.getInterceptorRegistry().getLifecycleInterceptorClasses();
+         // create the interceptor chain
+         interceptors = LifecycleCallbacks.createLifecycleCallbackInterceptors(this.getAdvisor(),
+               lifecycleInterceptorClasses, lifecycleCallbackAnnotation);
+         if (interceptors == null)
+         {
+            // No interceptors available, so create an empty chain and maintain in the map,
+            // to avoid trying to init again the next time this method
+            // is called for this specific lifecycle callback
+            interceptors = new Interceptor[0];
+         }
+         this.lifecycleCallbackInterceptors.put(lifecycleCallbackAnnotation, interceptors);
+      }
+      return this.lifecycleCallbackInterceptors.get(lifecycleCallbackAnnotation);
    }
    
    /**
