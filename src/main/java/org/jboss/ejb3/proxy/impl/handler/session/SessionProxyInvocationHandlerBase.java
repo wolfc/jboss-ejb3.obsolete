@@ -157,15 +157,11 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       // Obtain an explicitly-specified actual class
       final String actualClass = this.getBusinessInterfaceType();
 
-      // Attempt to handle directly
-      try
+      // If we can service this invocation in the handler itself
+      if (this.canBeHandledDirectly(method))
       {
+         // Handle right here
          return this.handleInvocationDirectly(proxy, args, method);
-      }
-      // Ignore this, we just couldn't handle here
-      catch (NotEligibleForDirectInvocationException nefdie)
-      {
-         log.debug("Couldn't handle invocation directly within " + this + ": " + nefdie.getMessage());
       }
 
       /*
@@ -255,6 +251,19 @@ public abstract class SessionProxyInvocationHandlerBase implements SessionProxyI
       // If no eligible methods were invoked
       throw new NotEligibleForDirectInvocationException("Current invocation \"" + invokedMethod
             + "\" is not eligible for direct handling by " + this);
+   }
+
+   /**
+    * Returns whether or not this handler is capable of handling the invoked 
+    * method request directly, without passing along to the container
+    * @param invokedMethod The invoked Method
+    * @return
+    */
+   protected boolean canBeHandledDirectly(final Method invokedMethod)
+   {
+      // We handle: equals, hashCode, toString
+      return (invokedMethod.equals(METHOD_EQUALS) || invokedMethod.equals(METHOD_TO_STRING) || invokedMethod
+            .equals(METHOD_HASH_CODE));
    }
 
    /**
