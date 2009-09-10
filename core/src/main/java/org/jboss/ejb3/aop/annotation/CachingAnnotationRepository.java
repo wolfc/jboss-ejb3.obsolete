@@ -21,12 +21,14 @@
  */
 package org.jboss.ejb3.aop.annotation;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javassist.CtMember;
 
+import org.jboss.annotation.factory.AnnotationCreator;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.logging.Logger;
 
@@ -99,7 +101,7 @@ public class CachingAnnotationRepository extends AnnotationRepository
    @Override
    public void addClassAnnotation(String annotation, String value)
    {
-      delegate.addClassAnnotation(annotation, value);
+      addClassAnnotation(loadClass(annotation), initAnnotation(value));
    }
    
    @Override
@@ -177,6 +179,23 @@ public class CachingAnnotationRepository extends AnnotationRepository
    public boolean hasClassAnnotation(String annotation)
    {
       return hasClassAnnotation(loadClass(annotation));
+   }
+
+   // See AnnotationRepositoryToMetaData.initAnnotation
+   protected Annotation initAnnotation(String annotationValue)
+   {
+      try
+      {
+         return (Annotation) AnnotationCreator.createAnnotation(annotationValue, classLoader);
+      }
+      catch (RuntimeException e)
+      {
+         throw e;
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Error creating annotation: " + annotationValue, e);
+      }
    }
    
    @Override
