@@ -31,6 +31,7 @@ import org.jboss.aop.Advisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.annotation.AnnotationRepository;
 import org.jboss.ejb3.EJBContainer;
+import org.jboss.ejb3.aop.annotation.CachingAnnotationRepository;
 import org.jboss.ejb3.cluster.metadata.ClusteredMetaDataBridge;
 import org.jboss.ejb3.interceptors.container.ManagedObjectAdvisor;
 import org.jboss.ejb3.interceptors.direct.AbstractDirectContainer;
@@ -203,7 +204,7 @@ public class BeanContainer extends AbstractDirectContainer<Object, BeanContainer
       // Ensure that an @Clustered annotation is visible to AOP if the XML says the bean is  clustered.
       annotations.addMetaDataBridge(new ClusteredMetaDataBridge());
       
-      initializeAdvisor(name, domain, beanClass, annotations);
+      initializeAdvisor(name, domain, beanClass, new CachingAnnotationRepository(annotations, classLoader));
    }
 
    @Override
