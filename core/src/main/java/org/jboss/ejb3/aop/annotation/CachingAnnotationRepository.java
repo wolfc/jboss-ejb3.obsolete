@@ -30,6 +30,8 @@ import javassist.CtMember;
 
 import org.jboss.annotation.factory.AnnotationCreator;
 import org.jboss.aop.annotation.AnnotationRepository;
+import org.jboss.ejb3.metadata.annotation.AnnotationRepositoryToMetaData;
+import org.jboss.ejb3.metadata.annotation.ExtendedAnnotationRepository;
 import org.jboss.logging.Logger;
 
 /**
@@ -46,14 +48,14 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public class CachingAnnotationRepository extends AnnotationRepository
+public class CachingAnnotationRepository extends AnnotationRepository implements ExtendedAnnotationRepository
 {
    private static final Logger log = Logger.getLogger(CachingAnnotationRepository.class);
    
    // a magic NULL marker for in the cache
    private static final Object NULL = new Object();
    
-   private AnnotationRepository delegate;
+   private AnnotationRepositoryToMetaData delegate;
    // Because AnnotationRepositoryToMetaData also does class loading, we should do this as well to
    // cache the String variants of annotation lookup.
    private ClassLoader classLoader;
@@ -61,7 +63,7 @@ public class CachingAnnotationRepository extends AnnotationRepository
    private Map<Class<?>, Object> classAnnotationsCache = new ConcurrentHashMap<Class<?>, Object>();
    private ConcurrentHashMap<Member, Map<Class<?>, Object>> memberCache = new ConcurrentHashMap<Member, Map<Class<?>, Object>>();
    
-   public CachingAnnotationRepository(AnnotationRepository delegate, ClassLoader classLoader)
+   public CachingAnnotationRepository(AnnotationRepositoryToMetaData delegate, ClassLoader classLoader)
    {
       assert delegate != null;
       assert classLoader != null;
@@ -148,6 +150,16 @@ public class CachingAnnotationRepository extends AnnotationRepository
    {
       log.error("EJBTHREE-1914: Unsupported");
       throw new UnsupportedOperationException("EJBTHREE-1914: Unsupported");
+   }
+   
+   public boolean hasAnnotation(Class<?> cls, Class<? extends Annotation> annotationType)
+   {
+      return delegate.hasAnnotation(cls, annotationType);
+   }
+   
+   public boolean hasAnnotation(Class<?> cls, Member member, Class<? extends Annotation> annotationType)
+   {
+      return delegate.hasAnnotation(cls, member, annotationType);
    }
    
    @Override
@@ -237,6 +249,16 @@ public class CachingAnnotationRepository extends AnnotationRepository
             log.trace(e.getMessage(), e);
          throw new RuntimeException(e);
       }
+   }
+   
+   public <A extends Annotation> A resolveAnnotation(Class<?> cls, Class<A> annotationType)
+   {
+      return delegate.resolveAnnotation(cls, annotationType);
+   }
+   
+   public <A extends Annotation> A resolveAnnotation(Class<?> cls, Member member, Class<A> annotationType)
+   {
+      return delegate.resolveAnnotation(cls, member, annotationType);
    }
    
    @Override
