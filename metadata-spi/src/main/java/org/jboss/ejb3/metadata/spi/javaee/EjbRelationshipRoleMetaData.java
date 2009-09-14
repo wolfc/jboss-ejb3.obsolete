@@ -77,7 +77,7 @@ import java.util.List;
  *
  *
  */
-public interface EjbRelationshipRoleMetaData
+public interface EjbRelationshipRoleMetaData extends IdMetaData
 {
 
    /**
@@ -105,51 +105,37 @@ public interface EjbRelationshipRoleMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the ejbRelationshipRoleName property.
     *
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @return Returns the ejb relationship role  name
     *
     */
    String getEjbRelationshipRoleName();
 
    /**
-    * Sets the value of the ejbRelationshipRoleName property.
+    * Sets the ejb relationship role name
     *
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @param roleName
     *
-    */
-   void setEjbRelationshipRoleName(String value);
-
-   /**
-    * Gets the value of the multiplicity property.
-    *
-    * @return
-    *     possible object is
-    *     {@link MultiplicityType }
     *
     */
-   String getMultiplicity();
+   void setEjbRelationshipRoleName(String roleName);
 
    /**
-    * Sets the value of the multiplicity property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link MultiplicityType }
+    * @return Returns the multiplicity
     *
     */
-   void setMultiplicity(String value);
+   MultiplicityType getMultiplicity();
 
    /**
-    * Gets the value of the cascadeDelete property.
+    * Sets the multiplicity
     *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
+    * @param multiplicity The multiplicity
+    */
+   void setMultiplicity(String multiplicity);
+
+   /**
+    *
+    * @return Returns true if cascade-delete is set. False otherwise
     *
     */
    boolean isCascadeDelete();
@@ -157,12 +143,10 @@ public interface EjbRelationshipRoleMetaData
    /**
     * Sets the value of the cascadeDelete property.
     *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
+    * @param cascadeDelete True if cascade-delete has to be set. False otherwise
     *
     */
-   void setCascadeDelete(boolean value);
+   void setCascadeDelete(boolean cascadeDelete);
 
    /**
     * Gets the value of the relationshipRoleSource property.
@@ -203,25 +187,5 @@ public interface EjbRelationshipRoleMetaData
     *
     */
    void setCmrField(CmrFieldMetaData value);
-
-   /**
-    * Gets the value of the id property.
-    *
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *
-    */
-   void setId(java.lang.String value);
 
 }

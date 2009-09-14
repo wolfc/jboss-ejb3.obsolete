@@ -80,360 +80,265 @@ public interface InterceptorMetaData extends IdMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the interceptorClass property.
-    *
-    * @return
-    *     possible object is
-    *     {@link FullyQualifiedClassType }
+    * @return Returns the fully qualified classname of the interceptor class
     *
     */
    String getInterceptorClass();
 
    /**
-    * Sets the value of the interceptorClass property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link FullyQualifiedClassType }
+    * Sets the fully qualified class name of the interceptor
+    * 
+    * @param Fully qualified classname of the interceptor
     *
     */
-   void setInterceptorClass(String value);
+   void setInterceptorClass(String interceptorClassName);
 
    /**
-    * Gets the value of the aroundInvoke property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the aroundInvoke property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getAroundInvoke().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AroundInvokeMetaData }
-    *
+    * @return Returns a list of around invoke methods declared on the
+    *          interceptor class and/or its super-classes
     *
     */
-   List<AroundInvokeMetaData> getAroundInvoke();
+   List<AroundInvokeMetaData> getAroundInvokes();
+   
+   /**
+    * Sets the list of around invoke methods declared on the 
+    * interceptor class and/or its super-classes
+    * 
+    * @param aroundInvokes
+    */
+   void setAroundInvokes(List<AroundInvokeMetaData> aroundInvokes);
 
    /**
-    * Gets the value of the envEntry property.
+    * Returns a list of env-entry metadata of this interceptor.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the envEntry property.
+    * Returns an empty list if there is no env-entry.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEnvEntry().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link EnvEntryMetaData }
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     *
     *
     */
-   List<EnvEntryMetaData> getEnvEntry();
+   List<EnvEntryMetaData> getEnvEntries();
+   
+   /**
+    * Sets the list of env-entry metadata of this interceptor
+    *
+    * @param envEntries The list of env-entry of this interceptor
+    */
+   void setEnvEntries(List<EnvEntryMetaData> envEntries);
 
    /**
-    * Gets the value of the ejbRef property.
+    * Returns the list of EJB references of this interceptor
+    * Returns an empty list if there is no EJB reference for this interceptor.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the ejbRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEjbRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link EjbRefMetaData }
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     *
     *
     */
-   List<EjbRefMetaData> getEjbRef();
+   List<EjbRefMetaData> getEjbRefs();
 
    /**
-    * Gets the value of the ejbLocalRef property.
+    * Sets the list of EJB references for this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the ejbLocalRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEjbLocalRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link EjbLocalRefMetaData }
-    *
-    *
+    * @param ejbRefs The list of EJB references
     */
-   List<EjbLocalRefMetaData> getEjbLocalRef();
+   void setEjbRefs(List<EjbRefMetaData> ejbRefs);
+
 
    /**
-    * Gets the value of the serviceRef property.
+    * Returns the list of EJB local references of this interceptor
+    * Returns an empty list if there is no EJB local reference for this interceptor.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the serviceRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getServiceRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ServiceRefMetaData }
-    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     *
     */
-   List<ServiceRefMetaData> getServiceRef();
+   List<EjbLocalRefMetaData> getEjbLocalRefs();
 
    /**
-    * Gets the value of the resourceRef property.
+    * Sets the list of EJB local references for this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the resourceRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getResourceRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ResourceRefMetaData }
-    *
-    *
+    * @param ejbLocalRefs The list of EJB local references
     */
-   List<ResourceRefMetaData> getResourceRef();
+   void setEjbLocalRefs(List<EjbLocalRefMetaData> ejbLocalRefs);
 
    /**
-    * Gets the value of the resourceEnvRef property.
+    * Returns the list of web service reference(s) of this interceptor.
+    * Returns an empty list if there are no such references.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the resourceEnvRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getResourceEnvRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ResourceEnvRefMetaData }
-    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     *
     */
-   List<ResourceEnvRefMetaData> getResourceEnvRef();
+   List<ServiceRefMetaData> getServiceRefs();
 
    /**
-    * Gets the value of the messageDestinationRef property.
+    * Sets the list of web service references for this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the messageDestinationRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getMessageDestinationRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link MessageDestinationRefMetaData }
-    *
-    *
+    * @param serviceRefs The service references
     */
-   List<MessageDestinationRefMetaData> getMessageDestinationRef();
+   void setServiceRefs(List<ServiceRefMetaData> serviceRefs);
 
    /**
-    * Gets the value of the persistenceContextRef property.
+    * @return Returns the list of resource references of this interceptor.
+    * Returns an empty list if there are no such references.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the persistenceContextRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPersistenceContextRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PersistenceContextRefMetaData }
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<PersistenceContextRefMetaData> getPersistenceContextRef();
+   List<ResourceRefMetaData> getResourceRefs();
 
    /**
-    * Gets the value of the persistenceUnitRef property.
+    * Sets the resource references of this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the persistenceUnitRef property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPersistenceUnitRef().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PersistenceUnitRefMetaData }
-    *
-    *
+    * @param resourceRefs List of resource references of this interceptor
     */
-   List<PersistenceUnitRefMetaData> getPersistenceUnitRef();
+   void setResourceRefs(List<ResourceRefMetaData> resourceRefs);
 
    /**
-    * Gets the value of the postConstruct property.
+    * @return Returns the list of resource environment references of this interceptor.
+    * Returns an empty list if there are no such references.
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the postConstruct property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPostConstruct().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<LifecycleCallbackMetaData> getPostConstruct();
+   List<ResourceEnvRefMetaData> getResourceEnvRefs();
 
    /**
-    * Gets the value of the preDestroy property.
+    * Sets the resource env references of this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the preDestroy property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPreDestroy().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    *
-    *
+    * @param resourceEnvRefs
     */
-   List<LifecycleCallbackMetaData> getPreDestroy();
+   void setResourceEnvRefs(List<ResourceEnvRefMetaData> resourceEnvRefs);
 
    /**
-    * Gets the value of the postActivate property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the postActivate property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPostActivate().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
+    * Returns the message destination references associated with this interceptor
     *
     *
     */
-   List<LifecycleCallbackMetaData> getPostActivate();
+   List<MessageDestinationRefMetaData> getMessageDestinationRefs();
+   
+   /**
+    * Sets the message destination references associated with this interceptor
+    * 
+    * @param messageDestinationRefs
+    */
+   void setMessageDestinationRefs(List<MessageDestinationRefMetaData> messageDestinationRefs);
 
    /**
-    * Gets the value of the prePassivate property.
+    * @return Returns the list of persistence context references of this interceptor
     *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the prePassivate property.
+    * Returns an empty list if there are no such references.
     *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPrePassivate().add(newItem);
-    * </pre>
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
+    */
+   List<PersistenceContextRefMetaData> getPersistenceContextRefs();
+
+   /**
+    * Sets the list of persistence context references of this interceptor
     *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
+    * @param persistenceContextRefs The persistence context references
+    */
+   void setPeristenceContextRefs(List<PersistenceContextRefMetaData> persistenceContextRefs);
+
+
+
+   /**
+    * @returns Returns the persistence unit references associated with this interceptor
+    *
+    * Returns an empty list if there are no such references.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    */
+   List<PersistenceUnitRefMetaData> getPersistenceUnitRefs();
+
+   /**
+    * Sets the persistence unit references
+    *
+    * @param persistenceUnitRefs The persistence unit references of this interceptor
+    */
+   void setPersistenceUnitRefs(List<PersistenceUnitRefMetaData> persistenceUnitRefs);
+
+   /**
+    * @return Returns a list of post-construct methods associated with this interceptor
+    * Returns an empty list if there are no post-constructs.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    */
+   List<LifecycleCallbackMetaData> getPostConstructs();
+
+   /**
+    * Sets the post-constructs associated with this interceptor
+    *
+    * @param postConstructs The list of post-constructs
+    */
+   void setPostConstructs(List<LifecycleCallbackMetaData> postConstructs);
+
+
+
+   /**
+    * @return Returns a list of pre-destroy methods associated with this interceptor
+    * Returns an empty list if there are no pre-destroy callbacks for this interceptor.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
     *
     *
     */
-   List<LifecycleCallbackMetaData> getPrePassivate();
+   List<LifecycleCallbackMetaData> getPreDestroys();
+
+   /**
+    * Sets the list of pre-destroy callbacks associated with this interceptor
+    *
+    * @param preDestroys The list of pre-destroys for this bean
+    */
+   void setPreDestroys(List<LifecycleCallbackMetaData> preDestroys);
+
+   /**
+    * @return Returns a list of post-activate methods associated with this interceptor
+    * Returns an empty list if there are no post-activate callbacks for this interceptor.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    */
+   List<LifecycleCallbackMetaData> getPostActivates();
+
+   /**
+    * Sets the list of post-activate callbacks associated with this interceptor
+    *
+    * @param postActivates The post-activate callbacks associated with this interceptor
+    */
+   void setPostActivates(List<LifecycleCallbackMetaData> postActivates);
+
+   /**
+    * @return Returns a list of pre-passivate methods associated with this interceptor
+    * Returns an empty list if there are no pre-passivate callbacks for this interceptor.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    *
+    */
+   List<LifecycleCallbackMetaData> getPrePassivates();
+
+   /**
+    * Sets the list of pre-passivate callbacks associated with this interceptor
+    *
+    * @param prePassivates The pre-passivate callbacks for this interceptor
+    */
+   void setPrePassivates(List<LifecycleCallbackMetaData> prePassivates);
 
 
 

@@ -40,7 +40,7 @@ import java.util.List;
  * 
  * 
  */
-public interface RelationshipRoleSourceMetaData
+public interface RelationshipRoleSourceMetaData extends IdMetaData
 {
 
    /**
@@ -87,24 +87,6 @@ public interface RelationshipRoleSourceMetaData
     */
    void setEjbName(String value);
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   
 
 }

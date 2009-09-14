@@ -49,7 +49,7 @@ import java.util.List;
  * 
  * 
  */
-public interface ServiceRef_HandlerChainMetaData
+public interface ServiceRef_HandlerChainMetaData extends IdMetaData
 {
 
    /**
@@ -140,24 +140,6 @@ public interface ServiceRef_HandlerChainMetaData
     */
    List<ServiceRef_HandlerMetaData> getHandler();
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   
 
 }

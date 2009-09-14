@@ -28,67 +28,35 @@ package org.jboss.ejb3.metadata.spi.javaee;
  * 
  * 
  */
-public interface InitMethodMetaData
+public interface InitMethodMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the createMethod property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link NamedMethodMetaData }
+    * Returns the create method
     *     
     */
    NamedMethodMetaData getCreateMethod();
 
    /**
-    * Sets the value of the createMethod property.
+    * Sets the create method
     * 
-    * @param value
-    *     allowed object is
-    *     {@link NamedMethodMetaData }
+    * @param createMethod Create method 
     *     
     */
-   void setCreateMethod(NamedMethodMetaData value);
+   void setCreateMethod(NamedMethodMetaData createMethod);
 
    /**
-    * Gets the value of the beanMethod property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link NamedMethodMetaData }
+    * Returns the bean method
     *     
     */
    NamedMethodMetaData getBeanMethod();
 
    /**
-    * Sets the value of the beanMethod property.
+    * Sets the bean method
     * 
-    * @param value
-    *     allowed object is
-    *     {@link NamedMethodMetaData }
+    * @param beanMethod
     *     
     */
-   void setBeanMethod(NamedMethodMetaData value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   void setBeanMethod(NamedMethodMetaData beanMethod);
 
 }

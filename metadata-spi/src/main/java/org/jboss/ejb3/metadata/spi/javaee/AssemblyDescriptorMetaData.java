@@ -8,7 +8,6 @@
 package org.jboss.ejb3.metadata.spi.javaee;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  *
@@ -126,72 +125,50 @@ public interface AssemblyDescriptorMetaData extends IdMetaData
    void setInterceptorBindings(List<InterceptorBindingMetaData> interceptorBindings);
 
    /**
-    * Gets the value of the messageDestination property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the messageDestination property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getMessageDestination().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link MessageDestinationMetaData }
+    * @return Returns the message destinations configured in this
+    * assembly descriptor
     *
     *
     */
-   List<MessageDestinationMetaData> getMessageDestination();
+   List<MessageDestinationMetaData> getMessageDestinations();
 
    /**
-    * Gets the value of the excludeList property.
+    * Sets the message destinations associated with this assembly descriptor
     *
-    * @return
-    *     possible object is
-    *     {@link ExcludeListMetaData }
+    * @param messageDestinations
+    */
+   void setMessageDestinations(List<MessageDestinationMetaData> messageDestinations);
+
+   /**
+    * Returns the list of methods which are marked as uncallable.
+    *
+    * If the method permission relation contains methods that are
+    * in the exclude list, the Deployer should consider those
+    * methods to be uncallable.
+    *
+    * @return Returns the uncallable methods
     *
     */
-   ExcludeListMetaData getExcludeList();
+   List<EjbMethodMetaData> getExcludedMethods();
 
    /**
-    * Sets the value of the excludeList property.
+    * Sets the list of uncallable methods
     *
-    * @param value
-    *     allowed object is
-    *     {@link ExcludeListMetaData }
-    *
+    * @param excludedMethods The EJB methods which are to be marked as uncallable
     */
-   void setExcludeList(ExcludeListMetaData value);
+   void setExcludedMethods(List<EjbMethodMetaData> excludedMethods);
 
    /**
-    * Gets the value of the applicationException property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the applicationException property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getApplicationException().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ApplicationExceptionMetaData }
-    *
-    *
+    * @return Returns a list of application exceptions configured in the assembly
+    * descriptor
     */
    List<ApplicationExceptionMetaData> getApplicationExceptions();
 
+   /**
+    * Sets the application exceptions configured in the assembly descriptor
+    *
+    * @param applicationExceptions List of application exceptions
+    */
+   void setApplicationExceptions(List<ApplicationExceptionMetaData> applicationExceptions);
 
 }

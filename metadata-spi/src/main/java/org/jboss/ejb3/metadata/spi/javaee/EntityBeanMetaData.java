@@ -141,364 +141,191 @@ import java.util.List;
  * 
  * 
  */
-public interface EntityBeanMetaData
+public interface EntityBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
 {
 
-   /**
-    * Gets the value of the description property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the description property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDescription().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DescriptionMetaData }
-    * 
-    * 
-    */
-   List<DescriptionMetaData> getDescription();
+   
 
    /**
-    * Gets the value of the displayName property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the displayName property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDisplayName().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DisplayNameMetaData }
-    * 
-    * 
-    */
-   List<DisplayNameMetaData> getDisplayName();
-
-   /**
-    * Gets the value of the icon property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the icon property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getIcon().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link IconType }
-    * 
-    * 
-    */
-   List<IconType> getIcon();
-
-   /**
-    * Gets the value of the ejbName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link EjbNameType }
-    *     
-    */
-   String getEjbName();
-
-   /**
-    * Sets the value of the ejbName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link EjbNameType }
-    *     
-    */
-   void setEjbName(String value);
-
-   /**
-    * Gets the value of the mappedName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
-    *     
-    */
-   String getMappedName();
-
-   /**
-    * Sets the value of the mappedName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
-    *     
-    */
-   void setMappedName(String value);
-
-   /**
-    * Gets the value of the home property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link HomeType }
-    *     
+    * Returns the classname of the home interface corresponding to this
+    * bean. Returns null if there is no home interface
+    *
     */
    String getHome();
 
    /**
-    * Sets the value of the home property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link HomeType }
-    *     
+    * Sets the classname of the home interface for this bean
+    *
+    * @param homeInterface The home interface of the bean
+    *
     */
-   void setHome(String value);
+   void setHome(String homeInterface);
 
    /**
-    * Gets the value of the remote property.
+    * Returns the fully qualified classname of the remote interface corresponding to this
+    * bean. Returns null if there is no remote interface.
     * 
-    * @return
-    *     possible object is
-    *     {@link RemoteType }
-    *     
+    *
     */
    String getRemote();
 
    /**
-    * Sets the value of the remote property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link RemoteType }
-    *     
+    * Sets the EJB2.x remote interface for this bean.
+    *
+    * @param remoteInterface The EJB2.x remote interface for the bean
+    *
     */
-   void setRemote(String value);
+   void setRemote(String remoteInterface);
 
    /**
-    * Gets the value of the localHome property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link LocalHomeType }
-    *     
+    * Returns the fully qualified classname of the local home interface corresponding to this
+    * bean. Returns null if there is no local home interface
+    *
     */
    String getLocalHome();
 
    /**
-    * Sets the value of the localHome property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link LocalHomeType }
-    *     
+    * Sets the local home for this bean
+    *
+    * @param localHome The local home interface of this bean
+    *
     */
-   void setLocalHome(String value);
+   void setLocalHome(String localHome);
 
    /**
-    * Gets the value of the local property.
+    * Returns the fully qualified classname of the local interface corresponding to this
+    * bean. Returns null if there is no local interface.
     * 
-    * @return
-    *     possible object is
-    *     {@link LocalType }
-    *     
+    *
     */
    String getLocal();
 
    /**
-    * Sets the value of the local property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link LocalType }
-    *     
+    * Sets the EJB2.x local interface for this bean.
+    *
+    * @param The EJB2.x local interface
+    *
     */
-   void setLocal(String value);
+   void setLocal(String local);
 
    /**
-    * Gets the value of the ejbClass property.
+    * Returns the persistence-type of the bean. If not 
+    * explicitly set, then it defaults to {@link PersistenceType#CONTAINER}
     * 
     * @return
-    *     possible object is
-    *     {@link EjbClassType }
     *     
     */
-   String getEjbClass();
+   PersistenceType getPersistenceType();
 
    /**
-    * Sets the value of the ejbClass property.
+    * Sets the persistence-type for this entity bean.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link EjbClassType }
+    * @param persistenceType The persistence-type of this bean
     *     
     */
-   void setEjbClass(String value);
+   void setPersistenceType(PersistenceType persistenceType);
 
    /**
-    * Gets the value of the persistenceType property.
+    * Returns the fully qualified name of the primary key class of this entity bean
     * 
     * @return
-    *     possible object is
-    *     {@link PersistenceTypeType }
-    *     
-    */
-   String getPersistenceType();
-
-   /**
-    * Sets the value of the persistenceType property.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link PersistenceTypeType }
-    *     
-    */
-   void setPersistenceType(String value);
-
-   /**
-    * Gets the value of the primKeyClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link FullyQualifiedClassType }
     *     
     */
    String getPrimKeyClass();
 
    /**
-    * Sets the value of the primKeyClass property.
+    * Set the fully qualified class name of the primary key class of the 
+    * entity bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link FullyQualifiedClassType }
+    * @param primaryKeyClassName Fully qualified class name of the
+    * primary key class of the entity bean
     *     
     */
-   void setPrimKeyClass(String value);
+   void setPrimKeyClass(String primaryKeyClassName);
 
    /**
-    * Gets the value of the reentrant property.
+    * Returns true if this entity bean is explicitly marked as reentrant.
+    * Else returns false.
     * 
-    * @return
-    *     possible object is
-    *     {@link TrueFalseType }
+    * @return 
     *     
     */
-   boolean getReentrant();
+   boolean isReentrant();
 
    /**
-    * Sets the value of the reentrant property.
+    * Sets to true if the bean is to be marked as re-entrant. Else
+    * set to false.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link TrueFalseType }
+    * @param isReentrant True if bean is re-entrant. Else false.
     *     
     */
-   void setReentrant(boolean value);
+   void setReentrant(boolean isReentrant);
 
    /**
-    * Gets the value of the cmpVersion property.
     * 
-    * @return
-    *     possible object is
-    *     {@link CmpVersionType }
+    * 
+    * @return Returns the {@link CmpVersionType} of this bean. 
+    *   Returns null, if not explicitly set
     *     
     */
-   String getCmpVersion();
+   CmpVersionType getCmpVersion();
 
    /**
-    * Sets the value of the cmpVersion property.
+    * Sets the CMP version of the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link CmpVersionType }
+    * @param cmpVersion {@link CmpVersionType} of the bean
     *     
     */
-   void setCmpVersion(String value);
+   void setCmpVersion(CmpVersionType cmpVersion);
 
    /**
-    * Gets the value of the abstractSchemaName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link JavaIdentifierType }
+    * @return Returns the abstract schema name of this entity
+    * bean. Returns null if not set.
     *     
     */
    String getAbstractSchemaName();
 
    /**
-    * Sets the value of the abstractSchemaName property.
+    * Sets the abstract schema name of this entity bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JavaIdentifierType }
+    * @param schemaName Schema name
     *     
     */
-   void setAbstractSchemaName(String value);
+   void setAbstractSchemaName(String schemaName);
 
    /**
-    * Gets the value of the cmpField property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the cmpField property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getCmpField().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link CmpFieldMetaData }
-    * 
-    * 
+    * @return Returns a list of container managed fields of this entity
+    * bean. Returns an empty list if there are no such fields
     */
-   List<CmpFieldMetaData> getCmpField();
+   List<CmpFieldMetaData> getCmpFields();
+   
+   /**
+    * Sets the container managed fields of this entity bean
+    * 
+    * @param cmpFields
+    */
+   void setCmpFields(List<CmpFieldMetaData> cmpFields);
 
    /**
-    * Gets the value of the primkeyField property.
     * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @return Returns the name of the primary key field. Returns null
+    * if it is not set
+    * 
+    * @see #getCmpFields() for the naming rules of CMP fields
     *     
     */
    String getPrimkeyField();
 
    /**
-    * Sets the value of the primkeyField property.
+    * Sets the primary key field of this entity bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @param primaryKey The primary key field
+    * @see #getCmpFields() for the naming rules of CMP fields
     *     
     */
-   void setPrimkeyField(String value);
+   void setPrimkeyField(String primaryKey);
 
    /**
     * Gets the value of the envEntry property.
@@ -832,24 +659,6 @@ public interface EntityBeanMetaData
     */
    List<QueryMetaData> getQuery();
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   
 
 }

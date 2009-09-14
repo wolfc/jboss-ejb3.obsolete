@@ -44,7 +44,7 @@ import java.util.List;
  * 
  * 
  */
-public interface CmrFieldMetaData
+public interface CmrFieldMetaData extends IdMetaData
 {
 
    /**
@@ -72,63 +72,36 @@ public interface CmrFieldMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the cmrFieldName property.
+    * Returns the cmr-field-name
     * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
-    *     
+    * The cmr-field-name element specifies the name of a
+    *    logical relationship field in the entity bean
+    *    class. The name of the cmr-field must begin with a
+    *    lowercase letter. This field is accessed by methods
+    *    whose names consist of the name of the field
+    *    specified by cmr-field-name in which the first
+    *    letter is uppercased, prefixed by "get" or "set".
     */
    String getCmrFieldName();
 
    /**
-    * Sets the value of the cmrFieldName property.
+    * Sets the cmr-field-name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
-    *     
+    * @param cmrFieldName     
     */
-   void setCmrFieldName(String value);
+   void setCmrFieldName(String cmrFieldName);
 
    /**
-    * Gets the value of the cmrFieldType property.
+    * Returns the CMR field type
     * 
-    * @return
-    *     possible object is
-    *     {@link CmrFieldTypeType }
     *     
     */
    String getCmrFieldType();
 
    /**
-    * Sets the value of the cmrFieldType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link CmrFieldTypeType }
+    * Sets the CMR field type
     *     
     */
-   void setCmrFieldType(String value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   void setCmrFieldType(String cmrFieldType);
 
 }

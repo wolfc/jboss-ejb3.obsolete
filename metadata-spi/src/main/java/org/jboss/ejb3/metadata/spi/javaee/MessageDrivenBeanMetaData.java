@@ -238,6 +238,6 @@ public interface MessageDrivenBeanMetaData extends EnterpriseBeanMetaData, IdMet
     *
     */
    // TODO: We need this. Revisit this
-   //List<MessageDestinationRefType> getMessageDestinationRef();
+   List<MessageDestinationRefMetaData> getMessageDestinationRef();
 
 }

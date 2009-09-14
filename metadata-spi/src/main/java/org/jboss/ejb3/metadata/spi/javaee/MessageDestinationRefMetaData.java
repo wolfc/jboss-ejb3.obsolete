@@ -74,7 +74,7 @@ import java.util.List;
  * 
  * 
  */
-public interface MessageDestinationRefMetaData
+public interface MessageDestinationRefMetaData extends IdMetaData
 {
 
    /**
@@ -102,147 +102,112 @@ public interface MessageDestinationRefMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the messageDestinationRefName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the message-destination-ref-name
     *     
     */
    String getMessageDestinationRefName();
 
    /**
-    * Sets the value of the messageDestinationRefName property.
+    * Sets the message-destination-ref-name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
-    *     
+    * @param messageDestinationRefName message-destination-ref-name
     */
-   void setMessageDestinationRefName(String value);
+   void setMessageDestinationRefName(String messageDestinationRefName);
 
    /**
-    * Gets the value of the messageDestinationType property.
+    * Returns the message destination type.
     * 
-    * @return
-    *     possible object is
-    *     {@link MessageDestinationTypeType }
+    * The type is specified by the fully qualified Java interface
+    *  expected to be implemented by the destination.
     *     
     */
    String getMessageDestinationType();
 
    /**
-    * Sets the value of the messageDestinationType property.
+    *  Sets the message destination type.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link MessageDestinationTypeType }
+    * The type is specified by the fully qualified Java interface
+    *  expected to be implemented by the destination.
+    *  
+    *  @param messageDestinationType 
     *     
     */
-   void setMessageDestinationType(String value);
+   void setMessageDestinationType(String messageDestinationType);
 
    /**
-    * Gets the value of the messageDestinationUsage property.
+    * Returns the message destination usage type
+    */
+   MessageDestinationUsageType getMessageDestinationUsage();
+
+   /**
+    * Sets the message destination usage type
     * 
-    * @return
-    *     possible object is
-    *     {@link MessageDestinationUsageType }
+    * @param messageDestinationUsage
     *     
     */
-   String getMessageDestinationUsage();
+   void setMessageDestinationUsage(MessageDestinationUsageType messageDestinationUsage);
 
    /**
-    * Sets the value of the messageDestinationUsage property.
+    * Returns the message destination link
     * 
-    * @param value
-    *     allowed object is
-    *     {@link MessageDestinationUsageType }
-    *     
-    */
-   void setMessageDestinationUsage(String value);
-
-   /**
-    * Gets the value of the messageDestinationLink property.
+    * The value must be the message-destination-name of a message
+    * destination in the same Deployment File or in another
+    * Deployment File in the same Java EE application unit.
+    *
+    * Alternatively, the value may be composed of a path name
+    * specifying a Deployment File containing the referenced
+    * message destination with the message-destination-name of the
+    * destination appended and separated from the path name by
+    * "#". The path name is relative to the Deployment File
+    * containing Deployment Component that is referencing the
+    * message destination.  This allows multiple message
+    * destinations with the same name to be uniquely identified.
     * 
-    * @return
-    *     possible object is
-    *     {@link MessageDestinationLinkType }
     *     
     */
    String getMessageDestinationLink();
 
    /**
-    * Sets the value of the messageDestinationLink property.
+    * Sets the message destination link
     * 
-    * @param value
-    *     allowed object is
-    *     {@link MessageDestinationLinkType }
+    * @param messageDestinationLink
+    * 
+    * @see MessageDestinationRefMetaData#getMessageDestinationLink()
     *     
     */
-   void setMessageDestinationLink(String value);
+   void setMessageDestinationLink(String messageDestinationLink);
 
    /**
-    * Gets the value of the mappedName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * Returns the mapped-name
     *     
     */
    String getMappedName();
 
    /**
-    * Sets the value of the mappedName property.
+    * Sets the mapped-name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param mappedName mapped-name
     *     
     */
-   void setMappedName(String value);
+   void setMappedName(String mappedName);
 
    /**
-    * Gets the value of the injectionTarget property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the injectionTarget property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getInjectionTarget().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link InjectionTargetMetaData }
-    * 
-    * 
+    * Returns a list of injection target(s) metadata for
+    * this message destination reference
+    * Returns an empty list if there is no injection-target.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
     */
-   List<InjectionTargetMetaData> getInjectionTarget();
+   List<InjectionTargetMetaData> getInjectionTargets();
 
    /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
+    * Sets the list of injection targets for this message destination reference
+    *
+    * @param injectionTargets List of injection targets metadata for this message destination reference
     */
-   java.lang.String getId();
+   void setInjectionTargets(List<InjectionTargetMetaData> injectionTargets);
 
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
-
+   
 }

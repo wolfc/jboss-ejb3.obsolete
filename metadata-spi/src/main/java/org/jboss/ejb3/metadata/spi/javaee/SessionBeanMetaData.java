@@ -423,7 +423,7 @@ public interface SessionBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
     *
     */
    // TODO: Revisit, we need this
-   //List<MessageDestinationRefType> getMessageDestinationRef();
+   List<MessageDestinationRefMetaData> getMessageDestinationRef();
 
 
 

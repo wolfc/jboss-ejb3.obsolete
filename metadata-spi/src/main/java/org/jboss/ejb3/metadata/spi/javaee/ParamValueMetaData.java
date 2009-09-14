@@ -38,7 +38,7 @@ import java.util.List;
  * 
  * 
  */
-public interface ParamValueMetaData
+public interface ParamValueMetaData extends IdMetaData
 {
 
    /**
@@ -66,63 +66,30 @@ public interface ParamValueMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the paramName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * Returns the name of the param
     *     
     */
    String getParamName();
 
    /**
-    * Sets the value of the paramName property.
+    * Sets the param-name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @param paramName
     *     
     */
-   void setParamName(String value);
+   void setParamName(String paramName);
 
    /**
-    * Gets the value of the paramValue property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * Returns the param-value
     *     
     */
    String getParamValue();
 
    /**
-    * Sets the value of the paramValue property.
+    * Sets the param-value
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param paramValue param-value
     *     
     */
-   void setParamValue(String value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
-
+   void setParamValue(String paramValue);
 }

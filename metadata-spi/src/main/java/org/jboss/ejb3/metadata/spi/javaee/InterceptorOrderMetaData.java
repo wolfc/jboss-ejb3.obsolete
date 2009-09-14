@@ -38,27 +38,17 @@ public interface InterceptorOrderMetaData
 {
 
    /**
-    * Gets the value of the interceptorClass property.
-    *
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the interceptorClass property.
-    *
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getInterceptorClass().add(newItem);
-    * </pre>
-    *
-    *
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link FullyQualifiedClassType }
+    * Returns the ordered list of fully qualified name of interceptor classes.
     *
     *
     */
-   List<String> getInterceptorClass();
+   List<String> getOrderedInterceptorClasses();
+   
+   /**
+    * Sets the ordered list of fully qualified name of interceptor classes.
+    * 
+    * @param orderedInterceptorClasses
+    */
+   void setOrderedInterceptorClasses(List<String> orderedInterceptorClasses);
 
 }

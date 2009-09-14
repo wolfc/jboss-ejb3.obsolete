@@ -28,67 +28,39 @@ package org.jboss.ejb3.metadata.spi.javaee;
  * 
  * 
  */
-public interface RemoveMethodMetaData
+public interface RemoveMethodMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the beanMethod property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link NamedMethodMetaData }
+    * Returns the remove method on the bean
     *     
     */
    NamedMethodMetaData getBeanMethod();
 
    /**
-    * Sets the value of the beanMethod property.
+    * Sets the remove method of the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link NamedMethodMetaData }
+    * @param removedMethod
     *     
     */
-   void setBeanMethod(NamedMethodMetaData value);
+   void setBeanMethod(NamedMethodMetaData removeMethod);
 
    /**
-    * Gets the value of the retainIfException property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link TrueFalseType }
+    * Returns true if the bean has to be retained on exception.
+    * Else returns false.
     *     
     */
-   boolean getRetainIfException();
+   boolean isRetainIfException();
 
    /**
-    * Sets the value of the retainIfException property.
+    * Set to true if the bean has to be retained on exception.
+    * Else set to false.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link TrueFalseType }
+    * @param retainIfException
     *     
     */
-   void setRetainIfException(boolean value);
+   void setRetainIfException(boolean retainIfException);
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   
 
 }

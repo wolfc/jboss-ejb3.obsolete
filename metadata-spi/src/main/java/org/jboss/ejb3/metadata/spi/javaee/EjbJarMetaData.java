@@ -185,24 +185,20 @@ public interface EjbJarMetaData extends IdMetaData
    void setRelationships(RelationshipsMetaData value);
 
    /**
-    * Gets the value of the assemblyDescriptor property.
     *
-    * @return
-    *     possible object is
-    *     {@link AssemblyDescriptorMetaData }
+    * @return Returns the assembly descriptor configuration associated with this
+    * ejb-jar
     *
     */
    AssemblyDescriptorMetaData getAssemblyDescriptor();
 
    /**
-    * Sets the value of the assemblyDescriptor property.
+    * Sets the assembly descriptor configuration on this ejb-jar
     *
-    * @param value
-    *     allowed object is
-    *     {@link AssemblyDescriptorMetaData }
+    * @param assemblyDescriptor The assembly descriptor configuration
     *
     */
-   void setAssemblyDescriptor(AssemblyDescriptorMetaData value);
+   void setAssemblyDescriptor(AssemblyDescriptorMetaData assemblyDescriptor);
 
    /**
     * The optional ejb-client-jar element specifies a JAR

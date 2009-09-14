@@ -55,7 +55,7 @@ package org.jboss.ejb3.metadata.spi.javaee;
  * 
  * 
  */
-public interface QueryMetaData
+public interface QueryMetaData extends IdMetaData
 {
 
    /**
@@ -86,7 +86,7 @@ public interface QueryMetaData
     *     {@link QueryMethodMetaData }
     *     
     */
-   QueryMethodMetaData getQueryMethod();
+   NamedMethodMetaData getQueryMethod();
 
    /**
     * Sets the value of the queryMethod property.
@@ -96,66 +96,39 @@ public interface QueryMetaData
     *     {@link QueryMethodMetaData }
     *     
     */
-   void setQueryMethod(QueryMethodMetaData value);
+   void setQueryMethod(NamedMethodMetaData value);
 
    /**
-    * Gets the value of the resultTypeMapping property.
+    * Returns the result-type-mapping
     * 
-    * @return
-    *     possible object is
-    *     {@link ResultTypeMappingType }
+    * The result-type-mappingType is used in the query element to
+    * specify whether an abstract schema type returned by a query
+    * for a select method is to be mapped to an EJBLocalObject or
+    * EJBObject type.
     *     
     */
-   String getResultTypeMapping();
+   ResultTypeMappingType getResultTypeMapping();
 
    /**
-    * Sets the value of the resultTypeMapping property.
+    * Sets the result-type-mapping type
     * 
-    * @param value
-    *     allowed object is
-    *     {@link ResultTypeMappingType }
+    * @param resultTypeMapping
     *     
     */
-   void setResultTypeMapping(String value);
+   void setResultTypeMapping(ResultTypeMappingType resultTypeMapping);
 
    /**
-    * Gets the value of the ejbQl property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * Returns the ejb-ql query.
     *     
     */
    String getEjbQl();
 
    /**
-    * Sets the value of the ejbQl property.
+    * Sets the ejb-ql query
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param query
     *     
     */
-   void setEjbQl(String value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   void setEjbQl(String query);
 
 }

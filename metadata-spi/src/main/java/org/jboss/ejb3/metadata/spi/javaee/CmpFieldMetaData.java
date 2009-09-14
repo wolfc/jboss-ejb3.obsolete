@@ -38,7 +38,7 @@ import java.util.List;
  * 
  * 
  */
-public interface CmpFieldMetaData
+public interface CmpFieldMetaData extends IdMetaData
 {
 
    /**
@@ -66,43 +66,31 @@ public interface CmpFieldMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the fieldName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link JavaIdentifierType }
-    *     
+    * @return Returns the name of the container managed field.
+    *
+    *    The name of the cmp-field of an entity bean with
+    *    cmp-version 2.x must begin with a lowercase
+    *    letter. This field is accessed by methods whose
+    *    names consists of the name of the field specified by
+    *    field-name in which the first letter is uppercased,
+    *    prefixed by "get" or "set".
+    *
+    *   The name of the cmp-field of an entity bean with
+    *    cmp-version 1.x must denote a public field of the
+    *    enterprise bean class or one of its superclasses.
+    * 
+    * @see EntityBeanMetaData#getCmpVersion()     
     */
    String getFieldName();
 
    /**
-    * Sets the value of the fieldName property.
+    * Sets the container managed field of the entity bean.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JavaIdentifierType }
-    *     
-    */
-   void setFieldName(String value);
-
-   /**
-    * Gets the value of the id property.
+    * @param cmpFieldName The name of the container managed field 
     * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
+    * @see #getFieldName() for the field naming rules    
     */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   void setFieldName(String cmpFieldName);
 
 }
