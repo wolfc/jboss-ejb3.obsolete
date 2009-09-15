@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.core.test.ejbthree1914.unit;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import javax.ejb.Stateful;
 import org.jboss.ejb3.Container;
 import org.jboss.ejb3.EJBContainer;
 import org.jboss.ejb3.Ejb3DescriptorHandler;
+import org.jboss.ejb3.annotation.SerializedConcurrentAccess;
 import org.jboss.ejb3.core.test.common.AbstractEJB3TestCase;
 import org.jboss.ejb3.core.test.common.MockEjb3Deployment;
 import org.jboss.ejb3.core.test.ejbthree1506.TestBean;
@@ -84,5 +86,33 @@ public class OverrideAnnotationTestCase extends AbstractEJB3TestCase
       //ApplicationException ex = container.getAnnotation(ApplicationException.class, DummyException.class);
       ApplicationException ex = ExtendedAdvisorHelper.getExtendedAdvisor(container.getAdvisor()).resolveAnnotation(DummyException.class, ApplicationException.class);
       assertNotNull("Can't find annotation @ApplicationException in the meta data", ex);
+   }
+
+   @Test
+   public void testDisableAnnotation() throws Exception
+   {
+      JBossMetaData metaData = new JBossMetaData();
+      JBossEnterpriseBeansMetaData enterpriseBeans = new JBossEnterpriseBeansMetaData();
+      metaData.setEnterpriseBeans(enterpriseBeans);
+      JBossAssemblyDescriptorMetaData assemblyDescriptor = new JBossAssemblyDescriptorMetaData();
+      metaData.setAssemblyDescriptor(assemblyDescriptor);
+      JBossSessionBeanMetaData sessionBeanMetaData = new JBossSessionBeanMetaData();
+      sessionBeanMetaData.setEnterpriseBeansMetaData(enterpriseBeans);
+      sessionBeanMetaData.setEjbClass(TestBean.class.getName());
+      sessionBeanMetaData.setEjbName("TestBean");
+      sessionBeanMetaData.setSessionType(SessionType.Stateful);
+      sessionBeanMetaData.setConcurrent(false);
+      enterpriseBeans.add(sessionBeanMetaData);
+      
+      MockEjb3Deployment deployment = new MockEjb3Deployment(new MockDeploymentUnit());
+      Ejb3DescriptorHandler handler = new Ejb3DescriptorHandler(deployment, metaData);
+      List<Container> containers = handler.getContainers(deployment, new HashMap<String, Container>());
+      
+      EJBContainer container = (EJBContainer) containers.get(0);
+      Stateful annotation = ((EJBContainer) containers.get(0)).getAnnotation(Stateful.class);
+      assertNotNull("Can't find annotation @Stateful on the container", annotation);
+      
+      assertFalse("Stateful bean incorrectly has been marked with " + SerializedConcurrentAccess.class.getName()
+            + " annotation", container.getAdvisor().hasAnnotation(SerializedConcurrentAccess.class.getName()));
    }
 }
