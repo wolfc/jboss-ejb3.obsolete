@@ -42,7 +42,6 @@ import org.jboss.logging.Logger;
  * 
  * The following operation are not supported:
  * - anything using javassist
- * - disabling and enabling annotations
  * - querying for complete annotation maps
  * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
@@ -109,22 +108,19 @@ public class CachingAnnotationRepository extends AnnotationRepository implements
    @Override
    public void disableAnnotation(Member m, String annotation)
    {
-      log.error("EJBTHREE-1914: Unsupported");
-      throw new UnsupportedOperationException("EJBTHREE-1914: Unsupported");
+      delegate.disableAnnotation(m, annotation);
    }
    
    @Override
    public void disableAnnotation(String annotation)
    {
-      log.error("EJBTHREE-1914: Unsupported");
-      throw new UnsupportedOperationException("EJBTHREE-1914: Unsupported");
+      delegate.disableAnnotation(annotation);
    }
    
    @Override
    public void enableAnnotation(String annotation)
    {
-      log.error("EJBTHREE-1914: Unsupported");
-      throw new UnsupportedOperationException("EJBTHREE-1914: Unsupported");
+      delegate.enableAnnotation(annotation);
    }
    
    protected Map<Class<?>, Object> getAnnotationCache(Member m)
