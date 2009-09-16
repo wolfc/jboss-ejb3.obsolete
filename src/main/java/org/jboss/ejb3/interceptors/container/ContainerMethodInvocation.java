@@ -85,7 +85,6 @@ public class ContainerMethodInvocation extends MethodInvocation
 
    public BeanContext<?> getBeanContext()
    {
-      assert beanContext != null : "beanContext has not been set";
       return beanContext;
    }
    
