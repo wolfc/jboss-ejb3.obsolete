@@ -116,7 +116,7 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-proxy-impl</artifactId>
       <classifier>client</classifier>
-      <version>1.0.4</version>
+      <version>1.0.5</version>
       <optional>true</optional>
     </dependency>
 
