@@ -258,6 +258,13 @@ public class StatefulContainer extends SessionSpecContainer
 
    public StatefulCache getCache()
    {
+      /* 
+       * EJBTHREE-1894
+       * Avoid access by multiple threads to createAndStartCache(), which is not
+       * thread-safe.  If called on a stopped container, just return the stopped
+       * cache instead of creating and starting a new one - which causes more
+       * problems than it attempts to hide.
+       *
       // Ensure initialized
       try
       {
@@ -267,7 +274,7 @@ public class StatefulContainer extends SessionSpecContainer
       {
          throw new RuntimeException(e);
       }
-
+       */
       // Return
       return cache;
    }
@@ -548,28 +555,22 @@ public class StatefulContainer extends SessionSpecContainer
                //newSi.setAdvisor(getAdvisor());
 
                /*
-                * Ensure ID exists (useful for catching problems while we have context as
-                * to the caller, whereas in Interceptors we do not)
-                */
-               try
-               {
-                  this.getCache().get(sessionId);
-               }
-               catch (NoSuchEJBException nsee)
-               {
-                  throw this.constructProperNoSuchEjbException(nsee, invokedMethod.getActualClassName());
-               }
-
-               /*
                 * Perform Invocation
                 */
 
                // Create an object to hold the return value
                Object returnValue = null;
 
-               // Invoke
-               returnValue = newSi.invokeNext();
-
+               try
+               {
+                  // Invoke
+                  returnValue = newSi.invokeNext();
+               }
+               catch (NoSuchEJBException nsee)
+               {
+                  throw this.constructProperNoSuchEjbException(nsee, invokedMethod.getActualClassName());
+               }
+               
                // Marshall the response
                response = marshallResponse(invocation, returnValue, newSi.getResponseContextInfo());
                if (sessionId != null)

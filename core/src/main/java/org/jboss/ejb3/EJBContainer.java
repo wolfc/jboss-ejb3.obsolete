@@ -965,8 +965,11 @@ public abstract class EJBContainer
       // TODO: clean up BeanContainer?
       //super.cleanup();
       
+      /*
+       * EJBTHREE-1984: Leave invocations blocked
+       */
       // Restore to pre- create() state
-      this.allowInvocations();
+      // this.allowInvocations();
    }
 
    @SuppressWarnings("unchecked")

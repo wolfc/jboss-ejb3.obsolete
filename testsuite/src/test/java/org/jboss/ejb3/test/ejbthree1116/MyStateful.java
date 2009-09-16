@@ -30,6 +30,9 @@ import javax.ejb.Remote;
 @Remote
 public interface MyStateful
 {
-   public int getCount();
-   public void increment();
+   int getCount();
+   
+   void increment();
+   
+   void remove();
 }

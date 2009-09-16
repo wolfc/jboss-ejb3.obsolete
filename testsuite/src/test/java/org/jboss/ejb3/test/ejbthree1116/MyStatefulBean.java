@@ -21,6 +21,7 @@
  */
 package org.jboss.ejb3.test.ejbthree1116;
 
+import javax.ejb.Remove;
 import javax.ejb.Stateful;
 
 /**
@@ -39,5 +40,11 @@ public class MyStatefulBean implements MyStateful
    public void increment()
    {
       this.count++;
+   }
+   
+   @Remove
+   public void remove()
+   {
+      // nothing
    }
 }
