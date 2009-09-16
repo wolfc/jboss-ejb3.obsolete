@@ -42,6 +42,7 @@
 
   <properties>
     <version.org.jboss.jboss-as>5.0.0.CR2</version.org.jboss.jboss-as>
+    <version.org.jboss.security>2.0.3.SP1</version.org.jboss.security>
     <version.sun-jaxws>2.1.1</version.sun-jaxws>
   </properties>
 
@@ -621,13 +622,13 @@
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jboss-security-spi</artifactId>
-      <version>2.0.2.SP2</version>
+      <version>${version.org.jboss.security}</version>
     </dependency>
 
     <dependency>
       <groupId>org.jboss.security</groupId>
       <artifactId>jbosssx</artifactId>
-      <version>2.0.2.SP2</version>
+      <version>${version.org.jboss.security}</version>
     </dependency>
 
      <dependency>
