@@ -86,4 +86,10 @@ public class SimplePolicyRegistration implements PolicyRegistration, Serializabl
       throw new RuntimeException("NYI");
    }
 
+   public <P> void registerPolicyConfig(String contextId, String type, P policyConfig)
+   {
+      // TODO Auto-generated method stub
+      throw new RuntimeException("NYI");
+   }
+
 }
