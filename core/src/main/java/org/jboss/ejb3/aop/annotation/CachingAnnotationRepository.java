@@ -81,7 +81,7 @@ public class CachingAnnotationRepository extends AnnotationRepository implements
    @Override
    public void addAnnotation(Member m, String annotation, Object value)
    {
-      addAnnotation(m, loadClass(annotation), value);
+      addAnnotation(m, loadClass(annotation), initAnnotation(value));
    }
    
    @Override
@@ -190,11 +190,20 @@ public class CachingAnnotationRepository extends AnnotationRepository implements
    }
 
    // See AnnotationRepositoryToMetaData.initAnnotation
-   protected Annotation initAnnotation(String annotationValue)
+   protected Annotation initAnnotation(Object annotation)
    {
+      if (annotation == null)
+         throw new IllegalArgumentException("Null annotation");
+
+      if (annotation instanceof Annotation)
+         return (Annotation) annotation;
+      
+      if (annotation instanceof String == false)
+         throw new IllegalArgumentException("Not an annotation: " + annotation);
+      
       try
       {
-         return (Annotation) AnnotationCreator.createAnnotation(annotationValue, classLoader);
+         return (Annotation) AnnotationCreator.createAnnotation((String) annotation, classLoader);
       }
       catch (RuntimeException e)
       {
@@ -202,7 +211,7 @@ public class CachingAnnotationRepository extends AnnotationRepository implements
       }
       catch (Exception e)
       {
-         throw new RuntimeException("Error creating annotation: " + annotationValue, e);
+         throw new RuntimeException("Error creating annotation: " + annotation, e);
       }
    }
    
