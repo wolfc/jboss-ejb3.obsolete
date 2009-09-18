@@ -34,9 +34,9 @@ virt-install \
         --vcpus 2 \
         --file /dev/mapper/FAST-V_ROOT2 \
         --network network:hudson \
-        --vnc \
+        --nographics \
         --paravirt \
-        --location http://qafiler.bos.redhat.com/redhat/rhel5-server-x86_64/ \
+        --location http://qafiler.bos.redhat.com/redhat/released/RHEL-5-Server/U3/x86_64/os/ \
         --extra-args ks=http://mike.lab.bos.redhat.com/~carlo/kickstart/anaconda
 -ks.cfg
 
@@ -71,6 +71,10 @@ Make sure the slave is listed in hudson/scripts/common on do make.
 
 /etc/sysconfig/network-scripts/route-lo
 multicast 224.0.0.0/4 dev lo
+
+Install snmp (TODO)
+
+Fix /etc/hosts by adding slave.localdomain to it. (TODO)
 
 2. Misc problems
 ================
