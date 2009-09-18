@@ -19,7 +19,7 @@
   <artifactId>jboss-ejb3</artifactId>
   <packaging>pom</packaging>
   <name>JBoss EJB3 Project</name>
-  <version>1.1.18-SNAPSHOT</version>
+  <version>1.1.18</version>
   <description>Defines the dependency chain configuration of the JBoss EJB3 Project</description>
 
   <!-- Properties -->
@@ -64,4 +64,10 @@
     </dependency>
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-1.1.18</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-1.1.18</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-1.1.18</url>
+  </scm>
 </project>
