@@ -41,23 +41,17 @@ public interface JBossMessageDestinationMetaData extends MessageDestinationMetaD
 {
 
    /**
-    * Gets the value of the jndiName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the jndi name of this message destination 
     *     
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
+    * Sets the jndi name of this message destination 
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param jndiName
     *     
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
 }

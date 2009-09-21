@@ -10,6 +10,7 @@ package org.jboss.ejb3.metadata.spi.jboss;
 import java.util.List;
 
 import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
 
 /**
  * 
@@ -39,7 +40,7 @@ import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
  * 
  * 
  */
-public interface AnnotationPropertyMetaData
+public interface AnnotationPropertyMetaData extends IdMetaData
 {
 
    /**
@@ -67,63 +68,30 @@ public interface AnnotationPropertyMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the propertyName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
-    *     
+    * @return Returns the property name
     */
    String getPropertyName();
 
    /**
-    * Sets the value of the propertyName property.
+    * Sets the property name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @param name Property name
     *     
     */
-   void setPropertyName(String value);
+   void setPropertyName(String name);
 
    /**
-    * Gets the value of the propertyValue property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @return Returns the property value
     *     
     */
    String getPropertyValue();
 
    /**
-    * Sets the value of the propertyValue property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
-    *     
+    * Sets the property value
+    * @param value Property value     
     */
    void setPropertyValue(String value);
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
-    */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   
 
 }

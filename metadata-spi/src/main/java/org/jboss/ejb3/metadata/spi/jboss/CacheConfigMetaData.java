@@ -145,8 +145,7 @@ public interface CacheConfigMetaData
     * Sets the value of the replicationIsPassivation property.
     *
     * @param value
-    *     allowed object is
-    *     {@link ReplicationIsPassivationType }
+    *     
     *
     */
    void setReplicationIsPassivation(String value);

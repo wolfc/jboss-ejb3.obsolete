@@ -71,103 +71,61 @@ public interface ResourceManagerMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the resName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the name of the resource
     *     
     */
    String getResName();
 
    /**
-    * Sets the value of the resName property.
+    * Sets the name of the resource
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param resName Resource name
     *     
     */
-   void setResName(String value);
+   void setResName(String resName);
 
    /**
-    * Gets the value of the resJndiName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the resource jndi name
     *     
     */
    String getResJndiName();
 
    /**
-    * Sets the value of the resJndiName property.
+    * Sets the resource jndi name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param jndiName
     *     
     */
-   void setResJndiName(String value);
+   void setResJndiName(String jndiName);
 
    /**
-    * Gets the value of the resUrl property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the resource URL
     *     
     */
    String getResUrl();
 
    /**
-    * Sets the value of the resUrl property.
+    * Sets the resource URL
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param resURL
     *     
     */
-   void setResUrl(String value);
+   void setResUrl(String resURL);
 
    /**
-    * Gets the value of the id property.
+    * @return Returns the fully qualified classname of the resource
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
-
-   /**
-    * Gets the value of the resClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * ex: javax.sql.DataSource
     *     
     */
    String getResClass();
 
    /**
-    * Sets the value of the resClass property.
+    * Sets the resource class name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param className Fully qualified classname of the resource (ex: javax.sql.DataSource)
     *     
     */
-   void setResClass(String value);
+   void setResClass(String className);
 
 }

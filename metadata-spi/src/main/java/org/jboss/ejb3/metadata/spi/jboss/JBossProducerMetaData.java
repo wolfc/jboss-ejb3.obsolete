@@ -7,6 +7,8 @@
 
 package org.jboss.ejb3.metadata.spi.jboss;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  *  The producer element holds all of the information specific about a
  *             producer interface for a consumer bean Used in: consumer 
@@ -31,67 +33,34 @@ package org.jboss.ejb3.metadata.spi.jboss;
  * 
  * 
  */
-public interface JBossProducerMetaData
+public interface JBossProducerMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the clazz property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link FullyQualifiedClassType }
+    * @return Returns the fully qualified classname of the producer
     *     
     */
-   String getClazz();
+   String getClassName();
 
    /**
-    * Sets the value of the clazz property.
+    * Sets the producer class name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link FullyQualifiedClassType }
+    * @param className Fully qualified class name of the producer
     *     
     */
-   void setClazz(String value);
+   void setClassName(String classname);
 
    /**
-    * Gets the value of the connectionFactory property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
-    *     
+    * @return Returns the connection factory
     */
    String getConnectionFactory();
 
    /**
-    * Sets the value of the connectionFactory property.
+    * Sets the connection factory
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param connectionFactory
     *     
     */
-   void setConnectionFactory(String value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setConnectionFactory(String connectionFactory);
 
 }

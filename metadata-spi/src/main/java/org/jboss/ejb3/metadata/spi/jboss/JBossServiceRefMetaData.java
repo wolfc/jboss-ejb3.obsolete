@@ -9,6 +9,8 @@ package org.jboss.ejb3.metadata.spi.jboss;
 
 import java.util.List;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  * 
  *                  
@@ -80,95 +82,65 @@ import java.util.List;
  * 
  * 
  */
-public interface ServiceRefMetaData
+public interface JBossServiceRefMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the serviceRefName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the service reference name
     *     
     */
    String getServiceRefName();
 
    /**
-    * Sets the value of the serviceRefName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the service ref name
+    * @param serviceRefName    
     *     
     */
-   void setServiceRefName(String value);
+   void setServiceRefName(String serviceRefName);
 
    /**
-    * Gets the value of the serviceImplClass property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the service implementation class
     *     
     */
    String getServiceImplClass();
 
    /**
-    * Sets the value of the serviceImplClass property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
+    * Sets the service implementation class
+    * @param serviceImplClass
     */
-   void setServiceImplClass(String value);
+   void setServiceImplClass(String serviceImplClass);
 
    /**
-    * Gets the value of the serviceQname property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the service QName
     *     
     */
    String getServiceQname();
 
    /**
-    * Sets the value of the serviceQname property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the service QName
+    * @param serviceQName
     *     
     */
-   void setServiceQname(String value);
+   void setServiceQname(String serviceQName);
 
    /**
-    * Gets the value of the configName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the config name
     *     
     */
    String getConfigName();
 
    /**
-    * Sets the value of the configName property.
+    * Sets the config name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param configName
     *     
     */
-   void setConfigName(String value);
+   void setConfigName(String configName);
 
    /**
-    * Gets the value of the configFile property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the service config file
     *     
     */
    String getConfigFile();
@@ -181,90 +153,48 @@ public interface ServiceRefMetaData
     *     {@link String }
     *     
     */
-   void setConfigFile(String value);
+   void setConfigFile(String configFile);
 
    /**
-    * Gets the value of the handlerChain property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the handler chain
     *     
     */
    String getHandlerChain();
 
    /**
-    * Sets the value of the handlerChain property.
+    * Sets the handler chain
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param handlerChain 
     *     
     */
-   void setHandlerChain(String value);
+   void setHandlerChain(String handlerChain);
 
    /**
-    * Gets the value of the portComponentRef property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the portComponentRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPortComponentRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PortComponentRefMetaData }
+    * @return Returns the port component references
     * 
     * 
     */
-   List<PortComponentRefMetaData> getPortComponentRef();
+   List<JBossPortComponentRefMetaData> getPortComponentRefs();
+   
+   /**
+    * Sets the port component refs
+    * 
+    * @param portComponentRefs
+    */
+   void setPortComponentRefs(List<JBossPortComponentRefMetaData> portComponentRefs);
 
    /**
-    * Gets the value of the wsdlOverride property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
+    * @return Returns the wsdl override
     */
    String getWsdlOverride();
 
    /**
-    * Sets the value of the wsdlOverride property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the wsdl override
+    * @param wsdlOverride
     *     
     */
-   void setWsdlOverride(String value);
+   void setWsdlOverride(String wsdlOverride);
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   
 
 }

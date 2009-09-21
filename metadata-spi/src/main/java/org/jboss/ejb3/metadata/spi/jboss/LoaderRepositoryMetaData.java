@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.List;
 import javax.xml.bind.JAXBElement;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  * 
  *             
@@ -52,7 +54,7 @@ import javax.xml.bind.JAXBElement;
  * 
  * 
  */
-public interface LoaderRepositoryMetaData
+public interface LoaderRepositoryMetaData extends IdMetaData
 {
 
    /**
@@ -98,25 +100,7 @@ public interface LoaderRepositoryMetaData
     */
    List<Serializable> getContent();
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+  
 
    /**
     * Gets the value of the loaderRepositoryClass property.

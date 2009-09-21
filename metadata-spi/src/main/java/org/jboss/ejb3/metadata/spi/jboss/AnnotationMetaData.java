@@ -10,6 +10,7 @@ package org.jboss.ejb3.metadata.spi.jboss;
 import java.util.List;
 
 import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.InjectionTargetMetaData;
 
 /**
@@ -43,7 +44,7 @@ import org.jboss.ejb3.metadata.spi.javaee.InjectionTargetMetaData;
  * 
  * 
  */
-public interface AnnotationMetaData
+public interface AnnotationMetaData extends IdMetaData
 {
 
    /**
@@ -71,107 +72,62 @@ public interface AnnotationMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the annotationClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AnnotationClassType }
+    * @return Returns the fully qualified class name of the annotation
     *     
     */
    String getAnnotationClass();
 
    /**
-    * Sets the value of the annotationClass property.
+    * Sets the fully qualified class name of the annotation to be added
+    * to the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link AnnotationClassType }
+    * @param annotationClassName Fully qualified class name of the annotation
     *     
     */
-   void setAnnotationClass(String value);
+   void setAnnotationClass(String annotationClassName);
 
    /**
-    * Gets the value of the annotationImplementationClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AnnotationClassType }
+    * @return Returns the fully qualified classname of the annotation implementation
+    * class
     *     
     */
    String getAnnotationImplementationClass();
 
    /**
-    * Sets the value of the annotationImplementationClass property.
+    * Sets the fully qualified class name of the annotation implementation
+    * class
     * 
-    * @param value
-    *     allowed object is
-    *     {@link AnnotationClassType }
+    * @param annotationImplClassName Fully qualified class name of the annotation
+    *                   implementation.
     *     
     */
-   void setAnnotationImplementationClass(String value);
+   void setAnnotationImplementationClass(String annotationImplClassName);
 
    /**
-    * Gets the value of the injectionTarget property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link InjectionTargetMetaData }
+    * @return Returns the injection target
     *     
     */
    InjectionTargetMetaData getInjectionTarget();
 
    /**
-    * Sets the value of the injectionTarget property.
+    * Sets the injection target for this annotation
     * 
-    * @param value
-    *     allowed object is
-    *     {@link InjectionTargetMetaData }
+    * @param injectionTarget
     *     
     */
-   void setInjectionTarget(InjectionTargetMetaData value);
+   void setInjectionTarget(InjectionTargetMetaData injectionTarget);
 
    /**
-    * Gets the value of the property property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the property property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getProperty().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AnnotationPropertyMetaData }
+    * Returns the properties associated with this annotation metadata
     * 
     * 
     */
-   List<AnnotationPropertyMetaData> getProperty();
-
+   List<AnnotationPropertyMetaData> getProperties();
+   
    /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
+    * Sets the annotation properties of this annotation
+    * @param annotationProperties
     */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setProperties(List<AnnotationPropertyMetaData> annotationProperties);
 
 }

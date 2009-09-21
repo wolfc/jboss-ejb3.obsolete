@@ -7,6 +7,8 @@
 
 package org.jboss.ejb3.metadata.spi.jboss;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  * 
  *             
@@ -39,107 +41,61 @@ package org.jboss.ejb3.metadata.spi.jboss;
  * 
  * 
  */
-public interface WebserviceDescriptionMetaData
+public interface WebserviceDescriptionMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the webserviceDescriptionName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the webservice description name
     *     
     */
    String getWebserviceDescriptionName();
 
    /**
-    * Sets the value of the webserviceDescriptionName property.
+    * Sets the webservice description name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param name
     *     
     */
-   void setWebserviceDescriptionName(String value);
+   void setWebserviceDescriptionName(String name);
 
    /**
-    * Gets the value of the configName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the config name
     *     
     */
    String getConfigName();
 
    /**
-    * Sets the value of the configName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the config name
+    * @param configName
     *     
     */
-   void setConfigName(String value);
+   void setConfigName(String configName);
 
    /**
-    * Gets the value of the configFile property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the config file
     *     
     */
    String getConfigFile();
 
    /**
-    * Sets the value of the configFile property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the config file
     *     
     */
-   void setConfigFile(String value);
+   void setConfigFile(String configFile);
 
    /**
-    * Gets the value of the wsdlPublishLocation property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the wsdl publication location
     *     
     */
    String getWsdlPublishLocation();
 
    /**
-    * Sets the value of the wsdlPublishLocation property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
+    * Sets the wsdl publication location
+    * @param wsdlLocation
     */
-   void setWsdlPublishLocation(String value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setWsdlPublishLocation(String wsdlLocation);
 
 }

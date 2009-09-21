@@ -127,619 +127,421 @@ public interface GenericBeanMetaData
    List<IconType> getIcon();
 
    /**
-    * Gets the value of the ejbName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link EjbNameType }
+    * @return Returns the EJB name
     *     
     */
    String getEjbName();
 
    /**
-    * Sets the value of the ejbName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link EjbNameType }
+    * Sets the bean name
+    * @param ejbName Name of the EJB
     *     
     */
-   void setEjbName(String value);
+   void setEjbName(String ejbName);
 
    /**
-    * Gets the value of the mappedName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
-    *     
+    * Returns the mapped-name of the bean.
+    * Returns null if there is no mapped-name for
+    * this bean
+    *
     */
    String getMappedName();
 
    /**
-    * Sets the value of the mappedName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
-    *     
+    * Sets the mapped-name of the bean
+    * @param mappedName The mapped-name of the bean
     */
-   void setMappedName(String value);
+   void setMappedName(String mappedName);
 
    /**
-    * Gets the value of the envEntry property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the envEntry property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEnvEntry().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossEnvEntryMetaData }
-    * 
-    * 
+    * Returns a list of env-entry metadata of this bean.
+    *
+    * Returns an empty list if there is no env-entry.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
+    *
+    *
     */
-   List<JBossEnvEntryMetaData> getEnvEntry();
+   List<JBossEnvEntryMetaData> getEnvEntries();
 
    /**
-    * Gets the value of the ejbRef property.
+    * Sets the env entries for this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the ejbRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEjbRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossEjbRefMetaData }
-    * 
-    * 
+    * @param envEntries
     */
-   List<JBossEjbRefMetaData> getEjbRef();
+   void setEnvEntries(List<JBossEnvEntryMetaData> envEntries);
 
    /**
-    * Gets the value of the ejbLocalRef property.
+    * Returns the list of EJB references of this bean
+    * Returns an empty list if there is no EJB reference for this bean.
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the ejbLocalRef property.
+    */
+   List<JBossEjbRefMetaData> getEjbRefs();
+
+   /**
+    * Sets the list of EJB references for this bean
     * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getEjbLocalRef().add(newItem);
-    * </pre>
+    * @param ejbRefs
+    */
+   void setEjbRefs(List<JBossEjbRefMetaData> ejbRefs);
+
+   /**
+    * @return Returns the list of EJB local references of this bean
+    * Returns an empty list if there is no EJB local reference for this bean.
     * 
+    */
+   List<JBossEjbLocalRefMetaData> getEjbLocalRefs();
+
+   /**
+    * Sets the list of EJB local references for this bean
+    *
+    * @param ejbLocalRefs The list of EJB local references
+    */
+   void setEjbLocalRefs(List<JBossEjbLocalRefMetaData> ejbLocalRefs);
+
+   /**
+    * Returns the list of web service reference(s) of this bean.
+    * Returns an empty list if there are no such references.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list.
+    *
+    */
+   List<JBossServiceRefMetaData> getServiceRefs();
+
+   /**
+    * Sets the web service references for this bean.
     * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossEjbLocalRefMetaData }
+    * @param serviceRefs
+    */
+   void setServiceRefs(List<JBossServiceRefMetaData> serviceRefs);
+
+   /**
+    * @return Returns the list of resource references of this bean.
+    * Returns an empty list if there are no such references.
     * 
     * 
     */
-   List<JBossEjbLocalRefMetaData> getEjbLocalRef();
+   List<JBossResourceRefMetaData> getResourceRefs();
 
    /**
-    * Gets the value of the serviceRef property.
+    * Sets the resource references of this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the serviceRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getServiceRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ServiceRefMetaData }
+    * @param resourceRefs
+    */
+   void setResourceRefs(List<JBossResourceRefMetaData> resourceRefs);
+
+   /**
+    * @return Returns the list of resource environment references of this bean.
+    * Returns an empty list if there are no such references.
     * 
     * 
     */
-   List<ServiceRefMetaData> getServiceRef();
+   List<JBossResourceEnvRefMetaData> getResourceEnvRefs();
 
    /**
-    * Gets the value of the resourceRef property.
+    * Sets the resource env references of this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the resourceRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getResourceRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossResourceRefMetaData }
+    * @param resourceEnvRefs
+    */
+   void setResourceEnvRefs(List<JBossResourceEnvRefMetaData> resourceEnvRefs);
+
+   /**
+    * @return Returns the list of message destination references of this bean.
+    * Returns an empty list if there are no such references.
     * 
     * 
     */
-   List<JBossResourceRefMetaData> getResourceRef();
+   List<JBossMessageDestinationRefMetaData> getMessageDestinationRefs();
 
    /**
-    * Gets the value of the resourceEnvRef property.
+    * Sets the message destination references of this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the resourceEnvRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getResourceEnvRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossResourceEnvRefMetaData }
+    * @param messageDestinationRefs
+    */
+   void setMessageDestinationRefs(List<JBossMessageDestinationRefMetaData> messageDestinationRefs);
+
+   /**
+    * @return Returns the list of persistence context references of this bean
+    *
+    * Returns an empty list if there are no such references.
     * 
     * 
     */
-   List<JBossResourceEnvRefMetaData> getResourceEnvRef();
+   List<JBossPersistenceContextRefMetaData> getPersistenceContextRefs();
 
    /**
-    * Gets the value of the messageDestinationRef property.
+    * Sets the persistence context references associated with this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the messageDestinationRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getMessageDestinationRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossMessageDestinationRefMetaData }
+    * @param persistenceCtxRefs
+    */
+   void setPersistenceContextRefs(List<JBossPersistenceContextRefMetaData> persistenceCtxRefs);
+
+   /**
+    * @returns Returns the persistence unit references associated with this bean
+    *
+    * Returns an empty list if there are no such references.
     * 
     * 
     */
-   List<JBossMessageDestinationRefMetaData> getMessageDestinationRef();
+   List<JBossPersistenceUnitRefMetaData> getPersistenceUnitRefs();
 
    /**
-    * Gets the value of the persistenceContextRef property.
+    * Sets the persistence unit references associated with this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the persistenceContextRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPersistenceContextRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossPersistenceContextRefMetaData }
-    * 
-    * 
+    * @param persistenceUnitRefs
     */
-   List<JBossPersistenceContextRefMetaData> getPersistenceContextRef();
+   void setPersistenceUnitRefs(List<JBossPersistenceUnitRefMetaData> persistenceUnitRefs);
 
    /**
-    * Gets the value of the persistenceUnitRef property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the persistenceUnitRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPersistenceUnitRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JBossPersistenceUnitRefMetaData }
-    * 
-    * 
+    * @return Returns a list of post-construct methods associated with this bean
+    * Returns an empty list if there are no post-constructs.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
     */
-   List<JBossPersistenceUnitRefMetaData> getPersistenceUnitRef();
+   List<LifecycleCallbackMetaData> getPostConstructs();
 
    /**
-    * Gets the value of the postConstruct property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the postConstruct property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPostConstruct().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    * 
-    * 
+    * Sets the post-constructs associated with this bean
+    *
+    * @param postConstructs The list of post-constructs
     */
-   List<LifecycleCallbackMetaData> getPostConstruct();
+   void setPostConstructs(List<LifecycleCallbackMetaData> postConstructs);
 
    /**
-    * Gets the value of the preDestroy property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the preDestroy property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPreDestroy().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link LifecycleCallbackMetaData }
-    * 
-    * 
+    * @return Returns a list of pre-destroy methods associated with this bean
+    * Returns an empty list if there are no pre-destroy callbacks for this bean.
+    *
+    * It's upto the implementation to return either a modifiable
+    * or an unmodifiable list
+    *
+    *
     */
-   List<LifecycleCallbackMetaData> getPreDestroy();
+   List<LifecycleCallbackMetaData> getPreDestroys();
 
    /**
-    * Gets the value of the securityIdentity property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JBossSecurityIdentityMetaData }
+    * Sets the list of pre-destroy callbacks associated with this bean
+    *
+    * @param preDestroys The list of pre-destroys for this bean
+    */
+   void setPreDestroys(List<LifecycleCallbackMetaData> preDestroys);
+
+   /**
+    * @return Returns the security identity associated with this bean
     *     
     */
    JBossSecurityIdentityMetaData getSecurityIdentity();
 
    /**
-    * Sets the value of the securityIdentity property.
+    * Sets the security identity associated with this bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JBossSecurityIdentityMetaData }
+    * @param securityIdentity 
     *     
     */
-   void setSecurityIdentity(JBossSecurityIdentityMetaData value);
+   void setSecurityIdentity(JBossSecurityIdentityMetaData securityIdentity);
 
    /**
-    * Gets the value of the jndiName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi name of the bean
     *     
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
+    * Sets the jndi-name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param jndiName
     *     
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
    /**
-    * Gets the value of the homeJndiName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * Returns the jndi name of the home interface of the bean
     *     
     */
    String getHomeJndiName();
 
    /**
-    * Sets the value of the homeJndiName property.
+    * Sets the jndi name of the home interface of the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
-    *     
+    * @param homeJndiName The jndi name of the home interface of the bean
+    *          
     */
-   void setHomeJndiName(String value);
+   void setHomeJndiName(String homeJndiName);
 
    /**
-    * Gets the value of the localJndiName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link LocalJndiNameType }
+    * Returns the jndi name of the local interface of the bean
     *     
     */
    String getLocalJndiName();
 
    /**
-    * Sets the value of the localJndiName property.
+    * Sets the jndi name of the local interface of the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link LocalJndiNameType }
+    * @param localJndiName The jndi name of the local interface of the bean
     *     
     */
-   void setLocalJndiName(String value);
+   void setLocalJndiName(String localJndiName);
 
    /**
-    * Gets the value of the localHomeJndiName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * Returns the jndi name of the local home interface of the bean
     *     
     */
    String getLocalHomeJndiName();
 
    /**
-    * Sets the value of the localHomeJndiName property.
+    * Sets the jndi name of the local home interface of the bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param localHomeJndiName The jndi name of the local home interface 
+    *   of the bean
     *     
     */
-   void setLocalHomeJndiName(String value);
+   void setLocalHomeJndiName(String localHomeJndiName);
 
    /**
-    * Gets the value of the jndiBindingPolicy property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JndiBindingPolicyType }
+    * @return Returns the fully qualified class name of the JNDI binding policy
     *     
     */
    String getJndiBindingPolicy();
 
    /**
-    * Sets the value of the jndiBindingPolicy property.
+    * Sets the jndi binding policy of this bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiBindingPolicyType }
+    * @param jndiBindingPolicy Fully qualified class name of the JNDI binding policy
     *     
     */
-   void setJndiBindingPolicy(String value);
+   void setJndiBindingPolicy(String jndiBindingPolicy);
 
    /**
-    * Gets the value of the securityDomain property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SecurityDomainType }
-    *     
+    * @return Returns the security domain associated with this bean
     */
    String getSecurityDomain();
 
    /**
-    * Sets the value of the securityDomain property.
+    * Sets the security domain of this bean
     * 
-    * @param value
-    *     allowed object is
-    *     {@link SecurityDomainType }
+    * @param securityDomain The security domain for this bean
     *     
     */
-   void setSecurityDomain(String value);
+   void setSecurityDomain(String securityDomain);
 
    /**
-    * Gets the value of the methodAttributes property.
+    * Returns the method attributes configured for this bean
     * 
-    * @return
-    *     possible object is
-    *     {@link MethodAttributesMetaData }
-    *     
     */
    MethodAttributesMetaData getMethodAttributes();
 
    /**
-    * Sets the value of the methodAttributes property.
+    * Sets the method attributes for this bean 
     * 
-    * @param value
-    *     allowed object is
-    *     {@link MethodAttributesMetaData }
+    * @param methodAttributes
     *     
     */
-   void setMethodAttributes(MethodAttributesMetaData value);
+   void setMethodAttributes(MethodAttributesMetaData methodAttributes);
 
    /**
-    * Gets the value of the depends property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the depends property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getDepends().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link DependsType }
-    * 
+    * @return Returns a list of dependencies of this bean
     * 
     */
    List<String> getDepends();
 
    /**
-    * Gets the value of the annotation property.
+    * Sets the dependencies for this bean
     * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the annotation property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getAnnotation().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AnnotationMetaData }
-    * 
-    * 
+    * @param dependencies
     */
-   List<AnnotationMetaData> getAnnotation();
+   void setDepends(List<String> dependencies);
 
    /**
-    * Gets the value of the ignoreDependency property.
+    * @return Returns the list of annotation added to this  consumer bean
     * 
-    * @return
-    *     possible object is
-    *     {@link IgnoreDependencyMetaData }
-    *     
+    */
+   List<AnnotationMetaData> getAnnotations();
+
+   /**
+    * Set the list of annotations to be added to the bean class, method or field
+    * 
+    * @param annotations The list of annotations
+    */
+   void setAnnotations(List<AnnotationMetaData> annotations);
+
+   /**
+    *  @return Returns the ignore dependency metadata associated with this bean
+    *
     */
    IgnoreDependencyMetaData getIgnoreDependency();
 
    /**
-    * Sets the value of the ignoreDependency property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link IgnoreDependencyMetaData }
-    *     
+    * Sets the ignore dependency metadata for this bean
+    *
+    * @param ignoreDependency The ignore dependency metadata
+    *
     */
-   void setIgnoreDependency(IgnoreDependencyMetaData value);
+   void setIgnoreDependency(IgnoreDependencyMetaData ignoreDependency);
 
    /**
-    * Gets the value of the aopDomainName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AopDomainNameType }
-    *     
+    *
+    * @return Returns the AOP domain name associated with this bean.
+    * The aspect domain contains the interceptor stack and bindings
+    *
     */
    String getAopDomainName();
 
    /**
-    * Sets the value of the aopDomainName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link AopDomainNameType }
-    *     
+    * Sets the AOP domain name for this bean
+    *
+    * @param aopDomainName The AOP domain name
+    *
     */
-   void setAopDomainName(String value);
+   void setAopDomainName(String aopDomainName);
 
    /**
-    * Gets the value of the poolConfig property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link PoolConfigMetaData }
-    *     
-    */
+   *
+   *
+   * @return Returns the pool configuration of this bean
+   *
+   */
    PoolConfigMetaData getPoolConfig();
 
    /**
-    * Sets the value of the poolConfig property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link PoolConfigMetaData }
-    *     
+    * Sets the pool configuration of this bean
+    *
+    * @param poolConfig The pool configuration for this bean
+    *
     */
-   void setPoolConfig(PoolConfigMetaData value);
+   void setPoolConfig(PoolConfigMetaData poolConfig);
 
    /**
-    * Gets the value of the jndiRef property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the jndiRef property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getJndiRef().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link JndiRefMetaData }
-    * 
-    * 
+    * @return Returns a list of jndi references for this bean.
+    * Returns an empty list if there are no such references.
+    *
     */
-   List<JndiRefMetaData> getJndiRef();
+   List<JndiRefMetaData> getJndiRefs();
 
    /**
-    * Gets the value of the portComponent property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link PortComponentMetaData }
-    *     
+    * Set the jndi references used to inject generic types based on JNDI name,
+    * for this bean
+    *
+    * @param jndiRefs
     */
+   void setJndiRefs(List<JndiRefMetaData> jndiRefs);
+
+   /**
+   *
+   * @return Returns the port component associated with this bean
+   *
+   */
    PortComponentMetaData getPortComponent();
 
    /**
-    * Sets the value of the portComponent property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link PortComponentMetaData }
-    *     
+    * Sets the port component metadata for this bean
+    *
+    * @param portComponent
+    *
     */
-   void setPortComponent(PortComponentMetaData value);
+   void setPortComponent(PortComponentMetaData portComponent);
 
 }

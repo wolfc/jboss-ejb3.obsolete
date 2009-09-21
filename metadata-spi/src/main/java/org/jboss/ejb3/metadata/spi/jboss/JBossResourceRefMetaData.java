@@ -50,83 +50,61 @@ public interface JBossResourceRefMetaData extends ResourceRefMetaData
 {
 
    /**
-    * Gets the value of the resourceName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
+    * @return Returns the resource name
     *
     */
    String getResourceName();
 
    /**
-    * Sets the value of the resourceName property.
+    * Sets the resource name
     *
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param resourceName The resource name
     *
     */
-   void setResourceName(String value);
+   void setResourceName(String resourceName);
 
    /**
-    * Gets the value of the jndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
-    *
+    * Returns the jndi name of this resource ref
+    * 
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
+    * Sets the jndi name of the resource ref
     *
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param jndiName The jndi name
     *
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
    /**
-    * Gets the value of the resUrl property.
-    *
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
-    *
+    * @return Returns the resource URL
     */
    String getResUrl();
 
    /**
-    * Sets the value of the resUrl property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * Sets the resource URL
+    * 
+    * @param resourceURL 
     *
     */
-   void setResUrl(String value);
+   void setResUrl(String resourceURL);
 
    /**
-    * Gets the value of the ignoreDependency property.
-    *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
-    *
+    * @return Returns true if ignore dependency is set. Else
+    * returns false
+    * 
+    *     
     */
    boolean isIgnoreDependency();
 
    /**
-    * Sets the value of the ignoreDependency property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
-    *
+    * Set to true if the dependencies are to be 
+    * ignored. Else set to false.
+    * 
+    * @param ignoreDependency
+    *     
     */
-   void setIgnoreDependency(boolean value);
+   void setIgnoreDependency(boolean ignoreDependency);
 
 }

@@ -40,27 +40,16 @@ public interface JBossSecurityRoleMetaData extends SecurityRoleMetaData
 {
 
    /**
-    * Gets the value of the principalName property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the principalName property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getPrincipalName().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PrincipalNameType }
-    * 
-    * 
+    * @return Returns a list of principal names associated with this
+    * security role
     */
-   List<String> getPrincipalName();
+   List<String> getPrincipalNames();
+   
+   /**
+    * Sets the principal names associated with this security role
+    * 
+    * @param principalNames
+    */
+   void setPrincipalNames(List<String> principalNames);
 
 }

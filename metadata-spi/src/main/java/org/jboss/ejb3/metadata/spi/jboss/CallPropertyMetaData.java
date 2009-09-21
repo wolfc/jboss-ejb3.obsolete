@@ -31,41 +31,24 @@ public interface CallPropertyMetaData
 {
 
    /**
-    * Gets the value of the propName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * Returns the property name
     *     
     */
    String getPropName();
 
    /**
-    * Sets the value of the propName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the property name
     *     
     */
-   void setPropName(String value);
+   void setPropName(String name);
 
    /**
-    * Gets the value of the propValue property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
+    * Returns the property value    
     */
    String getPropValue();
 
    /**
-    * Sets the value of the propValue property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * Sets the property value
     *     
     */
    void setPropValue(String value);

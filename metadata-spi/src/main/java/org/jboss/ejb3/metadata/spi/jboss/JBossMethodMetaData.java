@@ -72,7 +72,7 @@ public interface JBossMethodMetaData extends IdMetaData
     * @return  Returns true if the method is idempotent, else returns false
     *
     */
-   Boolean isIdempotent();
+   boolean isIdempotent();
 
    /**
     * Set to true if the method is idempotent. Else set to false.
@@ -80,7 +80,7 @@ public interface JBossMethodMetaData extends IdMetaData
     * @param isIdempotent True if the method is idempotent, else false
     *
     */
-   void setIdempotent(Boolean isIdempotent);
+   void setIdempotent(boolean isIdempotent);
 
    /**
     *

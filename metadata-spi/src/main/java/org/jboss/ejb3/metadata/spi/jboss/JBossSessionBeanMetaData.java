@@ -62,7 +62,7 @@ public interface JBossSessionBeanMetaData extends SessionBeanMetaData
 {
 
    //TODO
-   List<JBossMessageDestinationRefMetaData> getMessageDestinationRefs();
+//   List<JBossMessageDestinationRefMetaData> getMessageDestinationRefs();
 
    /**
     * @return Returns the local jndi bindings for this bean.
@@ -262,7 +262,7 @@ public interface JBossSessionBeanMetaData extends SessionBeanMetaData
     * @return Returns a list of annotations that will be added to the bean class,
     * method or field.
     *
-    * Returns an empty list if there are no such dependencies.
+    * Returns an empty list if there are no such annotations.
     *
     * It's upto the implementation to return either a modifiable
     * or an unmodifiable list

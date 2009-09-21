@@ -36,43 +36,34 @@ public interface JBossPersistenceUnitRefMetaData extends PersistenceUnitRefMetaD
 {
 
    /**
-    * Gets the value of the jndiName property.
-    *
-    * @return
-    *     possible object is
-    *     {@link JndiNameType }
+    * @return Returns the jndi name of this persistence unit reference
     *
     */
    String getJndiName();
 
    /**
-    * Sets the value of the jndiName property.
+    * Sets the jndi name of this persistence unit reference
     *
-    * @param value
-    *     allowed object is
-    *     {@link JndiNameType }
+    * @param jndiName
     *
     */
-   void setJndiName(String value);
+   void setJndiName(String jndiName);
 
    /**
-    * Gets the value of the ignoreDependency property.
-    *
-    * @return
-    *     possible object is
-    *     {@link EmptyType }
-    *
+    * @return Returns true if ignore dependency is set. Else
+    * returns false
+    * 
+    *     
     */
    boolean isIgnoreDependency();
 
    /**
-    * Sets the value of the ignoreDependency property.
-    *
-    * @param value
-    *     allowed object is
-    *     {@link EmptyType }
-    *
+    * Set to true if the dependencies are to be 
+    * ignored. Else set to false.
+    * 
+    * @param ignoreDependency
+    *     
     */
-   void setIgnoreDependency(boolean value);
+   void setIgnoreDependency(boolean ignoreDependency);
 
 }

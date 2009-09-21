@@ -9,6 +9,8 @@ package org.jboss.ejb3.metadata.spi.jboss;
 
 import java.util.List;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  * <p>Java class for webservicesType complex type.
  * 
@@ -30,71 +32,35 @@ import java.util.List;
  * 
  * 
  */
-public interface WebservicesMetaData
+public interface WebservicesMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the contextRoot property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @return Returns the context root of this webservice
     *     
     */
    String getContextRoot();
 
    /**
-    * Sets the value of the contextRoot property.
+    * Sets the context root of this webservice
     * 
-    * @param value
-    *     allowed object is
-    *     {@link com.sun.java.xml.ns.javaee.String }
+    * @param contextRoot Context root of the webservice
     *     
     */
-   void setContextRoot(String value);
+   void setContextRoot(String contextRoot);
 
    /**
-    * Gets the value of the webserviceDescription property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the webserviceDescription property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getWebserviceDescription().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link WebserviceDescriptionMetaData }
+    * @return Returns the webservice descriptions
     * 
     * 
     */
-   List<WebserviceDescriptionMetaData> getWebserviceDescription();
+   List<WebserviceDescriptionMetaData> getWebserviceDescriptions();
 
    /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link java.lang.String }
-    *     
+    * Sets the webservice descriptions
+    *  
+    * @param webserviceDescriptions
     */
-   java.lang.String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link java.lang.String }
-    *     
-    */
-   void setId(java.lang.String value);
+   void setWebServiceDescriptions(List<WebserviceDescriptionMetaData> webserviceDescriptions);
 
 }

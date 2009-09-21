@@ -72,47 +72,17 @@ public interface ResourceManagersMetaData
    List<DescriptionMetaData> getDescription();
 
    /**
-    * Gets the value of the resourceManager property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the resourceManager property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getResourceManager().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ResourceManagerMetaData }
+    * @return Returns a list of resource managers
     * 
     * 
     */
-   List<ResourceManagerMetaData> getResourceManager();
-
+   List<ResourceManagerMetaData> getResourceManagers();
+   
    /**
-    * Gets the value of the id property.
+    * Sets the resource managers
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
+    * @param resourceManagers
     */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setResourceManagers(List<ResourceManagerMetaData> resourceManagers);
 
 }

@@ -16,8 +16,10 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jboss.ejb3.metadata.spi.javaee.AssemblyDescriptorMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.DisplayNameMetaData;
+import org.jboss.ejb3.metadata.spi.javaee.EnterpriseBeanMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.EnterpriseBeansMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.IconType;
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
 
 /**
  *  The jboss element is the root element of the jboss.xml file. It contains
@@ -59,16 +61,8 @@ import org.jboss.ejb3.metadata.spi.javaee.IconType;
  * 
  * 
  */
-public interface JBossMetaData
+public interface JBossMetaData extends IdMetaData
 {
-
-   /**
-    * 
-    * 
-    */
-   @XmlAttribute
-   @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
-   public final static String VERSION = "5.1";
 
    /**
     * Gets the value of the description property.
@@ -143,263 +137,188 @@ public interface JBossMetaData
    List<IconType> getIcon();
 
    /**
-    * Gets the value of the loaderRepository property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link LoaderRepositoryMetaData }
+    * @return Returns the {@link LoaderRepositoryMetaData}
     *     
     */
    LoaderRepositoryMetaData getLoaderRepository();
 
    /**
-    * Sets the value of the loaderRepository property.
+    * Sets the loader repository metadata
     * 
-    * @param value
-    *     allowed object is
-    *     {@link LoaderRepositoryMetaData }
+    * @param loaderRepository 
     *     
     */
-   void setLoaderRepository(LoaderRepositoryMetaData value);
+   void setLoaderRepository(LoaderRepositoryMetaData loaderRepository);
 
    /**
-    * Gets the value of the jmxName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JmxNameType }
+    * @return Returns the JMX ObjectName of the MBean associated with the ejb-jar module. 
     *     
     */
    String getJmxName();
 
    /**
-    * Sets the value of the jmxName property.
+    * Sets the JMX ObjectName to use for the MBean associated with the ejb-jar module.
+    * This must be a unique name and valid JMX ObjectName string. 
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JmxNameType }
-    *     
+    * @param jmxName
     */
    void setJmxName(String value);
 
    /**
-    * Gets the value of the securityDomain property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SecurityDomainType }
+    * @return Returns the security domain associated with this ejb module
     *     
     */
    String getSecurityDomain();
 
    /**
-    * Sets the value of the securityDomain property.
+    * Sets the security domain associated with this ejb module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link SecurityDomainType }
+    * @param securityDomain 
     *     
     */
-   void setSecurityDomain(String value);
+   void setSecurityDomain(String securityDomain);
 
    /**
-    * Gets the value of the missingMethodPermissionsExcludedMode property.
+    * The missing-method-permissions-excluded-mode determines the treatment
+    *        of missing method-permission mappings in the ejb-jar descriptor. The ejb 2.1
+    *        spec states: "It is possible that some methods are not assigned to any security
+    *        roles nor contained in the exclude-list element. In this case, it is the
+    *        responsibility of the Deployer to assign method permissions for all of the
+    *        unspecified methods, either by assigning them to security roles, or by marking
+    *        them as unchecked." The missing-method-permissions-excluded-mode is a boolean
+    *        that allows the deployer to globally indicate that all methods without a
+    *        method-permission element should be treated as excluded(= true and the default),
+    *       or that methods without a method-permission element should be treated as
+    *        unchecked(= false)
     * 
-    * @return
-    *     possible object is
-    *     {@link MissingMethodPermissionsExcludedModeType }
+    * @return Returns true if missing-method-permissions-excluded-mode is set. Else returns false.
     *     
     */
    boolean getMissingMethodPermissionsExcludedMode();
 
    /**
-    * Sets the value of the missingMethodPermissionsExcludedMode property.
+    * Sets missing-method-permissions-excluded-mode.
     * 
-    * @param value
-    *     allowed object is
-    *     {@link MissingMethodPermissionsExcludedModeType }
+    * @param missingMethodPermissionExcludedMode true if missing-method-permissions-excluded-mode 
+    *   is to be set. Else false.
+    *   
+    *  @see #getMissingMethodPermissionsExcludedMode()
     *     
     */
-   void setMissingMethodPermissionsExcludedMode(boolean value);
+   void setMissingMethodPermissionsExcludedMode(boolean missingMethodPermissionExcludedMode);
 
    /**
-    * Gets the value of the unauthenticatedPrincipal property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link UnauthenticatedPrincipalType }
+    * @return Returns the unauthenticated-principal element specifies the name of the principal
+    * that will be returned by the EJBContext.getCallerPrincipal() method if there is no
+    * authenticated user. This Principal has no roles or privaledges to call any other beans.
     *     
     */
    String getUnauthenticatedPrincipal();
 
    /**
-    * Sets the value of the unauthenticatedPrincipal property.
+    * Sets the unauthenticated-principal. See {@link #getUnauthenticatedPrincipal()} for 
+    * more details about unauthenticated-principal
     * 
-    * @param value
-    *     allowed object is
-    *     {@link UnauthenticatedPrincipalType }
+    * @param unauthenticatedPrincipal
+    *     
+    *     @see #getUnauthenticatedPrincipal()
     *     
     */
-   void setUnauthenticatedPrincipal(String value);
+   void setUnauthenticatedPrincipal(String unauthenticatedPrincipal);
 
    /**
-    * Gets the value of the jndiBindingPolicy property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JndiBindingPolicyType }
+    * @return Return the fully qualified class name of the jndi binding policy
+    * for this ejb module
     *     
     */
    String getJndiBindingPolicy();
 
    /**
-    * Sets the value of the jndiBindingPolicy property.
+    * Sets the jndi binding policy of this ejb module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JndiBindingPolicyType }
+    * @param jndiBindingPolicy The fully qualified class name of the jndi binding policy
     *     
     */
-   void setJndiBindingPolicy(String value);
+   void setJndiBindingPolicy(String jndiBindingPolicy);
 
    /**
-    * Gets the value of the jaccContextId property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JaccContextIdType }
+    * @return Returns the Jacc context id of this ejb module
     *     
     */
    String getJaccContextId();
 
    /**
-    * Sets the value of the jaccContextId property.
+    * Sets the Jacc context id of this ejb module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link JaccContextIdType }
+    * @param jaccContextId
     *     
     */
-   void setJaccContextId(String value);
+   void setJaccContextId(String jaccContextId);
 
    /**
-    * Gets the value of the webservices property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link WebservicesMetaData }
+    * @return Returns the web services metadata in this ejb module
     *     
     */
    WebservicesMetaData getWebservices();
 
    /**
-    * Sets the value of the webservices property.
+    * Sets the web services metadata 
     * 
-    * @param value
-    *     allowed object is
-    *     {@link WebservicesMetaData }
+    * @param webServicesMetadata
     *     
     */
-   void setWebservices(WebservicesMetaData value);
+   void setWebservices(WebservicesMetaData webServicesMetadata);
 
    /**
-    * Gets the value of the enterpriseBeans property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link EnterpriseBeansMetaData }
-    *     
+    * @return Returns the enterprise beans present in this ejb module    
     */
-   EnterpriseBeansMetaData getEnterpriseBeans();
-
+   List<EnterpriseBeanMetaData> getEnterpriseBeans();
+   
    /**
-    * Sets the value of the enterpriseBeans property.
+    * Sets the enterprise beans in this ejb module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link EnterpriseBeansMetaData }
-    *     
+    * @param enterpriseBeans
     */
-   void setEnterpriseBeans(EnterpriseBeansMetaData value);
+   void setEnterpriseBeans(List<EnterpriseBeanMetaData> enterpriseBeans);
 
    /**
-    * Gets the value of the assemblyDescriptor property.
+    * @return Returns the assembly-descriptor associated with this ejb module
     * 
-    * @return
-    *     possible object is
-    *     {@link AssemblyDescriptorMetaData }
-    *     
     */
    AssemblyDescriptorMetaData getAssemblyDescriptor();
 
    /**
-    * Sets the value of the assemblyDescriptor property.
+    * Sets the assembly-descriptor in this ejb-module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link AssemblyDescriptorMetaData }
+    * @param assemblyDescriptor
     *     
     */
-   void setAssemblyDescriptor(AssemblyDescriptorMetaData value);
+   void setAssemblyDescriptor(AssemblyDescriptorMetaData assemblyDescriptor);
 
    /**
-    * Gets the value of the resourceManagers property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ResourceManagersMetaData }
+    * @return Returns the resource managers present in this ejb module
     *     
     */
-   ResourceManagersMetaData getResourceManagers();
+   List<ResourceManagerMetaData> getResourceManagers();
 
    /**
-    * Sets the value of the resourceManagers property.
+    * Sets the resource managers in this ejb module
     * 
-    * @param value
-    *     allowed object is
-    *     {@link ResourceManagersMetaData }
-    *     
+    * @param resourceManagers 
     */
-   void setResourceManagers(ResourceManagersMetaData value);
+   void setResourceManagers(List<ResourceManagerMetaData> resourceManagers);
 
    /**
-    * Gets the value of the metadataComplete property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Boolean }
-    *     
+    * @return Returns true if this ejb module is marked as metadata complete.
+    * Else returns false.
     */
-   Boolean isMetadataComplete();
+   boolean isMetadataComplete();
 
    /**
-    * Sets the value of the metadataComplete property.
+    * Set to true if the ejb module is metadata complete. Else set to false
     * 
-    * @param value
-    *     allowed object is
-    *     {@link Boolean }
-    *     
+    * @param isMetadataComplete
     */
-   void setMetadataComplete(Boolean value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setMetadataComplete(Boolean isMetadataComplete);
 
 }

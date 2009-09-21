@@ -31,43 +31,35 @@ public interface StubPropertyMetaData
 {
 
    /**
-    * Gets the value of the propName property.
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return Returns the property name
     *     
     */
    String getPropName();
 
    /**
-    * Sets the value of the propName property.
+    * Sets the property name
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param propName
     *     
     */
-   void setPropName(String value);
+   void setPropName(String propName);
 
    /**
-    * Gets the value of the propValue property.
+    * Returns the property value
     * 
-    * @return
-    *     possible object is
-    *     {@link String }
+    * @return propValue 
+    * 
     *     
     */
    String getPropValue();
 
    /**
-    * Sets the value of the propValue property.
+    * Sets the property value
     * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
+    * @param propValue
     *     
     */
-   void setPropValue(String value);
+   void setPropValue(String propValue);
 
 }

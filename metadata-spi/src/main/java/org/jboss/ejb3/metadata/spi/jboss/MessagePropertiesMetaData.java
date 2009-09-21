@@ -7,6 +7,8 @@
 
 package org.jboss.ejb3.metadata.spi.jboss;
 
+import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
+
 /**
  *  Element for defining JMS message properties (e.g. persistence, priority)
  *             for a consumer bean Used in: consumer 
@@ -33,107 +35,55 @@ package org.jboss.ejb3.metadata.spi.jboss;
  * 
  * 
  */
-public interface MessagePropertiesMetaData
+public interface MessagePropertiesMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the clazz property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdStringType }
-    *     
+    * @return     
     */
-   String getClazz();
+   String getClassName();
 
    /**
-    * Sets the value of the clazz property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param className
     *     
     */
-   void setClazz(String value);
+   void setClassName(String className);
 
    /**
-    * Gets the value of the method property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link JBossMethodMetaData }
+    * @return 
     *     
     */
    JBossMethodMetaData getMethod();
 
    /**
-    * Sets the value of the method property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link JBossMethodMetaData }
+    * @param
     *     
     */
    void setMethod(JBossMethodMetaData value);
 
    /**
-    * Gets the value of the delivery property.
-    * 
     * @return
-    *     possible object is
-    *     {@link XsdStringType }
     *     
     */
    String getDelivery();
 
    /**
-    * Sets the value of the delivery property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdStringType }
+    * @param 
     *     
     */
-   void setDelivery(String value);
+   void setDelivery(String delivery);
 
    /**
-    * Gets the value of the priority property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XsdIntegerType }
+    * @return Returns the message priority
     *     
     */
    int getPriority();
 
    /**
-    * Sets the value of the priority property.
+    * Sets the message priority
     * 
-    * @param value
-    *     allowed object is
-    *     {@link XsdIntegerType }
-    *     
+    * @param priority
     */
-   void setPriority(int value);
-
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   String getId();
-
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   void setId(String value);
+   void setPriority(int priority);
 
 }
