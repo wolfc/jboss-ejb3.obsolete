@@ -51,4 +51,7 @@
   <!-- EJBTHREE-1053 -->
   <entry key="org.jboss.ejb3.test.ejbthree1053.unit.ConsistentPassivatedStateUnitTestCase.testConsistentPassivatedState">show</entry>
   
+  <!-- EJBTHREE-1927 -->
+  <entry key="org.jboss.ejb3.test.changexml.unit.ChangeXMLUnitTestCase.testChangeXML">show</entry>
+  
 </properties>
