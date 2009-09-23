@@ -11,6 +11,8 @@
 		- ignore : do nothing
 		- show : show the issue on System.err
 	</comment>
+  <!-- EJBTHREE-1927 -->
+  <entry key="org.jboss.ejb3.test.changexml.unit.ChangeXMLUnitTestCase.testChangeXML">show</entry>
 	<!-- EJBTHREE-1627 -->
 	<entry key="org.jboss.ejb3.test.deployer.unit.DeployerUnitTestCase.testDeployEjb3ExtensionOnly">show</entry>
 	<!-- EJBTHREE-1040 -->
@@ -50,8 +52,5 @@
   <entry key="org.jboss.ejb3.test.ejbthree1647.unit.ResourceInjectionIntoPrimitivesTestCase.testIntegerInjectionUsingResourceMappedName">show</entry>
   <!-- EJBTHREE-1053 -->
   <entry key="org.jboss.ejb3.test.ejbthree1053.unit.ConsistentPassivatedStateUnitTestCase.testConsistentPassivatedState">show</entry>
-  
-  <!-- EJBTHREE-1927 -->
-  <entry key="org.jboss.ejb3.test.changexml.unit.ChangeXMLUnitTestCase.testChangeXML">show</entry>
   
 </properties>

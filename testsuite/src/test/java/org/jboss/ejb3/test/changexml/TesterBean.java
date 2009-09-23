@@ -72,6 +72,6 @@ public class TesterBean implements TesterRemote
       {
          return;
       }
-      throw new RuntimeException("Should not be here!");
+      throw new ShouldNotBeHereException("Should not be here!");
    }
 }

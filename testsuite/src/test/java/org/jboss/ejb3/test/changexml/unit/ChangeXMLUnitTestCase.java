@@ -25,6 +25,7 @@ import java.io.File;
 
 import junit.framework.Test;
 
+import org.jboss.ejb3.test.changexml.ShouldNotBeHereException;
 import org.jboss.ejb3.test.changexml.TesterRemote;
 import org.jboss.security.client.SecurityClient;
 import org.jboss.security.client.SecurityClientFactory;
@@ -58,6 +59,10 @@ public class ChangeXMLUnitTestCase extends JBossTestCase
          String deployDir = System.getProperty("jbosstest.deploy.dir");
          File file = new File(deployDir + "/" + "changexml.jar"); 
          tester.runTest(file.toURL());
+      }
+      catch(ShouldNotBeHereException e)
+      {
+         fail(e.getMessage());
       }
       finally
       {
