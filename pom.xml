@@ -557,6 +557,25 @@
       </properties>
     </profile>
 
+    <profile>
+      <id>CI</id>
+      <!-- To enable resolution of a version range to a snapshot
+           the snapshots repository must be enabled for releases. -->
+      <repositories>
+        <repository>
+          <id>snapshots.jboss.org</id>
+          <name>JBoss Snapshots Repository</name>
+          <url>http://snapshots.jboss.org/maven2</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+
   </profiles>
 
 </project>
