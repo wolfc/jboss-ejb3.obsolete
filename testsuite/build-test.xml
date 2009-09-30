@@ -4351,6 +4351,29 @@
 	    </jar>
     </target>
 
+	<target name="ejbthree1876"
+			    description="Builds the ear and jar file(s) needed for testing EJBTHREE-1876."
+			    >
+			    
+			    <mkdir dir="${build.lib}"/>
+			    <!--  First build the jar file containing the EJBs -->
+			    <jar jarfile="${build.lib}/ejbthree1876.jar">
+				    <fileset dir="${build.classes}">
+					    <include name="org/jboss/ejb3/test/ejbthree1876/*.class"/>
+				    </fileset>
+				    
+			    </jar>
+			    <!--  Now build the EAR and include the EJB jar and the queue-service.xml -->
+			    <jar jarfile="${build.lib}/ejbthree1876.ear">
+				    <fileset dir="${build.lib}">
+					    <include name="ejbthree1876.jar"/>
+				    </fileset>
+				    <fileset dir="${resources}/test/ejbthree1876">
+					    <include name="META-INF/jboss-app.xml"/>
+				    </fileset>
+			    </jar>
+	</target>
+    	
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
       circulardependency, jsp, timerdependency, servicedependency, stateless14, webservices, ear, ejbthree440,
@@ -4381,7 +4404,7 @@
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
       statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677, ejbthree1629, 
-      ejbthree1807, ejbthree1346, ejbthree1823, ejbthree1858"/>
+      ejbthree1807, ejbthree1346, ejbthree1823, ejbthree1858, ejbthree1876"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">

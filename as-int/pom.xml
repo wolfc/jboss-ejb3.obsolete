@@ -29,7 +29,7 @@
     into the AS
 
      -->
-    <version.org.jboss.ejb3_jboss.ejb3>1.1.18</version.org.jboss.ejb3_jboss.ejb3>
+    <version.org.jboss.ejb3_jboss.ejb3>1.1.19-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3>
     <version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>1.0.1</version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>
     <version.org.jboss.ejb3_mc.int>1.0.1</version.org.jboss.ejb3_mc.int>
 

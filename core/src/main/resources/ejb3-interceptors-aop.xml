@@ -69,7 +69,7 @@
    <interceptor class="org.jboss.ejb3.entity.TransactionScopedEntityManagerInterceptor" scope="PER_VM"/>
    <interceptor class="org.jboss.ejb3.BlockContainerShutdownInterceptor" scope="PER_VM"/>
    <interceptor factory="org.jboss.ejb3.connectionmanager.CachedConnectionInterceptorFactory" scope="PER_CLASS"/>
-
+    <interceptor class="org.jboss.ejb3.interceptor.EJB3TCCLInterceptor" scope="PER_VM"/>
    <!--
          INTERCEPTORS
      -->
@@ -129,6 +129,7 @@
       </stack>
 
       <bind pointcut="execution(public * *->*(..))">
+        <interceptor-ref name="org.jboss.ejb3.interceptor.EJB3TCCLInterceptor"/>
          <interceptor-ref name="org.jboss.aspects.currentinvocation.CurrentInvocationInterceptor"/>
          <interceptor-ref name="org.jboss.ejb3.BlockContainerShutdownInterceptor"/>
       </bind>
