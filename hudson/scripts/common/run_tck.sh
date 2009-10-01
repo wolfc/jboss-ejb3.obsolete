@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ $# != 1 ]; then
    echo 1>&2 "Usage: $0 <tests>"
    exit 1
@@ -12,10 +14,11 @@ fi
 set -x
 
 #wget -N http://mike.lab.bos.redhat.com:8380/hudson/job/JBoss-AS-5.x-plugged/lastSuccessfulBuild/artifact/jboss/jboss-5.x-plugged.zip
-wget -nv -N http://mike.lab.bos.redhat.com:8380/hudson/job/JBoss-AS-5.x-latest/lastSuccessfulBuild/artifact/Branch_5_x/build/output/jboss-5.x-latest.zip
-#if [ jboss-5.x-latest.zip -nt jboss ]; then
+#wget -nv -N http://mike.lab.bos.redhat.com:8380/hudson/job/JBoss-AS-5.x-latest/lastSuccessfulBuild/artifact/Branch_5_x/build/output/jboss-5.x-latest.zip
+wget -nv -N http://mike.lab.bos.redhat.com:8380/hudson/job/EAP-5_x_latest_EJB3/lastSuccessfulBuild/artifact/JBPAPP_5_0/build/output/eap-5.x-latest-ejb3.zip
+#if [ eap-5.x-latest-ejb3.zip -nt jboss ]; then
    rm -rf jboss
-   unzip -q -d jboss jboss-5.x-latest.zip
+   unzip -q -d jboss eap-5.x-latest-ejb3.zip
    touch jboss
 #fi
 
@@ -63,8 +66,7 @@ trap "${JBOSS_HOME}/bin/shutdown.sh -S; ./stop-javadb; sleep 15; /sbin/fuser -k 
 set -x
 ./tsant "-Dmultiple.tests=$TESTS" runclient
 
-/usr/java/jdk1.5.0_17/bin/java -cp ../lib/javatest.jar:../lib/tsharness.jar:../lib/cts.jar com.sun.javatest.cof.Main -o JTreport/report.xml JTwork
-#/usr/java/jdk1.5.0_17/bin/java -cp /home/carlo/tools/jtharness-4.1.4-MR1-b17/lib/javatest.jar:../lib/cts.jar:../lib/tsharness.jar com.sun.javatest.tool.Main -testsuite ${TS_HOME}/src/ -workDir JTwork  -writeReport -type xml JTreport
+$JAVA_HOME/bin/java -cp ../lib/javatest.jar:../lib/tsharness.jar:../lib/cts.jar com.sun.javatest.cof.Main -o JTreport/report.xml JTwork
 
 #kill $PID
 #./stop-javadb
