@@ -32,8 +32,10 @@
     The JBoss EJB 3.0 Implementation
   </description>
 
+
   <!-- Aggregate Modules -->
-  <modules>
+
+    <modules>
     <module>aop-deployers</module>
     <module>api</module>
     <module>async-impl</module>
@@ -71,33 +73,13 @@
   </modules>
 
   <profiles>
+
     <profile>
       <id>eclipse</id>
       <build>
         <defaultGoal>process-test-resources</defaultGoal>
       </build>
     </profile>
-
-    <profile>
-      <id>JPA-1.0></id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <JPA.version>1.0.0</JPA.version>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>JPA-2.0</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <properties>
-        <JPA.version>2.0.Beta-20090815</JPA.version>
-      </properties>
-    </profile>
-
   </profiles>
 
 </project>
