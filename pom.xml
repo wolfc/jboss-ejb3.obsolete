@@ -32,10 +32,8 @@
     The JBoss EJB 3.0 Implementation
   </description>
 
-
   <!-- Aggregate Modules -->
-
-    <modules>
+  <modules>
     <module>aop-deployers</module>
     <module>api</module>
     <module>async-impl</module>
@@ -73,7 +71,6 @@
   </modules>
 
   <profiles>
-
     <profile>
       <id>eclipse</id>
       <build>
