@@ -9,6 +9,8 @@ package org.jboss.ejb3.metadata.spi.javaee;
 
 import java.util.List;
 
+import javax.ejb.TransactionManagementType;
+
 /**
  *
  *
@@ -130,18 +132,18 @@ public interface MessageDrivenBeanMetaData extends EnterpriseBeanMetaData, IdMet
    void setTimeoutMethod(NamedMethodMetaData timeoutMethod);
 
    /**
-    * Returns the transaction type of this bean
+    * Returns the transaction management type of this bean
     *
     */
-   TransactionType getTransactionType();
+   TransactionManagementType getTransactionType();
 
    /**
-    * Sets the transaction type of this bean
+    * Sets the transaction management type of this bean
     *
-    * @param transactionType The transaction type of this bean
+    * @param transactionType The transaction management type of this bean
     *
     */
-   void setTransactionType(TransactionType transactionType);
+   void setTransactionType(TransactionManagementType transactionType);
 
    /**
     *

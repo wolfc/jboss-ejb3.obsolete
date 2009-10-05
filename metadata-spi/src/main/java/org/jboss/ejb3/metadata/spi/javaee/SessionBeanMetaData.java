@@ -24,6 +24,8 @@ package org.jboss.ejb3.metadata.spi.javaee;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.TransactionManagementType;
+
 /**
  *
  * Represents metadata for a session bean
@@ -279,15 +281,17 @@ public interface SessionBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
 
 
    /**
-    * TODO: Revisit this - do we need this
+    * @return Returns the session bean type
     */
-   String getSessionType();
+   SessionType getSessionType();
 
    /**
-    * TODO: Revisit this - do we need this
+    * Sets the session type of this bean
+    * 
+    * @param sessionType
     *
     */
-   void setSessionType(String value);
+   void setSessionType(SessionType sessionType);
 
    /**
     * Returns the timeout method of this bean.
@@ -371,7 +375,7 @@ public interface SessionBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
     * Returns the transaction type of this bean
     *
     */
-   TransactionType getTransactionType();
+   TransactionManagementType getTransactionType();
 
    /**
     * Sets the transaction type of this bean
@@ -379,7 +383,7 @@ public interface SessionBeanMetaData extends EnterpriseBeanMetaData, IdMetaData
     * @param transactionType The transaction type of this bean
     *
     */
-   void setTransactionType(TransactionType transactionType);
+   void setTransactionType(TransactionManagementType transactionType);
 
    /**
     * Returns a list of around-invoke metadata of this bean.

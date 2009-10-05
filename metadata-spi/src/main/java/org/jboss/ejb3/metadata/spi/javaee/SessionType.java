@@ -22,26 +22,15 @@
 package org.jboss.ejb3.metadata.spi.javaee;
 
 /**
- * TransactionType
- *
- * Represents the different possible transaction
- * types for a bean
- *
+ * SessionType
+ * 
+ * Represents the session type of a bean
+ * 
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public enum TransactionType
+public enum SessionType 
 {
-
-   /**
-    * Represents container managed transaction
-    * type for a bean
-    */
-   CONTAINER_MANAGED_TRANSACTION_TYPE,
-
-   /**
-    * Represents bean managed transaction type for a bean
-    */
-   BEAN_MANAGED_TRANSACTION_TYPE;
-
+   STATELESS,
+   STATEFUL
 }
