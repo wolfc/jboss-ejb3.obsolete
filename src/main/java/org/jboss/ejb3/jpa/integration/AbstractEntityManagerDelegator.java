@@ -29,7 +29,7 @@ import javax.persistence.EntityManager;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class AbstractEntityManagerDelegator extends JPA2EntityManagerDelegator implements EntityManager
+public abstract class AbstractEntityManagerDelegator extends JPA1EntityManagerDelegator implements EntityManager
 {
    private static final long serialVersionUID = 1L;
 }

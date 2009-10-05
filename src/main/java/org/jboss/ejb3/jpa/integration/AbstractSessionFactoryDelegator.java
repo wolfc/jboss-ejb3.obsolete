@@ -27,7 +27,7 @@ import org.hibernate.SessionFactory;
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class AbstractSessionFactoryDelegator extends Hibernate3_5SessionFactoryDelegator implements SessionFactory
+public abstract class AbstractSessionFactoryDelegator extends Hibernate3_3SessionFactoryDelegator implements SessionFactory
 {
    private static final long serialVersionUID = 1L;
 }
