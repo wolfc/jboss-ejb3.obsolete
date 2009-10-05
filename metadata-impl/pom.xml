@@ -18,6 +18,30 @@
     JBoss EJB3 Metadata Implementation based on org.jboss.metadata:metadata-ejb.
   </description>
   
+    <build>
+        <plugins>
+            <!--  Enforce JDK6 -->
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <id>enforce-jdk6</id>
+                    <goals>
+                      <goal>enforce</goal>
+                    </goals>
+                    <configuration>
+                      <rules>
+                        <requireJavaVersion>
+                            <version>1.6</version>
+                        </requireJavaVersion> 
+                      </rules>
+                    </configuration>
+                  </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+      
   <dependencies>
     
     <dependency>
