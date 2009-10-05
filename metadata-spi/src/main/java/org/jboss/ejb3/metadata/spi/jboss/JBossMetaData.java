@@ -9,15 +9,10 @@ package org.jboss.ejb3.metadata.spi.jboss;
 
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import org.jboss.ejb3.metadata.spi.javaee.AssemblyDescriptorMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.DescriptionMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.DisplayNameMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.EnterpriseBeanMetaData;
-import org.jboss.ejb3.metadata.spi.javaee.EnterpriseBeansMetaData;
 import org.jboss.ejb3.metadata.spi.javaee.IconType;
 import org.jboss.ejb3.metadata.spi.javaee.IdMetaData;
 

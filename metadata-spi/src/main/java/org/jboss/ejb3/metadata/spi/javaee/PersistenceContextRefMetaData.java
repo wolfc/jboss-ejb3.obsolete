@@ -9,6 +9,8 @@ package org.jboss.ejb3.metadata.spi.javaee;
 
 import java.util.List;
 
+import javax.persistence.PersistenceContextType;
+
 /**
  * Represents the metadata for persistence context references.
  *

@@ -36,32 +36,22 @@ import java.util.List;
  * 
  * 
  */
-public interface ServiceRef_HandlerChainsMetaData extends IdMetaData
+public interface ServiceRefHandlerChainsMetaData extends IdMetaData
 {
 
    /**
-    * Gets the value of the handlerChain property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the handlerChain property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getHandlerChain().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ServiceRef_HandlerChainMetaData }
+    * @return Returns the service ref handler chains
     * 
     * 
     */
-   List<ServiceRef_HandlerChainMetaData> getHandlerChain();
+   List<ServiceRefHandlerChainMetaData> getHandlerChains();
+   
+   /**
+    * Sets the service ref handler chains
+    * 
+    * @param handlerChains
+    */
+   void setHandlerChains(List<ServiceRefHandlerChainMetaData> handlerChains);
 
    
 

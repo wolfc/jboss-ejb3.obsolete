@@ -63,7 +63,7 @@ public interface InjectionTargetMetaData
     *
     * @param classname Fully qualified class name of the injection target
     */
-   void setInjectionTargetClass(String classname);
+   void setInjectionTargetClassname(String classname);
 
    /**
     * Returns the property/field name within the {@link #getInjectionTargetClassname()}

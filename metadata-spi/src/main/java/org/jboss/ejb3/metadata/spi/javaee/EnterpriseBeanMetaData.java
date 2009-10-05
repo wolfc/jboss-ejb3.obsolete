@@ -114,6 +114,7 @@ public interface EnterpriseBeanMetaData extends IdMetaData
     * Sets the ejb name
     *
     * @param name EJB name
+    * @throws IllegalArgumentException If <code>name</code> is null
     */
    void setEjbName(String name);
 
@@ -142,18 +143,13 @@ public interface EnterpriseBeanMetaData extends IdMetaData
     * Sets the fully qualified classname of the bean implementation class.
     *
     * @param beanClass Fully qualified classname of the bean implementation
+    * @throws IllegalArgumentException If <code>beanClass</code> is null
     *
     */
    void setEjbClass(String beanClass);
 
    /**
     * Returns a list of env-entry metadata of this bean.
-    *
-    * Returns an empty list if there is no env-entry.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
     *
     */
    List<EnvEntryMetaData> getEnvEntries();
@@ -169,11 +165,6 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * Returns the list of EJB references of this bean
-    * Returns an empty list if there is no EJB reference for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
     *
     */
    List<EjbRefMetaData> getEjbRefs();
@@ -189,11 +180,6 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * Returns the list of EJB local references of this bean
-    * Returns an empty list if there is no EJB local reference for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
-    *
     */
    List<EjbLocalRefMetaData> getEjbLocalRefs();
 
@@ -208,10 +194,6 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * Returns the list of web service reference(s) of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list.
     *
     */
    List<ServiceRefMetaData> getServiceRefs();
@@ -227,11 +209,6 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * @return Returns the list of resource references of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
     *
     */
    List<ResourceRefMetaData> getResourceRefs();
@@ -247,12 +224,7 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * @return Returns the list of resource environment references of this bean.
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    *
+    * 
     */
    List<ResourceEnvRefMetaData> getResourceEnvRefs();
 
@@ -265,12 +237,7 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * @return Returns the list of persistence context references of this bean
-    *
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
+    * 
     */
    List<PersistenceContextRefMetaData> getPersistenceContextRefs();
 
@@ -286,11 +253,6 @@ public interface EnterpriseBeanMetaData extends IdMetaData
    /**
     * @returns Returns the persistence unit references associated with this bean
     *
-    * Returns an empty list if there are no such references.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
     */
    List<PersistenceUnitRefMetaData> getPersistenceUnitRefs();
 
@@ -303,11 +265,7 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * @return Returns a list of post-construct methods associated with this bean
-    * Returns an empty list if there are no post-constructs.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
+    * 
     */
    List<LifecycleCallbackMetaData> getPostConstructs();
 
@@ -322,12 +280,7 @@ public interface EnterpriseBeanMetaData extends IdMetaData
 
    /**
     * @return Returns a list of pre-destroy methods associated with this bean
-    * Returns an empty list if there are no pre-destroy callbacks for this bean.
-    *
-    * It's upto the implementation to return either a modifiable
-    * or an unmodifiable list
-    *
-    *
+    * 
     */
    List<LifecycleCallbackMetaData> getPreDestroys();
 

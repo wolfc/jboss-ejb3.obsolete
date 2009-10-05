@@ -103,14 +103,14 @@ public interface EjbLocalRefMetaData extends IdMetaData
     * Returns the type of the EJB reference.
     *
     */
-   String getEjbRefType();
+   EjbRefType getEjbRefType();
 
    /**
     * Sets the type of the EJB reference
     *
     * @param ejbRefType The type of the EJB reference
     */
-   void setEjbRefType(String ejbRefType);
+   void setEjbRefType(EjbRefType ejbRefType);
 
    /**
     * Returns the fully qualified classname of the local home interface

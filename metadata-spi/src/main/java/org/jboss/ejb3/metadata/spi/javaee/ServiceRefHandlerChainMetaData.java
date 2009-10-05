@@ -49,7 +49,7 @@ import java.util.List;
  * 
  * 
  */
-public interface ServiceRef_HandlerChainMetaData extends IdMetaData
+public interface ServiceRefHandlerChainMetaData extends IdMetaData
 {
 
    /**
@@ -60,7 +60,7 @@ public interface ServiceRef_HandlerChainMetaData extends IdMetaData
     *     {@link java.lang.String }
     *     
     */
-   java.lang.String getServiceNamePattern();
+   String getServiceNamePattern();
 
    /**
     * Sets the value of the serviceNamePattern property.
@@ -70,7 +70,7 @@ public interface ServiceRef_HandlerChainMetaData extends IdMetaData
     *     {@link java.lang.String }
     *     
     */
-   void setServiceNamePattern(java.lang.String value);
+   void setServiceNamePattern(String value);
 
    /**
     * Gets the value of the portNamePattern property.
@@ -134,11 +134,11 @@ public interface ServiceRef_HandlerChainMetaData extends IdMetaData
     * 
     * <p>
     * Objects of the following type(s) are allowed in the list
-    * {@link ServiceRef_HandlerMetaData }
+    * {@link ServiceRefHandlerMetaData }
     * 
     * 
     */
-   List<ServiceRef_HandlerMetaData> getHandler();
+   List<ServiceRefHandlerMetaData> getHandlers();
 
    
 

@@ -238,20 +238,20 @@ public interface ServiceRefMetaData extends IdMetaData
     * Returns the list of service reference handler metadata
     *
     */
-   List<ServiceRef_HandlerMetaData> getHandlers();
+   List<ServiceRefHandlerMetaData> getHandlers();
 
    /**
     * Sets the list of service reference handlers
     *
     * @param serviceRefHandlers
     */
-   void setHandlers(List<ServiceRef_HandlerMetaData> serviceRefHandlers);
+   void setHandlers(List<ServiceRefHandlerMetaData> serviceRefHandlers);
 
    /**
     * Returns the service reference handler chains
     *
     */
-   ServiceRef_HandlerChainsMetaData getHandlerChains();
+   ServiceRefHandlerChainsMetaData getHandlerChains();
 
    /**
     * Sets the service reference handler chains
@@ -259,7 +259,7 @@ public interface ServiceRefMetaData extends IdMetaData
     * @param serviceRefHandlerChains
     *
     */
-   void setHandlerChains(ServiceRef_HandlerChainsMetaData serviceRefHandlerChains);
+   void setHandlerChains(ServiceRefHandlerChainsMetaData serviceRefHandlerChains);
 
    /**
     * Returns the mapped-name of the service reference.

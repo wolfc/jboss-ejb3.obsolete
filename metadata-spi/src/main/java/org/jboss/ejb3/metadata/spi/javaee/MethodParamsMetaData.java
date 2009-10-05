@@ -41,10 +41,7 @@ public interface MethodParamsMetaData extends IdMetaData
 
    /**
     * Returns the list of fully qualified classnames of each of the
-    * method param types. Returns an empty list if there are no params for a method.
-    *
-    * Its upto the implementations to return either a modifiable or
-    * an unmodifiable {@link List}
+    * method param types. 
     *
     */
    List<String> getMethodParams();

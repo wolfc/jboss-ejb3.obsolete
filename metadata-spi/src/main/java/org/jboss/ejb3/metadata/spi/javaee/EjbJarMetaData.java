@@ -138,7 +138,7 @@ public interface EjbJarMetaData extends IdMetaData
     * @return Returns the enterprise beans associated with this ejb jar
     *
     */
-   EnterpriseBeansMetaData getEnterpriseBeans();
+   List<EnterpriseBeanMetaData> getEnterpriseBeans();
 
    /**
     * Sets the enterprise beans associated with this ejb jar
@@ -146,7 +146,7 @@ public interface EjbJarMetaData extends IdMetaData
     * @param enterpriseBeans
     *
     */
-   void setEnterpriseBeans(EnterpriseBeansMetaData enterpriseBeans);
+   void setEnterpriseBeans(List<EnterpriseBeanMetaData> enterpriseBeans);
 
    /**
     *

@@ -48,7 +48,7 @@ import javax.xml.namespace.QName;
  *
  *
  */
-public interface ServiceRef_HandlerMetaData extends IdMetaData
+public interface ServiceRefHandlerMetaData extends IdMetaData
 {
 
    /**

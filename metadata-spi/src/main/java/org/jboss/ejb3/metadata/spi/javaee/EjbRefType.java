@@ -22,22 +22,15 @@
 package org.jboss.ejb3.metadata.spi.javaee;
 
 /**
- * PersistenceContextType
+ * EjbRefType
  *
- * Represents the various possible persistence context types
+ * Represents the expected type of the referenced enterprise bean.
  *
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public enum PersistenceContextType
+public enum EjbRefType 
 {
-   /**
-    * Extended persistence context type
-    */
-   EXTENDED,
-
-   /**
-    * Transaction persistence context type
-    */
-   TRANSACTION;
+   ENTITY,
+   SESSION
 }

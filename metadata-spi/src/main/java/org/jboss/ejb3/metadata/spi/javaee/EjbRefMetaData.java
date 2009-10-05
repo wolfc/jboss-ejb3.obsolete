@@ -111,14 +111,14 @@ public interface EjbRefMetaData extends IdMetaData
     * Returns the type of the EJB reference.
     *
     */
-   EnterpriseBeanType getEjbRefType();
+   EjbRefType getEjbRefType();
 
    /**
     * Sets the type of the EJB reference
     *
     * @param ejbRefType The type of the EJB reference
     */
-   void setEjbRefType(EnterpriseBeanType ejbRefType);
+   void setEjbRefType(EjbRefType ejbRefType);
 
    /**
     * Returns the fully qualified classname of the home interface
