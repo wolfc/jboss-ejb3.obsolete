@@ -4411,7 +4411,19 @@
       <!-- For use when we do not need to pass in any special jvmargs; forks the test process -->
       <antcall target="test-with-jvmargs" inheritRefs="true">
          <param name="test" value="${test}"/>
-         <param name="jvmargs" value=""/>
+         <!-- 
+            EJBTHREE-1934 
+            Webservices testcases (with JDK 1.6 variant of the AS) requires that the javax.xml.soap.*
+            classes are loaded from JBoss specific jars available in JBOSS_HOME/lib/endorsed
+            instead of JAVA_HOME/lib/endorsed. Else they run into 
+            java.lang.UnsupportedOperationException: setProperty must be overridden by all subclasses of SOAPMessage
+            See this for more details http://www.jboss.org/index.html?module=bb&op=viewtopic&t=158265
+            
+            Note: we could have set this property only for the webservices testcase conditionally,
+            but it makes sense for all tests to use this JVM arg since that's what gets used in the AS run.sh
+            scripts.
+          -->
+         <param name="jvmargs" value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed"/>
       </antcall>
    </target>
 
@@ -4580,7 +4592,19 @@
       <!-- For use when we do not need to pass in any special jvmargs; forks the test process -->
       <antcall target="one-test-with-jvmargs" inheritRefs="true">
          <param name="test" value="${test}"/>
-         <param name="jvmargs" value=""/>
+         <!-- 
+            EJBTHREE-1934 
+            Webservices testcases (with JDK 1.6 variant of the AS) requires that the javax.xml.soap.*
+            classes are loaded from JBoss specific jars available in JBOSS_HOME/lib/endorsed
+            instead of JAVA_HOME/lib/endorsed. Else they run into 
+            java.lang.UnsupportedOperationException: setProperty must be overridden by all subclasses of SOAPMessage
+            See this for more details http://www.jboss.org/index.html?module=bb&op=viewtopic&t=158265
+            
+            Note: we could have set this property only for the webservices testcase conditionally,
+            but it makes sense for all tests to use this JVM arg since that's what gets used in the AS run.sh
+            scripts.
+          -->
+         <param name="jvmargs" value="-Djava.endorsed.dirs=${jboss.dist}/lib/endorsed"/>
       </antcall>
    </target>
 
