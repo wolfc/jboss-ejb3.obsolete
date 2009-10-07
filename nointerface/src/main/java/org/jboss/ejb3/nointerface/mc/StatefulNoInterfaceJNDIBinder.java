@@ -21,8 +21,8 @@
  */
 package org.jboss.ejb3.nointerface.mc;
 
-import javax.naming.InitialContext;
-import javax.naming.Name;
+import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
 import javax.naming.StringRefAddr;
@@ -33,7 +33,6 @@ import org.jboss.ejb3.nointerface.objectfactory.StatefulNoInterfaceViewObjectFac
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.naming.NonSerializableFactory;
-import org.jnp.interfaces.NamingParser;
 
 /**
  * StatefulNoInterfaceJNDIBinder
@@ -51,15 +50,22 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     * Logger
     */
    private static Logger logger = Logger.getLogger(StatefulNoInterfaceJNDIBinder.class);
-
+   
+   /**
+    * Suffix to be added to the ejb-name to form the jndi name of no-interface stateful proxyfactory
+    * 
+    * 
+    */
+   private static final String NO_INTERFACE_STATEFUL_PROXY_FACTORY_JNDI_NAME_SUFFIX = "/no-interface-stateful-proxyfactory";
+   
    /**
     * Constructor
     * @param beanClass The bean class
     * @param sessionBeanMetadata Metadata of the bean
     */
-   protected StatefulNoInterfaceJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   protected StatefulNoInterfaceJNDIBinder(Context ctx, Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
    {
-      super(beanClass, sessionBeanMetadata);
+      super(ctx, beanClass, sessionBeanMetadata);
 
    }
 
@@ -77,7 +83,7 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     *
     */
    @Override
-   public void bindNoInterfaceView() throws Exception
+   public void bindNoInterfaceView() throws NamingException
    {
       logger.debug("Binding no-interface view statefulproxyfactory and the objectfactory for bean " + this.beanClass);
 
@@ -87,12 +93,9 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
             this.beanClass, this.endpointContext);
 
       // TODO - Needs to be a proper jndi name for the factory
-      String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + "/no-interface-stateful-proxyfactory";
+      String statefulProxyFactoryJndiName = sessionBeanMetadata.getEjbName() + NO_INTERFACE_STATEFUL_PROXY_FACTORY_JNDI_NAME_SUFFIX;
       // Bind the proxy factory to jndi
-      // Bind a reference to nonserializable using NonSerializableFactory as the ObjectFactory
-      NamingParser namingParser = new NamingParser();
-      Name jndiName = namingParser.parse(statefulProxyFactoryJndiName);
-      NonSerializableFactory.rebind(jndiName, statefulNoInterfaceViewFactory, true);
+      NonSerializableFactory.rebind(this.jndiCtx, statefulProxyFactoryJndiName, statefulNoInterfaceViewFactory, true);
 
       // Create an Reference which will hold the jndi-name of the statefulproxyfactory which will
       // be responsible for creating the no-interface view for the stateful bean upon lookup
@@ -107,13 +110,24 @@ public class StatefulNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
 
       // TODO: Again, the jndi-names for the no-interface view are a mess now. They need to come from
       // the metadata. Let's just go ahead temporarily
-      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + "/no-interface";
-      // TODO : This is not right - i guess there is some way to get hold of the initial context
-      // for a given deployment. Need to look more into this
-      new InitialContext().bind(noInterfaceJndiName, reference);
-
+      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + NO_INTERFACE_JNDI_SUFFIX;
+      this.jndiCtx.bind(noInterfaceJndiName, reference);
       logger.info("Bound the no-interface view for bean " + beanClass + " to jndi at " + noInterfaceJndiName);
 
+   }
+
+   /**
+    * Unbind the {@link MCAwareStatefulNoInterfaceViewFactory} and the {@link StatefulNoInterfaceViewObjectFactory}
+    * from the jndi
+    * 
+    * @see org.jboss.ejb3.nointerface.mc.NoInterfaceViewJNDIBinder#unbindNoInterfaceView()
+    */
+   @Override
+   public void unbindNoInterfaceView() throws NamingException
+   {
+      this.jndiCtx.unbind(this.sessionBeanMetadata.getEjbName() + NO_INTERFACE_JNDI_SUFFIX);
+      this.jndiCtx.unbind(this.sessionBeanMetadata.getEjbName() + NO_INTERFACE_STATEFUL_PROXY_FACTORY_JNDI_NAME_SUFFIX);
+      
    }
 
 }

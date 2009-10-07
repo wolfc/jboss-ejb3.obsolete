@@ -31,6 +31,7 @@ import java.util.List;
 import javax.ejb.LocalBean;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.naming.InitialContext;
 
 import org.jboss.beans.metadata.api.model.FromContext;
 import org.jboss.beans.metadata.plugins.AbstractInjectionValueMetaData;
@@ -43,6 +44,7 @@ import org.jboss.deployers.spi.deployer.helpers.AbstractDeployer;
 import org.jboss.deployers.structure.spi.DeploymentUnit;
 import org.jboss.ejb3.nointerface.mc.NoInterfaceViewJNDIBinder;
 import org.jboss.logging.Logger;
+import org.jboss.metadata.ear.jboss.JBossAppMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeanMetaData;
 import org.jboss.metadata.ejb.jboss.JBossEnterpriseBeansMetaData;
 import org.jboss.metadata.ejb.jboss.JBossMetaData;
@@ -50,6 +52,9 @@ import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 
 /**
  * EJB3NoInterfaceDeployer
+ * 
+ * Deployer responsible for processing EJB3 deployments with a no-interface view.
+ * @see #deploy(DeploymentUnit) for the deployment unit processing details.
  *
  * @author Jaikiran Pai
  * @version $Revision: $
@@ -68,14 +73,23 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
    public EJB3NoInterfaceDeployer()
    {
       setStage(DeploymentStages.REAL);
-      addInput(JBossMetaData.class);
-
+      setInput(JBossMetaData.class);
+      // we deploy MC beans
       addOutput(BeanMetaData.class);
 
    }
 
    /**
-    * Deploy the deployment unit
+    * Process the deployment unit and deploy appropriate MC beans (see details below)
+    * if it corresponds to a no-interface view deployment.
+    * 
+    * If any beans in the unit are eligible for no-interface view, then internally this method
+    * creates a {@link NoInterfaceViewJNDIBinder} MC bean for the no-interface view.
+    * 
+    * The {@link NoInterfaceViewJNDIBinder}, thus created, will be dependent on the {@link ControllerState#DESCRIBED}
+    * state of the container (endpoint) MC bean. This way, we ensure that this {@link NoInterfaceViewJNDIBinder}
+    * will be deployed only after the corresponding container MC bean moves to {@link ControllerState#DESCRIBED}
+    * state.
     */
    public void deploy(DeploymentUnit unit) throws DeploymentException
    {
@@ -101,7 +115,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
             {
                logger.trace("Found bean of type session: " + bean.getEjbClass() + " in unit " + unit.getName());
             }
-            // Create view for each bean
+            // Process for no-interface view
             deploy(unit, (JBossSessionBeanMetaData) bean);
          }
       }
@@ -112,11 +126,15 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
     * Creates a {@link NoInterfaceViewJNDIBinder} MC bean for the no-interface view represented by the
     * <code>sessionBeanMetaData</code>. The {@link NoInterfaceViewJNDIBinder} is created only
     * if the bean is eligible for a no-interface view as defined by the EJB3.1 spec
+    * 
+    * The {@link NoInterfaceViewJNDIBinder}, thus created, will be dependent on the {@link ControllerState#DESCRIBED}
+    * state of the container (endpoint) MC bean. This way, we ensure that this {@link NoInterfaceViewJNDIBinder}
+    * will be deployed only after the corresponding container MC bean moves to {@link ControllerState#DESCRIBED}
+    * state.
     *
-    *
-    * @param unit
-    * @param sessionBeanMetaData
-    * @throws DeploymentException
+    * @param unit Deployment unit
+    * @param sessionBeanMetaData Session bean metadata
+    * @throws DeploymentException If any exceptions are encountered during processing of the deployment unit
     */
    private void deploy(DeploymentUnit unit, JBossSessionBeanMetaData sessionBeanMetaData) throws DeploymentException
    {
@@ -124,7 +142,10 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
       {
          if (!isEligibleForNoInterfaceView(unit, sessionBeanMetaData))
          {
-            logger.debug("Bean " + sessionBeanMetaData.getEjbClass() + " is not eligible for no-interface view");
+            if (logger.isTraceEnabled())
+            {
+               logger.trace("Bean class " + sessionBeanMetaData.getEjbClass() + " is not eligible for no-interface view");
+            }
             return;
          }
          Class<?> beanClass = Class.forName(sessionBeanMetaData.getEjbClass(), false, unit.getClassLoader());
@@ -145,16 +166,16 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
 
          }
 
-         // The no-interface view needs to be a MC bean so that it can "depend" on the KernelControllerContext
-         // of the container. The NoInterfaceViewJNDIBinder is the MC which will have this dependency
-         NoInterfaceViewJNDIBinder noInterfaceViewJNDIBinder = NoInterfaceViewJNDIBinder.getNoInterfaceViewJndiBinder(beanClass,
+         // Create the NoInterfaceViewJNDIBinder (MC bean) and add a dependency on the DESCRIBED
+         // state of the container (endpoint) MC bean
+         NoInterfaceViewJNDIBinder noInterfaceViewJNDIBinder = NoInterfaceViewJNDIBinder.getNoInterfaceViewJndiBinder(new InitialContext(), beanClass,
                sessionBeanMetaData);
-         String noInterfaceViewMCBeanName = sessionBeanMetaData.getEjbName() + "@" + ((Object) noInterfaceViewJNDIBinder).toString();
+         String noInterfaceViewMCBeanName = unit.getName() + "$" + sessionBeanMetaData.getEjbName();
          BeanMetaDataBuilder builder = BeanMetaDataBuilder.createBuilder(noInterfaceViewMCBeanName, noInterfaceViewJNDIBinder.getClass()
                .getName());
          builder.setConstructorValue(noInterfaceViewJNDIBinder);
 
-         //ValueMetaData inject = builder.createInject(containerMCBeanName, null, null, ControllerState.DESCRIBED);
+         // add dependency
          AbstractInjectionValueMetaData injectMetaData = new AbstractInjectionValueMetaData(containerMCBeanName);
          injectMetaData.setDependentState(ControllerState.DESCRIBED);
          injectMetaData.setFromContext(FromContext.CONTEXT);
@@ -166,7 +187,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
          // Add this as an attachment
          unit.addAttachment(BeanMetaData.class + ":" + noInterfaceViewMCBeanName, builder.getBeanMetaData());
          
-         logger.debug("MC bean for container " + containerMCBeanName + " has been created and added to the deployment unit " + unit);
+         logger.debug("No-interface JNDI binder for container " + containerMCBeanName + " has been created and added to the deployment unit " + unit);
 
       }
       catch (Throwable t)
@@ -178,6 +199,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
 
    /**
     * Undeploy
+    * 
     * @param unit
     * @param deployment
     */
@@ -194,7 +216,7 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
     * @param sessionBeanMetadata
     * @return
     */
-   protected boolean isEligibleForNoInterfaceView(DeploymentUnit unit, JBossSessionBeanMetaData sessionBeanMetadata)
+   private boolean isEligibleForNoInterfaceView(DeploymentUnit unit, JBossSessionBeanMetaData sessionBeanMetadata)
          throws Exception
    {
 
@@ -271,9 +293,9 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
     * @param beanClass
     * @return Returns true if the bean implements any interface(s) other than {@link Serializable}
     *           or {@link Externalizable} or anything from javax.ejb.* packages.
-    * @throws DeploymentException
+    * 
     */
-   protected boolean doesBeanImplementAnyInterfaces(Class<?> beanClass) throws DeploymentException
+   private boolean doesBeanImplementAnyInterfaces(Class<?> beanClass)
    {
       Class<?>[] interfaces = beanClass.getInterfaces();
       if (interfaces.length == 0)
@@ -371,6 +393,6 @@ public class EJB3NoInterfaceDeployer extends AbstractDeployer
     */
    private boolean isEar(DeploymentUnit unit)
    {
-      return unit.getSimpleName().endsWith(".ear");
+      return unit.getSimpleName().endsWith(".ear") || unit.getAttachment(JBossAppMetaData.class) != null;
    }
 }

@@ -23,7 +23,8 @@ package org.jboss.ejb3.nointerface.mc;
 
 import java.lang.reflect.InvocationHandler;
 
-import javax.naming.Name;
+import javax.naming.Context;
+import javax.naming.NamingException;
 
 import org.jboss.ejb3.nointerface.NoInterfaceEJBViewFactoryBase;
 import org.jboss.ejb3.nointerface.NoInterfaceViewFactory;
@@ -31,7 +32,6 @@ import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvoca
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;
 import org.jboss.util.naming.NonSerializableFactory;
-import org.jnp.interfaces.NamingParser;
 
 /**
  * StatelessNoInterfaceJNDIBinder
@@ -49,10 +49,17 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     * Logger
     */
    private static Logger logger = Logger.getLogger(StatelessNoInterfaceJNDIBinder.class);
-
-   protected StatelessNoInterfaceJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   
+   /**
+    * Constructor
+    * 
+    * @param ctx
+    * @param beanClass
+    * @param sessionBeanMetadata
+    */
+   protected StatelessNoInterfaceJNDIBinder(Context ctx, Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
    {
-      super(beanClass, sessionBeanMetadata);
+      super(ctx, beanClass, sessionBeanMetadata);
    }
 
    /**
@@ -62,27 +69,42 @@ public class StatelessNoInterfaceJNDIBinder extends NoInterfaceViewJNDIBinder
     * @see NoInterfaceEJBViewFactoryBase#createView(java.lang.reflect.InvocationHandler, Class)
     */
    @Override
-   public void bindNoInterfaceView() throws Exception
+   public void bindNoInterfaceView() throws NamingException
    {
-      logger.debug("Creating no-interface view for bean " + this.beanClass);
-
       // Create the view from the factory and bind to jndi
       NoInterfaceViewFactory noInterfaceViewCreator = new NoInterfaceEJBViewFactoryBase();
 
       InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.endpointContext, null);
 
-      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
+      Object noInterfaceView;
+      try
+      {
+         noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Could not create no-interface view for bean class: " + beanClass, e);
+      }
       // bind
       // TODO: Again, the jndi-names for the no-interface view are a mess now. They need to come from
       // the metadata. Let's just go ahead temporarily
-      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + "/no-interface";
-      // Bind a reference to nonserializable using NonSerializableFactory as the ObjectFactory
-      NamingParser namingParser = new NamingParser();
-      Name jndiName = namingParser.parse(noInterfaceJndiName);
-      NonSerializableFactory.rebind(jndiName, noInterfaceView, true);
+      String noInterfaceJndiName = sessionBeanMetadata.getEjbName() + NO_INTERFACE_JNDI_SUFFIX;
+      NonSerializableFactory.rebind(this.jndiCtx, noInterfaceJndiName, noInterfaceView, true);
 
       logger.info("Bound the no-interface view for bean " + beanClass + " to jndi at " + noInterfaceJndiName);
 
+   }
+
+   /**
+    * Unbinds the no-interface view proxy from the JNDI
+    * 
+    * @see org.jboss.ejb3.nointerface.mc.NoInterfaceViewJNDIBinder#unbindNoInterfaceView()
+    */
+   @Override
+   public void unbindNoInterfaceView() throws NamingException
+   {
+      this.jndiCtx.unbind(this.sessionBeanMetadata.getEjbName() + NO_INTERFACE_JNDI_SUFFIX);
+      
    }
 
 }

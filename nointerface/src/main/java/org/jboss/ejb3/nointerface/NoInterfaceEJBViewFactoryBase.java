@@ -32,20 +32,17 @@ import javassist.CtClass;
 import javassist.CtField;
 import javassist.CtMethod;
 import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
 import javassist.Modifier;
 
 import org.jboss.logging.Logger;
 
 /**
- * NoInterfaceEJBViewCreator
+ * NoInterfaceEJBViewFactoryBase
  *
  * Creates a no-interface view for a EJB as per the EJB3.1 spec (section 3.4.4)
  *
- * TODO:
- * 1) Needs to be tested more for i) Classloaders ii) Security Manager
- * 2) Though not related here, we need to have support for @LocalBean (and corresponding xml element) through JBMETA
- *
- *
+ * @see NoInterfaceViewFactory
  * @author Jaikiran Pai
  * @version $Revision: $
  */
@@ -86,27 +83,23 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
       {
          logger.trace("Creating nointerface view for beanClass: " + beanClass + " with container " + invocationHandler);
       }
-      //TODO: Validation as per section 4.9.8 of EJB 3.1 PR spec needs to be implemented.
-      // Instead of accepting a bean class, maybe we should accept the JBossSessionBeanMetadata.
-      // The metadata is required to carry out validations on the bean to ensure that section 4.9.8
-      // of the EJB 3.1 PR spec. We could create the metadata ourselves, from the bean class, here, but
-      // that would be duplication of efforts since the metadata is surely going to created at some place else too
 
-      ClassPool pool = ClassPool.getDefault();
+      // Create a ClassPool and add the classpath using the classloader of the beanClass, so 
+      // that it uses the correct jar while looking up the class
+      ClassPool pool = new ClassPool();
+      pool.appendClassPath(new LoaderClassPath(beanClass.getClassLoader()));
+      
       CtClass beanCtClass = pool.get(beanClass.getName());
 
-      // Create a sub-class (proxy) for the bean class
-      // TODO: This should be a unique name. Should not clash with any of the classnames in
-      // the user application or with any of already created proxy names
-      // Right now lets append _NoInterfaceProxy to the bean class name
+      // Create a sub-class (proxy) for the bean class. A unique name will be used for the subclass
       CtClass proxyCtClass = pool.makeClass(beanClass.getName() + "_NoInterfaceProxy$" + getNextUniqueNumber(),
             beanCtClass);
 
-      // We need to maintain a reference of the container in the proxy, so that we can
+      // We need to maintain a reference of the invocationHandler in the proxy, so that we can
       // forward the method calls to invocationHandler.invoke. Create a new field in the sub-class (proxy)
-      CtField containerField = CtField.make("private java.lang.reflect.InvocationHandler invocationHandler;",
+      CtField invocationHandlerField = CtField.make("private java.lang.reflect.InvocationHandler invocationHandler;",
             proxyCtClass);
-      proxyCtClass.addField(containerField);
+      proxyCtClass.addField(invocationHandlerField);
 
       // get all public methods from the bean class
       Set<CtMethod> beanPublicMethods = getAllPublicNonStaticNonFinalMethods(beanCtClass);
@@ -148,7 +141,7 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
       // We are almost done (except for setting the container field in the proxy)
       // Let's first create a java.lang.Class (i.e. load) out of the javassist class
       // using the classloader of the bean
-      Class<?> proxyClass = proxyCtClass.toClass(beanClass.getClassLoader());
+      Class<?> proxyClass = proxyCtClass.toClass(beanClass.getClassLoader(), beanClass.getProtectionDomain());
       // time to set the container field through normal java reflection
       Object proxyInstance = proxyClass.newInstance();
       Field containerInProxy = proxyClass.getDeclaredField("invocationHandler");
@@ -160,7 +153,7 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
 
    }
 
-   protected <T> CtMethod overridePublicMethod(InvocationHandler container, Class<T> beanClass,
+   private <T> CtMethod overridePublicMethod(InvocationHandler container, Class<T> beanClass,
          CtMethod publicMethodOnBean, CtMethod publicMethodOnProxy) throws Exception
    {
       publicMethodOnProxy.setBody("{"
@@ -186,7 +179,7 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
     * @return
     * @throws Exception
     */
-   protected Set<CtMethod> getAllPublicNonStaticNonFinalMethods(CtClass ctClass) throws Exception
+   private Set<CtMethod> getAllPublicNonStaticNonFinalMethods(CtClass ctClass) throws Exception
    {
       CtMethod[] allMethods = ctClass.getMethods();
       Set<CtMethod> publicMethods = new HashSet<CtMethod>();
@@ -215,7 +208,7 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
     * @return
     * @throws Exception
     */
-   protected boolean shouldMethodBeSkipped(CtClass beanCtClass, CtMethod ctMethod) throws Exception
+   private boolean shouldMethodBeSkipped(CtClass beanCtClass, CtMethod ctMethod) throws Exception
    {
 
       //      List<CtMethod> declaredMethods = Arrays.asList(beanCtClass.getDeclaredMethods());
@@ -279,7 +272,7 @@ public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
     *
     * @return
     */
-   protected long getNextUniqueNumber()
+   private long getNextUniqueNumber()
    {
       synchronized (nextUniqueNumberLock)
       {

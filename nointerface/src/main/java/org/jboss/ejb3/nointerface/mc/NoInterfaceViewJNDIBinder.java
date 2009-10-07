@@ -21,6 +21,9 @@
  */
 package org.jboss.ejb3.nointerface.mc;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.jboss.beans.metadata.api.annotations.Inject;
 import org.jboss.beans.metadata.api.annotations.Start;
 import org.jboss.beans.metadata.api.annotations.Stop;
@@ -71,12 +74,35 @@ public abstract class NoInterfaceViewJNDIBinder
     */
    protected JBossSessionBeanMetaData sessionBeanMetadata;
 
-   public static NoInterfaceViewJNDIBinder getNoInterfaceViewJndiBinder(Class<?> beanClass,
+   /**
+    * JNDI naming context
+    */
+   protected Context jndiCtx;
+
+   /**
+    * Suffix to be added to the ejb-name to form the jndi name of no-interface view
+    * 
+    * TODO: Until the no-interface jndi-name comes from metadata, we need to hardcode the jndi-name
+    * 
+    */
+   protected static final String NO_INTERFACE_JNDI_SUFFIX = "/no-interface";
+
+   /**
+    * Returns an appropriate instance of {@link NoInterfaceViewJNDIBinder} based on the 
+    * <code>sessionBeanMetadata</code>
+    * 
+    * @param ctx JNDI naming context into which this {@link NoInterfaceViewJNDIBinder} will be
+    *           responsible for binding/unbinding objects
+    * @param beanClass Bean class
+    * @param sessionBeanMetadata Session bean metadata of the bean class
+    * @return 
+    */
+   public static NoInterfaceViewJNDIBinder getNoInterfaceViewJndiBinder(Context ctx, Class<?> beanClass,
          JBossSessionBeanMetaData sessionBeanMetadata)
    {
       return sessionBeanMetadata.isStateful()
-            ? new StatefulNoInterfaceJNDIBinder(beanClass, sessionBeanMetadata)
-            : new StatelessNoInterfaceJNDIBinder(beanClass, sessionBeanMetadata);
+            ? new StatefulNoInterfaceJNDIBinder(ctx, beanClass, sessionBeanMetadata)
+            : new StatelessNoInterfaceJNDIBinder(ctx, beanClass, sessionBeanMetadata);
    }
 
    /**
@@ -85,8 +111,9 @@ public abstract class NoInterfaceViewJNDIBinder
     * @param beanClass
     * @param sessionBeanMetadata
     */
-   protected NoInterfaceViewJNDIBinder(Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
+   protected NoInterfaceViewJNDIBinder(Context ctx, Class<?> beanClass, JBossSessionBeanMetaData sessionBeanMetadata)
    {
+      this.jndiCtx = ctx;
       this.beanClass = beanClass;
       this.sessionBeanMetadata = sessionBeanMetadata;
 
@@ -95,9 +122,16 @@ public abstract class NoInterfaceViewJNDIBinder
    /**
     * Bind the no-interface view 
     * 
-    * @throws Exception
+    * @throws NamingException If any exception while binding to JNDI
     */
-   public abstract void bindNoInterfaceView() throws Exception;
+   public abstract void bindNoInterfaceView() throws NamingException;
+
+   /**
+    * Unbind the no-interface view
+    * 
+    * @throws NamingException If any exception while unbinding from JNDI
+    */
+   public abstract void unbindNoInterfaceView() throws NamingException;
 
    /**
     * Will be called when the dependencies of this {@link NoInterfaceViewJNDIBinder} are
@@ -123,11 +157,19 @@ public abstract class NoInterfaceViewJNDIBinder
       this.bindNoInterfaceView();
    }
 
+   /**
+    * Does any relevant cleanup
+    *  
+    * @throws Exception
+    */
    @Stop
    public void onStop() throws Exception
    {
-
-      //TODO need to unbind
+      if (logger.isTraceEnabled())
+      {
+         logger.trace("Unbinding no-interface view from JNDI, for endpoint " + this.endpointContext);
+      }
+      this.unbindNoInterfaceView();
    }
 
    /**
