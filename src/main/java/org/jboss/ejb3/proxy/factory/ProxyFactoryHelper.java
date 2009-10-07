@@ -244,22 +244,7 @@ public class ProxyFactoryHelper
          ((EJBContainer) container).getAnnotations().addClassAnnotation(Local.class, localAnnotation);
          return rtn;
       }
-      // If no local interfaces have been defined/discovered
-      else
-      {
-         // Obtain WS Endpoint
-         String endpoint = ProxyFactoryHelper.getEndpointInterface(container);
-
-         // If neither WS Endpoint or remotes are defined
-         if (remoteAndBusinessRemoteInterfaces.length == 0 && endpoint == null)
-            throw new RuntimeException(
-                  "Bean Class "
-                        + beanClass.getName()
-                        + " has no local, webservice, or remote interfaces defined and does not implement at least one business interface: "
-                        + container.getEjbName());
-
-      }
-
+      
       // No local or business local interfaces discovered
       return new Class<?>[]
       {};
