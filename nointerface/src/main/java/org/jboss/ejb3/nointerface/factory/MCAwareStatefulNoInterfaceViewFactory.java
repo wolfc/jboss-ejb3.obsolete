@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationHandler;
 
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.ejb3.endpoint.Endpoint;
-import org.jboss.ejb3.nointerface.NoInterfaceEJBViewCreator;
+import org.jboss.ejb3.nointerface.NoInterfaceEJBViewFactoryBase;
 import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;
@@ -41,7 +41,7 @@ import org.jboss.logging.Logger;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class MCAwareStatefulNoInterfaceViewFactory
+public class MCAwareStatefulNoInterfaceViewFactory extends NoInterfaceEJBViewFactoryBase
 {
 
    /**
@@ -119,10 +119,9 @@ public class MCAwareStatefulNoInterfaceViewFactory
 
       // create an invocation handler
       InvocationHandler invocationHandler = new MCAwareNoInterfaceViewInvocationHandler(this.endpointContext, session);
+
       // Now create the view for this bean class and the newly created invocation handler
-      // TODO: Incorrect cardinality
-      NoInterfaceEJBViewCreator noInterfaceViewCreator = new NoInterfaceEJBViewCreator();
-      Object noInterfaceView = noInterfaceViewCreator.createView(invocationHandler, beanClass);
+      Object noInterfaceView = this.createView(invocationHandler, beanClass);
 
       if (logger.isTraceEnabled())
       {

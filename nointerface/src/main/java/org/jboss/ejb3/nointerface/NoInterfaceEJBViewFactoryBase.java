@@ -21,7 +21,6 @@
  */
 package org.jboss.ejb3.nointerface;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -50,7 +49,7 @@ import org.jboss.logging.Logger;
  * @author Jaikiran Pai
  * @version $Revision: $
  */
-public class NoInterfaceEJBViewCreator //implements EJBViewCreator
+public class NoInterfaceEJBViewFactoryBase implements NoInterfaceViewFactory
 {
 
    /**
@@ -67,7 +66,7 @@ public class NoInterfaceEJBViewCreator //implements EJBViewCreator
    /**
     * Logger
     */
-   private static Logger logger = Logger.getLogger(NoInterfaceEJBViewCreator.class);
+   private static Logger logger = Logger.getLogger(NoInterfaceEJBViewFactoryBase.class);
 
    /**
     * Inspects the bean class for all public methods and creates a proxy (sub-class)

@@ -315,7 +315,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         <dependency>
             <groupId>org.jboss.ejb3</groupId>
             <artifactId>jboss-ejb3-core</artifactId>
-            <version>1.1.10</version>
+            <version>1.1.19-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
