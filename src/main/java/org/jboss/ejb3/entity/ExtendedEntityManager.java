@@ -22,12 +22,12 @@
 package org.jboss.ejb3.entity;
 
 import java.io.Serializable;
+
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FlushModeType;
-import javax.persistence.LockModeType;
+
 import org.hibernate.Session;
 import org.hibernate.ejb.HibernateEntityManager;
+import org.jboss.ejb3.jpa.integration.AbstractEntityManagerDelegator;
 import org.jboss.ejb3.stateful.StatefulBeanContext;
 
 /**
@@ -35,7 +35,7 @@ import org.jboss.ejb3.stateful.StatefulBeanContext;
  *
  * @author <a href="mailto:bill@jboss.org">Bill Burke</a>
  */
-public class ExtendedEntityManager implements EntityManager, HibernateSession, Serializable, ExtendedPersistenceContext
+public class ExtendedEntityManager extends AbstractEntityManagerDelegator implements EntityManager, HibernateSession, Serializable, ExtendedPersistenceContext
 {
    private static final long serialVersionUID = -2221892311301499591L;
    
@@ -50,6 +50,26 @@ public class ExtendedEntityManager implements EntityManager, HibernateSession, S
    {
    }
 
+   public void close()
+   {
+      throw new IllegalStateException("It is illegal to close an injected EntityManager");
+   }
+
+   @Override
+   protected EntityManager getEntityManager()
+   {
+      return getPersistenceContext();
+   }
+   
+   public Session getHibernateSession()
+   {
+      if (getPersistenceContext() instanceof HibernateEntityManager)
+      {
+         return ((HibernateEntityManager) getPersistenceContext()).getSession();
+      }
+      throw new RuntimeException("ILLEGAL ACTION:  Not a Hibernate persistence provider");
+   }
+   
    public EntityManager getPersistenceContext()
    {
       StatefulBeanContext beanContext = StatefulBeanContext.currentBean.get();
@@ -59,127 +79,5 @@ public class ExtendedEntityManager implements EntityManager, HibernateSession, S
                                     + " in injected SFSB: " + beanContext.getContainer().getObjectName());
       return persistenceContext;
    }
-
-   // delegates
-
-   public Session getHibernateSession()
-   {
-      if (getPersistenceContext() instanceof HibernateEntityManager)
-      {
-         return ((HibernateEntityManager) getPersistenceContext()).getSession();
-      }
-      throw new RuntimeException("ILLEGAL ACTION:  Not a Hibernate persistence provider");
-   }
-
-   public void joinTransaction()
-   {
-      getPersistenceContext().joinTransaction();
-   }
-
-   public void clear()
-   {
-      getPersistenceContext().clear();
-   }
-
-   public void lock(Object entity, LockModeType lockMode)
-   {
-      getPersistenceContext().lock(entity, lockMode);
-   }
-
-   public FlushModeType getFlushMode()
-   {
-      return getPersistenceContext().getFlushMode();
-   }
-
-   public <T> T getReference(Class<T> entityClass, Object primaryKey)
-   {
-      return getPersistenceContext().getReference(entityClass, primaryKey);
-   }
-
-   public void persist(Object entity)
-   {
-      getPersistenceContext().persist(entity);
-   }
-
-   public <T> T merge(T entity)
-   {
-      return getPersistenceContext().merge(entity);
-   }
-
-   public void remove(Object entity)
-   {
-      getPersistenceContext().remove(entity);
-   }
-
-   public <T> T find(Class<T> entityClass, Object primaryKey)
-   {
-      return getPersistenceContext().find(entityClass, primaryKey);
-   }
-
-   public void flush()
-   {
-      getPersistenceContext().flush();
-   }
-
-   public javax.persistence.Query createQuery(String ejbqlString)
-   {
-      return getPersistenceContext().createQuery(ejbqlString);
-   }
-
-   public javax.persistence.Query createNamedQuery(String name)
-   {
-      return getPersistenceContext().createNamedQuery(name);
-   }
-
-   public javax.persistence.Query createNativeQuery(String sqlString)
-   {
-      return getPersistenceContext().createNativeQuery(sqlString);
-   }
-
-   public javax.persistence.Query createNativeQuery(String sqlString, Class resultClass)
-   {
-      return getPersistenceContext().createNativeQuery(sqlString, resultClass);
-   }
-
-   public javax.persistence.Query createNativeQuery(String sqlString, String resultSetMapping)
-   {
-      return getPersistenceContext().createNativeQuery(sqlString, resultSetMapping);
-   }
-
-   public void refresh(Object entity)
-   {
-      getPersistenceContext().refresh(entity);
-   }
-
-   public boolean contains(Object entity)
-   {
-      return getPersistenceContext().contains(entity);
-   }
-
-   public void close()
-   {
-      throw new IllegalStateException("It is illegal to close an injected EntityManager");
-   }
-
-   public boolean isOpen()
-   {
-      return getPersistenceContext().isOpen();
-   }
-
-   public EntityTransaction getTransaction()
-   {
-      return getPersistenceContext().getTransaction();
-   }
-
-   public void setFlushMode(FlushModeType flushMode)
-   {
-      getPersistenceContext().setFlushMode(flushMode);
-   }
-
-   public Object getDelegate()
-   {
-      return getPersistenceContext().getDelegate();
-   }
-
 }
 

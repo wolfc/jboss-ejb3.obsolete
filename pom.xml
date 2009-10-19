@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -156,13 +156,13 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>3.3.1.GA</version>
+      <version>${version.org.hibernate}</version>
     </dependency>
 
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-annotations</artifactId>
-      <version>3.3.1.GA</version>
+      <version>${version.org.hibernate}</version>
       <!-- Exclude org.hibernate:hibernate which is banned in
       favour of org.hibernate:hibernate-core -->
       <exclusions>
@@ -176,7 +176,7 @@
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-entitymanager</artifactId>
-      <version>3.3.2.GA</version>
+      <version>${version.org.hibernate.hibernate-entitymanager}</version>
       <!-- Exclude org.hibernate:hibernate which is banned in
       favour of org.hibernate:hibernate-core -->
       <exclusions>
@@ -203,6 +203,11 @@
       <groupId>org.jboss.metadata</groupId>
       <artifactId>jboss-metadata</artifactId>
       <exclusions>
+        <!-- jboss-metadata must not dictate the JPA API -->
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>ejb3-persistence</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>jboss.jbossws</groupId>
           <artifactId>jboss-jaxws</artifactId>
@@ -376,6 +381,12 @@
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-endpoint</artifactId>
       <version>0.1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.ejb3</groupId>
+      <artifactId>jboss-ejb3-jpa-int</artifactId>
+      <version>${version.org.jboss.ejb3.jboss-ejb3-jpa-int}</version>
     </dependency>
 
     <dependency>
@@ -581,6 +592,11 @@
         <exclusion>
           <groupId>jboss</groupId>
           <artifactId>jboss-remoting</artifactId>
+        </exclusion>
+        <!-- jboss-as-server must not dictate the JPA API -->
+        <exclusion>
+          <groupId>org.hibernate</groupId>
+          <artifactId>ejb3-persistence</artifactId>
         </exclusion>
         <exclusion>
           <groupId>org.jboss</groupId>

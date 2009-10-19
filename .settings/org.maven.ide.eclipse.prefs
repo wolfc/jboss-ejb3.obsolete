@@ -1,8 +1,9 @@
-#Wed Mar 11 16:18:11 CET 2009
-activeProfiles=eclipse
+#Fri Oct 02 12:42:17 CEST 2009
+activeProfiles=eclipse,JPA-2.0
 eclipse.preferences.version=1
-fullBuildGoals=
+fullBuildGoals=process-test-resources
 includeModules=false
 resolveWorkspaceProjects=false
-resourceFilterGoals=
+resourceFilterGoals=process-resources resources\:testResources
+skipCompilerPlugin=true
 version=1
