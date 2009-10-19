@@ -53,6 +53,7 @@
     <module>injection</module>
     <module>installer</module>
     <module>interceptors</module>
+    <module>jpa-int</module>
     <!-- <module>locator</module> -->
     <module>metadata</module>
     <module>metrics-deployer</module>

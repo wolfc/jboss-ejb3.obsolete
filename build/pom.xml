@@ -519,6 +519,7 @@
       <id>default</id>
       <activation>
         <activeByDefault>true</activeByDefault>
+        <property><name>!dummy</name></property>
       </activation>
       <properties>
         <ejb3.outputDirectory>target/classes</ejb3.outputDirectory>
@@ -576,6 +577,64 @@
       </repositories>
     </profile>
 
+    <!-- JPA integration plan A: depend on the proper api artifact -->
+
+    <profile>
+      <id>JPA-1.0</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+        <property><name>!dummy</name></property>
+      </activation>
+      <properties>
+        <JPA.groupId>org.hibernate</JPA.groupId>
+        <JPA.artifactId>ejb3-persistence</JPA.artifactId>
+        <JPA.version>1.0.2.GA</JPA.version>
+        <version.org.jboss.ejb3.jboss-ejb3-jpa-int>1.0.0-SNAPSHOT</version.org.jboss.ejb3.jboss-ejb3-jpa-int>
+        <version.org.hibernate>3.3.1.GA</version.org.hibernate>
+        <version.org.hibernate.hibernate-entitymanager>3.3.2.GA</version.org.hibernate.hibernate-entitymanager>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>JPA-2.0</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+        <!-- either mvn -PJPA-2.0,default or -DJPA-2.0 -->
+        <property><name>JPA-2.0</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>obsoletes-org.hibernate:ejb3-persistence</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <bannedDependencies>
+                      <excludes>
+                        <exclude>org.hibernate:ejb3-persistence</exclude>
+                      </excludes>
+                    </bannedDependencies>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <properties>
+        <JPA.groupId>org.hibernate.persistence</JPA.groupId>
+        <JPA.artifactId>jpa-api</JPA.artifactId>
+        <JPA.version>2.0.Beta-20090815</JPA.version>
+        <version.org.jboss.ejb3.jboss-ejb3-jpa-int>2.0.0-SNAPSHOT</version.org.jboss.ejb3.jboss-ejb3-jpa-int>
+        <version.org.hibernate>3.5.0.Beta-1</version.org.hibernate>
+        <version.org.hibernate.hibernate-entitymanager>3.5.0.Beta-1</version.org.hibernate.hibernate-entitymanager>
+      </properties>
+    </profile>
   </profiles>
 
 </project>
