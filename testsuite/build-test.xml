@@ -4373,6 +4373,10 @@
 				    </fileset>
 			    </jar>
 	</target>
+	
+	<target name="ejbthree1926">
+	      <build-simple-jar name="ejbthree1926"/>
+	</target>
     	
    <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
@@ -4404,7 +4408,7 @@
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
       statelesscreation, changexml, externalrefscoped, singleton, ejbthree1671, ejbthree1677, ejbthree1629, 
-      ejbthree1807, ejbthree1346, ejbthree1823, ejbthree1858, ejbthree1876"/>
+      ejbthree1807, ejbthree1346, ejbthree1823, ejbthree1858, ejbthree1876, ejbthree1926"/>
 
    <target name="test" depends="init" if="test"
       description="Execute all tests in the given test directory.">
