@@ -896,6 +896,11 @@ public abstract class EJBContainer
       
       // Allow invocations until stop()
       this.allowInvocations();
+      
+      // Now that invocations are allowed on the containers,
+      // let us invoke this callback so that individual
+      // containers can do an startup invocations if required
+      this.afterStart();
    }
    
    // Everything must be done in start to make sure all dependencies have been satisfied
@@ -924,6 +929,22 @@ public abstract class EJBContainer
       findPartitionName();
       
       log.info("STARTED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
+   }
+   
+   /**
+    * Invoked after all the dependencies on the containers have satisfied and the 
+    * container is completely started and open for invocations.
+    * 
+    * Containers can use this method as a callback point where they want to do
+    * some startup invocations on the container, which requires the container
+    * to be open for invocations (ex: restoring timers - see StatelessContainer)
+    * 
+    * @see #start()
+    */
+   protected void afterStart()
+   {
+      // do nothing, let the specific containers (ex: StatelessContainer) do anything
+      // specific they want to.
    }
 
    /**

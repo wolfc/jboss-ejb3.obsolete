@@ -190,10 +190,11 @@ public class StatelessContainer extends SessionSpecContainer
       try
       {
          super.lockedStart();
-         
+         // just create the timerservice, restoring of
+         // any timers which were suspended during undeployment
+         // will be done, through afterStart(), once the container has fully started.
          timerService = timerServiceFactory.createTimerService(this);
          
-         timerServiceFactory.restoreTimerService(timerService);
       }
       catch (Exception e)
       {
@@ -207,6 +208,20 @@ public class StatelessContainer extends SessionSpecContainer
          }
          throw e;
       }
+   }
+   
+   /**
+    * Restores the timers after this container has fully started, thus
+    * ensuring that any invocations on this container through the restored
+    * timers are handled successfully
+    * 
+    * @see org.jboss.ejb3.EJBContainer#afterStart()
+    */
+   @Override
+   protected void afterStart()
+   {
+      super.afterStart();
+      this.timerServiceFactory.restoreTimerService(timerService);
    }
 
    @Override

@@ -256,13 +256,14 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
          initBeanContext();
 
          // make sure the timer service is there before injection takes place
+         // Any suspended timers will be restored, through afterStart(),
+         // once the containers are fully started and open for invocations
          timerService = timerServiceFactory.createTimerService(this);
 
          injectDependencies(beanContext);
 
          invokePostConstruct(beanContext);
          
-         timerServiceFactory.restoreTimerService(timerService);
       }
       catch (Exception e)
       {
@@ -279,6 +280,20 @@ public class ServiceContainer extends SessionContainer implements TimedObjectInv
       }
    }
 
+   /**
+    * Restores the timers after this container has fully started, thus
+    * ensuring that any invocations on this container through the restored
+    * timers are handled successfully
+    * 
+    * @see org.jboss.ejb3.EJBContainer#afterStart()
+    */
+   @Override
+   protected void afterStart()
+   {
+      super.afterStart();
+      this.timerServiceFactory.restoreTimerService(timerService);
+   }
+   
    @Override
    protected void lockedStop() throws Exception
    {
