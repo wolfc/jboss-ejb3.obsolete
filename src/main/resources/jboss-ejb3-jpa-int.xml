@@ -1,0 +1,11 @@
+<project name="jboss-ejb3-jpa-int" default="install">
+   <import file="setup.xml"/>
+
+   <target name="install">
+      <copy file="lib/jboss-ejb3-jpa-int.jar" todir="${jboss.home}/common/lib" verbose="${verbose}"/>
+   </target>
+
+   <target name="uninstall">
+      <delete file="${jboss.home}/common/lib/jboss-ejb3-jpa-int.jar" verbose="${verbose}"/>
+   </target>
+</project>
