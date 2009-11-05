@@ -22,14 +22,13 @@
 package org.jboss.ejb3.jpa.integration;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.LockModeType;
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.QueryBuilder;
 import javax.persistence.metamodel.Metamodel;
 
 /**
@@ -75,6 +74,11 @@ public abstract class JPA2EntityManagerDelegator extends JPA1EntityManagerDelega
       return getEntityManager().find(entityClass, primaryKey, lockMode, properties);
    }
 
+   public CriteriaBuilder getCriteriaBuilder()
+   {
+      return getEntityManager().getCriteriaBuilder();
+   }
+   
    public EntityManagerFactory getEntityManagerFactory()
    {
       return getEntityManager().getEntityManagerFactory();
@@ -93,16 +97,6 @@ public abstract class JPA2EntityManagerDelegator extends JPA1EntityManagerDelega
    public Map<String, Object> getProperties()
    {
       return getEntityManager().getProperties();
-   }
-
-   public QueryBuilder getQueryBuilder()
-   {
-      return getEntityManager().getQueryBuilder();
-   }
-
-   public Set<String> getSupportedProperties()
-   {
-      return getEntityManager().getSupportedProperties();
    }
 
    public void lock(Object entity, LockModeType lockMode, Map<String, Object> properties)
