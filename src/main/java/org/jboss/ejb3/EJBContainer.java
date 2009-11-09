@@ -201,6 +201,8 @@ public abstract class EJBContainer
    
    private ComponentStack cachedConnectionManager;
    
+   private boolean resurrectMetaData = false;
+   
    /**
     * @param name                  Advisor name
     * @param manager               Domain to get interceptor bindings from
@@ -885,6 +887,13 @@ public abstract class EJBContainer
          }
       }
       */
+      
+      log.info("Current context class loader is " + Thread.currentThread().getContextClassLoader());
+      if(resurrectMetaData)
+      {
+         processMetadata();
+         resurrectMetaData = false;
+      }
    }
 
    /**
@@ -970,17 +979,18 @@ public abstract class EJBContainer
          pool = null;
       }
       
+      log.info("STOPPED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
+   }
+
+   public void destroy() throws Exception
+   {
+      // Once enc is destroyed, the encInjectors are invalid as well.
       injectors = new ArrayList<Injector>();
       encInjectors = new HashMap<String, EncInjector>();
       
       InitialContextFactory.close(enc, this.initialContextProperties);
       enc = null; 
       
-      log.info("STOPPED EJB: " + beanClass.getName() + " ejbName: " + ejbName);
-   }
-
-   public void destroy() throws Exception
-   {
       encFactory.cleanupEnc(this);
       
       // TODO: clean up BeanContainer?
@@ -991,6 +1001,9 @@ public abstract class EJBContainer
        */
       // Restore to pre- create() state
       // this.allowInvocations();
+      
+      // EJBTHREE-1889: make the bean resurrectable
+      resurrectMetaData = true;
    }
 
    @SuppressWarnings("unchecked")
