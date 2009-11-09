@@ -2825,22 +2825,6 @@
       </jar>
    </target>
 
-   <target name="entityoptimisticlocking"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/entityoptimisticlocking-test.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/entity/*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/entityoptimisticlocking">
-            <include name="META-INF/persistence.xml"/>
-         </fileset>
-      </jar>
-   </target>
-
 	<target name="persistenceunits"
       description="Builds all jar files."
       >
@@ -3929,145 +3913,6 @@
    <target name="xpcalt" >
       <build-simple-jar name="xpcalt"/>
    </target>
-   
-   <target name="clusteredentity"
-      description="Builds all jar files."
-      >
-
-      <mkdir dir="${build.lib}"/>
-
-      <jar jarfile="${build.lib}/clusteredentity-test.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/clusteredentity/*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/clusteredentity">
-            <include name="META-INF/persistence.xml"/>
-         </fileset>
-      </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-optimistic-test.jar">
-       <fileset dir="${build.classes}">
-          <include name="org/jboss/ejb3/test/clusteredentity/*.class"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/optimistic">
-          <include name="META-INF/persistence.xml"/>
-       </fileset>
-    </jar>
-
-      <jar jarfile="${build.lib}/clusteredentity-classloader-test.jar">
-         <fileset dir="${build.classes}">
-            <include name="org/jboss/ejb3/test/clusteredentity/classloader/*.class"/>
-         </fileset>
-         <fileset dir="${resources}/test/clusteredentity/classloader">
-            <include name="META-INF/persistence.xml"/>
-         </fileset>
-      </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-classloader-optimistic-test.jar">
-       <fileset dir="${build.classes}">
-          <include name="org/jboss/ejb3/test/clusteredentity/classloader/*.class"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader/optimistic">
-          <include name="META-INF/persistence.xml"/>
-          <!--include name="META-INF/jboss.xml"/-->
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-classloader-test.ear">
-       <fileset dir="${build.lib}">
-          <include name="clusteredentity-classloader-test.jar"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader">
-          <include name="META-INF/application.xml"/>
-          <include name="META-INF/jboss-app.xml"/>
-        <include name="clusteredentity-ds.xml"/>
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-classloader-optimistic-test.ear">
-       <fileset dir="${build.lib}">
-          <include name="clusteredentity-classloader-optimistic-test.jar"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader">
-          <include name="META-INF/jboss-app.xml"/>
-          <include name="clusteredentity-ds.xml"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader/optimistic">
-          <include name="META-INF/application.xml"/>
-          <include name="META-INF/jboss-app.xml"/>
-          <include name="clusteredentity-ds.xml"/>
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-providedprefix-test.jar">
-       <fileset dir="${build.classes}">
-          <include name="org/jboss/ejb3/test/clusteredentity/classloader/*.class"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/providedprefix">
-          <include name="META-INF/persistence.xml"/>
-       </fileset>
-    </jar>
-
-  <jar jarfile="${build.lib}/clusteredentity-providedprefix-test.ear">
-     <fileset dir="${build.lib}">
-        <include name="clusteredentity-providedprefix-test.jar"/>
-     </fileset>
-     <fileset dir="${resources}/test/clusteredentity/providedprefix">
-        <include name="META-INF/application.xml"/>
-        <include name="META-INF/jboss-app.xml"/>
-      <include name="clusteredentity-ds.xml"/>
-     </fileset>
-     <fileset dir="${resources}/test/clusteredentity/classloader">
-        <include name="clusteredentity-ds.xml"/>
-     </fileset>
-  </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-embeddedid-test.jar">
-       <fileset dir="${build.classes}">
-          <include name="org/jboss/ejb3/test/clusteredentity/embeddedid/*.class"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader">
-          <include name="META-INF/persistence.xml"/>
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-embeddedid-optimistic-test.jar">
-       <fileset dir="${build.classes}">
-          <include name="org/jboss/ejb3/test/clusteredentity/embeddedid/*.class"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader/optimistic">
-          <include name="META-INF/persistence.xml"/>
-          <!--include name="META-INF/jboss.xml"/-->
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-embeddedid-test.ear">
-       <fileset dir="${build.lib}">
-          <include name="clusteredentity-embeddedid-test.jar"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader">
-          <include name="META-INF/jboss-app.xml"/>
-          <include name="clusteredentity-ds.xml"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/embeddedid">
-         <include name="META-INF/application.xml"/>
-       </fileset>
-    </jar>
-
-    <jar jarfile="${build.lib}/clusteredentity-embeddedid-optimistic-test.ear">
-       <fileset dir="${build.lib}">
-          <include name="clusteredentity-embeddedid-optimistic-test.jar"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/classloader">
-          <include name="META-INF/jboss-app.xml"/>
-          <include name="clusteredentity-ds.xml"/>
-       </fileset>
-       <fileset dir="${resources}/test/clusteredentity/embeddedid/optimistic">
-         <include name="META-INF/application.xml"/>
-       </fileset>
-    </jar>
-
-   </target>
 
    <target name="clusteredsession"
       description="Builds all jar files.">
@@ -4378,7 +4223,7 @@
 	      <build-simple-jar name="ejbthree1926"/>
 	</target>
     	
-   <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, entityoptimisticlocking, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
+   <target name="jars" depends="statefulproxyfactoryoverride, removedislocal, statelesscreation, defaultremotebindings, localfromremote, clusteredjms, concurrentnaming, propertyreplacement, persistenceunits, appclient, tck5sec, invalidtxmdb, descriptortypo, libdeployment, homeinterface, arjuna, mdbtransactions, unauthenticatedprincipal, clusteredservice, invoker, classloader,
       concurrent,
       circulardependency, jsp, timerdependency, servicedependency, stateless14, webservices, ear, ejbthree440,
       ejbthree454, ejbthree471, 
@@ -4403,7 +4248,7 @@
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
       exception, dd/override, stateless, dd/mdb, bank, longlived, xmlcfg, hbm, pkg, regressionHHH275,
-      entityexception, asynchronous, consumer, clusteredentity, secondary, stateful, service, lob, cache, initial,
+      entityexception, asynchronous, consumer, secondary, stateful, service, lob, cache, initial,
       timer, benchmark, entity, joininheritance, singletable, tableperclass, dependent, mdb, manytomany, regression,
       composite, composite2, entitycallback, relationships, ssl, ssladvanced, clusteredsession, strictpool, jacc,
       localcall, interceptors, interceptors2, interceptors3, iiop, clientinterceptor,
@@ -4791,28 +4636,6 @@
          </batchtest>
       </junit>
    </target>
-
-
-   <target name="run-clusteredentity" depends="init"
-      description="Runs the clusteredentity stuff in a cluster">
-
-      <!-- clusteredentity-test.ejb3 file needs to be deployed manually-->
-
-      <!-- IP:port of the two nodes in the cluster -->
-      <property name="naming1" value="192.168.1.1:1099"/>
-      <property name="naming1" value="192.168.1.2:1099"/>
-
-      <java fork="yes" className="org.jboss.ejb3.test.clusteredentity.unit.CachedEntityRun">
-         <arg value="${naming1}"/>
-         <arg value="${naming2}"/>
-         <classpath>
-            <pathelement location="${build.classes}"/>
-            <pathelement location="${resources}/test"/>
-            <path refid="javac.classpath"/>
-         </classpath>
-      </java>
-   </target>
-
 
 
    <target name="run" depends="init" if="class"
@@ -5323,9 +5146,6 @@
       <antcall target="test" inheritRefs="true">
          <param name="test" value="entity"/>
       </antcall>
-	  <antcall target="test" inheritRefs="true">
-         <param name="test" value="entityoptimisticlocking"/>
-      </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="persistenceunits"/>
       </antcall>
@@ -5378,7 +5198,7 @@
        
    </target>
 
-   <target name="clustered-one-test" depends="init, clusteredsession, clusteredentity">
+   <target name="clustered-one-test" depends="init, clusteredsession">
 
      <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
      <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
@@ -5403,7 +5223,7 @@
 
    </target>
 
-   <target name="clustered-tests" depends="init, clusteredsession, clusteredentity, ejbthree921">
+   <target name="clustered-tests" depends="init, clusteredsession, ejbthree921">
      
      <create-cluster-node conf="clustered-ejb3-totalrep-0"/>
      <create-cluster-node conf="clustered-ejb3-totalrep-1"/>
@@ -5415,7 +5235,6 @@
      <server:start name="clustered-ejb3-totalrep-0" />
      <server:start name="clustered-ejb3-totalrep-1" />
 
-     <antcall target="test-clustered-entity"/>
      <antcall target="test-cluster-session"/>
       
      <antcall target="test-with-jvmargs" inheritRefs="true">
@@ -5583,14 +5402,6 @@
    <!-- ================================================================== -->
 
    <!-- Stuff needed for clustering -->
-
-   <target name="test-clustered-entity">
-      <antcall target="test-with-jvmargs" inheritRefs="true">
-         <param name="test" value="clusteredentity"/>
-         <param name="jvmargs" value=""/>
-      </antcall>
-
-   </target>
 
    <target name="test-cluster-session">
          
