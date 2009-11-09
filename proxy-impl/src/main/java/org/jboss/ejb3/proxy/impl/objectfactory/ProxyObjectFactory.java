@@ -21,6 +21,10 @@
  */
 package org.jboss.ejb3.proxy.impl.objectfactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -35,7 +39,6 @@ import java.util.Set;
 
 import javax.naming.Context;
 import javax.naming.Name;
-import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.RefAddr;
 import javax.naming.Reference;
@@ -48,6 +51,7 @@ import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
 import org.jboss.ejb3.proxy.impl.factory.ProxyFactory;
+import org.jboss.ejb3.proxy.impl.io.ObjectInputStream;
 import org.jboss.ejb3.proxy.impl.jndiregistrar.JndiSessionRegistrarBase;
 import org.jboss.ejb3.proxy.impl.remoting.IsLocalProxyFactoryInterceptor;
 import org.jboss.logging.Logger;
@@ -157,6 +161,16 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
       Object proxy = this.getProxy(proxyFactory, name, refAddrs);
       assert proxy != null : "Proxy returned from " + proxyFactory + " was null.";
 
+      // EJBTHREE-1889: if the lookup has been performed locally on a remote (business)
+      // interface that's defined in the current TCL, then the proxy must implement
+      // that TCL defined interface.
+      if(!isLocal) // a remote view?
+      {
+         // redefine in TCL
+         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+         proxy = redefineObjectInClassLoader(proxy, tcl);
+      }
+      
       // Return the Proxy
       return proxy;
    }
@@ -321,6 +335,21 @@ public abstract class ProxyObjectFactory implements ObjectFactory, Serializable
 
    }
 
+   private Object redefineObjectInClassLoader(Object obj, ClassLoader target) throws ClassNotFoundException, IOException
+   {
+      ByteArrayOutputStream bout = new ByteArrayOutputStream();
+      ObjectOutputStream out = new ObjectOutputStream(bout);
+      out.writeObject(obj);
+      out.flush();
+      out.close();
+      
+      ByteArrayInputStream bin = new ByteArrayInputStream(bout.toByteArray());
+      ObjectInputStream in = new ObjectInputStream(bin, target);
+      Object result = in.readObject();
+      in.close();
+      return result;
+   }
+   
    /**
     * If the specified proxy has been defined outside of this naming Context's
     * ClassLoader, it must be reconstructed using the TCL so we avoid CCE. This

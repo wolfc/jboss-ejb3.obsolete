@@ -2451,6 +2451,25 @@
       <build-simple-jar name="ejbthree1852"/>
    </target>
    
+   <target name="ejbthree1889">
+      <mkdir dir="${build.lib}"/>
+      
+      <jar jarfile="${build.lib}/ejbthree1889a.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/ejbthree1889/a/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/ejbthree1889/a"/>
+      </jar>
+      
+      <jar jarfile="${build.lib}/ejbthree1889b.jar">
+         <fileset dir="${build.classes}">
+            <include name="org/jboss/ejb3/test/ejbthree1889/a/EJBTestARemote.class"/>
+            <include name="org/jboss/ejb3/test/ejbthree1889/b/*.class"/>
+         </fileset>
+         <fileset dir="${resources}/test/ejbthree1889/b"/>
+      </jar>
+   </target>
+   
    <target name="jbas4489"
       description="Builds a simple jar files."
       >
@@ -4244,6 +4263,7 @@
       ejbthree1146, ejbthree1148, ejbthree1154, ejbthree1157, ejbthree1222, ejbthree1271, ejbthree1339,
       ejbthree1504, ejbthree1530, ejbthree1624, ejbthree1647,ejbthree1738,
       ejbthree1852,
+      ejbthree1889,
    	  jaxws, jbas4489, epcpropagation, aspectdomain, ejbcontext, schema, mail, scopedclassloader, dependency,
       securitydomain, enventry, security5,
       jms/managed, naming, bmt, jca/inflowmdb, pool, jms, security, reference21_30, factory, dd/web, txexceptions,
@@ -5076,6 +5096,9 @@
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="ejbthree1852"/>
+      </antcall>
+      <antcall target="test" inheritRefs="true">
+         <param name="test" value="ejbthree1889"/>
       </antcall>
       <antcall target="test" inheritRefs="true">
          <param name="test" value="statelesscreation"/>
