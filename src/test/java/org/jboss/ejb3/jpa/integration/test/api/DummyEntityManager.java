@@ -19,25 +19,24 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.jpa.integration;
+package org.jboss.ejb3.jpa.integration.test.api;
 
-import org.hibernate.Cache;
+import javax.persistence.EntityManager;
+
+import org.jboss.ejb3.jpa.integration.AbstractEntityManagerDelegator;
 
 /**
+ * The compiler will make sure we're API complete.
+ * 
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
  * @version $Revision: $
  */
-public abstract class Hibernate3_5SessionFactoryDelegator extends Hibernate3_3SessionFactoryDelegator
+public class DummyEntityManager extends AbstractEntityManagerDelegator
+   implements EntityManager
 {
-   private static final long serialVersionUID = 1L;
-
-   public boolean containsFetchProfileDefinition(String profile)
+   @Override
+   protected EntityManager getEntityManager()
    {
-      return getSessionFactory().containsFetchProfileDefinition(profile);
-   }
-
-   public Cache getCache()
-   {
-      return getSessionFactory().getCache();
+      throw new UnsupportedOperationException("It really is a dummy.");
    }
 }
