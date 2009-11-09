@@ -21,6 +21,8 @@
  */
 package org.jboss.ejb3.test.proxy.impl.ejbthree1517;
 
+import java.io.Serializable;
+
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
 import org.jboss.logging.Logger;
@@ -34,8 +36,10 @@ import org.jboss.logging.Logger;
  * @author <a href="mailto:andrew.rubinger@jboss.org">ALR</a>
  * @version $Revision: $
  */
-public class ReturnStaticValueInterceptor implements Interceptor
+public class ReturnStaticValueInterceptor implements Interceptor, Serializable
 {
+   // To be able to cross the wire to a client, the interceptor must be serializable.
+   private static final long serialVersionUID = 1L;
 
    // --------------------------------------------------------------------------------||
    // Class Members ------------------------------------------------------------------||
@@ -43,7 +47,7 @@ public class ReturnStaticValueInterceptor implements Interceptor
 
    private static final Logger log = Logger.getLogger(ReturnStaticValueInterceptor.class);
 
-   public static final String RETURN_VALUE = "ALR is better than Carlo.";
+   public static final String RETURN_VALUE = "ALR is better than Carlo, if only he had tried his interceptor really remotely. :-)";
 
    // --------------------------------------------------------------------------------||
    // Required Implementations -------------------------------------------------------||
