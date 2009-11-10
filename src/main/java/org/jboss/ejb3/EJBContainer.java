@@ -888,7 +888,8 @@ public abstract class EJBContainer
       }
       */
       
-      log.info("Current context class loader is " + Thread.currentThread().getContextClassLoader());
+      if(log.isDebugEnabled())
+         log.debug("Current context class loader is " + Thread.currentThread().getContextClassLoader());
       if(resurrectMetaData)
       {
          processMetadata();
