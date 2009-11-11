@@ -30,16 +30,16 @@ import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class StatelessContainer extends InterceptorContainer
 {
    private Pool<StatelessBeanContext> pool;
    
-   public StatelessContainer(Class<?> beanClass) throws Exception
-   {
-      super(beanClass);
-   }
+//   public StatelessContainer(Class<?> beanClass) throws Exception
+//   {
+//      super(beanClass);
+//   }
 
    public Object invoke(Method method, Object args[])
    {

@@ -29,19 +29,23 @@ import javax.naming.InitialContext;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
-import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.interceptors.container.BeanContext;
+import org.jboss.ejb3.interceptors.container.BeanContextFactory;
+import org.jboss.ejb3.sandbox.interceptorcontainer.InjectingBeanContextFactory;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
+import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainerContainer;
 import org.jboss.ejb3.sandbox.stateless.StatelessInterceptor;
 import org.jboss.ejb3.test.sandbox.performance.Calculator;
 import org.jboss.ejb3.test.sandbox.performance.CalculatorBean;
 import org.jboss.logging.Logger;
+import org.jboss.util.naming.Util;
 import org.jnp.server.SingletonNamingServer;
 
 /**
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class EJBUnitTestCase extends TestCase
 {
@@ -56,16 +60,25 @@ public class EJBUnitTestCase extends TestCase
       log.info("deploying AOP from " + url);
       AspectXmlLoader.deployXML(url);
 
-      DirectContainer<InterceptorContainer> interceptorContainerContainer = new DirectContainer<InterceptorContainer>("FIXME", "InterceptorContainer", InterceptorContainer.class);
-      Object args[] = { CalculatorBean.class };
-      Class<?> parameterTypes[] = { Class.class };
-      InterceptorContainer interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
-      
       InitialContext ctx = new InitialContext();
+      
+      Util.bind(ctx, "java:comp/env/beanClass", CalculatorBean.class);
+      
+//      DirectContainer<InterceptorContainer> interceptorContainerContainer = new DirectContainer<InterceptorContainer>("FIXME", "InterceptorContainer", InterceptorContainer.class);
+      final InterceptorContainerContainer interceptorContainerContainer = new InterceptorContainerContainer("FIXME", "InterceptorContainer", InterceptorContainer.class);
+      // With EJBTHREE-1246 construction with arguments no longer works
+      Class<? extends BeanContextFactory<InterceptorContainer, InterceptorContainerContainer>> beanContextFactoryClass = (Class<? extends BeanContextFactory<InterceptorContainer, InterceptorContainerContainer>>) InjectingBeanContextFactory.class;
+      interceptorContainerContainer.setBeanContextFactoryClass(beanContextFactoryClass);
+      final BeanContext<InterceptorContainer> interceptorContainer = interceptorContainerContainer.construct();
+      // FIXME: bug in AbstractDirectContainer.construct
+      interceptorContainer.getInstance().setDirectContainer(interceptorContainerContainer);
+      interceptorContainer.getInstance().setBeanContext(interceptorContainer);
       
       Calculator bean = (Calculator) ctx.lookup("CalculatorBean/local");
       
       assertNotNull(bean);
+      
+      System.out.println(bean.calculatePi(10));
       
       System.out.println("BLACKBOX MEASURED STATS:");
       StressCreator.createStress(bean);

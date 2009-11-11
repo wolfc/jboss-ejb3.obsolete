@@ -25,11 +25,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
+import javax.annotation.Resource;
 import javax.interceptor.Interceptors;
 
 import org.jboss.aop.Advised;
 import org.jboss.ejb3.interceptors.ManagedObject;
-import org.jboss.ejb3.interceptors.direct.DirectContainer;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.IndirectContainer;
 import org.jboss.ejb3.sandbox.interceptorcontainer.impl.ContainersInterceptorsInterceptor;
 
@@ -38,15 +39,18 @@ import org.jboss.ejb3.sandbox.interceptorcontainer.impl.ContainersInterceptorsIn
  * on a class.
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 @Interceptors(ContainersInterceptorsInterceptor.class)
 @ManagedObject
-public class InterceptorContainer implements AnnotatedElement, IndirectContainer<InterceptorContainer, DirectContainer<InterceptorContainer>>
+public class InterceptorContainer implements AnnotatedElement, IndirectContainer<InterceptorContainer, InterceptorContainerContainer>
 {
    private Class<?> beanClass;
    private Object[] interceptors;
-   private DirectContainer<InterceptorContainer> directContainer;
+   private InterceptorContainerContainer directContainer;
+   
+   // the bean context of this interceptor container instance
+   private BeanContext<InterceptorContainer> beanContext;
    
    private static final Method INVOKE_METHOD;
    
@@ -66,6 +70,12 @@ public class InterceptorContainer implements AnnotatedElement, IndirectContainer
       }
    }
    
+   public InterceptorContainer()
+   {
+      super();
+   }
+   
+   // this is not in EJB style
    public InterceptorContainer(Class<?> beanClass) throws Exception
    {
       assert beanClass != null;
@@ -92,6 +102,12 @@ public class InterceptorContainer implements AnnotatedElement, IndirectContainer
       return beanClass;
    }
    
+   @Resource(name="beanClass")
+   public void setBeanClass(Class<?> beanClass)
+   {
+      this.beanClass = beanClass;
+   }
+   
    public Object invoke(Method method, Object[] args) throws Throwable
    {
       //return new BeanClassInvocationContext(AroundInvoke.class, method, args).proceed();
@@ -103,7 +119,7 @@ public class InterceptorContainer implements AnnotatedElement, IndirectContainer
       {
          // I'm indirectly advised, let's delegate to the direct container
          Object arguments[] = { method, args };
-         return directContainer.invokeIndirect(this, INVOKE_METHOD, arguments);
+         return directContainer.invokeIndirect(beanContext, INVOKE_METHOD, arguments);
       }
       else
       {
@@ -113,7 +129,13 @@ public class InterceptorContainer implements AnnotatedElement, IndirectContainer
       }
    }
 
-   public void setDirectContainer(DirectContainer<InterceptorContainer> container)
+   public void setBeanContext(BeanContext<InterceptorContainer> beanContext)
+   {
+      assert beanContext.getInstance() == this;
+      this.beanContext = beanContext;
+   }
+   
+   public void setDirectContainer(InterceptorContainerContainer container)
    {
       assert container != null : "directContainer is null";
       this.directContainer = container;

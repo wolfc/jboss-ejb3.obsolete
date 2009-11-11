@@ -26,6 +26,7 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.test.sandbox.interceptorinterceptor.InterceptorInterceptorBean;
 import org.jboss.logging.Logger;
@@ -34,7 +35,7 @@ import org.jboss.logging.Logger;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class InterceptorInterceptorUnitTestCase extends TestCase
 {
@@ -51,6 +52,6 @@ public class InterceptorInterceptorUnitTestCase extends TestCase
       AspectXmlLoader.deployXML(url);
 
       DirectContainer<InterceptorInterceptorBean> container = new DirectContainer<InterceptorInterceptorBean>("InterceptorInterceptorBean", "InterceptorContainer", InterceptorInterceptorBean.class);
-      InterceptorInterceptorBean instance = container.construct();
+      BeanContext<InterceptorInterceptorBean> instance = container.construct();
    }
 }

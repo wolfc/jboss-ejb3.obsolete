@@ -28,6 +28,7 @@ import javax.naming.InitialContext;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
 import org.jboss.ejb3.test.sandbox.stateless.SimpleStatelessBean;
@@ -39,7 +40,7 @@ import org.jnp.server.SingletonNamingServer;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SimpleStatelessUnitTestCase extends TestCase
 {
@@ -59,7 +60,7 @@ public class SimpleStatelessUnitTestCase extends TestCase
       DirectContainer<InterceptorContainer> interceptorContainerContainer = new DirectContainer<InterceptorContainer>("FIXME", "InterceptorContainer", InterceptorContainer.class);
       Object args[] = { SimpleStatelessBean.class };
       Class<?> parameterTypes[] = { Class.class };
-      InterceptorContainer interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
+      BeanContext<InterceptorContainer> interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
       
       InitialContext ctx = new InitialContext();
       

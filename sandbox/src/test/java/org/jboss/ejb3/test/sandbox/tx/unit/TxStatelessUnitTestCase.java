@@ -29,6 +29,7 @@ import javax.transaction.TransactionManager;
 import junit.framework.TestCase;
 
 import org.jboss.aop.AspectXmlLoader;
+import org.jboss.ejb3.interceptors.container.BeanContext;
 import org.jboss.ejb3.interceptors.direct.DirectContainer;
 import org.jboss.ejb3.sandbox.interceptorcontainer.InterceptorContainer;
 import org.jboss.ejb3.test.sandbox.tx.TxStatelessBean;
@@ -41,7 +42,7 @@ import org.objectweb.jotm.Jotm;
  * Comment
  *
  * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision: $
+ * @version $Revision$
  */
 public class TxStatelessUnitTestCase extends TestCase
 {
@@ -69,7 +70,7 @@ public class TxStatelessUnitTestCase extends TestCase
       DirectContainer<InterceptorContainer> interceptorContainerContainer = new DirectContainer<InterceptorContainer>("FIXME", "InterceptorContainer", InterceptorContainer.class);
       Object args[] = { TxStatelessBean.class };
       Class<?> parameterTypes[] = { Class.class };
-      InterceptorContainer interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
+      BeanContext<InterceptorContainer> interceptorContainer = interceptorContainerContainer.construct(args, parameterTypes);
       
       TxStatelessLocal bean = (TxStatelessLocal) ctx.lookup("TxStatelessBean/local");
       assertNotNull(bean);

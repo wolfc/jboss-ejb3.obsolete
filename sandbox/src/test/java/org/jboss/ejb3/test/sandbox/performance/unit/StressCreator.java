@@ -63,7 +63,7 @@ public class StressCreator
          start = System.currentTimeMillis();
          try
          {
-            return calculator.calculatePi(8000);
+            return calculator.calculatePi(10000);
          }
          finally
          {
@@ -76,8 +76,8 @@ public class StressCreator
    {
       ExecutorService executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, Long.MAX_VALUE, NANOSECONDS,
             new SynchronousQueue<Runnable>());
-      Task tasks[] = new Task[100];
-      Future<BigDecimal> results[] = new Future[100];
+      Task tasks[] = new Task[75];
+      Future<BigDecimal> results[] = new Future[tasks.length];
       long start = System.currentTimeMillis();
       for (int i = 0; i < results.length; i++)
       {
@@ -119,9 +119,10 @@ public class StressCreator
             maxWaitQueue = Math.max(maxWaitQueue, waitQueue);
             maxExecution = Math.max(maxExecution, execution);
          }
-
-         System.out.println("Average wait queue " + ((totalWaitQueue / 100.0) / 1000.0));
-         System.out.println("Average execution " + ((totalExecution / 100.0) / 1000.0));
+         
+         double t = tasks.length;
+         System.out.println("Average wait queue " + ((totalWaitQueue / t) / 1000.0));
+         System.out.println("Average execution " + ((totalExecution / t) / 1000.0));
 
          System.out.println("Max wait queue " + (maxWaitQueue / 1000.0));
          System.out.println("Max execution " + (maxExecution / 1000.0));
