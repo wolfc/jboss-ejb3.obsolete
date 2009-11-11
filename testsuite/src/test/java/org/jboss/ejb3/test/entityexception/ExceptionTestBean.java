@@ -27,11 +27,11 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TransactionRequiredException;
-import javax.persistence.NoResultException;
 
 /**
  *
@@ -327,7 +327,7 @@ public class ExceptionTestBean implements ExceptionTest
       {
       }
       
-      query = manager.createQuery("from Person where id=? and name=?");
+      query = manager.createQuery("from Person where id=?1 and name=?2");
       query.setParameter(1, 1);
       query.setParameter(2, "XXX");
       try
