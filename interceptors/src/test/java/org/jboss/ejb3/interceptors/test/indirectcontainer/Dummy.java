@@ -1,9 +1,9 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2007, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
-  *
+ *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation; either version 2.1 of
@@ -19,16 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.ejb3.interceptors.direct;
+package org.jboss.ejb3.interceptors.test.indirectcontainer;
 
 /**
- * An indirect container has advises itself, but delegates to a direct container
- * to handle them.
- *
- * @author <a href="mailto:carlo.dewolf@jboss.com">Carlo de Wolf</a>
- * @version $Revision$
+ * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>
+ * @version $Revision: $
  */
-public interface IndirectContainer<T, C extends AbstractDirectContainer<T, C>>
+public interface Dummy
 {
-   void setDirectContainer(C container);
+   void hit();
 }

@@ -27,10 +27,10 @@ import java.lang.reflect.Method;
 import org.jboss.aop.ClassAdvisor;
 import org.jboss.aop.Domain;
 import org.jboss.aop.MethodInfo;
-import org.jboss.aop.joinpoint.MethodInvocation;
 import org.jboss.aop.util.MethodHashing;
 import org.jboss.ejb3.interceptors.container.AbstractContainer;
 import org.jboss.ejb3.interceptors.container.BeanContext;
+import org.jboss.ejb3.interceptors.container.ContainerMethodInvocation;
 import org.jboss.ejb3.interceptors.lang.ClassHelper;
 import org.jboss.ejb3.interceptors.registry.InterceptorRegistry;
 import org.jboss.logging.Logger;
@@ -75,8 +75,9 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
       Constructor<T> constructor = advisor.getClazz().getConstructor(parameterTypes);
       BeanContext<T> targetObject = construct(constructor, initargs);
       
-      if(targetObject instanceof IndirectContainer)
-         ((IndirectContainer<T, C>) targetObject).setDirectContainer((C) this);
+      // If we're advising an indirect container make it aware of this
+      if(targetObject.getInstance() instanceof IndirectContainer)
+         ((IndirectContainer<T, C>) targetObject.getInstance()).setDirectContainer((C) this);
       
       return targetObject;
    }
@@ -142,13 +143,13 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
    /**
     * Do not call, for use in indirect container implementations.
     */
-   public Object invokeIndirect(Object target, Method method, Object arguments[]) throws Throwable
+   public Object invokeIndirect(BeanContext<T> target, Method method, Object arguments[]) throws Throwable
    {
       long methodHash = MethodHashing.calculateHash(method);
       MethodInfo info = getAdvisor().getMethodInfo(methodHash);
       if(info == null)
          throw new IllegalArgumentException("method " + method + " is not under advisement by " + this);
-      MethodInvocation invocation = new MethodInvocation(info, info.getInterceptors())
+      ContainerMethodInvocation invocation = new ContainerMethodInvocation(info, info.getInterceptors())
       {
          @Override
          public Object invokeTarget() throws Throwable
@@ -158,7 +159,7 @@ public abstract class AbstractDirectContainer<T, C extends AbstractDirectContain
          }
       };
       invocation.setArguments(arguments);
-      invocation.setTargetObject(target);
+      invocation.setBeanContext(target);
       return invocation.invokeNext();
    }
 }
