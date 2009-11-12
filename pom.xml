@@ -22,6 +22,38 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>aopc</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <tasks>
+                <property name="cp" refid="maven.test.classpath"/>
+                
+                <echo message="aopc in action"/>
+                
+                <taskdef name="aopc" classname="org.jboss.aop.ant.AopC" classpath="${cp}"/>
+                
+                <aopc compilerclasspath="${cp}" verbose="true">
+                  <aoppath path="${basedir}/src/test/resources/ejbthree1950/jboss-aop.xml"/>
+                  <!--
+                  <classpath path="${project.build.directory}/tests-classes"/>
+                  <src path="${project.build.directory}/tests-classes"/>
+                  -->
+                  <classpath path="${project.build.testOutputDirectory}"/>
+                  <src path="${project.build.testOutputDirectory}"/>
+                  <include name="**/*FasadBean.class"/>
+                </aopc>
+              </tasks>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>

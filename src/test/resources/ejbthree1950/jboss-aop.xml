@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aop xmlns="urn:jboss:aop-beans:1.0">
+   <interceptor name="SLK" class="org.jboss.ejb3.interceptors.test.ejbthree1950.HandelseInterceptor" />
+
+   <bind pointcut="all(@org.jboss.ejb3.interceptors.test.ejbthree1950.SparloggHandelse)">
+      <interceptor-ref name="SLK" />
+   </bind>
+</aop>

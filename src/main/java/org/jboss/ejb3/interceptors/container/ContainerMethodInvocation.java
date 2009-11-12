@@ -83,6 +83,17 @@ public class ContainerMethodInvocation extends MethodInvocation
       super(newchain);
    }
 
+   /**
+    * Because ContainerMethodInvocation are virtual invocation the actual
+    * method is the advised method. This allows beans which are really advised to
+    * properly execute through their interceptors (EJBTHREE-1950).
+    */
+   @Override
+   public Method getActualMethod()
+   {
+      return getMethod();
+   }
+   
    public BeanContext<?> getBeanContext()
    {
       return beanContext;
