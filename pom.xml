@@ -25,7 +25,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-build</artifactId>
-  <version>1.0.7-SNAPSHOT</version>
+  <version>1.0.7</version>
   <packaging>pom</packaging>
   <name>JBoss EJB 3.0 Build POM</name>
   <url>http://labs.jboss.com/jbossejb3</url>
@@ -57,9 +57,9 @@
 
   <!-- SCM -->
   <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/trunk</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/trunk</url>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-1.0.7</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-1.0.7</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-build-1.0.7</url>
   </scm>
 
   <!-- Issues -->
