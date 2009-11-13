@@ -630,7 +630,7 @@
         <JPA.groupId>org.hibernate.persistence</JPA.groupId>
         <JPA.artifactId>jpa-api</JPA.artifactId>
         <JPA.version>2.0-cr-1</JPA.version>
-        <version.org.jboss.ejb3.jboss-ejb3-jpa-int>2.0.0-SNAPSHOT</version.org.jboss.ejb3.jboss-ejb3-jpa-int>
+        <version.org.jboss.ejb3.jboss-ejb3-jpa-int>2.0.0-alpha-1</version.org.jboss.ejb3.jboss-ejb3-jpa-int>
         <version.org.hibernate>3.5.0-Beta-2</version.org.hibernate>
         <version.org.hibernate.hibernate-entitymanager>3.5.0-Beta-2</version.org.hibernate.hibernate-entitymanager>
       </properties>
