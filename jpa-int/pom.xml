@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.8-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
