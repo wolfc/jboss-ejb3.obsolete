@@ -23,9 +23,6 @@
       <!-- Name of the partition being built -->
       <property name="partitionName">Ejb3IsLocalTestPartition</property>
          
-      <!-- The address used to determine the node name -->
-      <property name="nodeAddress">${jboss.bind.address}</property>
-              
       <!-- Max time (in ms) to wait for state transfer to complete. Increase for large states -->
       <property name="stateTransferTimeout">30000</property>
               
