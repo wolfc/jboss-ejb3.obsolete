@@ -58,6 +58,8 @@ import org.jboss.ejb3.annotation.RemoteBindings;
 import org.jboss.ejb3.common.registrar.spi.Ejb3Registrar;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
 import org.jboss.ejb3.common.registrar.spi.NotBoundException;
+import org.jboss.ejb3.core.proxy.spi.CurrentRemoteProxyFactory;
+import org.jboss.ejb3.core.proxy.spi.EJB2RemoteProxyFactory;
 import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.endpoint.SessionFactory;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
@@ -703,6 +705,8 @@ public abstract class SessionContainer extends EJBContainer implements Invokable
       Method unadvisedMethod = info.getUnadvisedMethod();
       if(unadvisedMethod.getName().equals("getEJBHome"))
       {
+         if(CurrentRemoteProxyFactory.isSet())
+            return CurrentRemoteProxyFactory.get(EJB2RemoteProxyFactory.class).createHome();
          return this.getInitialContext().lookup(this.getMetaData().getHomeJndiName());
       }
       if(unadvisedMethod.getName().equals("getPrimaryKey"))

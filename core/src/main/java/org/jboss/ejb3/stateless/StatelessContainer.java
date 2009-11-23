@@ -58,6 +58,8 @@ import org.jboss.ejb3.annotation.RemoteBinding;
 import org.jboss.ejb3.annotation.RemoteHomeBinding;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.core.proxy.spi.CurrentRemoteProxyFactory;
+import org.jboss.ejb3.core.proxy.spi.EJB2RemoteProxyFactory;
 import org.jboss.ejb3.proxy.clustered.objectstore.ClusteredObjectStoreBindings;
 import org.jboss.ejb3.proxy.factory.ProxyFactoryHelper;
 import org.jboss.ejb3.proxy.impl.EJBMetaDataImpl;
@@ -473,28 +475,36 @@ public class StatelessContainer extends SessionSpecContainer
       Method unadvisedMethod = info.getUnadvisedMethod();
       if (unadvisedMethod.getName().equals("getHandle"))
       {
-         // Get JNDI Registrar
-         JndiSessionRegistrarBase slsbJndiRegistrar = this.getJndiRegistrar();
-
-         // Determine if local/remote
-         boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
+         EJBObject proxy;
+         if(CurrentRemoteProxyFactory.isSet())
+         {
+            proxy = CurrentRemoteProxyFactory.get(EJB2RemoteProxyFactory.class).create(null);
+         }
+         else
+         {
+            // Get JNDI Registrar
+            JndiSessionRegistrarBase slsbJndiRegistrar = this.getJndiRegistrar();
+   
+            // Determine if local/remote
+            boolean isLocal = EJBLocalObject.class.isAssignableFrom(unadvisedMethod.getDeclaringClass());
+            
+            // Get the metadata
+            JBossSessionBeanMetaData smd = this.getMetaData();
+   
+            // Get the appropriate JNDI Name
+            String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
+   
+            // Find the Proxy Factory Key for this SLSB
+            String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
+   
+            // Lookup the Proxy Factory in the Object Store
+            StatelessSessionProxyFactoryBase proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
+                  StatelessSessionProxyFactoryBase.class);
+   
+            // Create a new EJB2.x Proxy
+            proxy = (EJBObject) proxyFactory.createProxyEjb2x();
+         }
          
-         // Get the metadata
-         JBossSessionBeanMetaData smd = this.getMetaData();
-
-         // Get the appropriate JNDI Name
-         String jndiName = isLocal ? smd.getLocalJndiName() : smd.getJndiName();
-
-         // Find the Proxy Factory Key for this SLSB
-         String proxyFactoryKey = slsbJndiRegistrar.getProxyFactoryRegistryKey(jndiName, smd, isLocal);
-
-         // Lookup the Proxy Factory in the Object Store
-         StatelessSessionProxyFactoryBase proxyFactory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey,
-               StatelessSessionProxyFactoryBase.class);
-
-         // Create a new EJB2.x Proxy
-         EJBObject proxy = (EJBObject) proxyFactory.createProxyEjb2x();
-
          // Create a Handle
          StatelessHandleRemoteImpl handle = new StatelessHandleRemoteImpl(proxy);
 
@@ -507,6 +517,10 @@ public class StatelessContainer extends SessionSpecContainer
       }
       else if (unadvisedMethod.getName().equals("getEJBHome"))
       {
+         if(CurrentRemoteProxyFactory.isSet())
+         {
+            return CurrentRemoteProxyFactory.get(EJB2RemoteProxyFactory.class).createHome();
+         }
          HomeHandleImpl homeHandle = null;
 
          RemoteBinding remoteBindingAnnotation = this.getAnnotation(RemoteBinding.class);
