@@ -109,6 +109,10 @@
   <property name="location.client.lib.jbossxb" value="${location.client.lib}/jboss-xml-binding.jar"/>
   <property name="location.client.lib.jbossws-spi" value="${location.client.lib}/jbossws-spi.jar"/>
   <property name="location.client.lib.jboss-metadata" value="${location.client.lib}/jboss-metadata.jar"/>
+	<property name="location.client.lib.jboss-metadata-ejb" value="${location.client.lib}/jboss-metadata-ejb.jar"/>
+	<property name="location.client.lib.jboss-metadata-war" value="${location.client.lib}/jboss-metadata-war.jar"/>
+	<property name="location.client.lib.jboss-metadata-ear" value="${location.client.lib}/jboss-metadata-ear.jar"/>
+	<property name="location.client.lib.jboss-metadata-common" value="${location.client.lib}/jboss-metadata-common.jar"/>
   <property name="location.client.lib.jboss-jaxws" value="${location.client.lib}/jboss-jaxws.jar"/>
   <property name="location.client.lib.jbossws-client" value="${location.client.lib}/jbossws-client.jar"/>
   <property name="location.client.lib.jboss-mdr" value="${location.client.lib}/jboss-mdr.jar"/>
@@ -323,6 +327,12 @@
     <pathelement path="${location.client.lib.jbossxb}" />
     <pathelement path="${location.client.lib.jbossws-spi}" />
     <pathelement path="${location.client.lib.jboss-metadata}" />
+  	<!-- In AS-6, jboss metadata is split into various components, with
+  	each component having it's own jar -->
+  	<pathelement path="${location.client.lib.jboss-metadata-ejb}" />
+	<pathelement path="${location.client.lib.jboss-metadata-war}" />
+  	<pathelement path="${location.client.lib.jboss-metadata-ear}" />
+  	<pathelement path="${location.client.lib.jboss-metadata-common}" />
     <pathelement path="${location.client.lib.jboss-jaxws}" />
     
   </path>
