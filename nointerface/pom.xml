@@ -6,7 +6,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
   <parent>
     <groupId>org.jboss.ejb3</groupId>
     <artifactId>jboss-ejb3-build</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.8-SNAPSHOT</version>
     <relativePath>../build/pom.xml</relativePath>
   </parent>
 
@@ -281,42 +281,43 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         </dependency>
 
 
-    <!-- Support for deploying containers in test -->
-    <!-- FIXME: this must be ejb3-deployers, because else we get a recursive dependency -->
-    <!-- FIXME: this also implies the use of Java 6 -->
-    <dependency>
-      <groupId>org.jboss.ejb3</groupId>
-      <artifactId>jboss-ejb3-embedded</artifactId>
-      <version>1.0.0-Alpha-2</version>
-      <scope>test</scope>
-      <exclusions>
-        <!-- comes in through org.jboss.aop:jboss-aop-asintegration-core -->
-        <exclusion>
-          <groupId>org.jboss.aop</groupId>
-          <artifactId>jboss-aop-deployer-jdk50</artifactId>
-        </exclusion>
-        <!-- Embedded uses new bootstrap impls; leaking makes collisions between legacy and new -->
-        <exclusion>
-          <groupId>org.jboss.bootstrap</groupId>
-          <artifactId>jboss-bootstrap-impl-mc</artifactId>
-        </exclusion>
-        <!-- core is brought in separately instead of from embedded -->
-        <exclusion>
+        <!-- Support for deploying containers in test -->
+        <!-- FIXME: this must be ejb3-deployers, because else we get a recursive dependency -->
+        <!-- FIXME: this also implies the use of Java 6 -->
+        <dependency>
           <groupId>org.jboss.ejb3</groupId>
-          <artifactId>jboss-ejb3-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.jboss.deployers</groupId>
-          <artifactId>jboss-deployers-impl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+          <artifactId>jboss-ejb3-embedded</artifactId>
+          <version>1.0.0-Alpha-2</version>
+          <scope>test</scope>
+          <exclusions>
+            <!-- comes in through org.jboss.aop:jboss-aop-asintegration-core -->
+            <exclusion>
+              <groupId>org.jboss.aop</groupId>
+              <artifactId>jboss-aop-deployer-jdk50</artifactId>
+            </exclusion>
+            <!-- Embedded uses new bootstrap impls; leaking makes collisions between legacy and new -->
+            <exclusion>
+              <groupId>org.jboss.bootstrap</groupId>
+              <artifactId>jboss-bootstrap-impl-mc</artifactId>
+            </exclusion>
+            <!-- core is brought in separately instead of from embedded -->
+            <exclusion>
+              <groupId>org.jboss.ejb3</groupId>
+              <artifactId>jboss-ejb3-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.jboss.deployers</groupId>
+              <artifactId>jboss-deployers-impl</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>org.jboss.ejb3</groupId>
             <artifactId>jboss-ejb3-core</artifactId>
-            <version>1.1.19-SNAPSHOT</version>
+            <version>1.1.21</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
 </project>

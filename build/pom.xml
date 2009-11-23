@@ -623,6 +623,33 @@
         <version.org.hibernate.hibernate-entitymanager>3.5.0-Beta-2</version.org.hibernate.hibernate-entitymanager>
       </properties>
     </profile>
+
+    <profile>
+        <id>create-package</id>
+        <build>
+            <plugins>
+                <!-- Assembly Plugin -->
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.2-beta-4</version>
+                    <executions>
+                      <execution>
+                        <id>make-assembly</id> 
+                        <phase>package</phase>
+                        <goals>
+                          <goal>single</goal>
+                        </goals>
+                      </execution>
+                    </executions>
+                    <configuration>
+                      <descriptors>
+                        <descriptor>src/assembly/package-assembler.xml</descriptor>
+                      </descriptors>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>              
+    </profile>    
   </profiles>
 
 </project>
