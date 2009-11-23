@@ -20,6 +20,8 @@ import org.jboss.ejb3.Ejb3Deployment;
 import org.jboss.ejb3.ThreadLocalStack;
 import org.jboss.ejb3.common.lang.SerializableMethod;
 import org.jboss.ejb3.common.registrar.spi.Ejb3RegistrarLocator;
+import org.jboss.ejb3.core.proxy.spi.CurrentRemoteProxyFactory;
+import org.jboss.ejb3.core.proxy.spi.RemoteProxyFactory;
 import org.jboss.ejb3.endpoint.Endpoint;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionProxyFactory;
 import org.jboss.ejb3.proxy.impl.factory.session.SessionSpecProxyFactory;
@@ -412,6 +414,14 @@ public abstract class SessionSpecContainer extends SessionContainer implements I
                + this.getEjbName());
       }
 
+      // Allow override of the remote proxy
+      if(!isLocal)
+      {
+         RemoteProxyFactory remoteProxyFactory = CurrentRemoteProxyFactory.get();
+         if(remoteProxyFactory != null)
+            return remoteProxyFactory.create(null);
+      }
+      
       // Lookup
       String proxyFactoryKey = this.getJndiRegistrar().getProxyFactoryRegistryKey(jndiName, smd, isLocal);
       Object factory = Ejb3RegistrarLocator.locateRegistrar().lookup(proxyFactoryKey);
