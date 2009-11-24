@@ -20,6 +20,7 @@
           resource: loads from the classloaders conf/ is the first classloader -->
      <attribute name="KeyStoreURL">localhost.keystore</attribute>
      <attribute name="KeyStorePass">opensource</attribute>
+     <depends>jboss.security:service=JaasSecurityManager</depends>
   </mbean>
 
    <!-- The Connector is the core component of the remoting server service. -->
