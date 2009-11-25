@@ -64,42 +64,44 @@ public class EJBContextHelper
       
       Principal callerPrincipal = null;
       
-      if(sc == null)
-      {
-         String unauth = domain.unauthenticatedPrincipal();
-         if(unauth != null && unauth.length() > 0)
-         if(domain.unauthenticatedPrincipal() != null)
-           callerPrincipal = new SimplePrincipal(unauth);             
-      }
-      else
+      // if we have the security context, then try to
+      // get the caller principal out of that
+      if (sc != null)
       {
          AbstractEJBAuthorizationHelper helper;
          try
          {
-            helper = SecurityHelperFactory.getEJBAuthorizationHelper(sc); 
+            helper = SecurityHelperFactory.getEJBAuthorizationHelper(sc);
             helper.setPolicyRegistration(getPolicyRegistration());
          }
          catch (Exception e)
          {
             throw new RuntimeException(e);
          }
-         callerPrincipal = helper.getCallerPrincipal(); 
+         callerPrincipal = helper.getCallerPrincipal();
+
+         if (callerPrincipal == null)
+         {
+            //try the incoming principal
+            callerPrincipal = sc.getUtil().getUserPrincipal();
+            if (rm != null)
+               callerPrincipal = rm.getPrincipal(callerPrincipal);
+         }
       }
-      
-      if(callerPrincipal == null)
+      // either security context was absent or
+      // could not get the caller principal from security context.
+      // So let's try the unauthenticated principal, if the domain
+      // is present
+      if (callerPrincipal == null)
       {
-         //try the incoming principal
-         callerPrincipal = sc.getUtil().getUserPrincipal();
-         if(rm != null)
-            callerPrincipal = rm.getPrincipal(callerPrincipal);
-      } 
-      
-      if(callerPrincipal == null)
-      {
-         String unauth = domain.unauthenticatedPrincipal();
-         if(unauth != null && unauth.length() > 0)
-         if(domain.unauthenticatedPrincipal() != null)
-           callerPrincipal = new SimplePrincipal(unauth);
+         if (domain != null)
+         {
+            String unauth = domain.unauthenticatedPrincipal();
+            if (unauth != null && unauth.length() > 0)
+            {
+               callerPrincipal = new SimplePrincipal(unauth);
+            }
+         }
       }
       return callerPrincipal; 
    } 
