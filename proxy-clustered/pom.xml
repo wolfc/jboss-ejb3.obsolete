@@ -13,7 +13,7 @@
   <!-- Artifact Configuration -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-proxy-clustered</artifactId>
-  <version>1.0.3-SNAPSHOT</version>
+  <version>1.0.3</version>
   <name>JBoss EJB 3.0 Clustered Proxy</name>
   <description>JBoss EJB3 Clustered Proxy Component</description>
   <url>http://www.jboss.org/jbossejb3</url>
@@ -161,4 +161,10 @@
     </dependency> 
 
   </dependencies>
+
+  <scm>
+    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.3</connection>
+    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.3</developerConnection>
+    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-proxy-clustered-1.0.3</url>
+  </scm>
 </project>
