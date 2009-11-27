@@ -14,7 +14,7 @@
   <!-- Artifact Information -->
   <groupId>org.jboss.ejb3</groupId>
   <artifactId>jboss-ejb3-mc-int</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3-SNAPSHOT</version>
   <name>JBoss EJB 3.x MicroContainer Integration</name>
   <description>JBoss EJB 3.x Integration with JBoss Microcontainer</description>
   <url>http://www.jboss.org/jbossejb3/</url>
@@ -82,10 +82,4 @@
     </dependency>
 
   </dependencies>
-
-  <scm>
-    <connection>scm:svn:http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-mc-int-1.0.2</connection>
-    <developerConnection>scm:svn:https://svn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-mc-int-1.0.2</developerConnection>
-    <url>http://anonsvn.jboss.org/repos/jbossas/projects/ejb3/tags/jboss-ejb3-mc-int-1.0.2</url>
-  </scm>
 </project>
