@@ -29,9 +29,9 @@
     into the AS
 
      -->
-    <version.org.jboss.ejb3_jboss.ejb3>1.1.22-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3>
-    <version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>1.0.2-SNAPSHOT</version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>
-    <version.org.jboss.ejb3_mc.int>1.0.2-SNAPSHOT</version.org.jboss.ejb3_mc.int>
+    <version.org.jboss.ejb3_jboss.ejb3>1.1.22</version.org.jboss.ejb3_jboss.ejb3>
+    <version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>1.0.2</version.org.jboss.ejb3_jboss.ejb3.metrics.deployer>
+    <version.org.jboss.ejb3_mc.int>1.0.2</version.org.jboss.ejb3_mc.int>
 
   </properties>
 
