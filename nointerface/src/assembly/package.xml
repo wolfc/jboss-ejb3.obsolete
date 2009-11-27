@@ -23,7 +23,7 @@
 <!--  
     JBoss EJB3.1 No-Interface package
 -->
-<package name="jboss-ejb3-nointerface" version="1.0.0-alpha-1" xmlns="http://www.jboss.org/schema">
+<package name="jboss-ejb3-nointerface" version="1.0.0-alpha-1" xmlns="org/jboss/packagemanager/package">
   
   <!-- Place the ejb3-nointerface jar in common/lib of AS -->
   <file name="jboss-ejb3-nointerface.jar" dest-path="common/lib" type="library"/>
