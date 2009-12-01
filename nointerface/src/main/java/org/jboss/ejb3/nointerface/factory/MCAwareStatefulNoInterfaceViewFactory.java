@@ -26,7 +26,6 @@ import java.lang.reflect.InvocationHandler;
 
 import org.jboss.dependency.spi.ControllerState;
 import org.jboss.ejb3.endpoint.Endpoint;
-import org.jboss.ejb3.nointerface.NoInterfaceEJBViewFactoryBase;
 import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
 import org.jboss.kernel.spi.dependency.KernelControllerContext;
 import org.jboss.logging.Logger;

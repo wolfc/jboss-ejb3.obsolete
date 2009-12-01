@@ -26,8 +26,8 @@ import java.lang.reflect.InvocationHandler;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
-import org.jboss.ejb3.nointerface.NoInterfaceEJBViewFactoryBase;
-import org.jboss.ejb3.nointerface.NoInterfaceViewFactory;
+import org.jboss.ejb3.nointerface.factory.NoInterfaceEJBViewFactoryBase;
+import org.jboss.ejb3.nointerface.factory.NoInterfaceViewFactory;
 import org.jboss.ejb3.nointerface.invocationhandler.MCAwareNoInterfaceViewInvocationHandler;
 import org.jboss.logging.Logger;
 import org.jboss.metadata.ejb.jboss.JBossSessionBeanMetaData;

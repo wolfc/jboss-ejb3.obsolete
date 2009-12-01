@@ -24,43 +24,13 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
   <properties>
       <version.org.jboss.deployers>2.0.8.GA</version.org.jboss.deployers>
       <version.org.jboss.microcontainer>2.0.8.GA</version.org.jboss.microcontainer>
-      <version.org.jboss_jboss-vfs>2.1.2.GA</version.org.jboss_jboss-vfs>
       <version.org.jboss_jbossxb>2.0.1.GA</version.org.jboss_jbossxb>
       <version.javassist>3.7.1.GA</version.javassist>
       <version.org.jboss.ejb3_jboss-ejb3-test>1.0.0</version.org.jboss.ejb3_jboss-ejb3-test>
-      <version.org.jboss.ejb3_jboss-ejb3-deployers>1.0.1</version.org.jboss.ejb3_jboss-ejb3-deployers>
-      <version.org.jboss.ejb3_jboss-ejb3-endpoint-deployer>0.1.4</version.org.jboss.ejb3_jboss-ejb3-endpoint-deployer>
-      <version.org.jboss.bootstrap_jboss-bootstrap>1.0.0-Beta-1</version.org.jboss.bootstrap_jboss-bootstrap>
-      <version.org.jboss.bootstrap_jboss-bootstrap-impl-mc>2.0.0-alpha-1</version.org.jboss.bootstrap_jboss-bootstrap-impl-mc>
   </properties>
 
  <build>
-  <!--  we use the target/test-classes as our root of all the
-  deployments for our test cases. We cannot have other resources in that
-  folder which can cause deployment exceptions. So we create a new target/test-resources folder
-  where all resources (except) jndi.properties will be copied to during mvn -->
-  <testResources>
-    <!--  Copy everything except jndi.properties to target/test-resources -->
-    <testResource>
-      <!-- Relative to tests-classes -->
-      <targetPath>../test-resources</targetPath>
-      <directory>${basedir}/src/test/resources</directory>
-      <excludes>
-       <exclude>jndi.properties</exclude>
-      </excludes>
-    </testResource>
-    <!-- Copy jndi.properties to target/tests-classes, so that its available
-    first in the list of classpath.
-     -->
-    <testResource>
-      <!-- Relative to tests-classes -->
-      <directory>${basedir}/src/test/resources</directory>
-      <includes>
-       <include>jndi.properties</include>
-      </includes>
-    </testResource>
-
-   </testResources>
+ 
 
    <plugins>
         <!-- We have a dependency on @LocalBean which comes from ejb3-api (=JDK6) -->
@@ -88,10 +58,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-            <!-- Add our specific target/test-resources to the test classpath -->
-              <additionalClasspathElements>
-                    <additionalClasspathElement>${basedir}/target/test-resources</additionalClasspathElement>
-              </additionalClasspathElements>
+            
               <!-- Use Java6 -->
               <forkMode>once</forkMode>
               <jvm>${JDK6_HOME}/bin/java</jvm>
@@ -141,14 +108,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
      <scope>test</scope>
     </dependency>
 
-    <!-- Bootstrap -->
-    <dependency>
-      <groupId>org.jboss.bootstrap</groupId>
-      <artifactId>jboss-bootstrap-impl-mc</artifactId>
-      <version>${version.org.jboss.bootstrap_jboss-bootstrap-impl-mc}</version>
-      <scope>test</scope>
-    </dependency>
-
+    
     <!-- MC -->
     <dependency>
       <groupId>org.jboss.microcontainer</groupId>
@@ -222,35 +182,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <version>${version.org.jboss.deployers}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-vfs</artifactId>
-      <version>${version.org.jboss_jboss-vfs}</version>
-      <scope>test</scope>
-    </dependency>
-
-  <!-- EJB3 deployers only for test scope-->
-   <dependency>
-    <groupId>org.jboss.ejb3</groupId>
-    <artifactId>jboss-ejb3-deployers</artifactId>
-    <version>${version.org.jboss.ejb3_jboss-ejb3-deployers}</version>
-    <scope>test</scope>
-   </dependency>
-
-   <!--  EJB3 Endpoint deployers for test scope -->
-   <dependency>
-    <groupId>org.jboss.ejb3</groupId>
-    <artifactId>jboss-ejb3-endpoint-deployer</artifactId>
-    <version>${version.org.jboss.ejb3_jboss-ejb3-endpoint-deployer}</version>
-    <scope>test</scope>
-   </dependency>
-<!--
-   <dependency>
-    <groupId>trove</groupId>
-    <artifactId>trove</artifactId>
-    <scope>runtime</scope>
-   </dependency>
--->
+    
     <dependency>
       <groupId>org.jboss.ejb3</groupId>
       <artifactId>jboss-ejb3-endpoint</artifactId>
@@ -262,18 +194,10 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
       <dependency>
        <groupId>org.jboss.ejb3</groupId>
        <artifactId>jboss-ejb3-api</artifactId>
-       <version>3.1.0-SNAPSHOT</version>
+       <version>3.1.1-SNAPSHOT</version>
       </dependency>
 
-     <!-- Transaction support for tests -->
-     <!-- This jboss-ejb3-jta-profile dependency provides a jboss-beans.xml through which the transaction manager gets deployed -->
-      <dependency>
-          <groupId>org.jboss.ejb3</groupId>
-          <artifactId>jboss-ejb3-jta-profile</artifactId>
-          <version>0.1.0-SNAPSHOT</version>
-          <scope>test</scope>
-        </dependency>
-
+    
         <dependency>
           <groupId>org.jboss.naming</groupId>
           <artifactId>jnp-client</artifactId>
@@ -281,43 +205,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
         </dependency>
 
 
-        <!-- Support for deploying containers in test -->
-        <!-- FIXME: this must be ejb3-deployers, because else we get a recursive dependency -->
-        <!-- FIXME: this also implies the use of Java 6 -->
-        <dependency>
-          <groupId>org.jboss.ejb3</groupId>
-          <artifactId>jboss-ejb3-embedded</artifactId>
-          <version>1.0.0-Alpha-2</version>
-          <scope>test</scope>
-          <exclusions>
-            <!-- comes in through org.jboss.aop:jboss-aop-asintegration-core -->
-            <exclusion>
-              <groupId>org.jboss.aop</groupId>
-              <artifactId>jboss-aop-deployer-jdk50</artifactId>
-            </exclusion>
-            <!-- Embedded uses new bootstrap impls; leaking makes collisions between legacy and new -->
-            <exclusion>
-              <groupId>org.jboss.bootstrap</groupId>
-              <artifactId>jboss-bootstrap-impl-mc</artifactId>
-            </exclusion>
-            <!-- core is brought in separately instead of from embedded -->
-            <exclusion>
-              <groupId>org.jboss.ejb3</groupId>
-              <artifactId>jboss-ejb3-core</artifactId>
-            </exclusion>
-            <exclusion>
-              <groupId>org.jboss.deployers</groupId>
-              <artifactId>jboss-deployers-impl</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jboss.ejb3</groupId>
-            <artifactId>jboss-ejb3-core</artifactId>
-            <version>1.1.21</version>
-            <scope>test</scope>
-        </dependency>
+        
     </dependencies>
     
 </project>

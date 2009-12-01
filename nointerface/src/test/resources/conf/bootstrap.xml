@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bootstrap xmlns="urn:jboss:bootstrap:1.0">
-
-   <url>bootstrap/naming.xml</url>
-   <url>bootstrap/jmx.xml</url>
-   <url>bootstrap/maindeployer.xml</url>
-
-</bootstrap>

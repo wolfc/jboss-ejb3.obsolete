@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<deployment xmlns="urn:jboss:bean-deployer:2.0">
-   
-   <bean name="EmbeddedCachedConnectionManagerBridge" class="org.jboss.ejb3.embedded.connectionmanager.EmbeddedCachedConnectionManager"/>
-   
-   <bean name="TimerServiceFactory" class="org.jboss.ejb3.nointerface.test.common.MockTimerServiceFactory"/>
-   
-</deployment>

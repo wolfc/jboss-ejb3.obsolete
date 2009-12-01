@@ -62,6 +62,10 @@
   <!-- ================ -->
 
   <category name="org.jboss">
+    <priority value="INFO"/>
+  </category>
+
+  <category name="org.jboss.embedded">
     <priority value="DEBUG"/>
   </category>
 
