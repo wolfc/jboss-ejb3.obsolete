@@ -1,0 +1,36 @@
+<project name="Package Script for JBoss EJB3 API package" default="noop">
+
+	<!--
+		For standalone testing (outside a package manager) the following JBOSS_HOME, PM_TMP_DIR have been set
+		within this script. However, these property values will be overridden when run within a package manager
+	-->
+	<property environment="env"/>
+	<property name="JBOSS_HOME" value="${env.JBOSS_HOME}"/>
+	<property name="PM_TMP_DIR" value="${env.PM_TMP_DIR}"/>
+	<!-- Test properties end here -->
+	
+	<property name="jboss.javaee.jar" value="${JBOSS_HOME}/common/lib/jboss-javaee.jar" />
+	<property name="jboss.javaee.unpacked.dir" value="${PM_TMP_DIR}/jboss-javaee-unpacked"/>
+	<property name="jboss.javaee.jar.backup" value="${JBOSS_HOME}/common/lib/jboss-javaee.jar.orig"/>
+	
+	<target name="noop"/>
+	
+	
+	<target name="pre-install" description="Runs any pre-install steps during the installation of the JBoss EJB3 API package">
+		<!-- Create a backup of jboss-javaee.jar (which we are going to repackage) -->
+		<copy file="${jboss.javaee.jar}" tofile="${jboss.javaee.jar.backup}" />
+		
+		<!-- Now unpack jboss-javaee.jar and repackage it without the javax.ejb.* package -->
+		<delete dir="${jboss.javaee.unpacked.dir}" failonerror="false"/>
+		<unjar src="${jboss.javaee.jar}" dest="${jboss.javaee.unpacked.dir}"/>
+		<jar destfile="${jboss.javaee.jar}" basedir="${jboss.javaee.unpacked.dir}" excludes="javax/ejb/**/*"/>
+			
+	</target>
+	
+	<target name="post-uninstall" description="Runs any post-uninstall steps during the uninstallation of JBoss EJB3 API package">
+		<!-- Overwrite the modified jboss-javaee.jar with the backed up file
+			and delete the backed up file -->
+		<copy file="${jboss.javaee.jar.backup}" tofile="${jboss.javaee.jar}" overwrite="true"/>
+		<delete file="${jboss.javaee.jar.backup}"/>
+	</target>
+</project>
