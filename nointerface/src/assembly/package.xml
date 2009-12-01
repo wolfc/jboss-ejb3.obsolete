@@ -23,7 +23,7 @@
 <!--  
     JBoss EJB3.1 No-Interface package
 -->
-<package name="jboss-ejb3-nointerface" version="1.0.0-alpha-1" xmlns="org/jboss/packagemanager/package">
+<package name="org.jboss.ejb3:jboss-ejb3-nointerface" version="1.0.0-alpha-1" xmlns="org/jboss/packagemanager/package">
   
   <!-- Place the ejb3-nointerface jar in common/lib of AS -->
   <file name="jboss-ejb3-nointerface.jar" dest-path="common/lib" type="library"/>
@@ -32,5 +32,8 @@
   <file name="ejb31-nointerface-deployers-jboss-beans.xml" dest-path="server/default/deployers" type="config"/>
   <file name="ejb31-nointerface-deployers-jboss-beans.xml" dest-path="server/all/deployers" type="config"/>
   
+   <dependencies>
+        <unprocessed-dependencies file="ivy.xml"/>
+    </dependencies>
   
 </package>

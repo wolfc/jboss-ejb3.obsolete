@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/assembly-1.1.1.xsd"
 >
-  <id>jboss-ejb31-nointerface-package</id>
+  <id>package</id>
   <formats>
     <format>jar</format>
   </formats>
@@ -21,6 +21,7 @@
       <directory>src/assembly</directory>
       <includes>
         <include>package.xml</include>
+        <include>ivy.xml</include>
       </includes>
       <outputDirectory>.</outputDirectory>
     </fileSet>
