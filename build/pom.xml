@@ -626,6 +626,12 @@
 
     <profile>
         <id>create-package</id>
+        <!--  Activate this profile based on the availability of the package-assembler.xml -->
+        <activation>
+            <file>
+                <exists>src/assembly/package-assembler.xml</exists>
+            </file>
+        </activation>
         <build>
             <plugins>
                 <!-- Assembly Plugin -->
