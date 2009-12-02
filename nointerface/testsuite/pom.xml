@@ -16,12 +16,28 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
     <artifactId>jboss-ejb3-nointerface-testsuite</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     
+    <name>JBoss EJB3.1 no-interface Testsuite</name>
+    <description>Testsuite for JBoss EJB3.1 no-interface component</description>
+    
+    <properties>
+        <jboss.server.config>all</jboss.server.config>
+        <!--  The jboss.home "intermediate" property would not have been necessary, if
+        Maven's enforcer plugin supported enforcing setting of a "System" environment variable.
+        Details here http://markmail.org/message/jwfmtrjesuyag7bh
+
+        This intermediate property is a workaround to use in the enforcer plugin to ensure that
+        the JBOSS_HOME is set. And now that we have an intermediate jboss.home, let's use this throughout
+        the pom instead of JBOSS_HOME.
+         -->
+        <jboss.home>${JBOSS_HOME}</jboss.home>
+    </properties>
+    
     <build>
         <plugins>
-            <!--  Enforce JDK6 -->
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
+                    <!--  Enforce JDK6 -->
                     <execution>
                         <id>enforce-jdk6</id>
                         <goals>
@@ -32,6 +48,24 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
                                 <requireJavaVersion>
                                     <version>1.6</version>
                                 </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    
+                    <!--  Enforce presence of JBOSS_HOME during pre-intregation-test phase (i.e.
+                        during server startup -->
+                    <execution>
+                        <id>enforce-jboss-home</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <rules>
+                                <requireProperty>
+                                    <property>jboss.home</property>
+                                    <message>"Please set JBOSS_HOME"</message>
+                                </requireProperty>
                             </rules>
                         </configuration>
                     </execution>
@@ -48,6 +82,78 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/ma
                 </configuration>
             </plugin>
             
+            <!-- Skip unit tests and instead run integration-test. Before
+            running the integration test, start the server and after the 
+            tests, stop the server -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- skip unit test -->
+                    <skipTests>true</skipTests>
+                    <redirectTestOutputToFile>true</redirectTestOutputToFile>
+                    <printSummary>true</printSummary>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Override the earlier set value to now run integration tests -->
+                            <skipTests>false</skipTests>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            
+            
+            <!-- start the server in pre-integration-test phase -->
+            <plugin>
+                <groupId>org.jboss.maven.plugins.jbossas</groupId>
+                <artifactId>maven-jboss-as-control-plugin</artifactId>
+                <version>0.1.1</version>
+                <executions>
+                    <!--  Start AS -->
+                    <execution>
+                        <id>start-jboss-as</id>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <serverConfigName>${jboss.server.config}</serverConfigName>
+                            <jvmArgs>
+                                <jvmArg>-Xms128m</jvmArg>
+                                <jvmArg>-Xmx1024m</jvmArg>
+                                <jvmArg>-XX:MaxPermSize=256m</jvmArg>
+                                <jvmArg>-Dorg.jboss.resolver.warning=true</jvmArg>
+                                <jvmArg>-Dsun.rmi.dgc.client.gcInterval=3600000</jvmArg>
+                                <jvmArg>-Dsun.rmi.dgc.server.gcInterval=3600000</jvmArg>
+                                <!-- Temporary, till AS boots without this property JBAS-6744 -->
+                                <jvmArg>-Dxb.builder.useUnorderedSequence=true</jvmArg>
+                            </jvmArgs>
+                            <jboss.test.run>true</jboss.test.run>
+                        </configuration>
+                    </execution>
+                    
+                    <!--  Stop AS -->
+                    <execution>
+                        <id>stop-jboss-as</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <serverConfigName>${jboss.server.config}</serverConfigName>
+                            <jboss.test.run>true</jboss.test.run>
+                        </configuration>
+                    </execution>
+                    
+                </executions>
+            </plugin>
            
         </plugins>
     </build>
