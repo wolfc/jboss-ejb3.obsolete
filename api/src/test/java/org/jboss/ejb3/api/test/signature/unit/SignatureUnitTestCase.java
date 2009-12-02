@@ -24,7 +24,6 @@ package org.jboss.ejb3.api.test.signature.unit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -33,6 +32,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -106,6 +106,8 @@ public class SignatureUnitTestCase
    
    private static boolean equalSignature(Method m1, Method m2)
    {
+      // note that we're checking signatures, so the originating class loader is not a criteria
+      
       if(m1 == m2)
          return true;
       if(m1 == null || m2 == null)
@@ -125,18 +127,28 @@ public class SignatureUnitTestCase
       }
       Class<?> m1e[] = m1.getExceptionTypes();
       Class<?> m2e[] = m2.getExceptionTypes();
-      int j = 0;
+      int matched = 0;
       for(int i = 0; i < m1e.length; i++)
       {
-         if(i >= m2e.length || !m1e[i].getName().equals(m2e[i].getName()))
+         Comparator<Class<?>> c = new Comparator<Class<?>>()
          {
-            if(RuntimeException.class.isAssignableFrom(m1e[i]))
-               continue;
-            return false;
+            @Override
+            public int compare(Class<?> o1, Class<?> o2)
+            {
+               return o1.getName().compareTo(o2.getName());
+            }
+         };
+         int j = indexOf(m2e, m1e[i], c);
+         if(j == -1)
+         {
+            // So we can throw IllegalArgumentException whenever we want :-) (EJBContext.lookup)
+            if(!RuntimeException.class.isAssignableFrom(m1e[i]))
+               return false;
          }
-         j++;
+         else
+            matched++;
       }
-      if(j != m2e.length)
+      if(m2e.length != matched)
          return false;
       return true;
    }
@@ -172,6 +184,16 @@ public class SignatureUnitTestCase
          }
       }
       return null;
+   }
+   
+   private static <T> int indexOf(T[] a, T key, Comparator<? super T> c)
+   {
+      for(int i = 0; i < a.length; i++)
+      {
+         if(c.compare(a[i], key) == 0)
+            return i;
+      }
+      return -1;
    }
    
    @Test
@@ -213,11 +235,5 @@ public class SignatureUnitTestCase
             log.warn("class not found " + expected);
          }
       }
-   }
-   
-   @Test
-   public void testFail()
-   {
-      fail("test");
    }
 }

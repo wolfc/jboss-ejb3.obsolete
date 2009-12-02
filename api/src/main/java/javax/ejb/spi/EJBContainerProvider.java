@@ -23,8 +23,8 @@ package javax.ejb.spi;
 
 import java.util.Map;
 
-import javax.ejb.EJBContainer;
 import javax.ejb.EJBException;
+import javax.ejb.embeddable.EJBContainer;
 
 /**
  * The EJBContainerProvider SPI is used by the embeddable container bootstrap class to

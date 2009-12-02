@@ -21,11 +21,9 @@
  */
 package org.jboss.ejb3.api.test.embedded.unit;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
-import javax.ejb.EJBContainer;
+import javax.ejb.embeddable.EJBContainer;
 
 import org.junit.Test;
 
@@ -35,16 +33,6 @@ import org.junit.Test;
  */
 public class EJBContainerTestCase
 {
-   @Test
-   public void testCurrentEJBContainer()
-   {
-      EJBContainer container = EJBContainer.createEJBContainer();
-      assertNotNull(container);
-      assertEquals(container, EJBContainer.getCurrentEJBContainer());
-      container.close();
-      assertNull("CurrentEJBContainer should be null after close", EJBContainer.getCurrentEJBContainer());
-   }
-   
    @Test
    public void testSimpleCreate()
    {

@@ -23,7 +23,7 @@ package org.jboss.ejb3.api.test.embedded;
 
 import java.util.Map;
 
-import javax.ejb.EJBContainer;
+import javax.ejb.embeddable.EJBContainer;
 
 /**
  * @author <a href="mailto:cdewolf@redhat.com">Carlo de Wolf</a>

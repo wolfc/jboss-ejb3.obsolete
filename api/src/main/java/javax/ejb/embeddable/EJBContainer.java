@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package javax.ejb;
+package javax.ejb.embeddable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,10 +35,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.ejb.EJBException;
 import javax.ejb.spi.EJBContainerProvider;
 import javax.naming.Context;
-
-import org.jboss.ejb3.api.spi.EJBContainerWrapper;
 
 /**
  * Used to execute an EJB application in an embeddable container.
@@ -49,13 +48,9 @@ import org.jboss.ejb3.api.spi.EJBContainerWrapper;
  */
 public abstract class EJBContainer
 {
-   public static final String EMBEDDABLE_APP_NAME_PROPERTY = "javax.ejb.embeddable.appName";
-   public static final String EMBEDDABLE_INITIAL_PROPERTY = "javax.ejb.embeddable.initial";
-   @Deprecated
-   public static final String EMBEDDABLE_INITIAL = EMBEDDABLE_INITIAL_PROPERTY;
-   public static final String EMBEDDABLE_MODULES_PROPERTY = "javax.ejb.embeddable.modules";
-   
-   private static EJBContainerWrapper currentEJBContainer;
+   public static final String APP_NAME = "javax.ejb.embeddable.appName";
+   public static final String MODULES = "javax.ejb.embeddable.modules";
+   public static final String PROVIDER = "javax.ejb.embeddable.provider";
    
    private static final Pattern nonCommentPattern = Pattern.compile("^([^#]+)");
 
@@ -101,10 +96,7 @@ public abstract class EJBContainer
       {
          EJBContainer container = factory.createEJBContainer(properties);
          if(container != null)
-         {
-            currentEJBContainer = new EJBContainerWrapper(container);
-            return currentEJBContainer;
-         }
+            return container;
       }
       throw new EJBException("Unable to instantiate container with factories " + factories);
    }
@@ -167,20 +159,6 @@ public abstract class EJBContainer
       {
          throw new EJBException(e);
       }
-   }
-   
-   /**
-    * Retrieve the last EJBContainer instance to be successfully returned 
-    * from an invocation to a createEJBContainer method. 
-    * @return EJBContainer instance, or null if none exists or if the last EJBContainer 
-    *   instance has been closed.
-    */
-   @Deprecated
-   public static EJBContainer getCurrentEJBContainer()
-   {
-      if(currentEJBContainer != null && currentEJBContainer.isClosed())
-         return null;
-      return currentEJBContainer;
    }
    
    /**

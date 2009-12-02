@@ -40,6 +40,7 @@ public @interface ApplicationException
    /**
     * Indicates whether the application exception designation should apply to subclasses of 
     * the annotated exception class.
+    * @since 3.1
     */
    boolean inherited() default true;
    

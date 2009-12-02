@@ -23,8 +23,8 @@ package org.jboss.ejb3.api.test.embedded;
 
 import java.util.Map;
 
-import javax.ejb.EJBContainer;
 import javax.ejb.EJBException;
+import javax.ejb.embeddable.EJBContainer;
 import javax.ejb.spi.EJBContainerProvider;
 
 
